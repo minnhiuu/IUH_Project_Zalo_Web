@@ -1,5 +1,5 @@
 {
-  "name": "vite-app",
+  "name": "Bond Hub",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -13,11 +13,11 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
-    "@base-ui/react": "^1.0.0",
     "@fontsource-variable/roboto": "^5.2.9",
     "@hookform/resolvers": "^5.2.2",
     "@tailwindcss/vite": "^4.1.17",
     "@tanstack/react-query": "^5.90.17",
+    "@tanstack/react-query-devtools": "^5.91.2",
     "axios": "^1.13.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

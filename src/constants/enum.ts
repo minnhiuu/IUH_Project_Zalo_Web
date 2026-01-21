@@ -10,6 +10,18 @@ export const ROLE_LABELS: Record<Role, string> = {
   [Role.User]: 'Người dùng'
 }
 
+export const DeviceType = {
+  Web: 'WEB',
+  Mobile: 'MOBILE'
+} as const
+
+export type DeviceType = (typeof DeviceType)[keyof typeof DeviceType]
+
+export const DEVICE_TYPE_LABELS: Record<DeviceType, string> = {
+  [DeviceType.Web]: 'Web',
+  [DeviceType.Mobile]: 'Mobile'
+}
+
 export const Gender = {
   Male: 'MALE',
   Female: 'FEMALE'
