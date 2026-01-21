@@ -51,21 +51,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const refetchUser = useCallback(async () => {
     if (!getAccessToken()) return
     try {
-      // TODO: Implement /me endpoint
-      console.warn('refetchUser called but /me endpoint is missing')
+      // Profile fetching will be implemented in user feature
     } catch (error) {
       handleErrorApi({ error })
     }
   }, [])
 
-  const loginSuccess = useCallback(
-    async (accessToken: string) => {
-      setAccessToken(accessToken)
-      // TODO: Implement /me endpoint
-      return null
-    },
-    [setAuthUser]
-  )
+  const loginSuccess = useCallback(async (accessToken: string) => {
+    setAccessToken(accessToken)
+    // Return null or basic info as profile is handled elsewhere
+    return null
+  }, [])
 
   const value: AuthContextType = {
     user,

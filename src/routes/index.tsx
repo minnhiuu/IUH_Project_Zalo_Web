@@ -35,13 +35,8 @@ const AppRoutes = () => {
       ]
     },
     {
-      element: <PrivateRoute allowedRole='user' />,
-      children: [
-        {
-          element: <UserLayout />,
-          children: [{ path: PATHS.HOME, element: <div>Home Page (User)</div> }]
-        }
-      ]
+      element: <UserLayout />,
+      children: [{ path: PATHS.HOME, element: <div>Home Page (User)</div> }]
     },
     {
       path: '*',

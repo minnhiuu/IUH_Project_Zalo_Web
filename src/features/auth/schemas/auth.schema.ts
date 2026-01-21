@@ -28,3 +28,10 @@ export type AccountResponse = {
   createdBy: string
   lastModifiedBy: string
 }
+
+export const refreshRequestSchema = z.object({
+  refreshToken: z.string().optional(),
+  deviceId: z.string().min(1, 'Device ID không được để trống')
+})
+
+export type RefreshRequest = z.infer<typeof refreshRequestSchema>

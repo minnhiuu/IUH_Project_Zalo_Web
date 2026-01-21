@@ -1,6 +1,8 @@
 import axios, { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
 import { storage } from '../utils/local-storage'
 
+import { getDeviceId } from '../utils/device'
+
 export const getAccessToken = (): string | null => storage.get('access_token')
 
 export const setAccessToken = (token: string | null): void => {
@@ -31,22 +33,29 @@ const notifyRefreshSubscribers = (token: string | null) => {
 }
 
 const refreshAccessToken = async (): Promise<string | null> => {
-  const response = await axios.post(
-    `${import.meta.env.VITE_API_BASE_URL}/auth/refresh-token`,
-    {},
-    { withCredentials: true }
-  )
+  try {
+    const response = await axios.post(
+      `${import.meta.env.VITE_API_BASE_URL}/auth/refresh`,
+      {
+        deviceId: getDeviceId()
+        // refreshToken is handled via cookies on backend, but if needed we can add here
+      },
+      { withCredentials: true }
+    )
 
-  const newToken = response.data?.data?.accessToken ?? null
-  setAccessToken(newToken)
-  return newToken
+    const newToken = response.data?.data?.accessToken ?? null
+    setAccessToken(newToken)
+    return newToken
+  } catch {
+    return null
+  }
 }
 
 http.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const isAuthEndpoint =
     config.url?.includes('/auth/login') ||
     config.url?.includes('/auth/register') ||
-    config.url?.includes('/auth/refresh-token')
+    config.url?.includes('/auth/refresh')
 
   if (isAuthEndpoint) return config
 
@@ -70,7 +79,7 @@ http.interceptors.response.use(
     const isAuthEndpoint =
       originalRequest.url?.includes('/auth/login') ||
       originalRequest.url?.includes('/auth/register') ||
-      originalRequest.url?.includes('/auth/refresh-token')
+      originalRequest.url?.includes('/auth/refresh')
 
     if (isAuthEndpoint) {
       return Promise.reject(error)
