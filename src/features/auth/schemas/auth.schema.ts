@@ -35,3 +35,7 @@ export const refreshRequestSchema = z.object({
 })
 
 export type RefreshRequest = z.infer<typeof refreshRequestSchema>
+
+export type LogoutRequest = {
+  refreshToken?: string
+}

@@ -31,7 +31,6 @@ export default function LoginForm() {
     }
   })
   const loginMutation = useLoginMutation()
-
   const { isValid } = form.formState
 
   const onSubmit = async (data: LoginRequest) => {
@@ -48,26 +47,26 @@ export default function LoginForm() {
   }
 
   return (
-    <div className='w-full bg-card shadow-[0_8px_28px_rgba(0,0,0,0.1)] rounded-[8px] overflow-hidden border border-border'>
-      <div className='border-b border-muted text-center py-4 bg-white'>
-        <p className='text-[15px] font-bold text-foreground'>Đăng nhập với mật khẩu</p>
+    <div className='w-full max-w-lg bg-white shadow-[0_8px_28px_rgba(0,0,0,0.08)] rounded-xl overflow-hidden border border-border/40 px-5'>
+      <div className='border-b border-gray-100 text-center py-4 bg-white'>
+        <p className='text-[14px] font-bold text-foreground uppercase tracking-wide'>Đăng nhập với mật khẩu</p>
       </div>
 
-      <div className='p-8 pt-10 bg-white'>
+      <div className='p-12 bg-white'>
         <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
           <Controller
             name='phoneNumber'
             control={form.control}
             render={({ field }) => (
               <Field>
-                <div className='group flex items-center border-b border-muted pb-2 focus-within:border-primary transition-colors'>
-                  <Smartphone className='mr-3 h-5 w-5 text-foreground/40' />
+                <div className='group flex items-center border-b border-gray-200 pb-2 focus-within:border-primary transition-all duration-200'>
+                  <Smartphone className='mr-3 h-5 w-5 text-muted-foreground' strokeWidth={1.5} />
                   <Input
                     {...field}
                     placeholder='Số điện thoại'
-                    autoComplete='off'
+                    autoComplete='tel'
                     spellCheck={false}
-                    className='h-auto w-full border-none bg-transparent p-0 text-[15px] shadow-none focus-visible:ring-0 placeholder:text-foreground/30 font-normal outline-none selection:bg-primary selection:text-white rounded-none'
+                    className='h-auto w-full border-none bg-transparent p-0 text-[15px] shadow-none focus-visible:ring-0 placeholder:text-muted-foreground/60 font-normal outline-none text-foreground selection:bg-primary/20 rounded-none border-0 ring-0'
                   />
                 </div>
               </Field>
@@ -79,15 +78,15 @@ export default function LoginForm() {
             control={form.control}
             render={({ field }) => (
               <Field>
-                <div className='group flex items-center border-b border-muted pb-2 focus-within:border-primary transition-colors'>
-                  <Lock className='mr-3 h-5 w-5 text-foreground/40' />
+                <div className='group flex items-center border-b border-gray-200 pb-2 focus-within:border-primary transition-all duration-200'>
+                  <Lock className='mr-3 h-5 w-5 text-muted-foreground' strokeWidth={1.5} />
                   <Input
                     {...field}
                     type='password'
                     placeholder='Mật khẩu'
-                    autoComplete='new-password'
+                    autoComplete='current-password'
                     spellCheck={false}
-                    className='h-auto w-full border-none bg-transparent p-0 text-[15px] shadow-none focus-visible:ring-0 placeholder:text-foreground/30 font-normal outline-none selection:bg-primary selection:text-white rounded-none'
+                    className='h-auto w-full border-none bg-transparent p-0 text-[15px] shadow-none focus-visible:ring-0 placeholder:text-muted-foreground/60 font-normal outline-none text-foreground selection:bg-primary/20 rounded-none border-0 ring-0'
                   />
                 </div>
               </Field>
@@ -97,27 +96,30 @@ export default function LoginForm() {
           <div className='pt-2'>
             <Button
               type='submit'
-              disabled={!isValid}
+              disabled={!isValid || loginMutation.isPending}
               className={cn(
-                'w-full font-medium h-11 rounded-[4px] text-base transition-all shadow-none border-none',
-                isValid
-                  ? 'bg-primary text-white hover:brightness-105 cursor-pointer opacity-100'
-                  : 'bg-accent text-white/90 cursor-not-allowed opacity-100'
+                'w-full font-semibold text-[15px] transition-all shadow-none border-none rounded-[4px] h-[42px]',
+                !isValid
+                  ? 'bg-primary text-white hover:bg-primary opacity-50 cursor-not-allowed'
+                  : 'bg-primary text-white hover:bg-primary-hover'
               )}
             >
-              Đăng nhập với mật khẩu
+              {loginMutation.isPending ? 'Đang xử lý...' : 'Đăng nhập với mật khẩu'}
             </Button>
           </div>
         </form>
-
-        <div className='mt-4 text-center'>
-          <p className='text-[15px] text-foreground hover:text-foreground cursor-pointer transition-colors'>
-            Quên mật khẩu
+        <div className='mt-5 text-center'>
+          <p className='text-[13px] text-muted-foreground hover:text-primary hover:underline cursor-pointer transition-colors font-normal'>
+            Quên mật khẩu?
           </p>
         </div>
-
-        <div className='mt-12 text-center'>
-          <a className='text-[16px] text-primary hover:underline font-bold cursor-pointer'>Đăng nhập qua mã QR</a>
+        <div className='mt-10 text-center mb-6'>
+          <p
+            className='text-[15px] text-primary hover:text-primary/90 hover:underline cursor-pointer font-bold'
+            onClick={() => toast.info('Tính năng đang phát triển')}
+          >
+            Đăng nhập qua mã QR
+          </p>
         </div>
       </div>
     </div>

@@ -25,6 +25,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<AccountResponse | null>(() => storage.get<AccountResponse>(USER_KEY))
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!getAccessToken())
   const queryClient = useQueryClient()
 
   const setAuthUser = useCallback((userData: AccountResponse | null) => {
@@ -39,6 +40,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const logoutLocal = useCallback(() => {
     clearAccessToken()
     setUser(null)
+    setIsAuthenticated(false)
     storage.remove(USER_KEY)
     queryClient.clear()
   }, [queryClient])
@@ -59,13 +61,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const loginSuccess = useCallback(async (accessToken: string) => {
     setAccessToken(accessToken)
-    // Return null or basic info as profile is handled elsewhere
+    setIsAuthenticated(true)
+    // TODO: Implement userApi.me()
     return null
   }, [])
 
   const value: AuthContextType = {
     user,
-    isAuthenticated: !!getAccessToken(),
+    isAuthenticated,
     setAuthUser,
     logoutLocal,
     updateUser,

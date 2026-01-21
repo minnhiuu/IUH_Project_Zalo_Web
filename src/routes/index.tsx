@@ -7,6 +7,7 @@ import UserLayout from '@/layouts/user-layout'
 import AdminDashboardPage from '@/pages/admin/admin-dashboard-page'
 import LoginPage from '@/pages/auth/login-page'
 import RegisterPage from '@/pages/auth/register-page'
+import UserHomePage from '@/pages/users/home-page'
 
 import { PrivateRoute } from './private-route'
 import { PublicRoute } from './public-route'
@@ -36,7 +37,7 @@ const AppRoutes = () => {
     },
     {
       element: <UserLayout />,
-      children: [{ path: PATHS.HOME, element: <div>Home Page (User)</div> }]
+      children: [{ path: PATHS.HOME, element: <UserHomePage /> }]
     },
     {
       path: '*',
