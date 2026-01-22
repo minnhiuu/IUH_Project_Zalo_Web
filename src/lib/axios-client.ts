@@ -1,17 +1,18 @@
 import axios, { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
-import { storage } from '../utils/local-storage'
-
 import { getDeviceId } from '../utils/device'
+import { storage } from '@/utils/local-storage'
 
-export const getAccessToken = (): string | null => storage.get('access_token')
+const ACCESS_TOKEN_KEY = 'access_token'
+
+export const getAccessToken = (): string | null => storage.get<string>(ACCESS_TOKEN_KEY)
 
 export const setAccessToken = (token: string | null): void => {
-  if (token) storage.set('access_token', token)
-  else storage.remove('access_token')
+  if (token) storage.set(ACCESS_TOKEN_KEY, token)
+  else storage.remove(ACCESS_TOKEN_KEY)
 }
 
 export const clearAccessToken = (): void => {
-  storage.remove('access_token')
+  storage.remove(ACCESS_TOKEN_KEY)
 }
 
 const http = axios.create({
@@ -38,7 +39,6 @@ const refreshAccessToken = async (): Promise<string | null> => {
       `${import.meta.env.VITE_API_BASE_URL}/auth/refresh`,
       {
         deviceId: getDeviceId()
-        // refreshToken is handled via cookies on backend, but if needed we can add here
       },
       { withCredentials: true }
     )

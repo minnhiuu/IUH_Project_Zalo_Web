@@ -4,14 +4,16 @@ import { Lock, Smartphone } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Field } from '@/components/ui/field'
+import { Field, FieldError } from '@/components/ui/field'
 import { type LoginRequest, loginRequestSchema } from '@/features/auth/schemas/auth.schema'
 import { cn } from '@/lib/utils'
 import { useLoginMutation } from '@/features/auth/mutation/auth.mutations'
 import { DeviceType, PATHS } from '@/constants'
 import { useAuth } from '@/features/auth'
 import { getDeviceId } from '@/utils/device'
+import axios from 'axios'
 import { handleErrorApi } from '@/utils/error-handler'
+import { getErrorMessage } from '@/constants/error-messages'
 import { toast } from 'sonner'
 import { useNavigate } from 'react-router'
 
@@ -42,12 +44,22 @@ export default function LoginForm() {
       toast.success('Đăng nhập thành công')
       navigate(PATHS.HOME)
     } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const code = error.response?.data?.code
+        if (code === 1006 || code === 2006) {
+          form.setError('password', {
+            type: 'server',
+            message: getErrorMessage(code)
+          })
+          return
+        }
+      }
       handleErrorApi({ error, setError: form.setError })
     }
   }
 
   return (
-    <div className='w-full max-w-lg bg-white shadow-[0_8px_28px_rgba(0,0,0,0.08)] rounded-xl overflow-hidden border border-border/40 px-5'>
+    <div className='w-full max-w-lg bg-white shadow-[0_8px_28px_rgba(0,0,0,0.08)] rounded-xl overflow-hidden border border-border/40 px-6'>
       <div className='border-b border-gray-100 text-center py-4 bg-white'>
         <p className='text-[14px] font-bold text-foreground uppercase tracking-wide'>Đăng nhập với mật khẩu</p>
       </div>
@@ -63,12 +75,21 @@ export default function LoginForm() {
                   <Smartphone className='mr-3 h-5 w-5 text-muted-foreground' strokeWidth={1.5} />
                   <Input
                     {...field}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '')
+                      field.onChange(value)
+                    }}
                     placeholder='Số điện thoại'
                     autoComplete='tel'
                     spellCheck={false}
                     className='h-auto w-full border-none bg-transparent p-0 text-[15px] shadow-none focus-visible:ring-0 placeholder:text-muted-foreground/60 font-normal outline-none text-foreground selection:bg-primary/20 rounded-none border-0 ring-0'
                   />
                 </div>
+                <FieldError
+                  errors={[
+                    form.formState.errors.phoneNumber?.type === 'server' ? form.formState.errors.phoneNumber : undefined
+                  ]}
+                />
               </Field>
             )}
           />
@@ -89,6 +110,11 @@ export default function LoginForm() {
                     className='h-auto w-full border-none bg-transparent p-0 text-[15px] shadow-none focus-visible:ring-0 placeholder:text-muted-foreground/60 font-normal outline-none text-foreground selection:bg-primary/20 rounded-none border-0 ring-0'
                   />
                 </div>
+                <FieldError
+                  errors={[
+                    form.formState.errors.password?.type === 'server' ? form.formState.errors.password : undefined
+                  ]}
+                />
               </Field>
             )}
           />
@@ -96,12 +122,11 @@ export default function LoginForm() {
           <div className='pt-2'>
             <Button
               type='submit'
+              variant='vibrant'
               disabled={!isValid || loginMutation.isPending}
               className={cn(
-                'w-full font-semibold text-[15px] transition-all shadow-none border-none rounded-[4px] h-[42px]',
-                !isValid
-                  ? 'bg-primary text-white hover:bg-primary opacity-50 cursor-not-allowed'
-                  : 'bg-primary text-white hover:bg-primary-hover'
+                'w-full font-bold text-[16px] transition-all shadow-none border-none rounded-[4px] h-[48px]',
+                !isValid && 'opacity-50 cursor-not-allowed'
               )}
             >
               {loginMutation.isPending ? 'Đang xử lý...' : 'Đăng nhập với mật khẩu'}

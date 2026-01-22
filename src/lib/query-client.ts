@@ -1,6 +1,5 @@
 import { MutationCache, QueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { AxiosError } from 'axios'
 
 declare module '@tanstack/react-query' {
   interface Register {
@@ -19,13 +18,6 @@ export const queryClient = new QueryClient({
     }
   },
   mutationCache: new MutationCache({
-    onError: (error) => {
-      const axiosError = error as AxiosError
-      if (axiosError.response?.status === 401) {
-        localStorage.removeItem('token')
-        window.location.href = '/login'
-      }
-    },
     onSettled: (_data, _error, _variables, _context, mutation) => {
       if (mutation.meta?.invalidatesQuery) {
         queryClient.invalidateQueries({

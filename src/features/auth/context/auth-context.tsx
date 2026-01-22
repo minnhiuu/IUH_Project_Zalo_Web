@@ -18,7 +18,7 @@ interface AuthContextType {
   logoutLocal: () => void
   updateUser: (user: AccountResponse) => void
   refetchUser: () => Promise<void>
-  loginSuccess: (accessToken: string) => Promise<AccountResponse | null>
+  loginSuccess: (accessToken: string) => Promise<boolean>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -63,7 +63,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setAccessToken(accessToken)
     setIsAuthenticated(true)
     // TODO: Implement userApi.me()
-    return null
+    return true
   }, [])
 
   const value: AuthContextType = {

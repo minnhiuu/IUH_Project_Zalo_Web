@@ -1,11 +1,8 @@
 import z from 'zod'
 
 export const loginRequestSchema = z.object({
-  phoneNumber: z
-    .string()
-    .min(1, 'Số điện thoại không được để trống')
-    .regex(/^[0-9]{9,10}$/, 'Số điện thoại không hợp lệ'),
-  password: z.string().min(1, 'Mật khẩu không được để trống').min(6, 'Mật khẩu phải có ít nhất 6 ký tự'),
+  phoneNumber: z.string().min(1, 'Số điện thoại không được để trống'),
+  password: z.string().min(1, 'Mật khẩu không được để trống'),
   deviceId: z.string().min(1, 'Device ID không được để trống'),
   deviceType: z.enum(['WEB', 'MOBILE'])
 })

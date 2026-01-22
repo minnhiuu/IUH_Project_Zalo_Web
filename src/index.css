@@ -23,9 +23,12 @@
   --card-foreground: rgba(0, 0, 0, 0.88);
   --popover-foreground: rgba(0, 0, 0, 0.88);
 
-  --primary: var(--brand-blue);
+  --primary: #0068ff;
   --primary-foreground: #ffffff;
-  --primary-hover: #0184e0;
+  --primary-hover: #005ae0;
+
+  --vibrant-blue: #0190f3;
+  --vibrant-blue-hover: #0184e0;
 
   --secondary: var(--brand-blue-light);
   --secondary-foreground: var(--brand-blue);
@@ -75,9 +78,9 @@
   --popover: oklch(0.2 0.05 260);
   --popover-foreground: #ffffff;
 
-  --primary: #0068ff;
+  --primary: var(--brand-blue); /* Hoặc màu navy tối cho dark mode nếu cần */
   --primary-foreground: #ffffff;
-  --primary-hover: #005ae0;
+  --primary-hover: var(--brand-blue-dark);
 
   --secondary: oklch(0.25 0.05 260);
   --secondary-foreground: #ffffff;
@@ -133,6 +136,8 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
+  --color-vibrant-blue: var(--vibrant-blue);
+  --color-vibrant-blue-hover: var(--vibrant-blue-hover);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);

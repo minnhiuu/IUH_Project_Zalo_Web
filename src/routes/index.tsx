@@ -36,8 +36,13 @@ const AppRoutes = () => {
       ]
     },
     {
-      element: <UserLayout />,
-      children: [{ path: PATHS.HOME, element: <UserHomePage /> }]
+      element: <PrivateRoute />,
+      children: [
+        {
+          element: <UserLayout />,
+          children: [{ path: PATHS.HOME, element: <UserHomePage /> }]
+        }
+      ]
     },
     {
       path: '*',

@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 const APP_PREFIX = 'bondhub_'
 
-type StorageKey = 'access_token' | 'refresh_token' | 'user_profile' | 'theme' | 'settings' | 'device_id'
+type StorageKey = 'access_token' | 'user_profile' | 'theme' | 'settings' | 'device_id'
 
 export const storage = {
   get: <T>(key: StorageKey, defaultValue?: T): T | null => {
@@ -10,7 +10,12 @@ export const storage = {
 
     try {
       const item = window.localStorage.getItem(`${APP_PREFIX}${key}`)
-      return item ? (JSON.parse(item) as T) : (defaultValue ?? null)
+      if (item === null) return defaultValue ?? null
+      try {
+        return JSON.parse(item) as T
+      } catch {
+        return item as unknown as T
+      }
     } catch (error) {
       console.warn(`Error reading key "${key}" from localStorage:`, error)
       return defaultValue ?? null
@@ -21,7 +26,7 @@ export const storage = {
     if (typeof window === 'undefined') return
 
     try {
-      const serializedValue = JSON.stringify(value)
+      const serializedValue = typeof value === 'string' ? value : JSON.stringify(value)
       window.localStorage.setItem(`${APP_PREFIX}${key}`, serializedValue)
     } catch (error) {
       console.warn(`Error setting key "${key}" to localStorage:`, error)

@@ -1,4 +1,3 @@
-import * as React from 'react'
 import { X } from 'lucide-react'
 import {
   AlertDialog,
@@ -26,32 +25,27 @@ export function LogoutConfirmDialog({ open, onOpenChange }: LogoutConfirmDialogP
   const { logoutLocal } = useAuthContext()
   const logoutMutation = useLogoutMutation()
   const navigate = useNavigate()
-  const [isLoggingOut, setIsLoggingOut] = React.useState(false)
-
   const handleLogout = async () => {
-    setIsLoggingOut(true)
     try {
       await logoutMutation.mutateAsync(undefined)
+      logoutLocal()
+      navigate(PATHS.AUTH.LOGIN)
     } catch (error) {
       handleErrorApi({ error })
-      setIsLoggingOut(false)
-    } finally {
-      setTimeout(() => {
-        logoutLocal()
-        navigate(PATHS.AUTH.LOGIN)
-      }, 800)
     }
   }
+
+  const isPending = logoutMutation.isPending
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogPortal>
-        {isLoggingOut && <FullScreenLoading />}
+        {isPending && <FullScreenLoading />}
         <AlertDialogOverlay className='bg-black/45 backdrop-blur-none! duration-200 fixed inset-0 z-50' />
         <AlertDialogContent
           className={cn(
             'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50',
-            'w-[310px] max-w-[95vw] p-0 gap-0 rounded-[4px] overflow-hidden border-none shadow-2xl bg-white outline-none',
+            'w-[374px] max-w-[95vw] p-0 gap-0 rounded-[4px] overflow-hidden border-none shadow-2xl bg-white outline-none',
             'animate-in zoom-in-95 duration-200'
           )}
         >
@@ -65,8 +59,8 @@ export function LogoutConfirmDialog({ open, onOpenChange }: LogoutConfirmDialogP
             </button>
           </div>
 
-          <div className='p-4 py-5'>
-            <p className='text-[15px] text-foreground font-normal leading-normal text-center'>
+          <div className='p-4 pt-5 pb-4 mb-5'>
+            <p className='text-[15px] text-foreground font-normal leading-normal'>
               Bạn có muốn đăng xuất khỏi BondHub?
             </p>
           </div>
@@ -75,7 +69,7 @@ export function LogoutConfirmDialog({ open, onOpenChange }: LogoutConfirmDialogP
             <AlertDialogCancel asChild>
               <Button
                 variant='secondary'
-                className='bg-muted hover:bg-border text-foreground font-bold h-[36px] px-5 rounded-[3px] border-none shadow-none text-[14px] mt-0 flex-1'
+                className='bg-muted hover:bg-border text-foreground font-bold h-[36px] px-4 min-w-[80px] rounded-[3px] border-none shadow-none text-[14px] mt-0'
               >
                 Không
               </Button>
@@ -83,10 +77,9 @@ export function LogoutConfirmDialog({ open, onOpenChange }: LogoutConfirmDialogP
             <AlertDialogAction asChild>
               <Button
                 onClick={handleLogout}
-                disabled={isLoggingOut}
-                className='bg-primary hover:bg-primary-hover text-white font-bold h-[36px] px-5 rounded-[3px] border-none shadow-none text-[14px] flex-1'
+                className='font-bold h-[36px] px-4 min-w-[100px] rounded-[3px] border-none shadow-none text-[14px]'
               >
-                {isLoggingOut ? 'Đang xử lý...' : 'Đăng xuất'}
+                Đăng xuất
               </Button>
             </AlertDialogAction>
           </div>

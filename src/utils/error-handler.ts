@@ -40,7 +40,7 @@ export const handleErrorApi = <T extends FieldValues>({
     })
   } else if (axios.isAxiosError(error)) {
     const data = error.response?.data
-    const message = getErrorMessage(data?.code, data?.message || 'Lỗi hệ thống, vui lòng thử lại sau')
+    const message = getErrorMessage(data?.code, data?.message || 'Lỗi hệ thống, vui lòng thử lại sau', data?.data)
 
     toast.error('Thất bại', {
       description: message,
