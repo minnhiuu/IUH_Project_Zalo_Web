@@ -1,4 +1,5 @@
 export * from './components/user-nav-dropdown'
+export * from './components/profile-dialog'
 export * from './queries/keys'
 export * from './queries/options'
 export * from './queries/use-queries'

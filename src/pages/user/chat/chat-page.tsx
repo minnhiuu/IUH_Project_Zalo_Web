@@ -50,7 +50,7 @@ const MOCK_CONVERSATIONS = [
   }
 ]
 
-export default function UserHomePage() {
+export default function ChatPage() {
   return (
     <div className='flex w-full h-full overflow-hidden'>
       <div className='w-[344px] flex flex-col border-r border-border bg-white shrink-0'>

@@ -2,7 +2,7 @@ import { Gender } from '@/constants'
 
 export type UserResponse = {
   id: string
-  fullname: string
+  fullName: string
   dob: string
   bio: string
   gender: Gender
@@ -10,4 +10,6 @@ export type UserResponse = {
   email: string
   phoneNumber: string
   role: string
+  avatar?: string
+  background?: string
 }

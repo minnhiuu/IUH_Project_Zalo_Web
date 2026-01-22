@@ -1,10 +1,21 @@
 {
   "user": {
     "menu": {
-      "profile": "Hồ sơ",
+      "profile": "Thông tin tài khoản",
       "settings": "Cài đặt",
       "language": "Ngôn ngữ",
       "logout": "Đăng xuất"
+    },
+    "profile": {
+      "title": "Thông tin tài khoản",
+      "personalInfo": "Thông tin cá nhân",
+      "gender": "Giới tính",
+      "dob": "Ngày sinh",
+      "phone": "Điện thoại",
+      "update": "Cập nhật",
+      "privacyNote": "Chỉ bạn bè có lưu số của bạn trong danh bạ mới xem được số này",
+      "male": "Nam",
+      "female": "Nữ"
     }
   }
 }
