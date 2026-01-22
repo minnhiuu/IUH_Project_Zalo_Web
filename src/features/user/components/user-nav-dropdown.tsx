@@ -10,7 +10,10 @@ import {
   DropdownMenuSubTrigger
 } from '@/components/ui/dropdown-menu'
 import { useLogoutMutation, LogoutConfirmDialog } from '@/features/auth'
+import { useUserText } from '@/features/user'
 import { useState } from 'react'
+
+import { LANGUAGES, useAppLanguage } from '@/lib/language'
 
 interface UserNavDropdownProps {
   children: React.ReactNode
@@ -20,6 +23,8 @@ interface UserNavDropdownProps {
 export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdownProps) => {
   const logoutMutation = useLogoutMutation()
   const [showLogoutDialog, setShowLogoutDialog] = useState(false)
+  const { text } = useUserText()
+  const { language, setLocale } = useAppLanguage()
 
   return (
     <>
@@ -34,12 +39,12 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
         >
           <DropdownMenuItem className='flex items-center gap-3 py-2 px-3 cursor-pointer hover:bg-muted focus:bg-muted rounded-md text-[14px] transition-colors outline-none'>
             <User className='w-[17px] h-[17px] text-foreground' />
-            <span className='flex-1 font-medium'>Thông tin tài khoản</span>
+            <span className='flex-1 font-medium'>{text.menu.profile}</span>
           </DropdownMenuItem>
 
           <DropdownMenuItem className='flex items-center gap-3 py-2 px-3 cursor-pointer hover:bg-muted focus:bg-muted rounded-md text-[14px] transition-colors outline-none'>
             <Settings className='w-[17px] h-[17px] text-foreground' />
-            <span className='flex-1 font-medium'>Cài đặt</span>
+            <span className='flex-1 font-medium'>{text.menu.settings}</span>
           </DropdownMenuItem>
 
           <DropdownMenuSeparator className='my-1.5 bg-border/40' />
@@ -47,25 +52,25 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
           <DropdownMenuSub>
             <DropdownMenuSubTrigger className='flex items-center gap-3 py-2 px-3 cursor-pointer hover:bg-muted focus:bg-muted rounded-md text-[14px] outline-none'>
               <Globe className='w-[17px] h-[17px] text-foreground' />
-              <span className='flex-1 font-medium'>Ngôn ngữ</span>
+              <span className='flex-1 font-medium'>{text.menu.language}</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent
               sideOffset={5}
               className='w-44 p-1 shadow-lg border border-border animate-in slide-in-from-left-1 duration-200 bg-white'
             >
-              <DropdownMenuItem className='flex items-center justify-between py-1.5 px-3 cursor-pointer hover:bg-muted rounded-md group text-[13.5px] outline-none'>
-                <div className='flex items-center gap-3'>
-                  <img src='/images/vi.png' alt='Tiếng Việt' className='w-4.5 h-auto object-cover' />
-                  <span className='font-medium text-foreground'>Tiếng Việt</span>
-                </div>
-                <Check className='w-3.5 h-3.5 text-primary' />
-              </DropdownMenuItem>
-              <DropdownMenuItem className='flex items-center justify-between py-1.5 px-3 cursor-pointer hover:bg-muted rounded-md group text-[13.5px] outline-none'>
-                <div className='flex items-center gap-3'>
-                  <img src='/images/en.png' alt='English' className='w-4.5 h-auto object-cover' />
-                  <span className='font-medium text-foreground'>English</span>
-                </div>
-              </DropdownMenuItem>
+              {LANGUAGES.map((lang) => (
+                <DropdownMenuItem
+                  key={lang.code}
+                  onClick={() => setLocale(lang.code)}
+                  className='flex items-center justify-between py-1.5 px-3 cursor-pointer hover:bg-muted rounded-md group text-[13.5px] outline-none'
+                >
+                  <div className='flex items-center gap-3'>
+                    <img src={lang.flag} alt={lang.label} className='w-4.5 h-auto object-cover' />
+                    <span className='font-medium text-foreground'>{lang.label}</span>
+                  </div>
+                  {language === lang.code && <Check className='w-3.5 h-3.5 text-primary' />}
+                </DropdownMenuItem>
+              ))}
             </DropdownMenuSubContent>
           </DropdownMenuSub>
 
@@ -78,7 +83,7 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
           >
             <div className='w-[17px] h-[17px]' />
             <span className='text-destructive group-hover:text-destructive! group-focus:text-destructive! font-medium'>
-              Đăng xuất
+              {text.menu.logout}
             </span>
           </DropdownMenuItem>
         </DropdownMenuContent>

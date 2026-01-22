@@ -9,11 +9,14 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { useAuthContext, useLogoutMutation } from '@/features/auth'
+import { useAuthContext } from '../context/auth-context'
+import { useLogoutMutation } from '../mutation/auth.mutations'
 import { useNavigate } from 'react-router'
 import { PATHS } from '@/constants/path'
 import { handleErrorApi } from '@/utils/error-handler'
 import { FullScreenLoading } from '@/components/common/full-screen-loading'
+import { useAuthText } from '@/features/auth/i18n/use-auth-text'
+import { useTranslation } from 'react-i18next'
 
 interface LogoutConfirmDialogProps {
   open: boolean
@@ -25,6 +28,9 @@ export function LogoutConfirmDialog({ open, onOpenChange }: LogoutConfirmDialogP
   const { logoutLocal } = useAuthContext()
   const logoutMutation = useLogoutMutation()
   const navigate = useNavigate()
+  const { text } = useAuthText()
+  const { t: tCommon } = useTranslation('common')
+
   const handleLogout = async () => {
     try {
       await logoutMutation.mutateAsync(undefined)
@@ -40,7 +46,7 @@ export function LogoutConfirmDialog({ open, onOpenChange }: LogoutConfirmDialogP
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogPortal>
-        {isPending && <FullScreenLoading />}
+        {isPending && <FullScreenLoading message={tCommon('pleaseWait')} />}
         <AlertDialogOverlay className='bg-black/45 backdrop-blur-none! duration-200 fixed inset-0 z-50' />
         <AlertDialogContent
           className={cn(
@@ -50,7 +56,7 @@ export function LogoutConfirmDialog({ open, onOpenChange }: LogoutConfirmDialogP
           )}
         >
           <div className='flex items-center justify-between px-4 h-[44px] border-b border-border'>
-            <h2 className='text-[15px] font-bold text-foreground'>Xác nhận</h2>
+            <h2 className='text-[15px] font-bold text-foreground'>{text.logoutDialog.title}</h2>
             <button
               onClick={() => onOpenChange(false)}
               className='p-1 hover:bg-black/5 rounded-full transition-colors outline-none cursor-pointer'
@@ -60,9 +66,7 @@ export function LogoutConfirmDialog({ open, onOpenChange }: LogoutConfirmDialogP
           </div>
 
           <div className='p-4 pt-5 pb-4 mb-5'>
-            <p className='text-[15px] text-foreground font-normal leading-normal'>
-              Bạn có muốn đăng xuất khỏi BondHub?
-            </p>
+            <p className='text-[15px] text-foreground font-normal leading-normal'>{text.logoutDialog.confirmMessage}</p>
           </div>
 
           <div className='flex flex-row justify-end gap-2 px-4 pb-4'>
@@ -71,7 +75,7 @@ export function LogoutConfirmDialog({ open, onOpenChange }: LogoutConfirmDialogP
                 variant='secondary'
                 className='bg-muted hover:bg-border text-foreground font-bold h-[36px] px-4 min-w-[80px] rounded-[3px] border-none shadow-none text-[14px] mt-0'
               >
-                Không
+                {text.logoutDialog.no}
               </Button>
             </AlertDialogCancel>
             <AlertDialogAction asChild>
@@ -79,7 +83,7 @@ export function LogoutConfirmDialog({ open, onOpenChange }: LogoutConfirmDialogP
                 onClick={handleLogout}
                 className='font-bold h-[36px] px-4 min-w-[100px] rounded-[3px] border-none shadow-none text-[14px]'
               >
-                Đăng xuất
+                {text.logoutDialog.yes}
               </Button>
             </AlertDialogAction>
           </div>

@@ -52,6 +52,8 @@ const refreshAccessToken = async (): Promise<string | null> => {
 }
 
 http.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+  const locale = storage.get<string>('locale') || 'vi'
+  config.headers['Accept-Language'] = locale
   const isAuthEndpoint =
     config.url?.includes('/auth/login') ||
     config.url?.includes('/auth/register') ||

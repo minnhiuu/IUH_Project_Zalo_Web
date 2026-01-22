@@ -1,0 +1,10 @@
+{
+  "user": {
+    "menu": {
+      "profile": "Hồ sơ",
+      "settings": "Cài đặt",
+      "language": "Ngôn ngữ",
+      "logout": "Đăng xuất"
+    }
+  }
+}

@@ -1,7 +1,7 @@
 import type { UseFormSetError, FieldValues, Path } from 'react-hook-form'
 import { toast } from 'sonner'
 import axios from 'axios'
-import { getErrorMessage } from '@/constants/error-messages'
+import i18n from '@/lib/i18n'
 
 type EntityErrorPayload = {
   message: string
@@ -22,6 +22,11 @@ export class EntityError extends Error {
   }
 }
 
+export const getErrorMessage = (code: number | string | undefined): string => {
+  if (code === undefined || code === null) return i18n.t('error:unknown')
+  return i18n.t(`error:${code}`, { defaultValue: i18n.t('error:unknown') })
+}
+
 export const handleErrorApi = <T extends FieldValues>({
   error,
   setError,
@@ -40,15 +45,17 @@ export const handleErrorApi = <T extends FieldValues>({
     })
   } else if (axios.isAxiosError(error)) {
     const data = error.response?.data
-    const message = getErrorMessage(data?.code, data?.message || 'Lỗi hệ thống, vui lòng thử lại sau', data?.data)
+    const message = getErrorMessage(data?.code)
 
-    toast.error('Thất bại', {
+    toast.error(i18n.t('common:error_toast_title', { defaultValue: 'Thất bại' }), {
       description: message,
       duration: duration ?? 4000
     })
   } else {
-    toast.error('Lỗi không xác định', {
-      description: 'Đã có lỗi xảy ra, vui lòng liên hệ admin',
+    toast.error(i18n.t('error:unknown'), {
+      description: i18n.t('error:system_error_contact_admin', {
+        defaultValue: 'Đã có lỗi xảy ra, vui lòng liên hệ admin'
+      }),
       duration: duration ?? 4000
     })
   }

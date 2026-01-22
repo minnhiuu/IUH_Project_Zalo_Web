@@ -1,0 +1,10 @@
+{
+  "user": {
+    "menu": {
+      "profile": "Profile",
+      "settings": "Settings",
+      "language": "Language",
+      "logout": "Logout"
+    }
+  }
+}

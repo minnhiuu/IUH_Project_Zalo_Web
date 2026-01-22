@@ -1,0 +1,40 @@
+{
+  "auth": {
+    "page": {
+      "subtitle": "Login to BondHub account\nto connect to BondHub Web"
+    },
+    "form": {
+      "title": "Login with password",
+      "phone": "Phone number",
+      "password": "Password",
+      "submit": "Login",
+      "submitting": "Processing...",
+      "forgot": "Forgot password",
+      "qr": "Login with QR code"
+    },
+    "upload": {
+      "title": "Drag and drop or click to select image",
+      "hint": "JPG, PNG, WEBP (Max 5MB)",
+      "change": "Click to change",
+      "remove": "Remove image",
+      "errorLimit": "Maximum image size is 5MB",
+      "errorInvalid": "Please select a valid image file"
+    },
+    "toast": {
+      "loginSuccess": "Login successful",
+      "qrComing": "Feature coming soon"
+    },
+    "menu": {
+      "profile": "Profile",
+      "settings": "Settings",
+      "language": "Language",
+      "logout": "Logout"
+    },
+    "logoutDialog": {
+      "title": "Confirmation",
+      "confirmMessage": "Do you want to logout from BondHub?",
+      "no": "Cancel",
+      "yes": "Logout"
+    }
+  }
+}

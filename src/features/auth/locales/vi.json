@@ -1,0 +1,40 @@
+{
+  "auth": {
+    "page": {
+      "subtitle": "Đăng nhập tài khoản BondHub\ndể kết nối với ứng dụng BondHub Web"
+    },
+    "form": {
+      "title": "Đăng nhập với mật khẩu",
+      "phone": "Số điện thoại",
+      "password": "Mật khẩu",
+      "submit": "Đăng nhập với mật khẩu",
+      "submitting": "Đang xử lý...",
+      "forgot": "Quên mật khẩu?",
+      "qr": "Đăng nhập qua mã QR"
+    },
+    "upload": {
+      "title": "Kéo thả hoặc click để chọn ảnh",
+      "hint": "JPG, PNG, WEBP (Tối đa 5MB)",
+      "change": "Nhấn để thay đổi",
+      "remove": "Xóa ảnh",
+      "errorLimit": "Kích thước ảnh tối đa là 5MB",
+      "errorInvalid": "Vui lòng chọn file ảnh hợp lệ"
+    },
+    "toast": {
+      "loginSuccess": "Đăng nhập thành công",
+      "qrComing": "Tính năng đang phát triển"
+    },
+    "menu": {
+      "profile": "Thông tin tài khoản",
+      "settings": "Cài đặt",
+      "language": "Ngôn ngữ",
+      "logout": "Đăng xuất"
+    },
+    "logoutDialog": {
+      "title": "Xác nhận",
+      "confirmMessage": "Bạn có muốn đăng xuất khỏi BondHub?",
+      "no": "Không",
+      "yes": "Đăng xuất"
+    }
+  }
+}

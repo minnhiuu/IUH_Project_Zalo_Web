@@ -9,18 +9,19 @@ import { type LoginRequest, loginRequestSchema } from '@/features/auth/schemas/a
 import { cn } from '@/lib/utils'
 import { useLoginMutation } from '@/features/auth/mutation/auth.mutations'
 import { DeviceType, PATHS } from '@/constants'
-import { useAuth } from '@/features/auth'
+import { useAuth } from '@/features/auth/hooks/use-auth'
 import { getDeviceId } from '@/utils/device'
 import axios from 'axios'
-import { handleErrorApi } from '@/utils/error-handler'
-import { getErrorMessage } from '@/constants/error-messages'
+import { handleErrorApi, getErrorMessage } from '@/utils/error-handler'
 import { toast } from 'sonner'
 import { useNavigate } from 'react-router'
+import { useAuthText } from '@/features/auth/i18n/use-auth-text'
 
 export default function LoginForm() {
   const { loginSuccess } = useAuth()
   const deviceId = getDeviceId()
   const navigate = useNavigate()
+  const { text } = useAuthText()
 
   const form = useForm<LoginRequest>({
     resolver: zodResolver(loginRequestSchema),
@@ -41,7 +42,6 @@ export default function LoginForm() {
       const result = await loginMutation.mutateAsync(data)
       const { accessToken } = result.data.data!
       await loginSuccess(accessToken)
-      toast.success('Đăng nhập thành công')
       navigate(PATHS.HOME)
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -59,27 +59,27 @@ export default function LoginForm() {
   }
 
   return (
-    <div className='w-full max-w-lg bg-white shadow-[0_8px_28px_rgba(0,0,0,0.08)] rounded-xl overflow-hidden border border-border/40 px-6'>
+    <div className='w-full max-w-lg bg-white shadow-[0_8px_28px_rgba(0,0,0,0.08)] rounded-xl overflow-hidden border border-border/40 px-5'>
       <div className='border-b border-gray-100 text-center py-4 bg-white'>
-        <p className='text-[14px] font-bold text-foreground uppercase tracking-wide'>Đăng nhập với mật khẩu</p>
+        <p className='text-md font-bold text-foreground tracking-wide'>{text.form.title}</p>
       </div>
 
       <div className='p-12 bg-white'>
-        <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
+        <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6 px-5'>
           <Controller
             name='phoneNumber'
             control={form.control}
             render={({ field }) => (
               <Field>
                 <div className='group flex items-center border-b border-gray-200 pb-2 focus-within:border-primary transition-all duration-200'>
-                  <Smartphone className='mr-3 h-5 w-5 text-muted-foreground' strokeWidth={1.5} />
+                  <Smartphone className='mr-3 h-5 w-5' strokeWidth={1.5} />
                   <Input
                     {...field}
                     onChange={(e) => {
                       const value = e.target.value.replace(/\D/g, '')
                       field.onChange(value)
                     }}
-                    placeholder='Số điện thoại'
+                    placeholder={text.form.phone}
                     autoComplete='tel'
                     spellCheck={false}
                     className='h-auto w-full border-none bg-transparent p-0 text-[15px] shadow-none focus-visible:ring-0 placeholder:text-muted-foreground/60 font-normal outline-none text-foreground selection:bg-primary/20 rounded-none border-0 ring-0'
@@ -100,11 +100,11 @@ export default function LoginForm() {
             render={({ field }) => (
               <Field>
                 <div className='group flex items-center border-b border-gray-200 pb-2 focus-within:border-primary transition-all duration-200'>
-                  <Lock className='mr-3 h-5 w-5 text-muted-foreground' strokeWidth={1.5} />
+                  <Lock className='mr-3 h-5 w-5' strokeWidth={1.5} />
                   <Input
                     {...field}
                     type='password'
-                    placeholder='Mật khẩu'
+                    placeholder={text.form.password}
                     autoComplete='current-password'
                     spellCheck={false}
                     className='h-auto w-full border-none bg-transparent p-0 text-[15px] shadow-none focus-visible:ring-0 placeholder:text-muted-foreground/60 font-normal outline-none text-foreground selection:bg-primary/20 rounded-none border-0 ring-0'
@@ -129,21 +129,21 @@ export default function LoginForm() {
                 !isValid && 'opacity-50 cursor-not-allowed'
               )}
             >
-              {loginMutation.isPending ? 'Đang xử lý...' : 'Đăng nhập với mật khẩu'}
+              {loginMutation.isPending ? text.form.submitting : text.form.submit}
             </Button>
           </div>
         </form>
         <div className='mt-5 text-center'>
           <p className='text-[13px] text-muted-foreground hover:text-primary hover:underline cursor-pointer transition-colors font-normal'>
-            Quên mật khẩu?
+            {text.form.forgot}
           </p>
         </div>
         <div className='mt-10 text-center mb-6'>
           <p
             className='text-[15px] text-primary hover:text-primary/90 hover:underline cursor-pointer font-bold'
-            onClick={() => toast.info('Tính năng đang phát triển')}
+            onClick={() => toast.info(text.toast.qrComing)}
           >
-            Đăng nhập qua mã QR
+            {text.form.qr}
           </p>
         </div>
       </div>
