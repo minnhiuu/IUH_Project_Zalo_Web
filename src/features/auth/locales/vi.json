@@ -5,7 +5,7 @@
     },
     "form": {
       "title": "Đăng nhập với mật khẩu",
-      "phone": "Số điện thoại",
+      "email": "Email",
       "password": "Mật khẩu",
       "submit": "Đăng nhập với mật khẩu",
       "submitting": "Đang xử lý...",

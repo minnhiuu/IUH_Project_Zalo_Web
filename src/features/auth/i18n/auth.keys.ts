@@ -5,7 +5,7 @@ export const AUTH_KEYS = {
 
   form: {
     title: 'auth.form.title',
-    phone: 'auth.form.phone',
+    email: 'auth.form.email',
     password: 'auth.form.password',
     submit: 'auth.form.submit',
     submitting: 'auth.form.submitting',

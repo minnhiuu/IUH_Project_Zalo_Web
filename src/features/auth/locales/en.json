@@ -5,7 +5,7 @@
     },
     "form": {
       "title": "Login with password",
-      "phone": "Phone number",
+      "email": "Email",
       "password": "Password",
       "submit": "Login",
       "submitting": "Processing...",

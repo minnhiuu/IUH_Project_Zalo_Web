@@ -1,7 +1,7 @@
 import z from 'zod'
 
 export const loginRequestSchema = z.object({
-  phoneNumber: z.string().min(1, 'Số điện thoại không được để trống'),
+  email: z.email(),
   password: z.string().min(1, 'Mật khẩu không được để trống'),
   deviceId: z.string().min(1, 'Device ID không được để trống'),
   deviceType: z.enum(['WEB', 'MOBILE'])
@@ -12,8 +12,6 @@ export type LoginRequest = z.infer<typeof loginRequestSchema>
 export type TokenResponse = {
   accessToken: string
   refreshToken: string
-  tokenType: string
-  expiresIn: number
 }
 
 export type AccountResponse = {

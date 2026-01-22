@@ -1,15 +1,16 @@
 import { useMutation } from '@tanstack/react-query'
 import type { LoginRequest, LogoutRequest } from '../schemas/auth.schema'
-import { authApi } from '@/features/auth/api/auth.api'
+import { authApi } from '../api/auth.api'
+import { authKeys } from './keys'
 
 export const useLoginMutation = () =>
   useMutation({
-    mutationKey: ['auth', 'login'],
+    mutationKey: authKeys.login(),
     mutationFn: (body: LoginRequest) => authApi.login(body)
   })
 
 export const useLogoutMutation = () =>
   useMutation({
-    mutationKey: ['auth', 'logout'],
+    mutationKey: authKeys.logout(),
     mutationFn: (body?: LogoutRequest) => authApi.logout(body)
   })

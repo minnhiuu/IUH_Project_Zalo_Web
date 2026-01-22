@@ -8,7 +8,7 @@ export const createAuthTexts = (t: TFunction<'auth'>) => ({
 
   form: {
     title: t(AUTH_KEYS.form.title),
-    phone: t(AUTH_KEYS.form.phone),
+    email: t(AUTH_KEYS.form.email),
     password: t(AUTH_KEYS.form.password),
     submit: t(AUTH_KEYS.form.submit),
     submitting: t(AUTH_KEYS.form.submitting),

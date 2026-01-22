@@ -1,13 +1,13 @@
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Lock, Smartphone } from 'lucide-react'
+import { Lock, Mail } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Field, FieldError } from '@/components/ui/field'
 import { type LoginRequest, loginRequestSchema } from '@/features/auth/schemas/auth.schema'
 import { cn } from '@/lib/utils'
-import { useLoginMutation } from '@/features/auth/mutation/auth.mutations'
+import { useLoginMutation } from '@/features/auth/queries/use-mutations'
 import { DeviceType, PATHS } from '@/constants'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { getDeviceId } from '@/utils/device'
@@ -27,7 +27,7 @@ export default function LoginForm() {
     resolver: zodResolver(loginRequestSchema),
     mode: 'onChange',
     defaultValues: {
-      phoneNumber: '',
+      email: '',
       password: '',
       deviceId,
       deviceType: DeviceType.Web
@@ -67,28 +67,21 @@ export default function LoginForm() {
       <div className='p-12 bg-white'>
         <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6 px-5'>
           <Controller
-            name='phoneNumber'
+            name='email'
             control={form.control}
             render={({ field }) => (
               <Field>
                 <div className='group flex items-center border-b border-gray-200 pb-2 focus-within:border-primary transition-all duration-200'>
-                  <Smartphone className='mr-3 h-5 w-5' strokeWidth={1.5} />
+                  <Mail className='mr-3 h-5 w-5' strokeWidth={1.5} />
                   <Input
                     {...field}
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, '')
-                      field.onChange(value)
-                    }}
-                    placeholder={text.form.phone}
-                    autoComplete='tel'
+                    placeholder={text.form.email}
                     spellCheck={false}
                     className='h-auto w-full border-none bg-transparent p-0 text-[15px] shadow-none focus-visible:ring-0 placeholder:text-muted-foreground/60 font-normal outline-none text-foreground selection:bg-primary/20 rounded-none border-0 ring-0'
                   />
                 </div>
                 <FieldError
-                  errors={[
-                    form.formState.errors.phoneNumber?.type === 'server' ? form.formState.errors.phoneNumber : undefined
-                  ]}
+                  errors={[form.formState.errors.email?.type === 'server' ? form.formState.errors.email : undefined]}
                 />
               </Field>
             )}
