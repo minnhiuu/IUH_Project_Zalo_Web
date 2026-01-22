@@ -1,9 +1,10 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
 import { clearAccessToken, getAccessToken, setAccessToken } from '@/lib/axios-client'
 import { storage } from '@/utils/local-storage'
-import { type AccountResponse } from '@/features/auth/schemas/auth.schema'
 import { useQueryClient } from '@tanstack/react-query'
 import { handleErrorApi } from '@/utils/error-handler'
+import { userApi } from '@/features/user/api/user.api'
+import { type UserResponse } from '@/features/user/schemas/user.schema'
 
 const USER_KEY = 'user_profile'
 
@@ -12,23 +13,22 @@ interface AuthProviderProps {
 }
 
 interface AuthContextType {
-  user: AccountResponse | null
+  user: UserResponse | null
   isAuthenticated: boolean
-  setAuthUser: (user: AccountResponse | null) => void
+  setAuthUser: (user: UserResponse | null) => void
   logoutLocal: () => void
-  updateUser: (user: AccountResponse) => void
+  updateUser: (user: UserResponse) => void
   refetchUser: () => Promise<void>
-  loginSuccess: (accessToken: string) => Promise<boolean>
+  loginSuccess: (accessToken: string) => Promise<UserResponse>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<AccountResponse | null>(() => storage.get<AccountResponse>(USER_KEY))
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!getAccessToken())
+  const [user, setUser] = useState<UserResponse | null>(() => storage.get<UserResponse>(USER_KEY))
   const queryClient = useQueryClient()
 
-  const setAuthUser = useCallback((userData: AccountResponse | null) => {
+  const setAuthUser = useCallback((userData: UserResponse | null) => {
     setUser(userData)
     if (userData) {
       storage.set(USER_KEY, userData)
@@ -40,12 +40,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const logoutLocal = useCallback(() => {
     clearAccessToken()
     setUser(null)
-    setIsAuthenticated(false)
     storage.remove(USER_KEY)
     queryClient.clear()
   }, [queryClient])
 
-  const updateUser = useCallback((userData: AccountResponse) => {
+  const updateUser = useCallback((userData: UserResponse) => {
     setUser(userData)
     storage.set(USER_KEY, userData)
   }, [])
@@ -53,22 +52,30 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const refetchUser = useCallback(async () => {
     if (!getAccessToken()) return
     try {
-      // Profile fetching will be implemented in user feature
+      const response = await userApi.getMyProfile()
+      const userData = response.data.data
+      if (userData) {
+        setAuthUser(userData)
+      }
     } catch (error) {
       handleErrorApi({ error })
     }
-  }, [])
+  }, [setAuthUser])
 
-  const loginSuccess = useCallback(async (accessToken: string) => {
-    setAccessToken(accessToken)
-    setIsAuthenticated(true)
-    // TODO: Implement userApi.me()
-    return true
-  }, [])
+  const loginSuccess = useCallback(
+    async (accessToken: string) => {
+      setAccessToken(accessToken)
+      const res = await userApi.getMyProfile()
+      const userData = res.data.data
+      setAuthUser(userData)
+      return userData
+    },
+    [setAuthUser]
+  )
 
   const value: AuthContextType = {
     user,
-    isAuthenticated,
+    isAuthenticated: !!getAccessToken(),
     setAuthUser,
     logoutLocal,
     updateUser,

@@ -13,7 +13,9 @@ export const createAuthTexts = (t: TFunction<'auth'>) => ({
     submit: t(AUTH_KEYS.form.submit),
     submitting: t(AUTH_KEYS.form.submitting),
     forgot: t(AUTH_KEYS.form.forgot),
-    qr: t(AUTH_KEYS.form.qr)
+    qr: t(AUTH_KEYS.form.qr),
+    noAccount: t(AUTH_KEYS.form.noAccount),
+    registerNow: t(AUTH_KEYS.form.registerNow)
   },
 
   upload: {
@@ -48,5 +50,19 @@ export const createAuthTexts = (t: TFunction<'auth'>) => ({
     confirmMessage: t(AUTH_KEYS.logoutDialog.confirmMessage),
     no: t(AUTH_KEYS.logoutDialog.no),
     yes: t(AUTH_KEYS.logoutDialog.yes)
+  },
+
+  forgotPassword: {
+    subtitle: t(AUTH_KEYS.forgotPassword.subtitle),
+    instruction: t(AUTH_KEYS.forgotPassword.instruction),
+    email: t(AUTH_KEYS.forgotPassword.email),
+    continue: t(AUTH_KEYS.forgotPassword.continue),
+    back: t(AUTH_KEYS.forgotPassword.back),
+    otp: t(AUTH_KEYS.forgotPassword.otp),
+    newPassword: t(AUTH_KEYS.forgotPassword.newPassword),
+    confirmPassword: t(AUTH_KEYS.forgotPassword.confirmPassword),
+    confirm: t(AUTH_KEYS.forgotPassword.confirm),
+    success: t(AUTH_KEYS.forgotPassword.success),
+    resetInstruction: t(AUTH_KEYS.forgotPassword.resetInstruction)
   }
 })

@@ -1,21 +1,19 @@
-import { Controller, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Lock, Mail } from 'lucide-react'
+import { Link, useNavigate } from 'react-router'
+import axios from 'axios'
+import { toast } from 'sonner'
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Field, FieldError } from '@/components/ui/field'
 import { type LoginRequest, loginRequestSchema } from '@/features/auth/schemas/auth.schema'
-import { cn } from '@/lib/utils'
 import { useLoginMutation } from '@/features/auth/queries/use-mutations'
 import { DeviceType, PATHS } from '@/constants'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { getDeviceId } from '@/utils/device'
-import axios from 'axios'
 import { handleErrorApi, getErrorMessage } from '@/utils/error-handler'
-import { toast } from 'sonner'
-import { useNavigate } from 'react-router'
 import { useAuthText } from '@/features/auth/i18n/use-auth-text'
+import { AuthInput } from './common/auth-input'
+import { AuthButton } from './common/auth-button'
 
 export default function LoginForm() {
   const { loginSuccess } = useAuth()
@@ -33,8 +31,9 @@ export default function LoginForm() {
       deviceType: DeviceType.Web
     }
   })
+
   const loginMutation = useLoginMutation()
-  const { isValid } = form.formState
+  const { isValid, errors, touchedFields } = form.formState
 
   const onSubmit = async (data: LoginRequest) => {
     if (loginMutation.isPending) return
@@ -59,84 +58,60 @@ export default function LoginForm() {
   }
 
   return (
-    <div className='w-full max-w-lg bg-white shadow-[0_8px_28px_rgba(0,0,0,0.08)] rounded-xl overflow-hidden border border-border/40 px-5'>
+    <div className='w-full max-w-[500px] bg-white shadow-[0_8px_28px_rgba(0,0,0,0.08)] rounded-xl overflow-hidden border border-border/40 px-6 transition-all'>
       <div className='border-b border-gray-100 text-center py-4 bg-white'>
         <p className='text-md font-bold text-foreground tracking-wide'>{text.form.title}</p>
       </div>
 
       <div className='p-12 bg-white'>
         <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6 px-5'>
-          <Controller
-            name='email'
-            control={form.control}
-            render={({ field }) => (
-              <Field>
-                <div className='group flex items-center border-b border-gray-200 pb-2 focus-within:border-primary transition-all duration-200'>
-                  <Mail className='mr-3 h-5 w-5' strokeWidth={1.5} />
-                  <Input
-                    {...field}
-                    placeholder={text.form.email}
-                    spellCheck={false}
-                    className='h-auto w-full border-none bg-transparent p-0 text-[15px] shadow-none focus-visible:ring-0 placeholder:text-muted-foreground/60 font-normal outline-none text-foreground selection:bg-primary/20 rounded-none border-0 ring-0'
-                  />
-                </div>
-                <FieldError
-                  errors={[form.formState.errors.email?.type === 'server' ? form.formState.errors.email : undefined]}
-                />
-              </Field>
-            )}
+          <AuthInput
+            {...form.register('email')}
+            icon={Mail}
+            placeholder={text.form.email}
+            error={touchedFields.email ? errors.email : undefined}
           />
 
-          <Controller
-            name='password'
-            control={form.control}
-            render={({ field }) => (
-              <Field>
-                <div className='group flex items-center border-b border-gray-200 pb-2 focus-within:border-primary transition-all duration-200'>
-                  <Lock className='mr-3 h-5 w-5' strokeWidth={1.5} />
-                  <Input
-                    {...field}
-                    type='password'
-                    placeholder={text.form.password}
-                    autoComplete='current-password'
-                    spellCheck={false}
-                    className='h-auto w-full border-none bg-transparent p-0 text-[15px] shadow-none focus-visible:ring-0 placeholder:text-muted-foreground/60 font-normal outline-none text-foreground selection:bg-primary/20 rounded-none border-0 ring-0'
-                  />
-                </div>
-                <FieldError
-                  errors={[
-                    form.formState.errors.password?.type === 'server' ? form.formState.errors.password : undefined
-                  ]}
-                />
-              </Field>
-            )}
+          <AuthInput
+            {...form.register('password')}
+            icon={Lock}
+            type='password'
+            placeholder={text.form.password}
+            autoComplete='current-password'
+            error={touchedFields.password ? errors.password : undefined}
           />
 
           <div className='pt-2'>
-            <Button
-              type='submit'
-              variant='vibrant'
-              disabled={!isValid || loginMutation.isPending}
-              className={cn(
-                'w-full font-bold text-[16px] transition-all shadow-none border-none rounded-[4px] h-[48px]',
-                !isValid && 'opacity-50 cursor-not-allowed'
-              )}
-            >
-              {loginMutation.isPending ? text.form.submitting : text.form.submit}
-            </Button>
+            <AuthButton isLoading={loginMutation.isPending} loadingText={text.form.submitting} disabled={!isValid}>
+              {text.form.submit}
+            </AuthButton>
           </div>
         </form>
+
         <div className='mt-5 text-center'>
-          <p className='text-[13px] text-muted-foreground hover:text-primary hover:underline cursor-pointer transition-colors font-normal'>
+          <Link
+            to={PATHS.AUTH.FORGOT_PASSWORD}
+            className='text-[13px] text-muted-foreground hover:text-vibrant-blue hover:underline cursor-pointer transition-colors font-normal'
+          >
             {text.form.forgot}
-          </p>
+          </Link>
         </div>
+
         <div className='mt-10 text-center mb-6'>
           <p
-            className='text-[15px] text-primary hover:text-primary/90 hover:underline cursor-pointer font-bold'
+            className='text-[15px] text-vibrant-blue hover:text-vibrant-blue/90 hover:underline cursor-pointer font-bold'
             onClick={() => toast.info(text.toast.qrComing)}
           >
             {text.form.qr}
+          </p>
+        </div>
+
+        <div className='mt-8 text-center border-t border-gray-100 pt-6 mb-4'>
+          <p className='text-sm text-muted-foreground'>
+            {text.form.noAccount}{' '}
+            <Link to={PATHS.AUTH.REGISTER} className='text-vibrant-blue hover:underline font-bold'>
+              {text.form.registerNow}
+            </Link>
           </p>
         </div>
       </div>

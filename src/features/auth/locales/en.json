@@ -10,7 +10,9 @@
       "submit": "Login",
       "submitting": "Processing...",
       "forgot": "Forgot password",
-      "qr": "Login with QR code"
+      "qr": "Login with QR code",
+      "noAccount": "Don't have an account?",
+      "registerNow": "Register now"
     },
     "upload": {
       "title": "Drag and drop or click to select image",
@@ -35,6 +37,19 @@
       "confirmMessage": "Do you want to logout from BondHub?",
       "no": "Cancel",
       "yes": "Logout"
+    },
+    "forgotPassword": {
+      "subtitle": "Recover BondHub password\nto connect to BondHub Web",
+      "instruction": "Enter your email",
+      "email": "Email",
+      "continue": "Continue",
+      "back": "Back",
+      "otp": "Enter activation code",
+      "newPassword": "Please input password",
+      "confirmPassword": "Confirm password",
+      "confirm": "Confirm",
+      "success": "Password reset successfully!",
+      "resetInstruction": "Set a new password for your account\n{{email}}"
     }
   }
 }

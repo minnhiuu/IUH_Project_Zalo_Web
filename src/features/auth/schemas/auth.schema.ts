@@ -34,3 +34,28 @@ export type RefreshRequest = z.infer<typeof refreshRequestSchema>
 export type LogoutRequest = {
   refreshToken?: string
 }
+
+export const forgotPasswordRequestSchema = z.object({
+  email: z.email()
+})
+
+export type ForgotPasswordRequest = z.infer<typeof forgotPasswordRequestSchema>
+
+export type ForgotPasswordResponse = {
+  message: string
+  email: string
+}
+
+export const resetPasswordRequestSchema = z
+  .object({
+    email: z.string().email('Email không hợp lệ'),
+    otp: z.string().min(6, 'Mã xác thực phải có ít nhất 6 ký tự'),
+    newPassword: z.string().min(8, 'Mật khẩu phải có ít nhất 8 ký tự'),
+    confirmPassword: z.string().min(1, 'Vui lòng xác nhận lại mật khẩu')
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: 'Mật khẩu xác nhận không khớp',
+    path: ['confirmPassword']
+  })
+
+export type ResetPasswordRequest = z.infer<typeof resetPasswordRequestSchema>

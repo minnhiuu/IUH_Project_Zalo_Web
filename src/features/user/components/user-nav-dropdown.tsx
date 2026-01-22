@@ -13,7 +13,7 @@ import { useLogoutMutation, LogoutConfirmDialog } from '@/features/auth'
 import { useUserText } from '@/features/user'
 import { useState } from 'react'
 
-import { LANGUAGES, useAppLanguage } from '@/lib/language'
+import { useLocale } from '@/lib/i18n'
 
 interface UserNavDropdownProps {
   children: React.ReactNode
@@ -24,7 +24,7 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
   const logoutMutation = useLogoutMutation()
   const [showLogoutDialog, setShowLogoutDialog] = useState(false)
   const { text } = useUserText()
-  const { language, setLocale } = useAppLanguage()
+  const { locale: language, changeLocale: setLocale, languages } = useLocale()
 
   return (
     <>
@@ -58,7 +58,7 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
               sideOffset={5}
               className='w-44 p-1 shadow-lg border border-border animate-in slide-in-from-left-1 duration-200 bg-white'
             >
-              {LANGUAGES.map((lang) => (
+              {languages.map((lang) => (
                 <DropdownMenuItem
                   key={lang.code}
                   onClick={() => setLocale(lang.code)}

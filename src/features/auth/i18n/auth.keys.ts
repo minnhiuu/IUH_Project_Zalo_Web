@@ -10,7 +10,9 @@ export const AUTH_KEYS = {
     submit: 'auth.form.submit',
     submitting: 'auth.form.submitting',
     forgot: 'auth.form.forgot',
-    qr: 'auth.form.qr'
+    qr: 'auth.form.qr',
+    noAccount: 'auth.form.noAccount',
+    registerNow: 'auth.form.registerNow'
   },
 
   upload: {
@@ -39,5 +41,19 @@ export const AUTH_KEYS = {
     confirmMessage: 'auth.logoutDialog.confirmMessage',
     no: 'auth.logoutDialog.no',
     yes: 'auth.logoutDialog.yes'
+  },
+
+  forgotPassword: {
+    subtitle: 'auth.forgotPassword.subtitle',
+    instruction: 'auth.forgotPassword.instruction',
+    email: 'auth.forgotPassword.email',
+    continue: 'auth.forgotPassword.continue',
+    back: 'auth.forgotPassword.back',
+    otp: 'auth.forgotPassword.otp',
+    newPassword: 'auth.forgotPassword.newPassword',
+    confirmPassword: 'auth.forgotPassword.confirmPassword',
+    confirm: 'auth.forgotPassword.confirm',
+    success: 'auth.forgotPassword.success',
+    resetInstruction: 'auth.forgotPassword.resetInstruction'
   }
 } as const

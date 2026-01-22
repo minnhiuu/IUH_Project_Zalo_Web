@@ -4,6 +4,8 @@ export const useAuth = () => {
   const auth = useAuthContext()
 
   return {
-    ...auth
+    ...auth,
+    isAdmin: auth.user?.role === 'ADMIN',
+    isUser: auth.user?.role === 'USER'
   }
 }

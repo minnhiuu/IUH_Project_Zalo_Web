@@ -10,7 +10,9 @@
       "submit": "Đăng nhập với mật khẩu",
       "submitting": "Đang xử lý...",
       "forgot": "Quên mật khẩu?",
-      "qr": "Đăng nhập qua mã QR"
+      "qr": "Đăng nhập qua mã QR",
+      "noAccount": "Bạn chưa có tài khoản?",
+      "registerNow": "Đăng ký ngay"
     },
     "upload": {
       "title": "Kéo thả hoặc click để chọn ảnh",
@@ -35,6 +37,19 @@
       "confirmMessage": "Bạn có muốn đăng xuất khỏi BondHub?",
       "no": "Không",
       "yes": "Đăng xuất"
+    },
+    "forgotPassword": {
+      "subtitle": "Khôi phục mật khẩu BondHub\nđể kết nối với ứng dụng BondHub Web",
+      "instruction": "Nhập email của bạn",
+      "email": "Email",
+      "continue": "Tiếp tục",
+      "back": "Quay lại",
+      "otp": "Nhập mã kích hoạt",
+      "newPassword": "Vui lòng nhập mật khẩu",
+      "confirmPassword": "Nhập lại mật khẩu",
+      "confirm": "Xác nhận",
+      "success": "Đổi mật khẩu thành công!",
+      "resetInstruction": "Thiết lập mật khẩu mới cho tài khoản\n{{email}}"
     }
   }
 }
