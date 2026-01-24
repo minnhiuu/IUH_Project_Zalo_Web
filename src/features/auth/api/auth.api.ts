@@ -4,6 +4,9 @@ import type {
   LoginRequest,
   LogoutRequest,
   RefreshRequest,
+  RegisterInitResponse,
+  RegisterRequest,
+  RegisterVerifyRequest,
   ResetPasswordRequest,
   TokenResponse
 } from '@/features/auth/schemas/auth.schema'
@@ -12,6 +15,10 @@ import type { ApiResponse } from '@/types/api'
 
 export const authApi = {
   login: (request: LoginRequest) => http.post<ApiResponse<TokenResponse>>('/auth/login', request),
+
+  initiateRegistration: (request: RegisterRequest) => http.post<ApiResponse<RegisterInitResponse>>('/auth/register', request),
+
+  verifyRegistration: (request: RegisterVerifyRequest) => http.post<ApiResponse<TokenResponse>>('/auth/register/verify', request),
 
   forgotPassword: (request: ForgotPasswordRequest) =>
     http.post<ApiResponse<ForgotPasswordResponse>>('/auth/forgot-password', request),

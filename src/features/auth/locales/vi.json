@@ -50,6 +50,29 @@
       "confirm": "Xác nhận",
       "success": "Đổi mật khẩu thành công!",
       "resetInstruction": "Thiết lập mật khẩu mới cho tài khoản\n{{email}}"
+    },
+    "register": {
+      "title": "Đăng ký tài khoản",
+      "subtitle": "Tạo tài khoản BondHub\nđể kết nối với ứng dụng BondHub Web",
+      "fullname": "Họ và tên",
+      "email": "Email",
+      "phoneNumber": "Số điện thoại",
+      "password": "Mật khẩu",
+      "confirmPassword": "Nhập lại mật khẩu",
+      "submit": "Đăng ký",
+      "submitting": "Đang xử lý...",
+      "hasAccount": "Bạn đã có tài khoản?",
+      "loginNow": "Đăng nhập ngay"
+    },
+    "verifyOtp": {
+      "title": "Xác thực tài khoản",
+      "subtitle": "Xác thực tài khoản BondHub\nđể hoàn tất đăng ký",
+      "instruction": "Nhập mã OTP đã được gửi đến email",
+      "otp": "Mã OTP (6 chữ số)",
+      "submit": "Xác thực",
+      "submitting": "Đang xử lý...",
+      "resend": "Gửi lại mã",
+      "success": "Xác thực thành công!"
     }
   }
 }
