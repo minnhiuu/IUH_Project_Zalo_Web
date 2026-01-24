@@ -18,6 +18,31 @@ export const createAuthTexts = (t: TFunction<'auth'>) => ({
     registerNow: t(AUTH_KEYS.form.registerNow)
   },
 
+  register: {
+    title: t(AUTH_KEYS.register.title),
+    subtitle: t(AUTH_KEYS.register.subtitle),
+    fullname: t(AUTH_KEYS.register.fullname),
+    email: t(AUTH_KEYS.register.email),
+    phoneNumber: t(AUTH_KEYS.register.phoneNumber),
+    password: t(AUTH_KEYS.register.password),
+    confirmPassword: t(AUTH_KEYS.register.confirmPassword),
+    submit: t(AUTH_KEYS.register.submit),
+    submitting: t(AUTH_KEYS.register.submitting),
+    hasAccount: t(AUTH_KEYS.register.hasAccount),
+    loginNow: t(AUTH_KEYS.register.loginNow)
+  },
+
+  verifyOtp: {
+    title: t(AUTH_KEYS.verifyOtp.title),
+    subtitle: t(AUTH_KEYS.verifyOtp.subtitle),
+    instruction: t(AUTH_KEYS.verifyOtp.instruction),
+    otp: t(AUTH_KEYS.verifyOtp.otp),
+    submit: t(AUTH_KEYS.verifyOtp.submit),
+    submitting: t(AUTH_KEYS.verifyOtp.submitting),
+    resend: t(AUTH_KEYS.verifyOtp.resend),
+    success: t(AUTH_KEYS.verifyOtp.success)
+  },
+
   upload: {
     empty: {
       title: t(AUTH_KEYS.upload.title),

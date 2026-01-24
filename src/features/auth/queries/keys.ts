@@ -17,5 +17,9 @@ export const authKeys = {
 
   login: () => [...authKeys.all(), 'login'] as const,
 
+  initiateRegistration: () => [...authKeys.all(), 'initiateRegistration'] as const,
+
+  verifyRegistration: () => [...authKeys.all(), 'verifyRegistration'] as const,
+
   logout: () => [...authKeys.all(), 'logout'] as const
 }

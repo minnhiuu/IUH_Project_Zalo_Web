@@ -50,6 +50,29 @@
       "confirm": "Confirm",
       "success": "Password reset successfully!",
       "resetInstruction": "Set a new password for your account\n{{email}}"
+    },
+    "register": {
+      "title": "Create Account",
+      "subtitle": "Create BondHub account\nto connect to BondHub Web",
+      "fullname": "Full name",
+      "email": "Email",
+      "phoneNumber": "Phone number",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "submit": "Register",
+      "submitting": "Processing...",
+      "hasAccount": "Already have an account?",
+      "loginNow": "Login now"
+    },
+    "verifyOtp": {
+      "title": "Verify Account",
+      "subtitle": "Verify BondHub account\nto complete registration",
+      "instruction": "Enter OTP code sent to your email",
+      "otp": "OTP Code (6 digits)",
+      "submit": "Verify",
+      "submitting": "Processing...",
+      "resend": "Resend code",
+      "success": "Verification successful!"
     }
   }
 }

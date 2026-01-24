@@ -15,6 +15,31 @@ export const AUTH_KEYS = {
     registerNow: 'auth.form.registerNow'
   },
 
+  register: {
+    title: 'auth.register.title',
+    subtitle: 'auth.register.subtitle',
+    fullname: 'auth.register.fullname',
+    email: 'auth.register.email',
+    phoneNumber: 'auth.register.phoneNumber',
+    password: 'auth.register.password',
+    confirmPassword: 'auth.register.confirmPassword',
+    submit: 'auth.register.submit',
+    submitting: 'auth.register.submitting',
+    hasAccount: 'auth.register.hasAccount',
+    loginNow: 'auth.register.loginNow'
+  },
+
+  verifyOtp: {
+    title: 'auth.verifyOtp.title',
+    subtitle: 'auth.verifyOtp.subtitle',
+    instruction: 'auth.verifyOtp.instruction',
+    otp: 'auth.verifyOtp.otp',
+    submit: 'auth.verifyOtp.submit',
+    submitting: 'auth.verifyOtp.submitting',
+    resend: 'auth.verifyOtp.resend',
+    success: 'auth.verifyOtp.success'
+  },
+
   upload: {
     title: 'auth.upload.title',
     hint: 'auth.upload.hint',
