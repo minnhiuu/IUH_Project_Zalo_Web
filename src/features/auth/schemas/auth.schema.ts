@@ -1,4 +1,5 @@
 import z from 'zod'
+import { QrSessionStatus } from '@/constants/enum'
 
 export const loginRequestSchema = z.object({
   email: z.string().email('Email không hợp lệ'),
@@ -20,7 +21,10 @@ export const registerRequestSchema = z
     password: z
       .string()
       .min(8, 'Mật khẩu phải có ít nhất 8 ký tự')
-      .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, 'Mật khẩu phải bao gồm chữ thường, chữ hoa, số và ký tự đặc biệt'),
+      .regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+        'Mật khẩu phải bao gồm chữ thường, chữ hoa, số và ký tự đặc biệt'
+      ),
     confirmPassword: z.string().min(1, 'Mật khẩu nhập lại không được để trống'),
     fullName: z.string().min(1, 'Họ và tên không được để trống'),
     phoneNumber: z.string().regex(/^[0-9]{10}$/, 'Số điện thoại phải có đúng 10 chữ số')
@@ -33,7 +37,7 @@ export const registerRequestSchema = z
 export type RegisterRequest = z.infer<typeof registerRequestSchema>
 
 export type RegisterInitResponse = {
-  message: string,
+  message: string
   email: string
 }
 
@@ -85,7 +89,10 @@ export const resetPasswordRequestSchema = z
     newPassword: z
       .string()
       .min(8, 'Mật khẩu phải có ít nhất 8 ký tự')
-      .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, 'Mật khẩu phải bao gồm chữ thường, chữ hoa, số và ký tự đặc biệt'),
+      .regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+        'Mật khẩu phải bao gồm chữ thường, chữ hoa, số và ký tự đặc biệt'
+      ),
     confirmPassword: z.string().min(1, 'Vui lòng xác nhận lại mật khẩu')
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
@@ -94,3 +101,17 @@ export const resetPasswordRequestSchema = z
   })
 
 export type ResetPasswordRequest = z.infer<typeof resetPasswordRequestSchema>
+
+export type QrGenerationResponse = {
+  qrId: string
+  qrContent: string
+  expiresAt: string
+}
+
+export type QrStatusResponse = {
+  status: QrSessionStatus
+  userAvatar?: string
+  userFullName?: string
+  accessToken?: string
+  refreshToken?: string
+}

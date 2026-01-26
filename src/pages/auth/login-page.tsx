@@ -1,5 +1,16 @@
-import { LoginForm } from '@/features/auth'
+import { useState } from 'react'
+import { LoginForm, QRLoginForm } from '@/features/auth'
 
 export default function LoginPage() {
-  return <LoginForm />
+  const [isQR, setIsQR] = useState(false)
+
+  return (
+    <div className='w-full flex justify-center perspective-1000'>
+      {isQR ? (
+        <QRLoginForm onSwitchToPassword={() => setIsQR(false)} />
+      ) : (
+        <LoginForm onSwitchToQR={() => setIsQR(true)} />
+      )}
+    </div>
+  )
 }

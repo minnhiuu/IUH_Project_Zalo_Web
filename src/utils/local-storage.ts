@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 const APP_PREFIX = 'bondhub_'
 
-type StorageKey = 'access_token' | 'user_profile' | 'theme' | 'settings' | 'device_id' | 'locale'
+type StorageKey = 'access_token' | 'refresh_token' | 'user_profile' | 'theme' | 'settings' | 'device_id' | 'locale'
 
 export const storage = {
   get: <T>(key: StorageKey, defaultValue?: T): T | null => {

@@ -33,3 +33,12 @@ export const GENDER_LABELS: Record<Gender, string> = {
   [Gender.Male]: 'Nam',
   [Gender.Female]: 'Nữ'
 }
+
+export const QrSessionStatus = {
+  Pending: 'PENDING',
+  Scanned: 'SCANNED',
+  Confirmed: 'CONFIRMED',
+  Rejected: 'REJECTED'
+} as const
+
+export type QrSessionStatus = (typeof QrSessionStatus)[keyof typeof QrSessionStatus]

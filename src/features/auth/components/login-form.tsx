@@ -3,7 +3,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Lock, Mail } from 'lucide-react'
 import { Link, useNavigate } from 'react-router'
 import axios from 'axios'
-import { toast } from 'sonner'
 
 import { type LoginRequest, loginRequestSchema } from '@/features/auth/schemas/auth.schema'
 import { useLoginMutation } from '@/features/auth/queries/use-mutations'
@@ -15,7 +14,7 @@ import { useAuthText } from '@/features/auth/i18n/use-auth-text'
 import { AuthInput } from './common/auth-input'
 import { AuthButton } from './common/auth-button'
 
-export default function LoginForm() {
+export default function LoginForm({ onSwitchToQR }: { onSwitchToQR: () => void }) {
   const { loginSuccess } = useAuth()
   const deviceId = getDeviceId()
   const navigate = useNavigate()
@@ -58,7 +57,7 @@ export default function LoginForm() {
   }
 
   return (
-    <div className='w-full max-w-[500px] bg-white shadow-[0_8px_28px_rgba(0,0,0,0.08)] rounded-xl overflow-hidden border border-border/40 px-6 transition-all'>
+    <div className='w-full max-w-[500px] bg-white shadow-[0_8px_28px_rgba(0,0,0,0.08)] rounded-xl overflow-hidden border border-border/40 px-6 transition-all animate-in fade-in zoom-in-95 duration-300'>
       <div className='border-b border-gray-100 text-center py-4 bg-white'>
         <p className='text-md font-bold text-foreground tracking-wide'>{text.form.title}</p>
       </div>
@@ -97,10 +96,10 @@ export default function LoginForm() {
           </Link>
         </div>
 
-        <div className='mt-10 text-center mb-6'>
+        <div className='mt-10 text-center mb-6 px-10'>
           <p
-            className='text-[15px] text-vibrant-blue hover:text-vibrant-blue/90 hover:underline cursor-pointer font-bold'
-            onClick={() => toast.info(text.toast.qrComing)}
+            className='text-[15px] text-vibrant-blue hover:text-vibrant-blue/90 hover:underline cursor-pointer font-bold transition-all hover:scale-[1.02]'
+            onClick={onSwitchToQR}
           >
             {text.form.qr}
           </p>

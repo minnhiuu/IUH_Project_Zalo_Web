@@ -1,3 +1,10 @@
-// Query hooks cho auth feature
-// Có thể thêm các query hooks ở đây nếu cần
-// Ví dụ: export const useAuthStatus = () => useQuery(...)
+import { useQuery } from '@tanstack/react-query'
+import { authOptions } from './options'
+
+export const useGenerateQrQuery = () => {
+  return useQuery(authOptions.generateQr())
+}
+
+export const useCheckQrStatusQuery = (qrId: string, enabled: boolean) => {
+  return useQuery(authOptions.checkQrStatus(qrId, enabled))
+}

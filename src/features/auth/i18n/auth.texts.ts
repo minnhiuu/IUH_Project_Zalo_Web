@@ -89,5 +89,25 @@ export const createAuthTexts = (t: TFunction<'auth'>) => ({
     confirm: t(AUTH_KEYS.forgotPassword.confirm),
     success: t(AUTH_KEYS.forgotPassword.success),
     resetInstruction: t(AUTH_KEYS.forgotPassword.resetInstruction)
+  },
+
+  qr: {
+    title: t(AUTH_KEYS.qr.title),
+    pcPromo: t(AUTH_KEYS.qr.pcPromo),
+    pcDownload: t(AUTH_KEYS.qr.pcDownload),
+    loginWithPassword: t(AUTH_KEYS.qr.loginWithPassword),
+    expired: t(AUTH_KEYS.qr.expired),
+    refresh: t(AUTH_KEYS.qr.refresh),
+    confirmPhone: t(AUTH_KEYS.qr.confirmPhone),
+    scannedSuccess: t(AUTH_KEYS.qr.scannedSuccess),
+    instruction: t(AUTH_KEYS.qr.instruction),
+    generating: t(AUTH_KEYS.qr.generating),
+    generateError: t(AUTH_KEYS.qr.generateError),
+    retry: t(AUTH_KEYS.qr.retry),
+    loginFailed: t(AUTH_KEYS.qr.loginFailed),
+    rejected: t(AUTH_KEYS.qr.rejected),
+    expiredError: t(AUTH_KEYS.qr.expiredError),
+    onlyForLogin: t(AUTH_KEYS.qr.onlyForLogin),
+    appNameOnPC: t(AUTH_KEYS.qr.appNameOnPC)
   }
 })

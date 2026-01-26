@@ -57,7 +57,8 @@ http.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const isAuthEndpoint =
     config.url?.includes('/auth/login') ||
     config.url?.includes('/auth/register') ||
-    config.url?.includes('/auth/refresh')
+    config.url?.includes('/auth/refresh') ||
+    config.url?.includes('/auth/qr')
 
   if (isAuthEndpoint) return config
 
@@ -81,7 +82,8 @@ http.interceptors.response.use(
     const isAuthEndpoint =
       originalRequest.url?.includes('/auth/login') ||
       originalRequest.url?.includes('/auth/register') ||
-      originalRequest.url?.includes('/auth/refresh')
+      originalRequest.url?.includes('/auth/refresh') ||
+      originalRequest.url?.includes('/auth/qr')
 
     if (isAuthEndpoint) {
       return Promise.reject(error)

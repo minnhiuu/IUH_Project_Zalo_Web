@@ -14,6 +14,25 @@
       "noAccount": "Don't have an account?",
       "registerNow": "Register now"
     },
+    "qr": {
+      "title": "Login with QR code",
+      "pcPromo": "Improve work efficiency with BondHub PC",
+      "pcDownload": "Download now",
+      "loginWithPassword": "Login with password",
+      "expired": "QR Code has expired",
+      "refresh": "Get new code",
+      "confirmPhone": "Please confirm on your phone",
+      "scannedSuccess": "Scanned successfully",
+      "instruction": "Scan QR code with BondHub app to login",
+      "generating": "Generating QR Code...",
+      "generateError": "Could not generate QR Code",
+      "retry": "Retry",
+      "loginFailed": "Login failed, please try again.",
+      "rejected": "You rejected the login request.",
+      "expiredError": "QR code has expired, please get a new code",
+      "onlyForLogin": "Only for login",
+      "appNameOnPC": "BondHub on PC"
+    },
     "upload": {
       "title": "Drag and drop or click to select image",
       "hint": "JPG, PNG, WEBP (Max 5MB)",

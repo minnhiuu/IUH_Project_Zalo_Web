@@ -14,6 +14,25 @@
       "noAccount": "Bạn chưa có tài khoản?",
       "registerNow": "Đăng ký ngay"
     },
+    "qr": {
+      "title": "Đăng nhập qua mã QR",
+      "pcPromo": "Nâng cao hiệu quả công việc với BondHub PC",
+      "pcDownload": "Tải ngay",
+      "loginWithPassword": "Đăng nhập với mật khẩu",
+      "expired": "Mã QR hết hạn",
+      "refresh": "Lấy mã mới",
+      "confirmPhone": "Vui lòng xác nhận trên điện thoại của bạn",
+      "scannedSuccess": "Đã quét thành công",
+      "instruction": "Quét mã QR bằng ứng dụng BondHub để đăng nhập",
+      "generating": "Đang tạo mã QR...",
+      "generateError": "Không thể tạo mã QR",
+      "retry": "Thử lại",
+      "loginFailed": "Đăng nhập thất bại, vui lòng thử lại.",
+      "rejected": "Bạn đã từ chối đăng nhập.",
+      "expiredError": "Mã QR đã hết hạn, vui lòng tải lại mã mới",
+      "onlyForLogin": "Chỉ dùng để đăng nhập",
+      "appNameOnPC": "BondHub trên máy tính"
+    },
     "upload": {
       "title": "Kéo thả hoặc click để chọn ảnh",
       "hint": "JPG, PNG, WEBP (Tối đa 5MB)",

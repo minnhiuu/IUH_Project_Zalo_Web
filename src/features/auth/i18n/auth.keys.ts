@@ -80,5 +80,25 @@ export const AUTH_KEYS = {
     confirm: 'auth.forgotPassword.confirm',
     success: 'auth.forgotPassword.success',
     resetInstruction: 'auth.forgotPassword.resetInstruction'
+  },
+
+  qr: {
+    title: 'auth.qr.title',
+    pcPromo: 'auth.qr.pcPromo',
+    pcDownload: 'auth.qr.pcDownload',
+    loginWithPassword: 'auth.qr.loginWithPassword',
+    expired: 'auth.qr.expired',
+    refresh: 'auth.qr.refresh',
+    confirmPhone: 'auth.qr.confirmPhone',
+    scannedSuccess: 'auth.qr.scannedSuccess',
+    instruction: 'auth.qr.instruction',
+    generating: 'auth.qr.generating',
+    generateError: 'auth.qr.generateError',
+    retry: 'auth.qr.retry',
+    loginFailed: 'auth.qr.loginFailed',
+    rejected: 'auth.qr.rejected',
+    expiredError: 'auth.qr.expiredError',
+    onlyForLogin: 'auth.qr.onlyForLogin',
+    appNameOnPC: 'auth.qr.appNameOnPC'
   }
 } as const

@@ -21,5 +21,9 @@ export const authKeys = {
 
   verifyRegistration: () => [...authKeys.all(), 'verifyRegistration'] as const,
 
-  logout: () => [...authKeys.all(), 'logout'] as const
+  logout: () => [...authKeys.all(), 'logout'] as const,
+
+  generateQr: () => [...authKeys.all(), 'generate-qr'] as const,
+
+  checkQrStatus: (qrId: string) => [...authKeys.all(), 'check-qr-status', qrId] as const
 }

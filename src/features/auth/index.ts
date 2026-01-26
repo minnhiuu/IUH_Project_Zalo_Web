@@ -1,5 +1,6 @@
 export * from './api/auth.api'
 export { default as LoginForm } from './components/login-form'
+export { default as QRLoginForm } from './components/qr-login-form'
 export { default as RegisterForm } from './components/register-form'
 export { ForgotPasswordForm } from './components/forgot-password-form'
 export * from './components/logout-confirm-dialog'
