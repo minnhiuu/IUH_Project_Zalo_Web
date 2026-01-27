@@ -12,6 +12,7 @@ import type {
   QrGenerationResponse,
   QrStatusResponse
 } from '@/features/auth/schemas/auth.schema'
+import { QrSessionStatus } from '@/constants/enum'
 import http from '@/lib/axios-client'
 import type { ApiResponse } from '@/types/api'
 
@@ -36,5 +37,8 @@ export const authApi = {
 
   generateQr: () => http.post<ApiResponse<QrGenerationResponse>>('/auth/qr/generate'),
 
-  checkQrStatus: (qrId: string) => http.get<ApiResponse<QrStatusResponse>>(`/auth/qr/check/${qrId}`)
+  waitQrStatus: (qrId: string, expectedStatus: QrSessionStatus) =>
+    http.get<ApiResponse<QrStatusResponse>>(`/auth/qr/wait/${qrId}`, {
+      params: { expectedStatus }
+    })
 }

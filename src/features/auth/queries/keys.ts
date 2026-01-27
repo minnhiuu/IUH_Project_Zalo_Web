@@ -1,4 +1,5 @@
 import type { ForgotPasswordRequest, ResetPasswordRequest } from '@/features/auth/schemas/auth.schema'
+import { QrSessionStatus } from '@/constants/enum'
 
 export const authKeys = {
   all: () => ['auth'] as const,
@@ -25,5 +26,6 @@ export const authKeys = {
 
   generateQr: () => [...authKeys.all(), 'generate-qr'] as const,
 
-  checkQrStatus: (qrId: string) => [...authKeys.all(), 'check-qr-status', qrId] as const
+  waitQrStatus: (qrId: string, expectedStatus: QrSessionStatus) =>
+    [...authKeys.all(), 'wait-qr-status', qrId, expectedStatus] as const
 }

@@ -93,8 +93,6 @@ export const createAuthTexts = (t: TFunction<'auth'>) => ({
 
   qr: {
     title: t(AUTH_KEYS.qr.title),
-    pcPromo: t(AUTH_KEYS.qr.pcPromo),
-    pcDownload: t(AUTH_KEYS.qr.pcDownload),
     loginWithPassword: t(AUTH_KEYS.qr.loginWithPassword),
     expired: t(AUTH_KEYS.qr.expired),
     refresh: t(AUTH_KEYS.qr.refresh),

@@ -33,6 +33,10 @@
   "2204": "Invalid year attribute pair",
   "2205": "Invalid operation",
   "2206": "Invalid promotion condition",
+  "2207": "Passwords do not match",
+  "1010": "QR code has expired",
+  "1011": "Invalid QR session state",
+  "1012": "Unauthorized QR session access",
   "unknown": "Unknown error",
   "system_error_contact_admin": "An error occurred, please contact admin"
 }

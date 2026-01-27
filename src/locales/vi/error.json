@@ -33,6 +33,10 @@
   "2204": "Cặp thuộc tính năm không hợp lệ",
   "2205": "Thao tác không hợp lệ",
   "2206": "Điều kiện khuyến mãi không hợp lệ",
+  "2207": "Mật khẩu không khớp",
+  "1010": "Mã QR đã hết hạn",
+  "1011": "Trạng thái phiên QR không hợp lệ",
+  "1012": "Không có quyền truy cập phiên QR",
   "unknown": "Lỗi không xác định",
   "system_error_contact_admin": "Đã có lỗi xảy ra, vui lòng liên hệ admin"
 }

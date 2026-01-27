@@ -1,16 +1,19 @@
-import { QrCode, Menu, Loader2, AlertCircle } from 'lucide-react'
+import { Menu, Loader2, AlertCircle } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useAuthText } from '@/features/auth/i18n/use-auth-text'
 import { Button } from '@/components/ui/button'
 import { QRCodeSVG } from 'qrcode.react'
-import { useCheckQrStatusQuery, useGenerateQrQuery } from '../queries/use-queries'
-import { useEffect, useState } from 'react'
+import { useGenerateQrQuery } from '../queries/use-queries'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useAuthContext } from '../context/auth-context'
 import { useNavigate } from 'react-router'
 import { PATHS } from '@/constants/path'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { QrSessionStatus } from '@/constants/enum'
 import { cn } from '@/lib/utils'
+import { authApi } from '@/features/auth/api/auth.api'
+import { handleErrorApi, getErrorCode } from '@/utils/error-handler'
+import { ErrorCode } from '@/constants/error-code'
 
 interface QRLoginFormProps {
   onSwitchToPassword: () => void
@@ -20,74 +23,130 @@ export default function QRLoginForm({ onSwitchToPassword }: QRLoginFormProps) {
   const { text } = useAuthText()
   const navigate = useNavigate()
   const { loginSuccess } = useAuthContext()
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [isExpired, setIsExpired] = useState(false)
 
   const { data: qrData, isLoading: isGenerating, isError: isGenError, refetch: refetchQr } = useGenerateQrQuery()
+  const qrId = qrData?.qrId
 
-  const qrId = qrData?.qrId || ''
-  const { data: statusData } = useCheckQrStatusQuery(qrId, !!qrId && !isExpired)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [isExpired, setIsExpired] = useState(false)
+  const [scannedUser, setScannedUser] = useState<{ fullName: string; avatar: string } | null>(null)
+  const [prevQrId, setPrevQrId] = useState<string | undefined>(qrId)
+
+  const loginSuccessRef = useRef(loginSuccess)
+  const navigateRef = useRef(navigate)
+  const textRef = useRef(text)
+  const expiresAtRef = useRef<string | null>(null)
 
   useEffect(() => {
-    if (!qrData?.expiresAt) return
+    loginSuccessRef.current = loginSuccess
+    navigateRef.current = navigate
+    textRef.current = text
+  })
 
-    const expiryTime = new Date(qrData.expiresAt).getTime()
-    const now = new Date().getTime()
-    const diff = expiryTime - now
-
-    if (diff <= 0) {
-      setTimeout(() => setIsExpired(true), 0)
-      return
-    }
-
-    setTimeout(() => setIsExpired(false), 0)
-    const timer = setTimeout(() => {
-      setIsExpired(true)
-    }, diff)
-
-    return () => clearTimeout(timer)
+  useEffect(() => {
+    if (qrData?.expiresAt) expiresAtRef.current = qrData.expiresAt
   }, [qrData])
 
-  const handleRefreshQr = () => {
+  const handleRefreshQr = useCallback(() => {
     setIsExpired(false)
     setErrorMessage(null)
+    setScannedUser(null)
     refetchQr()
+  }, [refetchQr])
+
+  if (qrId !== prevQrId) {
+    setPrevQrId(qrId)
+    if (qrId) {
+      setErrorMessage(null)
+      setIsExpired(false)
+      setScannedUser(null)
+    }
   }
 
   useEffect(() => {
-    if (!statusData) return
+    if (!qrId) return
+    const currentQrId = qrId
+    let isActive = true
+    const poll = async (waitingFor: QrSessionStatus) => {
+      if (!isActive) return
 
-    if (statusData.status === QrSessionStatus.Confirmed && statusData.accessToken) {
-      const handleLoginSuccess = async () => {
-        try {
-          await loginSuccess(statusData.accessToken!)
-          navigate(PATHS.HOME)
-        } catch (error) {
-          console.error('Login failed:', error)
-          setErrorMessage(text.qr.loginFailed)
+      if (expiresAtRef.current) {
+        const expiryTime = new Date(expiresAtRef.current).getTime()
+        if (new Date().getTime() > expiryTime) {
+          if (isActive) setIsExpired(true)
+          return
         }
       }
-      handleLoginSuccess()
-    } else if (statusData.status === QrSessionStatus.Rejected && !errorMessage) {
-      setTimeout(() => setErrorMessage(text.qr.rejected), 0)
-      const timer = setTimeout(() => {
-        setErrorMessage(null)
-        refetchQr()
-      }, 4000)
-      return () => clearTimeout(timer)
-    }
-  }, [
-    statusData,
-    loginSuccess,
-    navigate,
-    text.toast.loginSuccess,
-    refetchQr,
-    errorMessage,
-    text.qr.loginFailed,
-    text.qr.rejected
-  ])
 
-  const isScanned = statusData?.status === QrSessionStatus.Scanned
+      try {
+        const res = await authApi.waitQrStatus(currentQrId, waitingFor)
+        const data = res.data.data
+
+        if (!isActive) return
+
+        if (data.status === QrSessionStatus.Confirmed && data.accessToken) {
+          try {
+            await loginSuccessRef.current(data.accessToken)
+            navigateRef.current(PATHS.HOME)
+          } catch (loginError) {
+            handleErrorApi({ error: loginError })
+            if (isActive) setErrorMessage(textRef.current.qr.loginFailed)
+          }
+          return
+        }
+
+        if (data.status === QrSessionStatus.Scanned) {
+          setScannedUser({
+            fullName: data.userFullName || '',
+            avatar: data.userAvatar || ''
+          })
+          await poll(QrSessionStatus.Confirmed)
+          return
+        }
+
+        if (data.status === QrSessionStatus.Rejected) {
+          setErrorMessage(textRef.current.qr.rejected)
+          setTimeout(() => {
+            if (isActive) {
+              setErrorMessage(null)
+            }
+          }, 3000)
+          return
+        }
+
+        await poll(waitingFor)
+      } catch (error: unknown) {
+        if (!isActive) return
+
+        const code = getErrorCode(error)
+        if (code === ErrorCode.QR_SESSION_EXPIRED.toString()) {
+          setIsExpired(true)
+          return
+        }
+
+        setTimeout(() => {
+          if (isActive) poll(waitingFor)
+        }, 1000)
+      }
+    }
+
+    poll(QrSessionStatus.Scanned)
+
+    return () => {
+      isActive = false
+    }
+  }, [qrId])
+
+  useEffect(() => {
+    if (!qrData?.expiresAt) return
+    const expiryTime = new Date(qrData.expiresAt).getTime()
+    const now = new Date().getTime()
+    const diff = expiryTime - now
+    const timer = setTimeout(() => setIsExpired(true), Math.max(0, diff))
+    return () => clearTimeout(timer)
+  }, [qrData])
+
+  const isScanned = !!scannedUser
 
   return (
     <div className='w-full max-w-[500px] bg-white shadow-[0_8px_28px_rgba(0,0,0,0.08)] rounded-xl overflow-hidden border border-border/40 px-6 animate-in fade-in zoom-in-95 duration-300'>
@@ -101,10 +160,7 @@ export default function QRLoginForm({ onSwitchToPassword }: QRLoginFormProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end' className='w-56 p-1'>
-              <DropdownMenuItem
-                onClick={onSwitchToPassword}
-                className='cursor-pointer text-sm font-medium focus:bg-brand-gray-100 transition-colors'
-              >
+              <DropdownMenuItem onClick={onSwitchToPassword} className='cursor-pointer text-sm font-medium'>
                 {text.qr.loginWithPassword}
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -112,14 +168,9 @@ export default function QRLoginForm({ onSwitchToPassword }: QRLoginFormProps) {
         </div>
       </div>
 
-      <div className='p-12 bg-white flex flex-col items-center relative'>
-        {isExpired && !errorMessage && !isScanned && (
-          <p className='absolute top-6 left-0 right-0 text-center text-[13px] text-destructive font-medium animate-in fade-in slide-in-from-top-2 duration-300'>
-            {text.qr.expiredError}
-          </p>
-        )}
+      <div className='p-12 bg-white flex flex-col items-center relative min-h-[400px] justify-center'>
         {errorMessage ? (
-          <div className='flex flex-col items-center gap-4 py-8 animate-in fade-in slide-in-from-top-4'>
+          <div className='flex flex-col items-center gap-4 animate-in fade-in slide-in-from-top-4'>
             <div className='bg-destructive/10 p-3 rounded-full'>
               <AlertCircle className='h-10 w-10 text-destructive' />
             </div>
@@ -131,83 +182,77 @@ export default function QRLoginForm({ onSwitchToPassword }: QRLoginFormProps) {
         ) : (
           <>
             {isScanned ? (
-              <div className='flex flex-col items-center gap-3 mb-8 animate-in zoom-in-95 duration-500'>
-                <UserAvatar
-                  name={statusData?.userFullName || ''}
-                  src={statusData?.userAvatar}
-                  className='h-20 w-20'
-                  fallbackClassName='text-2xl'
-                />
-                <div className='text-center'>
-                  <p className='text-base font-semibold text-foreground'>{statusData?.userFullName}</p>
-                  <p className='text-xs text-muted-foreground mt-0.5'>{text.qr.scannedSuccess}</p>
+              <div className='w-full'>
+                <div className='flex flex-col items-center gap-4 mb-4 animate-in zoom-in-95 duration-500'>
+                  <UserAvatar
+                    name={scannedUser.fullName}
+                    src={scannedUser.avatar}
+                    className='h-24 w-24 border-4 border-white shadow-lg'
+                    fallbackClassName='text-3xl'
+                  />
+                  <div className='text-center px-4'>
+                    <p className='text-[18px] font-bold text-foreground mb-1'>{scannedUser.fullName}</p>
+                    <p className='text-[14px] text-green-600 font-medium animate-pulse'>{text.qr.confirmPhone}</p>
+                    <p className='text-[13px] text-muted-foreground mt-2'>{text.qr.scannedSuccess}</p>
+                  </div>
                 </div>
               </div>
             ) : (
-              <div className='p-4 border border-gray-200 rounded-2xl bg-white shadow-sm mb-8 transition-all hover:shadow-md hover:border-primary/20'>
-                <div className='w-48 h-48 bg-white flex items-center justify-center relative overflow-hidden group rounded-lg'>
-                  {isGenerating ? (
-                    <div className='flex flex-col items-center gap-2'>
-                      <Loader2 className='h-8 w-8 animate-spin text-primary' />
-                      <p className='text-xs text-muted-foreground animate-pulse'>{text.qr.generating}</p>
-                    </div>
-                  ) : isGenError ? (
-                    <div className='flex flex-col items-center gap-2 px-4 text-center'>
-                      <p className='text-xs text-destructive'>{text.qr.generateError}</p>
-                      <Button variant='outline' size='sm' onClick={handleRefreshQr} className='h-7 text-[10px]'>
-                        {text.qr.retry}
-                      </Button>
-                    </div>
-                  ) : qrData ? (
-                    <div className='relative'>
-                      <div className={cn('transition-all duration-500', isExpired && 'filter blur-[1.5px] opacity-40')}>
+              <div className='flex flex-col items-center'>
+                <div className='p-4 pt-6 pb-6 border border-gray-200 rounded-xl bg-white flex flex-col items-center relative'>
+                  <div
+                    className={cn('transition-all duration-300', isExpired && 'opacity-20 blur-sm pointer-events-none')}
+                  >
+                    {isGenerating ? (
+                      <div className='w-48 h-48 flex items-center justify-center'>
+                        <Loader2 className='h-8 w-8 animate-spin text-primary' />
+                      </div>
+                    ) : qrData ? (
+                      <div className='relative'>
                         <QRCodeSVG
                           value={qrData.qrContent}
                           size={192}
                           level='H'
-                          includeMargin={false}
                           imageSettings={{
                             src: '/images/logo.png',
-                            x: undefined,
-                            y: undefined,
                             height: 40,
                             width: 40,
                             excavate: true
                           }}
                         />
                       </div>
-                      {isExpired && (
-                        <div className='absolute inset-0 flex flex-col items-center justify-center bg-white/60 rounded-lg animate-in fade-in duration-300 pointer-events-auto'>
-                          <p className='text-[13px] font-medium text-foreground mb-3'>{text.qr.expired}</p>
-                          <Button
-                            onClick={handleRefreshQr}
-                            className='bg-vibrant-blue hover:bg-vibrant-blue/90 text-white h-9 px-6 rounded-[4px] text-xs font-bold shadow-sm'
-                          >
-                            {text.qr.refresh}
-                          </Button>
-                        </div>
-                      )}
+                    ) : isGenError ? (
+                      <div className='w-48 h-48 flex flex-col items-center justify-center text-destructive'>
+                        <AlertCircle className='w-8 h-8 mb-2' />
+                        <p className='text-xs text-center'>{text.qr.generateError}</p>
+                        <Button variant='link' size='sm' onClick={() => refetchQr()}>
+                          {text.qr.retry}
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className='w-48 h-48 bg-gray-100 rounded-lg' />
+                    )}
+                  </div>
+
+                  {isExpired && !isGenerating && (
+                    <div className='absolute inset-0 flex flex-col items-center justify-center z-10 animate-in fade-in'>
+                      <p className='text-[13px] font-bold text-destructive mb-3'>{text.qr.expired}</p>
+                      <Button
+                        onClick={handleRefreshQr}
+                        className='bg-blue-600 hover:bg-blue-700 text-white h-8 rounded-full px-6'
+                      >
+                        {text.qr.refresh}
+                      </Button>
                     </div>
-                  ) : (
-                    <QrCode className='w-40 h-40 text-foreground' />
                   )}
-                  {!isScanned && !isExpired && (
-                    <div className='absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none' />
-                  )}
+                </div>
+
+                <div className='mt-5 flex flex-col items-center text-center'>
+                  <p className='text-brand-blue text-[15px] font-medium leading-none mb-2'>{text.qr.onlyForLogin}</p>
+                  <p className='text-[13px] text-foreground font-medium'>{text.qr.appNameOnPC}</p>
                 </div>
               </div>
             )}
-
-            <div className='text-center space-y-2'>
-              {isScanned ? (
-                <p className='text-sm text-foreground font-medium animate-pulse'>{text.qr.confirmPhone}</p>
-              ) : (
-                <div className='flex flex-col items-center'>
-                  <p className='text-brand-blue text-[15px] font-medium mb-0.5'>{text.qr.onlyForLogin}</p>
-                  <p className='text-[13px] text-foreground font-medium'>{text.qr.appNameOnPC}</p>
-                </div>
-              )}
-            </div>
           </>
         )}
       </div>

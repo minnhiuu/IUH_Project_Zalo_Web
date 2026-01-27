@@ -1,6 +1,6 @@
 import type { UseFormSetError, FieldValues, Path } from 'react-hook-form'
 import { toast } from 'sonner'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import i18n from '@/lib/i18n'
 
 type EntityErrorPayload = {
@@ -9,6 +9,11 @@ type EntityErrorPayload = {
     field: string
     message: string
   }[]
+}
+
+type BaseErrorResponse = {
+  code?: string | number
+  message?: string
 }
 
 export class EntityError extends Error {
@@ -44,7 +49,7 @@ export const handleErrorApi = <T extends FieldValues>({
       })
     })
   } else if (axios.isAxiosError(error)) {
-    const data = error.response?.data
+    const data = error.response?.data as BaseErrorResponse | undefined
     const message = getErrorMessage(data?.code)
 
     toast.error(i18n.t('common:error_toast_title', { defaultValue: 'Thất bại' }), {
@@ -59,4 +64,16 @@ export const handleErrorApi = <T extends FieldValues>({
       duration: duration ?? 4000
     })
   }
+}
+
+export const getErrorCode = (error: unknown): string | undefined => {
+  if (axios.isAxiosError(error)) {
+    const code = (error.response?.data as BaseErrorResponse)?.code
+    return code?.toString()
+  }
+  return undefined
+}
+
+export const isAxiosError = (error: unknown): error is AxiosError<BaseErrorResponse> => {
+  return axios.isAxiosError(error)
 }

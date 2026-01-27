@@ -84,8 +84,6 @@ export const AUTH_KEYS = {
 
   qr: {
     title: 'auth.qr.title',
-    pcPromo: 'auth.qr.pcPromo',
-    pcDownload: 'auth.qr.pcDownload',
     loginWithPassword: 'auth.qr.loginWithPassword',
     expired: 'auth.qr.expired',
     refresh: 'auth.qr.refresh',
