@@ -13,7 +13,8 @@ export const authOptions = {
         const response = await authApi.generateQr()
         return response.data.data
       },
-      refetchInterval: 1000 * 60 * 2
+      refetchOnWindowFocus: false,
+      refetchOnMount: false
     }),
 
   waitQrStatus: (qrId: string, expectedStatus: QrSessionStatus, enabled: boolean) =>

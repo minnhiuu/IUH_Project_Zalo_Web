@@ -37,8 +37,9 @@ export const authApi = {
 
   generateQr: () => http.post<ApiResponse<QrGenerationResponse>>('/auth/qr/generate'),
 
-  waitQrStatus: (qrId: string, expectedStatus: QrSessionStatus) =>
+  waitQrStatus: (qrId: string, expectedStatus: QrSessionStatus, signal?: AbortSignal) =>
     http.get<ApiResponse<QrStatusResponse>>(`/auth/qr/wait/${qrId}`, {
-      params: { expectedStatus }
+      params: { expectedStatus },
+      signal
     })
 }

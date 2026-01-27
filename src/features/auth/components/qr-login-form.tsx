@@ -24,13 +24,13 @@ export default function QRLoginForm({ onSwitchToPassword }: QRLoginFormProps) {
   const navigate = useNavigate()
   const { loginSuccess } = useAuthContext()
 
-  const { data: qrData, isLoading: isGenerating, isError: isGenError, refetch: refetchQr } = useGenerateQrQuery()
-  const qrId = qrData?.qrId
-
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [isExpired, setIsExpired] = useState(false)
   const [scannedUser, setScannedUser] = useState<{ fullName: string; avatar: string } | null>(null)
-  const [prevQrId, setPrevQrId] = useState<string | undefined>(qrId)
+  const [prevQrId, setPrevQrId] = useState<string | null>(null)
+
+  const { data: qrData, isLoading: isGenerating, isError: isGenError, refetch: refetchQr } = useGenerateQrQuery()
+  const qrId = qrData?.qrId
 
   const loginSuccessRef = useRef(loginSuccess)
   const navigateRef = useRef(navigate)
@@ -54,41 +54,50 @@ export default function QRLoginForm({ onSwitchToPassword }: QRLoginFormProps) {
     refetchQr()
   }, [refetchQr])
 
-  if (qrId !== prevQrId) {
+  if (qrId && qrId !== prevQrId) {
     setPrevQrId(qrId)
-    if (qrId) {
-      setErrorMessage(null)
-      setIsExpired(false)
-      setScannedUser(null)
-    }
+    setErrorMessage(null)
+    setIsExpired(false)
+    setScannedUser(null)
   }
+
+  const isExpiredRef = useRef(isExpired)
+  useEffect(() => {
+    isExpiredRef.current = isExpired
+  }, [isExpired])
 
   useEffect(() => {
     if (!qrId) return
+
     const currentQrId = qrId
     let isActive = true
+    const controller = new AbortController()
+
     const poll = async (waitingFor: QrSessionStatus) => {
-      if (!isActive) return
+      if (!isActive || isExpiredRef.current) return
 
       if (expiresAtRef.current) {
         const expiryTime = new Date(expiresAtRef.current).getTime()
         if (new Date().getTime() > expiryTime) {
-          if (isActive) setIsExpired(true)
+          if (isActive) {
+            setIsExpired(true)
+            setScannedUser(null)
+          }
           return
         }
       }
 
       try {
-        const res = await authApi.waitQrStatus(currentQrId, waitingFor)
+        const res = await authApi.waitQrStatus(currentQrId, waitingFor, controller.signal)
         const data = res.data.data
 
-        if (!isActive) return
+        if (!isActive || isExpiredRef.current) return
 
         if (data.status === QrSessionStatus.Confirmed && data.accessToken) {
           try {
             await loginSuccessRef.current(data.accessToken)
             navigateRef.current(PATHS.HOME)
-          } catch (loginError) {
+          } catch (loginError: unknown) {
             handleErrorApi({ error: loginError })
             if (isActive) setErrorMessage(textRef.current.qr.loginFailed)
           }
@@ -107,25 +116,25 @@ export default function QRLoginForm({ onSwitchToPassword }: QRLoginFormProps) {
         if (data.status === QrSessionStatus.Rejected) {
           setErrorMessage(textRef.current.qr.rejected)
           setTimeout(() => {
-            if (isActive) {
-              setErrorMessage(null)
-            }
+            if (isActive) setErrorMessage(null)
           }, 3000)
           return
         }
 
         await poll(waitingFor)
       } catch (error: unknown) {
-        if (!isActive) return
+        if (!isActive || isExpiredRef.current || controller.signal.aborted) return
 
         const code = getErrorCode(error)
+
         if (code === ErrorCode.QR_SESSION_EXPIRED.toString()) {
           setIsExpired(true)
+          setScannedUser(null)
           return
         }
 
         setTimeout(() => {
-          if (isActive) poll(waitingFor)
+          if (isActive && !isExpiredRef.current && !controller.signal.aborted) poll(waitingFor)
         }, 1000)
       }
     }
@@ -134,6 +143,7 @@ export default function QRLoginForm({ onSwitchToPassword }: QRLoginFormProps) {
 
     return () => {
       isActive = false
+      controller.abort()
     }
   }, [qrId])
 
@@ -142,20 +152,28 @@ export default function QRLoginForm({ onSwitchToPassword }: QRLoginFormProps) {
     const expiryTime = new Date(qrData.expiresAt).getTime()
     const now = new Date().getTime()
     const diff = expiryTime - now
-    const timer = setTimeout(() => setIsExpired(true), Math.max(0, diff))
+
+    const timer = setTimeout(
+      () => {
+        setIsExpired(true)
+        setScannedUser(null)
+      },
+      Math.max(0, diff)
+    )
+
     return () => clearTimeout(timer)
   }, [qrData])
 
   const isScanned = !!scannedUser
 
   return (
-    <div className='w-full max-w-[500px] bg-white shadow-[0_8px_28px_rgba(0,0,0,0.08)] rounded-xl overflow-hidden border border-border/40 px-6 animate-in fade-in zoom-in-95 duration-300'>
-      <div className='border-b border-gray-100 py-4 relative bg-white text-center'>
+    <div className='w-full max-w-[500px] bg-background shadow-[0_8px_28px_rgba(0,0,0,0.08)] rounded-xl overflow-hidden border border-border/40 px-6 animate-in fade-in zoom-in-95 duration-300'>
+      <div className='border-b border-border/60 py-4 relative bg-background text-center'>
         <p className='text-md font-bold text-foreground tracking-wide'>{text.qr.title}</p>
         <div className='absolute right-2 top-1/2 -translate-y-1/2'>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant='ghost' size='icon' className='h-8 w-8 rounded-md hover:bg-brand-gray-100 group mr-2'>
+              <Button variant='ghost' size='icon' className='h-8 w-8 rounded-md hover:bg-accent group mr-2'>
                 <Menu className='h-5 w-5 text-gray-500 transition-colors group-hover:text-foreground' />
               </Button>
             </DropdownMenuTrigger>
@@ -168,7 +186,7 @@ export default function QRLoginForm({ onSwitchToPassword }: QRLoginFormProps) {
         </div>
       </div>
 
-      <div className='p-12 bg-white flex flex-col items-center relative min-h-[400px] justify-center'>
+      <div className='p-12 bg-background flex flex-col items-center relative min-h-[400px] justify-center'>
         {errorMessage ? (
           <div className='flex flex-col items-center gap-4 animate-in fade-in slide-in-from-top-4'>
             <div className='bg-destructive/10 p-3 rounded-full'>
@@ -187,7 +205,7 @@ export default function QRLoginForm({ onSwitchToPassword }: QRLoginFormProps) {
                   <UserAvatar
                     name={scannedUser.fullName}
                     src={scannedUser.avatar}
-                    className='h-24 w-24 border-4 border-white shadow-lg'
+                    className='h-24 w-24 border-4 border-background shadow-lg'
                     fallbackClassName='text-3xl'
                   />
                   <div className='text-center px-4'>
@@ -199,7 +217,7 @@ export default function QRLoginForm({ onSwitchToPassword }: QRLoginFormProps) {
               </div>
             ) : (
               <div className='flex flex-col items-center'>
-                <div className='p-4 pt-6 pb-6 border border-gray-200 rounded-xl bg-white flex flex-col items-center relative'>
+                <div className='p-4 pt-6 pb-6 border border-border rounded-xl bg-background flex flex-col items-center relative'>
                   <div
                     className={cn('transition-all duration-300', isExpired && 'opacity-20 blur-sm pointer-events-none')}
                   >
@@ -239,7 +257,7 @@ export default function QRLoginForm({ onSwitchToPassword }: QRLoginFormProps) {
                       <p className='text-[13px] font-bold text-destructive mb-3'>{text.qr.expired}</p>
                       <Button
                         onClick={handleRefreshQr}
-                        className='bg-blue-600 hover:bg-blue-700 text-white h-8 rounded-full px-6'
+                        className='bg-primary hover:bg-primary-hover text-primary-foreground h-8 rounded-full px-6'
                       >
                         {text.qr.refresh}
                       </Button>
@@ -248,7 +266,7 @@ export default function QRLoginForm({ onSwitchToPassword }: QRLoginFormProps) {
                 </div>
 
                 <div className='mt-5 flex flex-col items-center text-center'>
-                  <p className='text-brand-blue text-[15px] font-medium leading-none mb-2'>{text.qr.onlyForLogin}</p>
+                  <p className='text-vibrant-blue text-[15px] font-medium leading-none mb-2'>{text.qr.onlyForLogin}</p>
                   <p className='text-[13px] text-foreground font-medium'>{text.qr.appNameOnPC}</p>
                 </div>
               </div>
