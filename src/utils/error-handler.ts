@@ -27,9 +27,12 @@ export class EntityError extends Error {
   }
 }
 
-export const getErrorMessage = (code: number | string | undefined): string => {
-  if (code === undefined || code === null) return i18n.t('error:unknown')
-  return i18n.t(`error:${code}`, { defaultValue: i18n.t('error:unknown') })
+export const getErrorMessage = (error: unknown): string => {
+  if (axios.isAxiosError(error)) {
+    const data = error.response?.data as BaseErrorResponse | undefined
+    return data?.message || 'Đã có lỗi xảy ra'
+  }
+  return 'Đã có lỗi xảy ra'
 }
 
 export const handleErrorApi = <T extends FieldValues>({
@@ -49,18 +52,15 @@ export const handleErrorApi = <T extends FieldValues>({
       })
     })
   } else if (axios.isAxiosError(error)) {
-    const data = error.response?.data as BaseErrorResponse | undefined
-    const message = getErrorMessage(data?.code)
+    const message = getErrorMessage(error)
 
     toast.error(i18n.t('common:error_toast_title', { defaultValue: 'Thất bại' }), {
       description: message,
       duration: duration ?? 4000
     })
   } else {
-    toast.error(i18n.t('error:unknown'), {
-      description: i18n.t('error:system_error_contact_admin', {
-        defaultValue: 'Đã có lỗi xảy ra, vui lòng liên hệ admin'
-      }),
+    toast.error(i18n.t('common:error_toast_title', { defaultValue: 'Thất bại' }), {
+      description: 'Đã có lỗi xảy ra, vui lòng liên hệ admin',
       duration: duration ?? 4000
     })
   }

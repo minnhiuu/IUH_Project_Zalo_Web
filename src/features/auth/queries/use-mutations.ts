@@ -1,5 +1,12 @@
 import { useMutation } from '@tanstack/react-query'
-import type { ForgotPasswordRequest, LoginRequest, LogoutRequest, RegisterRequest, RegisterVerifyRequest, ResetPasswordRequest } from '../schemas/auth.schema'
+import type {
+  ForgotPasswordRequest,
+  LoginRequest,
+  LogoutRequest,
+  RegisterRequest,
+  RegisterVerifyRequest,
+  ResetPasswordRequest
+} from '../schemas/auth.schema'
 import { authApi } from '../api/auth.api'
 import { authKeys } from './keys'
 

@@ -33,7 +33,7 @@ export const authApi = {
 
   refresh: (request: RefreshRequest) => http.post<ApiResponse<TokenResponse>>('/auth/refresh', request),
 
-  logout: (request: LogoutRequest) => http.post<ApiResponse<void>>('/auth/logout', request),
+  logout: (request?: LogoutRequest) => http.post<ApiResponse<void>>('/auth/logout', request),
 
   generateQr: () => http.post<ApiResponse<QrGenerationResponse>>('/auth/qr/generate'),
 

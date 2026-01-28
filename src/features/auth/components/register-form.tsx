@@ -129,9 +129,7 @@ export default function RegisterForm() {
               {...registerForm.register('fullName')}
               icon={User}
               placeholder={text.register.fullname}
-              error={
-                registerForm.formState.touchedFields.fullName ? registerForm.formState.errors.fullName : undefined
-              }
+              error={registerForm.formState.touchedFields.fullName ? registerForm.formState.errors.fullName : undefined}
             />
 
             <AuthInput
@@ -146,9 +144,7 @@ export default function RegisterForm() {
               icon={Phone}
               placeholder={text.register.phoneNumber}
               error={
-                registerForm.formState.touchedFields.phoneNumber
-                  ? registerForm.formState.errors.phoneNumber
-                  : undefined
+                registerForm.formState.touchedFields.phoneNumber ? registerForm.formState.errors.phoneNumber : undefined
               }
             />
 
@@ -215,9 +211,7 @@ export default function RegisterForm() {
                         </InputOTPGroup>
                       </InputOTP>
                       <FieldError
-                        errors={[
-                          verifyForm.formState.touchedFields.otp ? verifyForm.formState.errors.otp : undefined
-                        ]}
+                        errors={[verifyForm.formState.touchedFields.otp ? verifyForm.formState.errors.otp : undefined]}
                       />
                     </Field>
                   )}
