@@ -1,15 +1,62 @@
-const getItem = <T = unknown>(key: string): T | null => {
-  const value = window.localStorage.getItem(key)
-  if (!value) return null
-  return JSON.parse(value) as T
-}
+import { z } from 'zod'
 
-const setItem = (key: string, value: unknown) => {
-  window.localStorage.setItem(key, JSON.stringify(value))
-}
+const APP_PREFIX = 'bondhub_'
 
-const removeItem = (key: string) => {
-  window.localStorage.removeItem(key)
-}
+type StorageKey = 'access_token' | 'refresh_token' | 'user_profile' | 'theme' | 'settings' | 'device_id' | 'locale'
 
-export { getItem, setItem, removeItem }
+export const storage = {
+  get: <T>(key: StorageKey, defaultValue?: T): T | null => {
+    if (typeof window === 'undefined') return defaultValue ?? null
+
+    try {
+      const item = window.localStorage.getItem(`${APP_PREFIX}${key}`)
+      if (item === null) return defaultValue ?? null
+      try {
+        return JSON.parse(item) as T
+      } catch {
+        return item as unknown as T
+      }
+    } catch (error) {
+      console.warn(`Error reading key "${key}" from localStorage:`, error)
+      return defaultValue ?? null
+    }
+  },
+
+  set: <T>(key: StorageKey, value: T): void => {
+    if (typeof window === 'undefined') return
+
+    try {
+      const serializedValue = typeof value === 'string' ? value : JSON.stringify(value)
+      window.localStorage.setItem(`${APP_PREFIX}${key}`, serializedValue)
+    } catch (error) {
+      console.warn(`Error setting key "${key}" to localStorage:`, error)
+    }
+  },
+
+  remove: (key: StorageKey): void => {
+    if (typeof window === 'undefined') return
+    window.localStorage.removeItem(`${APP_PREFIX}${key}`)
+  },
+  clear: (): void => {
+    if (typeof window === 'undefined') return
+    Object.keys(window.localStorage).forEach((k) => {
+      if (k.startsWith(APP_PREFIX)) {
+        window.localStorage.removeItem(k)
+      }
+    })
+  },
+
+  getValid: <T>(key: StorageKey, schema: z.Schema<T>, defaultValue?: T): T | null => {
+    const data = storage.get(key)
+    if (!data) return defaultValue ?? null
+
+    const result = schema.safeParse(data)
+    if (result.success) {
+      return result.data
+    } else {
+      console.error(`Data in localStorage for key "${key}" is invalid:`, result.error)
+      storage.remove(key)
+      return defaultValue ?? null
+    }
+  }
+}

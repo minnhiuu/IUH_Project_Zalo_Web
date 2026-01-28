@@ -1,0 +1,21 @@
+{
+  "user": {
+    "menu": {
+      "profile": "Profile",
+      "settings": "Settings",
+      "language": "Language",
+      "logout": "Logout"
+    },
+    "profile": {
+      "title": "Account Information",
+      "personalInfo": "Personal information",
+      "gender": "Gender",
+      "dob": "Birthday",
+      "phone": "Phone number",
+      "update": "Update",
+      "privacyNote": "Only friends who have saved your number in their contacts can see this number",
+      "male": "Male",
+      "female": "Female"
+    }
+  }
+}

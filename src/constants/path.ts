@@ -2,7 +2,8 @@ export const PATHS = {
   HOME: '/',
   AUTH: {
     LOGIN: '/login',
-    REGISTER: '/register'
+    REGISTER: '/register',
+    FORGOT_PASSWORD: '/forgot-password'
   },
 
   USER: {

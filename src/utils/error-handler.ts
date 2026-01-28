@@ -1,7 +1,7 @@
 import type { UseFormSetError, FieldValues, Path } from 'react-hook-form'
 import { toast } from 'sonner'
-import axios from 'axios'
-import { getErrorMessage } from '@/constants/error-messages'
+import axios, { AxiosError } from 'axios'
+import i18n from '@/lib/i18n'
 
 type EntityErrorPayload = {
   message: string
@@ -9,6 +9,11 @@ type EntityErrorPayload = {
     field: string
     message: string
   }[]
+}
+
+type BaseErrorResponse = {
+  code?: string | number
+  message?: string
 }
 
 export class EntityError extends Error {
@@ -20,6 +25,14 @@ export class EntityError extends Error {
     this.status = status
     this.payload = payload
   }
+}
+
+export const getErrorMessage = (error: unknown): string => {
+  if (axios.isAxiosError(error)) {
+    const data = error.response?.data as BaseErrorResponse | undefined
+    return data?.message || 'Đã có lỗi xảy ra'
+  }
+  return 'Đã có lỗi xảy ra'
 }
 
 export const handleErrorApi = <T extends FieldValues>({
@@ -39,17 +52,28 @@ export const handleErrorApi = <T extends FieldValues>({
       })
     })
   } else if (axios.isAxiosError(error)) {
-    const data = error.response?.data
-    const message = getErrorMessage(data?.code, data?.message || 'Lỗi hệ thống, vui lòng thử lại sau')
+    const message = getErrorMessage(error)
 
-    toast.error('Thất bại', {
+    toast.error(i18n.t('common:error_toast_title', { defaultValue: 'Thất bại' }), {
       description: message,
       duration: duration ?? 4000
     })
   } else {
-    toast.error('Lỗi không xác định', {
+    toast.error(i18n.t('common:error_toast_title', { defaultValue: 'Thất bại' }), {
       description: 'Đã có lỗi xảy ra, vui lòng liên hệ admin',
       duration: duration ?? 4000
     })
   }
+}
+
+export const getErrorCode = (error: unknown): string | undefined => {
+  if (axios.isAxiosError(error)) {
+    const code = (error.response?.data as BaseErrorResponse)?.code
+    return code?.toString()
+  }
+  return undefined
+}
+
+export const isAxiosError = (error: unknown): error is AxiosError<BaseErrorResponse> => {
+  return axios.isAxiosError(error)
 }
