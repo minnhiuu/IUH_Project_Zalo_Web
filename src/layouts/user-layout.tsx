@@ -3,9 +3,12 @@ import { MessageSquare, Contact2, CheckSquare, Settings, Cloud, Briefcase } from
 import { cn } from '@/lib/utils'
 import { PATHS } from '@/constants/path'
 import { UserNavDropdown } from '@/features/user'
+import { useAuthContext } from '@/features/auth/context/auth-context'
+import { UserAvatar } from '@/components/common/user-avatar'
 
 export default function UserLayout() {
   const location = useLocation()
+  const { user } = useAuthContext()
 
   const navItems = [
     { icon: MessageSquare, path: PATHS.HOME, label: 'Tin nhắn' },
@@ -27,13 +30,12 @@ export default function UserLayout() {
         <UserNavDropdown>
           <div className='mb-4 cursor-pointer flex justify-center w-full'>
             <div className='w-12 h-12 flex items-center justify-center rounded-lg transition-all data-[state=open]:bg-sidebar-accent group'>
-              <div className='w-10 h-10 rounded-full border border-white/20 overflow-hidden bg-zinc-200 transition-transform group-hover:scale-105 active:scale-95'>
-                <img
-                  src='https://api.dicebear.com/7.x/avataaars/svg?seed=Felix'
-                  alt='Avatar'
-                  className='w-full h-full object-cover'
-                />
-              </div>
+              <UserAvatar
+                src={user?.avatar}
+                name={user?.fullName || 'User'}
+                className='w-10 h-10 border border-white/20 transition-transform group-hover:scale-105 active:scale-95'
+                fallbackClassName='bg-primary text-white text-sm'
+              />
             </div>
           </div>
         </UserNavDropdown>
