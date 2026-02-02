@@ -14,6 +14,13 @@ export type UserResponse = {
   role: string
   avatar?: string
   background?: string
+  backgroundY?: number
+}
+
+export type UserImageResponse = {
+  url: string
+  x?: number
+  y?: number
 }
 
 export const userUpdateRequestSchema = z.object({

@@ -26,22 +26,28 @@ export const useUpdateAvatarMutation = () => {
   const { updateUser, user } = useAuthContext()
 
   return useMutation({
-    mutationFn: userApi.updateAvatar,
+    mutationFn: (formData: FormData) => userApi.updateAvatar(formData),
     onSuccess: (response) => {
-      const avatarUrl = response.data.data
-      if (avatarUrl) {
-        queryClient.setQueryData<ApiResponse<UserResponse>>(userKeys.profile(), (old) => {
-          if (!old?.data) return old
-          return {
-            ...old,
-            data: { ...old.data, avatar: avatarUrl }
-          }
-        })
+      const { url } = response.data.data
 
-        if (user) {
-          updateUser({ ...user, avatar: `${avatarUrl}?t=${Date.now()}` })
+      queryClient.setQueryData<ApiResponse<UserResponse>>(userKeys.profile(), (old) => {
+        if (!old?.data) return old
+        return {
+          ...old,
+          data: {
+            ...old.data,
+            avatar: url
+          }
         }
+      })
+
+      if (user) {
+        updateUser({
+          ...user,
+          avatar: `${url}?t=${Date.now()}`
+        })
       }
+
       queryClient.invalidateQueries({ queryKey: userKeys.profile() })
     }
   })
@@ -52,22 +58,62 @@ export const useUpdateBackgroundMutation = () => {
   const { updateUser, user } = useAuthContext()
 
   return useMutation({
-    mutationFn: userApi.updateBackground,
+    mutationFn: (formData: FormData) => userApi.updateBackground(formData),
     onSuccess: (response) => {
-      const backgroundUrl = response.data.data
-      if (backgroundUrl) {
-        queryClient.setQueryData<ApiResponse<UserResponse>>(userKeys.profile(), (old) => {
-          if (!old?.data) return old
-          return {
-            ...old,
-            data: { ...old.data, background: backgroundUrl }
-          }
-        })
+      const { url, y } = response.data.data
 
-        if (user) {
-          updateUser({ ...user, background: `${backgroundUrl}?t=${Date.now()}` })
+      queryClient.setQueryData<ApiResponse<UserResponse>>(userKeys.profile(), (old) => {
+        if (!old?.data) return old
+        return {
+          ...old,
+          data: {
+            ...old.data,
+            background: url,
+            backgroundY: y
+          }
         }
+      })
+
+      if (user) {
+        updateUser({
+          ...user,
+          background: `${url}?t=${Date.now()}`,
+          backgroundY: y
+        })
       }
+
+      queryClient.invalidateQueries({ queryKey: userKeys.profile() })
+    }
+  })
+}
+
+export const useUpdateBackgroundPositionMutation = () => {
+  const queryClient = useQueryClient()
+  const { updateUser, user } = useAuthContext()
+
+  return useMutation({
+    mutationFn: (y: number) => userApi.updateBackgroundPosition(y),
+    onSuccess: (response) => {
+      const { y } = response.data.data
+
+      queryClient.setQueryData<ApiResponse<UserResponse>>(userKeys.profile(), (old) => {
+        if (!old?.data) return old
+        return {
+          ...old,
+          data: {
+            ...old.data,
+            backgroundY: y
+          }
+        }
+      })
+
+      if (user) {
+        updateUser({
+          ...user,
+          backgroundY: y
+        })
+      }
+
       queryClient.invalidateQueries({ queryKey: userKeys.profile() })
     }
   })

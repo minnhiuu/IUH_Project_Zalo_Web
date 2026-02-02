@@ -1,4 +1,7 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
+import { getCroppedImg } from '@/utils/image-crop'
+import { UpdateImageDialog } from './update-image-dialog'
+import { BackgroundEditor } from './background-editor'
 import { Camera, Pencil } from 'lucide-react'
 import { formatDate } from '@/utils/date'
 import { Button } from '@/components/ui/button'
@@ -7,7 +10,7 @@ import { useLocale } from '@/lib/i18n'
 import { Gender } from '@/constants'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { useAuthContext } from '@/features/auth/context/auth-context'
-import { useUpdateAvatarMutation, useUpdateBackgroundMutation } from '../../queries/use-mutations'
+import { useUpdateAvatarMutation } from '../../queries/use-mutations'
 import { toast } from 'sonner'
 
 interface MyProfileInfoProps {
@@ -21,10 +24,13 @@ export function MyProfileInfo({ user, onEdit }: MyProfileInfoProps) {
   const formattedDob = formatDate(user.dob, locale, 'dd MMMM, yyyy')
 
   const avatarInputRef = useRef<HTMLInputElement>(null)
-  const bgInputRef = useRef<HTMLInputElement>(null)
-
   const updateAvatarMutation = useUpdateAvatarMutation()
-  const updateBackgroundMutation = useUpdateBackgroundMutation()
+
+  const [selectedImage, setSelectedImage] = useState<{
+    url: string
+    file: File
+    type: 'avatar'
+  } | null>(null)
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -33,51 +39,44 @@ export function MyProfileInfo({ user, onEdit }: MyProfileInfoProps) {
         toast.error(text.profile.selectImageError)
         return
       }
-      const formData = new FormData()
-      formData.append('file', file)
-      updateAvatarMutation.mutate(formData, {
-        onSuccess: () => toast.success(text.profile.updateAvatarSuccess)
-      })
+      const reader = new FileReader()
+      reader.onload = () => {
+        setSelectedImage({ url: reader.result as string, file, type: 'avatar' })
+      }
+      reader.readAsDataURL(file)
+      e.target.value = ''
     }
   }
 
-  const handleBackgroundChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      if (!file.type.startsWith('image/')) {
-        toast.error(text.profile.selectImageError)
-        return
-      }
-      const formData = new FormData()
-      formData.append('file', file)
-      updateBackgroundMutation.mutate(formData, {
-        onSuccess: () => toast.success(text.profile.updateBackgroundSuccess)
+  const handleCropConfirm = async (data: {
+    percent: { x: number; y: number; width: number; height: number }
+    pixels: { x: number; y: number; width: number; height: number }
+    zoom: number
+  }) => {
+    if (!selectedImage) return
+
+    const formData = new FormData()
+
+    try {
+      const croppedBlob = await getCroppedImg(selectedImage.url, data.pixels)
+      if (!croppedBlob) return
+
+      formData.append('file', croppedBlob, 'avatar.jpg')
+      updateAvatarMutation.mutate(formData, {
+        onSuccess: () => {
+          toast.success(text.profile.updateAvatarSuccess)
+          setSelectedImage(null)
+        }
       })
+    } catch (e) {
+      console.error('Crop failed', e)
+      toast.error(text.profile.selectImageError)
     }
   }
 
   return (
     <>
-      <div className='relative h-[160px] w-full bg-muted overflow-hidden group'>
-        {user.background && <img src={user.background} alt='Cover' className='w-full h-full object-cover' />}
-        {!user.background && (
-          <div className='w-full h-full bg-linear-to-r from-primary to-primary-hover flex items-center justify-center'></div>
-        )}
-        <input
-          type='file'
-          ref={bgInputRef}
-          className='hidden'
-          accept='image/png, image/jpeg, image/jpg, image/webp'
-          onChange={handleBackgroundChange}
-        />
-        <button
-          onClick={() => bgInputRef.current?.click()}
-          className='absolute top-2 right-2 p-2 bg-black/20 hover:bg-black/40 text-white rounded-full transition-all cursor-pointer backdrop-blur-sm'
-        >
-          <Camera className='w-5 h-5' />
-        </button>
-      </div>
-
+      <BackgroundEditor backgroundUrl={user.background} backgroundY={user.backgroundY} />
       <div className='px-4 relative h-[84px] bg-background'>
         <div className='absolute -top-6 left-4 flex items-end gap-4'>
           <div className='relative shrink-0'>
@@ -139,12 +138,18 @@ export function MyProfileInfo({ user, onEdit }: MyProfileInfoProps) {
               <span className='text-[14px] text-foreground font-medium'>{user.phoneNumber}</span>
             </div>
           </div>
-          {user.bio && (
+          {user.bio ? (
             <div className='flex items-start'>
               <span className='w-28 shrink-0 text-[14px] text-muted-foreground'>{text.profile.bioLabel}</span>
               <span className='text-[14px] text-foreground font-medium wrap-break-word'>{user.bio}</span>
             </div>
+          ) : (
+            <div className='flex items-start'>
+              <span className='w-28 shrink-0 text-[14px] text-muted-foreground'>{text.profile.bioLabel}</span>
+              <span className='text-[14px] text-foreground font-medium wrap-break-word'>{text.profile.noBio}</span>
+            </div>
           )}
+
           <p className='mt-5 text-[12.5px] text-muted-foreground leading-snug'>{text.profile.privacyNote}</p>
         </div>
 
@@ -159,6 +164,19 @@ export function MyProfileInfo({ user, onEdit }: MyProfileInfoProps) {
           </Button>
         </div>
       </div>
+
+      {selectedImage && (
+        <UpdateImageDialog
+          image={selectedImage.url}
+          type={selectedImage.type}
+          title={text.profile.updateAvatarTitle}
+          confirmText={text.profile.confirm}
+          cancelText={text.profile.cancel}
+          dragToMoveText={text.profile.dragToMove}
+          onConfirm={handleCropConfirm}
+          onCancel={() => setSelectedImage(null)}
+        />
+      )}
     </>
   )
 }
