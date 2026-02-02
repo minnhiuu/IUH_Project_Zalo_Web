@@ -90,6 +90,20 @@
       "submitting": "Processing...",
       "resend": "Resend code",
       "success": "Verification successful!"
+    },
+    "validation": {
+      "emailInvalid": "Invalid email format",
+      "passwordRequired": "Password is required",
+      "deviceIdRequired": "Device ID is required",
+      "passwordMin": "Password must be at least 8 characters long",
+      "passwordComplex": "Password must include uppercase, lowercase, numbers and special characters",
+      "confirmPasswordRequired": "Please confirm your password",
+      "fullNameRequired": "Full name is required",
+      "phoneInvalid": "Phone number must be exactly 10 digits",
+      "passwordMismatch": "Passwords do not match",
+      "otpInvalid": "OTP must be exactly 6 digits",
+      "resetOtpMin": "OTP must be at least 6 characters long",
+      "confirmPasswordReset": "Please confirm your new password"
     }
   }
 }

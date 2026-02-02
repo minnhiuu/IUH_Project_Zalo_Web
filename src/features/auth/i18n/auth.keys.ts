@@ -98,5 +98,20 @@ export const AUTH_KEYS = {
     expiredError: 'auth.qr.expiredError',
     onlyForLogin: 'auth.qr.onlyForLogin',
     appNameOnPC: 'auth.qr.appNameOnPC'
+  },
+
+  validation: {
+    emailInvalid: 'auth.validation.emailInvalid',
+    passwordRequired: 'auth.validation.passwordRequired',
+    deviceIdRequired: 'auth.validation.deviceIdRequired',
+    passwordMin: 'auth.validation.passwordMin',
+    passwordComplex: 'auth.validation.passwordComplex',
+    confirmPasswordRequired: 'auth.validation.confirmPasswordRequired',
+    fullNameRequired: 'auth.validation.fullNameRequired',
+    phoneInvalid: 'auth.validation.phoneInvalid',
+    passwordMismatch: 'auth.validation.passwordMismatch',
+    otpInvalid: 'auth.validation.otpInvalid',
+    resetOtpMin: 'auth.validation.resetOtpMin',
+    confirmPasswordReset: 'auth.validation.confirmPasswordReset'
   }
 } as const

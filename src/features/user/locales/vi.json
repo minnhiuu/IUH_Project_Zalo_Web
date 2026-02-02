@@ -15,7 +15,38 @@
       "update": "Cập nhật",
       "privacyNote": "Chỉ bạn bè có lưu số của bạn trong danh bạ mới xem được số này",
       "male": "Nam",
-      "female": "Nữ"
+      "female": "Nữ",
+      "editTitle": "Cập nhật thông tin cá nhân",
+      "fullNameLabel": "Tên hiển thị",
+      "fullNamePlaceholder": "Nhập tên hiển thị",
+      "fullNameNote": "Sử dụng tên thật để bạn bè dễ dàng nhận ra bạn.",
+      "day": "Ngày",
+      "month": "Tháng",
+      "year": "Năm",
+      "cancel": "Hủy",
+      "confirm": "Xác nhận",
+      "edit": "Chỉnh sửa",
+      "updating": "Đang cập nhật...",
+      "bio": "Giới thiệu",
+      "bioLabel": "Giới thiệu",
+      "bioPlaceholder": "Nhập giới thiệu bản thân",
+      "noBio": "Chưa có giới thiệu",
+      "selectImageError": "Vui lòng chọn file hình ảnh",
+      "updateAvatarSuccess": "Cập nhật ảnh đại diện thành công",
+      "updateBackgroundSuccess": "Cập nhật ảnh bìa thành công",
+      "updateAvatarTitle": "Cập nhật ảnh đại diện",
+      "updateBackgroundTitle": "Cập nhật ảnh bìa",
+      "dragToMove": "Kéo để di chuyển",
+      "editCover": "Chỉnh sửa ảnh bìa",
+      "addPhoto": "Thêm ảnh",
+      "uploadPhoto": "Tải ảnh lên",
+      "repositionPhoto": "Đặt lại vị trí"
+    },
+    "validation": {
+      "fullNameRequired": "Tên hiển thị không được để trống",
+      "dobInvalid": "Ngày sinh không được lớn hơn ngày hiện tại",
+      "genderRequired": "Vui lòng chọn giới tính",
+      "bioTooLong": "Tiểu sử không được vượt quá 150 ký tự"
     }
   }
 }

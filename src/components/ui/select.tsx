@@ -63,7 +63,6 @@ function SelectContent({
         align={align}
         {...props}
       >
-        <SelectScrollUpButton />
         <SelectPrimitive.Viewport
           data-position={position}
           className={cn(
@@ -73,7 +72,6 @@ function SelectContent({
         >
           {children}
         </SelectPrimitive.Viewport>
-        <SelectScrollDownButton />
       </SelectPrimitive.Content>
     </SelectPrimitive.Portal>
   )
@@ -101,7 +99,7 @@ function SelectItem({ className, children, ...props }: React.ComponentProps<type
     >
       <span className='pointer-events-none absolute right-2 flex size-4 items-center justify-center'>
         <SelectPrimitive.ItemIndicator>
-          <CheckIcon className='pointer-events-none' />
+          <CheckIcon className='pointer-events-none text-primary' />
         </SelectPrimitive.ItemIndicator>
       </span>
       <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
