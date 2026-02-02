@@ -26,7 +26,10 @@
       "cancel": "Cancel",
       "updating": "Updating...",
       "bioLabel": "Bio",
-      "bioPlaceholder": "Enter bio"
+      "bioPlaceholder": "Enter bio",
+      "selectImageError": "Please select an image file",
+      "updateAvatarSuccess": "Avatar updated successfully",
+      "updateBackgroundSuccess": "Cover photo updated successfully"
     },
     "validation": {
       "fullNameRequired": "Display name is required",

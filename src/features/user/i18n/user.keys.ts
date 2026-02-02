@@ -25,7 +25,10 @@ export const USER_KEYS = {
     cancel: 'user.profile.cancel',
     updating: 'user.profile.updating',
     bioLabel: 'user.profile.bioLabel',
-    bioPlaceholder: 'user.profile.bioPlaceholder'
+    bioPlaceholder: 'user.profile.bioPlaceholder',
+    selectImageError: 'user.profile.selectImageError',
+    updateAvatarSuccess: 'user.profile.updateAvatarSuccess',
+    updateBackgroundSuccess: 'user.profile.updateBackgroundSuccess'
   },
   validation: {
     fullNameRequired: 'user.validation.fullNameRequired',

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { X, ChevronLeft } from 'lucide-react'
 import { AlertDialog, AlertDialogContent, AlertDialogOverlay, AlertDialogPortal } from '@/components/ui/alert-dialog'
 import { cn } from '@/lib/utils'
@@ -6,6 +6,7 @@ import { useAuthContext } from '@/features/auth/context/auth-context'
 import { useUserText } from '@/features/user/i18n/use-user-text'
 import { MyProfileInfo } from './my-profile-info'
 import { MyProfileEditForm } from './my-profile-edit-form'
+import { useMyProfile } from '../../queries/use-queries'
 
 interface MyProfileDialogProps {
   open: boolean
@@ -13,15 +14,12 @@ interface MyProfileDialogProps {
 }
 
 export function MyProfileDialog({ open, onOpenChange }: MyProfileDialogProps) {
-  const { user, refetchUser } = useAuthContext()
+  const { user: authUser } = useAuthContext()
+  const { data: profileRes } = useMyProfile()
   const { text } = useUserText()
   const [isEditing, setIsEditing] = useState(false)
 
-  useEffect(() => {
-    if (open) {
-      refetchUser()
-    }
-  }, [open, refetchUser])
+  const user = profileRes?.data || authUser
 
   if (!user) return null
 

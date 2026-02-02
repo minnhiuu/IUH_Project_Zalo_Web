@@ -28,7 +28,10 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
     cancel: t(USER_KEYS.profile.cancel),
     updating: t(USER_KEYS.profile.updating),
     bioLabel: t(USER_KEYS.profile.bioLabel),
-    bioPlaceholder: t(USER_KEYS.profile.bioPlaceholder)
+    bioPlaceholder: t(USER_KEYS.profile.bioPlaceholder),
+    selectImageError: t(USER_KEYS.profile.selectImageError),
+    updateAvatarSuccess: t(USER_KEYS.profile.updateAvatarSuccess),
+    updateBackgroundSuccess: t(USER_KEYS.profile.updateBackgroundSuccess)
   },
   validation: {
     fullNameRequired: t(USER_KEYS.validation.fullNameRequired),

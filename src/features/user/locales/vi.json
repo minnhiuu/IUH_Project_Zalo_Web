@@ -26,7 +26,10 @@
       "cancel": "Hủy",
       "updating": "Đang cập nhật...",
       "bioLabel": "Giới thiệu",
-      "bioPlaceholder": "Nhập giới thiệu bản thân"
+      "bioPlaceholder": "Nhập giới thiệu bản thân",
+      "selectImageError": "Vui lòng chọn file hình ảnh",
+      "updateAvatarSuccess": "Cập nhật ảnh đại diện thành công",
+      "updateBackgroundSuccess": "Cập nhật ảnh bìa thành công"
     },
     "validation": {
       "fullNameRequired": "Tên hiển thị không được để trống",
