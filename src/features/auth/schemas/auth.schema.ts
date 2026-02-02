@@ -1,10 +1,11 @@
 import z from 'zod'
 import { QrSessionStatus } from '@/constants/enum'
+import i18n from '@/lib/i18n'
 
 export const loginRequestSchema = z.object({
-  email: z.string().email('Email không hợp lệ'),
-  password: z.string().min(1, 'Mật khẩu không được để trống'),
-  deviceId: z.string().min(1, 'Device ID không được để trống'),
+  email: z.string().email(i18n.t('auth:auth.validation.emailInvalid')),
+  password: z.string().min(1, i18n.t('auth:auth.validation.passwordRequired')),
+  deviceId: z.string().min(1, i18n.t('auth:auth.validation.deviceIdRequired')),
   deviceType: z.enum(['WEB', 'MOBILE'])
 })
 
@@ -17,20 +18,20 @@ export type TokenResponse = {
 
 export const registerRequestSchema = z
   .object({
-    email: z.string().email('Email không hợp lệ'),
+    email: z.string().email(i18n.t('auth:auth.validation.emailInvalid')),
     password: z
       .string()
-      .min(8, 'Mật khẩu phải có ít nhất 8 ký tự')
+      .min(8, i18n.t('auth:auth.validation.passwordMin'))
       .regex(
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-        'Mật khẩu phải bao gồm chữ thường, chữ hoa, số và ký tự đặc biệt'
+        i18n.t('auth:auth.validation.passwordComplex')
       ),
-    confirmPassword: z.string().min(1, 'Mật khẩu nhập lại không được để trống'),
-    fullName: z.string().min(1, 'Họ và tên không được để trống'),
-    phoneNumber: z.string().regex(/^[0-9]{10}$/, 'Số điện thoại phải có đúng 10 chữ số')
+    confirmPassword: z.string().min(1, i18n.t('auth:auth.validation.confirmPasswordRequired')),
+    fullName: z.string().min(1, i18n.t('auth:auth.validation.fullNameRequired')),
+    phoneNumber: z.string().regex(/^[0-9]{10}$/, i18n.t('auth:auth.validation.phoneInvalid'))
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: 'Mật khẩu xác nhận không khớp',
+    message: i18n.t('auth:auth.validation.passwordMismatch'),
     path: ['confirmPassword']
   })
 
@@ -42,9 +43,9 @@ export type RegisterInitResponse = {
 }
 
 export const registerVerifyRequestSchema = z.object({
-  email: z.string().email('Email không hợp lệ'),
-  otp: z.string().regex(/^[0-9]{6}$/, 'Mã OTP phải có 6 chữ số'),
-  deviceId: z.string().min(1, 'Device ID không được để trống'),
+  email: z.string().email(i18n.t('auth:auth.validation.emailInvalid')),
+  otp: z.string().regex(/^[0-9]{6}$/, i18n.t('auth:auth.validation.otpInvalid')),
+  deviceId: z.string().min(1, i18n.t('auth:auth.validation.deviceIdRequired')),
   deviceType: z.enum(['WEB', 'MOBILE'])
 })
 
@@ -62,7 +63,7 @@ export type AccountResponse = {
 
 export const refreshRequestSchema = z.object({
   refreshToken: z.string().optional(),
-  deviceId: z.string().min(1, 'Device ID không được để trống')
+  deviceId: z.string().min(1, i18n.t('auth:auth.validation.deviceIdRequired'))
 })
 
 export type RefreshRequest = z.infer<typeof refreshRequestSchema>
@@ -84,19 +85,19 @@ export type ForgotPasswordResponse = {
 
 export const resetPasswordRequestSchema = z
   .object({
-    email: z.string().email('Email không hợp lệ'),
-    otp: z.string().min(6, 'Mã xác thực phải có ít nhất 6 ký tự'),
+    email: z.string().email(i18n.t('auth:auth.validation.emailInvalid')),
+    otp: z.string().min(6, i18n.t('auth:auth.validation.resetOtpMin')),
     newPassword: z
       .string()
-      .min(8, 'Mật khẩu phải có ít nhất 8 ký tự')
+      .min(8, i18n.t('auth:auth.validation.passwordMin'))
       .regex(
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-        'Mật khẩu phải bao gồm chữ thường, chữ hoa, số và ký tự đặc biệt'
+        i18n.t('auth:auth.validation.passwordComplex')
       ),
-    confirmPassword: z.string().min(1, 'Vui lòng xác nhận lại mật khẩu')
+    confirmPassword: z.string().min(1, i18n.t('auth:auth.validation.confirmPasswordReset'))
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
-    message: 'Mật khẩu xác nhận không khớp',
+    message: i18n.t('auth:auth.validation.passwordMismatch'),
     path: ['confirmPassword']
   })
 

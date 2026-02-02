@@ -1,5 +1,6 @@
 import z from 'zod'
 import { Gender } from '@/constants'
+import i18n from '@/lib/i18n'
 
 export type UserResponse = {
   id: string
@@ -16,18 +17,20 @@ export type UserResponse = {
 }
 
 export const userUpdateRequestSchema = z.object({
-  fullName: z.string().trim().min(1, 'Tên hiển thị không được để trống'),
+  fullName: z.string().trim().min(1, i18n.t('user:user.validation.fullNameRequired')),
   dob: z.string().refine(
     (val) => {
       const date = new Date(val)
       return date <= new Date()
     },
     {
-      message: 'Ngày sinh không được lớn hơn ngày hiện tại'
+      message: i18n.t('user:user.validation.dobInvalid')
     }
   ),
-  gender: z.enum([Gender.Male, Gender.Female] as [string, ...string[]]),
-  bio: z.string().optional()
+  gender: z.enum([Gender.Male, Gender.Female] as [string, ...string[]], {
+    error: i18n.t('user:user.validation.genderRequired')
+  }),
+  bio: z.string().max(150, i18n.t('user:user.validation.bioTooLong')).nullish()
 })
 
 export type UserUpdateRequest = z.infer<typeof userUpdateRequestSchema>

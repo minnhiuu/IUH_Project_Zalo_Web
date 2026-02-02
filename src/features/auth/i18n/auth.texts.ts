@@ -107,5 +107,20 @@ export const createAuthTexts = (t: TFunction<'auth'>) => ({
     expiredError: t(AUTH_KEYS.qr.expiredError),
     onlyForLogin: t(AUTH_KEYS.qr.onlyForLogin),
     appNameOnPC: t(AUTH_KEYS.qr.appNameOnPC)
+  },
+
+  validation: {
+    emailInvalid: t(AUTH_KEYS.validation.emailInvalid),
+    passwordRequired: t(AUTH_KEYS.validation.passwordRequired),
+    deviceIdRequired: t(AUTH_KEYS.validation.deviceIdRequired),
+    passwordMin: t(AUTH_KEYS.validation.passwordMin),
+    passwordComplex: t(AUTH_KEYS.validation.passwordComplex),
+    confirmPasswordRequired: t(AUTH_KEYS.validation.confirmPasswordRequired),
+    fullNameRequired: t(AUTH_KEYS.validation.fullNameRequired),
+    phoneInvalid: t(AUTH_KEYS.validation.phoneInvalid),
+    passwordMismatch: t(AUTH_KEYS.validation.passwordMismatch),
+    otpInvalid: t(AUTH_KEYS.validation.otpInvalid),
+    resetOtpMin: t(AUTH_KEYS.validation.resetOtpMin),
+    confirmPasswordReset: t(AUTH_KEYS.validation.confirmPasswordReset)
   }
 })

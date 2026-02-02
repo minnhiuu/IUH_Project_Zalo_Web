@@ -17,6 +17,23 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
     update: t(USER_KEYS.profile.update),
     privacyNote: t(USER_KEYS.profile.privacyNote),
     male: t(USER_KEYS.profile.male),
-    female: t(USER_KEYS.profile.female)
+    female: t(USER_KEYS.profile.female),
+    editTitle: t(USER_KEYS.profile.editTitle),
+    fullNameLabel: t(USER_KEYS.profile.fullNameLabel),
+    fullNamePlaceholder: t(USER_KEYS.profile.fullNamePlaceholder),
+    fullNameNote: t(USER_KEYS.profile.fullNameNote),
+    day: t(USER_KEYS.profile.day),
+    month: t(USER_KEYS.profile.month),
+    year: t(USER_KEYS.profile.year),
+    cancel: t(USER_KEYS.profile.cancel),
+    updating: t(USER_KEYS.profile.updating),
+    bioLabel: t(USER_KEYS.profile.bioLabel),
+    bioPlaceholder: t(USER_KEYS.profile.bioPlaceholder)
+  },
+  validation: {
+    fullNameRequired: t(USER_KEYS.validation.fullNameRequired),
+    dobInvalid: t(USER_KEYS.validation.dobInvalid),
+    genderRequired: t(USER_KEYS.validation.genderRequired),
+    bioTooLong: t(USER_KEYS.validation.bioTooLong)
   }
 })

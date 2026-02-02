@@ -14,6 +14,23 @@ export const USER_KEYS = {
     update: 'user.profile.update',
     privacyNote: 'user.profile.privacyNote',
     male: 'user.profile.male',
-    female: 'user.profile.female'
+    female: 'user.profile.female',
+    editTitle: 'user.profile.editTitle',
+    fullNameLabel: 'user.profile.fullNameLabel',
+    fullNamePlaceholder: 'user.profile.fullNamePlaceholder',
+    fullNameNote: 'user.profile.fullNameNote',
+    day: 'user.profile.day',
+    month: 'user.profile.month',
+    year: 'user.profile.year',
+    cancel: 'user.profile.cancel',
+    updating: 'user.profile.updating',
+    bioLabel: 'user.profile.bioLabel',
+    bioPlaceholder: 'user.profile.bioPlaceholder'
+  },
+  validation: {
+    fullNameRequired: 'user.validation.fullNameRequired',
+    dobInvalid: 'user.validation.dobInvalid',
+    genderRequired: 'user.validation.genderRequired',
+    bioTooLong: 'user.validation.bioTooLong'
   }
 } as const
