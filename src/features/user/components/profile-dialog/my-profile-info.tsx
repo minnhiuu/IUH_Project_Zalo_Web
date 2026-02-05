@@ -77,7 +77,7 @@ export function MyProfileInfo({ user, onEdit }: MyProfileInfoProps) {
   return (
     <>
       <BackgroundEditor backgroundUrl={user.background} backgroundY={user.backgroundY} />
-      <div className='px-4 relative h-[84px] bg-background'>
+      <div className='px-4 relative h-21 bg-background'>
         <div className='absolute -top-6 left-4 flex items-end gap-4'>
           <div className='relative shrink-0'>
             <UserAvatar
@@ -102,7 +102,7 @@ export function MyProfileInfo({ user, onEdit }: MyProfileInfoProps) {
           </div>
           <div className='pb-2 flex flex-col min-w-0'>
             <div className='flex items-center gap-2'>
-              <h3 className='text-[18px] font-bold text-foreground truncate max-w-[200px]'>{user.fullName}</h3>
+              <h3 className='text-lg font-bold text-foreground truncate max-w-50'>{user.fullName}</h3>
               <button
                 onClick={onEdit}
                 className='p-1 hover:bg-muted rounded-md transition-colors cursor-pointer shrink-0'
@@ -114,55 +114,55 @@ export function MyProfileInfo({ user, onEdit }: MyProfileInfoProps) {
         </div>
       </div>
 
-      <div className='h-2 bg-muted w-full' />
+      <div className='h-2 bg-section-divider w-full' />
 
-      <div className='px-4 pt-4'>
-        <h4 className='text-[15px] font-bold text-foreground mb-5'>{text.profile.personalInfo}</h4>
+      <div className='px-4 pt-4 pb-2'>
+        <h4 className='text-base font-bold text-foreground mb-5'>{text.profile.personalInfo}</h4>
 
         <div className='space-y-4 pr-2'>
           <div className='flex items-start'>
-            <span className='w-28 shrink-0 text-[14px] text-muted-foreground'>{text.profile.gender}</span>
-            <span className='text-[14px] text-foreground font-medium'>
+            <span className='w-28 shrink-0 text-sm text-foreground/60'>{text.profile.gender}</span>
+            <span className='text-sm text-foreground font-medium'>
               {user.gender && (user.gender === Gender.Male ? text.profile.male : text.profile.female)}
             </span>
           </div>
 
           <div className='flex items-start'>
-            <span className='w-28 shrink-0 text-[14px] text-muted-foreground'>{text.profile.dob}</span>
-            <span className='text-[14px] text-foreground font-medium'>{formattedDob}</span>
+            <span className='w-28 shrink-0 text-sm text-foreground/60'>{text.profile.dob}</span>
+            <span className='text-sm text-foreground font-medium'>{formattedDob}</span>
           </div>
 
           <div className='flex flex-col gap-1'>
             <div className='flex items-start'>
-              <span className='w-28 shrink-0 text-[14px] text-muted-foreground'>{text.profile.phone}</span>
-              <span className='text-[14px] text-foreground font-medium'>{user.phoneNumber}</span>
+              <span className='w-28 shrink-0 text-sm text-foreground/60'>{text.profile.phone}</span>
+              <span className='text-sm text-foreground font-medium'>{user.phoneNumber}</span>
             </div>
           </div>
           {user.bio ? (
             <div className='flex items-start'>
-              <span className='w-28 shrink-0 text-[14px] text-muted-foreground'>{text.profile.bioLabel}</span>
-              <span className='text-[14px] text-foreground font-medium wrap-break-word'>{user.bio}</span>
+              <span className='w-28 shrink-0 text-sm text-foreground/60'>{text.profile.bioLabel}</span>
+              <span className='text-sm text-foreground font-medium wrap-break-word'>{user.bio}</span>
             </div>
           ) : (
             <div className='flex items-start'>
-              <span className='w-28 shrink-0 text-[14px] text-muted-foreground'>{text.profile.bioLabel}</span>
-              <span className='text-[14px] text-foreground font-medium wrap-break-word'>{text.profile.noBio}</span>
+              <span className='w-28 shrink-0 text-sm text-foreground/60'>{text.profile.bioLabel}</span>
+              <span className='text-sm text-foreground font-medium wrap-break-word'>{text.profile.noBio}</span>
             </div>
           )}
 
-          <p className='mt-5 text-[12.5px] text-muted-foreground leading-snug'>{text.profile.privacyNote}</p>
+          <p className='mt-5 text-[12.5px] text-foreground/50 leading-snug'>{text.profile.privacyNote}</p>
         </div>
+      </div>
 
-        <div className='mt-8 border-t border-border flex justify-center'>
-          <Button
-            onClick={onEdit}
-            variant='ghost'
-            className='w-full h-10 bg-background hover:bg-muted border-none font-bold text-[14px] gap-2 transition-colors'
-          >
-            <Pencil className='w-4 h-4' />
-            {text.profile.update}
-          </Button>
-        </div>
+      <div className='mt-auto border-t border-border sticky bottom-0 bg-background'>
+        <Button
+          onClick={onEdit}
+          variant='ghost'
+          className='w-full h-11 bg-background hover:bg-muted border-none font-bold text-sm rounded-none gap-2 transition-colors cursor-pointer'
+        >
+          <Pencil className='w-4 h-4' />
+          {text.profile.update}
+        </Button>
       </div>
 
       {selectedImage && (

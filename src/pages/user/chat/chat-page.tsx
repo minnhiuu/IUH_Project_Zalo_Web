@@ -53,7 +53,7 @@ const MOCK_CONVERSATIONS = [
 export default function ChatPage() {
   return (
     <div className='flex w-full h-full overflow-hidden'>
-      <div className='w-[344px] flex flex-col border-r border-border bg-white shrink-0'>
+      <div className='w-[344px] flex flex-col border-r border-border bg-background shrink-0'>
         <div className='p-4 space-y-4'>
           <div className='flex items-center space-x-2'>
             <div className='relative flex-1 group'>
@@ -88,17 +88,17 @@ export default function ChatPage() {
         </div>
 
         <div className='mx-4 mb-2 p-3 bg-background rounded-[4px] flex items-start space-x-3 relative group overflow-hidden shrink-0'>
-          <div className='p-2 bg-white rounded-md shrink-0 shadow-sm'>
+          <div className='p-2 bg-popover rounded-md shrink-0 shadow-sm'>
             <div className='w-5 h-5 text-primary border-2 border-primary rounded-sm flex items-center justify-center font-bold text-[10px]'>
               PC
             </div>
           </div>
           <div className='flex-1 pr-2'>
             <p className='text-[12px] leading-tight text-foreground/90'>
-              Khi đăng nhập BondHub Web trên nhiều trình duyệt, một số trò chuyện sẽ không đủ tin nhắn cũ.
+              Khi đăng nhập Zalo Web trên nhiều trình duyệt, một số trò chuyện sẽ không đủ tin nhắn cũ.
             </p>
             <button className='text-[12px] text-primary font-medium hover:underline mt-1'>
-              Tải BondHub PC để xem đầy đủ tin nhắn
+              Tải Zalo PC để xem đầy đủ tin nhắn
             </button>
           </div>
           <button className='absolute right-1 top-1 text-muted-foreground/40 hover:text-muted-foreground transition-colors'>
@@ -118,7 +118,7 @@ export default function ChatPage() {
                   alt={chat.name}
                   className='w-12 h-12 rounded-full object-cover border border-black/5'
                 />
-                <div className='absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full' />
+                <div className='absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-background rounded-full' />
               </div>
               <div className='ml-3 flex-1 min-w-0 pr-2'>
                 <div className='flex items-center justify-between mb-0.5'>
@@ -135,7 +135,7 @@ export default function ChatPage() {
                 </div>
               </div>
               <div className='absolute right-4 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center space-x-1'>
-                <button className='p-1 hover:bg-white rounded-md shadow-sm'>
+                <button className='p-1 hover:bg-background rounded-md shadow-sm'>
                   <MoreHorizontal className='w-4 h-4 text-muted-foreground' />
                 </button>
               </div>
@@ -144,10 +144,10 @@ export default function ChatPage() {
         </div>
       </div>
 
-      <div className='flex-1 flex flex-col items-center justify-center bg-secondary p-8 text-center'>
+      <div className='flex-1 flex flex-col items-center justify-center bg-background p-8 text-center'>
         <div className='max-w-[500px] space-y-8 animate-in fade-in zoom-in duration-700'>
           <div className='space-y-4'>
-            <h1 className='text-[22px] font-semibold text-foreground/80'>Chào mừng đến với BondHub Web!</h1>
+            <h1 className='text-[22px] font-semibold text-foreground/80'>Chào mừng đến với Zalo Web!</h1>
             <p className='text-[15px] text-muted-foreground leading-relaxed px-8'>
               Khám phá những tiện ích hỗ trợ làm việc và trò chuyện cùng người thân, bạn bè được tối ưu hoá cho máy tính
               của bạn.

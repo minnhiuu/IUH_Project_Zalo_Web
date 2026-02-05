@@ -4,6 +4,10 @@
       "profile": "Profile",
       "settings": "Settings",
       "language": "Language",
+      "appearance": "Appearance",
+      "themeLight": "Light",
+      "themeDark": "Dark",
+      "themeSystem": "System",
       "logout": "Logout"
     },
     "profile": {

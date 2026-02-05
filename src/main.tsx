@@ -11,16 +11,21 @@ import { AuthProvider } from '@/features/auth'
 import '@/lib/i18n'
 import { LocaleProvider } from '@/lib/i18n'
 
+import { ThemeProvider } from '@/components/theme-provider'
+import { STORAGE_KEYS } from '@/utils/local-storage'
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <LocaleProvider>
-        <AuthProvider>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </AuthProvider>
-      </LocaleProvider>
+      <ThemeProvider defaultTheme='light' storageKey={STORAGE_KEYS.THEME} attribute='class'>
+        <LocaleProvider>
+          <AuthProvider>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </AuthProvider>
+        </LocaleProvider>
+      </ThemeProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   </StrictMode>

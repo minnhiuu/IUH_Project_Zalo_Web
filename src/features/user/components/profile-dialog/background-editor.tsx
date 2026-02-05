@@ -163,10 +163,10 @@ export function BackgroundEditor({ backgroundUrl, backgroundY = 50 }: Background
           {!backgroundUrl ? (
             <button
               onClick={() => bgInputRef.current?.click()}
-              className='absolute bottom-3 right-3 flex items-center gap-2 px-3 py-2 rounded-lg bg-white/90 backdrop-blur-sm shadow-md hover:bg-white transition-colors'
+              className='absolute bottom-3 right-3 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white shadow-md hover:bg-gray-50 transition-colors cursor-pointer border-none outline-none'
             >
-              <Camera className='h-4 w-4 text-gray-700' />
-              <span className='text-sm font-medium text-gray-700'>{text.profile.addPhoto}</span>
+              <Camera className='h-5 w-5 text-black' />
+              <span className='text-sm font-medium text-black'>{text.profile.addPhoto}</span>
             </button>
           ) : (
             <DropdownMenu>

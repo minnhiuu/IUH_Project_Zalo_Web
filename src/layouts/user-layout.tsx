@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from 'react-router'
-import { MessageSquare, Contact2, CheckSquare, Settings, Cloud, Briefcase } from 'lucide-react'
+import { Contact2, CheckSquare, Settings, Cloud, Briefcase, MessageCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { PATHS } from '@/constants/path'
 import { UserNavDropdown } from '@/features/user'
@@ -11,7 +11,7 @@ export default function UserLayout() {
   const { user } = useAuthContext()
 
   const navItems = [
-    { icon: MessageSquare, path: PATHS.HOME, label: 'Tin nhắn' },
+    { icon: MessageCircle, path: PATHS.HOME, label: 'Tin nhắn' },
     { icon: Contact2, path: '/contacts', label: 'Danh bạ' },
     { icon: CheckSquare, path: '/todo', label: 'To-do' }
   ]
@@ -24,9 +24,7 @@ export default function UserLayout() {
 
   return (
     <div className='flex h-screen w-full overflow-hidden bg-background'>
-      {/* Navigation Sidebar */}
       <nav className='w-[64px] bg-sidebar flex flex-col items-center py-4 shrink-0'>
-        {/* User Avatar with Dropdown */}
         <UserNavDropdown>
           <div className='mb-4 cursor-pointer flex justify-center w-full'>
             <div className='w-12 h-12 flex items-center justify-center rounded-lg transition-all data-[state=open]:bg-sidebar-accent group'>
@@ -40,7 +38,6 @@ export default function UserLayout() {
           </div>
         </UserNavDropdown>
 
-        {/* Top Nav Items */}
         <div className='flex flex-col space-y-2 w-full'>
           {navItems.map((item) => {
             const isActive = location.pathname === item.path

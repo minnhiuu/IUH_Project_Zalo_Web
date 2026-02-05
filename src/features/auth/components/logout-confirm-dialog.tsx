@@ -7,7 +7,6 @@ import {
   AlertDialogOverlay,
   AlertDialogPortal
 } from '@/components/ui/alert-dialog'
-import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useAuthContext } from '../context/auth-context'
 import { useLogoutMutation } from '../queries/use-mutations'
@@ -51,41 +50,27 @@ export function LogoutConfirmDialog({ open, onOpenChange }: LogoutConfirmDialogP
         <AlertDialogContent
           className={cn(
             'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50',
-            'w-[374px] max-w-[95vw] p-0 gap-0 rounded-[4px] overflow-hidden border-none shadow-2xl bg-white outline-none',
+            'w-[374px] max-w-[95vw] p-0 gap-0 rounded-md overflow-hidden border border-border shadow-2xl bg-background outline-none',
             'animate-in zoom-in-95 duration-200'
           )}
         >
-          <div className='flex items-center justify-between px-4 h-[44px] border-b border-border'>
+          <div className='flex items-center justify-between px-4 h-11 border-b border-border'>
             <h2 className='text-[15px] font-bold text-foreground'>{text.logoutDialog.title}</h2>
             <button
               onClick={() => onOpenChange(false)}
-              className='p-1 hover:bg-black/5 rounded-full transition-colors outline-none cursor-pointer'
+              className='p-1 hover:bg-secondary-hover rounded-full transition-colors outline-none cursor-pointer'
             >
               <X className='w-5 h-5 text-muted-foreground' />
             </button>
           </div>
 
-          <div className='p-4 pt-5 pb-4 mb-5'>
+          <div className='p-4 pt-5 pb-5'>
             <p className='text-[15px] text-foreground font-normal leading-normal'>{text.logoutDialog.confirmMessage}</p>
           </div>
 
-          <div className='flex flex-row justify-end gap-2 px-4 pb-4'>
-            <AlertDialogCancel asChild>
-              <Button
-                variant='secondary'
-                className='bg-muted hover:bg-border text-foreground font-bold h-[36px] px-4 min-w-[80px] rounded-[3px] border-none shadow-none text-[14px] mt-0'
-              >
-                {text.logoutDialog.no}
-              </Button>
-            </AlertDialogCancel>
-            <AlertDialogAction asChild>
-              <Button
-                onClick={handleLogout}
-                className='font-bold h-[36px] px-4 min-w-[100px] rounded-[3px] border-none shadow-none text-[14px]'
-              >
-                {text.logoutDialog.yes}
-              </Button>
-            </AlertDialogAction>
+          <div className='flex flex-row justify-end gap-3 px-4 pb-4'>
+            <AlertDialogCancel variant='secondary'>{text.logoutDialog.no}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleLogout}>{text.logoutDialog.yes}</AlertDialogAction>
           </div>
         </AlertDialogContent>
       </AlertDialogPortal>

@@ -3,5 +3,7 @@
   "cancel": "Cancel",
   "loading": "Loading...",
   "pleaseWait": "Please wait a moment...",
-  "error_toast_title": "Failure"
+  "error_toast_title": "Failure",
+  "errorDefault": "An error occurred",
+  "errorContactAdmin": "An error occurred, please contact admin"
 }

@@ -76,8 +76,14 @@ export function ForgotPasswordForm() {
   const isRequestStep = step === 'REQUEST'
 
   return (
-    <div className='w-full max-w-[420px] mx-auto bg-white shadow-[0_8px_28px_rgba(0,0,0,0.08)] rounded-xl overflow-hidden border border-border/40 transition-all'>
-      <div className='p-12 px-8 pb-6 bg-white flex flex-col items-center'>
+    <div className='w-full max-w-[450px] bg-white dark:bg-card shadow-[0_8px_28px_rgba(0,0,0,0.06)] dark:shadow-none rounded-xl overflow-hidden border-none transition-all animate-in fade-in zoom-in-95 duration-300'>
+      <div className='text-center py-4 bg-white dark:bg-card'>
+        <p className='text-[16px] font-semibold text-foreground tracking-tight'>{text.form.forgot}</p>
+      </div>
+
+      <div className='h-px bg-gray-100 dark:bg-border/50 mx-auto w-full' />
+
+      <div className='p-10 bg-white dark:bg-card flex flex-col items-center'>
         <p className='text-[15px] font-normal text-foreground mb-8 text-center whitespace-pre-line'>
           {isRequestStep
             ? text.forgotPassword.instruction

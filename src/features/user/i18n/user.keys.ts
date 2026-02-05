@@ -3,6 +3,10 @@ export const USER_KEYS = {
     profile: 'user.menu.profile',
     settings: 'user.menu.settings',
     language: 'user.menu.language',
+    appearance: 'user.menu.appearance',
+    themeLight: 'user.menu.themeLight',
+    themeDark: 'user.menu.themeDark',
+    themeSystem: 'user.menu.themeSystem',
     logout: 'user.menu.logout'
   },
   profile: {
