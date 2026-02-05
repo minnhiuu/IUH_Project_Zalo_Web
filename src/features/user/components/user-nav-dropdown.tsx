@@ -10,7 +10,7 @@ import {
   DropdownMenuSubTrigger
 } from '@/components/ui/dropdown-menu'
 import { useLogoutMutation, LogoutConfirmDialog } from '@/features/auth'
-import { useUserText, MyProfileDialog } from '@/features/user'
+import { useUserText, MyProfileDialog, SettingsDialog } from '@/features/user'
 import { useState } from 'react'
 
 import { useLocale } from '@/lib/i18n'
@@ -24,6 +24,7 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
   const logoutMutation = useLogoutMutation()
   const [showLogoutDialog, setShowLogoutDialog] = useState(false)
   const [showProfileDialog, setShowProfileDialog] = useState(false)
+  const [showSettingsDialog, setShowSettingsDialog] = useState(false)
   const { text } = useUserText()
   const { locale: language, changeLocale: setLocale, languages } = useLocale()
 
@@ -46,7 +47,10 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
             <span className='flex-1 font-medium'>{text.menu.profile}</span>
           </DropdownMenuItem>
 
-          <DropdownMenuItem className='flex items-center gap-3 py-2 px-3 cursor-pointer hover:bg-muted focus:bg-muted rounded-md text-[14px] transition-colors outline-none'>
+          <DropdownMenuItem
+            onClick={() => setShowSettingsDialog(true)}
+            className='flex items-center gap-3 py-2 px-3 cursor-pointer hover:bg-muted focus:bg-muted rounded-md text-[14px] transition-colors outline-none'
+          >
             <Settings className='w-[17px] h-[17px] text-foreground' />
             <span className='flex-1 font-medium'>{text.menu.settings}</span>
           </DropdownMenuItem>
@@ -91,6 +95,7 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
             </span>
           </DropdownMenuItem>
         </DropdownMenuContent>
+        <SettingsDialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog} />
 
         <LogoutConfirmDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog} />
         <MyProfileDialog open={showProfileDialog} onOpenChange={setShowProfileDialog} />

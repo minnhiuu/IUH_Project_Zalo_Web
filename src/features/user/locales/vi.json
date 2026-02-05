@@ -47,6 +47,127 @@
       "dobInvalid": "Ngày sinh không được lớn hơn ngày hiện tại",
       "genderRequired": "Vui lòng chọn giới tính",
       "bioTooLong": "Tiểu sử không được vượt quá 150 ký tự"
+    },
+    "settings": {
+      "title": "Cài đặt",
+      "menu": {
+        "general": "Cài đặt chung",
+        "security": "Bảo mật",
+        "privacy": "Quyền riêng tư",
+        "sync": "Đồng bộ",
+        "appearance": "Giao diện",
+        "messages": "Tin nhắn",
+        "utilities": "Tiện ích"
+      },
+      "general": {
+        "title": "Cài đặt chung",
+        "showAllFriends": {
+          "title": "Hiển thị tất cả bạn bè",
+          "description": "Hiện tất cả bạn bè hoặc chỉ bạn đang dùng BondHub",
+          "all": "Tất cả bạn bè",
+          "onlyBondhub": "Chỉ bạn trên BondHub"
+        },
+        "language": {
+          "title": "Ngôn ngữ",
+          "description": "Chọn ngôn ngữ hiển thị",
+          "english": "English",
+          "vietnamese": "Tiếng Việt"
+        }
+      },
+      "security": {
+        "title": "Bảo mật",
+        "twoFactor": {
+          "title": "Xác thực hai yếu tố",
+          "description": "Tăng cường bảo mật cho tài khoản"
+        }
+      },
+      "privacy": {
+        "title": "Quyền riêng tư",
+        "personal": {
+          "title": "Thông tin cá nhân",
+          "showDob": {
+            "title": "Hiển thị ngày sinh",
+            "description": "Chọn cách người khác xem ngày sinh của bạn",
+            "hidden": "Không hiển thị",
+            "fullDate": "Hiển thị đầy đủ",
+            "monthDayOnly": "Chỉ hiển thị ngày và tháng"
+          },
+          "showActiveStatus": {
+            "title": "Hiển thị trạng thái hoạt động",
+            "description": "Cho phép người khác biết khi bạn đang online"
+          }
+        },
+        "textAndCall": {
+          "title": "Nhắn tin và cuộc gọi",
+          "showReadStatus": {
+            "title": "Hiển thị đã đọc",
+            "description": "Cho người khác biết bạn đã đọc tin nhắn"
+          },
+          "canText": {
+            "title": "Ai có thể nhắn tin cho tôi",
+            "everybody": "Mọi người",
+            "friends": "Bạn bè",
+            "private": "Không ai",
+            "contacted": "Chỉ người tôi đã liên hệ"
+          },
+          "canCall": {
+            "title": "Ai có thể gọi cho tôi",
+            "everybody": "Mọi người",
+            "friends": "Bạn bè",
+            "private": "Không ai",
+            "contacted": "Chỉ người tôi đã liên hệ"
+          }
+        },
+        "search": {
+          "title": "Tìm kiếm",
+          "allowSearchOnPhoneNumber": {
+            "title": "Cho phép tìm kiếm bằng số điện thoại",
+            "description": "Người khác có thể tìm thấy bạn qua số điện thoại"
+          }
+        }
+      },
+      "sync": {
+        "title": "Đồng bộ",
+        "syncSuggestion": {
+          "title": "Đồng bộ gợi ý",
+          "description": "Đồng bộ danh bạ để gợi ý kết bạn"
+        },
+        "showSyncProgress": {
+          "title": "Hiển thị tiến trình đồng bộ",
+          "description": "Hiển thị thanh tiến trình khi đang đồng bộ"
+        }
+      },
+      "appearance": {
+        "title": "Giao diện",
+        "theme": {
+          "title": "Chế độ hiển thị",
+          "description": "Chọn giao diện sáng hoặc tối",
+          "light": "Sáng",
+          "dark": "Tối"
+        }
+      },
+      "messages": {
+        "title": "Tin nhắn",
+        "quickResponse": {
+          "title": "Trả lời nhanh",
+          "description": "Bật tính năng trả lời nhanh"
+        },
+        "separatePriorityAndOther": {
+          "title": "Phân tách tin ưu tiên và khác",
+          "description": "Hiển thị tin nhắn ưu tiên riêng biệt"
+        },
+        "showTypingStatus": {
+          "title": "Hiển thị đang nhập",
+          "description": "Cho người khác biết khi bạn đang nhập"
+        }
+      },
+      "utilities": {
+        "title": "Tiện ích",
+        "stickerSuggestion": {
+          "title": "Gợi ý sticker",
+          "description": "Hiển thị gợi ý sticker khi nhập tin nhắn"
+        }
+      }
     }
   }
 }

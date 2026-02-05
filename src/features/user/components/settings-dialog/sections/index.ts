@@ -1,0 +1,7 @@
+export { GeneralSettings } from './general-settings'
+export { SecuritySettings } from './security-settings'
+export { PrivacySettings } from './privacy-settings'
+export { SyncSettings } from './sync-settings'
+export { AppearanceSettings } from './appearance-settings'
+export { MessagesSettings } from './messages-settings'
+export { UtilitiesSettings } from './utilities-settings'
