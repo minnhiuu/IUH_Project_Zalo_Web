@@ -30,9 +30,9 @@ export class EntityError extends Error {
 export const getErrorMessage = (error: unknown): string => {
   if (axios.isAxiosError(error)) {
     const data = error.response?.data as BaseErrorResponse | undefined
-    return data?.message || 'Đã có lỗi xảy ra'
+    return data?.message || i18n.t('common:errorDefault')
   }
-  return 'Đã có lỗi xảy ra'
+  return i18n.t('common:errorDefault')
 }
 
 export const handleErrorApi = <T extends FieldValues>({
@@ -60,7 +60,7 @@ export const handleErrorApi = <T extends FieldValues>({
     })
   } else {
     toast.error(i18n.t('common:error_toast_title', { defaultValue: 'Thất bại' }), {
-      description: 'Đã có lỗi xảy ra, vui lòng liên hệ admin',
+      description: i18n.t('common:errorContactAdmin'),
       duration: duration ?? 4000
     })
   }

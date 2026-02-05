@@ -1,18 +1,16 @@
 import axios, { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
 import { getDeviceId } from '../utils/device'
-import { storage } from '@/utils/local-storage'
+import { storage, STORAGE_KEYS } from '@/utils/local-storage'
 
-const ACCESS_TOKEN_KEY = 'access_token'
-
-export const getAccessToken = (): string | null => storage.get<string>(ACCESS_TOKEN_KEY)
+export const getAccessToken = (): string | null => storage.get(STORAGE_KEYS.ACCESS_TOKEN)
 
 export const setAccessToken = (token: string | null): void => {
-  if (token) storage.set(ACCESS_TOKEN_KEY, token)
-  else storage.remove(ACCESS_TOKEN_KEY)
+  if (token) storage.set(STORAGE_KEYS.ACCESS_TOKEN, token)
+  else storage.remove(STORAGE_KEYS.ACCESS_TOKEN)
 }
 
 export const clearAccessToken = (): void => {
-  storage.remove(ACCESS_TOKEN_KEY)
+  storage.remove(STORAGE_KEYS.ACCESS_TOKEN)
 }
 
 const http = axios.create({
@@ -51,7 +49,7 @@ const refreshAccessToken = async (): Promise<string | null> => {
 }
 
 http.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const locale = storage.get<string>('locale') || 'vi'
+  const locale = storage.get(STORAGE_KEYS.LOCALE) || 'vi'
   config.headers['Accept-Language'] = locale
   const isAuthEndpoint =
     config.url?.includes('/auth/login') ||

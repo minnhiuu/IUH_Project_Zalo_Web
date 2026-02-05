@@ -45,7 +45,7 @@ export function UpdateImageDialog({
         <div className='flex items-center gap-2'>
           <button
             onClick={onCancel}
-            className='p-1 hover:bg-black/5 rounded-full transition-colors outline-none cursor-pointer'
+            className='p-1 hover:bg-muted rounded-full transition-colors outline-none cursor-pointer'
           >
             <ChevronLeft className='w-6 h-6 text-foreground' />
           </button>
@@ -53,7 +53,7 @@ export function UpdateImageDialog({
         </div>
         <button
           onClick={onCancel}
-          className='p-1 hover:bg-black/5 rounded-full transition-colors outline-none cursor-pointer'
+          className='p-1 hover:bg-muted rounded-full transition-colors outline-none cursor-pointer'
         >
           <X className='w-6 h-6 text-foreground' />
         </button>
@@ -66,17 +66,10 @@ export function UpdateImageDialog({
       />
 
       <div className='px-4 py-3 flex justify-end gap-3 bg-background border-t border-border'>
-        <Button
-          variant='secondary'
-          onClick={onCancel}
-          className='min-w-[80px] h-10 bg-accent hover:bg-accent/80 text-foreground font-bold rounded-sm'
-        >
+        <Button variant='secondary' onClick={onCancel} className='min-w-[80px] font-bold rounded-sm'>
           {cancelText}
         </Button>
-        <Button
-          onClick={handleConfirm}
-          className='min-w-[100px] h-10 bg-primary hover:bg-primary-hover text-primary-foreground font-bold rounded-sm'
-        >
+        <Button onClick={handleConfirm} className='min-w-[100px] font-bold rounded-sm'>
           {confirmText}
         </Button>
       </div>

@@ -4,6 +4,10 @@
       "profile": "Profile",
       "settings": "Settings",
       "language": "Language",
+      "appearance": "Appearance",
+      "themeLight": "Light",
+      "themeDark": "Dark",
+      "themeSystem": "System",
       "logout": "Logout"
     },
     "profile": {
@@ -40,7 +44,16 @@
       "editCover": "Edit cover photo",
       "addPhoto": "Add photo",
       "uploadPhoto": "Upload photo",
-      "repositionPhoto": "Reposition photo"
+      "repositionPhoto": "Reposition photo",
+      "addFriend": "Add Friend",
+      "message": "Message",
+      "images": "Images",
+      "noImages": "No images shared yet",
+      "mutualGroups": "Mutual groups ({{count}})",
+      "shareContact": "Share contact card",
+      "block": "Block messages and calls",
+      "report": "Report",
+      "deleteFriend": "Remove from friends list"
     },
     "validation": {
       "fullNameRequired": "Display name is required",

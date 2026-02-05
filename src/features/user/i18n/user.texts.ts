@@ -6,6 +6,10 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
     profile: t(USER_KEYS.menu.profile),
     settings: t(USER_KEYS.menu.settings),
     language: t(USER_KEYS.menu.language),
+    appearance: t(USER_KEYS.menu.appearance),
+    themeLight: t(USER_KEYS.menu.themeLight),
+    themeDark: t(USER_KEYS.menu.themeDark),
+    themeSystem: t(USER_KEYS.menu.themeSystem),
     logout: t(USER_KEYS.menu.logout)
   },
   profile: {
@@ -42,7 +46,16 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
     editCover: t(USER_KEYS.profile.editCover),
     addPhoto: t(USER_KEYS.profile.addPhoto),
     uploadPhoto: t(USER_KEYS.profile.uploadPhoto),
-    repositionPhoto: t(USER_KEYS.profile.repositionPhoto)
+    repositionPhoto: t(USER_KEYS.profile.repositionPhoto),
+    addFriend: t(USER_KEYS.profile.addFriend),
+    message: t(USER_KEYS.profile.message),
+    images: t(USER_KEYS.profile.images),
+    noImages: t(USER_KEYS.profile.noImages),
+    mutualGroups: (count: number) => t(USER_KEYS.profile.mutualGroups, { count }),
+    shareContact: t(USER_KEYS.profile.shareContact),
+    block: t(USER_KEYS.profile.block),
+    report: t(USER_KEYS.profile.report),
+    deleteFriend: t(USER_KEYS.profile.deleteFriend)
   },
   validation: {
     fullNameRequired: t(USER_KEYS.validation.fullNameRequired),

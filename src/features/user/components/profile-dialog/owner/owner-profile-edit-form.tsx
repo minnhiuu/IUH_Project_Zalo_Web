@@ -13,12 +13,12 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { getDaysInMonth } from 'date-fns'
 
-interface MyProfileEditFormProps {
+interface OwnerProfileEditFormProps {
   user: NonNullable<ReturnType<typeof useAuthContext>['user']>
   onCancel: () => void
 }
 
-export function MyProfileEditForm({ user, onCancel }: MyProfileEditFormProps) {
+export function OwnerProfileEditForm({ user, onCancel }: OwnerProfileEditFormProps) {
   const { text } = useUserText()
   const updateProfileMutation = useUpdateProfileMutation()
 
@@ -80,7 +80,7 @@ export function MyProfileEditForm({ user, onCancel }: MyProfileEditFormProps) {
   return (
     <div className='p-4 pt-6 space-y-6'>
       <div className='space-y-2'>
-        <Label htmlFor='fullName' className='text-[14px] font-medium'>
+        <Label htmlFor='fullName' className='text-sm font-medium'>
           {text.profile.fullNameLabel}
         </Label>
         <Input
@@ -90,16 +90,14 @@ export function MyProfileEditForm({ user, onCancel }: MyProfileEditFormProps) {
           className='h-10 rounded-md border-border'
           placeholder={text.profile.fullNamePlaceholder}
         />
-        <p className='text-[12px] text-muted-foreground'>{text.profile.fullNameNote}</p>
+        <p className='text-xs text-muted-foreground'>{text.profile.fullNameNote}</p>
       </div>
       <div className='space-y-2'>
         <div className='flex justify-between items-center'>
-          <Label htmlFor='bio' className='text-[14px] font-medium'>
+          <Label htmlFor='bio' className='text-sm font-medium'>
             {text.profile.bioLabel}
           </Label>
-          <span
-            className={cn('text-[12px]', bio.length > 150 ? 'text-destructive font-bold' : 'text-muted-foreground')}
-          >
+          <span className={cn('text-xs', bio.length > 150 ? 'text-destructive font-bold' : 'text-muted-foreground')}>
             {bio.length}/150
           </span>
         </div>
@@ -107,13 +105,13 @@ export function MyProfileEditForm({ user, onCancel }: MyProfileEditFormProps) {
           id='bio'
           value={bio}
           onChange={(e) => setBio(e.target.value)}
-          className='min-h-[80px] resize-none text-[14px] rounded-md border-border'
+          className='min-h-[80px] resize-none text-sm rounded-md border-border'
           placeholder={text.profile.bioPlaceholder}
         />
       </div>
 
       <div className='space-y-4'>
-        <h4 className='text-[14px] font-medium'>{text.profile.personalInfo}</h4>
+        <h4 className='text-sm font-medium'>{text.profile.personalInfo}</h4>
         <div className='flex items-center gap-8'>
           <label className='flex items-center gap-2 cursor-pointer'>
             <input
@@ -122,9 +120,9 @@ export function MyProfileEditForm({ user, onCancel }: MyProfileEditFormProps) {
               value={Gender.Male}
               checked={gender === Gender.Male}
               onChange={() => setGender(Gender.Male)}
-              className='w-4 h-4 accent-primary'
+              className='w-4 h-4 accent-primary cursor-pointer'
             />
-            <span className='text-[14px]'>{text.profile.male}</span>
+            <span className='text-sm'>{text.profile.male}</span>
           </label>
           <label className='flex items-center gap-2 cursor-pointer'>
             <input
@@ -133,17 +131,17 @@ export function MyProfileEditForm({ user, onCancel }: MyProfileEditFormProps) {
               value={Gender.Female}
               checked={gender === Gender.Female}
               onChange={() => setGender(Gender.Female)}
-              className='w-4 h-4 accent-primary'
+              className='w-4 h-4 accent-primary cursor-pointer'
             />
-            <span className='text-[14px]'>{text.profile.female}</span>
+            <span className='text-sm'>{text.profile.female}</span>
           </label>
         </div>
 
         <div className='space-y-2'>
-          <Label className='text-[14px] text-muted-foreground'>{text.profile.dob}</Label>
+          <Label className='text-sm text-foreground/60'>{text.profile.dob}</Label>
           <div className='grid grid-cols-3 gap-3'>
             <Select value={day} onValueChange={setDay}>
-              <SelectTrigger className='w-full h-9 bg-background border-border'>
+              <SelectTrigger className='w-full h-9 border-border'>
                 <SelectValue placeholder={text.profile.day} />
               </SelectTrigger>
               <SelectContent
@@ -159,7 +157,7 @@ export function MyProfileEditForm({ user, onCancel }: MyProfileEditFormProps) {
             </Select>
 
             <Select value={month} onValueChange={handleMonthChange}>
-              <SelectTrigger className='w-full h-9 bg-background border-border'>
+              <SelectTrigger className='w-full h-9 border-border'>
                 <SelectValue placeholder={text.profile.month} />
               </SelectTrigger>
               <SelectContent
@@ -175,7 +173,7 @@ export function MyProfileEditForm({ user, onCancel }: MyProfileEditFormProps) {
             </Select>
 
             <Select value={year} onValueChange={handleYearChange}>
-              <SelectTrigger className='w-full h-9 bg-background border-border'>
+              <SelectTrigger className='w-full h-9 border-border'>
                 <SelectValue placeholder={text.profile.year} />
               </SelectTrigger>
               <SelectContent
@@ -194,18 +192,10 @@ export function MyProfileEditForm({ user, onCancel }: MyProfileEditFormProps) {
       </div>
 
       <div className='flex justify-end gap-3 pt-4 border-t border-border'>
-        <Button
-          variant='ghost'
-          onClick={onCancel}
-          className='px-6 h-10 hover:bg-border font-bold bg-muted text-foreground rounded-md'
-        >
+        <Button variant='secondary' onClick={onCancel}>
           {text.profile.cancel}
         </Button>
-        <Button
-          onClick={handleUpdate}
-          disabled={updateProfileMutation.isPending}
-          className='px-6 h-10 bg-primary hover:bg-primary-hover text-white font-bold rounded-md border-none shadow-none'
-        >
+        <Button onClick={handleUpdate} disabled={updateProfileMutation.isPending}>
           {updateProfileMutation.isPending ? text.profile.updating : text.profile.update}
         </Button>
       </div>

@@ -2,14 +2,24 @@ import { z } from 'zod'
 
 const APP_PREFIX = 'bondhub_'
 
-type StorageKey = 'access_token' | 'refresh_token' | 'user_profile' | 'theme' | 'settings' | 'device_id' | 'locale'
+export const STORAGE_KEYS = {
+  THEME: `${APP_PREFIX}theme`,
+  ACCESS_TOKEN: `${APP_PREFIX}access_token`,
+  REFRESH_TOKEN: `${APP_PREFIX}refresh_token`,
+  USER_PROFILE: `${APP_PREFIX}user_profile`,
+  SETTINGS: `${APP_PREFIX}settings`,
+  DEVICE_ID: `${APP_PREFIX}device_id`,
+  LOCALE: `${APP_PREFIX}locale`
+} as const
+
+export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS]
 
 export const storage = {
   get: <T>(key: StorageKey, defaultValue?: T): T | null => {
     if (typeof window === 'undefined') return defaultValue ?? null
 
     try {
-      const item = window.localStorage.getItem(`${APP_PREFIX}${key}`)
+      const item = window.localStorage.getItem(key)
       if (item === null) return defaultValue ?? null
       try {
         return JSON.parse(item) as T
@@ -27,7 +37,7 @@ export const storage = {
 
     try {
       const serializedValue = typeof value === 'string' ? value : JSON.stringify(value)
-      window.localStorage.setItem(`${APP_PREFIX}${key}`, serializedValue)
+      window.localStorage.setItem(key, serializedValue)
     } catch (error) {
       console.warn(`Error setting key "${key}" to localStorage:`, error)
     }
@@ -35,7 +45,7 @@ export const storage = {
 
   remove: (key: StorageKey): void => {
     if (typeof window === 'undefined') return
-    window.localStorage.removeItem(`${APP_PREFIX}${key}`)
+    window.localStorage.removeItem(key)
   },
   clear: (): void => {
     if (typeof window === 'undefined') return
