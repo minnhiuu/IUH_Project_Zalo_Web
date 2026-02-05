@@ -15,7 +15,7 @@ import { PATHS } from '@/constants/path'
 import { handleErrorApi } from '@/utils/error-handler'
 import { FullScreenLoading } from '@/components/common/full-screen-loading'
 import { useAuthText } from '@/features/auth/i18n/use-auth-text'
-import { useTranslation } from 'react-i18next'
+import { useCommonText } from '@/locales/common/use-common-text'
 
 interface LogoutConfirmDialogProps {
   open: boolean
@@ -28,7 +28,7 @@ export function LogoutConfirmDialog({ open, onOpenChange }: LogoutConfirmDialogP
   const logoutMutation = useLogoutMutation()
   const navigate = useNavigate()
   const { text } = useAuthText()
-  const { t: tCommon } = useTranslation('common')
+  const { text: commonText } = useCommonText()
 
   const handleLogout = async () => {
     try {
@@ -45,7 +45,7 @@ export function LogoutConfirmDialog({ open, onOpenChange }: LogoutConfirmDialogP
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogPortal>
-        {isPending && <FullScreenLoading message={tCommon('pleaseWait')} />}
+        {isPending && <FullScreenLoading message={commonText.pleaseWait} />}
         <AlertDialogOverlay className='bg-black/45 backdrop-blur-none! duration-200 fixed inset-0 z-50' />
         <AlertDialogContent
           className={cn(

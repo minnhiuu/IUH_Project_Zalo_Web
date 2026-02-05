@@ -35,6 +35,8 @@
   --accent: #f1f2f4;
   --accent-foreground: #081b3a;
 
+  --accent-hover: #e5e7eb;
+
   --section-divider: #f1f2f4;
 
   --destructive: #e53838;
@@ -53,6 +55,9 @@
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: rgba(255, 255, 255, 0.1);
   --sidebar-ring: #0068ff;
+
+  --icon-muted: #9facbc;
+  --icon-hover: #66a6ff;
 }
 
 .dark {
@@ -85,6 +90,8 @@
   --accent: #3e444a;
   --accent-foreground: #ffffff;
 
+  --accent-hover: #3e444a;
+
   --section-divider: #121416;
 
   --destructive: #e94949;
@@ -102,6 +109,9 @@
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: rgba(255, 255, 255, 0.08);
   --sidebar-ring: #0068ff;
+
+  --icon-muted: #9facbc;
+  --icon-hover: #66a6ff;
 }
 
 .auth-theme {
@@ -145,6 +155,7 @@
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
   --color-muted-foreground: var(--muted-foreground);
   --color-muted: var(--muted);
   --color-secondary-foreground: var(--secondary-foreground);
@@ -170,6 +181,8 @@
   --color-section-divider: var(--section-divider);
   --color-secondary-hover: var(--secondary-hover);
   --color-brand-blue-light: var(--brand-blue-light);
+  --color-icon-muted: var(--icon-muted);
+  --color-icon-hover: var(--icon-hover);
 }
 
 @layer base {

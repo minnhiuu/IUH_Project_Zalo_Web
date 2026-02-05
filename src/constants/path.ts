@@ -1,5 +1,11 @@
 export const PATHS = {
   HOME: '/',
+  SEARCH: '/search',
+  CONTACTS: '/contacts',
+  TODO: '/todo',
+  CLOUD: '/cloud',
+  BUSINESS: '/business',
+
   AUTH: {
     LOGIN: '/login',
     REGISTER: '/register',
