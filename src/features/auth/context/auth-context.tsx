@@ -51,8 +51,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const refetchUser = useCallback(async () => {
     if (!getAccessToken()) return
     try {
-      const data = await queryClient.fetchQuery(getMyProfileQueryOptions())
-      const userData = data.data
+      const userData = await queryClient.fetchQuery(getMyProfileQueryOptions())
       if (userData) {
         setAuthUser(userData)
       }
@@ -65,8 +64,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     async (accessToken: string) => {
       setAccessToken(accessToken)
       await new Promise((resolve) => setTimeout(resolve, 800))
-      const data = await queryClient.fetchQuery(getMyProfileQueryOptions())
-      const userData = data.data
+      const userData = await queryClient.fetchQuery(getMyProfileQueryOptions())
       setAuthUser(userData)
       return userData
     },

@@ -10,7 +10,7 @@ import {
   DropdownMenuSubTrigger
 } from '@/components/ui/dropdown-menu'
 import { useLogoutMutation, LogoutConfirmDialog } from '@/features/auth'
-import { useUserText, MyProfileDialog } from '@/features/user'
+import { useUserText, OwnerProfileDialog } from '@/features/user'
 import { useState } from 'react'
 import { useTheme } from 'next-themes'
 
@@ -137,7 +137,7 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
         </DropdownMenuContent>
 
         <LogoutConfirmDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog} />
-        <MyProfileDialog open={showProfileDialog} onOpenChange={setShowProfileDialog} />
+        <OwnerProfileDialog open={showProfileDialog} onOpenChange={setShowProfileDialog} />
       </DropdownMenu>
     </>
   )

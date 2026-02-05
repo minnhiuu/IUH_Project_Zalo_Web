@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useSearchUser } from '../queries/use-queries'
 import { SearchEmpty } from '@/components/common/search-empty'
 import { useDebounce } from '@/hooks/use-debounce'
+import { OthersProfileDialog } from '@/features/user'
 
 interface SearchPanelProps {
   open: boolean
@@ -17,6 +18,7 @@ interface SearchPanelProps {
 
 export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
   const [searchValue, setSearchValue] = useState('')
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
   const debouncedKeyword = useDebounce(searchValue, 500)
   const { text } = useSearchText()
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isFetching } = useSearchUser(searchValue)
@@ -89,6 +91,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
               {searchResults.map((item) => (
                 <div
                   key={item.id}
+                  onClick={() => setSelectedUserId(item.id)}
                   className='flex items-center gap-3 px-3 py-2.5 hover:bg-muted/50 cursor-pointer transition-colors rounded-lg mx-2 my-0.5 group relative'
                 >
                   <UserAvatar src={item.avatar} name={item.fullName} className='w-12 h-12' />
@@ -120,6 +123,11 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
 
         <div className='mx-4 mt-2 border-t border-section-divider shrink-0' />
       </div>
+      <OthersProfileDialog
+        userId={selectedUserId}
+        open={!!selectedUserId}
+        onOpenChange={(open) => !open && setSelectedUserId(null)}
+      />
     </div>
   )
 }

@@ -1,12 +1,6 @@
 import { X } from 'lucide-react'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogOverlay,
-  AlertDialogPortal
-} from '@/components/ui/alert-dialog'
+import { Dialog, DialogContent, DialogOverlay, DialogPortal, DialogFooter } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useAuthContext } from '../context/auth-context'
 import { useLogoutMutation } from '../queries/use-mutations'
@@ -43,11 +37,12 @@ export function LogoutConfirmDialog({ open, onOpenChange }: LogoutConfirmDialogP
   const isPending = logoutMutation.isPending
 
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogPortal>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogPortal>
         {isPending && <FullScreenLoading message={commonText.pleaseWait} />}
-        <AlertDialogOverlay className='bg-black/45 backdrop-blur-none! duration-200 fixed inset-0 z-50' />
-        <AlertDialogContent
+        <DialogOverlay className='bg-black/45 backdrop-blur-none! duration-200 fixed inset-0 z-50' />
+        <DialogContent
+          showCloseButton={false}
           className={cn(
             'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50',
             'w-[374px] max-w-[95vw] p-0 gap-0 rounded-md overflow-hidden border border-border shadow-2xl bg-background outline-none',
@@ -68,12 +63,14 @@ export function LogoutConfirmDialog({ open, onOpenChange }: LogoutConfirmDialogP
             <p className='text-[15px] text-foreground font-normal leading-normal'>{text.logoutDialog.confirmMessage}</p>
           </div>
 
-          <div className='flex flex-row justify-end gap-3 px-4 pb-4'>
-            <AlertDialogCancel variant='secondary'>{text.logoutDialog.no}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleLogout}>{text.logoutDialog.yes}</AlertDialogAction>
-          </div>
-        </AlertDialogContent>
-      </AlertDialogPortal>
-    </AlertDialog>
+          <DialogFooter className='flex flex-row justify-end gap-3 px-4 pb-4'>
+            <Button variant='secondary' onClick={() => onOpenChange(false)}>
+              {text.logoutDialog.no}
+            </Button>
+            <Button onClick={handleLogout}>{text.logoutDialog.yes}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </DialogPortal>
+    </Dialog>
   )
 }

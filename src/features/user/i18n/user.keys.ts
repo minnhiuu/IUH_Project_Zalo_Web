@@ -43,7 +43,16 @@ export const USER_KEYS = {
     editCover: 'user.profile.editCover',
     addPhoto: 'user.profile.addPhoto',
     uploadPhoto: 'user.profile.uploadPhoto',
-    repositionPhoto: 'user.profile.repositionPhoto'
+    repositionPhoto: 'user.profile.repositionPhoto',
+    addFriend: 'user.profile.addFriend',
+    message: 'user.profile.message',
+    images: 'user.profile.images',
+    noImages: 'user.profile.noImages',
+    mutualGroups: 'user.profile.mutualGroups',
+    shareContact: 'user.profile.shareContact',
+    block: 'user.profile.block',
+    report: 'user.profile.report',
+    deleteFriend: 'user.profile.deleteFriend'
   },
   validation: {
     fullNameRequired: 'user.validation.fullNameRequired',

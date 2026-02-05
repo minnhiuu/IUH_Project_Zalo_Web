@@ -32,7 +32,7 @@
       "edit": "Chỉnh sửa",
       "updating": "Đang cập nhật...",
       "bio": "Giới thiệu",
-      "bioLabel": "Giới thiệu",
+      "bioLabel": "Bio",
       "bioPlaceholder": "Nhập giới thiệu bản thân",
       "noBio": "Chưa có giới thiệu",
       "selectImageError": "Vui lòng chọn file hình ảnh",
@@ -44,7 +44,16 @@
       "editCover": "Chỉnh sửa ảnh bìa",
       "addPhoto": "Thêm ảnh",
       "uploadPhoto": "Tải ảnh lên",
-      "repositionPhoto": "Đặt lại vị trí"
+      "repositionPhoto": "Đặt lại vị trí",
+      "addFriend": "Kết bạn",
+      "message": "Nhắn tin",
+      "images": "Hình ảnh",
+      "noImages": "Chưa có ảnh nào được chia sẻ",
+      "mutualGroups": "Nhóm chung ({{count}})",
+      "shareContact": "Chia sẻ danh thiếp",
+      "block": "Chặn tin nhắn và cuộc gọi",
+      "report": "Báo xấu",
+      "deleteFriend": "Xóa khỏi danh sách bạn bè"
     },
     "validation": {
       "fullNameRequired": "Tên hiển thị không được để trống",

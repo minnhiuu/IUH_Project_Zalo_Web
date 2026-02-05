@@ -1,9 +1,9 @@
 import { useRef, useState } from 'react'
-import { Camera, Check, X, Upload, MoveVertical } from 'lucide-react'
+import { Camera, X, Upload, MoveVertical } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useUserText } from '@/features/user/i18n/use-user-text'
-import { useUpdateBackgroundMutation, useUpdateBackgroundPositionMutation } from '../../queries/use-mutations'
+import { useUpdateBackgroundMutation, useUpdateBackgroundPositionMutation } from '../../../queries/use-mutations'
 import { toast } from 'sonner'
 
 interface BackgroundEditorProps {
@@ -136,7 +136,7 @@ export function BackgroundEditor({ backgroundUrl, backgroundY = 50 }: Background
         <div className='absolute bottom-3 right-3 flex gap-2 z-10'>
           <Button size='sm' variant='outline' className='bg-background/80 backdrop-blur-sm' onClick={handleBgCancel}>
             <X className='w-4 h-4 mr-1' />
-            Hủy
+            {text.profile.cancel}
           </Button>
           <Button
             size='sm'
@@ -144,8 +144,9 @@ export function BackgroundEditor({ backgroundUrl, backgroundY = 50 }: Background
             onClick={handleBgSave}
             disabled={updateBackgroundMutation.isPending || updateBackgroundPositionMutation.isPending}
           >
-            <Check className='w-4 h-4 mr-1' />
-            {updateBackgroundMutation.isPending || updateBackgroundPositionMutation.isPending ? 'Đang lưu...' : 'Lưu'}
+            {updateBackgroundMutation.isPending || updateBackgroundPositionMutation.isPending
+              ? text.profile.updating
+              : text.profile.confirm}
           </Button>
         </div>
       )}
@@ -163,17 +164,17 @@ export function BackgroundEditor({ backgroundUrl, backgroundY = 50 }: Background
           {!backgroundUrl ? (
             <button
               onClick={() => bgInputRef.current?.click()}
-              className='absolute bottom-3 right-3 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white shadow-md hover:bg-gray-50 transition-colors cursor-pointer border-none outline-none'
+              className='absolute bottom-3 right-3 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-background shadow-md hover:bg-muted transition-colors cursor-pointer border-none outline-none'
             >
-              <Camera className='h-5 w-5 text-black' />
-              <span className='text-sm font-medium text-black'>{text.profile.addPhoto}</span>
+              <Camera className='h-5 w-5 text-foreground' />
+              <span className='text-sm font-medium text-foreground'>{text.profile.addPhoto}</span>
             </button>
           ) : (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className='absolute bottom-3 right-3 flex items-center gap-2 px-3 py-2 rounded-lg bg-white/90 backdrop-blur-sm shadow-md hover:bg-white transition-colors'>
-                  <Camera className='h-4 w-4 text-gray-700' />
-                  <span className='text-sm font-medium text-gray-700'>{text.profile.editCover}</span>
+                <button className='absolute bottom-3 right-3 flex items-center gap-2 px-3 py-2 rounded-lg bg-background/90 backdrop-blur-sm shadow-md hover:bg-background transition-colors'>
+                  <Camera className='h-4 w-4 text-muted-foreground' />
+                  <span className='text-sm font-medium text-foreground'>{text.profile.editCover}</span>
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align='end' sideOffset={8} className='w-48 z-9999 bg-background'>

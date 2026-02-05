@@ -9,6 +9,8 @@
   --brand-blue: #0068ff;
   --brand-blue-dark: #005ae0;
   --brand-blue-light: #e5f1ff;
+  --brand-blue-hover: #c7e0ff;
+  --brand-blue-text: #0045ad;
 
   --vibrant-blue: #0068ff;
   --vibrant-blue-hover: #005ae0;
@@ -31,7 +33,7 @@
   --secondary-hover: #c6cad2;
 
   --muted: #f1f2f4;
-  --muted-foreground: #77859c;
+  --muted-foreground: #5a6981;
 
   --accent: #f1f2f4;
   --accent-foreground: #081b3a;
@@ -59,9 +61,18 @@
 
   --icon-muted: #9facbc;
   --icon-hover: #66a6ff;
+  --icon-secondary: #5a6981;
+
+  --disabled: #8b96a7;
 }
 
 .dark {
+  --brand-blue: #00378a;
+  --brand-blue-dark: #002b6b;
+  --brand-blue-light: #8fbfff;
+  --brand-blue-hover: #002b6b;
+  --brand-blue-text: #8fbfff;
+
   --background: #22262b;
   --foreground: #dfe2e7;
 
@@ -115,6 +126,9 @@
   --icon-hover: #66a6ff;
   --icon-subtle: rgba(30, 58, 138, 0.5);
   --icon-accent: #93c5fd;
+  --icon-secondary: #5a6981;
+
+  --disabled: #8b96a7;
 }
 
 .auth-theme {
@@ -183,11 +197,17 @@
   --radius-4xl: calc(var(--radius) + 16px);
   --color-section-divider: var(--section-divider);
   --color-secondary-hover: var(--secondary-hover);
+  --color-brand-blue: var(--brand-blue);
+  --color-brand-blue-dark: var(--brand-blue-dark);
   --color-brand-blue-light: var(--brand-blue-light);
+  --color-brand-blue-hover: var(--brand-blue-hover);
+  --color-brand-blue-text: var(--brand-blue-text);
   --color-icon-muted: var(--icon-muted);
   --color-icon-hover: var(--icon-hover);
   --color-icon-subtle: var(--icon-subtle);
   --color-icon-accent: var(--icon-accent);
+  --color-icon-secondary: var(--icon-secondary);
+  --color-disabled: var(--disabled);
 }
 
 @layer base {

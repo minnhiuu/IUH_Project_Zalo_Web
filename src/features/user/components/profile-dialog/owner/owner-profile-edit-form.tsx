@@ -13,12 +13,12 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { getDaysInMonth } from 'date-fns'
 
-interface MyProfileEditFormProps {
+interface OwnerProfileEditFormProps {
   user: NonNullable<ReturnType<typeof useAuthContext>['user']>
   onCancel: () => void
 }
 
-export function MyProfileEditForm({ user, onCancel }: MyProfileEditFormProps) {
+export function OwnerProfileEditForm({ user, onCancel }: OwnerProfileEditFormProps) {
   const { text } = useUserText()
   const updateProfileMutation = useUpdateProfileMutation()
 
