@@ -7,5 +7,6 @@ export const createSearchTexts = (t: TFunction<'search'>) => ({
   recentHeader: t(SEARCH_KEYS.recentHeader),
   noRecent: t(SEARCH_KEYS.noRecent),
   searchResult: (query: string) => t(SEARCH_KEYS.searchResult, { query }),
-  noResult: t(SEARCH_KEYS.noResult)
+  noResult: t(SEARCH_KEYS.noResult),
+  noResultDescription: t(SEARCH_KEYS.noResultDescription)
 })

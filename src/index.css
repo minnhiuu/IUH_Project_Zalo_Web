@@ -28,6 +28,7 @@
 
   --secondary: #ebecf0;
   --secondary-foreground: #081b3a;
+  --secondary-hover: #c6cad2;
 
   --muted: #f1f2f4;
   --muted-foreground: #77859c;
@@ -112,6 +113,8 @@
 
   --icon-muted: #9facbc;
   --icon-hover: #66a6ff;
+  --icon-subtle: rgba(30, 58, 138, 0.5);
+  --icon-accent: #93c5fd;
 }
 
 .auth-theme {
@@ -183,6 +186,8 @@
   --color-brand-blue-light: var(--brand-blue-light);
   --color-icon-muted: var(--icon-muted);
   --color-icon-hover: var(--icon-hover);
+  --color-icon-subtle: var(--icon-subtle);
+  --color-icon-accent: var(--icon-accent);
 }
 
 @layer base {

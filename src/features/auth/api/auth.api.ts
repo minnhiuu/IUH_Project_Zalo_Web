@@ -14,7 +14,7 @@ import type {
 } from '@/features/auth/schemas/auth.schema'
 import { QrSessionStatus } from '@/constants/enum'
 import http from '@/lib/axios-client'
-import type { ApiResponse } from '@/types/api'
+import type { ApiResponse } from '@/shared/api'
 
 export const authApi = {
   login: (request: LoginRequest) => http.post<ApiResponse<TokenResponse>>('/auth/login', request),

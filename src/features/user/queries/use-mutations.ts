@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { userApi } from '../api/user.api'
 import { userKeys } from './keys'
 import { useAuthContext } from '@/features/auth/context/auth-context'
-import type { ApiResponse } from '@/types/api'
+import type { ApiResponse } from '@/shared/api'
 import type { UserResponse } from '@/features/user/schemas/user.schema'
 
 export const useUpdateProfileMutation = () => {

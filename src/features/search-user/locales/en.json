@@ -4,5 +4,6 @@
   "recentHeader": "Recent searches",
   "noRecent": "No recent searches",
   "searchResult": "Result for \"{{query}}\"",
-  "noResult": "No results found"
+  "noResult": "No results found",
+  "noResultDescription": "Please try another keyword or search by phone number"
 }

@@ -1,6 +1,6 @@
 import type { UserResponse, UserUpdateRequest, UserImageResponse } from '@/features/user/schemas/user.schema'
 import http from '@/lib/axios-client'
-import type { ApiResponse } from '@/types/api'
+import type { ApiResponse } from '@/shared/api'
 
 export const userApi = {
   getMyProfile: () => http.get<ApiResponse<UserResponse>>('/users/me'),

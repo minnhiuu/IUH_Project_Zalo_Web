@@ -4,5 +4,6 @@ export const SEARCH_KEYS = {
   recentHeader: 'recentHeader',
   noRecent: 'noRecent',
   searchResult: 'searchResult',
-  noResult: 'noResult'
+  noResult: 'noResult',
+  noResultDescription: 'noResultDescription'
 } as const
