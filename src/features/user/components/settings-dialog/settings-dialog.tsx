@@ -19,8 +19,11 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
         <AlertDialogContent
           className={cn(
             'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50',
-            'w-[95vw] md:w-[92vw] lg:w-[88vw] xl:w-[1400px] max-w-[1600px]',
-            'h-[90vh] md:h-[85vh] lg:h-[80vh] max-h-[800px]',
+            '!w-[90vw] !max-w-[90vw] !h-[75vh]',
+            'sm:!w-[400px] sm:!max-w-[400px] sm:!h-[450px]',
+            'md:!w-[550px] md:!max-w-[550px] md:!h-[520px]',
+            'lg:!w-[700px] lg:!max-w-[700px] lg:!h-[580px]',
+            'xl:!w-[850px] xl:!max-w-[850px] xl:!h-[620px]',
             'p-0 gap-0 rounded-[4px] border-none shadow-[0_8px_28px_rgba(0,0,0,0.15)] bg-background outline-none',
             'animate-in zoom-in-95 duration-200',
             'flex flex-col'

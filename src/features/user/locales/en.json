@@ -4,6 +4,10 @@
       "profile": "Profile",
       "settings": "Settings",
       "language": "Language",
+      "appearance": "Appearance",
+      "themeLight": "Light",
+      "themeDark": "Dark",
+      "themeSystem": "System",
       "logout": "Logout"
     },
     "profile": {
@@ -40,7 +44,16 @@
       "editCover": "Edit cover photo",
       "addPhoto": "Add photo",
       "uploadPhoto": "Upload photo",
-      "repositionPhoto": "Reposition photo"
+      "repositionPhoto": "Reposition photo",
+      "addFriend": "Add Friend",
+      "message": "Message",
+      "images": "Images",
+      "noImages": "No images shared yet",
+      "mutualGroups": "Mutual groups ({{count}})",
+      "shareContact": "Share contact card",
+      "block": "Block messages and calls",
+      "report": "Report",
+      "deleteFriend": "Remove from friends list"
     },
     "validation": {
       "fullNameRequired": "Display name is required",
@@ -57,7 +70,8 @@
         "sync": "Sync",
         "appearance": "Appearance",
         "messages": "Messages",
-        "utilities": "Utilities"
+        "utilities": "Utilities",
+        "accountPrivacy": "Account & Privacy"
       },
       "general": {
         "title": "General Settings",
@@ -107,14 +121,12 @@
             "title": "Who can message me",
             "everybody": "Everybody",
             "friends": "Friends",
-            "private": "Nobody",
             "contacted": "Only people I've contacted"
           },
           "canCall": {
             "title": "Who can call me",
             "everybody": "Everybody",
             "friends": "Friends",
-            "private": "Nobody",
             "contacted": "Only people I've contacted"
           }
         },
@@ -141,9 +153,10 @@
         "title": "Appearance",
         "theme": {
           "title": "Theme",
-          "description": "Choose between light or dark theme",
+          "description": "Choose between light, dark, or system theme",
           "light": "Light",
-          "dark": "Dark"
+          "dark": "Dark",
+          "system": "System"
         }
       },
       "messages": {
@@ -166,6 +179,50 @@
         "stickerSuggestion": {
           "title": "Sticker Suggestions",
           "description": "Show sticker suggestions while typing"
+        }
+      },
+      "accountPrivacy": {
+        "title": "Account & Privacy",
+        "description": "Manage your account security and privacy settings",
+        "changePassword": {
+          "title": "Change Password",
+          "description": "Update your password to keep your account secure",
+          "currentPasswordLabel": "Current Password",
+          "currentPasswordPlaceholder": "Enter your current password",
+          "newPasswordLabel": "New Password",
+          "newPasswordPlaceholder": "Enter your new password (min. 8 characters)",
+          "confirmPasswordLabel": "Confirm New Password",
+          "confirmPasswordPlaceholder": "Re-enter your new password",
+          "changeButton": "Change Password",
+          "changing": "Changing...",
+          "success": "Password changed successfully",
+          "error": "Failed to change password. Please try again."
+        },
+        "deviceManagement": {
+          "title": "Device Management",
+          "description": "View and manage devices that are logged into your account",
+          "showAllButton": "Show All Devices",
+          "hideButton": "Hide Devices",
+          "currentDevice": "Current Device",
+          "lastActive": "Last active",
+          "createdAt": "Added",
+          "loading": "Loading devices...",
+          "noDevices": "No devices found",
+          "deleteButton": "Remove",
+          "deleteConfirm": "Are you sure you want to remove this device?",
+          "deleteSuccess": "Device removed successfully",
+          "deleteError": "Failed to remove device. Please try again.",
+          "browserLabel": "Browser",
+          "osLabel": "Operating System",
+          "ipLabel": "IP Address",
+          "logout": "Log out",
+          "logoutOthers": "Log out of other devices",
+          "logoutOthersConfirm": "Are you sure you want to log out of all other devices?",
+          "logoutOthersSuccess": "Logged out of all other devices",
+          "logoutOthersError": "Failed to log out of other devices",
+          "activeStatus": "Active now",
+          "activeDevices": "Active Devices",
+          "inactiveDevices": "Other Devices"
         }
       }
     }

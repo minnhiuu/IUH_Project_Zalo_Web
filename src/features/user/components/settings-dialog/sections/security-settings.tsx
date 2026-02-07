@@ -28,7 +28,7 @@ export function SecuritySettings() {
     <div className='space-y-4'>
       <h2 className='text-lg font-semibold text-foreground'>{text.settings.security.title}</h2>
 
-      <div className='flex items-center justify-between'>
+      <div className='rounded-lg border p-4 flex items-center justify-between'>
         <div>
           <h3 className='text-sm font-medium text-foreground'>{text.settings.security.twoFactor.title}</h3>
           <p className='text-xs text-muted-foreground'>{text.settings.security.twoFactor.description}</p>

@@ -55,54 +55,58 @@ export function GeneralSettings() {
       <h2 className='text-lg font-semibold text-foreground'>{text.settings.general.title}</h2>
 
       {/* Show All Friends Setting */}
-      <div className='space-y-2'>
+      <div className='space-y-3'>
         <h3 className='text-sm font-medium text-foreground'>{text.settings.general.showAllFriends.title}</h3>
-        <p className='text-xs text-muted-foreground'>{text.settings.general.showAllFriends.description}</p>
-        <div className='space-y-1 mt-2'>
-          <button
-            onClick={() => handleShowAllFriendsChange(false)}
-            disabled={updateSettings.isPending}
-            className={cn(
-              'w-full flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors hover:bg-muted/50 disabled:opacity-50 disabled:cursor-not-allowed',
-              !showAllFriends && 'bg-muted'
-            )}
-          >
-            <span>{text.settings.general.showAllFriends.onlyBondhub}</span>
-            {!showAllFriends && <Check className='w-4 h-4 text-primary' />}
-          </button>
-          <button
-            onClick={() => handleShowAllFriendsChange(true)}
-            disabled={updateSettings.isPending}
-            className={cn(
-              'w-full flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors hover:bg-muted/50 disabled:opacity-50 disabled:cursor-not-allowed',
-              showAllFriends && 'bg-muted'
-            )}
-          >
-            <span>{text.settings.general.showAllFriends.all}</span>
-            {showAllFriends && <Check className='w-4 h-4 text-primary' />}
-          </button>
+        <div className='rounded-lg border p-4'>
+          <p className='text-xs text-muted-foreground'>{text.settings.general.showAllFriends.description}</p>
+          <div className='space-y-1 mt-2'>
+            <button
+              onClick={() => handleShowAllFriendsChange(false)}
+              disabled={updateSettings.isPending}
+              className={cn(
+                'w-full flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors hover:bg-muted/50 disabled:opacity-50 disabled:cursor-not-allowed',
+                !showAllFriends && 'bg-muted'
+              )}
+            >
+              <span>{text.settings.general.showAllFriends.onlyBondhub}</span>
+              {!showAllFriends && <Check className='w-4 h-4 text-primary' />}
+            </button>
+            <button
+              onClick={() => handleShowAllFriendsChange(true)}
+              disabled={updateSettings.isPending}
+              className={cn(
+                'w-full flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors hover:bg-muted/50 disabled:opacity-50 disabled:cursor-not-allowed',
+                showAllFriends && 'bg-muted'
+              )}
+            >
+              <span>{text.settings.general.showAllFriends.all}</span>
+              {showAllFriends && <Check className='w-4 h-4 text-primary' />}
+            </button>
+          </div>
         </div>
       </div>
 
       <Separator />
 
       {/* Language Setting */}
-      <div className='space-y-2'>
+      <div className='space-y-3'>
         <h3 className='text-sm font-medium text-foreground'>{text.settings.general.language.title}</h3>
-        <p className='text-xs text-muted-foreground'>{text.settings.general.language.description}</p>
-        <Select
-          value={currentLanguage}
-          onValueChange={(value) => handleLanguageChange(value as 'en' | 'vi')}
-          disabled={updateSettings.isPending}
-        >
-          <SelectTrigger className='w-full'>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent side='bottom' align='start' position='popper' sideOffset={4} className='bg-popover'>
-            <SelectItem value='en'>{text.settings.general.language.english}</SelectItem>
-            <SelectItem value='vi'>{text.settings.general.language.vietnamese}</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className='rounded-lg border p-4 space-y-2'>
+          <p className='text-xs text-muted-foreground'>{text.settings.general.language.description}</p>
+          <Select
+            value={currentLanguage}
+            onValueChange={(value) => handleLanguageChange(value as 'en' | 'vi')}
+            disabled={updateSettings.isPending}
+          >
+            <SelectTrigger className='w-full'>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent side='bottom' align='start' position='popper' sideOffset={4} className='bg-popover'>
+              <SelectItem value='en'>{text.settings.general.language.english}</SelectItem>
+              <SelectItem value='vi'>{text.settings.general.language.vietnamese}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
     </div>
   )

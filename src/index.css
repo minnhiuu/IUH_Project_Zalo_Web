@@ -6,106 +6,149 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* --- 1. Core Brand Palette (Official Hex) --- */
-  --brand-blue: #0190f3;
+  --brand-blue: #0068ff;
   --brand-blue-dark: #005ae0;
-  --brand-blue-light: #e8f3ff;
-  --brand-navy: #081b3a;
-  --brand-gray-100: #f1f2f4;
-  --brand-gray-200: #ececf0;
-  --brand-gray-400: #8c8c8c;
-  --brand-gray-500: #555555;
-  --brand-red: #e53838;
+  --brand-blue-light: #e5f1ff;
+  --brand-blue-hover: #c7e0ff;
+  --brand-blue-text: #0045ad;
 
-  /* --- 2. Shadcn UI Semantic Mapping (Light Mode) --- */
+  --vibrant-blue: #0068ff;
+  --vibrant-blue-hover: #005ae0;
+
   --background: #ffffff;
-  --foreground: rgba(0, 0, 0, 0.88);
-  --card-foreground: rgba(0, 0, 0, 0.88);
-  --popover-foreground: rgba(0, 0, 0, 0.88);
+  --foreground: #081b3a;
+
+  --card: #ffffff;
+  --card-foreground: #081b3a;
+
+  --popover: #ffffff;
+  --popover-foreground: #081b3a;
 
   --primary: #0068ff;
   --primary-foreground: #ffffff;
   --primary-hover: #005ae0;
 
-  --vibrant-blue: #0190f3;
-  --vibrant-blue-hover: #0184e0;
+  --secondary: #ebecf0;
+  --secondary-foreground: #081b3a;
+  --secondary-hover: #c6cad2;
 
-  --secondary: var(--brand-blue-light);
-  --secondary-foreground: var(--brand-blue);
+  --muted: #f1f2f4;
+  --muted-foreground: #5a6981;
 
-  --muted: var(--brand-gray-100);
-  --muted-foreground: var(--brand-gray-500);
+  --accent: #f1f2f4;
+  --accent-foreground: #081b3a;
 
-  --accent: var(--brand-gray-100);
-  --accent-foreground: rgba(0, 0, 0, 0.88);
+  --accent-hover: #e5e7eb;
 
-  --destructive: var(--brand-red);
-  --destructive-foreground: #ffffff;
-
-  --border: var(--brand-gray-200);
-  --input: var(--brand-gray-200);
-  --ring: var(--brand-blue);
-
-  /* Nút khi chưa nhập đủ (Disabled) */
-  --btn-disabled: #0190f3; /* Dùng primary nhưng giảm opacity qua CSS/Tailwind */
-
-  /* Charts & Others */
-  --chart-1: #0068ff;
-  --chart-2: #e53838;
-  --chart-3: #1da1f2;
-  --chart-4: #8c8c8c;
-  --chart-5: #555555;
-
-  --radius: 0.5rem;
-  --sidebar: var(--brand-blue-dark); /* #005ae0 */
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #ffffff;
-  --sidebar-primary-foreground: var(--brand-blue-dark);
-  --sidebar-accent: rgba(0, 0, 0, 0.25);
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: rgba(255, 255, 255, 0.1);
-  --sidebar-ring: var(--brand-blue);
-}
-
-.dark {
-  /* --- Shadcn UI Semantic Mapping (Dark Mode) --- */
-  --background: oklch(0.15 0.05 260); /* Navy đen sâu */
-  --foreground: #ffffff;
-
-  --card: oklch(0.2 0.05 260);
-  --card-foreground: #ffffff;
-
-  --popover: oklch(0.2 0.05 260);
-  --popover-foreground: #ffffff;
-
-  --primary: var(--brand-blue); /* Hoặc màu navy tối cho dark mode nếu cần */
-  --primary-foreground: #ffffff;
-  --primary-hover: var(--brand-blue-dark);
-
-  --secondary: oklch(0.25 0.05 260);
-  --secondary-foreground: #ffffff;
-
-  --muted: oklch(0.25 0.02 260);
-  --muted-foreground: oklch(0.7 0 0);
-
-  --accent: oklch(0.25 0.05 260);
-  --accent-foreground: #ffffff;
+  --section-divider: #f1f2f4;
 
   --destructive: #e53838;
   --destructive-foreground: #ffffff;
 
-  --border: oklch(0.3 0.02 260);
-  --input: oklch(0.3 0.02 260);
+  --border: #dbdbdb;
+  --input: #dbdbdb;
   --ring: #0068ff;
 
-  --sidebar: oklch(0.18 0.05 260);
+  --radius: 0.5rem;
+  --sidebar: #005ae0;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #ffffff;
+  --sidebar-primary-foreground: #005ae0;
+  --sidebar-accent: rgba(255, 255, 255, 0.2);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: #0068ff;
+
+  --icon-muted: #9facbc;
+  --icon-hover: #66a6ff;
+  --icon-secondary: #5a6981;
+
+  --disabled: #8b96a7;
+}
+
+.dark {
+  --brand-blue: #00378a;
+  --brand-blue-dark: #002b6b;
+  --brand-blue-light: #8fbfff;
+  --brand-blue-hover: #002b6b;
+  --brand-blue-text: #8fbfff;
+
+  --background: #22262b;
+  --foreground: #dfe2e7;
+
+  --vibrant-blue: #0190f3;
+  --vibrant-blue-hover: #0078cc;
+
+  --card: #22262b;
+  --card-foreground: #ffffff;
+
+  --popover: #22262b;
+  --popover-foreground: #ffffff;
+
+  --primary: #0068ff;
+  --primary-foreground: #ffffff;
+  --primary-hover: #005ae0;
+
+  --vibrant-blue: #0068ff;
+  --vibrant-blue-hover: #005ae0;
+
+  --secondary: #2c323a;
+  --secondary-foreground: #dfe2e7;
+  --secondary-hover: #38404a;
+
+  --muted: #3e444a;
+  --muted-foreground: #b6c1cf;
+
+  --accent: #3e444a;
+  --accent-foreground: #ffffff;
+
+  --accent-hover: #3e444a;
+
+  --section-divider: #121416;
+
+  --destructive: #e94949;
+  --destructive-foreground: #ffffff;
+
+  --border: hsla(0, 0%, 100%, 0.1);
+  --input: #1a1d21;
+  --ring: #0068ff;
+
+  --sidebar: #121416;
   --sidebar-foreground: #ffffff;
   --sidebar-primary: #0068ff;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: oklch(0.25 0.05 260);
+  --sidebar-accent: hsla(0, 0%, 100%, 0.1);
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: oklch(0.3 0.02 260);
+  --sidebar-border: rgba(255, 255, 255, 0.08);
   --sidebar-ring: #0068ff;
+
+  --icon-muted: #9facbc;
+  --icon-hover: #66a6ff;
+  --icon-subtle: rgba(30, 58, 138, 0.5);
+  --icon-accent: #93c5fd;
+  --icon-secondary: #5a6981;
+
+  --disabled: #8b96a7;
+}
+
+.auth-theme {
+  --primary: #0190f3;
+  --primary-hover: #0078cc;
+  --vibrant-blue: #0190f3;
+  --vibrant-blue-hover: #0078cc;
+  --ring: #0190f3;
+  --card: #ffffff;
+}
+
+.dark .auth-theme {
+  --background: var(--sidebar);
+  --primary: #0190f3;
+  --primary-hover: #0078cc;
+  --vibrant-blue: #0190f3;
+  --vibrant-blue-hover: #0078cc;
+  --card: var(--secondary);
+  --border: var(--sidebar-border);
+  --foreground: var(--foreground);
 }
 
 @theme inline {
@@ -129,6 +172,7 @@
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
   --color-muted-foreground: var(--muted-foreground);
   --color-muted: var(--muted);
   --color-secondary-foreground: var(--secondary-foreground);
@@ -151,6 +195,19 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+  --color-section-divider: var(--section-divider);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-brand-blue: var(--brand-blue);
+  --color-brand-blue-dark: var(--brand-blue-dark);
+  --color-brand-blue-light: var(--brand-blue-light);
+  --color-brand-blue-hover: var(--brand-blue-hover);
+  --color-brand-blue-text: var(--brand-blue-text);
+  --color-icon-muted: var(--icon-muted);
+  --color-icon-hover: var(--icon-hover);
+  --color-icon-subtle: var(--icon-subtle);
+  --color-icon-accent: var(--icon-accent);
+  --color-icon-secondary: var(--icon-secondary);
+  --color-disabled: var(--disabled);
 }
 
 @layer base {
@@ -163,4 +220,39 @@
   html {
     @apply font-sans;
   }
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: inherit;
+  font-size: 100%;
+}
+
+input[type='radio'] {
+  appearance: none;
+  @apply rounded-full border border-border bg-white dark:bg-input cursor-pointer transition-colors;
+  width: 1.125rem;
+  height: 1.125rem;
+  display: grid;
+  place-content: center;
+}
+
+input[type='radio']::before {
+  content: '';
+  @apply rounded-full bg-primary;
+  width: 0.625rem;
+  height: 0.625rem;
+  transform: scale(0);
+  transition: 120ms transform ease-in-out;
+}
+
+input[type='radio']:checked::before {
+  transform: scale(1);
+}
+
+input[type='radio']:checked {
+  @apply border-primary;
 }

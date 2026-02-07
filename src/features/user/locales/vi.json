@@ -4,6 +4,10 @@
       "profile": "Thông tin tài khoản",
       "settings": "Cài đặt",
       "language": "Ngôn ngữ",
+      "appearance": "Giao diện",
+      "themeLight": "Sáng",
+      "themeDark": "Tối",
+      "themeSystem": "Hệ thống",
       "logout": "Đăng xuất"
     },
     "profile": {
@@ -28,7 +32,7 @@
       "edit": "Chỉnh sửa",
       "updating": "Đang cập nhật...",
       "bio": "Giới thiệu",
-      "bioLabel": "Giới thiệu",
+      "bioLabel": "Bio",
       "bioPlaceholder": "Nhập giới thiệu bản thân",
       "noBio": "Chưa có giới thiệu",
       "selectImageError": "Vui lòng chọn file hình ảnh",
@@ -40,7 +44,16 @@
       "editCover": "Chỉnh sửa ảnh bìa",
       "addPhoto": "Thêm ảnh",
       "uploadPhoto": "Tải ảnh lên",
-      "repositionPhoto": "Đặt lại vị trí"
+      "repositionPhoto": "Đặt lại vị trí",
+      "addFriend": "Kết bạn",
+      "message": "Nhắn tin",
+      "images": "Hình ảnh",
+      "noImages": "Chưa có ảnh nào được chia sẻ",
+      "mutualGroups": "Nhóm chung ({{count}})",
+      "shareContact": "Chia sẻ danh thiếp",
+      "block": "Chặn tin nhắn và cuộc gọi",
+      "report": "Báo xấu",
+      "deleteFriend": "Xóa khỏi danh sách bạn bè"
     },
     "validation": {
       "fullNameRequired": "Tên hiển thị không được để trống",
@@ -57,7 +70,8 @@
         "sync": "Đồng bộ",
         "appearance": "Giao diện",
         "messages": "Tin nhắn",
-        "utilities": "Tiện ích"
+        "utilities": "Tiện ích",
+        "accountPrivacy": "Tài khoản & Bảo mật"
       },
       "general": {
         "title": "Cài đặt chung",
@@ -107,14 +121,12 @@
             "title": "Ai có thể nhắn tin cho tôi",
             "everybody": "Mọi người",
             "friends": "Bạn bè",
-            "private": "Không ai",
             "contacted": "Chỉ người tôi đã liên hệ"
           },
           "canCall": {
             "title": "Ai có thể gọi cho tôi",
             "everybody": "Mọi người",
             "friends": "Bạn bè",
-            "private": "Không ai",
             "contacted": "Chỉ người tôi đã liên hệ"
           }
         },
@@ -141,9 +153,10 @@
         "title": "Giao diện",
         "theme": {
           "title": "Chế độ hiển thị",
-          "description": "Chọn giao diện sáng hoặc tối",
+          "description": "Chọn giao diện sáng, tối hoặc theo hệ thống",
           "light": "Sáng",
-          "dark": "Tối"
+          "dark": "Tối",
+          "system": "Hệ thống"
         }
       },
       "messages": {
@@ -166,6 +179,50 @@
         "stickerSuggestion": {
           "title": "Gợi ý sticker",
           "description": "Hiển thị gợi ý sticker khi nhập tin nhắn"
+        }
+      },
+      "accountPrivacy": {
+        "title": "Tài khoản & Bảo mật",
+        "description": "Quản lý bảo mật tài khoản và cài đặt quyền riêng tư",
+        "changePassword": {
+          "title": "Đổi mật khẩu",
+          "description": "Cập nhật mật khẩu để bảo mật tài khoản của bạn",
+          "currentPasswordLabel": "Mật khẩu hiện tại",
+          "currentPasswordPlaceholder": "Nhập mật khẩu hiện tại",
+          "newPasswordLabel": "Mật khẩu mới",
+          "newPasswordPlaceholder": "Nhập mật khẩu mới (tối thiểu 8 ký tự)",
+          "confirmPasswordLabel": "Xác nhận mật khẩu mới",
+          "confirmPasswordPlaceholder": "Nhập lại mật khẩu mới",
+          "changeButton": "Đổi mật khẩu",
+          "changing": "Đang đổi...",
+          "success": "Đổi mật khẩu thành công",
+          "error": "Không thể đổi mật khẩu. Vui lòng thử lại."
+        },
+        "deviceManagement": {
+          "title": "Quản lý thiết bị",
+          "description": "Xem và quản lý các thiết bị đã đăng nhập vào tài khoản của bạn",
+          "showAllButton": "Hiển thị tất cả thiết bị",
+          "hideButton": "Ẩn danh sách thiết bị",
+          "currentDevice": "Thiết bị hiện tại",
+          "lastActive": "Hoạt động lần cuối",
+          "createdAt": "Đã thêm",
+          "loading": "Đang tải thiết bị...",
+          "noDevices": "Không tìm thấy thiết bị nào",
+          "deleteButton": "Xóa",
+          "deleteConfirm": "Bạn có chắc chắn muốn xóa thiết bị này?",
+          "deleteSuccess": "Xóa thiết bị thành công",
+          "deleteError": "Không thể xóa thiết bị. Vui lòng thử lại.",
+          "browserLabel": "Trình duyệt",
+          "osLabel": "Hệ điều hành",
+          "ipLabel": "Địa chỉ IP",
+          "logout": "Đăng xuất",
+          "logoutOthers": "Đăng xuất khỏi các thiết bị khác",
+          "logoutOthersConfirm": "Bạn có chắc chắn muốn đăng xuất khỏi tất cả các thiết bị khác không?",
+          "logoutOthersSuccess": "Đã đăng xuất khỏi tất cả các thiết bị khác",
+          "logoutOthersError": "Không thể đăng xuất các thiết bị khác",
+          "activeStatus": "Đang hoạt động",
+          "activeDevices": "Thiết bị đang hoạt động",
+          "inactiveDevices": "Thiết bị khác"
         }
       }
     }

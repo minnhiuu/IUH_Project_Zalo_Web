@@ -103,6 +103,11 @@ export const resetPasswordRequestSchema = z
 
 export type ResetPasswordRequest = z.infer<typeof resetPasswordRequestSchema>
 
+export type ChangePasswordRequest = {
+  oldPassword: string
+  newPassword: string
+}
+
 export type QrGenerationResponse = {
   qrId: string
   qrContent: string

@@ -10,11 +10,12 @@ import type {
   ResetPasswordRequest,
   TokenResponse,
   QrGenerationResponse,
-  QrStatusResponse
+  QrStatusResponse,
+  ChangePasswordRequest
 } from '@/features/auth/schemas/auth.schema'
 import { QrSessionStatus } from '@/constants/enum'
 import http from '@/lib/axios-client'
-import type { ApiResponse } from '@/types/api'
+import type { ApiResponse } from '@/shared/api'
 
 export const authApi = {
   login: (request: LoginRequest) => http.post<ApiResponse<TokenResponse>>('/auth/login', request),
@@ -34,6 +35,10 @@ export const authApi = {
   refresh: (request: RefreshRequest) => http.post<ApiResponse<TokenResponse>>('/auth/refresh', request),
 
   logout: (request?: LogoutRequest) => http.post<ApiResponse<void>>('/auth/logout', request),
+
+  logoutOthers: () => http.post<ApiResponse<void>>('/auth/logout-others'),
+
+  changePassword: (request: ChangePasswordRequest) => http.post<ApiResponse<void>>('/auth/change-password', request),
 
   generateQr: () => http.post<ApiResponse<QrGenerationResponse>>('/auth/qr/generate'),
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import i18n from './index'
-import { storage } from '@/utils/local-storage'
+import { storage, STORAGE_KEYS } from '@/utils/local-storage'
 
 import { LANGUAGES } from './constants'
 import type { AppLocale } from './constants'
@@ -14,7 +14,7 @@ export const LocaleProvider = ({ children }: { children: React.ReactNode }) => {
   const changeLocale = (next: AppLocale) => {
     if (next === locale) return
     i18n.changeLanguage(next)
-    storage.set('locale', next)
+    storage.set(STORAGE_KEYS.LOCALE, next)
     setLocale(next)
   }
 

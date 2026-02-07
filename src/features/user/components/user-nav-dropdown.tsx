@@ -10,7 +10,7 @@ import {
   DropdownMenuSubTrigger
 } from '@/components/ui/dropdown-menu'
 import { useLogoutMutation, LogoutConfirmDialog } from '@/features/auth'
-import { useUserText, MyProfileDialog, SettingsDialog } from '@/features/user'
+import { useUserText, OwnerProfileDialog, SettingsDialog } from '@/features/user'
 import { useState } from 'react'
 
 import { useLocale } from '@/lib/i18n'
@@ -37,13 +37,13 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
           side='right'
           sideOffset={8}
           style={{ width: dropdownWidth }}
-          className='p-1 shadow-[0_4px_16px_rgba(0,0,0,0.1)] border border-border animate-in fade-in zoom-in-95 duration-200 bg-white'
+          className='p-1 shadow-[0_4px_16px_rgba(0,0,0,0.1)] border border-border animate-in fade-in zoom-in-95 duration-200 bg-popover text-popover-foreground'
         >
           <DropdownMenuItem
             onClick={() => setShowProfileDialog(true)}
             className='flex items-center gap-3 py-2 px-3 cursor-pointer hover:bg-muted focus:bg-muted rounded-md text-[14px] transition-colors outline-none'
           >
-            <User className='w-[17px] h-[17px] text-foreground' />
+            <User className='w-[17px] h-[17px]' />
             <span className='flex-1 font-medium'>{text.menu.profile}</span>
           </DropdownMenuItem>
 
@@ -51,7 +51,7 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
             onClick={() => setShowSettingsDialog(true)}
             className='flex items-center gap-3 py-2 px-3 cursor-pointer hover:bg-muted focus:bg-muted rounded-md text-[14px] transition-colors outline-none'
           >
-            <Settings className='w-[17px] h-[17px] text-foreground' />
+            <Settings className='w-[17px] h-[17px]' />
             <span className='flex-1 font-medium'>{text.menu.settings}</span>
           </DropdownMenuItem>
 
@@ -59,12 +59,12 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
 
           <DropdownMenuSub>
             <DropdownMenuSubTrigger className='flex items-center gap-3 py-2 px-3 cursor-pointer hover:bg-muted focus:bg-muted rounded-md text-[14px] outline-none'>
-              <Globe className='w-[17px] h-[17px] text-foreground' />
+              <Globe className='w-[17px] h-[17px]' />
               <span className='flex-1 font-medium'>{text.menu.language}</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent
               sideOffset={5}
-              className='w-44 p-1 shadow-lg border border-border animate-in slide-in-from-left-1 duration-200 bg-white'
+              className='w-44 p-1 shadow-lg border border-border animate-in slide-in-from-left-1 duration-200 bg-popover text-popover-foreground'
             >
               {languages.map((lang) => (
                 <DropdownMenuItem
@@ -74,7 +74,7 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
                 >
                   <div className='flex items-center gap-3'>
                     <img src={lang.flag} alt={lang.label} className='w-4.5 h-auto object-cover' />
-                    <span className='font-medium text-foreground'>{lang.label}</span>
+                    <span className='font-medium'>{lang.label}</span>
                   </div>
                   {language === lang.code && <Check className='w-3.5 h-3.5 text-primary' />}
                 </DropdownMenuItem>
@@ -98,7 +98,7 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
         <SettingsDialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog} />
 
         <LogoutConfirmDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog} />
-        <MyProfileDialog open={showProfileDialog} onOpenChange={setShowProfileDialog} />
+        <OwnerProfileDialog open={showProfileDialog} onOpenChange={setShowProfileDialog} />
       </DropdownMenu>
     </>
   )

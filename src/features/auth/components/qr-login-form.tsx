@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils'
 import { authApi } from '@/features/auth/api/auth.api'
 import { handleErrorApi, getErrorCode } from '@/utils/error-handler'
 import { ErrorCode } from '@/constants/error-code'
+import { FullScreenLoading } from '@/components/common/full-screen-loading'
 
 interface QRLoginFormProps {
   onSwitchToPassword: () => void
@@ -28,9 +29,17 @@ export default function QRLoginForm({ onSwitchToPassword }: QRLoginFormProps) {
   const [isExpired, setIsExpired] = useState(false)
   const [scannedUser, setScannedUser] = useState<{ fullName: string; avatar: string } | null>(null)
   const [prevQrId, setPrevQrId] = useState<string | null>(null)
+  const [isFinishingLogin, setIsFinishingLogin] = useState(false)
 
   const { data: qrData, isLoading: isGenerating, isError: isGenError, refetch: refetchQr } = useGenerateQrQuery()
   const qrId = qrData?.qrId
+
+  if (qrId && qrId !== prevQrId) {
+    setPrevQrId(qrId)
+    setErrorMessage(null)
+    setIsExpired(false)
+    setScannedUser(null)
+  }
 
   const loginSuccessRef = useRef(loginSuccess)
   const navigateRef = useRef(navigate)
@@ -53,13 +62,6 @@ export default function QRLoginForm({ onSwitchToPassword }: QRLoginFormProps) {
     setScannedUser(null)
     refetchQr()
   }, [refetchQr])
-
-  if (qrId && qrId !== prevQrId) {
-    setPrevQrId(qrId)
-    setErrorMessage(null)
-    setIsExpired(false)
-    setScannedUser(null)
-  }
 
   const isExpiredRef = useRef(isExpired)
   useEffect(() => {
@@ -94,10 +96,12 @@ export default function QRLoginForm({ onSwitchToPassword }: QRLoginFormProps) {
         if (!isActive || isExpiredRef.current) return
 
         if (data.status === QrSessionStatus.Confirmed && data.accessToken) {
+          setIsFinishingLogin(true)
           try {
             await loginSuccessRef.current(data.accessToken)
             navigateRef.current(PATHS.HOME)
           } catch (loginError: unknown) {
+            setIsFinishingLogin(false)
             handleErrorApi({ error: loginError })
             if (isActive) setErrorMessage(textRef.current.qr.loginFailed)
           }
@@ -143,7 +147,6 @@ export default function QRLoginForm({ onSwitchToPassword }: QRLoginFormProps) {
 
     return () => {
       isActive = false
-      controller.abort()
     }
   }, [qrId])
 
@@ -167,113 +170,121 @@ export default function QRLoginForm({ onSwitchToPassword }: QRLoginFormProps) {
   const isScanned = !!scannedUser
 
   return (
-    <div className='w-full max-w-[500px] bg-background shadow-[0_8px_28px_rgba(0,0,0,0.08)] rounded-xl overflow-hidden border border-border/40 px-6 animate-in fade-in zoom-in-95 duration-300'>
-      <div className='border-b border-border/60 py-4 relative bg-background text-center'>
-        <p className='text-md font-bold text-foreground tracking-wide'>{text.qr.title}</p>
-        <div className='absolute right-2 top-1/2 -translate-y-1/2'>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant='ghost' size='icon' className='h-8 w-8 rounded-md hover:bg-accent group mr-2'>
-                <Menu className='h-5 w-5 text-gray-500 transition-colors group-hover:text-foreground' />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align='end' className='w-56 p-1'>
-              <DropdownMenuItem onClick={onSwitchToPassword} className='cursor-pointer text-sm font-medium'>
-                {text.qr.loginWithPassword}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
-
-      <div className='p-12 bg-background flex flex-col items-center relative min-h-[400px] justify-center'>
-        {errorMessage ? (
-          <div className='flex flex-col items-center gap-4 animate-in fade-in slide-in-from-top-4'>
-            <div className='bg-destructive/10 p-3 rounded-full'>
-              <AlertCircle className='h-10 w-10 text-destructive' />
-            </div>
-            <p className='text-sm font-medium text-destructive'>{errorMessage}</p>
-            <Button variant='link' size='sm' onClick={handleRefreshQr}>
-              {text.qr.retry}
-            </Button>
+    <>
+      {isFinishingLogin && <FullScreenLoading message={text.qr.loggingIn} />}
+      <div className='w-full max-w-[450px] bg-white dark:bg-card shadow-[0_8px_28px_rgba(0,0,0,0.06)] dark:shadow-none rounded-xl overflow-hidden border-none transition-all animate-in fade-in zoom-in-95 duration-300'>
+        <div className='border-b border-border/60 py-4 relative bg-white dark:bg-card text-center'>
+          <p className='text-md font-bold text-foreground tracking-wide'>{text.qr.title}</p>
+          <div className='absolute right-2 top-1/2 -translate-y-1/2'>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant='ghost' size='icon' className='h-8 w-8 rounded-md hover:bg-accent group mr-2'>
+                  <Menu className='h-5 w-5 text-gray-500 transition-colors group-hover:text-foreground' />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align='end' className='w-56 p-1'>
+                <DropdownMenuItem onClick={onSwitchToPassword} className='cursor-pointer text-sm font-medium'>
+                  {text.qr.loginWithPassword}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-        ) : (
-          <>
-            {isScanned ? (
-              <div className='w-full'>
-                <div className='flex flex-col items-center gap-4 mb-4 animate-in zoom-in-95 duration-500'>
-                  <UserAvatar
-                    name={scannedUser.fullName}
-                    src={scannedUser.avatar}
-                    className='h-24 w-24 border-4 border-background shadow-lg'
-                    fallbackClassName='text-3xl'
-                  />
-                  <div className='text-center px-4'>
-                    <p className='text-[18px] font-bold text-foreground mb-1'>{scannedUser.fullName}</p>
-                    <p className='text-[14px] text-green-600 font-medium animate-pulse'>{text.qr.confirmPhone}</p>
-                    <p className='text-[13px] text-muted-foreground mt-2'>{text.qr.scannedSuccess}</p>
+        </div>
+
+        <div className='p-12 bg-white dark:bg-card flex flex-col items-center relative min-h-[400px] justify-center'>
+          {errorMessage ? (
+            <div className='flex flex-col items-center gap-4 animate-in fade-in slide-in-from-top-4'>
+              <div className='bg-destructive/10 p-3 rounded-full'>
+                <AlertCircle className='h-10 w-10 text-destructive' />
+              </div>
+              <p className='text-sm font-medium text-destructive'>{errorMessage}</p>
+              <Button variant='link' size='sm' onClick={handleRefreshQr}>
+                {text.qr.retry}
+              </Button>
+            </div>
+          ) : (
+            <>
+              {isScanned ? (
+                <div className='w-full'>
+                  <div className='flex flex-col items-center gap-4 mb-4 animate-in zoom-in-95 duration-500'>
+                    <UserAvatar
+                      name={scannedUser.fullName}
+                      src={scannedUser.avatar}
+                      className='h-24 w-24 border-4 border-background shadow-lg'
+                      fallbackClassName='text-3xl'
+                    />
+                    <div className='text-center px-4'>
+                      <p className='text-[18px] font-bold text-foreground mb-1'>{scannedUser.fullName}</p>
+                      <p className='text-[14px] text-green-600 font-medium animate-pulse'>{text.qr.confirmPhone}</p>
+                      <p className='text-[13px] text-muted-foreground mt-2'>{text.qr.scannedSuccess}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ) : (
-              <div className='flex flex-col items-center'>
-                <div className='p-4 pt-6 pb-6 border border-border rounded-xl bg-background flex flex-col items-center relative'>
-                  <div
-                    className={cn('transition-all duration-300', isExpired && 'opacity-20 blur-sm pointer-events-none')}
-                  >
-                    {isGenerating ? (
-                      <div className='w-48 h-48 flex items-center justify-center'>
-                        <Loader2 className='h-8 w-8 animate-spin text-primary' />
-                      </div>
-                    ) : qrData ? (
-                      <div className='relative'>
-                        <QRCodeSVG
-                          value={qrData.qrContent}
-                          size={192}
-                          level='H'
-                          imageSettings={{
-                            src: '/images/logo.png',
-                            height: 40,
-                            width: 40,
-                            excavate: true
-                          }}
-                        />
-                      </div>
-                    ) : isGenError ? (
-                      <div className='w-48 h-48 flex flex-col items-center justify-center text-destructive'>
-                        <AlertCircle className='w-8 h-8 mb-2' />
-                        <p className='text-xs text-center'>{text.qr.generateError}</p>
-                        <Button variant='link' size='sm' onClick={() => refetchQr()}>
-                          {text.qr.retry}
+              ) : (
+                <div className='flex flex-col items-center'>
+                  <div className='p-4 pt-6 pb-6 border border-border/50 rounded-xl bg-white dark:bg-black/10 flex flex-col items-center relative'>
+                    <div
+                      className={cn(
+                        'transition-all duration-300',
+                        isExpired && 'opacity-20 blur-sm pointer-events-none'
+                      )}
+                    >
+                      {isGenerating ? (
+                        <div className='w-48 h-48 flex items-center justify-center'>
+                          <Loader2 className='h-8 w-8 animate-spin text-primary' />
+                        </div>
+                      ) : qrData ? (
+                        <div className='relative'>
+                          <QRCodeSVG
+                            value={qrData.qrContent}
+                            size={192}
+                            level='H'
+                            imageSettings={{
+                              src: '/images/logo.png',
+                              height: 40,
+                              width: 40,
+                              excavate: true
+                            }}
+                          />
+                        </div>
+                      ) : isGenError ? (
+                        <div className='w-48 h-48 flex flex-col items-center justify-center text-destructive'>
+                          <AlertCircle className='w-8 h-8 mb-2' />
+                          <p className='text-xs text-center'>{text.qr.generateError}</p>
+                          <Button variant='link' size='sm' onClick={() => refetchQr()}>
+                            {text.qr.retry}
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className='w-48 h-48 bg-gray-100 rounded-lg' />
+                      )}
+                    </div>
+
+                    {isExpired && !isGenerating && (
+                      <div className='absolute inset-0 flex flex-col items-center justify-center z-10 animate-in fade-in'>
+                        <p className='text-[13px] font-bold text-destructive mb-3'>{text.qr.expired}</p>
+                        <Button
+                          onClick={handleRefreshQr}
+                          className='bg-primary hover:bg-primary-hover text-primary-foreground h-8 rounded-full px-6'
+                        >
+                          {text.qr.refresh}
                         </Button>
                       </div>
-                    ) : (
-                      <div className='w-48 h-48 bg-gray-100 rounded-lg' />
                     )}
                   </div>
 
-                  {isExpired && !isGenerating && (
-                    <div className='absolute inset-0 flex flex-col items-center justify-center z-10 animate-in fade-in'>
-                      <p className='text-[13px] font-bold text-destructive mb-3'>{text.qr.expired}</p>
-                      <Button
-                        onClick={handleRefreshQr}
-                        className='bg-primary hover:bg-primary-hover text-primary-foreground h-8 rounded-full px-6'
-                      >
-                        {text.qr.refresh}
-                      </Button>
-                    </div>
-                  )}
+                  <div className='mt-5 flex flex-col items-center text-center'>
+                    <p className='text-vibrant-blue text-[15px] font-medium leading-none mb-2'>
+                      {text.qr.onlyForLogin}
+                    </p>
+                    <p className='text-[13px] text-foreground font-medium'>{text.qr.appNameOnPC}</p>
+                  </div>
                 </div>
-
-                <div className='mt-5 flex flex-col items-center text-center'>
-                  <p className='text-vibrant-blue text-[15px] font-medium leading-none mb-2'>{text.qr.onlyForLogin}</p>
-                  <p className='text-[13px] text-foreground font-medium'>{text.qr.appNameOnPC}</p>
-                </div>
-              </div>
-            )}
-          </>
-        )}
+              )}
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   )
 }

@@ -1,7 +1,7 @@
 import { Loader2 } from 'lucide-react'
 import { useUserText } from '@/features/user/i18n/use-user-text'
 import { cn } from '@/lib/utils'
-import { Separator } from '@/components/ui/separator'
+
 import { useMySettings, useUpdateSyncSettings } from '@/features/user/queries/use-settings'
 
 export function SyncSettings() {
@@ -33,7 +33,7 @@ export function SyncSettings() {
     <div className='space-y-4'>
       <h2 className='text-lg font-semibold text-foreground'>{text.settings.sync.title}</h2>
 
-      <div className='flex items-center justify-between'>
+      <div className='rounded-lg border p-4 flex items-center justify-between'>
         <div>
           <h3 className='text-sm font-medium text-foreground'>{text.settings.sync.syncSuggestion.title}</h3>
           <p className='text-xs text-muted-foreground'>{text.settings.sync.syncSuggestion.description}</p>
@@ -55,9 +55,7 @@ export function SyncSettings() {
         </button>
       </div>
 
-      <Separator />
-
-      <div className='flex items-center justify-between'>
+      <div className='rounded-lg border p-4 flex items-center justify-between'>
         <div>
           <h3 className='text-sm font-medium text-foreground'>{text.settings.sync.showSyncProgress.title}</h3>
           <p className='text-xs text-muted-foreground'>{text.settings.sync.showSyncProgress.description}</p>

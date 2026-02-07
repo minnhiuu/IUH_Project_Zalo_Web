@@ -50,7 +50,6 @@ export function PrivacySettings() {
   const privacyOptions: { value: PrivacyLevel; label: string }[] = [
     { value: PrivacyLevel.EVERYBODY, label: text.settings.privacy.textAndCall.canText.everybody },
     { value: PrivacyLevel.FRIENDS, label: text.settings.privacy.textAndCall.canText.friends },
-    { value: PrivacyLevel.PRIVATE, label: text.settings.privacy.textAndCall.canText.private },
     { value: PrivacyLevel.CONTACTED, label: text.settings.privacy.textAndCall.canText.contacted }
   ]
 
@@ -67,52 +66,53 @@ export function PrivacySettings() {
       {/* Personal Information Section */}
       <div className='space-y-3'>
         <h3 className='text-base font-medium text-foreground'>{text.settings.privacy.personal.title}</h3>
-
-        <div className='space-y-2'>
-          <h4 className='text-sm font-medium text-foreground'>{text.settings.privacy.personal.showDob.title}</h4>
-          <p className='text-xs text-muted-foreground'>{text.settings.privacy.personal.showDob.description}</p>
-          <Select
-            value={privacySettings.showDob}
-            onValueChange={(value) => handleDobVisibilityChange(value as DobVisibility)}
-            disabled={updateSettings.isPending}
-          >
-            <SelectTrigger className='w-full'>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent side='bottom' align='start' position='popper' sideOffset={4} className='bg-popover'>
-              <SelectItem value={DobVisibility.HIDDEN}>{text.settings.privacy.personal.showDob.hidden}</SelectItem>
-              <SelectItem value={DobVisibility.FULL_DATE}>{text.settings.privacy.personal.showDob.fullDate}</SelectItem>
-              <SelectItem value={DobVisibility.MONTH_DAY_ONLY}>
-                {text.settings.privacy.personal.showDob.monthDayOnly}
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className='flex items-center justify-between'>
-          <div>
-            <h4 className='text-sm font-medium text-foreground'>
-              {text.settings.privacy.personal.showActiveStatus.title}
-            </h4>
-            <p className='text-xs text-muted-foreground'>
-              {text.settings.privacy.personal.showActiveStatus.description}
-            </p>
+        <div className='rounded-lg border p-4 space-y-4'>
+          <div className='space-y-2'>
+            <h4 className='text-sm font-medium text-foreground'>{text.settings.privacy.personal.showDob.title}</h4>
+            <p className='text-xs text-muted-foreground'>{text.settings.privacy.personal.showDob.description}</p>
+            <Select
+              value={privacySettings.showDob}
+              onValueChange={(value) => handleDobVisibilityChange(value as DobVisibility)}
+              disabled={updateSettings.isPending}
+            >
+              <SelectTrigger className='w-full'>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent side='bottom' align='start' position='popper' sideOffset={4} className='bg-popover'>
+                <SelectItem value={DobVisibility.HIDDEN}>{text.settings.privacy.personal.showDob.hidden}</SelectItem>
+                <SelectItem value={DobVisibility.FULL_DATE}>{text.settings.privacy.personal.showDob.fullDate}</SelectItem>
+                <SelectItem value={DobVisibility.MONTH_DAY_ONLY}>
+                  {text.settings.privacy.personal.showDob.monthDayOnly}
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-          <button
-            onClick={() => handleToggle('showActiveStatus')}
-            disabled={updateSettings.isPending}
-            className={cn(
-              'w-10 h-6 rounded-full transition-colors relative disabled:opacity-50 disabled:cursor-not-allowed',
-              privacySettings.showActiveStatus ? 'bg-primary' : 'bg-muted'
-            )}
-          >
-            <div
+
+          <div className='flex items-center justify-between'>
+            <div>
+              <h4 className='text-sm font-medium text-foreground'>
+                {text.settings.privacy.personal.showActiveStatus.title}
+              </h4>
+              <p className='text-xs text-muted-foreground'>
+                {text.settings.privacy.personal.showActiveStatus.description}
+              </p>
+            </div>
+            <button
+              onClick={() => handleToggle('showActiveStatus')}
+              disabled={updateSettings.isPending}
               className={cn(
-                'absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform',
-                privacySettings.showActiveStatus ? 'translate-x-5' : 'translate-x-1'
+                'w-10 h-6 rounded-full transition-colors relative disabled:opacity-50 disabled:cursor-not-allowed',
+                privacySettings.showActiveStatus ? 'bg-primary' : 'bg-muted'
               )}
-            />
-          </button>
+            >
+              <div
+                className={cn(
+                  'absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform',
+                  privacySettings.showActiveStatus ? 'translate-x-5' : 'translate-x-1'
+                )}
+              />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -121,70 +121,75 @@ export function PrivacySettings() {
       {/* Text and Call Section */}
       <div className='space-y-3'>
         <h3 className='text-base font-medium text-foreground'>{text.settings.privacy.textAndCall.title}</h3>
-
-        <div className='flex items-center justify-between'>
-          <div>
-            <h4 className='text-sm font-medium text-foreground'>
-              {text.settings.privacy.textAndCall.showReadStatus.title}
-            </h4>
-            <p className='text-xs text-muted-foreground'>
-              {text.settings.privacy.textAndCall.showReadStatus.description}
-            </p>
-          </div>
-          <button
-            onClick={() => handleToggle('showReadStatus')}
-            disabled={updateSettings.isPending}
-            className={cn(
-              'w-10 h-6 rounded-full transition-colors relative disabled:opacity-50 disabled:cursor-not-allowed',
-              privacySettings.showReadStatus ? 'bg-primary' : 'bg-muted'
-            )}
-          >
-            <div
+        <div className='rounded-lg border p-4 space-y-4'>
+          <div className='flex items-center justify-between'>
+            <div>
+              <h4 className='text-sm font-medium text-foreground'>
+                {text.settings.privacy.textAndCall.showReadStatus.title}
+              </h4>
+              <p className='text-xs text-muted-foreground'>
+                {text.settings.privacy.textAndCall.showReadStatus.description}
+              </p>
+            </div>
+            <button
+              onClick={() => handleToggle('showReadStatus')}
+              disabled={updateSettings.isPending}
               className={cn(
-                'absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform',
-                privacySettings.showReadStatus ? 'translate-x-5' : 'translate-x-1'
+                'w-10 h-6 rounded-full transition-colors relative disabled:opacity-50 disabled:cursor-not-allowed',
+                privacySettings.showReadStatus ? 'bg-primary' : 'bg-muted'
               )}
-            />
-          </button>
-        </div>
-
-        <div className='space-y-2'>
-          <h4 className='text-sm font-medium text-foreground'>{text.settings.privacy.textAndCall.canText.title}</h4>
-          <div className='space-y-1'>
-            {privacyOptions.map((option) => (
-              <button
-                key={option.value}
-                onClick={() => handlePrivacyLevelChange('canText', option.value)}
-                disabled={updateSettings.isPending}
+            >
+              <div
                 className={cn(
-                  'w-full flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors hover:bg-muted/50 disabled:opacity-50 disabled:cursor-not-allowed',
-                  privacySettings.canText === option.value && 'bg-muted'
+                  'absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform',
+                  privacySettings.showReadStatus ? 'translate-x-5' : 'translate-x-1'
                 )}
-              >
-                <span>{option.label}</span>
-                {privacySettings.canText === option.value && <Check className='w-4 h-4 text-primary' />}
-              </button>
-            ))}
+              />
+            </button>
           </div>
-        </div>
 
-        <div className='space-y-2'>
-          <h4 className='text-sm font-medium text-foreground'>{text.settings.privacy.textAndCall.canCall.title}</h4>
-          <div className='space-y-1'>
-            {privacyOptions.map((option) => (
-              <button
-                key={option.value}
-                onClick={() => handlePrivacyLevelChange('canCall', option.value)}
-                disabled={updateSettings.isPending}
-                className={cn(
-                  'w-full flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors hover:bg-muted/50 disabled:opacity-50 disabled:cursor-not-allowed',
-                  privacySettings.canCall === option.value && 'bg-muted'
-                )}
-              >
-                <span>{option.label}</span>
-                {privacySettings.canCall === option.value && <Check className='w-4 h-4 text-primary' />}
-              </button>
-            ))}
+          <Separator />
+
+          <div className='space-y-2'>
+            <h4 className='text-sm font-medium text-foreground'>{text.settings.privacy.textAndCall.canText.title}</h4>
+            <div className='space-y-1'>
+              {privacyOptions.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => handlePrivacyLevelChange('canText', option.value)}
+                  disabled={updateSettings.isPending}
+                  className={cn(
+                    'w-full flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors hover:bg-muted/50 disabled:opacity-50 disabled:cursor-not-allowed',
+                    privacySettings.canText === option.value && 'bg-muted'
+                  )}
+                >
+                  <span>{option.label}</span>
+                  {privacySettings.canText === option.value && <Check className='w-4 h-4 text-primary' />}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <Separator />
+
+          <div className='space-y-2'>
+            <h4 className='text-sm font-medium text-foreground'>{text.settings.privacy.textAndCall.canCall.title}</h4>
+            <div className='space-y-1'>
+              {privacyOptions.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => handlePrivacyLevelChange('canCall', option.value)}
+                  disabled={updateSettings.isPending}
+                  className={cn(
+                    'w-full flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors hover:bg-muted/50 disabled:opacity-50 disabled:cursor-not-allowed',
+                    privacySettings.canCall === option.value && 'bg-muted'
+                  )}
+                >
+                  <span>{option.label}</span>
+                  {privacySettings.canCall === option.value && <Check className='w-4 h-4 text-primary' />}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -194,31 +199,32 @@ export function PrivacySettings() {
       {/* Search Section */}
       <div className='space-y-3'>
         <h3 className='text-base font-medium text-foreground'>{text.settings.privacy.search.title}</h3>
-
-        <div className='flex items-center justify-between'>
-          <div>
-            <h4 className='text-sm font-medium text-foreground'>
-              {text.settings.privacy.search.allowSearchOnPhoneNumber.title}
-            </h4>
-            <p className='text-xs text-muted-foreground'>
-              {text.settings.privacy.search.allowSearchOnPhoneNumber.description}
-            </p>
-          </div>
-          <button
-            onClick={() => handleToggle('allowSearchOnPhoneNumber')}
-            disabled={updateSettings.isPending}
-            className={cn(
-              'w-10 h-6 rounded-full transition-colors relative disabled:opacity-50 disabled:cursor-not-allowed',
-              privacySettings.allowSearchOnPhoneNumber ? 'bg-primary' : 'bg-muted'
-            )}
-          >
-            <div
+        <div className='rounded-lg border p-4'>
+          <div className='flex items-center justify-between'>
+            <div>
+              <h4 className='text-sm font-medium text-foreground'>
+                {text.settings.privacy.search.allowSearchOnPhoneNumber.title}
+              </h4>
+              <p className='text-xs text-muted-foreground'>
+                {text.settings.privacy.search.allowSearchOnPhoneNumber.description}
+              </p>
+            </div>
+            <button
+              onClick={() => handleToggle('allowSearchOnPhoneNumber')}
+              disabled={updateSettings.isPending}
               className={cn(
-                'absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform',
-                privacySettings.allowSearchOnPhoneNumber ? 'translate-x-5' : 'translate-x-1'
+                'w-10 h-6 rounded-full transition-colors relative disabled:opacity-50 disabled:cursor-not-allowed',
+                privacySettings.allowSearchOnPhoneNumber ? 'bg-primary' : 'bg-muted'
               )}
-            />
-          </button>
+            >
+              <div
+                className={cn(
+                  'absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform',
+                  privacySettings.allowSearchOnPhoneNumber ? 'translate-x-5' : 'translate-x-1'
+                )}
+              />
+            </button>
+          </div>
         </div>
       </div>
     </div>

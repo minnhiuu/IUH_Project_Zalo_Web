@@ -3,6 +3,10 @@ export const USER_KEYS = {
     profile: 'user.menu.profile',
     settings: 'user.menu.settings',
     language: 'user.menu.language',
+    appearance: 'user.menu.appearance',
+    themeLight: 'user.menu.themeLight',
+    themeDark: 'user.menu.themeDark',
+    themeSystem: 'user.menu.themeSystem',
     logout: 'user.menu.logout'
   },
   profile: {
@@ -39,7 +43,16 @@ export const USER_KEYS = {
     editCover: 'user.profile.editCover',
     addPhoto: 'user.profile.addPhoto',
     uploadPhoto: 'user.profile.uploadPhoto',
-    repositionPhoto: 'user.profile.repositionPhoto'
+    repositionPhoto: 'user.profile.repositionPhoto',
+    addFriend: 'user.profile.addFriend',
+    message: 'user.profile.message',
+    images: 'user.profile.images',
+    noImages: 'user.profile.noImages',
+    mutualGroups: 'user.profile.mutualGroups',
+    shareContact: 'user.profile.shareContact',
+    block: 'user.profile.block',
+    report: 'user.profile.report',
+    deleteFriend: 'user.profile.deleteFriend'
   },
   validation: {
     fullNameRequired: 'user.validation.fullNameRequired',
@@ -56,7 +69,8 @@ export const USER_KEYS = {
       sync: 'user.settings.menu.sync',
       appearance: 'user.settings.menu.appearance',
       messages: 'user.settings.menu.messages',
-      utilities: 'user.settings.menu.utilities'
+      utilities: 'user.settings.menu.utilities',
+      accountPrivacy: 'user.settings.menu.accountPrivacy'
     },
     general: {
       title: 'user.settings.general.title',
@@ -106,13 +120,13 @@ export const USER_KEYS = {
           title: 'user.settings.privacy.textAndCall.canText.title',
           everybody: 'user.settings.privacy.textAndCall.canText.everybody',
           friends: 'user.settings.privacy.textAndCall.canText.friends',
-          nobody: 'user.settings.privacy.textAndCall.canText.nobody'
+          contacted: 'user.settings.privacy.textAndCall.canText.contacted'
         },
         canCall: {
           title: 'user.settings.privacy.textAndCall.canCall.title',
           everybody: 'user.settings.privacy.textAndCall.canCall.everybody',
           friends: 'user.settings.privacy.textAndCall.canCall.friends',
-          nobody: 'user.settings.privacy.textAndCall.canCall.nobody'
+          contacted: 'user.settings.privacy.textAndCall.canCall.contacted'
         }
       },
       search: {
@@ -140,7 +154,8 @@ export const USER_KEYS = {
         title: 'user.settings.appearance.theme.title',
         description: 'user.settings.appearance.theme.description',
         light: 'user.settings.appearance.theme.light',
-        dark: 'user.settings.appearance.theme.dark'
+        dark: 'user.settings.appearance.theme.dark',
+        system: 'user.settings.appearance.theme.system'
       }
     },
     messages: {
@@ -163,6 +178,50 @@ export const USER_KEYS = {
       stickerSuggestion: {
         title: 'user.settings.utilities.stickerSuggestion.title',
         description: 'user.settings.utilities.stickerSuggestion.description'
+      }
+    },
+    accountPrivacy: {
+      title: 'user.settings.accountPrivacy.title',
+      description: 'user.settings.accountPrivacy.description',
+      changePassword: {
+        title: 'user.settings.accountPrivacy.changePassword.title',
+        description: 'user.settings.accountPrivacy.changePassword.description',
+        currentPasswordLabel: 'user.settings.accountPrivacy.changePassword.currentPasswordLabel',
+        currentPasswordPlaceholder: 'user.settings.accountPrivacy.changePassword.currentPasswordPlaceholder',
+        newPasswordLabel: 'user.settings.accountPrivacy.changePassword.newPasswordLabel',
+        newPasswordPlaceholder: 'user.settings.accountPrivacy.changePassword.newPasswordPlaceholder',
+        confirmPasswordLabel: 'user.settings.accountPrivacy.changePassword.confirmPasswordLabel',
+        confirmPasswordPlaceholder: 'user.settings.accountPrivacy.changePassword.confirmPasswordPlaceholder',
+        changeButton: 'user.settings.accountPrivacy.changePassword.changeButton',
+        changing: 'user.settings.accountPrivacy.changePassword.changing',
+        success: 'user.settings.accountPrivacy.changePassword.success',
+        error: 'user.settings.accountPrivacy.changePassword.error'
+      },
+      deviceManagement: {
+        title: 'user.settings.accountPrivacy.deviceManagement.title',
+        description: 'user.settings.accountPrivacy.deviceManagement.description',
+        showAllButton: 'user.settings.accountPrivacy.deviceManagement.showAllButton',
+        hideButton: 'user.settings.accountPrivacy.deviceManagement.hideButton',
+        currentDevice: 'user.settings.accountPrivacy.deviceManagement.currentDevice',
+        lastActive: 'user.settings.accountPrivacy.deviceManagement.lastActive',
+        createdAt: 'user.settings.accountPrivacy.deviceManagement.createdAt',
+        loading: 'user.settings.accountPrivacy.deviceManagement.loading',
+        noDevices: 'user.settings.accountPrivacy.deviceManagement.noDevices',
+        deleteButton: 'user.settings.accountPrivacy.deviceManagement.deleteButton',
+        deleteConfirm: 'user.settings.accountPrivacy.deviceManagement.deleteConfirm',
+        deleteSuccess: 'user.settings.accountPrivacy.deviceManagement.deleteSuccess',
+        deleteError: 'user.settings.accountPrivacy.deviceManagement.deleteError',
+        browserLabel: 'user.settings.accountPrivacy.deviceManagement.browserLabel',
+        osLabel: 'user.settings.accountPrivacy.deviceManagement.osLabel',
+        ipLabel: 'user.settings.accountPrivacy.deviceManagement.ipLabel',
+        logout: 'user.settings.accountPrivacy.deviceManagement.logout',
+        logoutOthers: 'user.settings.accountPrivacy.deviceManagement.logoutOthers',
+        logoutOthersConfirm: 'user.settings.accountPrivacy.deviceManagement.logoutOthersConfirm',
+        logoutOthersSuccess: 'user.settings.accountPrivacy.deviceManagement.logoutOthersSuccess',
+        logoutOthersError: 'user.settings.accountPrivacy.deviceManagement.logoutOthersError',
+        activeStatus: 'user.settings.accountPrivacy.deviceManagement.activeStatus',
+        activeDevices: 'user.settings.accountPrivacy.deviceManagement.activeDevices',
+        inactiveDevices: 'user.settings.accountPrivacy.deviceManagement.inactiveDevices'
       }
     }
   }

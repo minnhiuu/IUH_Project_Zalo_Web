@@ -1,5 +1,15 @@
 import { useState } from 'react'
-import { Settings as SettingsIcon, Shield, Lock, RefreshCw, Palette, MessageCircle, Wrench } from 'lucide-react'
+import {
+  Settings as SettingsIcon,
+  Shield,
+  Lock,
+  RefreshCw,
+  Palette,
+  MessageCircle,
+  Wrench,
+  KeyRound,
+  Smartphone
+} from 'lucide-react'
 import { useUserText } from '@/features/user/i18n/use-user-text'
 import { cn } from '@/lib/utils'
 import {
@@ -9,10 +19,21 @@ import {
   SyncSettings,
   AppearanceSettings,
   MessagesSettings,
-  UtilitiesSettings
+  UtilitiesSettings,
+  AccountPrivacySettings,
+  DeviceManagement
 } from './sections'
 
-type MenuItem = 'general' | 'security' | 'privacy' | 'sync' | 'appearance' | 'messages' | 'utilities'
+type MenuItem =
+  | 'general'
+  | 'security'
+  | 'privacy'
+  | 'sync'
+  | 'appearance'
+  | 'messages'
+  | 'utilities'
+  | 'accountPrivacy'
+  | 'devices'
 
 const menuIcons: Record<MenuItem, React.ReactNode> = {
   general: <SettingsIcon className='w-4 h-4' />,
@@ -21,7 +42,9 @@ const menuIcons: Record<MenuItem, React.ReactNode> = {
   sync: <RefreshCw className='w-4 h-4' />,
   appearance: <Palette className='w-4 h-4' />,
   messages: <MessageCircle className='w-4 h-4' />,
-  utilities: <Wrench className='w-4 h-4' />
+  utilities: <Wrench className='w-4 h-4' />,
+  accountPrivacy: <KeyRound className='w-4 h-4' />,
+  devices: <Smartphone className='w-4 h-4' />
 }
 
 export function SettingsContent() {
@@ -30,6 +53,7 @@ export function SettingsContent() {
 
   const menuItems: { id: MenuItem; label: string }[] = [
     { id: 'general', label: text.settings.menu.general },
+    { id: 'accountPrivacy', label: text.settings.menu.accountPrivacy },
     { id: 'security', label: text.settings.menu.security },
     { id: 'privacy', label: text.settings.menu.privacy },
     { id: 'sync', label: text.settings.menu.sync },
@@ -54,6 +78,10 @@ export function SettingsContent() {
         return <MessagesSettings />
       case 'utilities':
         return <UtilitiesSettings />
+      case 'accountPrivacy':
+        return <AccountPrivacySettings onNavigateToDevices={() => setActiveMenu('devices')} />
+      case 'devices':
+        return <DeviceManagement onBack={() => setActiveMenu('accountPrivacy')} />
       default:
         return null
     }
@@ -62,7 +90,7 @@ export function SettingsContent() {
   return (
     <div className='flex h-full overflow-hidden'>
       {/* Left Sidebar Menu */}
-      <div className='w-56 border-r border-border bg-muted/20 flex-shrink-0 overflow-y-auto'>
+      <div className='w-56 border-r border-border bg-muted/20 shrink-0 overflow-y-auto'>
         <div className='p-2 space-y-0.5'>
           {menuItems.map((item) => (
             <button

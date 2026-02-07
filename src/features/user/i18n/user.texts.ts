@@ -6,6 +6,10 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
     profile: t(USER_KEYS.menu.profile),
     settings: t(USER_KEYS.menu.settings),
     language: t(USER_KEYS.menu.language),
+    appearance: t(USER_KEYS.menu.appearance),
+    themeLight: t(USER_KEYS.menu.themeLight),
+    themeDark: t(USER_KEYS.menu.themeDark),
+    themeSystem: t(USER_KEYS.menu.themeSystem),
     logout: t(USER_KEYS.menu.logout)
   },
   profile: {
@@ -42,7 +46,16 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
     editCover: t(USER_KEYS.profile.editCover),
     addPhoto: t(USER_KEYS.profile.addPhoto),
     uploadPhoto: t(USER_KEYS.profile.uploadPhoto),
-    repositionPhoto: t(USER_KEYS.profile.repositionPhoto)
+    repositionPhoto: t(USER_KEYS.profile.repositionPhoto),
+    addFriend: t(USER_KEYS.profile.addFriend),
+    message: t(USER_KEYS.profile.message),
+    images: t(USER_KEYS.profile.images),
+    noImages: t(USER_KEYS.profile.noImages),
+    mutualGroups: (count: number) => t(USER_KEYS.profile.mutualGroups, { count }),
+    shareContact: t(USER_KEYS.profile.shareContact),
+    block: t(USER_KEYS.profile.block),
+    report: t(USER_KEYS.profile.report),
+    deleteFriend: t(USER_KEYS.profile.deleteFriend)
   },
   validation: {
     fullNameRequired: t(USER_KEYS.validation.fullNameRequired),
@@ -59,7 +72,8 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
       sync: t(USER_KEYS.settings.menu.sync),
       appearance: t(USER_KEYS.settings.menu.appearance),
       messages: t(USER_KEYS.settings.menu.messages),
-      utilities: t(USER_KEYS.settings.menu.utilities)
+      utilities: t(USER_KEYS.settings.menu.utilities),
+      accountPrivacy: t(USER_KEYS.settings.menu.accountPrivacy)
     },
     general: {
       title: t(USER_KEYS.settings.general.title),
@@ -109,13 +123,13 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
           title: t(USER_KEYS.settings.privacy.textAndCall.canText.title),
           everybody: t(USER_KEYS.settings.privacy.textAndCall.canText.everybody),
           friends: t(USER_KEYS.settings.privacy.textAndCall.canText.friends),
-          nobody: t(USER_KEYS.settings.privacy.textAndCall.canText.nobody)
+          contacted: t(USER_KEYS.settings.privacy.textAndCall.canText.contacted)
         },
         canCall: {
           title: t(USER_KEYS.settings.privacy.textAndCall.canCall.title),
           everybody: t(USER_KEYS.settings.privacy.textAndCall.canCall.everybody),
           friends: t(USER_KEYS.settings.privacy.textAndCall.canCall.friends),
-          nobody: t(USER_KEYS.settings.privacy.textAndCall.canCall.nobody)
+          contacted: t(USER_KEYS.settings.privacy.textAndCall.canCall.contacted)
         }
       },
       search: {
@@ -143,7 +157,8 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
         title: t(USER_KEYS.settings.appearance.theme.title),
         description: t(USER_KEYS.settings.appearance.theme.description),
         light: t(USER_KEYS.settings.appearance.theme.light),
-        dark: t(USER_KEYS.settings.appearance.theme.dark)
+        dark: t(USER_KEYS.settings.appearance.theme.dark),
+        system: t(USER_KEYS.settings.appearance.theme.system)
       }
     },
     messages: {
@@ -166,6 +181,50 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
       stickerSuggestion: {
         title: t(USER_KEYS.settings.utilities.stickerSuggestion.title),
         description: t(USER_KEYS.settings.utilities.stickerSuggestion.description)
+      }
+    },
+    accountPrivacy: {
+      title: t(USER_KEYS.settings.accountPrivacy.title),
+      description: t(USER_KEYS.settings.accountPrivacy.description),
+      changePassword: {
+        title: t(USER_KEYS.settings.accountPrivacy.changePassword.title),
+        description: t(USER_KEYS.settings.accountPrivacy.changePassword.description),
+        currentPasswordLabel: t(USER_KEYS.settings.accountPrivacy.changePassword.currentPasswordLabel),
+        currentPasswordPlaceholder: t(USER_KEYS.settings.accountPrivacy.changePassword.currentPasswordPlaceholder),
+        newPasswordLabel: t(USER_KEYS.settings.accountPrivacy.changePassword.newPasswordLabel),
+        newPasswordPlaceholder: t(USER_KEYS.settings.accountPrivacy.changePassword.newPasswordPlaceholder),
+        confirmPasswordLabel: t(USER_KEYS.settings.accountPrivacy.changePassword.confirmPasswordLabel),
+        confirmPasswordPlaceholder: t(USER_KEYS.settings.accountPrivacy.changePassword.confirmPasswordPlaceholder),
+        changeButton: t(USER_KEYS.settings.accountPrivacy.changePassword.changeButton),
+        changing: t(USER_KEYS.settings.accountPrivacy.changePassword.changing),
+        success: t(USER_KEYS.settings.accountPrivacy.changePassword.success),
+        error: t(USER_KEYS.settings.accountPrivacy.changePassword.error)
+      },
+      deviceManagement: {
+        title: t(USER_KEYS.settings.accountPrivacy.deviceManagement.title),
+        description: t(USER_KEYS.settings.accountPrivacy.deviceManagement.description),
+        showAllButton: t(USER_KEYS.settings.accountPrivacy.deviceManagement.showAllButton),
+        hideButton: t(USER_KEYS.settings.accountPrivacy.deviceManagement.hideButton),
+        currentDevice: t(USER_KEYS.settings.accountPrivacy.deviceManagement.currentDevice),
+        lastActive: t(USER_KEYS.settings.accountPrivacy.deviceManagement.lastActive),
+        createdAt: t(USER_KEYS.settings.accountPrivacy.deviceManagement.createdAt),
+        loading: t(USER_KEYS.settings.accountPrivacy.deviceManagement.loading),
+        noDevices: t(USER_KEYS.settings.accountPrivacy.deviceManagement.noDevices),
+        deleteButton: t(USER_KEYS.settings.accountPrivacy.deviceManagement.deleteButton),
+        deleteConfirm: t(USER_KEYS.settings.accountPrivacy.deviceManagement.deleteConfirm),
+        deleteSuccess: t(USER_KEYS.settings.accountPrivacy.deviceManagement.deleteSuccess),
+        deleteError: t(USER_KEYS.settings.accountPrivacy.deviceManagement.deleteError),
+        browserLabel: t(USER_KEYS.settings.accountPrivacy.deviceManagement.browserLabel),
+        osLabel: t(USER_KEYS.settings.accountPrivacy.deviceManagement.osLabel),
+        ipLabel: t(USER_KEYS.settings.accountPrivacy.deviceManagement.ipLabel),
+        logout: t(USER_KEYS.settings.accountPrivacy.deviceManagement.logout),
+        logoutOthers: t(USER_KEYS.settings.accountPrivacy.deviceManagement.logoutOthers),
+        logoutOthersConfirm: t(USER_KEYS.settings.accountPrivacy.deviceManagement.logoutOthersConfirm),
+        logoutOthersSuccess: t(USER_KEYS.settings.accountPrivacy.deviceManagement.logoutOthersSuccess),
+        logoutOthersError: t(USER_KEYS.settings.accountPrivacy.deviceManagement.logoutOthersError),
+        activeStatus: t(USER_KEYS.settings.accountPrivacy.deviceManagement.activeStatus),
+        activeDevices: t(USER_KEYS.settings.accountPrivacy.deviceManagement.activeDevices),
+        inactiveDevices: t(USER_KEYS.settings.accountPrivacy.deviceManagement.inactiveDevices)
       }
     }
   }
