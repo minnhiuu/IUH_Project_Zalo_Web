@@ -31,3 +31,5 @@ export const formatFullDateTime = (date: string | Date | number | null | undefin
 
 export const formatCompactDateTime = (date: string | Date | number | null | undefined, lang: string = 'vi') =>
   formatDate(date, lang, 'dd/MM/yyyy HH:mm')
+
+export const getCurrentTimestamp = () => Date.now()

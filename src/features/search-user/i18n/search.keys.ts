@@ -5,5 +5,13 @@ export const SEARCH_KEYS = {
   noRecent: 'noRecent',
   searchResult: 'searchResult',
   noResult: 'noResult',
-  noResultDescription: 'noResultDescription'
+  noResultDescription: 'noResultDescription',
+  recent: 'recent',
+  clearAll: 'clearAll',
+  clearHistory: {
+    title: 'clearHistory.title',
+    confirmMessage: 'clearHistory.confirmMessage',
+    cancel: 'clearHistory.cancel',
+    confirm: 'clearHistory.confirm'
+  }
 } as const
