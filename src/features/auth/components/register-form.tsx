@@ -100,7 +100,7 @@ export default function RegisterForm() {
 
   return (
     <>
-      {isSubmitting && <FullScreenLoading message={text.form.loggingIn} />}
+      {isSubmitting && <FullScreenLoading message={isRegisterStep ? text.register.submitting : text.form.loggingIn} />}
       <div className='w-full max-w-[450px] bg-white dark:bg-card shadow-[0_8px_28px_rgba(0,0,0,0.06)] dark:shadow-none rounded-xl overflow-hidden border-none transition-all animate-in fade-in zoom-in-95 duration-300'>
         <div className='text-center py-4 bg-white dark:bg-card'>
           <p className='text-[16px] font-semibold text-foreground tracking-tight'>

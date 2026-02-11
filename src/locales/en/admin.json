@@ -1,0 +1,31 @@
+{
+  "admin": {
+    "brand": "BONDHUB",
+    "panel": "Admin Panel",
+    "systemAdmin": "System Admin",
+    "menu": {
+      "dashboard": "Overview",
+      "users": "Users",
+      "elasticsearch": "Elasticsearch",
+      "logout": "Logout",
+      "profile": "Personal Profile",
+      "changePassword": "Change Password",
+      "myAccount": "My Account",
+      "language": "Language",
+      "appearance": "Appearance",
+      "themeLight": "Light",
+      "themeDark": "Dark",
+      "themeSystem": "System"
+    },
+    "header": {
+      "searchPlaceholder": "Press / to search..."
+    },
+    "elasticsearch": {
+      "modules": {
+        "users": "Users",
+        "messages": "Messages",
+        "groups": "Groups"
+      }
+    }
+  }
+}

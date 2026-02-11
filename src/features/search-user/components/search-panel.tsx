@@ -18,10 +18,11 @@ interface SearchPanelProps {
 
 export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
   const [searchValue, setSearchValue] = useState('')
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
+  const [selectedUserId, setSelectedUserId] = useState<string | undefined>(undefined)
   const debouncedKeyword = useDebounce(searchValue, 500)
   const { text } = useSearchText()
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isFetching } = useSearchUser(searchValue)
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isFetching } =
+    useSearchUser(debouncedKeyword)
 
   const searchResults = data?.pages.flatMap((page) => page.data) || []
 
@@ -126,7 +127,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
       <OthersProfileDialog
         userId={selectedUserId}
         open={!!selectedUserId}
-        onOpenChange={(open) => !open && setSelectedUserId(null)}
+        onOpenChange={(open) => !open && setSelectedUserId(undefined)}
       />
     </div>
   )

@@ -1,0 +1,237 @@
+{
+  "elasticsearch": {
+    "title": "Hệ thống Search Engine",
+    "description": "Trung tâm điều khiển và giám sát toàn bộ các chỉ mục tìm kiếm.",
+    "modules": {
+      "users": "Chỉ mục Người dùng",
+      "messages": "Chỉ mục Tin nhắn (Sắp tới)",
+      "groups": "Chỉ mục Nhóm (Sắp tới)"
+    },
+    "actions": {
+      "reindexAll": "Phục hồi toàn bộ dữ liệu",
+      "syncNow": "Đồng bộ ngay",
+      "inspectDoc": "Soi tài liệu",
+      "analyzeText": "Phân tích từ",
+      "elkDocs": "Tài liệu ELK",
+      "backToDashboard": "Quay lại Bảng điều khiển"
+    },
+    "health": {
+      "title": "Trạng thái Cluster",
+      "cluster": "Tên cụm",
+      "alias": "Biệt danh",
+      "index": "Vật lý hiện tại",
+      "healthy": "Hoạt động tốt",
+      "issues": "Cảnh báo",
+      "online": "Trực tuyến",
+      "statuses": {
+        "green": "ỔN ĐỊNH",
+        "yellow": "CẢNH BÁO",
+        "red": "LỖI",
+        "unreachable": "NGOẠI TUYẾN"
+      }
+    },
+    "stats": {
+      "title": "Thống kê chỉ mục",
+      "documents": "Tổng số bản ghi",
+      "storage": "Dung lượng lưu trữ",
+      "shards": "Số mảnh (Shards)",
+      "replicas": "Bản sao (Replicas)",
+      "indexedDocuments": "Số tài liệu đã đánh chỉ mục"
+    },
+    "compare": {
+      "title": "Kiểm tra tính toàn vẹn",
+      "mongodb": "Nguồn MongoDB",
+      "elasticsearch": "Đích Elasticsearch",
+      "statuses": {
+        "inSync": "Đã đồng bộ",
+        "esAhead": "Dữ liệu thừa (ES > MongoDB)",
+        "dbAhead": "Lệch dữ liệu (MongoDB > ES)"
+      },
+      "descriptions": {
+        "inSync": "Dữ liệu giữa MongoDB và Elasticsearch đang khớp nhau.",
+        "esAhead": "Elasticsearch đang nhiều hơn MongoDB {{difference}} bản ghi. Hãy kiểm tra lại.",
+        "dbAhead": "MongoDB đang nhiều hơn Elasticsearch {{difference}} bản ghi. Hãy thực hiện Tái lập chỉ mục."
+      }
+    },
+    "history": {
+      "title": "Lịch sử phiên bản",
+      "description": "Các bản sao vật lý của chỉ mục theo thời gian.",
+      "live": "TRỰC TIẾP",
+      "active": "HIỆU LỰC",
+      "noIndexes": "Chưa có phiên bản nào được tạo.",
+      "snapshotVersion": "Phiên bản Snapshot"
+    },
+    "comingSoon": {
+      "title": "Chức năng sắp ra mắt",
+      "description": "Giao diện điều khiển cho chỉ mục {{module}} đang được kết nối với ELK Stack."
+    },
+    "toolbox": {
+      "title": "Công cụ khắc phục",
+      "description": "Các chức năng can thiệp trực tiếp vào dữ liệu.",
+      "individualSync": "Đồng bộ đơn lẻ",
+      "syncDescription": "Buộc đồng bộ lại một ID cụ thể từ cơ sở dữ liệu.",
+      "userIdPlaceholder": "Nhập Mã định danh (ID)...",
+      "syncButton": "Thực hiện đồng bộ",
+      "synchronizing": "Đang xử lý...",
+      "inspectDescription": "Xem nội dung JSON",
+      "analyzeDescription": "Thử nghiệm Tokenizer",
+      "restrictedZone": "Khu vực giới hạn Quản trị viên ELK"
+    },
+    "dashboard": {
+      "headerTitle": "Quản lý tìm kiếm",
+      "headerSubtitle": "Thống kê vận hành và điều khiển tập trung cụm Elasticsearch",
+      "messagesComingSoon": "Tính năng Tin nhắn sắp ra mắt",
+      "groupsComingSoon": "Tính năng Nhóm sắp ra mắt",
+      "noData": "Không có dữ liệu",
+      "primaryActive": "Chỉ mục đang hoạt động",
+      "connecting": "Đang kết nối...",
+      "notDefined": "Chưa có định nghĩa",
+      "loading": "Đang tải..."
+    },
+    "controlBar": {
+      "inputPlaceholder": "User ID...",
+      "syncUser": "Sync",
+      "reindexAll": "Đồng bộ",
+      "reindexMessages": "REINDEX MESSAGES",
+      "reindexGroups": "REINDEX GROUPS",
+      "retryDeadEvents": "Khôi phục sự kiện lỗi (DLQ)",
+      "dialog": {
+        "reindexAll": {
+          "title": "Xác nhận Reindex Người dùng",
+          "description": "Làm mới toàn bộ dữ liệu chỉ mục USERS. Hành động này có thể gây gián đoạn dịch vụ tìm kiếm trong giây lát."
+        },
+        "cancel": "Hủy bỏ",
+        "confirm": "Xác nhận"
+      }
+    },
+    "progressBar": {
+      "titleRunning": "Tiến trình đồng bộ",
+      "titleCompleted": "Hoàn tất đồng bộ",
+      "titleFailed": "Đồng bộ thất bại",
+      "close": "Đóng"
+    },
+    "userTab": {
+      "statusCardTitle": "Trạng thái Index",
+      "badges": {
+        "sync": "ĐỒNG BỘ",
+        "diff": "LỆCH",
+        "match": "ĐÃ KHỚP",
+        "missMatch": "CÓ SAI LỆCH",
+        "active": "Sử dụng",
+        "standby": "Dự phòng"
+      },
+      "listTitle": "Danh sách Index Vật lý",
+      "total": "Tổng",
+      "table": {
+        "indexName": "Tên Index (Physical Identifier)",
+        "docs": "Số bản ghi",
+        "storage": "Dung lượng",
+        "created": "Ngày tạo",
+        "status": "Trạng thái",
+        "actions": "Thao tác"
+      },
+      "dialogs": {
+        "switchAlias": {
+          "title": "Xác nhận chuyển đổi Alias?",
+          "description": "Bạn đang yêu cầu chuyển đổi Alias tìm kiếm sang phiên bản index {{indexName}}. Hệ thống tìm kiếm sẽ bắt đầu sử dụng dữ liệu từ index này ngay lập tức.",
+          "confirm": "Xác nhận chuyển"
+        },
+        "deleteIndex": {
+          "title": "Xóa Index vĩnh viễn?",
+          "description": "Bạn có chắc chắn muốn xóa index vật lý {{indexName}}? Hành động này không thể hoàn tác và dữ liệu trong index này sẽ bị mất hoàn toàn.",
+          "confirm": "Xóa vĩnh viễn"
+        },
+        "deadEvents": {
+          "title": "Chi tiết sự kiện lỗi (DLQ)",
+          "description": "Danh sách các bản ghi chưa thể đồng bộ do lỗi hệ thống hoặc mất kết nối hạ tầng.",
+          "empty": "Tuyệt vời! Không có sự kiện nào bị lỗi trong DLQ.",
+          "payloadLabel": "DỮ LIỆU JSON",
+          "retryLabel": "Xử lý lại",
+          "idLabel": "Mã",
+          "reasonLabel": "LÝ DO LỖI"
+        },
+        "cancel": "Hủy"
+      },
+      "deadEventsLabel": "Sự kiện lỗi (DLQ)",
+      "deadEventsTooltip": "{{count}} bản ghi chưa thể đồng bộ. Click để xem chi tiết."
+    },
+    "messages": {
+      "reindexAllSuccess": "Đã lệnh kích hoạt tái lập chỉ mục toàn bộ",
+      "reindexUserSuccess": "Đã hoàn tất đồng bộ tài liệu đơn lẻ",
+      "errorReindexAll": "Lỗi kết nối khi tái lập chỉ mục",
+      "errorReindexUser": "Lôĩ khi lưu tài liệu vào ES",
+      "retryDeadEventsSuccess": "Đã bắt đầu xử lý lại các sự kiện lỗi: {{count}} bản ghi",
+      "retryDeadEventsError": "Không thể xử lý lại các sự kiện lỗi lúc này",
+      "errorSwitchAlias": "Lỗi khi chuyển đổi Alias",
+      "errorDeleteIndex": "Lỗi khi xóa Index",
+      "notImplemented": "API chưa được triển khai"
+    },
+    "dlq": {
+      "title": "QUẢN LÝ SỰ CỐ DLQ",
+      "subtitle": "Thống kê vận hành và điều khiển tập trung hàng đợi lỗi Kafka",
+      "retryAll": "Xử lý lại",
+      "retrying": "Đang xử lý...",
+      "searchPlaceholder": "Tìm kiếm bản ghi...",
+      "allEvents": "Tất cả loại sự kiện",
+      "allRetries": "Mọi lần xử lý",
+      "notRetried": "Chưa xử lý (0)",
+      "retryRange1_3": "Từ 1-3 lần",
+      "retryRangeOver3": "Trên 3 lần",
+      "allTime": "Mọi thời gian",
+      "last30m": "30 phút trước",
+      "last1h": "1 giờ trước",
+      "last6h": "6 giờ trước",
+      "last24h": "24 giờ trước",
+      "today": "Hôm nay",
+      "yesterday": "Hôm qua",
+      "last3d": "3 ngày trước",
+      "last7d": "7 ngày trước",
+      "customRange": "Tùy chỉnh khoảng ngày...",
+      "fromDate": "Từ ngày",
+      "toDate": "Đến ngày",
+      "clearFilters": "Xóa bộ lọc",
+      "filterButton": "Lọc",
+      "to": "đến",
+      "table": {
+        "stt": "STT",
+        "aggregateId": "ID Bản ghi",
+        "eventType": "Loại sự kiện",
+        "errorMessage": "Nội dung lỗi",
+        "retryCount": "Số lần",
+        "status": "Trạng thái",
+        "updatedAt": "Phát sinh",
+        "actions": "Hành động"
+      },
+      "noData": "Không tìm thấy dữ liệu sự cố phù hợp với bộ lọc",
+      "status": {
+        "new": "Mới",
+        "retrying": "Đang xử lý",
+        "critical": "Lỗi nặng"
+      },
+      "actions": {
+        "viewDetail": "Xem chi tiết",
+        "cancelRecord": "Hủy bỏ bản ghi"
+      },
+      "pagination": {
+        "showing": "Hiển thị",
+        "of": "trong số",
+        "incidents": "sự cố"
+      },
+      "modal": {
+        "title": "Chi tiết sự cố DLQ",
+        "subtitle": "Thông tin chi tiết về lỗi đồng bộ dữ liệu Kafka sang Elasticsearch.",
+        "errorTitle": "Thông báo lỗi chi tiết",
+        "noErrorMessage": "Hệ thống không ghi nhận được mã lỗi chi tiết.",
+        "jsonTitle": "Dữ liệu JSON",
+        "close": "Đóng"
+      },
+      "tooltip": {
+        "prefix": "Xử lý lại các sự kiện:",
+        "allPrefix": "Xử lý lại toàn bộ sự kiện lỗi",
+        "timeLabel": "Thời gian",
+        "eventLabel": "Sự kiện"
+      },
+      "unknownError": "Lỗi kết nối không xác định"
+    }
+  }
+}
