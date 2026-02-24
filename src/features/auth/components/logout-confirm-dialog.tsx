@@ -10,6 +10,9 @@ import { handleErrorApi } from '@/utils/error-handler'
 import { FullScreenLoading } from '@/components/common/full-screen-loading'
 import { useAuthText } from '@/features/auth/i18n/use-auth-text'
 import { useCommonText } from '@/locales/common/use-common-text'
+import { useUnregisterDeviceMutation } from '@/features/notification/queries/use-mutations'
+import { storage, STORAGE_KEYS } from '@/utils/local-storage'
+import type { UserResponse } from '@/features/user/schemas/user.schema'
 
 interface LogoutConfirmDialogProps {
   open: boolean
@@ -20,12 +23,19 @@ interface LogoutConfirmDialogProps {
 export function LogoutConfirmDialog({ open, onOpenChange }: LogoutConfirmDialogProps) {
   const { logoutLocal } = useAuthContext()
   const logoutMutation = useLogoutMutation()
+  const unregisterDeviceMutation = useUnregisterDeviceMutation()
   const navigate = useNavigate()
   const { text } = useAuthText()
   const { text: commonText } = useCommonText()
 
   const handleLogout = async () => {
     try {
+      const userId = storage.get<UserResponse>(STORAGE_KEYS.USER_PROFILE)?.id
+      const fcmToken = storage.get<string>(STORAGE_KEYS.FCM_TOKEN)
+      if (userId && fcmToken) {
+        await unregisterDeviceMutation.mutateAsync({ userId, token: fcmToken }).catch(() => {})
+      }
+
       await logoutMutation.mutateAsync(undefined)
       logoutLocal()
       navigate(PATHS.AUTH.LOGIN)

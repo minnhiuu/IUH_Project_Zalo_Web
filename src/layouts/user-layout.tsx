@@ -8,6 +8,7 @@ import { UserAvatar } from '@/components/common/user-avatar'
 import { useState } from 'react'
 import { SearchPanel } from '@/features/search-user'
 import { useCommonText } from '@/locales/common/use-common-text'
+import { useFCM } from '@/hooks/useFCM'
 
 export default function UserLayout() {
   const location = useLocation()
@@ -15,6 +16,8 @@ export default function UserLayout() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
 
   const { text: commonText } = useCommonText()
+
+  useFCM()
 
   const navItems = [
     { icon: MessageCircle, path: PATHS.HOME, label: commonText.nav.messages },

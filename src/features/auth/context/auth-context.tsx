@@ -40,6 +40,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     clearAccessToken()
     setUser(null)
     storage.remove(STORAGE_KEYS.USER_PROFILE)
+    storage.remove(STORAGE_KEYS.FCM_TOKEN)
     queryClient.clear()
   }, [queryClient])
 

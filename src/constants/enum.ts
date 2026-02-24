@@ -42,3 +42,9 @@ export const QrSessionStatus = {
 } as const
 
 export type QrSessionStatus = (typeof QrSessionStatus)[keyof typeof QrSessionStatus]
+
+export const Platform = {
+  Android: 'ANDROID',
+  iOS: 'IOS',
+  Web: 'WEB'
+} as const
