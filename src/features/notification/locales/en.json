@@ -1,0 +1,10 @@
+{
+  "notification": {
+    "validation": {
+      "receiverIdRequired": "Receiver ID is required",
+      "senderIdRequired": "Sender ID is required",
+      "senderNameRequired": "Sender name is required",
+      "requestIdRequired": "Request ID is required"
+    }
+  }
+}

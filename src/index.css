@@ -64,6 +64,150 @@
   --icon-secondary: #5a6981;
 
   --disabled: #8b96a7;
+
+  --success-bg: #ecfdf5;
+  --success-text: #047857;
+  --success-border: #a7f3d0;
+  --success-solid: #059669;
+
+  --warning-bg: #fffbeb;
+  --warning-text: #b45309;
+  --warning-border: #fde68a;
+
+  --destructive-subtle: #fff1f2;
+  --destructive-text: #be123c;
+  --destructive-border: #fecdd3;
+  --destructive-solid: #e11d48;
+  /* Elasticsearch Dashboard Theme */
+  --dashboard-header-text: var(--brand-blue-dark);
+  --dashboard-card-bg: #ffffff;
+  --dashboard-card-header-text: var(--brand-blue-dark);
+  --dashboard-card-header-bg: rgba(241, 242, 244, 0.1);
+  --dashboard-card-title: #081b3a;
+  --dashboard-input-bg: rgba(241, 242, 244, 0.2);
+  --dashboard-input-bg-focus: #ffffff;
+  --dashboard-icon-bg: rgba(229, 241, 255, 0.5);
+  --dashboard-badge-bg: #ffffff;
+
+  /* Admin Layout Theme */
+  --layout-sidebar-bg: #0b1120;
+  --layout-sidebar-text: #94a3b8;
+  --layout-sidebar-text-active: #ffffff;
+  --layout-sidebar-bg-active: rgba(255, 255, 255, 0.1);
+  --layout-sidebar-bg-hover: rgba(255, 255, 255, 0.05);
+  --layout-background: #f1f5f9;
+  --layout-header-bg: #ffffff;
+  --layout-header-border: #e2e8f0;
+  --layout-sidebar-border: rgba(255, 255, 255, 0.05);
+}
+
+.admin-theme {
+  --primary: #465fff;
+  --primary-hover: #2a31d8;
+  --vibrant-blue: #465fff;
+  --vibrant-blue-hover: #2a31d8;
+  --brand-blue: #465fff;
+  --brand-blue-dark: #2a31d8;
+  --brand-blue-light: #ecf3ff;
+  --brand-blue-hover: #c2d6ff;
+  --ring: rgba(70, 95, 255, 0.4);
+
+  --background: #f9fafb;
+  --foreground: #1c2434;
+  --card: #ffffff;
+  --card-foreground: #1c2434;
+  --popover: #ffffff;
+  --popover-foreground: #1c2434;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #f1f5f9;
+  --accent-foreground: #1c2434;
+  --border: #e2e8f0;
+  --input: #ffffff;
+
+  --success-bg: #ecfdf3;
+  --success-text: #039855;
+  --success-border: #d1fadf;
+  --success-solid: #12b76a;
+
+  --warning-bg: #fffaeb;
+  --warning-text: #dc6803;
+  --warning-border: #fef0c7;
+
+  --destructive-subtle: #fef3f2;
+  --destructive-text: #d92d20;
+  --destructive-border: #fee4e2;
+  --destructive-solid: #f04438;
+
+  /* Admin Layout Specific */
+  --layout-background: #f9fafb;
+  --layout-header-bg: #ffffff;
+  --layout-header-border: #e2e8f0;
+
+  /* Dark Sidebar for Light Mode */
+  --layout-sidebar-bg: #1c2434;
+  --layout-sidebar-text: #cbd5e1;
+  --layout-sidebar-text-active: #ffffff;
+  --layout-sidebar-bg-active: rgba(255, 255, 255, 0.16);
+  --layout-sidebar-bg-hover: rgba(255, 255, 255, 0.1);
+  --layout-sidebar-border: #2e3a47;
+
+  /* Dashboard Theme */
+  --dashboard-header-text: #1c2434;
+  --dashboard-card-bg: #ffffff;
+  --dashboard-card-header-bg: #f9fafb;
+  --dashboard-card-title: #1c2434;
+  --dashboard-icon-bg: #ecf3ff;
+  --dashboard-badge-bg: #f1f5f9;
+}
+
+.dark .admin-theme {
+  --primary: #465fff;
+  --primary-hover: #7592ff;
+  --vibrant-blue: #7592ff;
+  --vibrant-blue-hover: #465fff;
+  --brand-blue: #7592ff;
+  --brand-blue-dark: #465fff;
+  --brand-blue-light: #1a2231;
+  --brand-blue-hover: #1d2939;
+
+  --background: #101828;
+  --foreground: #ffffff;
+  --card: #1c2434;
+  --card-foreground: #ffffff;
+  --muted: #1d2a3d;
+  --muted-foreground: #98a2b3;
+  --accent: #1d2a3d;
+  --accent-foreground: #ffffff;
+  --border: #2e3a47;
+  --input: #101828;
+
+  --success-bg: rgba(18, 183, 106, 0.15);
+  --success-text: #12b76a;
+  --success-solid: #12b76a;
+
+  --destructive-subtle: rgba(240, 68, 56, 0.15);
+  --destructive-text: #f04438;
+  --destructive-solid: #f04438;
+
+  /* Admin Layout Specific */
+  --layout-background: #101828;
+  --layout-header-bg: #101828;
+  --layout-header-border: #2e3a47;
+  --layout-sidebar-bg: #1c2434;
+  --layout-sidebar-text: #8a99af;
+  --layout-sidebar-text-active: #ffffff;
+  --layout-sidebar-bg-active: rgba(255, 255, 255, 0.05);
+  --layout-sidebar-bg-hover: rgba(255, 255, 255, 0.02);
+  --layout-sidebar-border: #2e3a47;
+
+  /* Dashboard Theme */
+  --dashboard-header-text: #ffffff;
+  --dashboard-card-bg: #1c2434;
+  --dashboard-card-header-bg: rgba(255, 255, 255, 0.02);
+  --dashboard-card-title: #ffffff;
+  --dashboard-icon-bg: rgba(70, 95, 255, 0.1);
+  --dashboard-badge-bg: #2e3a47;
 }
 
 .dark {
@@ -129,7 +273,45 @@
   --icon-secondary: #5a6981;
 
   --disabled: #8b96a7;
+
+  --success-bg: #064e3b;
+  --success-text: #34d399;
+  --success-border: #065f46;
+  --success-solid: #10b981;
+
+  --warning-bg: #451a03;
+  --warning-text: #fbbf24;
+  --warning-border: #78350f;
+
+  --destructive-subtle: #4c0519;
+  --destructive-text: #fb7185;
+  --destructive-border: #881337;
+  --destructive-solid: #f43f5e;
+
+  /* Elasticsearch Dashboard Theme */
+  --dashboard-header-text: #60a5fa;
+  --dashboard-card-bg: #22262b;
+  --dashboard-card-header-text: #60a5fa;
+  --dashboard-card-header-bg: rgba(255, 255, 255, 0.03);
+  --dashboard-card-title: #f1f5f9;
+  --dashboard-input-bg: #1a1d21;
+  --dashboard-input-bg-focus: #2c323a;
+  --dashboard-icon-bg: rgba(59, 130, 246, 0.15);
+  --dashboard-badge-bg: #3e444a;
+
+  /* Admin Layout Theme */
+  --layout-sidebar-bg: #0b1120;
+  --layout-sidebar-text: #94a3b8;
+  --layout-sidebar-text-active: #ffffff;
+  --layout-sidebar-bg-active: rgba(255, 255, 255, 0.1);
+  --layout-sidebar-bg-hover: rgba(255, 255, 255, 0.05);
+  --layout-background: #0f172a;
+  --layout-header-bg: #1e293b;
+  --layout-header-border: #334155;
+  --layout-sidebar-border: rgba(255, 255, 255, 0.05);
 }
+
+/* Add to :root as well in the previous block */
 
 .auth-theme {
   --primary: #0190f3;
@@ -208,6 +390,92 @@
   --color-icon-accent: var(--icon-accent);
   --color-icon-secondary: var(--icon-secondary);
   --color-disabled: var(--disabled);
+
+  --color-success-bg: var(--success-bg);
+  --color-success-text: var(--success-text);
+  --color-success-border: var(--success-border);
+  --color-success-solid: var(--success-solid);
+
+  --color-warning-bg: var(--warning-bg);
+  --color-warning-text: var(--warning-text);
+  --color-warning-border: var(--warning-border);
+
+  --color-destructive-subtle: var(--destructive-subtle);
+  --color-destructive-text: var(--destructive-text);
+  --color-destructive-border: var(--destructive-border);
+  --color-destructive-solid: var(--destructive-solid);
+
+  /* Elasticsearch Dashboard Theme */
+  --color-dashboard-header-text: var(--dashboard-header-text);
+  --color-dashboard-card-bg: var(--dashboard-card-bg);
+  --color-dashboard-card-header-text: var(--dashboard-card-header-text);
+  --color-dashboard-card-header-bg: var(--dashboard-card-header-bg);
+  --color-dashboard-card-title: var(--dashboard-card-title);
+  --color-dashboard-input-bg: var(--dashboard-input-bg);
+  --color-dashboard-input-bg-focus: var(--dashboard-input-bg-focus);
+  --color-dashboard-icon-bg: var(--dashboard-icon-bg);
+  --color-dashboard-badge-bg: var(--dashboard-badge-bg);
+
+  /* Admin Layout Theme */
+  --color-layout-sidebar-bg: var(--layout-sidebar-bg);
+  --color-layout-sidebar-text: var(--layout-sidebar-text);
+  --color-layout-sidebar-text-active: var(--layout-sidebar-text-active);
+  --color-layout-sidebar-bg-active: var(--layout-sidebar-bg-active);
+  --color-layout-sidebar-bg-hover: var(--layout-sidebar-bg-hover);
+  --color-layout-background: var(--layout-background);
+  --color-layout-header-bg: var(--layout-header-bg);
+  --color-layout-header-border: var(--layout-header-border);
+  --color-layout-sidebar-border: var(--layout-sidebar-border);
+
+  @keyframes pulse-subtle {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.85;
+      transform: scale(0.98);
+    }
+  }
+  @keyframes spin-slow {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  --animate-pulse-subtle: pulse-subtle 2s ease-in-out infinite;
+  --animate-spin-slow: spin-slow 3s linear infinite;
+}
+
+/* Custom JSON Pretty Styles */
+.custom-json-pretty {
+  background: transparent !important;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace !important;
+  line-height: 1.6 !important;
+}
+
+.custom-json-pretty .__json-key__ {
+  color: #f92672 !important;
+}
+
+.custom-json-pretty .__json-value__ {
+  color: #e6db74 !important;
+}
+
+.custom-json-pretty .__json-string__ {
+  color: #e6db74 !important;
+}
+
+.custom-json-pretty .__json-boolean__ {
+  color: #ae81ff !important;
+}
+
+.custom-json-pretty .__json-number__ {
+  color: #ae81ff !important;
 }
 
 @layer base {
@@ -255,4 +523,43 @@ input[type='radio']:checked::before {
 
 input[type='radio']:checked {
   @apply border-primary;
+}
+@layer components {
+  /* Generic Centered Toast Style */
+  .centered-toast-content {
+    @apply flex flex-col items-center gap-3 bg-[#171718]/90 text-white px-8 py-6 rounded-[24px] min-w-[220px] shadow-2xl backdrop-blur-md;
+    animation: scale-in-center 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  }
+
+  .centered-toast-icon-circle {
+    @apply flex items-center justify-center w-14 h-14 rounded-full border-[2.5px] border-white;
+  }
+
+  .centered-toast-text {
+    @apply text-[16px] font-medium text-center;
+  }
+}
+
+@layer utilities {
+  .sonner-toast-center {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    margin: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+}
+
+@keyframes scale-in-center {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }

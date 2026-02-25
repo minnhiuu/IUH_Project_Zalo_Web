@@ -10,6 +10,7 @@ export const STORAGE_KEYS = {
   SETTINGS: `${APP_PREFIX}settings`,
   DEVICE_ID: `${APP_PREFIX}device_id`,
   LOCALE: `${APP_PREFIX}locale`,
+  RECENT_SEARCHES: `${APP_PREFIX}recent_searches`,
   FCM_TOKEN: `${APP_PREFIX}fcm_token`
 } as const
 

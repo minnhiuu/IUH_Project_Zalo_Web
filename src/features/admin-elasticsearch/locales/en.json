@@ -1,0 +1,220 @@
+{
+  "elasticsearch": {
+    "title": "Search Engine Core",
+    "description": "Control center for monitoring and managing all search indexes.",
+    "modules": {
+      "users": "User Index",
+      "messages": "Message Index (Soon)",
+      "groups": "Group Index (Soon)"
+    },
+    "actions": {
+      "reindexAll": "Restore All Data",
+      "syncNow": "Sync Now",
+      "inspectDoc": "Inspect Doc",
+      "analyzeText": "Analyze Text",
+      "elkDocs": "ELK Docs",
+      "backToDashboard": "Back to Dashboard"
+    },
+    "health": {
+      "title": "Cluster Status",
+      "cluster": "Cluster Name",
+      "alias": "Alias Name",
+      "index": "Live Current Index",
+      "healthy": "Stable",
+      "issues": "Warning",
+      "online": "Online",
+      "statuses": {
+        "green": "STABLE",
+        "yellow": "WARNING",
+        "red": "ERROR",
+        "unreachable": "OFFLINE"
+      }
+    },
+    "stats": {
+      "title": "Index Statistics",
+      "documents": "Total Documents",
+      "storage": "Storage Used",
+      "shards": "Shards Count",
+      "replicas": "Replicas Count",
+      "indexedDocuments": "Successfully Indexed"
+    },
+    "compare": {
+      "title": "Integrity Check",
+      "mongodb": "Source MongoDB",
+      "elasticsearch": "Dest Elasticsearch",
+      "statuses": {
+        "inSync": "In Sync",
+        "esAhead": "Extra Data (ES > MongoDB)",
+        "dbAhead": "Data Mismatch (MongoDB > ES)"
+      },
+      "descriptions": {
+        "inSync": "Data between MongoDB and Elasticsearch is in sync.",
+        "esAhead": "Elasticsearch has {{difference}} more documents than MongoDB. Please check.",
+        "dbAhead": "MongoDB has {{difference}} more documents than Elasticsearch. Please reindex."
+      }
+    },
+    "history": {
+      "title": "Version History",
+      "description": "Physical index snapshots over time.",
+      "live": "LIVE",
+      "active": "ACTIVE",
+      "noIndexes": "No index snapshots found.",
+      "snapshotVersion": "Snapshot Version"
+    },
+    "comingSoon": {
+      "title": "Coming Soon",
+      "description": "The control panel for {{module}} index is being connected to ELK Stack."
+    },
+    "toolbox": {
+      "title": "Management Toolbox",
+      "description": "Direct administrative actions on documents.",
+      "individualSync": "Individual Sync",
+      "syncDescription": "Force re-sync a specific ID from DB to ES.",
+      "userIdPlaceholder": "Enter Identifier (ID)...",
+      "syncButton": "Execute Sync",
+      "synchronizing": "Processing...",
+      "inspectDescription": "View raw JSON",
+      "analyzeDescription": "Test Tokenizer",
+      "restrictedZone": "Restricted Area - ELK Admins Only"
+    },
+    "dashboard": {
+      "headerTitle": "Search Management",
+      "headerSubtitle": "Operational statistics and centralized Elasticsearch cluster control",
+      "messagesComingSoon": "Messages feature coming soon",
+      "groupsComingSoon": "Groups feature coming soon",
+      "noData": "No data",
+      "primaryActive": "Primary active",
+      "connecting": "Connecting...",
+      "notDefined": "Not defined",
+      "loading": "Loading..."
+    },
+    "progressBar": {
+      "titleRunning": "Sync Progress",
+      "titleCompleted": "Sync Completed",
+      "titleFailed": "Sync Failed",
+      "close": "Close"
+    },
+    "userTab": {
+      "statusCardTitle": "Index Status",
+      "badges": {
+        "sync": "SYNCED",
+        "diff": "DIFF",
+        "match": "MATCHED",
+        "missMatch": "MISMATCH",
+        "active": "ACTIVE",
+        "standby": "STANDBY"
+      },
+      "listTitle": "Physical Index List",
+      "total": "Total",
+      "table": {
+        "indexName": "Index Name (Physical Identifier)",
+        "docs": "Documents",
+        "storage": "Storage",
+        "created": "Created Date",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "dialogs": {
+        "switchAlias": {
+          "title": "Confirm Switch?",
+          "description": "You are requesting to switch the search Alias to index {{indexName}}. The search system will start using data from this index immediately.",
+          "confirm": "Confirm Switch"
+        },
+        "deleteIndex": {
+          "title": "Delete Index Permanently?",
+          "description": "Are you sure you want to delete physical index {{indexName}}? This action cannot be undone and data in this index will be permanently lost.",
+          "confirm": "Delete Permanently"
+        },
+        "deadEvents": {
+          "title": "Dead Events (DLQ) Details",
+          "description": "List of documents that failed to sync due to system errors or infrastructure connectivity issues.",
+          "empty": "Excellent! No dead events found in DLQ.",
+          "payloadLabel": "JSON PAYLOAD",
+          "retryLabel": "Retry",
+          "idLabel": "ID",
+          "reasonLabel": "ERROR REASON"
+        },
+        "cancel": "Cancel"
+      },
+      "deadEventsLabel": "Fail Events (DLQ)",
+      "deadEventsTooltip": "{{count}} records failed to sync. Click for details."
+    },
+    "controlBar": {
+      "inputPlaceholder": "User ID...",
+      "syncUser": "Sync",
+      "reindexAll": "Sync All",
+      "reindexMessages": "REINDEX MESSAGES",
+      "reindexGroups": "REINDEX GROUPS",
+      "retryDeadEvents": "Retry Failed Events (DLQ)",
+      "dialog": {
+        "reindexAll": {
+          "title": "Confirm Reindex Users",
+          "description": "Refresh all USERS index data. This action may momentarily interrupt search services."
+        },
+        "cancel": "Cancel",
+        "confirm": "Confirm"
+      }
+    },
+    "messages": {
+      "reindexAllSuccess": "Full reindexing triggered successfully",
+      "reindexUserSuccess": "Individual document sync completed",
+      "errorReindexAll": "Connection error during full reindexing",
+      "errorReindexUser": "Failed to push document to ES",
+      "retryDeadEventsSuccess": "Reprocessing of failed events started: {{count}} documents",
+      "retryDeadEventsError": "Unable to reprocess failed events at this time",
+      "notImplemented": "API not implemented yet"
+    },
+    "dlq": {
+      "title": "DLQ INCIDENT MANAGEMENT",
+      "subtitle": "Kafka dead-letter queue centralized control and operational statistics",
+      "retryAll": "Retry All",
+      "retrying": "Retrying...",
+      "searchPlaceholder": "Search incidents...",
+      "allEvents": "All Event Types",
+      "allRetries": "All Retries",
+      "notRetried": "Not Retried (0)",
+      "retryRange1_3": "1-3 times",
+      "retryRangeOver3": "Over 3 times",
+      "allTime": "All Time",
+      "last30m": "Last 30m",
+      "last1h": "Last 1 hour",
+      "last6h": "Last 6 hours",
+      "last24h": "Last 24 hours",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "last3d": "Last 3 days",
+      "last7d": "Last 7 days",
+      "customRange": "Custom Range...",
+      "fromDate": "From Date",
+      "toDate": "To Date",
+      "clearFilters": "Clear Filters",
+      "filterButton": "Filter",
+      "to": "to",
+      "table": {
+        "stt": "No.",
+        "aggregateId": "Record ID",
+        "eventType": "Event Type",
+        "errorMessage": "Error Message",
+        "retryCount": "Retries",
+        "status": "Status",
+        "updatedAt": "Updated",
+        "actions": "Actions"
+      },
+      "noData": "No incidents found matching the criteria",
+      "status": {
+        "new": "New",
+        "retrying": "Retrying",
+        "critical": "Critical"
+      },
+      "actions": {
+        "viewDetail": "View Details",
+        "cancelRecord": "Cancel Record"
+      },
+      "pagination": {
+        "showing": "Showing",
+        "of": "of",
+        "incidents": "incidents"
+      }
+    }
+  }
+}

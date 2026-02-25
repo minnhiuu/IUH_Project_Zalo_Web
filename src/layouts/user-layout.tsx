@@ -8,7 +8,7 @@ import { UserAvatar } from '@/components/common/user-avatar'
 import { useState } from 'react'
 import { SearchPanel } from '@/features/search-user'
 import { useCommonText } from '@/locales/common/use-common-text'
-import { useFCM } from '@/hooks/useFCM'
+import { useFCM } from '@/hooks/use-fcm'
 
 export default function UserLayout() {
   const location = useLocation()

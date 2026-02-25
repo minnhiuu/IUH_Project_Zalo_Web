@@ -1,0 +1,10 @@
+{
+  "notification": {
+    "validation": {
+      "receiverIdRequired": "ID người nhận là bắt buộc",
+      "senderIdRequired": "ID người gửi là bắt buộc",
+      "senderNameRequired": "Tên người gửi là bắt buộc",
+      "requestIdRequired": "ID yêu cầu là bắt buộc"
+    }
+  }
+}

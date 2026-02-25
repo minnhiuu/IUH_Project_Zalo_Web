@@ -11,3 +11,8 @@ export const useUnregisterDeviceMutation = () =>
     mutationFn: ({ userId, token }: { userId: string; token: string }) =>
       notificationApi.unregisterDevice(userId, token)
   })
+
+export const useCreateFriendRequestNotificationMutation = () =>
+  useMutation({
+    mutationFn: notificationApi.createFriendRequest
+  })

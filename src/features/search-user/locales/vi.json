@@ -5,5 +5,13 @@
   "noRecent": "Không có tìm kiếm nào gần đây",
   "searchResult": "Kết quả cho \"{{query}}\"",
   "noResult": "Không tìm thấy kết quả",
-  "noResultDescription": "Vui lòng thử lại từ khóa khác hoặc tìm theo số điện thoại"
+  "noResultDescription": "Vui lòng thử lại từ khóa khác hoặc tìm theo số điện thoại",
+  "recent": "Mới đây",
+  "clearAll": "Xóa tất cả",
+  "clearHistory": {
+    "title": "Xóa lịch sử tìm kiếm?",
+    "confirmMessage": "Bạn sẽ không thể hoàn tác hành động này. Nếu xóa lịch sử tìm kiếm, bạn có thể vẫn nhìn thấy các tài khoản mình đã tìm kiếm trong kết quả gợi ý.",
+    "cancel": "Lúc khác",
+    "confirm": "Xóa tất cả"
+  }
 }

@@ -15,7 +15,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig)
 const analytics = getAnalytics(app)
 
-// Messaging dùng cho FCM (push notification)
 const messaging = getMessaging(app)
 
 export { app, analytics, messaging }
