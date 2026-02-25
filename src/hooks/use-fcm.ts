@@ -30,9 +30,19 @@ export function useFCM(onForegroundMessage?: (payload: unknown) => void) {
         })
 
         if (token && userId) {
-          await registerDeviceMutation.mutateAsync({ userId, token, platform: 'WEB' })
-          storage.set(STORAGE_KEYS.FCM_TOKEN, token)
-          console.log('[FCM] Device registered:', token)
+          const storedToken = storage.get(STORAGE_KEYS.FCM_TOKEN)
+          if (storedToken !== token) {
+            storage.set(STORAGE_KEYS.FCM_TOKEN, token)
+            try {
+              await registerDeviceMutation.mutateAsync({ userId, token, platform: 'WEB' })
+              console.log('[FCM] Device registered:', token)
+            } catch (error) {
+              storage.remove(STORAGE_KEYS.FCM_TOKEN)
+              throw error
+            }
+          } else {
+            console.log('[FCM] Device already registered with this token')
+          }
         }
       } catch (error) {
         console.error('[FCM] Error initializing:', error)
@@ -47,5 +57,5 @@ export function useFCM(onForegroundMessage?: (payload: unknown) => void) {
     })
 
     return () => unsubscribe()
-  }, [registerDeviceMutation, onForegroundMessage])
+  }, [onForegroundMessage])
 }

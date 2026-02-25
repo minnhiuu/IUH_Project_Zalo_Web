@@ -11,7 +11,7 @@ export function CenteredToast({ message, type = 'success' }: CenteredToastProps)
   return (
     <div className='centered-toast-content'>
       <div className='centered-toast-icon-circle'>
-        <Icon className='w-8 h-8 stroke-[3.5px]' />
+        <Icon className='w-7 h-7 stroke-[2.5px]' />
       </div>
       <p className='centered-toast-text'>{message}</p>
     </div>

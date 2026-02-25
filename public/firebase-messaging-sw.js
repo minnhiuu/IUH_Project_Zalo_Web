@@ -18,14 +18,17 @@ const messaging = firebase.messaging()
 messaging.onBackgroundMessage((payload) => {
   console.log('[SW] Background message received:', payload)
 
-  const { title, body, icon } = payload.notification ?? {}
+  const origin = self.location.origin
+  const notificationTitle = 'BondHub - ' + (payload.notification?.title || 'BondHub')
+  const notificationOptions = {
+    body: payload.notification?.body,
+    icon: payload.notification?.icon || payload.data?.actorAvatar || origin + '/images/logo.png',
+    badge: origin + '/images/logo.png',
+    data: payload.data,
+    tag: payload.notification?.tag
+  }
 
-  self.registration.showNotification(title ?? 'Thông báo mới', {
-    body: body ?? '',
-    icon: icon ?? '/images/logo.png',
-    badge: '/images/logo.png',
-    data: payload.data
-  })
+  self.registration.showNotification(notificationTitle, notificationOptions)
 })
 
 self.addEventListener('notificationclick', (event) => {
