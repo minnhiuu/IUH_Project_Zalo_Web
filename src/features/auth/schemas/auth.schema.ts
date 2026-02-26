@@ -14,6 +14,7 @@ export type LoginRequest = z.infer<typeof loginRequestSchema>
 export type TokenResponse = {
   accessToken: string
   refreshToken: string
+  refreshTokenExpirationMs: number
 }
 
 export const registerRequestSchema = z
@@ -115,4 +116,5 @@ export type QrStatusResponse = {
   userFullName?: string
   accessToken?: string
   refreshToken?: string
+  refreshTokenExpirationMs?: number
 }
