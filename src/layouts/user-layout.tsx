@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { Outlet, Link, useLocation } from 'react-router'
 import { Contact2, CheckSquare, Settings, Cloud, Briefcase, MessageCircle, Search, Bell } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -9,11 +10,15 @@ import { useState } from 'react'
 import { SearchPanel } from '@/features/search-user'
 import { useCommonText } from '@/locales/common/use-common-text'
 import { useFCM } from '@/hooks/use-fcm'
+import { NotificationPanel } from '@/features/notification'
+import { notificationKeys } from '@/features/notification/queries/keys'
 
 export default function UserLayout() {
   const location = useLocation()
   const { user } = useAuthContext()
+  const queryClient = useQueryClient()
   const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
 
   const { text: commonText } = useCommonText()
 
@@ -56,7 +61,34 @@ export default function UserLayout() {
               return (
                 <button
                   key={item.path}
-                  onClick={() => setIsSearchOpen(true)}
+                  onClick={() => {
+                    setIsSearchOpen(true)
+                    setIsNotificationOpen(false)
+                  }}
+                  className={cn(
+                    'flex items-center justify-center w-[48px] h-[48px] rounded-lg transition-all mx-auto group relative mb-1',
+                    isActive ? 'bg-sidebar-accent' : 'hover:bg-white/10'
+                  )}
+                >
+                  <item.icon
+                    className={cn(
+                      'w-[24px] h-[24px] transition-colors',
+                      isActive ? 'text-white' : 'text-white/80 group-hover:text-white'
+                    )}
+                  />
+                </button>
+              )
+            }
+            if (item.path === PATHS.NOTIFICATIONS) {
+              const isActive = isNotificationOpen
+              return (
+                <button
+                  key={item.path}
+                  onClick={() => {
+                    setIsNotificationOpen(true)
+                    setIsSearchOpen(false)
+                    queryClient.invalidateQueries({ queryKey: notificationKeys.all })
+                  }}
                   className={cn(
                     'flex items-center justify-center w-[48px] h-[48px] rounded-lg transition-all mx-auto group relative mb-1',
                     isActive ? 'bg-sidebar-accent' : 'hover:bg-white/10'
@@ -76,7 +108,10 @@ export default function UserLayout() {
               <Link
                 key={item.path}
                 to={item.path}
-                onClick={() => setIsSearchOpen(false)}
+                onClick={() => {
+                  setIsSearchOpen(false)
+                  setIsNotificationOpen(false)
+                }}
                 className={cn(
                   'flex items-center justify-center w-[48px] h-[48px] rounded-lg transition-all mx-auto group relative mb-1',
                   isActive ? 'bg-sidebar-accent' : 'hover:bg-white/10'
@@ -143,6 +178,7 @@ export default function UserLayout() {
       </main>
 
       <SearchPanel open={isSearchOpen} onOpenChange={setIsSearchOpen} />
+      <NotificationPanel open={isNotificationOpen} onOpenChange={setIsNotificationOpen} />
     </div>
   )
 }

@@ -1,5 +1,10 @@
 {
   "notification": {
+    "title": "Thông báo",
+    "empty": {
+      "title": "Không có thông báo nào",
+      "description": "Bạn sẽ nhận được thông báo khi có hoạt động mới."
+    },
     "validation": {
       "receiverIdRequired": "ID người nhận là bắt buộc",
       "senderIdRequired": "ID người gửi là bắt buộc",

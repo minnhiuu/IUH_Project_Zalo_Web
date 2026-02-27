@@ -20,6 +20,14 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
   const { user: currentUser } = useAuth()
   const createFriendRequestNotification = useCreateFriendRequestNotificationMutation()
 
+  const generateMockObjectId = () => {
+    return (
+      Math.floor(Date.now() / 1000)
+        .toString(16)
+        .padStart(8, '0') + 'xxxxxxxxxxxxxxxx'.replace(/[x]/g, () => Math.floor(Math.random() * 16).toString(16))
+    )
+  }
+
   const handleAddFriend = () => {
     if (!currentUser) return
 
@@ -29,7 +37,7 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
         senderId: currentUser.id,
         senderName: currentUser.fullName,
         senderAvatar: currentUser.avatar,
-        requestId: crypto.randomUUID()
+        requestId: generateMockObjectId()
       },
       {
         onSuccess: () => {

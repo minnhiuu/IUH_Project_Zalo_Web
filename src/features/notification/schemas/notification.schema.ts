@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import i18n from '@/lib/i18n'
+import { NotificationType } from '@/constants'
 
 export const CreateFriendRequestNotificationRequestSchema = z.object({
   receiverId: z.string().min(1, i18n.t('notification:notification.validation.receiverIdRequired')),
@@ -17,3 +18,17 @@ export const NotificationAcceptedResponseSchema = z.object({
 })
 
 export type NotificationAcceptedResponse = z.infer<typeof NotificationAcceptedResponseSchema>
+
+export const NotificationGroupResponseSchema = z.object({
+  id: z.string(),
+  type: z.enum(NotificationType),
+  referenceId: z.string().nullable(),
+  title: z.string(),
+  body: z.string(),
+  actorIds: z.array(z.string()),
+  actorCount: z.number(),
+  isRead: z.boolean(),
+  lastModifiedAt: z.string()
+})
+
+export type NotificationGroupResponse = z.infer<typeof NotificationGroupResponseSchema>

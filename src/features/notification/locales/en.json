@@ -1,5 +1,10 @@
 {
   "notification": {
+    "title": "Notifications",
+    "empty": {
+      "title": "No notifications yet",
+      "description": "You'll see activity here when it happens."
+    },
     "validation": {
       "receiverIdRequired": "Receiver ID is required",
       "senderIdRequired": "Sender ID is required",
