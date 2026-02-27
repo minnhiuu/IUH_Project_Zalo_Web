@@ -41,8 +41,8 @@ export default function LoginForm({ onSwitchToQR }: { onSwitchToQR: () => void }
     setIsLoggingIn(true)
     try {
       const result = await loginMutation.mutateAsync(data)
-      const { accessToken } = result.data.data!
-      await loginSuccess(accessToken)
+      const { accessToken, refreshTokenExpirationMs } = result.data.data!
+      await loginSuccess(accessToken, refreshTokenExpirationMs)
       navigate(PATHS.HOME)
     } catch (error) {
       setIsLoggingIn(false)
