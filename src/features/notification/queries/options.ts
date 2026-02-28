@@ -2,12 +2,17 @@ import { infiniteQueryOptions, queryOptions } from '@tanstack/react-query'
 import { notificationApi } from '../api/notification.api'
 import { notificationKeys } from './keys'
 import { QUERY_POLICIES } from '@/constants'
+import type { NotificationFlatHistoryResponse, NotificationHistoryResponse } from '../schemas/notification.schema'
 
-export const getMyNotificationsOptions = (limit: number = 10, lng: string = 'vi') =>
+export const getMyNotificationsOptions = (limit: number = 10, lng: string = 'vi', filter: 'ALL' | 'UNREAD' = 'ALL') =>
   infiniteQueryOptions({
-    queryKey: notificationKeys.my({ limit, lng }),
-    queryFn: ({ pageParam = null }) =>
-      notificationApi.getMyNotifications({ cursor: pageParam as string | null, limit }).then((res) => res.data.data),
+    queryKey: notificationKeys.my({ limit, lng, filter }),
+    queryFn: ({ pageParam = null }): Promise<NotificationHistoryResponse | NotificationFlatHistoryResponse> => {
+      const params = { cursor: pageParam as string | null, limit }
+      return filter === 'UNREAD'
+        ? notificationApi.getUnreadHistory(params).then((res) => res.data.data)
+        : notificationApi.getNotificationHistory(params).then((res) => res.data.data)
+    },
     getNextPageParam: (lastPage) => {
       return lastPage.nextCursor ?? undefined
     },

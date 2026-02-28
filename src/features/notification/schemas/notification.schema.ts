@@ -48,3 +48,10 @@ export const UserNotificationStateResponseSchema = z.object({
 })
 
 export type UserNotificationStateResponse = z.infer<typeof UserNotificationStateResponseSchema>
+
+export const NotificationFlatHistoryResponseSchema = z.object({
+  items: z.array(NotificationGroupResponseSchema),
+  nextCursor: z.string().nullable()
+})
+
+export type NotificationFlatHistoryResponse = z.infer<typeof NotificationFlatHistoryResponseSchema>

@@ -4,7 +4,8 @@ import { notificationKeys } from './keys'
 import type {
   NotificationHistoryResponse,
   UserNotificationStateResponse,
-  NotificationGroupResponse
+  NotificationGroupResponse,
+  NotificationFlatHistoryResponse
 } from '../schemas/notification.schema'
 
 export const useRegisterDeviceMutation = () =>
@@ -36,20 +37,28 @@ export const useMarkHistoryAsCheckedMutation = () => {
 export const useMarkAsReadMutation = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: notificationApi.markAsRead,
+    mutationFn: (id: string) => notificationApi.markAsRead(id),
     onSuccess: (_, notificationId) => {
-      queryClient.setQueriesData<InfiniteData<NotificationHistoryResponse>>(
-        { queryKey: notificationKeys.all },
+      // 1. Update all notification history queries (fuzzy match 'notifications', 'my')
+      queryClient.setQueriesData<InfiniteData<NotificationHistoryResponse | NotificationFlatHistoryResponse>>(
+        { queryKey: [...notificationKeys.all, 'my'] },
         (old) => {
           if (!old || !old.pages) return old
 
-          let wasUnread = false
           const newPages = old.pages.map((page) => {
+            // Check if it's the Flat response (UNREAD filter)
+            if ('items' in page) {
+              return {
+                ...page,
+                items: page.items.filter((item: NotificationGroupResponse) => item.id !== notificationId)
+              }
+            }
+
+            // Otherwise it's the Grouped response (ALL filter)
             const updateList = (list: NotificationGroupResponse[]) =>
               list &&
               list.map((n) => {
                 if (n.id === notificationId && !n.read) {
-                  wasUnread = true
                   return { ...n, read: true }
                 }
                 return n
@@ -63,19 +72,6 @@ export const useMarkAsReadMutation = () => {
             }
           })
 
-          if (!wasUnread) return old
-
-          queryClient.setQueriesData<UserNotificationStateResponse>(
-            { queryKey: notificationKeys.state() },
-            (oldState) => {
-              if (!oldState) return oldState
-              return {
-                ...oldState,
-                unreadCount: Math.max(0, oldState.unreadCount - 1)
-              }
-            }
-          )
-
           return { ...old, pages: newPages }
         }
       )
@@ -88,13 +84,19 @@ export const useMarkAllAsReadMutation = () => {
   return useMutation({
     mutationFn: notificationApi.markAllAsRead,
     onSuccess: () => {
-      // 1. Set all notifications as read in cache
-      queryClient.setQueriesData<InfiniteData<NotificationHistoryResponse>>(
-        { queryKey: notificationKeys.all },
+      // 1. Update all notification history queries
+      queryClient.setQueriesData<InfiniteData<NotificationHistoryResponse | NotificationFlatHistoryResponse>>(
+        { queryKey: [...notificationKeys.all, 'my'] },
         (old) => {
           if (!old || !old.pages) return old
 
           const newPages = old.pages.map((page) => {
+            // For flat response (UNREAD tab), clear everything
+            if ('items' in page) {
+              return { ...page, items: [] }
+            }
+
+            // For grouped response (ALL tab), mark everything as read
             const markAll = (list: NotificationGroupResponse[]) => list && list.map((n) => ({ ...n, read: true }))
             return {
               ...page,

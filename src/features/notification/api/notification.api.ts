@@ -2,7 +2,8 @@ import type {
   CreateFriendRequestNotificationRequest,
   NotificationAcceptedResponse,
   NotificationHistoryResponse,
-  UserNotificationStateResponse
+  UserNotificationStateResponse,
+  NotificationFlatHistoryResponse
 } from '@/features/notification/schemas/notification.schema'
 import type { DeviceTokenRequest } from '@/features/notification/schemas/user-device.schema'
 import http from '@/lib/axios-client'
@@ -19,10 +20,11 @@ export const notificationApi = {
   createFriendRequest: (body: CreateFriendRequestNotificationRequest) =>
     http.post<ApiResponse<NotificationAcceptedResponse>>('/notifications/friend-request', body),
 
-  getMyNotifications: async (params: { cursor?: string | null; limit?: number }) => {
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    return http.get<ApiResponse<NotificationHistoryResponse>>('/notifications/history', { params })
-  },
+  getNotificationHistory: (params: { cursor?: string | null; limit?: number }) =>
+    http.get<ApiResponse<NotificationHistoryResponse>>('/notifications/history', { params }),
+
+  getUnreadHistory: (params: { cursor?: string | null; limit?: number }) =>
+    http.get<ApiResponse<NotificationFlatHistoryResponse>>('/notifications/history/unread', { params }),
 
   getNotificationState: () => http.get<ApiResponse<UserNotificationStateResponse>>('/notifications/state'),
 

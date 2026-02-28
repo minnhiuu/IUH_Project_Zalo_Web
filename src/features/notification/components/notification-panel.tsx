@@ -12,7 +12,7 @@ interface NotificationPanelProps {
 export type NotificationFilter = 'all' | 'unread'
 
 export function NotificationPanel({ open }: NotificationPanelProps) {
-  const { title } = useNotificationText()
+  const { title, filter: filterText } = useNotificationText()
   const [filter, setFilter] = useState<NotificationFilter>('all')
 
   return (
@@ -39,7 +39,7 @@ export function NotificationPanel({ open }: NotificationPanelProps) {
                 : 'hover:bg-muted text-muted-foreground hover:text-foreground'
             )}
           >
-            {useNotificationText().filter.all}
+            {filterText.all}
           </button>
           <button
             onClick={() => setFilter('unread')}
@@ -50,13 +50,13 @@ export function NotificationPanel({ open }: NotificationPanelProps) {
                 : 'hover:bg-muted text-muted-foreground hover:text-foreground'
             )}
           >
-            {useNotificationText().filter.unread}
+            {filterText.unread}
           </button>
         </div>
       </div>
 
       <div className='flex-1 overflow-hidden'>
-        <NotificationList filter={filter} />
+        <NotificationList key={filter} filter={filter} />
       </div>
     </div>
   )

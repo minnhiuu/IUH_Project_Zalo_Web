@@ -15,6 +15,8 @@ import { notificationKeys } from '@/features/notification/queries/keys'
 import { useNotificationStateQuery } from '@/features/notification/queries/use-queries'
 import { useMarkHistoryAsCheckedMutation } from '@/features/notification/queries/use-mutations'
 
+import { useNotificationBadge } from '@/hooks/use-notification-badge'
+
 export default function UserLayout() {
   const location = useLocation()
   const { user } = useAuthContext()
@@ -24,6 +26,10 @@ export default function UserLayout() {
 
   const { data: notificationState } = useNotificationStateQuery()
   const { mutate: markAsChecked } = useMarkHistoryAsCheckedMutation()
+
+  const unreadCount = notificationState?.unreadCount ?? 0
+
+  useNotificationBadge({ count: unreadCount, title: 'BondHub' })
 
   const { text: commonText } = useCommonText()
 

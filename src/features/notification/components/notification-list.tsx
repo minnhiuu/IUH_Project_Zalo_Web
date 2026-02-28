@@ -5,9 +5,17 @@ import { useMyNotificationsQuery } from '@/features/notification/queries/use-que
 import { NotificationItem } from './notification-item'
 import { useInView } from 'react-intersection-observer'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { BellOff, ChevronUp } from 'lucide-react'
+import { useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
+import { getMyNotificationsOptions } from '../queries/options'
+import { ChevronUp } from 'lucide-react'
 import type { NotificationFilter } from './notification-panel'
 import { useNotificationText } from '../locales/use-notification-text'
+import {
+  type NotificationFlatHistoryResponse,
+  type NotificationHistoryResponse,
+  type NotificationGroupResponse
+} from '@/features/notification/schemas/notification.schema'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -29,34 +37,35 @@ interface NotificationListProps {
 }
 
 export const NotificationList = ({ filter }: NotificationListProps) => {
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useMyNotificationsQuery(10)
+  const queryClient = useQueryClient()
+  const { i18n } = useTranslation()
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useMyNotificationsQuery(10, filter)
   const { mutate: markAsRead } = useMarkAsReadMutation()
-  const { ref, inView } = useInView()
-  const { group, empty } = useNotificationText()
+  const { ref, inView } = useInView({ rootMargin: '400px', threshold: 0 })
+  const { group, empty, filter: localeFilter } = useNotificationText()
 
   const grouped = useMemo(() => {
     if (!data) return { newest: [], today: [], previous: [] }
 
-    const firstPage = data.pages[0]
-    const newest = firstPage?.newest ?? []
-    const today = firstPage?.today ?? []
-
-    const previous = data.pages.flatMap((page) => page.previous)
-
-    const applyFilter = (list: typeof newest) => {
-      if (filter === 'unread') return list.filter((n) => !n.read)
-      return list
+    if (filter === 'unread') {
+      const allItems = data.pages.flatMap((page) => (page as NotificationFlatHistoryResponse).items)
+      return { newest: allItems, today: [], previous: [] }
     }
 
+    const firstPage = data.pages[0] as NotificationHistoryResponse
+    const newest = firstPage?.newest ?? []
+    const today = firstPage?.today ?? []
+    const previous = data.pages.flatMap((page) => (page as NotificationHistoryResponse).previous)
+
     return {
-      newest: applyFilter(newest),
-      today: applyFilter(today),
-      previous: applyFilter(previous)
+      newest,
+      today,
+      previous
     }
   }, [data, filter])
 
   const [showScrollBadge, setShowScrollBadge] = useState(false)
-  const [scrollTop, setScrollTop] = useState(0)
+  const [isScrolledDown, setIsScrolledDown] = useState(false)
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const [prevFirstId, setPrevFirstId] = useState<string | undefined>(undefined)
 
@@ -64,33 +73,46 @@ export const NotificationList = ({ filter }: NotificationListProps) => {
 
   if (firstNotificationId !== prevFirstId) {
     setPrevFirstId(firstNotificationId)
-    if (prevFirstId && scrollTop > 150) {
+    if (prevFirstId && isScrolledDown) {
       setShowScrollBadge(true)
     }
   }
 
   useEffect(() => {
-    const isFirstPage = (data?.pages.length ?? 0) <= 1
-    if (!isFirstPage && inView && hasNextPage && !isFetchingNextPage) {
+    const pagesCount = data?.pages.length ?? 0
+    if (pagesCount > 1 && inView && hasNextPage && !isFetchingNextPage) {
       fetchNextPage()
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage, data?.pages.length])
+
+  useEffect(() => {
+    if (hasNextPage && !isFetchingNextPage && (data?.pages.length ?? 0) === 1) {
+      const lastPage = data?.pages[0] as NotificationHistoryResponse | NotificationFlatHistoryResponse
+      if (lastPage?.nextCursor) {
+        const apiFilter = filter === 'unread' ? 'UNREAD' : 'ALL'
+        queryClient.prefetchInfiniteQuery(getMyNotificationsOptions(10, i18n.language, apiFilter))
+      }
+    }
+  }, [data?.pages, hasNextPage, isFetchingNextPage, filter, i18n.language, queryClient])
 
   const handleScrollToTop = () => {
     const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]')
     if (viewport) {
       viewport.scrollTo({ top: 0, behavior: 'smooth' })
       setShowScrollBadge(false)
+      setIsScrolledDown(false)
     }
   }
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const target = e.target as HTMLDivElement
     const currentScrollTop = target.scrollTop
-    setScrollTop(currentScrollTop)
 
-    if (currentScrollTop < 100) {
-      setShowScrollBadge(false)
+    if (currentScrollTop > 150 && !isScrolledDown) {
+      setIsScrolledDown(true)
+    } else if (currentScrollTop < 100) {
+      if (isScrolledDown) setIsScrolledDown(false)
+      if (showScrollBadge) setShowScrollBadge(false)
     }
   }
 
@@ -102,13 +124,34 @@ export const NotificationList = ({ filter }: NotificationListProps) => {
 
   if (isEmpty) {
     return (
-      <div className='flex h-[400px] flex-col items-center justify-center gap-4 text-center px-6'>
-        <div className='rounded-full bg-muted p-4'>
-          <BellOff className='h-10 w-10 text-muted-foreground' />
+      <div className='flex h-[400px] flex-col items-center justify-center gap-2 text-center px-6'>
+        <div className='mb-2'>
+          <svg viewBox='0 0 112 112' width='112' height='112'>
+            <rect
+              width='18.98'
+              height='18.98'
+              x='34.96'
+              y='82'
+              fill='#1876f2'
+              rx='9.49'
+              transform='rotate(-15 44.445 91.471)'
+            />
+            <circle cx='43.01' cy='26.27' r='6.85' fill='#7a7d81' />
+            <path fill='#bcc0c4' d='M75.28 43.44a26.72 26.72 0 1 0-51.62 13.83L30 81l51.62-13.87z' />
+            <path fill='#bcc0c4' d='M90.78 75.64 26.33 92.9l3.22-13.63 51.62-13.83 9.61 10.2z' />
+            <rect
+              width='66.91'
+              height='8.88'
+              x='25.35'
+              y='80.75'
+              fill='#bcc0c4'
+              rx='4.44'
+              transform='rotate(-15 58.793 85.207)'
+            />
+          </svg>
         </div>
-        <div className='space-y-1'>
-          <p className='font-bold text-lg text-foreground'>{empty.title}</p>
-          <p className='text-[15px] text-muted-foreground'>{empty.placeholder}</p>
+        <div>
+          <p className='font-bold text-[21px] text-[#65676b] dark:text-[#bcc0c4] leading-tight'>{empty.title}</p>
         </div>
       </div>
     )
@@ -139,9 +182,11 @@ export const NotificationList = ({ filter }: NotificationListProps) => {
           {grouped.newest.length > 0 && (
             <div className='flex flex-col'>
               <div className='flex items-center justify-between px-4 py-2 mt-2'>
-                <h4 className='text-[17px] font-bold text-foreground'>{group.newest}</h4>
+                <h4 className='text-[17px] font-bold text-foreground'>
+                  {filter === 'unread' ? localeFilter.unread : group.newest}
+                </h4>
               </div>
-              {grouped.newest.map((notification) => (
+              {grouped.newest.map((notification: NotificationGroupResponse) => (
                 <NotificationItem
                   key={notification.id}
                   notification={notification}
@@ -156,7 +201,7 @@ export const NotificationList = ({ filter }: NotificationListProps) => {
               <div className='flex items-center justify-between px-4 py-2 mt-4'>
                 <h4 className='text-[17px] font-bold text-foreground'>{group.today}</h4>
               </div>
-              {grouped.today.map((notification) => (
+              {grouped.today.map((notification: NotificationGroupResponse) => (
                 <NotificationItem
                   key={notification.id}
                   notification={notification}
@@ -171,7 +216,7 @@ export const NotificationList = ({ filter }: NotificationListProps) => {
               <div className='flex items-center justify-between px-4 py-2 mt-4'>
                 <h4 className='text-[17px] font-bold text-foreground'>{group.previous}</h4>
               </div>
-              {grouped.previous.map((notification) => (
+              {grouped.previous.map((notification: NotificationGroupResponse) => (
                 <NotificationItem
                   key={notification.id}
                   notification={notification}
@@ -193,17 +238,19 @@ export const NotificationList = ({ filter }: NotificationListProps) => {
                   {isFetchingNextPage ? 'Đang tải...' : 'Xem thông báo trước đó'}
                 </Button>
               ) : (
-                <div className='flex flex-col gap-1'>
-                  {Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className='flex gap-3 px-4 py-2 items-center'>
-                      <Skeleton className='h-12 w-12 rounded-full shrink-0' />
-                      <div className='flex-1 space-y-2'>
-                        <Skeleton className='h-3 w-[70%]' />
-                        <Skeleton className='h-2 w-[40%]' />
+                isFetchingNextPage && (
+                  <div className='flex flex-col gap-1'>
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <div key={i} className='flex gap-3 px-4 py-2 items-center animate-pulse'>
+                        <Skeleton className='h-12 w-12 rounded-full shrink-0 bg-muted/60' />
+                        <div className='flex-1 space-y-2'>
+                          <Skeleton className='h-3 w-[70%] bg-muted/60' />
+                          <Skeleton className='h-2 w-[40%] bg-muted/60' />
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )
               )}
             </div>
           )}
