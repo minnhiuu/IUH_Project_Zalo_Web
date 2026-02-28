@@ -27,8 +27,17 @@ export const NotificationGroupResponseSchema = z.object({
   body: z.string(),
   actorIds: z.array(z.string()),
   actorCount: z.number(),
-  isRead: z.boolean(),
+  read: z.boolean(),
   lastModifiedAt: z.string()
 })
 
 export type NotificationGroupResponse = z.infer<typeof NotificationGroupResponseSchema>
+
+export const NotificationHistoryResponseSchema = z.object({
+  newest: z.array(NotificationGroupResponseSchema),
+  today: z.array(NotificationGroupResponseSchema),
+  previous: z.array(NotificationGroupResponseSchema),
+  nextCursor: z.string().nullable()
+})
+
+export type NotificationHistoryResponse = z.infer<typeof NotificationHistoryResponseSchema>

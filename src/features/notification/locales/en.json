@@ -1,9 +1,24 @@
 {
   "notification": {
     "title": "Notifications",
+    "filter": {
+      "all": "All",
+      "unread": "Unread"
+    },
+    "group": {
+      "newest": "Newest",
+      "today": "Today",
+      "previous": "Previous"
+    },
     "empty": {
       "title": "No notifications yet",
-      "description": "You'll see activity here when it happens."
+      "description": "You'll see activity here when it happens.",
+      "placeholder": "Check back later for new updates"
+    },
+    "action": {
+      "accept": "Accept",
+      "decline": "Decline",
+      "followers": "{{count}} followers"
     },
     "validation": {
       "receiverIdRequired": "Receiver ID is required",

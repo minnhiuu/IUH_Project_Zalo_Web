@@ -1,4 +1,4 @@
-import { format, type Locale } from 'date-fns'
+import { format, formatDistanceToNow, type Locale } from 'date-fns'
 import { vi, enUS } from 'date-fns/locale'
 
 const locales: Record<string, Locale> = {
@@ -7,6 +7,23 @@ const locales: Record<string, Locale> = {
 }
 
 export const getLocale = (lang: string = 'vi') => locales[lang] || vi
+
+export const formatTimeAgo = (date: string | Date | number | null | undefined, lang: string = 'vi') => {
+  if (!date) return '—'
+
+  const d = new Date(date)
+  if (isNaN(d.getTime())) return String(date)
+
+  try {
+    return formatDistanceToNow(d, {
+      addSuffix: true,
+      locale: getLocale(lang)
+    })
+  } catch (error) {
+    console.error('Time ago formatting error:', error)
+    return String(date)
+  }
+}
 
 export const formatDate = (
   date: string | Date | number | null | undefined,

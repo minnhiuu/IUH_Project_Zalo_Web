@@ -42,7 +42,7 @@ export function NotificationPanel({ open }: NotificationPanelProps) {
                 : 'hover:bg-muted text-muted-foreground hover:text-foreground'
             )}
           >
-            Tất cả
+            {useNotificationText().filter.all}
           </button>
           <button
             onClick={() => setFilter('unread')}
@@ -53,7 +53,7 @@ export function NotificationPanel({ open }: NotificationPanelProps) {
                 : 'hover:bg-muted text-muted-foreground hover:text-foreground'
             )}
           >
-            Chưa đọc
+            {useNotificationText().filter.unread}
           </button>
         </div>
       </div>

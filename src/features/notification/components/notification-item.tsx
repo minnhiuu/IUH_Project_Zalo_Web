@@ -2,11 +2,12 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import type { NotificationGroupResponse } from '@/features/notification/schemas/notification.schema'
 import { cn } from '@/lib/utils'
-import { formatDistanceToNow } from 'date-fns'
-import { vi } from 'date-fns/locale'
 import { NotificationType } from '@/constants'
 import React from 'react'
-import { MessageCircle, Heart, UserCheck, Gift, Phone, MessageSquare, User, Shield, AtSign } from 'lucide-react'
+import { useNotificationText } from '../locales/use-notification-text'
+import { MessageCircle, Heart, Gift, Phone, User, Shield, AtSign } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { formatTimeAgo } from '@/utils/date'
 
 interface NotificationItemProps {
   notification: NotificationGroupResponse
@@ -23,14 +24,14 @@ const getBadgeConfig = (type: NotificationType) => {
     case 'FRIEND_REQUEST':
       return { icon: User, color: 'bg-brand-blue' }
     case 'FRIEND_ACCEPT':
-      return { icon: UserCheck, color: 'bg-green-500' }
+      return { icon: User, color: 'bg-green-500' }
     case 'DOB':
       return { icon: Gift, color: 'bg-pink-500' }
     case 'CALL':
       return { icon: Phone, color: 'bg-green-500' }
     case 'POST_COMMENT':
     case 'COMMENT_REPLY':
-      return { icon: MessageSquare, color: 'bg-green-500' }
+      return { icon: MessageCircle, color: 'bg-green-500' }
     case 'POST_TAG':
     case 'POST_MENTION':
     case 'COMMENT_MENTION':
@@ -43,25 +44,29 @@ const getBadgeConfig = (type: NotificationType) => {
 }
 
 export const NotificationItem = ({ notification, onMarkAsRead }: NotificationItemProps) => {
+  const { action } = useNotificationText()
+  const { i18n } = useTranslation()
+
   const handleClick = () => {
-    if (!notification.isRead) {
+    if (!notification.read) {
       onMarkAsRead(notification.id)
     }
   }
 
   const badge = getBadgeConfig(notification.type)
+  const actorId = notification.actorIds[0]
 
   return (
     <div
       onClick={handleClick}
       className={cn(
         'group flex cursor-pointer gap-3 p-2 mx-2 rounded-lg transition-all duration-200 hover:bg-muted/60 relative',
-        !notification.isRead && 'bg-brand-blue-light/30 dark:bg-brand-blue/5'
+        !notification.read && 'bg-brand-blue-light/30 dark:bg-brand-blue/5'
       )}
     >
       <div className='relative shrink-0'>
         <Avatar className='h-14 w-14'>
-          <AvatarImage src={`/avatars/${notification.actorIds[0]}.png`} />
+          {actorId && <AvatarImage src={`/avatars/${actorId}.png`} />}
           <AvatarFallback className='bg-primary/5 text-primary text-lg font-bold'>
             {notification.title.substring(0, 1).toUpperCase()}
           </AvatarFallback>
@@ -81,12 +86,12 @@ export const NotificationItem = ({ notification, onMarkAsRead }: NotificationIte
           <span className='font-bold'>{notification.title}</span> {notification.body}
         </div>
         <div className='text-[13px] text-muted-foreground mt-0.5'>
-          {formatDistanceToNow(new Date(notification.lastModifiedAt), { addSuffix: false, locale: vi })}
+          {formatTimeAgo(notification.lastModifiedAt, i18n.language)}
         </div>
 
         {notification.type === 'FRIEND_REQUEST' && (
           <div className='mt-2 space-y-3'>
-            <div className='text-[13px] text-muted-foreground'>Có 2,1K người theo dõi</div>
+            <div className='text-[13px] text-muted-foreground'>{action.followers(2100)}</div>
             <div className='flex gap-2'>
               <Button
                 variant='secondary'
@@ -96,7 +101,7 @@ export const NotificationItem = ({ notification, onMarkAsRead }: NotificationIte
                   // Logic for reject will go here
                 }}
               >
-                Từ chối
+                {action.decline}
               </Button>
               <Button
                 variant='secondary-blue'
@@ -106,14 +111,14 @@ export const NotificationItem = ({ notification, onMarkAsRead }: NotificationIte
                   // Logic for accept will go here
                 }}
               >
-                Đồng ý
+                {action.accept}
               </Button>
             </div>
           </div>
         )}
       </div>
 
-      {!notification.isRead && (
+      {!notification.read && (
         <div className='absolute right-4 top-1/2 -translate-y-1/2 flex items-center h-full'>
           <div className='h-3 w-3 rounded-full bg-brand-blue shadow-sm' />
         </div>

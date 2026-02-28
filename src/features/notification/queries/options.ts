@@ -3,17 +3,14 @@ import { notificationApi } from '../api/notification.api'
 import { notificationKeys } from './keys'
 import { QUERY_POLICIES } from '@/constants'
 
-export const getMyNotificationsOptions = (size: number = 10) =>
+export const getMyNotificationsOptions = (limit: number = 10, lng: string = 'vi') =>
   infiniteQueryOptions({
-    queryKey: notificationKeys.my({ size }),
-    queryFn: ({ pageParam = 0 }) =>
-      notificationApi.getMyNotifications({ page: pageParam as number, size }).then((res) => res.data.data),
+    queryKey: notificationKeys.my({ limit, lng }),
+    queryFn: ({ pageParam = null }) =>
+      notificationApi.getMyNotifications({ cursor: pageParam as string | null, limit }).then((res) => res.data.data),
     getNextPageParam: (lastPage) => {
-      if (lastPage.page + 1 < lastPage.totalPages) {
-        return lastPage.page + 1
-      }
-      return undefined
+      return lastPage.nextCursor ?? undefined
     },
-    initialPageParam: 0,
+    initialPageParam: null as string | null,
     ...QUERY_POLICIES.INFINITE
   })

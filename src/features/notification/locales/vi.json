@@ -1,9 +1,24 @@
 {
   "notification": {
     "title": "Thông báo",
+    "filter": {
+      "all": "Tất cả",
+      "unread": "Chưa đọc"
+    },
+    "group": {
+      "newest": "Mới",
+      "today": "Hôm nay",
+      "previous": "Trước đó"
+    },
     "empty": {
       "title": "Không có thông báo nào",
-      "description": "Bạn sẽ nhận được thông báo khi có hoạt động mới."
+      "description": "Bạn sẽ nhận được thông báo khi có hoạt động mới.",
+      "placeholder": "Hãy quay lại sau khi có cập nhật mới nhé"
+    },
+    "action": {
+      "accept": "Đồng ý",
+      "decline": "Từ chối",
+      "followers": "Có {{count}} người theo dõi"
     },
     "validation": {
       "receiverIdRequired": "ID người nhận là bắt buộc",

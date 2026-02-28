@@ -1,6 +1,8 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { getMyNotificationsOptions } from './options'
+import { useTranslation } from 'react-i18next'
 
-export const useMyNotificationsQuery = (size: number = 10) => {
-  return useInfiniteQuery(getMyNotificationsOptions(size))
+export const useMyNotificationsQuery = (limit: number = 10) => {
+  const { i18n } = useTranslation()
+  return useInfiniteQuery(getMyNotificationsOptions(limit, i18n.language))
 }

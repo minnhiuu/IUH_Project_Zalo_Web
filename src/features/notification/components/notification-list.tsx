@@ -2,25 +2,35 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useMarkAsReadMutation } from '@/features/notification/queries/use-mutations'
 import { useMyNotificationsQuery } from '@/features/notification/queries/use-queries'
-import type { NotificationGroupResponse } from '../schemas/notification.schema'
 import { NotificationItem } from './notification-item'
 import { useInView } from 'react-intersection-observer'
 import { useEffect, useMemo } from 'react'
 import { BellOff } from 'lucide-react'
-import { useNotificationText } from '../locales/use-notification-text'
-import { isToday } from 'date-fns'
 import type { NotificationFilter } from './notification-panel'
-import { Button } from '@/components/ui/button'
+import { useNotificationText } from '../locales/use-notification-text'
+
+const NotificationSkeleton = () => (
+  <div className='flex flex-col gap-1'>
+    {Array.from({ length: 10 }).map((_, i) => (
+      <div key={i} className='flex gap-3 p-4 items-center'>
+        <Skeleton className='h-12 w-12 rounded-full shrink-0' />
+        <div className='flex-1 space-y-2'>
+          <Skeleton className='h-3 w-[70%] rounded-md' />
+        </div>
+      </div>
+    ))}
+  </div>
+)
 
 interface NotificationListProps {
   filter: NotificationFilter
 }
 
 export const NotificationList = ({ filter }: NotificationListProps) => {
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useMyNotificationsQuery()
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useMyNotificationsQuery(10)
   const { mutate: markAsRead } = useMarkAsReadMutation()
   const { ref, inView } = useInView()
-  const { empty } = useNotificationText()
+  const { group, empty } = useNotificationText()
 
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
@@ -28,38 +38,36 @@ export const NotificationList = ({ filter }: NotificationListProps) => {
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage])
 
-  const notifications = useMemo<NotificationGroupResponse[]>(() => {
-    const raw = (data?.pages.flatMap((page) => page.data) as NotificationGroupResponse[]) ?? []
-    if (filter === 'unread') {
-      return raw.filter((n) => !n.isRead)
+  const grouped = useMemo(() => {
+    if (!data) return { newest: [], today: [], previous: [] }
+
+    // First page contains 'newest' and 'today' buckets
+    const firstPage = data.pages[0]
+    const newest = firstPage?.newest ?? []
+    const today = firstPage?.today ?? []
+
+    // Flatten all 'previous' items from all pages
+    const previous = data.pages.flatMap((page) => page.previous)
+
+    const applyFilter = (list: typeof newest) => {
+      if (filter === 'unread') return list.filter((n) => !n.read)
+      return list
     }
-    return raw
+
+    return {
+      newest: applyFilter(newest),
+      today: applyFilter(today),
+      previous: applyFilter(previous)
+    }
   }, [data, filter])
 
-  const groupedNotifications = useMemo(() => {
-    return {
-      today: notifications.filter((n) => isToday(new Date(n.lastModifiedAt))),
-      earlier: notifications.filter((n) => !isToday(new Date(n.lastModifiedAt)))
-    }
-  }, [notifications])
+  const isEmpty = grouped.newest.length === 0 && grouped.today.length === 0 && grouped.previous.length === 0
 
   if (isLoading) {
-    return (
-      <div className='flex flex-col'>
-        {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className='flex gap-4 p-4'>
-            <Skeleton className='h-14 w-14 rounded-full' />
-            <div className='flex-1 space-y-2'>
-              <Skeleton className='h-4 w-[80%]' />
-              <Skeleton className='h-3 w-[40%]' />
-            </div>
-          </div>
-        ))}
-      </div>
-    )
+    return <NotificationSkeleton />
   }
 
-  if (notifications.length === 0) {
+  if (isEmpty) {
     return (
       <div className='flex h-[400px] flex-col items-center justify-center gap-4 text-center px-6'>
         <div className='rounded-full bg-muted p-4'>
@@ -67,7 +75,7 @@ export const NotificationList = ({ filter }: NotificationListProps) => {
         </div>
         <div className='space-y-1'>
           <p className='font-bold text-lg text-foreground'>{empty.title}</p>
-          <p className='text-[15px] text-muted-foreground'>{empty.description}</p>
+          <p className='text-[15px] text-muted-foreground'>{empty.placeholder}</p>
         </div>
       </div>
     )
@@ -76,15 +84,12 @@ export const NotificationList = ({ filter }: NotificationListProps) => {
   return (
     <ScrollArea className='h-full'>
       <div className='flex flex-col pb-4'>
-        {groupedNotifications.today.length > 0 && (
+        {grouped.newest.length > 0 && (
           <div className='flex flex-col'>
             <div className='flex items-center justify-between px-4 py-2 mt-2'>
-              <h4 className='text-[17px] font-bold text-foreground'>Hôm nay</h4>
-              <Button variant='link' className='text-brand-blue h-auto p-0 text-[15px] font-normal'>
-                Xem tất cả
-              </Button>
+              <h4 className='text-[17px] font-bold text-foreground'>{group.newest}</h4>
             </div>
-            {groupedNotifications.today.map((notification) => (
+            {grouped.newest.map((notification) => (
               <NotificationItem
                 key={notification.id}
                 notification={notification}
@@ -94,15 +99,12 @@ export const NotificationList = ({ filter }: NotificationListProps) => {
           </div>
         )}
 
-        {groupedNotifications.earlier.length > 0 && (
+        {grouped.today.length > 0 && (
           <div className='flex flex-col'>
             <div className='flex items-center justify-between px-4 py-2 mt-4'>
-              <h4 className='text-[17px] font-bold text-foreground'>Trước đó</h4>
-              <Button variant='link' className='text-brand-blue h-auto p-0 text-[15px] font-normal'>
-                Xem tất cả
-              </Button>
+              <h4 className='text-[17px] font-bold text-foreground'>{group.today}</h4>
             </div>
-            {groupedNotifications.earlier.map((notification) => (
+            {grouped.today.map((notification) => (
               <NotificationItem
                 key={notification.id}
                 notification={notification}
@@ -112,15 +114,36 @@ export const NotificationList = ({ filter }: NotificationListProps) => {
           </div>
         )}
 
-        <div className='px-4 mt-6'>
-          <Button variant='secondary' className='w-full bg-muted/60 hover:bg-muted font-bold text-[15px] h-10'>
-            Xem thông báo trước đó
-          </Button>
-        </div>
+        {grouped.previous.length > 0 && (
+          <div className='flex flex-col'>
+            <div className='flex items-center justify-between px-4 py-2 mt-4'>
+              <h4 className='text-[17px] font-bold text-foreground'>{group.previous}</h4>
+            </div>
+            {grouped.previous.map((notification) => (
+              <NotificationItem
+                key={notification.id}
+                notification={notification}
+                onMarkAsRead={(id) => markAsRead(id)}
+              />
+            ))}
+          </div>
+        )}
 
         {hasNextPage && (
-          <div ref={ref} className='p-4 text-center'>
-            {isFetchingNextPage && <Skeleton className='h-14 w-full rounded-xl' />}
+          <div ref={ref} className='flex flex-col'>
+            {isFetchingNextPage && (
+              <div className='flex flex-col gap-1'>
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className='flex gap-3 p-4 items-center'>
+                    <Skeleton className='h-12 w-12 rounded-full shrink-0' />
+                    <div className='flex-1 space-y-2'>
+                      <Skeleton className='h-3 w-[70%]' />
+                      <Skeleton className='h-2 w-[40%]' />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
