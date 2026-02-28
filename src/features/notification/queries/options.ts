@@ -1,4 +1,4 @@
-import { infiniteQueryOptions } from '@tanstack/react-query'
+import { infiniteQueryOptions, queryOptions } from '@tanstack/react-query'
 import { notificationApi } from '../api/notification.api'
 import { notificationKeys } from './keys'
 import { QUERY_POLICIES } from '@/constants'
@@ -13,4 +13,11 @@ export const getMyNotificationsOptions = (limit: number = 10, lng: string = 'vi'
     },
     initialPageParam: null as string | null,
     ...QUERY_POLICIES.INFINITE
+  })
+
+export const getNotificationStateOptions = () =>
+  queryOptions({
+    queryKey: notificationKeys.state(),
+    queryFn: () => notificationApi.getNotificationState().then((res) => res.data.data),
+    ...QUERY_POLICIES.LIST
   })

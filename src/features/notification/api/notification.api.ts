@@ -1,7 +1,8 @@
 import type {
   CreateFriendRequestNotificationRequest,
   NotificationAcceptedResponse,
-  NotificationHistoryResponse
+  NotificationHistoryResponse,
+  UserNotificationStateResponse
 } from '@/features/notification/schemas/notification.schema'
 import type { DeviceTokenRequest } from '@/features/notification/schemas/user-device.schema'
 import http from '@/lib/axios-client'
@@ -23,5 +24,11 @@ export const notificationApi = {
     return http.get<ApiResponse<NotificationHistoryResponse>>('/notifications/history', { params })
   },
 
-  markAsRead: (notificationId: string) => http.patch<ApiResponse<void>>(`/notifications/${notificationId}/read`)
+  getNotificationState: () => http.get<ApiResponse<UserNotificationStateResponse>>('/notifications/state'),
+
+  markHistoryAsChecked: () => http.post<ApiResponse<void>>('/notifications/checked'),
+
+  markAsRead: (notificationId: string) => http.post<ApiResponse<void>>(`/notifications/${notificationId}/read`),
+
+  markAllAsRead: () => http.post<ApiResponse<void>>('/notifications/read-all')
 }

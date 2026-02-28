@@ -61,7 +61,7 @@ export const NotificationItem = ({ notification, onMarkAsRead }: NotificationIte
       onClick={handleClick}
       className={cn(
         'group flex cursor-pointer gap-3 p-2 mx-2 rounded-lg transition-all duration-200 hover:bg-muted/60 relative',
-        !notification.read && 'bg-brand-blue-light/30 dark:bg-brand-blue/5'
+        !notification.read && 'bg-brand-blue-light/20 dark:bg-brand-blue/5'
       )}
     >
       <div className='relative shrink-0'>
@@ -81,17 +81,29 @@ export const NotificationItem = ({ notification, onMarkAsRead }: NotificationIte
         </div>
       </div>
 
-      <div className='flex flex-1 flex-col gap-0.5 min-w-0 pr-6'>
-        <div className='text-[15px] leading-[1.3] text-foreground'>
-          <span className='font-bold'>{notification.title}</span> {notification.body}
+      <div className='flex flex-1 flex-col justify-center min-w-0 pr-6'>
+        <div
+          className={cn(
+            'text-[15px] leading-[1.3] overflow-wrap-break-word',
+            !notification.read ? 'text-foreground font-medium' : 'text-muted-foreground'
+          )}
+        >
+          <span className={cn('font-bold', !notification.read ? 'text-foreground' : 'text-muted-foreground')}>
+            {notification.title}
+          </span>{' '}
+          {notification.body}
         </div>
-        <div className='text-[13px] text-muted-foreground mt-0.5'>
-          {formatTimeAgo(notification.lastModifiedAt, i18n.language)}
+        <div
+          className={cn(
+            'text-[13px] mt-1 font-medium',
+            !notification.read ? 'text-brand-blue' : 'text-muted-foreground'
+          )}
+        >
+          {formatTimeAgo(notification.lastModifiedAt, i18n.language, true)}
         </div>
 
         {notification.type === 'FRIEND_REQUEST' && (
-          <div className='mt-2 space-y-3'>
-            <div className='text-[13px] text-muted-foreground'>{action.followers(2100)}</div>
+          <div className='mt-2'>
             <div className='flex gap-2'>
               <Button
                 variant='secondary'
@@ -119,7 +131,7 @@ export const NotificationItem = ({ notification, onMarkAsRead }: NotificationIte
       </div>
 
       {!notification.read && (
-        <div className='absolute right-4 top-1/2 -translate-y-1/2 flex items-center h-full'>
+        <div className='absolute right-4 top-1/2 -translate-y-1/2 flex items-center'>
           <div className='h-3 w-3 rounded-full bg-brand-blue shadow-sm' />
         </div>
       )}

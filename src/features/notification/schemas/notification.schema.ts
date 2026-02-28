@@ -41,3 +41,10 @@ export const NotificationHistoryResponseSchema = z.object({
 })
 
 export type NotificationHistoryResponse = z.infer<typeof NotificationHistoryResponseSchema>
+
+export const UserNotificationStateResponseSchema = z.object({
+  unreadCount: z.number(),
+  lastCheckedAt: z.string().nullable()
+})
+
+export type UserNotificationStateResponse = z.infer<typeof UserNotificationStateResponseSchema>

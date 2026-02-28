@@ -1,9 +1,8 @@
-import { MoreHorizontal } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
 import { NotificationList } from './notification-list'
 import { useNotificationText } from '../locales/use-notification-text'
 import { useState } from 'react'
+import { NotificationMenu } from './notification-menu'
 
 interface NotificationPanelProps {
   open: boolean
@@ -27,9 +26,7 @@ export function NotificationPanel({ open }: NotificationPanelProps) {
       <div className='flex flex-col px-4 pt-4 pb-2 shrink-0 bg-background'>
         <div className='flex items-center justify-between mb-4'>
           <h3 className='text-2xl font-bold text-foreground tracking-tight'>{title}</h3>
-          <Button variant='ghost' size='icon' className='h-8 w-8 rounded-full hover:bg-muted'>
-            <MoreHorizontal className='h-5 w-5 text-foreground' />
-          </Button>
+          <NotificationMenu />
         </div>
 
         <div className='flex gap-2 mb-2'>

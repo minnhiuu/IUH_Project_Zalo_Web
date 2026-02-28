@@ -23,6 +23,11 @@ export const useNotificationText = () => {
       accept: t('notification.action.accept'),
       decline: t('notification.action.decline'),
       followers: (count: number) => t('notification.action.followers', { count })
+    },
+    menu: {
+      markAllAsRead: t('notification.menu.markAllAsRead'),
+      settings: t('notification.menu.settings'),
+      open: t('notification.menu.open')
     }
   }
 }

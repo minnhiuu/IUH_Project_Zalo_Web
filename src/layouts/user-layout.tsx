@@ -12,6 +12,8 @@ import { useCommonText } from '@/locales/common/use-common-text'
 import { useFCM } from '@/hooks/use-fcm'
 import { NotificationPanel } from '@/features/notification'
 import { notificationKeys } from '@/features/notification/queries/keys'
+import { useNotificationStateQuery } from '@/features/notification/queries/use-queries'
+import { useMarkHistoryAsCheckedMutation } from '@/features/notification/queries/use-mutations'
 
 export default function UserLayout() {
   const location = useLocation()
@@ -19,6 +21,9 @@ export default function UserLayout() {
   const queryClient = useQueryClient()
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isNotificationOpen, setIsNotificationOpen] = useState(false)
+
+  const { data: notificationState } = useNotificationStateQuery()
+  const { mutate: markAsChecked } = useMarkHistoryAsCheckedMutation()
 
   const { text: commonText } = useCommonText()
 
@@ -81,12 +86,17 @@ export default function UserLayout() {
             }
             if (item.path === PATHS.NOTIFICATIONS) {
               const isActive = isNotificationOpen
+              const unreadCount = notificationState?.unreadCount ?? 0
               return (
                 <button
                   key={item.path}
                   onClick={() => {
-                    setIsNotificationOpen(true)
+                    const nextState = !isNotificationOpen
+                    setIsNotificationOpen(nextState)
                     setIsSearchOpen(false)
+                    if (nextState) {
+                      markAsChecked()
+                    }
                     queryClient.invalidateQueries({ queryKey: notificationKeys.all })
                   }}
                   className={cn(
@@ -100,6 +110,11 @@ export default function UserLayout() {
                       isActive ? 'text-white' : 'text-white/80 group-hover:text-white'
                     )}
                   />
+                  {unreadCount > 0 && (
+                    <span className='absolute top-2 right-2 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-medium text-white ring-2 ring-sidebar'>
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
                 </button>
               )
             }

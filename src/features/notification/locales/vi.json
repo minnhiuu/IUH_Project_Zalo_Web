@@ -20,6 +20,11 @@
       "decline": "Từ chối",
       "followers": "Có {{count}} người theo dõi"
     },
+    "menu": {
+      "markAllAsRead": "Đánh dấu tất cả là đã đọc",
+      "settings": "Cài đặt thông báo",
+      "open": "Mở thông báo"
+    },
     "validation": {
       "receiverIdRequired": "ID người nhận là bắt buộc",
       "senderIdRequired": "ID người gửi là bắt buộc",

@@ -20,6 +20,11 @@
       "decline": "Decline",
       "followers": "{{count}} followers"
     },
+    "menu": {
+      "markAllAsRead": "Mark all as read",
+      "settings": "Notification settings",
+      "open": "Open notifications"
+    },
     "validation": {
       "receiverIdRequired": "Receiver ID is required",
       "senderIdRequired": "Sender ID is required",
