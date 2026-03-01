@@ -1,7 +1,7 @@
 {
   "auth": {
     "page": {
-      "subtitle": "Login to BondHub account\nto connect to BondHub Web"
+      "subtitle": "Login to Zalo account\nto connect to Zalo Web"
     },
     "form": {
       "title": "Login with password",
@@ -9,6 +9,7 @@
       "password": "Password",
       "submit": "Login",
       "submitting": "Processing...",
+      "loggingIn": "Logging in...",
       "forgot": "Forgot password",
       "qr": "Login with QR code",
       "noAccount": "Don't have an account?",
@@ -20,8 +21,9 @@
       "expired": "QR Code has expired",
       "refresh": "Get new code",
       "confirmPhone": "Please confirm on your phone",
-      "scannedSuccess": "Scan successful. Please select \"Login\" on your mobile device.",
-      "instruction": "Scan QR code with BondHub app to login",
+      "scannedSuccess": "Scan successful.",
+      "loggingIn": "Logging in...",
+      "instruction": "Scan QR code with Zalo app to login",
       "generating": "Generating QR Code...",
       "generateError": "Could not generate QR Code",
       "retry": "Retry",
@@ -29,7 +31,7 @@
       "rejected": "You rejected the login request.",
       "expiredError": "QR code has expired, please get a new code",
       "onlyForLogin": "Only for login",
-      "appNameOnPC": "BondHub on PC"
+      "appNameOnPC": "Zalo on PC"
     },
     "upload": {
       "title": "Drag and drop or click to select image",
@@ -51,12 +53,12 @@
     },
     "logoutDialog": {
       "title": "Confirmation",
-      "confirmMessage": "Do you want to logout from BondHub?",
+      "confirmMessage": "Do you want to logout from Zalo?",
       "no": "Cancel",
       "yes": "Logout"
     },
     "forgotPassword": {
-      "subtitle": "Recover BondHub password\nto connect to BondHub Web",
+      "subtitle": "Recover Zalo password\nto connect to Zalo Web",
       "instruction": "Enter your email",
       "email": "Email",
       "continue": "Continue",
@@ -70,7 +72,7 @@
     },
     "register": {
       "title": "Create Account",
-      "subtitle": "Create BondHub account\nto connect to BondHub Web",
+      "subtitle": "Create Zalo account\nto connect to Zalo Web",
       "fullname": "Full name",
       "email": "Email",
       "phoneNumber": "Phone number",
@@ -83,13 +85,27 @@
     },
     "verifyOtp": {
       "title": "Verify Account",
-      "subtitle": "Verify BondHub account\nto complete registration",
+      "subtitle": "Verify Zalo account\nto complete registration",
       "instruction": "Enter OTP code sent to your email",
       "otp": "OTP Code (6 digits)",
       "submit": "Verify",
       "submitting": "Processing...",
       "resend": "Resend code",
       "success": "Verification successful!"
+    },
+    "validation": {
+      "emailInvalid": "Invalid email format",
+      "passwordRequired": "Password is required",
+      "deviceIdRequired": "Device ID is required",
+      "passwordMin": "Password must be at least 8 characters long",
+      "passwordComplex": "Password must include uppercase, lowercase, numbers and special characters",
+      "confirmPasswordRequired": "Please confirm your password",
+      "fullNameRequired": "Full name is required",
+      "phoneInvalid": "Phone number must be exactly 10 digits",
+      "passwordMismatch": "Passwords do not match",
+      "otpInvalid": "OTP must be exactly 6 digits",
+      "resetOtpMin": "OTP must be at least 6 characters long",
+      "confirmPasswordReset": "Please confirm your new password"
     }
   }
 }

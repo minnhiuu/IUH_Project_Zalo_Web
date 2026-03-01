@@ -12,6 +12,7 @@ export const createAuthTexts = (t: TFunction<'auth'>) => ({
     password: t(AUTH_KEYS.form.password),
     submit: t(AUTH_KEYS.form.submit),
     submitting: t(AUTH_KEYS.form.submitting),
+    loggingIn: t(AUTH_KEYS.form.loggingIn),
     forgot: t(AUTH_KEYS.form.forgot),
     qr: t(AUTH_KEYS.form.qr),
     noAccount: t(AUTH_KEYS.form.noAccount),
@@ -98,6 +99,7 @@ export const createAuthTexts = (t: TFunction<'auth'>) => ({
     refresh: t(AUTH_KEYS.qr.refresh),
     confirmPhone: t(AUTH_KEYS.qr.confirmPhone),
     scannedSuccess: t(AUTH_KEYS.qr.scannedSuccess),
+    loggingIn: t(AUTH_KEYS.qr.loggingIn),
     instruction: t(AUTH_KEYS.qr.instruction),
     generating: t(AUTH_KEYS.qr.generating),
     generateError: t(AUTH_KEYS.qr.generateError),
@@ -107,5 +109,20 @@ export const createAuthTexts = (t: TFunction<'auth'>) => ({
     expiredError: t(AUTH_KEYS.qr.expiredError),
     onlyForLogin: t(AUTH_KEYS.qr.onlyForLogin),
     appNameOnPC: t(AUTH_KEYS.qr.appNameOnPC)
+  },
+
+  validation: {
+    emailInvalid: t(AUTH_KEYS.validation.emailInvalid),
+    passwordRequired: t(AUTH_KEYS.validation.passwordRequired),
+    deviceIdRequired: t(AUTH_KEYS.validation.deviceIdRequired),
+    passwordMin: t(AUTH_KEYS.validation.passwordMin),
+    passwordComplex: t(AUTH_KEYS.validation.passwordComplex),
+    confirmPasswordRequired: t(AUTH_KEYS.validation.confirmPasswordRequired),
+    fullNameRequired: t(AUTH_KEYS.validation.fullNameRequired),
+    phoneInvalid: t(AUTH_KEYS.validation.phoneInvalid),
+    passwordMismatch: t(AUTH_KEYS.validation.passwordMismatch),
+    otpInvalid: t(AUTH_KEYS.validation.otpInvalid),
+    resetOtpMin: t(AUTH_KEYS.validation.resetOtpMin),
+    confirmPasswordReset: t(AUTH_KEYS.validation.confirmPasswordReset)
   }
 })

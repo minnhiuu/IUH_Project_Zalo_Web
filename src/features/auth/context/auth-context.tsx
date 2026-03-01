@@ -3,10 +3,9 @@ import { clearAccessToken, getAccessToken, setAccessToken } from '@/lib/axios-cl
 import { storage } from '@/utils/local-storage'
 import { useQueryClient } from '@tanstack/react-query'
 import { handleErrorApi } from '@/utils/error-handler'
-import { userApi } from '@/features/user/api/user.api'
+import { getMyProfileQueryOptions } from '@/features/user/queries/options'
 import { type UserResponse } from '@/features/user/schemas/user.schema'
-
-const USER_KEY = 'user_profile'
+import { STORAGE_KEYS } from '@/utils/local-storage'
 
 interface AuthProviderProps {
   children: ReactNode
@@ -19,58 +18,65 @@ interface AuthContextType {
   logoutLocal: () => void
   updateUser: (user: UserResponse) => void
   refetchUser: () => Promise<void>
-  loginSuccess: (accessToken: string) => Promise<UserResponse>
+  loginSuccess: (accessToken: string, refreshTokenExpirationMs?: number) => Promise<UserResponse>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<UserResponse | null>(() => storage.get<UserResponse>(USER_KEY))
+  const [user, setUser] = useState<UserResponse | null>(() => {
+    const expiration = storage.get<number>(STORAGE_KEYS.REFRESH_TOKEN_EXPIRATION)
+    if (expiration && Date.now() > expiration) {
+      clearAccessToken()
+      storage.remove(STORAGE_KEYS.USER_PROFILE)
+      return null
+    }
+    return storage.get(STORAGE_KEYS.USER_PROFILE)
+  })
   const queryClient = useQueryClient()
 
   const setAuthUser = useCallback((userData: UserResponse | null) => {
     setUser(userData)
     if (userData) {
-      storage.set(USER_KEY, userData)
+      storage.set(STORAGE_KEYS.USER_PROFILE, userData)
     } else {
-      storage.remove(USER_KEY)
+      storage.remove(STORAGE_KEYS.USER_PROFILE)
     }
   }, [])
 
   const logoutLocal = useCallback(() => {
     clearAccessToken()
     setUser(null)
-    storage.remove(USER_KEY)
+    storage.remove(STORAGE_KEYS.USER_PROFILE)
     queryClient.clear()
   }, [queryClient])
 
   const updateUser = useCallback((userData: UserResponse) => {
     setUser(userData)
-    storage.set(USER_KEY, userData)
+    storage.set(STORAGE_KEYS.USER_PROFILE, userData)
   }, [])
 
   const refetchUser = useCallback(async () => {
     if (!getAccessToken()) return
     try {
-      const response = await userApi.getMyProfile()
-      const userData = response.data.data
+      const userData = await queryClient.fetchQuery(getMyProfileQueryOptions())
       if (userData) {
         setAuthUser(userData)
       }
     } catch (error) {
       handleErrorApi({ error })
     }
-  }, [setAuthUser])
+  }, [setAuthUser, queryClient])
 
   const loginSuccess = useCallback(
-    async (accessToken: string) => {
-      setAccessToken(accessToken)
-      const res = await userApi.getMyProfile()
-      const userData = res.data.data
+    async (accessToken: string, refreshTokenExpirationMs?: number) => {
+      setAccessToken(accessToken, refreshTokenExpirationMs)
+      await new Promise((resolve) => setTimeout(resolve, 800))
+      const userData = await queryClient.fetchQuery(getMyProfileQueryOptions())
       setAuthUser(userData)
       return userData
     },
-    [setAuthUser]
+    [setAuthUser, queryClient]
   )
 
   const value: AuthContextType = {

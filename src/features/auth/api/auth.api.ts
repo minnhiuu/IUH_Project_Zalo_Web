@@ -14,7 +14,7 @@ import type {
 } from '@/features/auth/schemas/auth.schema'
 import { QrSessionStatus } from '@/constants/enum'
 import http from '@/lib/axios-client'
-import type { ApiResponse } from '@/types/api'
+import type { ApiResponse } from '@/shared/api'
 
 export const authApi = {
   login: (request: LoginRequest) => http.post<ApiResponse<TokenResponse>>('/auth/login', request),
@@ -33,12 +33,13 @@ export const authApi = {
 
   refresh: (request: RefreshRequest) => http.post<ApiResponse<TokenResponse>>('/auth/refresh', request),
 
-  logout: (request: LogoutRequest) => http.post<ApiResponse<void>>('/auth/logout', request),
+  logout: (request?: LogoutRequest) => http.post<ApiResponse<void>>('/auth/logout', request),
 
   generateQr: () => http.post<ApiResponse<QrGenerationResponse>>('/auth/qr/generate'),
 
-  waitQrStatus: (qrId: string, expectedStatus: QrSessionStatus) =>
+  waitQrStatus: (qrId: string, expectedStatus: QrSessionStatus, signal?: AbortSignal) =>
     http.get<ApiResponse<QrStatusResponse>>(`/auth/qr/wait/${qrId}`, {
-      params: { expectedStatus }
+      params: { expectedStatus },
+      signal
     })
 }

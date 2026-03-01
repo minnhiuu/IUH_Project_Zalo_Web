@@ -1,51 +1,78 @@
 import { Outlet, Link, useLocation } from 'react-router'
-import { MessageSquare, Contact2, CheckSquare, Settings, Cloud, Briefcase } from 'lucide-react'
+import { Contact2, CheckSquare, Settings, Cloud, Briefcase, MessageCircle, Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { PATHS } from '@/constants/path'
 import { UserNavDropdown } from '@/features/user'
+import { useAuthContext } from '@/features/auth/context/auth-context'
+import { UserAvatar } from '@/components/common/user-avatar'
+import { useState } from 'react'
+import { SearchPanel } from '@/features/search-user'
+import { useCommonText } from '@/locales/common/use-common-text'
 
 export default function UserLayout() {
   const location = useLocation()
+  const { user } = useAuthContext()
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+
+  const { text: commonText } = useCommonText()
 
   const navItems = [
-    { icon: MessageSquare, path: PATHS.HOME, label: 'Tin nhắn' },
-    { icon: Contact2, path: '/contacts', label: 'Danh bạ' },
-    { icon: CheckSquare, path: '/todo', label: 'To-do' }
+    { icon: MessageCircle, path: PATHS.HOME, label: commonText.nav.messages },
+    { icon: Search, path: PATHS.SEARCH, label: commonText.nav.search },
+    { icon: Contact2, path: PATHS.CONTACTS, label: commonText.nav.contacts },
+    { icon: CheckSquare, path: PATHS.TODO, label: commonText.nav.todo }
   ]
 
   const bottomItems = [
-    { icon: Cloud, path: '/cloud', label: 'Cloud' },
-    { icon: Briefcase, path: '/business', label: 'Business' },
-    { icon: Settings, path: PATHS.USER.SETTINGS, label: 'Cài đặt' }
+    { icon: Cloud, path: PATHS.CLOUD, label: commonText.nav.cloud },
+    { icon: Briefcase, path: PATHS.BUSINESS, label: commonText.nav.business },
+    { icon: Settings, path: PATHS.USER.SETTINGS, label: commonText.nav.settings }
   ]
 
   return (
     <div className='flex h-screen w-full overflow-hidden bg-background'>
-      {/* Navigation Sidebar */}
-      <nav className='w-[64px] bg-sidebar flex flex-col items-center py-4 shrink-0'>
-        {/* User Avatar with Dropdown */}
+      <nav className='w-16 bg-sidebar flex flex-col items-center py-4 shrink-0 z-60 relative h-full'>
         <UserNavDropdown>
           <div className='mb-4 cursor-pointer flex justify-center w-full'>
             <div className='w-12 h-12 flex items-center justify-center rounded-lg transition-all data-[state=open]:bg-sidebar-accent group'>
-              <div className='w-10 h-10 rounded-full border border-white/20 overflow-hidden bg-zinc-200 transition-transform group-hover:scale-105 active:scale-95'>
-                <img
-                  src='https://api.dicebear.com/7.x/avataaars/svg?seed=Felix'
-                  alt='Avatar'
-                  className='w-full h-full object-cover'
-                />
-              </div>
+              <UserAvatar
+                src={user?.avatar}
+                name={user?.fullName || 'User'}
+                className='w-10 h-10 border border-white/20 transition-transform group-hover:scale-105 active:scale-95'
+                fallbackClassName='bg-primary text-white text-sm'
+              />
             </div>
           </div>
         </UserNavDropdown>
 
-        {/* Top Nav Items */}
         <div className='flex flex-col space-y-2 w-full'>
           {navItems.map((item) => {
-            const isActive = location.pathname === item.path
+            if (item.path === PATHS.SEARCH) {
+              const isActive = isSearchOpen
+              return (
+                <button
+                  key={item.path}
+                  onClick={() => setIsSearchOpen(true)}
+                  className={cn(
+                    'flex items-center justify-center w-[48px] h-[48px] rounded-lg transition-all mx-auto group relative mb-1',
+                    isActive ? 'bg-sidebar-accent' : 'hover:bg-white/10'
+                  )}
+                >
+                  <item.icon
+                    className={cn(
+                      'w-[24px] h-[24px] transition-colors',
+                      isActive ? 'text-white' : 'text-white/80 group-hover:text-white'
+                    )}
+                  />
+                </button>
+              )
+            }
+            const isActive = location.pathname === item.path && !isSearchOpen
             return (
               <Link
                 key={item.path}
                 to={item.path}
+                onClick={() => setIsSearchOpen(false)}
                 className={cn(
                   'flex items-center justify-center w-[48px] h-[48px] rounded-lg transition-all mx-auto group relative mb-1',
                   isActive ? 'bg-sidebar-accent' : 'hover:bg-white/10'
@@ -65,7 +92,7 @@ export default function UserLayout() {
         <div className='mt-auto flex flex-col space-y-2 w-full'>
           {bottomItems.map((item) => {
             const isActive = location.pathname === item.path
-            if (item.label === 'Cài đặt') {
+            if (item.path === PATHS.USER.SETTINGS) {
               return (
                 <UserNavDropdown key={item.path} dropdownWidth={240}>
                   <button
@@ -88,6 +115,7 @@ export default function UserLayout() {
               <Link
                 key={item.path}
                 to={item.path}
+                onClick={() => setIsSearchOpen(false)}
                 className={cn(
                   'flex items-center justify-center w-[48px] h-[48px] rounded-lg transition-all mx-auto group relative mb-1',
                   isActive ? 'bg-sidebar-accent' : 'hover:bg-white/10'
@@ -109,6 +137,8 @@ export default function UserLayout() {
       <main className='flex-1 flex overflow-hidden'>
         <Outlet />
       </main>
+
+      <SearchPanel open={isSearchOpen} onOpenChange={setIsSearchOpen} />
     </div>
   )
 }

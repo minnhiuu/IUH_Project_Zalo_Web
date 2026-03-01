@@ -9,6 +9,7 @@ export const AUTH_KEYS = {
     password: 'auth.form.password',
     submit: 'auth.form.submit',
     submitting: 'auth.form.submitting',
+    loggingIn: 'auth.form.loggingIn',
     forgot: 'auth.form.forgot',
     qr: 'auth.form.qr',
     noAccount: 'auth.form.noAccount',
@@ -89,6 +90,7 @@ export const AUTH_KEYS = {
     refresh: 'auth.qr.refresh',
     confirmPhone: 'auth.qr.confirmPhone',
     scannedSuccess: 'auth.qr.scannedSuccess',
+    loggingIn: 'auth.qr.loggingIn',
     instruction: 'auth.qr.instruction',
     generating: 'auth.qr.generating',
     generateError: 'auth.qr.generateError',
@@ -98,5 +100,20 @@ export const AUTH_KEYS = {
     expiredError: 'auth.qr.expiredError',
     onlyForLogin: 'auth.qr.onlyForLogin',
     appNameOnPC: 'auth.qr.appNameOnPC'
+  },
+
+  validation: {
+    emailInvalid: 'auth.validation.emailInvalid',
+    passwordRequired: 'auth.validation.passwordRequired',
+    deviceIdRequired: 'auth.validation.deviceIdRequired',
+    passwordMin: 'auth.validation.passwordMin',
+    passwordComplex: 'auth.validation.passwordComplex',
+    confirmPasswordRequired: 'auth.validation.confirmPasswordRequired',
+    fullNameRequired: 'auth.validation.fullNameRequired',
+    phoneInvalid: 'auth.validation.phoneInvalid',
+    passwordMismatch: 'auth.validation.passwordMismatch',
+    otpInvalid: 'auth.validation.otpInvalid',
+    resetOtpMin: 'auth.validation.resetOtpMin',
+    confirmPasswordReset: 'auth.validation.confirmPasswordReset'
   }
 } as const

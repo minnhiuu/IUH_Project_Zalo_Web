@@ -9,6 +9,7 @@
       "password": "Mật khẩu",
       "submit": "Đăng nhập với mật khẩu",
       "submitting": "Đang xử lý...",
+      "loggingIn": "Đang đăng nhập...",
       "forgot": "Quên mật khẩu?",
       "qr": "Đăng nhập qua mã QR",
       "noAccount": "Bạn chưa có tài khoản?",
@@ -20,7 +21,8 @@
       "expired": "Mã QR hết hạn",
       "refresh": "Lấy mã mới",
       "confirmPhone": "Vui lòng xác nhận trên điện thoại của bạn",
-      "scannedSuccess": "Quét mã thành công. Vui lòng chọn \"Đăng nhập\" trên thiết bị di động của bạn.",
+      "scannedSuccess": "Quét mã thành công.",
+      "loggingIn": "Đang đăng nhập...",
       "instruction": "Quét mã QR bằng ứng dụng BondHub để đăng nhập",
       "generating": "Đang tạo mã QR...",
       "generateError": "Không thể tạo mã QR",
@@ -90,6 +92,20 @@
       "submitting": "Đang xử lý...",
       "resend": "Gửi lại mã",
       "success": "Xác thực thành công!"
+    },
+    "validation": {
+      "emailInvalid": "Email không hợp lệ",
+      "passwordRequired": "Mật khẩu không được để trống",
+      "deviceIdRequired": "Device ID không được để trống",
+      "passwordMin": "Mật khẩu phải có ít nhất 8 ký tự",
+      "passwordComplex": "Mật khẩu phải bao gồm chữ thường, chữ hoa, số và ký tự đặc biệt",
+      "confirmPasswordRequired": "Mật khẩu nhập lại không được để trống",
+      "fullNameRequired": "Họ và tên không được để trống",
+      "phoneInvalid": "Số điện thoại phải có đúng 10 chữ số",
+      "passwordMismatch": "Mật khẩu xác nhận không khớp",
+      "otpInvalid": "Mã OTP phải có 6 chữ số",
+      "resetOtpMin": "Mã xác thực phải có ít nhất 6 ký tự",
+      "confirmPasswordReset": "Vui lòng xác nhận lại mật khẩu"
     }
   }
 }

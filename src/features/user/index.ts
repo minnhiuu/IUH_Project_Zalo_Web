@@ -1,5 +1,6 @@
 export * from './components/user-nav-dropdown'
-export * from './components/profile-dialog'
+export * from './components/profile-dialog/owner/owner-profile-dialog'
+export * from './components/profile-dialog/others/others-profile-dialog'
 export * from './queries/keys'
 export * from './queries/options'
 export * from './queries/use-queries'

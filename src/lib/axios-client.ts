@@ -1,23 +1,29 @@
 import axios, { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
 import { getDeviceId } from '../utils/device'
-import { storage } from '@/utils/local-storage'
+import { storage, STORAGE_KEYS } from '@/utils/local-storage'
 
-const ACCESS_TOKEN_KEY = 'access_token'
+export const getAccessToken = (): string | null => storage.get(STORAGE_KEYS.ACCESS_TOKEN)
 
-export const getAccessToken = (): string | null => storage.get<string>(ACCESS_TOKEN_KEY)
-
-export const setAccessToken = (token: string | null): void => {
-  if (token) storage.set(ACCESS_TOKEN_KEY, token)
-  else storage.remove(ACCESS_TOKEN_KEY)
+export const setAccessToken = (token: string | null, refreshTokenExpirationMs?: number): void => {
+  if (token) {
+    storage.set(STORAGE_KEYS.ACCESS_TOKEN, token)
+    if (refreshTokenExpirationMs) {
+      const expiryTimestamp = Date.now() + refreshTokenExpirationMs
+      storage.set(STORAGE_KEYS.REFRESH_TOKEN_EXPIRATION, expiryTimestamp)
+    }
+  } else {
+    storage.remove(STORAGE_KEYS.ACCESS_TOKEN)
+    storage.remove(STORAGE_KEYS.REFRESH_TOKEN_EXPIRATION)
+  }
 }
 
 export const clearAccessToken = (): void => {
-  storage.remove(ACCESS_TOKEN_KEY)
+  storage.remove(STORAGE_KEYS.ACCESS_TOKEN)
+  storage.remove(STORAGE_KEYS.REFRESH_TOKEN_EXPIRATION)
 }
 
 const http = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
-  headers: { 'Content-Type': 'application/json' },
   withCredentials: true
 })
 
@@ -52,7 +58,7 @@ const refreshAccessToken = async (): Promise<string | null> => {
 }
 
 http.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const locale = storage.get<string>('locale') || 'vi'
+  const locale = storage.get(STORAGE_KEYS.LOCALE) || 'vi'
   config.headers['Accept-Language'] = locale
   const isAuthEndpoint =
     config.url?.includes('/auth/login') ||

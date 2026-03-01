@@ -1,0 +1,9 @@
+{
+  "placeholder": "Tìm kiếm",
+  "close": "Đóng",
+  "recentHeader": "Tìm gần đây",
+  "noRecent": "Không có tìm kiếm nào gần đây",
+  "searchResult": "Kết quả cho \"{{query}}\"",
+  "noResult": "Không tìm thấy kết quả",
+  "noResultDescription": "Vui lòng thử lại từ khóa khác hoặc tìm theo số điện thoại"
+}

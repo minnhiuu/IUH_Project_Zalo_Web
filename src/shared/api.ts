@@ -5,10 +5,9 @@ export type ApiResponse<T = unknown> = {
 }
 
 export type PageResponse<T = unknown> = {
-  content: T[]
-  pageNo: number
-  pageSize: number
-  totalElements: number
+  data: T[]
+  page: number
+  limit: number
+  totalItems: number
   totalPages: number
-  last: boolean
 }
