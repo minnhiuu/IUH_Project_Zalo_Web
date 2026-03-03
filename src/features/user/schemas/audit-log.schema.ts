@@ -1,0 +1,30 @@
+export enum AuditAction {
+  USER_CREATED = 'USER_CREATED',
+  USER_UPDATED = 'USER_UPDATED',
+  PROFILE_UPDATED = 'PROFILE_UPDATED',
+  AVATAR_UPDATED = 'AVATAR_UPDATED',
+  BACKGROUND_UPDATED = 'BACKGROUND_UPDATED',
+  USER_BLOCKED = 'USER_BLOCKED',
+  USER_UNBLOCKED = 'USER_UNBLOCKED',
+  BLOCK_PREFERENCE_UPDATED = 'BLOCK_PREFERENCE_UPDATED',
+  PASSWORD_CHANGED = 'PASSWORD_CHANGED',
+  EMAIL_VERIFIED = 'EMAIL_VERIFIED',
+  PHONE_VERIFIED = 'PHONE_VERIFIED',
+  ACCOUNT_LOCKED = 'ACCOUNT_LOCKED',
+  ACCOUNT_UNLOCKED = 'ACCOUNT_UNLOCKED',
+  LOGIN_SUCCESS = 'LOGIN_SUCCESS',
+  LOGIN_FAILED = 'LOGIN_FAILED',
+  LOGOUT = 'LOGOUT'
+}
+
+export type AuditLog = {
+  id: string
+  userId: string
+  action: AuditAction
+  description: string
+  ipAddress?: string
+  userAgent?: string
+  metadata?: Record<string, unknown>
+  createdAt: string
+  createdBy?: string
+}
