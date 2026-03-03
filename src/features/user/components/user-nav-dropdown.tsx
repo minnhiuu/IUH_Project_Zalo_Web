@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useLogoutMutation, LogoutConfirmDialog } from '@/features/auth'
 import { useUserText, OwnerProfileDialog } from '@/features/user'
+import { SettingsDialog } from './settings/settings-dialog'
 import { useState } from 'react'
 import { useTheme } from 'next-themes'
 
@@ -25,6 +26,7 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
   const logoutMutation = useLogoutMutation()
   const [showLogoutDialog, setShowLogoutDialog] = useState(false)
   const [showProfileDialog, setShowProfileDialog] = useState(false)
+  const [showSettingsDialog, setShowSettingsDialog] = useState(false)
   const { text } = useUserText()
   const { locale: language, changeLocale: setLocale, languages } = useLocale()
   const { theme, setTheme } = useTheme()
@@ -48,7 +50,10 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
             <span className='flex-1 font-medium'>{text.menu.profile}</span>
           </DropdownMenuItem>
 
-          <DropdownMenuItem className='flex items-center gap-3 py-2 px-3 cursor-pointer hover:bg-muted focus:bg-muted rounded-md text-[14px] transition-colors outline-none'>
+          <DropdownMenuItem
+            onClick={() => setShowSettingsDialog(true)}
+            className='flex items-center gap-3 py-2 px-3 cursor-pointer hover:bg-muted focus:bg-muted rounded-md text-[14px] transition-colors outline-none'
+          >
             <Settings className='w-[17px] h-[17px]' />
             <span className='flex-1 font-medium'>{text.menu.settings}</span>
           </DropdownMenuItem>
@@ -138,6 +143,7 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
 
         <LogoutConfirmDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog} />
         <OwnerProfileDialog open={showProfileDialog} onOpenChange={setShowProfileDialog} />
+        <SettingsDialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog} />
       </DropdownMenu>
     </>
   )

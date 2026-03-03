@@ -1,9 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { userApi } from '../api/user.api'
-import { userKeys } from './keys'
+import { blockApi } from '../api/block.api'
+import { userKeys, blockKeys } from './keys'
 import { useAuthContext } from '@/features/auth/context/auth-context'
 import type { ApiResponse } from '@/shared/api'
 import type { UserResponse } from '@/features/user/schemas/user.schema'
+import type { BlockUserRequest } from '@/features/user/schemas/block.schema'
 
 export const useUpdateProfileMutation = () => {
   const queryClient = useQueryClient()
@@ -115,6 +117,31 @@ export const useUpdateBackgroundPositionMutation = () => {
       }
 
       queryClient.invalidateQueries({ queryKey: userKeys.profile() })
+    }
+  })
+}
+
+export const useBlockUserMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (body: BlockUserRequest) => blockApi.blockUser(body),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: userKeys.detail(variables.blockedUserId) })
+      queryClient.invalidateQueries({ queryKey: blockKeys.myBlocks() })
+    }
+  })
+}
+
+export const useUnblockUserMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (blockedUserId: string) => blockApi.unblockUser(blockedUserId),
+    onSuccess: (_, blockedUserId) => {
+      queryClient.invalidateQueries({ queryKey: userKeys.detail(blockedUserId) })
+      queryClient.invalidateQueries({ queryKey: blockKeys.myBlocks() })
+      queryClient.invalidateQueries({ queryKey: blockKeys.detail(blockedUserId) })
     }
   })
 }
