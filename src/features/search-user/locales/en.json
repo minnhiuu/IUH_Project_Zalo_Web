@@ -13,5 +13,10 @@
     "confirmMessage": "You won't be able to undo this. If you clear your search history, you may still see accounts you've searched for in suggested results.",
     "cancel": "Not now",
     "confirm": "Clear all"
+  },
+  "validation": {
+    "idRequired": "ID is required",
+    "nameRequired": "Name is required",
+    "typeInvalid": "Invalid search type"
   }
 }

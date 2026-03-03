@@ -13,5 +13,10 @@
     "confirmMessage": "Bạn sẽ không thể hoàn tác hành động này. Nếu xóa lịch sử tìm kiếm, bạn có thể vẫn nhìn thấy các tài khoản mình đã tìm kiếm trong kết quả gợi ý.",
     "cancel": "Lúc khác",
     "confirm": "Xóa tất cả"
+  },
+  "validation": {
+    "idRequired": "ID không được để trống",
+    "nameRequired": "Tên không được để trống",
+    "typeInvalid": "Loại tìm kiếm không hợp lệ"
   }
 }

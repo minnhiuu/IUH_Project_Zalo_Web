@@ -6,13 +6,18 @@ import { cn } from '@/lib/utils'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useSearchUser } from '../queries/use-queries'
+import {
+  useSearchUser,
+  useRecentItems,
+  useRecentQueries,
+  useAddSearchItem,
+  useRemoveSearchItem,
+  useClearAllSearchHistory
+} from '../queries/use-queries'
 import { SearchEmpty } from '@/components/common/search-empty'
 import { useDebounce } from '@/hooks/use-debounce'
 import { OthersProfileDialog } from '@/features/user'
-import { storage, STORAGE_KEYS } from '@/utils/local-storage'
-import { type RecentSearch } from '../schemas/search.schema'
-import { getCurrentTimestamp } from '@/utils/date'
+import { SearchType } from '@/constants/enum'
 import { ClearSearchConfirmDialog } from './clear-search-confirm-dialog'
 
 interface SearchPanelProps {
@@ -24,55 +29,28 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
   const [searchValue, setSearchValue] = useState('')
   const [selectedUserId, setSelectedUserId] = useState<string | undefined>(undefined)
   const [isClearDialogOpen, setIsClearDialogOpen] = useState(false)
-  const [recentSearches, setRecentSearches] = useState<RecentSearch[]>(
-    () => storage.get<RecentSearch[]>(STORAGE_KEYS.RECENT_SEARCHES, []) || []
-  )
+
   const debouncedKeyword = useDebounce(searchValue, 500)
   const { text } = useSearchText()
+
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isFetching } =
     useSearchUser(debouncedKeyword)
+
+  const { data: recentItems = [] } = useRecentItems()
+  const { data: recentQueries = [] } = useRecentQueries()
+
+  const { mutate: addSearchItem } = useAddSearchItem()
+  const { mutate: removeItem } = useRemoveSearchItem()
+  const { mutate: clearAll, isPending: isClearing } = useClearAllSearchHistory()
+
+  const recentSearches = [...recentItems, ...recentQueries].sort((a, b) => b.timestamp - a.timestamp)
 
   const searchResults = data?.pages.flatMap((page) => page.data) || []
   const isSearching = searchValue !== '' && (isLoading || isFetching || searchValue !== debouncedKeyword)
 
-  const saveRecent = (updated: RecentSearch[]) => {
-    setRecentSearches(updated)
-    storage.set(STORAGE_KEYS.RECENT_SEARCHES, updated)
-  }
-
-  const addToRecent = (item: RecentSearch) => {
-    const updated = [item, ...recentSearches.filter((s) => s.id !== item.id)].slice(0, 10)
-    saveRecent(updated)
-  }
-
-  const removeFromRecent = (id: string) => {
-    const updated = recentSearches.filter((s) => s.id !== id)
-    saveRecent(updated)
-  }
-
-  const clearAllRecent = () => {
-    saveRecent([])
-  }
-
   const handleSelectItem = (item: { id: string; fullName: string; avatar?: string }) => {
-    addToRecent({
-      id: item.id,
-      type: 'user',
-      displayName: item.fullName,
-      avatar: item.avatar,
-      timestamp: getCurrentTimestamp()
-    })
+    addSearchItem({ id: item.id, name: item.fullName, avatar: item.avatar, type: SearchType.User })
     setSelectedUserId(item.id)
-  }
-
-  const handleSearchConfirm = () => {
-    if (!searchValue.trim()) return
-    addToRecent({
-      id: `kw-${searchValue.trim()}`,
-      type: 'keyword',
-      displayName: searchValue.trim(),
-      timestamp: getCurrentTimestamp()
-    })
   }
 
   return (
@@ -90,7 +68,6 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
             <Input
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearchConfirm()}
               placeholder={text.placeholder}
               className='h-9 pl-10 pr-8 bg-muted border-none rounded-sm focus-visible:ring-1 focus-visible:ring-primary/20 placeholder:text-muted-foreground/60 text-sm'
               autoFocus
@@ -152,36 +129,30 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
                           key={item.id}
                           className='flex items-center gap-3 px-3 py-2 hover:bg-muted/50 cursor-pointer transition-colors rounded-lg mx-2 my-0.5 group relative'
                           onClick={() => {
-                            if (item.type === 'user') {
-                              handleSelectItem({
-                                id: item.id,
-                                fullName: item.displayName,
-                                avatar: item.avatar
-                              })
+                            if (item.type === SearchType.User || item.type === SearchType.Group) {
+                              handleSelectItem({ id: item.id, fullName: item.name, avatar: item.avatar })
                             } else {
-                              setSearchValue(item.displayName)
-                              addToRecent(item)
+                              setSearchValue(item.name)
+                              addSearchItem({ id: item.id, name: item.name, type: SearchType.Keyword })
                             }
                           }}
                         >
-                          {item.type === 'user' ? (
-                            <UserAvatar src={item.avatar} name={item.displayName} className='w-10 h-10' />
+                          {item.type === SearchType.User || item.type === SearchType.Group ? (
+                            <UserAvatar src={item.avatar} name={item.name} className='w-10 h-10' />
                           ) : (
                             <div className='w-10 h-10 rounded-full bg-muted flex items-center justify-center'>
                               <Search className='w-5 h-5 text-muted-foreground' />
                             </div>
                           )}
                           <div className='flex-1 min-w-0'>
-                            <span className='text-sm text-foreground font-medium truncate block'>
-                              {item.displayName}
-                            </span>
+                            <span className='text-sm text-foreground font-medium truncate block'>{item.name}</span>
                           </div>
                           <Button
                             variant='ghost'
                             size='icon'
                             onClick={(e) => {
                               e.stopPropagation()
-                              removeFromRecent(item.id)
+                              removeItem({ id: item.id, type: item.type })
                             }}
                             className='w-8 h-8 opacity-0 group-hover:opacity-100 transition-opacity'
                           >
@@ -240,7 +211,8 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
       <ClearSearchConfirmDialog
         open={isClearDialogOpen}
         onOpenChange={setIsClearDialogOpen}
-        onConfirm={clearAllRecent}
+        onConfirm={() => clearAll()}
+        isPending={isClearing}
       />
     </>
   )

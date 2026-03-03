@@ -1,4 +1,4 @@
-import { X } from 'lucide-react'
+import { X, Loader2 } from 'lucide-react'
 import { Dialog, DialogContent, DialogOverlay, DialogPortal, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -8,9 +8,10 @@ interface ClearSearchConfirmDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onConfirm: () => void
+  isPending?: boolean
 }
 
-export function ClearSearchConfirmDialog({ open, onOpenChange, onConfirm }: ClearSearchConfirmDialogProps) {
+export function ClearSearchConfirmDialog({ open, onOpenChange, onConfirm, isPending }: ClearSearchConfirmDialogProps) {
   const { text } = useSearchText()
 
   const handleConfirm = () => {
@@ -48,7 +49,9 @@ export function ClearSearchConfirmDialog({ open, onOpenChange, onConfirm }: Clea
             <Button variant='secondary' onClick={() => onOpenChange(false)}>
               {text.clearHistory.cancel}
             </Button>
-            <Button onClick={handleConfirm}>{text.clearHistory.confirm}</Button>
+            <Button onClick={handleConfirm} disabled={isPending}>
+              {isPending ? <Loader2 className='w-4 h-4 animate-spin' /> : text.clearHistory.confirm}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </DialogPortal>

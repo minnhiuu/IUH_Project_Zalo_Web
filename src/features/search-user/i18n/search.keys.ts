@@ -13,5 +13,10 @@ export const SEARCH_KEYS = {
     confirmMessage: 'clearHistory.confirmMessage',
     cancel: 'clearHistory.cancel',
     confirm: 'clearHistory.confirm'
+  },
+  validation: {
+    idRequired: 'validation.idRequired',
+    nameRequired: 'validation.nameRequired',
+    typeInvalid: 'validation.typeInvalid'
   }
 } as const
