@@ -42,8 +42,8 @@ export default function LoginForm({ onSwitchToQR }: { onSwitchToQR: () => void }
     try {
       const result = await loginMutation.mutateAsync(data)
       const { accessToken } = result.data.data!
-      await loginSuccess(accessToken)
-      navigate(PATHS.HOME)
+      const userData = await loginSuccess(accessToken)
+      window.location.href = userData.role === 'ADMIN' ? PATHS.ADMIN.USERS : PATHS.HOME
     } catch (error) {
       setIsLoggingIn(false)
       if (axios.isAxiosError(error)) {

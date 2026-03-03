@@ -1,7 +1,7 @@
-import { type RouteObject } from 'react-router'
+import { type RouteObject, Navigate } from 'react-router'
 import { PATHS } from '@/constants/path'
 import AdminLayout from '@/layouts/admin-layout'
-import AdminDashboardPage from '@/pages/admin/admin-dashboard-page'
+import UserManagementPage from '@/pages/admin/user-management-page'
 import { PrivateRoute } from './private-route'
 
 export const adminRoutes: RouteObject = {
@@ -9,7 +9,10 @@ export const adminRoutes: RouteObject = {
   children: [
     {
       element: <AdminLayout />,
-      children: [{ path: PATHS.ADMIN.DASHBOARD, element: <AdminDashboardPage /> }]
+      children: [
+        { path: PATHS.ADMIN.DASHBOARD, element: <Navigate to={PATHS.ADMIN.USERS} replace /> },
+        { path: PATHS.ADMIN.USERS, element: <UserManagementPage /> }
+      ]
     }
   ]
 }
