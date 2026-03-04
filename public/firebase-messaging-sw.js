@@ -18,16 +18,6 @@ const messaging = firebase.messaging()
 messaging.onBackgroundMessage((payload) => {
   console.log('[SW] Background message received:', payload)
 
-  // Notify all open tabs to refresh notification state
-  self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-    clientList.forEach((client) => {
-      client.postMessage({
-        type: 'FCM_BACKGROUND_MESSAGE',
-        payload
-      })
-    })
-  })
-
   const origin = self.location.origin
   const notificationTitle = 'BondHub - ' + (payload.notification?.title || 'BondHub')
   const notificationOptions = {
@@ -38,7 +28,18 @@ messaging.onBackgroundMessage((payload) => {
     tag: payload.notification?.tag
   }
 
-  self.registration.showNotification(notificationTitle, notificationOptions)
+  self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+    clientList.forEach((client) => {
+      client.postMessage({
+        type: 'FCM_BACKGROUND_MESSAGE',
+        payload
+      })
+    })
+
+    if (clientList.length === 0) return
+
+    self.registration.showNotification(notificationTitle, notificationOptions)
+  })
 })
 
 self.addEventListener('notificationclick', (event) => {

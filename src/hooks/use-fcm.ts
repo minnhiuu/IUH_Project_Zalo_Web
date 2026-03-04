@@ -82,5 +82,5 @@ export function useFCM(onForegroundMessage?: (payload: unknown) => void) {
       unsubscribe()
       navigator.serviceWorker.removeEventListener('message', handleServiceWorkerMessage)
     }
-  }, [onForegroundMessage, queryClient, registerDeviceMutation])
+  }, [onForegroundMessage, queryClient])
 }

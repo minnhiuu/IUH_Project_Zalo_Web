@@ -12,9 +12,9 @@ import type { ApiResponse } from '@/shared/api'
 export const notificationApi = {
   registerDevice: (body: DeviceTokenRequest) => http.post<ApiResponse<string>>('/notifications/devices', body),
 
-  unregisterDevice: (userId: string, token: string) =>
+  unregisterDevice: (token: string) =>
     http.delete<ApiResponse<string>>('/notifications/devices', {
-      params: { userId, token }
+      params: { token }
     }),
 
   createFriendRequest: (body: CreateFriendRequestNotificationRequest) =>
