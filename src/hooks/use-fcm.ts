@@ -12,12 +12,15 @@ const VAPID_KEY = import.meta.env.VITE_FIREBASE_VAPID_KEY
 export function useFCM(onForegroundMessage?: (payload: unknown) => void) {
   const registerDeviceMutation = useRegisterDeviceMutation()
   const queryClient = useQueryClient()
+  const userId = storage.get<UserResponse>(STORAGE_KEYS.USER_PROFILE)?.id
 
   useEffect(() => {
     async function initFCM() {
       try {
-        const userId = storage.get<UserResponse>(STORAGE_KEYS.USER_PROFILE)?.id
-        if (!userId) return
+        if (!userId) {
+          console.log('[FCM] Pending login, skipping init')
+          return
+        }
 
         const permission = await Notification.requestPermission()
         if (permission !== 'granted') {
@@ -32,19 +35,14 @@ export function useFCM(onForegroundMessage?: (payload: unknown) => void) {
           serviceWorkerRegistration: registration
         })
 
-        if (token && userId) {
+        if (token) {
           const storedToken = storage.get(STORAGE_KEYS.FCM_TOKEN)
           if (storedToken !== token) {
+            console.log('[FCM] Registering new token:', token)
+            await registerDeviceMutation.mutateAsync({ userId, token, platform: 'WEB' })
             storage.set(STORAGE_KEYS.FCM_TOKEN, token)
-            try {
-              await registerDeviceMutation.mutateAsync({ userId, token, platform: 'WEB' })
-              console.log('[FCM] Device registered:', token)
-            } catch (error) {
-              storage.remove(STORAGE_KEYS.FCM_TOKEN)
-              throw error
-            }
           } else {
-            console.log('[FCM] Device already registered with this token')
+            console.log('[FCM] Token already registered')
           }
         }
       } catch (error) {
@@ -82,5 +80,5 @@ export function useFCM(onForegroundMessage?: (payload: unknown) => void) {
       unsubscribe()
       navigator.serviceWorker.removeEventListener('message', handleServiceWorkerMessage)
     }
-  }, [onForegroundMessage, queryClient])
+  }, [onForegroundMessage, queryClient, userId, registerDeviceMutation])
 }

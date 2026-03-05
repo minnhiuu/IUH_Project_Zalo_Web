@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 import { NotificationType } from '@/constants'
 import React from 'react'
 import { useNotificationText } from '../locales/use-notification-text'
-import { MessageCircle, Heart, Gift, Phone, User, Shield, AtSign } from 'lucide-react'
+import { MessageCircle, Heart, Gift, Phone, User, Shield, AtSign, UserPlus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { formatTimeAgo } from '@/utils/date'
 
@@ -24,7 +24,7 @@ const getBadgeConfig = (type: NotificationType) => {
     case 'FRIEND_REQUEST':
       return { icon: User, color: 'bg-brand-blue' }
     case 'FRIEND_ACCEPT':
-      return { icon: User, color: 'bg-green-500' }
+      return { icon: UserPlus, color: 'bg-brand-blue' }
     case 'DOB':
       return { icon: Gift, color: 'bg-pink-500' }
     case 'CALL':
@@ -54,7 +54,6 @@ export const NotificationItem = ({ notification, onMarkAsRead }: NotificationIte
   }
 
   const badge = getBadgeConfig(notification.type)
-  const actorId = notification.actorIds[0]
 
   return (
     <div
@@ -66,9 +65,9 @@ export const NotificationItem = ({ notification, onMarkAsRead }: NotificationIte
     >
       <div className='relative shrink-0'>
         <Avatar className='h-14 w-14'>
-          {actorId && <AvatarImage src={`/avatars/${actorId}.png`} />}
+          {notification.payload.actorAvatar && <AvatarImage src={notification.payload.actorAvatar as string} />}
           <AvatarFallback className='bg-primary/5 text-primary text-lg font-bold'>
-            {notification.title.substring(0, 1).toUpperCase()}
+            {((notification.payload.actorName as string) || 'U').substring(0, 1).toUpperCase()}
           </AvatarFallback>
         </Avatar>
         <div
@@ -87,12 +86,8 @@ export const NotificationItem = ({ notification, onMarkAsRead }: NotificationIte
             'text-[15px] leading-[1.3] overflow-wrap-break-word',
             !notification.read ? 'text-foreground font-medium' : 'text-muted-foreground'
           )}
-        >
-          <span className={cn('font-bold', !notification.read ? 'text-foreground' : 'text-muted-foreground')}>
-            {notification.title}
-          </span>{' '}
-          {notification.body}
-        </div>
+          dangerouslySetInnerHTML={{ __html: notification.body }}
+        />
         <div
           className={cn(
             'text-[13px] mt-1 font-medium',

@@ -19,16 +19,23 @@ messaging.onBackgroundMessage((payload) => {
   console.log('[SW] Background message received:', payload)
 
   const origin = self.location.origin
-  const notificationTitle = 'BondHub - ' + (payload.notification?.title || 'BondHub')
+  const notificationTitle = payload.notification?.title || payload.data?.title || 'Tin nhắn mới'
   const notificationOptions = {
-    body: payload.notification?.body,
-    icon: payload.notification?.icon || payload.data?.actorAvatar || origin + '/images/logo.png',
+    body: payload.notification?.body || payload.data?.body,
+    icon: payload.data?.actorAvatar || payload.notification?.icon || origin + '/images/logo.png',
     badge: origin + '/images/logo.png',
     data: payload.data,
-    tag: payload.notification?.tag
+    tag: payload.notification?.tag || payload.data?.type
   }
 
+  // Gửi message vào trang web nếu tab đang mở để cập nhật UI realtime
   self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+    // KHÔNG THÔNG BÁO: Nếu đã tắt Chrome hoặc đóng hết các tab ứng dụng
+    if (clientList.length === 0) {
+      console.log('[SW] App is closed. Skipping notification.')
+      return
+    }
+
     clientList.forEach((client) => {
       client.postMessage({
         type: 'FCM_BACKGROUND_MESSAGE',
@@ -36,9 +43,16 @@ messaging.onBackgroundMessage((payload) => {
       })
     })
 
-    if (clientList.length === 0) return
+    // KIỂM TRA FOCUS: Nếu bạn đang mở tab ứng dụng và đang nhìn vào đó (focused)
+    // thì cũng không cần hiện banner thông báo của trình duyệt nữa.
+    const isAnyClientFocused = clientList.some((client) => client.focused)
+    if (isAnyClientFocused) {
+      console.log('[SW] App is focused. Skipping notification banner.')
+      return
+    }
 
-    self.registration.showNotification(notificationTitle, notificationOptions)
+    // HIỂN THỊ THÔNG BÁO: Khi tab đang mở nhưng bạn đang ở tab khác hoặc thu nhỏ trình duyệt.
+    return self.registration.showNotification(notificationTitle, notificationOptions)
   })
 })
 
