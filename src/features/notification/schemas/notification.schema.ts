@@ -29,7 +29,11 @@ export const NotificationGroupResponseSchema = z.object({
   actorCount: z.number(),
   read: z.boolean(),
   lastModifiedAt: z.string(),
-  payload: z.record(z.string(), z.any()).default({})
+  payload: z
+    .record(z.string(), z.any())
+    .nullable()
+    .transform((v) => v ?? {})
+    .default({})
 })
 
 export type NotificationGroupResponse = z.infer<typeof NotificationGroupResponseSchema>

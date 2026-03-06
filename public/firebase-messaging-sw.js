@@ -30,12 +30,6 @@ messaging.onBackgroundMessage((payload) => {
 
   // Gửi message vào trang web nếu tab đang mở để cập nhật UI realtime
   self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-    // KHÔNG THÔNG BÁO: Nếu đã tắt Chrome hoặc đóng hết các tab ứng dụng
-    if (clientList.length === 0) {
-      console.log('[SW] App is closed. Skipping notification.')
-      return
-    }
-
     clientList.forEach((client) => {
       client.postMessage({
         type: 'FCM_BACKGROUND_MESSAGE',
@@ -43,15 +37,15 @@ messaging.onBackgroundMessage((payload) => {
       })
     })
 
-    // KIỂM TRA FOCUS: Nếu bạn đang mở tab ứng dụng và đang nhìn vào đó (focused)
-    // thì cũng không cần hiện banner thông báo của trình duyệt nữa.
+    // KHÔNG HIỂN THỊ THÊM: Nếu FCM đã có sẵn block notification (SDK tự hiện)
+    // hoặc App đang được nhìn thấy (focused).
     const isAnyClientFocused = clientList.some((client) => client.focused)
-    if (isAnyClientFocused) {
-      console.log('[SW] App is focused. Skipping notification banner.')
+    if (payload.notification || isAnyClientFocused) {
+      console.log('[SW] Notification already handled or App is focused. Skipping manual show.')
       return
     }
 
-    // HIỂN THỊ THÔNG BÁO: Khi tab đang mở nhưng bạn đang ở tab khác hoặc thu nhỏ trình duyệt.
+    // HIỂN THỊ THÔNG BÁO THỦ CÔNG: Chỉ khi đây là Data-only message và tab không focused.
     return self.registration.showNotification(notificationTitle, notificationOptions)
   })
 })

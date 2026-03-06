@@ -65,9 +65,9 @@ export const NotificationItem = ({ notification, onMarkAsRead }: NotificationIte
     >
       <div className='relative shrink-0'>
         <Avatar className='h-14 w-14'>
-          {notification.payload.actorAvatar && <AvatarImage src={notification.payload.actorAvatar as string} />}
+          {notification.payload?.actorAvatar && <AvatarImage src={notification.payload.actorAvatar as string} />}
           <AvatarFallback className='bg-primary/5 text-primary text-lg font-bold'>
-            {((notification.payload.actorName as string) || 'U').substring(0, 1).toUpperCase()}
+            {((notification.payload?.actorName as string) || 'U').substring(0, 1).toUpperCase()}
           </AvatarFallback>
         </Avatar>
         <div
