@@ -1,5 +1,5 @@
 import http from '@/lib/axios-client'
-import type { ApiResponse } from '@/types/api'
+import type { ApiResponse } from '@/shared/api'
 import type {
   UserSettingResponse,
   GeneralSettings,
@@ -13,7 +13,7 @@ import type {
   MessageSettingsUpdateRequest,
   NotificationSettingsUpdateRequest,
   UtilitiesSettingsUpdateRequest
-} from '@/features/user/schemas/settings.schema'
+} from '@/features/user-settings/schemas/settings.schema'
 
 export const settingsApi = {
   // Get all settings

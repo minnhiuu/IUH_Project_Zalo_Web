@@ -1,6 +1,6 @@
 import http from '@/lib/axios-client'
-import type { ApiResponse } from '@/types/api'
-import type { DeviceResponse } from '@/features/user/types/device.types'
+import type { ApiResponse } from '@/shared/api'
+import type { DeviceResponse } from '@/features/user-settings/types/device.types'
 
 export const deviceApi = {
   // Get all devices for the authenticated user

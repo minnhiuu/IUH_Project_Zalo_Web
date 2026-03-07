@@ -2,17 +2,18 @@ import { Check, Loader2, Sun, Moon, Laptop } from 'lucide-react'
 import { useUserText } from '@/features/user/i18n/use-user-text'
 import { cn } from '@/lib/utils'
 import { useTheme } from 'next-themes'
-import { useState, useEffect } from 'react'
+import { useSyncExternalStore } from 'react'
 
 export function AppearanceSettings() {
   const { text } = useUserText()
   const { theme, setTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
 
-  // Avoid hydration mismatch
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  // Avoid hydration mismatch using useSyncExternalStore
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  )
 
   const handleThemeChange = (newTheme: 'light' | 'dark' | 'system') => {
     setTheme(newTheme)

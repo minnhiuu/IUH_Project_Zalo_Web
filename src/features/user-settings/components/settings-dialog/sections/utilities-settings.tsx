@@ -1,18 +1,18 @@
 import { Loader2 } from 'lucide-react'
 import { useUserText } from '@/features/user/i18n/use-user-text'
 import { cn } from '@/lib/utils'
-import { useMySettings, useUpdateSecuritySettings } from '@/features/user/queries/use-settings'
+import { useMySettings, useUpdateUtilitiesSettings } from '@/features/user-settings/queries/use-settings'
 
-export function SecuritySettings() {
+export function UtilitiesSettings() {
   const { text } = useUserText()
   const { data: settings, isLoading } = useMySettings()
-  const updateSettings = useUpdateSecuritySettings()
+  const updateSettings = useUpdateUtilitiesSettings()
 
-  const twoFactorEnabled = settings?.securitySettings.twoFactorEnabled ?? false
+  const stickerSuggestion = settings?.utilitiesSettings.stickerSuggestion ?? true
 
   const handleToggle = () => {
     updateSettings.mutate({
-      twoFactorEnabled: !twoFactorEnabled
+      stickerSuggestion: !stickerSuggestion
     })
   }
 
@@ -26,25 +26,25 @@ export function SecuritySettings() {
 
   return (
     <div className='space-y-4'>
-      <h2 className='text-lg font-semibold text-foreground'>{text.settings.security.title}</h2>
+      <h2 className='text-lg font-semibold text-foreground'>{text.settings.utilities.title}</h2>
 
       <div className='rounded-lg border p-4 flex items-center justify-between'>
         <div>
-          <h3 className='text-sm font-medium text-foreground'>{text.settings.security.twoFactor.title}</h3>
-          <p className='text-xs text-muted-foreground'>{text.settings.security.twoFactor.description}</p>
+          <h3 className='text-sm font-medium text-foreground'>{text.settings.utilities.stickerSuggestion.title}</h3>
+          <p className='text-xs text-muted-foreground'>{text.settings.utilities.stickerSuggestion.description}</p>
         </div>
         <button
           onClick={handleToggle}
           disabled={updateSettings.isPending}
           className={cn(
             'w-10 h-6 rounded-full transition-colors relative disabled:opacity-50 disabled:cursor-not-allowed',
-            twoFactorEnabled ? 'bg-primary' : 'bg-muted'
+            stickerSuggestion ? 'bg-primary' : 'bg-muted'
           )}
         >
           <div
             className={cn(
-              'absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform',
-              twoFactorEnabled ? 'translate-x-5' : 'translate-x-1'
+              'absolute top-1 w-4 h-4 rounded-full bg-primary-foreground shadow-sm transition-transform',
+              stickerSuggestion ? 'translate-x-5' : 'translate-x-1'
             )}
           />
         </button>

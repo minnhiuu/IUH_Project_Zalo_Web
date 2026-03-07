@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { deviceApi } from '@/features/user/api/device.api'
+import { deviceApi } from '@/features/user-settings/api/device.api'
 import { authApi } from '@/features/auth/api/auth.api'
-import type { DeviceResponse } from '@/features/user/types/device.types'
 
 // Query keys
 export const deviceKeys = {

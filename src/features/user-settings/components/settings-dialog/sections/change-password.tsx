@@ -76,7 +76,9 @@ export function ChangePassword({ onBack }: ChangePasswordProps) {
             </Button>
           )}
           <div className='flex-1'>
-            <h2 className='text-lg font-semibold text-foreground'>{text.settings.accountPrivacy.changePassword.title}</h2>
+            <h2 className='text-lg font-semibold text-foreground'>
+              {text.settings.accountPrivacy.changePassword.title}
+            </h2>
           </div>
         </div>
         <p className='text-xs text-muted-foreground'>{text.settings.accountPrivacy.changePassword.description}</p>
@@ -94,7 +96,7 @@ export function ChangePassword({ onBack }: ChangePasswordProps) {
               type={showOldPassword ? 'text' : 'password'}
               placeholder={text.settings.accountPrivacy.changePassword.currentPasswordPlaceholder}
               {...register('oldPassword')}
-              className={cn('pr-10', errors.oldPassword && 'border-red-500')}
+              className={cn('pr-10', errors.oldPassword && 'border-destructive')}
             />
             <button
               type='button'
@@ -104,7 +106,7 @@ export function ChangePassword({ onBack }: ChangePasswordProps) {
               {showOldPassword ? <EyeOff className='w-4 h-4' /> : <Eye className='w-4 h-4' />}
             </button>
           </div>
-          {errors.oldPassword && <p className='text-xs text-red-500'>{errors.oldPassword.message}</p>}
+          {errors.oldPassword && <p className='text-xs text-destructive'>{errors.oldPassword.message}</p>}
         </div>
 
         {/* New Password */}
@@ -118,7 +120,7 @@ export function ChangePassword({ onBack }: ChangePasswordProps) {
               type={showNewPassword ? 'text' : 'password'}
               placeholder={text.settings.accountPrivacy.changePassword.newPasswordPlaceholder}
               {...register('newPassword')}
-              className={cn('pr-10', errors.newPassword && 'border-red-500')}
+              className={cn('pr-10', errors.newPassword && 'border-destructive')}
             />
             <button
               type='button'
@@ -128,7 +130,7 @@ export function ChangePassword({ onBack }: ChangePasswordProps) {
               {showNewPassword ? <EyeOff className='w-4 h-4' /> : <Eye className='w-4 h-4' />}
             </button>
           </div>
-          {errors.newPassword && <p className='text-xs text-red-500'>{errors.newPassword.message}</p>}
+          {errors.newPassword && <p className='text-xs text-destructive'>{errors.newPassword.message}</p>}
         </div>
 
         {/* Confirm Password */}
@@ -142,7 +144,7 @@ export function ChangePassword({ onBack }: ChangePasswordProps) {
               type={showConfirmPassword ? 'text' : 'password'}
               placeholder={text.settings.accountPrivacy.changePassword.confirmPasswordPlaceholder}
               {...register('confirmPassword')}
-              className={cn('pr-10', errors.confirmPassword && 'border-red-500')}
+              className={cn('pr-10', errors.confirmPassword && 'border-destructive')}
             />
             <button
               type='button'
@@ -152,7 +154,7 @@ export function ChangePassword({ onBack }: ChangePasswordProps) {
               {showConfirmPassword ? <EyeOff className='w-4 h-4' /> : <Eye className='w-4 h-4' />}
             </button>
           </div>
-          {errors.confirmPassword && <p className='text-xs text-red-500'>{errors.confirmPassword.message}</p>}
+          {errors.confirmPassword && <p className='text-xs text-destructive'>{errors.confirmPassword.message}</p>}
         </div>
 
         <div className='pt-2'>

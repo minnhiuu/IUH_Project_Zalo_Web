@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { settingsApi } from '@/features/user/api/settings.api'
+import { settingsApi } from '@/features/user-settings/api/settings.api'
 import type {
   GeneralSettingsUpdateRequest,
   SecuritySettingsUpdateRequest,
@@ -10,7 +10,7 @@ import type {
   NotificationSettingsUpdateRequest,
   UtilitiesSettingsUpdateRequest,
   UserSettingResponse
-} from '@/features/user/schemas/settings.schema'
+} from '@/features/user-settings/schemas/settings.schema'
 import { toast } from 'sonner'
 
 // Query keys

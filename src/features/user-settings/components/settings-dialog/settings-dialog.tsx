@@ -15,7 +15,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogPortal>
-        <AlertDialogOverlay className='bg-black/45 backdrop-blur-none! duration-200 fixed inset-0 z-50' />
+        <AlertDialogOverlay className='bg-foreground/45 backdrop-blur-none! duration-200 fixed inset-0 z-50' />
         <AlertDialogContent
           className={cn(
             'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50',
@@ -33,7 +33,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
             <h2 className='text-[15px] font-bold text-foreground'>{text.settings.title}</h2>
             <button
               onClick={() => onOpenChange(false)}
-              className='p-1 hover:bg-black/5 rounded-full transition-colors outline-none cursor-pointer'
+              className='p-1 hover:bg-accent rounded-full transition-colors outline-none cursor-pointer'
             >
               <X className='w-5 h-5 text-muted-foreground' />
             </button>

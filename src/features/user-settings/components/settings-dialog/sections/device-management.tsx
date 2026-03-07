@@ -4,8 +4,8 @@ import { useUserText } from '@/features/user/i18n/use-user-text'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { getErrorMessage } from '@/utils/error-handler'
-import { useMyDevices, useDeleteDevice, useLogoutOtherDevices } from '@/features/user/queries/use-devices'
-import type { DeviceResponse } from '@/features/user/types/device.types'
+import { useMyDevices, useDeleteDevice, useLogoutOtherDevices } from '@/features/user-settings/queries/use-devices'
+import type { DeviceResponse } from '@/features/user-settings/types/device.types'
 import { DeviceItem } from './device-item'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -34,16 +34,27 @@ export function DeviceManagement({ onBack }: DeviceManagementProps) {
   }
 
   const handleLogoutOtherDevices = async () => {
-    if (!window.confirm(text.settings.accountPrivacy.deviceManagement.logoutOthersConfirm || 'Are you sure you want to log out of all other devices?')) {
+    if (
+      !window.confirm(
+        text.settings.accountPrivacy.deviceManagement.logoutOthersConfirm ||
+          'Are you sure you want to log out of all other devices?'
+      )
+    ) {
       return
     }
 
     try {
       await logoutOtherDevicesMutation.mutateAsync()
-      toast.success(text.settings.accountPrivacy.deviceManagement.logoutOthersSuccess || 'Logged out of all other devices')
+      toast.success(
+        text.settings.accountPrivacy.deviceManagement.logoutOthersSuccess || 'Logged out of all other devices'
+      )
     } catch (error: unknown) {
       const errorMessage = getErrorMessage(error)
-      toast.error(errorMessage || text.settings.accountPrivacy.deviceManagement.logoutOthersError || 'Failed to log out of other devices')
+      toast.error(
+        errorMessage ||
+          text.settings.accountPrivacy.deviceManagement.logoutOthersError ||
+          'Failed to log out of other devices'
+      )
     }
   }
 
@@ -80,7 +91,7 @@ export function DeviceManagement({ onBack }: DeviceManagementProps) {
       ) : devices && devices.length > 0 ? (
         <>
           <div className='space-y-4'>
-            {devices.some(d => d.isActive) && (
+            {devices.some((d: DeviceResponse) => d.isActive) && (
               <div className='space-y-2'>
                 <h3 className='text-sm font-medium text-muted-foreground px-1'>
                   {text.settings.accountPrivacy.deviceManagement.activeDevices}
@@ -88,7 +99,7 @@ export function DeviceManagement({ onBack }: DeviceManagementProps) {
                 <div className='space-y-2'>
                   <AnimatePresence mode='popLayout'>
                     {devices
-                      .filter(d => d.isActive)
+                      .filter((d: DeviceResponse) => d.isActive)
                       .map((device: DeviceResponse) => (
                         <motion.div
                           key={device.id}
@@ -111,7 +122,7 @@ export function DeviceManagement({ onBack }: DeviceManagementProps) {
               </div>
             )}
 
-            {devices.some(d => !d.isActive) && (
+            {devices.some((d: DeviceResponse) => !d.isActive) && (
               <div className='space-y-2'>
                 <h3 className='text-sm font-medium text-muted-foreground px-1'>
                   {text.settings.accountPrivacy.deviceManagement.inactiveDevices}
@@ -119,7 +130,7 @@ export function DeviceManagement({ onBack }: DeviceManagementProps) {
                 <div className='space-y-2'>
                   <AnimatePresence mode='popLayout'>
                     {devices
-                      .filter(d => !d.isActive)
+                      .filter((d: DeviceResponse) => !d.isActive)
                       .map((device: DeviceResponse) => (
                         <motion.div
                           key={device.id}

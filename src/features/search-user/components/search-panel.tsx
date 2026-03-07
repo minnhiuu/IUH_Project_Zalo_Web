@@ -124,7 +124,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
         <div className='mx-4 mt-2 border-t border-section-divider shrink-0' />
       </div>
       <OthersProfileDialog
-        userId={selectedUserId}
+        userId={selectedUserId ?? undefined}
         open={!!selectedUserId}
         onOpenChange={(open) => !open && setSelectedUserId(null)}
       />

@@ -4,7 +4,7 @@ import { useUserText } from '@/features/user/i18n/use-user-text'
 import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useMySettings, useUpdateGeneralSettings } from '@/features/user/queries/use-settings'
+import { useMySettings, useUpdateGeneralSettings } from '@/features/user-settings/queries/use-settings'
 import { useEffect } from 'react'
 
 export function GeneralSettings() {

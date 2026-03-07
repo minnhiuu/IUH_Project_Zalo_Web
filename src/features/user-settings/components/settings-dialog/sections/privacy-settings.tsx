@@ -3,8 +3,8 @@ import { useUserText } from '@/features/user/i18n/use-user-text'
 import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useMySettings, useUpdatePrivacySettings } from '@/features/user/queries/use-settings'
-import { PrivacyLevel, DobVisibility } from '@/features/user/schemas/settings.schema'
+import { useMySettings, useUpdatePrivacySettings } from '@/features/user-settings/queries/use-settings'
+import { PrivacyLevel, DobVisibility } from '@/features/user-settings/schemas/settings.schema'
 
 export function PrivacySettings() {
   const { text } = useUserText()
@@ -13,7 +13,7 @@ export function PrivacySettings() {
 
   const privacySettings = settings?.privacySettings
 
-  const handleToggle = (field: keyof typeof privacySettings) => {
+  const handleToggle = (field: keyof NonNullable<typeof privacySettings>) => {
     if (!privacySettings) return
     updateSettings.mutate({
       ...privacySettings,
@@ -53,12 +53,6 @@ export function PrivacySettings() {
     { value: PrivacyLevel.CONTACTED, label: text.settings.privacy.textAndCall.canText.contacted }
   ]
 
-  const dobVisibilityOptions: { value: DobVisibility; label: string }[] = [
-    { value: DobVisibility.HIDDEN, label: text.settings.privacy.personal.showDob.hidden },
-    { value: DobVisibility.FULL_DATE, label: text.settings.privacy.personal.showDob.fullDate },
-    { value: DobVisibility.MONTH_DAY_ONLY, label: text.settings.privacy.personal.showDob.monthDayOnly }
-  ]
-
   return (
     <div className='space-y-4'>
       <h2 className='text-lg font-semibold text-foreground'>{text.settings.privacy.title}</h2>
@@ -80,7 +74,9 @@ export function PrivacySettings() {
               </SelectTrigger>
               <SelectContent side='bottom' align='start' position='popper' sideOffset={4} className='bg-popover'>
                 <SelectItem value={DobVisibility.HIDDEN}>{text.settings.privacy.personal.showDob.hidden}</SelectItem>
-                <SelectItem value={DobVisibility.FULL_DATE}>{text.settings.privacy.personal.showDob.fullDate}</SelectItem>
+                <SelectItem value={DobVisibility.FULL_DATE}>
+                  {text.settings.privacy.personal.showDob.fullDate}
+                </SelectItem>
                 <SelectItem value={DobVisibility.MONTH_DAY_ONLY}>
                   {text.settings.privacy.personal.showDob.monthDayOnly}
                 </SelectItem>
@@ -107,7 +103,7 @@ export function PrivacySettings() {
             >
               <div
                 className={cn(
-                  'absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform',
+                  'absolute top-1 w-4 h-4 rounded-full bg-primary-foreground shadow-sm transition-transform',
                   privacySettings.showActiveStatus ? 'translate-x-5' : 'translate-x-1'
                 )}
               />
@@ -141,7 +137,7 @@ export function PrivacySettings() {
             >
               <div
                 className={cn(
-                  'absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform',
+                  'absolute top-1 w-4 h-4 rounded-full bg-primary-foreground shadow-sm transition-transform',
                   privacySettings.showReadStatus ? 'translate-x-5' : 'translate-x-1'
                 )}
               />
@@ -219,7 +215,7 @@ export function PrivacySettings() {
             >
               <div
                 className={cn(
-                  'absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform',
+                  'absolute top-1 w-4 h-4 rounded-full bg-primary-foreground shadow-sm transition-transform',
                   privacySettings.allowSearchOnPhoneNumber ? 'translate-x-5' : 'translate-x-1'
                 )}
               />

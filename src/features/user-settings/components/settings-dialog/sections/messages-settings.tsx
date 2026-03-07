@@ -2,7 +2,7 @@ import { Loader2 } from 'lucide-react'
 import { useUserText } from '@/features/user/i18n/use-user-text'
 import { cn } from '@/lib/utils'
 
-import { useMySettings, useUpdateMessageSettings } from '@/features/user/queries/use-settings'
+import { useMySettings, useUpdateMessageSettings } from '@/features/user-settings/queries/use-settings'
 
 export function MessagesSettings() {
   const { text } = useUserText()
@@ -11,7 +11,7 @@ export function MessagesSettings() {
 
   const messageSettings = settings?.messageSettings
 
-  const handleToggle = (field: keyof typeof messageSettings) => {
+  const handleToggle = (field: keyof NonNullable<typeof messageSettings>) => {
     if (!messageSettings) return
     updateSettings.mutate({
       ...messageSettings,
@@ -48,7 +48,7 @@ export function MessagesSettings() {
         >
           <div
             className={cn(
-              'absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform',
+              'absolute top-1 w-4 h-4 rounded-full bg-primary-foreground shadow-sm transition-transform',
               messageSettings.quickResponseEnable ? 'translate-x-5' : 'translate-x-1'
             )}
           />
@@ -72,7 +72,7 @@ export function MessagesSettings() {
         >
           <div
             className={cn(
-              'absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform',
+              'absolute top-1 w-4 h-4 rounded-full bg-primary-foreground shadow-sm transition-transform',
               messageSettings.separatePriorityAndOtherEnable ? 'translate-x-5' : 'translate-x-1'
             )}
           />
@@ -94,7 +94,7 @@ export function MessagesSettings() {
         >
           <div
             className={cn(
-              'absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform',
+              'absolute top-1 w-4 h-4 rounded-full bg-primary-foreground shadow-sm transition-transform',
               messageSettings.showTypingStatus ? 'translate-x-5' : 'translate-x-1'
             )}
           />

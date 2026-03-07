@@ -1,20 +1,16 @@
-import type { DeviceResponse } from '@/features/user/types/device.types'
+import type { DeviceResponse } from '@/features/user-settings/types/device.types'
+import type { createUserTexts } from '@/features/user/i18n/user.texts'
 import { cn } from '@/lib/utils'
 import { Monitor, Smartphone, MoreVertical, LogOut, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { format } from 'date-fns'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 
 interface DeviceItemProps {
   device: DeviceResponse
   onDelete: (id: string) => void
   isDeleting: boolean
-  text: any // Using specific type would be better but for now match parent
+  text: ReturnType<typeof createUserTexts>
 }
 
 export function DeviceItem({ device, onDelete, isDeleting, text }: DeviceItemProps) {
@@ -22,8 +18,8 @@ export function DeviceItem({ device, onDelete, isDeleting, text }: DeviceItemPro
     <div
       className={cn(
         'border rounded-lg p-4 transition-all',
-        device.isCurrentDevice 
-          ? 'bg-primary/5 border-primary shadow-xs' 
+        device.isCurrentDevice
+          ? 'bg-primary/5 border-primary shadow-xs'
           : 'bg-card border-border hover:border-primary/50 hover:shadow-xs'
       )}
     >
