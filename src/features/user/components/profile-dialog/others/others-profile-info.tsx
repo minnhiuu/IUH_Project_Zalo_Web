@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { Users, Ban, MessageSquareWarning, IdCard } from 'lucide-react'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { Button } from '@/components/ui/button'
@@ -6,8 +5,6 @@ import { Separator } from '@/components/ui/separator'
 import { type UserResponse } from '@/features/user/schemas/user.schema'
 import { useUserText } from '../../../i18n/use-user-text'
 import { ProfileInfoBase } from '../shared/profile-info-base'
-import { BlockUserModal } from '../block-user-modal'
-import { useBlockDetails } from '../../../queries/use-queries'
 import { cn } from '@/lib/utils'
 
 interface OthersProfileInfoProps {
@@ -16,8 +13,6 @@ interface OthersProfileInfoProps {
 
 export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
   const { text } = useUserText()
-  const [isBlockModalOpen, setIsBlockModalOpen] = useState(false)
-  const { data: blockDetails } = useBlockDetails(user.id)
 
   return (
     <ProfileInfoBase
@@ -76,7 +71,7 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
                 label: text.profile.block, 
                 color: 'text-icon-secondary', 
                 disabled: false,
-                onClick: () => setIsBlockModalOpen(true)
+                onClick: undefined
               },
               { icon: MessageSquareWarning, label: text.profile.report, color: 'text-icon-secondary', disabled: false }
             ].map((item, idx, arr) => (
@@ -102,15 +97,6 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
               </div>
             ))}
           </div>
-          
-          <BlockUserModal
-            open={isBlockModalOpen}
-            onOpenChange={setIsBlockModalOpen}
-            userId={user.id}
-            userName={user.fullName}
-            isBlocked={!!blockDetails}
-            currentPreference={blockDetails?.preference}
-          />
         </>
       }
     />

@@ -1,7 +1,6 @@
 import { QUERY_POLICIES } from '@/constants'
 import { userApi } from '../api/user.api'
-import { blockApi } from '../api/block.api'
-import { userKeys, blockKeys } from './keys'
+import { userKeys } from './keys'
 import { queryOptions } from '@tanstack/react-query'
 import { getAccessToken } from '@/lib/axios-client'
 
@@ -25,30 +24,4 @@ export const getUserByIdQueryOptions = (id: string) =>
     },
     enabled: !!id,
     ...QUERY_POLICIES.DETAIL
-  })
-
-export const getBlockDetailsQueryOptions = (userId: string) =>
-  queryOptions({
-    queryKey: blockKeys.detail(userId),
-    queryFn: async () => {
-      try {
-        const response = await blockApi.getBlockDetails(userId)
-        return response.data.data
-      } catch (error) {
-        return null
-      }
-    },
-    enabled: !!userId,
-    ...QUERY_POLICIES.DETAIL
-  })
-
-export const getMyBlockedUsersQueryOptions = () =>
-  queryOptions({
-    queryKey: blockKeys.myBlocks(),
-    queryFn: async () => {
-      const response = await blockApi.getMyBlockedUsersWithDetails()
-      return response.data.data ?? []
-    },
-    enabled: !!getAccessToken(),
-    ...QUERY_POLICIES.LIST
   })
