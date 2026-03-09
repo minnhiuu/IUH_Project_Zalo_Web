@@ -33,7 +33,7 @@ export const getBlockDetailsQueryOptions = (userId: string) =>
     queryFn: async () => {
       try {
         const response = await blockApi.getBlockDetails(userId)
-        return response.data.data
+        return response.data.data ?? null
       } catch (error) {
         return null
       }
