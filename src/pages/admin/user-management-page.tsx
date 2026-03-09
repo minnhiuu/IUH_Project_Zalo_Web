@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router'
 import { Users } from 'lucide-react'
 import { Card } from '@/components/ui/card'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useAdminUsers } from '@/features/user/queries/admin-queries'
 import { UserFilters } from '@/features/user/components/admin/user-filters'
 import { UsersTable } from '@/features/user/components/admin/users-table'
@@ -10,43 +12,68 @@ import { ViewUserDialog } from '@/features/user/components/admin/view-user-dialo
 import type { UserFilterParams, AdminUserListItem } from '@/features/user/schemas/admin-user.schema'
 
 export default function UserManagementPage() {
-  const [filters, setFilters] = useState<UserFilterParams>({
-    page: 0,
-    size: 10,
-    status: 'ALL'
-  })
-
+  const [searchParams, setSearchParams] = useSearchParams()
   const [selected, setSelected] = useState<AdminUserListItem | null>(null)
   const [viewDialogOpen, setViewDialogOpen] = useState(false)
   const [banDialogOpen, setBanDialogOpen] = useState(false)
   const [unbanDialogOpen, setUnbanDialogOpen] = useState(false)
 
+  const activeTab = (searchParams.get('status') as 'ACTIVE' | 'BANNED') ?? 'ACTIVE'
+  const currentPage = Number(searchParams.get('page') ?? '0')
+
+  const filters: UserFilterParams = {
+    name: searchParams.get('name') ?? undefined,
+    phone: searchParams.get('phone') ?? undefined,
+    email: searchParams.get('email') ?? undefined,
+    status: activeTab,
+    page: currentPage,
+    size: 10
+  }
+
   const { data, isLoading } = useAdminUsers(filters)
 
-  const handleView = (item: AdminUserListItem) => {
-    setSelected(item)
-    setViewDialogOpen(true)
+  const baseCountFilters = { name: filters.name, phone: filters.phone, email: filters.email, page: 0, size: 1 }
+  const { data: activeCountData } = useAdminUsers({ ...baseCountFilters, status: 'ACTIVE' as const })
+  const { data: bannedCountData } = useAdminUsers({ ...baseCountFilters, status: 'BANNED' as const })
+  const activeCount = activeCountData?.data?.data?.totalItems
+  const bannedCount = bannedCountData?.data?.data?.totalItems
+
+  const updateParams = (updates: Record<string, string | undefined>) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev)
+      Object.entries(updates).forEach(([k, v]) => {
+        if (v) next.set(k, v)
+        else next.delete(k)
+      })
+      return next
+    })
   }
 
-  const handleBan = (item: AdminUserListItem) => {
-    setSelected(item)
-    setBanDialogOpen(true)
+  const handleTabChange = (tab: string) => {
+    updateParams({ status: tab, page: undefined })
   }
 
-  const handleUnban = (item: AdminUserListItem) => {
-    setSelected(item)
-    setUnbanDialogOpen(true)
+  const handleFiltersChange = (f: UserFilterParams) => {
+    updateParams({
+      name: f.name,
+      phone: f.phone,
+      email: f.email,
+      page: undefined
+    })
   }
 
   const handlePageChange = (page: number) => {
-    setFilters({ ...filters, page })
+    updateParams({ page: page === 0 ? undefined : String(page) })
   }
+
+  const handleView = (item: AdminUserListItem) => { setSelected(item); setViewDialogOpen(true) }
+  const handleBan = (item: AdminUserListItem) => { setSelected(item); setBanDialogOpen(true) }
+  const handleUnban = (item: AdminUserListItem) => { setSelected(item); setUnbanDialogOpen(true) }
 
   const pageData = data?.data?.data
 
   return (
     <div className='container mx-auto py-8 px-4 max-w-7xl'>
-      {/* Header */}
       <div className='mb-6'>
         <div className='flex items-center gap-3 mb-2'>
           <div className='p-2 bg-primary/10 rounded-lg'>
@@ -57,36 +84,35 @@ export default function UserManagementPage() {
         <p className='text-muted-foreground'>Quản lý tất cả người dùng trong hệ thống</p>
       </div>
 
-      {/* Filters */}
-      <UserFilters filters={filters} onFiltersChange={setFilters} />
+      <Tabs value={activeTab} onValueChange={handleTabChange} className='mb-6'>
+        <TabsList>
+          <TabsTrigger
+            value='ACTIVE'
+            className='data-[state=active]:bg-green-500 data-[state=active]:text-white'
+          >
+            Đang hoạt động
+            {activeCount !== undefined && (
+              <span className='ml-2 px-1.5 py-0.5 text-xs rounded-full bg-green-100 text-green-700'>
+                {activeCount}
+              </span>
+            )}
+          </TabsTrigger>
+          <TabsTrigger
+            value='BANNED'
+            className='data-[state=active]:bg-red-500 data-[state=active]:text-white'
+          >
+            Đã bị cấm
+            {bannedCount !== undefined && (
+              <span className='ml-2 px-1.5 py-0.5 text-xs rounded-full bg-red-100 text-red-700'>
+                {bannedCount}
+              </span>
+            )}
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
 
-      {/* Stats */}
-      {pageData && (
-        <div className='grid grid-cols-1 md:grid-cols-4 gap-4 mb-6'>
-          <Card className='p-4'>
-            <div className='text-sm text-muted-foreground mb-1'>Tổng số người dùng</div>
-            <div className='text-2xl font-bold'>{pageData.totalItems}</div>
-          </Card>
-          <Card className='p-4'>
-            <div className='text-sm text-muted-foreground mb-1'>Đang hoạt động</div>
-            <div className='text-2xl font-bold text-green-600'>
-              {pageData.data.filter((i) => i.user.accountInfo?.enabled !== false).length}
-            </div>
-          </Card>
-          <Card className='p-4'>
-            <div className='text-sm text-muted-foreground mb-1'>Đã cấm</div>
-            <div className='text-2xl font-bold text-destructive'>
-              {pageData.data.filter((i) => i.user.accountInfo?.enabled === false).length}
-            </div>
-          </Card>
-          <Card className='p-4'>
-            <div className='text-sm text-muted-foreground mb-1'>Tổng số trang</div>
-            <div className='text-2xl font-bold'>{pageData.totalPages}</div>
-          </Card>
-        </div>
-      )}
+      <UserFilters filters={filters} onFiltersChange={handleFiltersChange} />
 
-      {/* Table */}
       <Card className='p-6'>
         <UsersTable
           data={pageData}
@@ -98,7 +124,6 @@ export default function UserManagementPage() {
         />
       </Card>
 
-      {/* Dialogs */}
       <ViewUserDialog item={selected} open={viewDialogOpen} onOpenChange={setViewDialogOpen} />
       <BanUserDialog item={selected} open={banDialogOpen} onOpenChange={setBanDialogOpen} />
       <UnbanUserDialog item={selected} open={unbanDialogOpen} onOpenChange={setUnbanDialogOpen} />

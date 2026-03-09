@@ -48,6 +48,9 @@ export default function LoginForm({ onSwitchToQR }: { onSwitchToQR: () => void }
       setIsLoggingIn(false)
       if (axios.isAxiosError(error)) {
         const code = error.response?.data?.code
+        if (code === 1013) {
+          return // interceptor already showed the toast
+        }
         if (code === 1006 || code === 2006) {
           form.setError('password', {
             type: 'server',

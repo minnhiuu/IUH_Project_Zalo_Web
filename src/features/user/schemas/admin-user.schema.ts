@@ -71,9 +71,10 @@ export const banUserRequestSchema = z.object({
 export type BanUserRequest = z.infer<typeof banUserRequestSchema>
 
 export type UserFilterParams = {
-  keyword?: string
-  status?: 'ALL' | 'ACTIVE' | 'BANNED'
-  role?: string
+  name?: string
+  phone?: string
+  email?: string
+  status?: 'ACTIVE' | 'BANNED'
   page?: number
   size?: number
 }

@@ -10,12 +10,14 @@ import type { AuditLog } from '@/features/user/schemas/audit-log.schema'
 
 export const adminUserApi = {
   getAllUsers: (params?: UserFilterParams) => {
-    const { keyword, status, ...rest } = params ?? {}
+    const { name, phone, email, status, ...rest } = params ?? {}
     return http.get<ApiResponse<PageResponse<AdminUserListItem>>>('/admin/users', {
       params: {
         ...rest,
-        search: keyword || undefined,
-        status: status === 'ALL' ? undefined : status
+        name: name || undefined,
+        phone: phone || undefined,
+        email: email || undefined,
+        status: status || undefined
       }
     })
   },

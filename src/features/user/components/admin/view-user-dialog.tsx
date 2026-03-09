@@ -7,6 +7,7 @@ import {
 import { UserAvatar } from '@/components/common/user-avatar'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import { useAdminUserDetail } from '@/features/user/queries/admin-queries'
 import type { AdminUserListItem } from '@/features/user/schemas/admin-user.schema'
 
 type ViewUserDialogProps = {
@@ -16,6 +17,9 @@ type ViewUserDialogProps = {
 }
 
 export function ViewUserDialog({ item, open, onOpenChange }: ViewUserDialogProps) {
+  const { data: detailData } = useAdminUserDetail(item?.user.id ?? '')
+  const detail = detailData?.data?.data
+
   if (!item) return null
 
   const { user, audit } = item
@@ -34,27 +38,27 @@ export function ViewUserDialog({ item, open, onOpenChange }: ViewUserDialogProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-w-2xl max-h-[90vh] overflow-y-auto'>
+      <DialogContent className='max-w-3xl max-h-[90vh] overflow-y-auto'>
         <DialogHeader>
-          <DialogTitle>Chi tiết người dùng</DialogTitle>
+          <DialogTitle className='text-xl'>Chi tiết người dùng</DialogTitle>
         </DialogHeader>
 
         <div className='space-y-6'>
           {/* Avatar + basic */}
-          <div className='flex items-center gap-4'>
-            <UserAvatar src={user.avatar} name={user.fullName} className='w-20 h-20' />
+          <div className='flex items-center gap-5'>
+            <UserAvatar src={user.avatar} name={user.fullName} className='w-24 h-24' />
             <div className='flex-1'>
               <div className='flex items-center gap-2 flex-wrap'>
-                <h3 className='text-xl font-semibold'>{user.fullName}</h3>
-                <Badge variant={isActive ? 'default' : 'destructive'}>
+                <h3 className='text-2xl font-semibold'>{user.fullName}</h3>
+                <Badge variant={isActive ? 'default' : 'destructive'} className='text-sm'>
                   {isActive ? 'Hoạt động' : 'Đã cấm'}
                 </Badge>
               </div>
-              <Badge variant='outline' className='mt-1'>{user.accountInfo?.role ?? '—'}</Badge>
+              <Badge variant='outline' className='mt-1 text-sm'>{user.accountInfo?.role ?? '—'}</Badge>
               {user.accountInfo?.isVerified && (
-                <Badge variant='secondary' className='mt-1 block w-fit'>Đã xác minh</Badge>
+                <Badge variant='secondary' className='mt-1 block w-fit text-sm'>Đã xác minh</Badge>
               )}
-              {user.bio && <p className='text-sm text-muted-foreground mt-1'>{user.bio}</p>}
+              {user.bio && <p className='text-base text-muted-foreground mt-2'>{user.bio}</p>}
             </div>
           </div>
 
@@ -79,6 +83,21 @@ export function ViewUserDialog({ item, open, onOpenChange }: ViewUserDialogProps
             </div>
           </div>
 
+          {!isActive && (
+            <>
+              <Separator />
+              <div>
+                <h4 className='text-xs font-semibold mb-3 text-muted-foreground uppercase tracking-wider'>
+                  Thông tin cấm
+                </h4>
+                <div className='p-3 bg-destructive/10 rounded-lg border border-destructive/20'>
+                  <p className='text-sm font-medium text-destructive mb-1'>Lý do cấm</p>
+                  <p className='text-base'>{detail?.banReason ?? '—'}</p>
+                </div>
+              </div>
+            </>
+          )}
+
           <Separator />
 
           {/* Audit */}
@@ -102,8 +121,8 @@ export function ViewUserDialog({ item, open, onOpenChange }: ViewUserDialogProps
 function InfoItem({ label, value }: { label: string; value?: string }) {
   return (
     <div>
-      <p className='text-xs font-medium text-muted-foreground mb-1'>{label}</p>
-      <p className='text-sm'>{value ?? '—'}</p>
+      <p className='text-sm font-medium text-muted-foreground mb-1'>{label}</p>
+      <p className='text-base'>{value ?? '—'}</p>
     </div>
   )
 }

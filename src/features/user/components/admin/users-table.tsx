@@ -36,7 +36,13 @@ export function UsersTable({ data, isLoading, onView, onBan, onUnban, onPageChan
 
   const fmt = (d?: string) =>
     d
-      ? new Intl.DateTimeFormat('vi-VN', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(d))
+      ? new Intl.DateTimeFormat('vi-VN', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        }).format(new Date(d))
       : '—'
 
   return (
@@ -46,15 +52,15 @@ export function UsersTable({ data, isLoading, onView, onBan, onUnban, onPageChan
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className='w-10'>#</TableHead>
-                <TableHead>Người dùng</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Số điện thoại</TableHead>
-                <TableHead>Vai trò</TableHead>
-                <TableHead>Trạng thái</TableHead>
-                <TableHead>Ngày tạo</TableHead>
-                <TableHead>Đăng nhập cuối</TableHead>
-                <TableHead className='text-right'>Hành động</TableHead>
+                <TableHead className='w-10 font-bold'>#</TableHead>
+                <TableHead className='font-bold'>Người dùng</TableHead>
+                <TableHead className='font-bold'>Email</TableHead>
+                <TableHead className='font-bold'>Số điện thoại</TableHead>
+                <TableHead className='font-bold'>Vai trò</TableHead>
+                <TableHead className='font-bold'>Trạng thái</TableHead>
+                <TableHead className='font-bold'>Ngày tạo</TableHead>
+                <TableHead className='font-bold'>Đăng nhập cuối</TableHead>
+                <TableHead className='text-right font-bold'>Hành động</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
