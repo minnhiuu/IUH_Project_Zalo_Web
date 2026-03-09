@@ -4,13 +4,22 @@ import { storage, STORAGE_KEYS } from '@/utils/local-storage'
 
 export const getAccessToken = (): string | null => storage.get(STORAGE_KEYS.ACCESS_TOKEN)
 
-export const setAccessToken = (token: string | null): void => {
-  if (token) storage.set(STORAGE_KEYS.ACCESS_TOKEN, token)
-  else storage.remove(STORAGE_KEYS.ACCESS_TOKEN)
+export const setAccessToken = (token: string | null, refreshTokenExpirationMs?: number): void => {
+  if (token) {
+    storage.set(STORAGE_KEYS.ACCESS_TOKEN, token)
+    if (refreshTokenExpirationMs) {
+      const expiryTimestamp = Date.now() + refreshTokenExpirationMs
+      storage.set(STORAGE_KEYS.REFRESH_TOKEN_EXPIRATION, expiryTimestamp)
+    }
+  } else {
+    storage.remove(STORAGE_KEYS.ACCESS_TOKEN)
+    storage.remove(STORAGE_KEYS.REFRESH_TOKEN_EXPIRATION)
+  }
 }
 
 export const clearAccessToken = (): void => {
   storage.remove(STORAGE_KEYS.ACCESS_TOKEN)
+  storage.remove(STORAGE_KEYS.REFRESH_TOKEN_EXPIRATION)
 }
 
 const http = axios.create({

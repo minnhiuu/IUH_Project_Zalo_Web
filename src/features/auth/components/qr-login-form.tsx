@@ -98,7 +98,7 @@ export default function QRLoginForm({ onSwitchToPassword }: QRLoginFormProps) {
         if (data.status === QrSessionStatus.Confirmed && data.accessToken) {
           setIsFinishingLogin(true)
           try {
-            await loginSuccessRef.current(data.accessToken)
+            await loginSuccessRef.current(data.accessToken, data.refreshTokenExpirationMs)
             navigateRef.current(PATHS.HOME)
           } catch (loginError: unknown) {
             setIsFinishingLogin(false)
