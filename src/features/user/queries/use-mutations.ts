@@ -1,9 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { userApi } from '../api/user.api'
+import { authApi } from '@/features/auth/api/auth.api'
 import { userKeys } from './keys'
 import { useAuthContext } from '@/features/auth/context/auth-context'
 import type { ApiResponse } from '@/shared/api'
 import type { UserResponse } from '@/features/user/schemas/user.schema'
+import type { ChangePasswordRequest } from '@/features/auth/schemas/auth.schema'
 
 export const useUpdateProfileMutation = () => {
   const queryClient = useQueryClient()
@@ -116,5 +118,11 @@ export const useUpdateBackgroundPositionMutation = () => {
 
       queryClient.invalidateQueries({ queryKey: userKeys.profile() })
     }
+  })
+}
+
+export const useChangePassword = () => {
+  return useMutation({
+    mutationFn: (request: ChangePasswordRequest) => authApi.changePassword(request)
   })
 }
