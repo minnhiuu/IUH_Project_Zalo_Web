@@ -2,18 +2,18 @@ import { Loader2 } from 'lucide-react'
 import { useUserText } from '@/features/user/i18n/use-user-text'
 import { cn } from '@/lib/utils'
 
-import { useMySettings, useUpdateSyncSettings } from '@/features/user-settings/queries/use-settings'
+import { ActionRow } from './action-row'
+import { useSettingsState } from '../settings-state-context'
 
 export function SyncSettings() {
   const { text } = useUserText()
-  const { data: settings, isLoading } = useMySettings()
-  const updateSettings = useUpdateSyncSettings()
+  const { settings, isLoading, pending, updateSyncSettings } = useSettingsState()
 
   const syncSettings = settings?.syncSettings
 
   const handleToggle = (field: 'syncSuggestion' | 'showSyncProgress') => {
     if (!syncSettings) return
-    updateSettings.mutate({
+    updateSyncSettings({
       ...syncSettings,
       [field]: !syncSettings[field]
     })
@@ -33,49 +33,51 @@ export function SyncSettings() {
     <div className='space-y-4'>
       <h2 className='text-lg font-semibold text-foreground'>{text.settings.sync.title}</h2>
 
-      <div className='rounded-lg border p-4 flex items-center justify-between'>
-        <div>
-          <h3 className='text-sm font-medium text-foreground'>{text.settings.sync.syncSuggestion.title}</h3>
-          <p className='text-xs text-muted-foreground'>{text.settings.sync.syncSuggestion.description}</p>
-        </div>
-        <button
-          onClick={() => handleToggle('syncSuggestion')}
-          disabled={updateSettings.isPending}
-          className={cn(
-            'w-10 h-6 rounded-full transition-colors relative disabled:opacity-50 disabled:cursor-not-allowed',
-            syncSettings.syncSuggestion ? 'bg-primary' : 'bg-muted'
-          )}
-        >
-          <div
+      <ActionRow
+        mode='inline'
+        title={text.settings.sync.syncSuggestion.title}
+        description={text.settings.sync.syncSuggestion.description}
+        action={
+          <button
+            onClick={() => handleToggle('syncSuggestion')}
+            disabled={pending.sync}
             className={cn(
-              'absolute top-1 w-4 h-4 rounded-full bg-primary-foreground shadow-sm transition-transform',
-              syncSettings.syncSuggestion ? 'translate-x-5' : 'translate-x-1'
+              'w-10 h-6 rounded-full transition-colors relative disabled:opacity-50 disabled:cursor-not-allowed',
+              syncSettings.syncSuggestion ? 'bg-primary' : 'bg-muted'
             )}
-          />
-        </button>
-      </div>
+          >
+            <div
+              className={cn(
+                'absolute top-1 w-4 h-4 rounded-full bg-primary-foreground shadow-sm transition-transform',
+                syncSettings.syncSuggestion ? 'translate-x-5' : 'translate-x-1'
+              )}
+            />
+          </button>
+        }
+      />
 
-      <div className='rounded-lg border p-4 flex items-center justify-between'>
-        <div>
-          <h3 className='text-sm font-medium text-foreground'>{text.settings.sync.showSyncProgress.title}</h3>
-          <p className='text-xs text-muted-foreground'>{text.settings.sync.showSyncProgress.description}</p>
-        </div>
-        <button
-          onClick={() => handleToggle('showSyncProgress')}
-          disabled={updateSettings.isPending}
-          className={cn(
-            'w-10 h-6 rounded-full transition-colors relative disabled:opacity-50 disabled:cursor-not-allowed',
-            syncSettings.showSyncProgress ? 'bg-primary' : 'bg-muted'
-          )}
-        >
-          <div
+      <ActionRow
+        mode='inline'
+        title={text.settings.sync.showSyncProgress.title}
+        description={text.settings.sync.showSyncProgress.description}
+        action={
+          <button
+            onClick={() => handleToggle('showSyncProgress')}
+            disabled={pending.sync}
             className={cn(
-              'absolute top-1 w-4 h-4 rounded-full bg-primary-foreground shadow-sm transition-transform',
-              syncSettings.showSyncProgress ? 'translate-x-5' : 'translate-x-1'
+              'w-10 h-6 rounded-full transition-colors relative disabled:opacity-50 disabled:cursor-not-allowed',
+              syncSettings.showSyncProgress ? 'bg-primary' : 'bg-muted'
             )}
-          />
-        </button>
-      </div>
+          >
+            <div
+              className={cn(
+                'absolute top-1 w-4 h-4 rounded-full bg-primary-foreground shadow-sm transition-transform',
+                syncSettings.showSyncProgress ? 'translate-x-5' : 'translate-x-1'
+              )}
+            />
+          </button>
+        }
+      />
     </div>
   )
 }

@@ -192,10 +192,15 @@ export const USER_KEYS = {
         newPasswordPlaceholder: 'user.settings.accountPrivacy.changePassword.newPasswordPlaceholder',
         confirmPasswordLabel: 'user.settings.accountPrivacy.changePassword.confirmPasswordLabel',
         confirmPasswordPlaceholder: 'user.settings.accountPrivacy.changePassword.confirmPasswordPlaceholder',
+        logoutOtherSessions: 'user.settings.accountPrivacy.changePassword.logoutOtherSessions',
         changeButton: 'user.settings.accountPrivacy.changePassword.changeButton',
         changing: 'user.settings.accountPrivacy.changePassword.changing',
         success: 'user.settings.accountPrivacy.changePassword.success',
-        error: 'user.settings.accountPrivacy.changePassword.error'
+        error: 'user.settings.accountPrivacy.changePassword.error',
+        validation: {
+          currentPasswordRequired: 'user.settings.accountPrivacy.changePassword.validation.currentPasswordRequired',
+          confirmPasswordRequired: 'user.settings.accountPrivacy.changePassword.validation.confirmPasswordRequired'
+        }
       },
       deviceManagement: {
         title: 'user.settings.accountPrivacy.deviceManagement.title',
@@ -219,6 +224,9 @@ export const USER_KEYS = {
         logoutOthersConfirm: 'user.settings.accountPrivacy.deviceManagement.logoutOthersConfirm',
         logoutOthersSuccess: 'user.settings.accountPrivacy.deviceManagement.logoutOthersSuccess',
         logoutOthersError: 'user.settings.accountPrivacy.deviceManagement.logoutOthersError',
+        logoutConfirm: 'user.settings.accountPrivacy.deviceManagement.logoutConfirm',
+        logoutSuccess: 'user.settings.accountPrivacy.deviceManagement.logoutSuccess',
+        logoutError: 'user.settings.accountPrivacy.deviceManagement.logoutError',
         activeStatus: 'user.settings.accountPrivacy.deviceManagement.activeStatus',
         activeDevices: 'user.settings.accountPrivacy.deviceManagement.activeDevices',
         inactiveDevices: 'user.settings.accountPrivacy.deviceManagement.inactiveDevices'

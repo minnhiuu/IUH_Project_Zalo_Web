@@ -1,20 +1,18 @@
 import { useTranslation } from 'react-i18next'
-import { Check, Loader2 } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { useUserText } from '@/features/user/i18n/use-user-text'
-import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useMySettings, useUpdateGeneralSettings } from '@/features/user-settings/queries/use-settings'
 import { useEffect } from 'react'
+import { ActionRow } from './action-row'
+import { useSettingsState } from '../settings-state-context'
 
 export function GeneralSettings() {
   const { text } = useUserText()
   const { i18n } = useTranslation()
-  const { data: settings, isLoading } = useMySettings()
-  const updateSettings = useUpdateGeneralSettings()
+  const { settings, isLoading, pending, updateGeneralSettings } = useSettingsState()
 
   const currentLanguage = i18n.language
-  const showAllFriends = settings?.generalSettings.showAllFriends ?? false
 
   // Sync language from settings
   useEffect(() => {
@@ -26,17 +24,10 @@ export function GeneralSettings() {
     }
   }, [settings?.generalSettings.languageEn, i18n])
 
-  const handleShowAllFriendsChange = (value: boolean) => {
-    updateSettings.mutate({
-      showAllFriends: value,
-      languageEn: settings?.generalSettings.languageEn ?? false
-    })
-  }
-
   const handleLanguageChange = (lang: 'en' | 'vi') => {
     const languageEn = lang === 'en'
     i18n.changeLanguage(lang)
-    updateSettings.mutate({
+    updateGeneralSettings({
       showAllFriends: settings?.generalSettings.showAllFriends ?? false,
       languageEn
     })
@@ -53,8 +44,7 @@ export function GeneralSettings() {
   return (
     <div className='space-y-4'>
       <h2 className='text-lg font-semibold text-foreground'>{text.settings.general.title}</h2>
-
-      {/* Show All Friends Setting */}
+      {/* Show All Friends Setting
       <div className='space-y-3'>
         <h3 className='text-sm font-medium text-foreground'>{text.settings.general.showAllFriends.title}</h3>
         <div className='rounded-lg border p-4'>
@@ -84,30 +74,28 @@ export function GeneralSettings() {
             </button>
           </div>
         </div>
-      </div>
-
+      </div> */}
       <Separator />
-
       {/* Language Setting */}
-      <div className='space-y-3'>
-        <h3 className='text-sm font-medium text-foreground'>{text.settings.general.language.title}</h3>
-        <div className='rounded-lg border p-4 space-y-2'>
-          <p className='text-xs text-muted-foreground'>{text.settings.general.language.description}</p>
-          <Select
-            value={currentLanguage}
-            onValueChange={(value) => handleLanguageChange(value as 'en' | 'vi')}
-            disabled={updateSettings.isPending}
-          >
-            <SelectTrigger className='w-full'>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent side='bottom' align='start' position='popper' sideOffset={4} className='bg-popover'>
-              <SelectItem value='en'>{text.settings.general.language.english}</SelectItem>
-              <SelectItem value='vi'>{text.settings.general.language.vietnamese}</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+      <ActionRow
+        title={text.settings.general.language.title}
+        description={text.settings.general.language.description}
+        titleClassName='font-semibold'
+      >
+        <Select
+          value={currentLanguage}
+          onValueChange={(value) => handleLanguageChange(value as 'en' | 'vi')}
+          disabled={pending.general}
+        >
+          <SelectTrigger className='w-full'>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent side='bottom' align='start' position='popper' sideOffset={4} className='bg-popover'>
+            <SelectItem value='en'>{text.settings.general.language.english}</SelectItem>
+            <SelectItem value='vi'>{text.settings.general.language.vietnamese}</SelectItem>
+          </SelectContent>
+        </Select>
+      </ActionRow>
     </div>
   )
 }

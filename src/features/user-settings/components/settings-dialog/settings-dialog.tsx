@@ -19,17 +19,17 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
         <AlertDialogContent
           className={cn(
             'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50',
-            '!w-[90vw] !max-w-[90vw] !h-[75vh]',
-            'sm:!w-[400px] sm:!max-w-[400px] sm:!h-[450px]',
-            'md:!w-[550px] md:!max-w-[550px] md:!h-[520px]',
-            'lg:!w-[700px] lg:!max-w-[700px] lg:!h-[580px]',
-            'xl:!w-[850px] xl:!max-w-[850px] xl:!h-[620px]',
-            'p-0 gap-0 rounded-[4px] border-none shadow-[0_8px_28px_rgba(0,0,0,0.15)] bg-background outline-none',
+            'w-[94vw]! max-w-[94vw]! h-[82vh]!',
+            'sm:w-130! sm:max-w-130! sm:h-140!',
+            'md:w-175! md:max-w-175! md:h-155!',
+            'lg:w-230! lg:max-w-230! lg:h-175!',
+            'xl:w-260! xl:max-w-260! xl:h-190!',
+            'p-0 gap-0 rounded-lg border border-border shadow-[0_8px_28px_rgba(0,0,0,0.15)] bg-card text-card-foreground outline-none',
             'animate-in zoom-in-95 duration-200',
             'flex flex-col'
           )}
         >
-          <div className='flex items-center justify-between px-4 h-[44px] flex-shrink-0 border-b border-border bg-background'>
+          <div className='flex items-center justify-between px-4 h-11 shrink-0 border-b border-border bg-card'>
             <h2 className='text-[15px] font-bold text-foreground'>{text.settings.title}</h2>
             <button
               onClick={() => onOpenChange(false)}
@@ -39,7 +39,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
             </button>
           </div>
 
-          <div className='flex-1 overflow-hidden bg-background'>
+          <div className='flex-1 overflow-hidden bg-muted'>
             <SettingsContent />
           </div>
         </AlertDialogContent>

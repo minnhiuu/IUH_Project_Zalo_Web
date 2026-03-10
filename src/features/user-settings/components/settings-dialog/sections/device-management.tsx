@@ -4,7 +4,12 @@ import { useUserText } from '@/features/user/i18n/use-user-text'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { getErrorMessage } from '@/utils/error-handler'
-import { useMyDevices, useDeleteDevice, useLogoutOtherDevices } from '@/features/user-settings/queries/use-devices'
+import {
+  useMyDevices,
+  useDeleteDevice,
+  useLogoutOtherDevices,
+  useLogoutDevice
+} from '@/features/user-settings/queries/use-devices'
 import type { DeviceResponse } from '@/features/user-settings/types/device.types'
 import { DeviceItem } from './device-item'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -18,6 +23,26 @@ export function DeviceManagement({ onBack }: DeviceManagementProps) {
   const { data: devices, isLoading: isLoadingDevices } = useMyDevices()
   const deleteDeviceMutation = useDeleteDevice()
   const logoutOtherDevicesMutation = useLogoutOtherDevices()
+  const logoutDeviceMutation = useLogoutDevice()
+
+  const handleLogoutDevice = async (sessionId: string) => {
+    if (
+      !window.confirm(
+        text.settings.accountPrivacy.deviceManagement.logoutConfirm ||
+          'Are you sure you want to log out of this device?'
+      )
+    ) {
+      return
+    }
+
+    try {
+      await logoutDeviceMutation.mutateAsync(sessionId)
+      toast.success(text.settings.accountPrivacy.deviceManagement.logoutSuccess || 'Logged out successfully')
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(error)
+      toast.error(errorMessage || text.settings.accountPrivacy.deviceManagement.logoutError || 'Failed to log out')
+    }
+  }
 
   const handleDeleteDevice = async (deviceId: string) => {
     if (!window.confirm(text.settings.accountPrivacy.deviceManagement.deleteConfirm)) {
@@ -88,66 +113,66 @@ export function DeviceManagement({ onBack }: DeviceManagementProps) {
             {text.settings.accountPrivacy.deviceManagement.loading}
           </span>
         </div>
-      ) : devices && devices.length > 0 ? (
+      ) : devices && (devices.activeDevices?.length > 0 || devices.otherDevices?.length > 0) ? (
         <>
           <div className='space-y-4'>
-            {devices.some((d: DeviceResponse) => d.isActive) && (
+            {devices.activeDevices?.length > 0 && (
               <div className='space-y-2'>
                 <h3 className='text-sm font-medium text-muted-foreground px-1'>
                   {text.settings.accountPrivacy.deviceManagement.activeDevices}
                 </h3>
                 <div className='space-y-2'>
                   <AnimatePresence mode='popLayout'>
-                    {devices
-                      .filter((d: DeviceResponse) => d.isActive)
-                      .map((device: DeviceResponse) => (
-                        <motion.div
-                          key={device.id}
-                          layout
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, scale: 0.95 }}
-                          transition={{ duration: 0.15 }}
-                        >
-                          <DeviceItem
-                            device={device}
-                            onDelete={handleDeleteDevice}
-                            isDeleting={deleteDeviceMutation.isPending}
-                            text={text}
-                          />
-                        </motion.div>
-                      ))}
+                    {devices.activeDevices.map((device: DeviceResponse) => (
+                      <motion.div
+                        key={device.id}
+                        layout
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.15 }}
+                      >
+                        <DeviceItem
+                          device={device}
+                          onDelete={handleDeleteDevice}
+                          onLogout={handleLogoutDevice}
+                          isDeleting={deleteDeviceMutation.isPending}
+                          isLoggingOut={logoutDeviceMutation.isPending}
+                          text={text}
+                        />
+                      </motion.div>
+                    ))}
                   </AnimatePresence>
                 </div>
               </div>
             )}
 
-            {devices.some((d: DeviceResponse) => !d.isActive) && (
+            {devices.otherDevices?.length > 0 && (
               <div className='space-y-2'>
                 <h3 className='text-sm font-medium text-muted-foreground px-1'>
                   {text.settings.accountPrivacy.deviceManagement.inactiveDevices}
                 </h3>
                 <div className='space-y-2'>
                   <AnimatePresence mode='popLayout'>
-                    {devices
-                      .filter((d: DeviceResponse) => !d.isActive)
-                      .map((device: DeviceResponse) => (
-                        <motion.div
-                          key={device.id}
-                          layout
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, scale: 0.95 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          <DeviceItem
-                            device={device}
-                            onDelete={handleDeleteDevice}
-                            isDeleting={deleteDeviceMutation.isPending}
-                            text={text}
-                          />
-                        </motion.div>
-                      ))}
+                    {devices.otherDevices.map((device: DeviceResponse) => (
+                      <motion.div
+                        key={device.id}
+                        layout
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <DeviceItem
+                          device={device}
+                          onDelete={handleDeleteDevice}
+                          onLogout={handleLogoutDevice}
+                          isDeleting={deleteDeviceMutation.isPending}
+                          isLoggingOut={logoutDeviceMutation.isPending}
+                          text={text}
+                        />
+                      </motion.div>
+                    ))}
                   </AnimatePresence>
                 </div>
               </div>
@@ -161,7 +186,7 @@ export function DeviceManagement({ onBack }: DeviceManagementProps) {
               variant='ghost'
               className='text-destructive hover:text-destructive hover:bg-destructive/10 w-full'
               onClick={handleLogoutOtherDevices}
-              disabled={logoutOtherDevicesMutation.isPending || devices.length <= 1}
+              disabled={logoutOtherDevicesMutation.isPending || !devices?.otherDevices?.length}
             >
               {logoutOtherDevicesMutation.isPending ? (
                 <Loader2 className='w-4 h-4 mr-2 animate-spin' />

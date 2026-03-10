@@ -2,18 +2,18 @@ import { Loader2 } from 'lucide-react'
 import { useUserText } from '@/features/user/i18n/use-user-text'
 import { cn } from '@/lib/utils'
 
-import { useMySettings, useUpdateMessageSettings } from '@/features/user-settings/queries/use-settings'
+import { ActionRow } from './action-row'
+import { useSettingsState } from '../settings-state-context'
 
 export function MessagesSettings() {
   const { text } = useUserText()
-  const { data: settings, isLoading } = useMySettings()
-  const updateSettings = useUpdateMessageSettings()
+  const { settings, isLoading, pending, updateMessageSettings } = useSettingsState()
 
   const messageSettings = settings?.messageSettings
 
   const handleToggle = (field: keyof NonNullable<typeof messageSettings>) => {
     if (!messageSettings) return
-    updateSettings.mutate({
+    updateMessageSettings({
       ...messageSettings,
       [field]: !messageSettings[field]
     })
@@ -33,73 +33,74 @@ export function MessagesSettings() {
     <div className='space-y-4'>
       <h2 className='text-lg font-semibold text-foreground'>{text.settings.messages.title}</h2>
 
-      <div className='rounded-lg border p-4 flex items-center justify-between'>
-        <div>
-          <h3 className='text-sm font-medium text-foreground'>{text.settings.messages.quickResponse.title}</h3>
-          <p className='text-xs text-muted-foreground'>{text.settings.messages.quickResponse.description}</p>
-        </div>
-        <button
-          onClick={() => handleToggle('quickResponseEnable')}
-          disabled={updateSettings.isPending}
-          className={cn(
-            'w-10 h-6 rounded-full transition-colors relative disabled:opacity-50 disabled:cursor-not-allowed',
-            messageSettings.quickResponseEnable ? 'bg-primary' : 'bg-muted'
-          )}
-        >
-          <div
+      <ActionRow
+        mode='inline'
+        title={text.settings.messages.quickResponse.title}
+        description={text.settings.messages.quickResponse.description}
+        action={
+          <button
+            onClick={() => handleToggle('quickResponseEnable')}
+            disabled={pending.message}
             className={cn(
-              'absolute top-1 w-4 h-4 rounded-full bg-primary-foreground shadow-sm transition-transform',
-              messageSettings.quickResponseEnable ? 'translate-x-5' : 'translate-x-1'
+              'w-10 h-6 rounded-full transition-colors relative disabled:opacity-50 disabled:cursor-not-allowed',
+              messageSettings.quickResponseEnable ? 'bg-primary' : 'bg-muted'
             )}
-          />
-        </button>
-      </div>
+          >
+            <div
+              className={cn(
+                'absolute top-1 w-4 h-4 rounded-full bg-primary-foreground shadow-sm transition-transform',
+                messageSettings.quickResponseEnable ? 'translate-x-5' : 'translate-x-1'
+              )}
+            />
+          </button>
+        }
+      />
 
-      <div className='rounded-lg border p-4 flex items-center justify-between'>
-        <div>
-          <h3 className='text-sm font-medium text-foreground'>
-            {text.settings.messages.separatePriorityAndOther.title}
-          </h3>
-          <p className='text-xs text-muted-foreground'>{text.settings.messages.separatePriorityAndOther.description}</p>
-        </div>
-        <button
-          onClick={() => handleToggle('separatePriorityAndOtherEnable')}
-          disabled={updateSettings.isPending}
-          className={cn(
-            'w-10 h-6 rounded-full transition-colors relative disabled:opacity-50 disabled:cursor-not-allowed',
-            messageSettings.separatePriorityAndOtherEnable ? 'bg-primary' : 'bg-muted'
-          )}
-        >
-          <div
+      <ActionRow
+        mode='inline'
+        title={text.settings.messages.separatePriorityAndOther.title}
+        description={text.settings.messages.separatePriorityAndOther.description}
+        action={
+          <button
+            onClick={() => handleToggle('separatePriorityAndOtherEnable')}
+            disabled={pending.message}
             className={cn(
-              'absolute top-1 w-4 h-4 rounded-full bg-primary-foreground shadow-sm transition-transform',
-              messageSettings.separatePriorityAndOtherEnable ? 'translate-x-5' : 'translate-x-1'
+              'w-10 h-6 rounded-full transition-colors relative disabled:opacity-50 disabled:cursor-not-allowed',
+              messageSettings.separatePriorityAndOtherEnable ? 'bg-primary' : 'bg-muted'
             )}
-          />
-        </button>
-      </div>
+          >
+            <div
+              className={cn(
+                'absolute top-1 w-4 h-4 rounded-full bg-primary-foreground shadow-sm transition-transform',
+                messageSettings.separatePriorityAndOtherEnable ? 'translate-x-5' : 'translate-x-1'
+              )}
+            />
+          </button>
+        }
+      />
 
-      <div className='rounded-lg border p-4 flex items-center justify-between'>
-        <div>
-          <h3 className='text-sm font-medium text-foreground'>{text.settings.messages.showTypingStatus.title}</h3>
-          <p className='text-xs text-muted-foreground'>{text.settings.messages.showTypingStatus.description}</p>
-        </div>
-        <button
-          onClick={() => handleToggle('showTypingStatus')}
-          disabled={updateSettings.isPending}
-          className={cn(
-            'w-10 h-6 rounded-full transition-colors relative disabled:opacity-50 disabled:cursor-not-allowed',
-            messageSettings.showTypingStatus ? 'bg-primary' : 'bg-muted'
-          )}
-        >
-          <div
+      <ActionRow
+        mode='inline'
+        title={text.settings.messages.showTypingStatus.title}
+        description={text.settings.messages.showTypingStatus.description}
+        action={
+          <button
+            onClick={() => handleToggle('showTypingStatus')}
+            disabled={pending.message}
             className={cn(
-              'absolute top-1 w-4 h-4 rounded-full bg-primary-foreground shadow-sm transition-transform',
-              messageSettings.showTypingStatus ? 'translate-x-5' : 'translate-x-1'
+              'w-10 h-6 rounded-full transition-colors relative disabled:opacity-50 disabled:cursor-not-allowed',
+              messageSettings.showTypingStatus ? 'bg-primary' : 'bg-muted'
             )}
-          />
-        </button>
-      </div>
+          >
+            <div
+              className={cn(
+                'absolute top-1 w-4 h-4 rounded-full bg-primary-foreground shadow-sm transition-transform',
+                messageSettings.showTypingStatus ? 'translate-x-5' : 'translate-x-1'
+              )}
+            />
+          </button>
+        }
+      />
     </div>
   )
 }

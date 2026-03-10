@@ -193,10 +193,15 @@
           "newPasswordPlaceholder": "Enter your new password (min. 8 characters)",
           "confirmPasswordLabel": "Confirm New Password",
           "confirmPasswordPlaceholder": "Re-enter your new password",
+          "logoutOtherSessions": "Log out other running sessions",
           "changeButton": "Change Password",
           "changing": "Changing...",
           "success": "Password changed successfully",
-          "error": "Failed to change password. Please try again."
+          "error": "Failed to change password. Please try again.",
+          "validation": {
+            "currentPasswordRequired": "Current password is required",
+            "confirmPasswordRequired": "Please confirm your password"
+          }
         },
         "deviceManagement": {
           "title": "Device Management",
@@ -220,6 +225,9 @@
           "logoutOthersConfirm": "Are you sure you want to log out of all other devices?",
           "logoutOthersSuccess": "Logged out of all other devices",
           "logoutOthersError": "Failed to log out of other devices",
+          "logoutConfirm": "Are you sure you want to log out of this device?",
+          "logoutSuccess": "Logged out successfully",
+          "logoutError": "Failed to log out. Please try again.",
           "activeStatus": "Active now",
           "activeDevices": "Active Devices",
           "inactiveDevices": "Other Devices"

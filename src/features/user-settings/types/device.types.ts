@@ -20,3 +20,8 @@ export interface DeviceResponse {
   isActive?: boolean
   isCurrentDevice?: boolean
 }
+
+export interface DeviceListResponse {
+  activeDevices: DeviceResponse[]
+  otherDevices: DeviceResponse[]
+}

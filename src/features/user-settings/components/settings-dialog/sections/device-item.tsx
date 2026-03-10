@@ -1,7 +1,7 @@
 import type { DeviceResponse } from '@/features/user-settings/types/device.types'
 import type { createUserTexts } from '@/features/user/i18n/user.texts'
 import { cn } from '@/lib/utils'
-import { Monitor, Smartphone, MoreVertical, LogOut, Trash2 } from 'lucide-react'
+import { Monitor, Smartphone, MoreVertical, LogOut, Trash2, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { format } from 'date-fns'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -9,11 +9,13 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 interface DeviceItemProps {
   device: DeviceResponse
   onDelete: (id: string) => void
+  onLogout?: (sessionId: string) => void
   isDeleting: boolean
+  isLoggingOut?: boolean
   text: ReturnType<typeof createUserTexts>
 }
 
-export function DeviceItem({ device, onDelete, isDeleting, text }: DeviceItemProps) {
+export function DeviceItem({ device, onDelete, onLogout, isDeleting, isLoggingOut, text }: DeviceItemProps) {
   return (
     <div
       className={cn(
@@ -74,10 +76,18 @@ export function DeviceItem({ device, onDelete, isDeleting, text }: DeviceItemPro
                 <DropdownMenuContent align='end'>
                   <DropdownMenuItem
                     className='text-destructive focus:text-destructive'
-                    onClick={() => onDelete(device.id)}
+                    onClick={() => onLogout?.(device.sessionId)}
                   >
-                    <LogOut className='w-4 h-4 mr-2' />
+                    {isLoggingOut ? <Loader2 className='w-4 h-4 mr-2 animate-spin' /> : <LogOut className='w-4 h-4 mr-2' />}
                     {text.settings.accountPrivacy.deviceManagement.logout || 'Log out'}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className='text-destructive focus:text-destructive'
+                    onClick={() => onDelete(device.id)}
+                    disabled={isDeleting}
+                  >
+                    <Trash2 className='w-4 h-4 mr-2' />
+                    {text.settings.accountPrivacy.deviceManagement.deleteButton || 'Remove'}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

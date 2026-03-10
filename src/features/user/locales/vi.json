@@ -193,10 +193,15 @@
           "newPasswordPlaceholder": "Nhập mật khẩu mới (tối thiểu 8 ký tự)",
           "confirmPasswordLabel": "Xác nhận mật khẩu mới",
           "confirmPasswordPlaceholder": "Nhập lại mật khẩu mới",
+          "logoutOtherSessions": "Đăng xuất các phiên đang hoạt động khác",
           "changeButton": "Đổi mật khẩu",
           "changing": "Đang đổi...",
           "success": "Đổi mật khẩu thành công",
-          "error": "Không thể đổi mật khẩu. Vui lòng thử lại."
+          "error": "Không thể đổi mật khẩu. Vui lòng thử lại.",
+          "validation": {
+            "currentPasswordRequired": "Mật khẩu hiện tại không được để trống",
+            "confirmPasswordRequired": "Vui lòng xác nhận mật khẩu"
+          }
         },
         "deviceManagement": {
           "title": "Quản lý thiết bị",
@@ -220,6 +225,9 @@
           "logoutOthersConfirm": "Bạn có chắc chắn muốn đăng xuất khỏi tất cả các thiết bị khác không?",
           "logoutOthersSuccess": "Đã đăng xuất khỏi tất cả các thiết bị khác",
           "logoutOthersError": "Không thể đăng xuất các thiết bị khác",
+          "logoutConfirm": "Bạn có chắc chắn muốn đăng xuất khỏi thiết bị này?",
+          "logoutSuccess": "Đăng xuất thành công",
+          "logoutError": "Không thể đăng xuất. Vui lòng thử lại.",
           "activeStatus": "Đang hoạt động",
           "activeDevices": "Thiết bị đang hoạt động",
           "inactiveDevices": "Thiết bị khác"

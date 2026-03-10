@@ -1,9 +1,10 @@
 // Enums matching backend
 export const PrivacyLevel = {
-  EVERYBODY: 'EVERYBODY',
+  EVERYONE: 'EVERYONE',
   FRIENDS: 'FRIENDS',
-  PRIVATE: 'PRIVATE',
-  CONTACTED: 'CONTACTED'
+  FRIENDS_AND_CONTACTED: 'FRIENDS_AND_CONTACTED',
+  ONLY_ME: 'ONLY_ME',
+  OFF: 'OFF'
 } as const
 
 export type PrivacyLevel = (typeof PrivacyLevel)[keyof typeof PrivacyLevel]

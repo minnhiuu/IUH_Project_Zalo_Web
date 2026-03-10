@@ -11,15 +11,26 @@ import { Label } from '@/components/ui/label'
 import { useChangePassword } from '@/features/user/queries/use-mutations'
 import { toast } from 'sonner'
 import { getErrorMessage } from '@/utils/error-handler'
+import i18n from '@/lib/i18n'
+
+const PASSWORD_COMPLEXITY_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
 
 const changePasswordSchema = z
   .object({
-    oldPassword: z.string().min(1, 'Current password is required'),
-    newPassword: z.string().min(8, 'New password must be at least 8 characters'),
-    confirmPassword: z.string().min(1, 'Please confirm your password')
+    oldPassword: z
+      .string()
+      .min(1, i18n.t('user:user.settings.accountPrivacy.changePassword.validation.currentPasswordRequired')),
+    newPassword: z
+      .string()
+      .min(8, i18n.t('auth:auth.validation.passwordMin'))
+      .regex(PASSWORD_COMPLEXITY_REGEX, i18n.t('auth:auth.validation.passwordComplex')),
+    confirmPassword: z
+      .string()
+      .min(1, i18n.t('user:user.settings.accountPrivacy.changePassword.validation.confirmPasswordRequired')),
+    logoutOtherDevices: z.boolean()
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Passwords don't match",
+    message: i18n.t('auth:auth.validation.passwordMismatch'),
     path: ['confirmPassword']
   })
 
@@ -41,16 +52,24 @@ export function ChangePassword({ onBack }: ChangePasswordProps) {
     register,
     handleSubmit,
     formState: { errors },
-    reset
+    reset,
+    watch,
+    setValue
   } = useForm<ChangePasswordFormData>({
-    resolver: zodResolver(changePasswordSchema)
+    resolver: zodResolver(changePasswordSchema),
+    defaultValues: {
+      logoutOtherDevices: true
+    }
   })
+
+  const logoutOtherDevices = watch('logoutOtherDevices')
 
   const onSubmit = async (data: ChangePasswordFormData) => {
     try {
       await changePasswordMutation.mutateAsync({
         oldPassword: data.oldPassword,
-        newPassword: data.newPassword
+        newPassword: data.newPassword,
+        logoutOtherDevices: data.logoutOtherDevices
       })
       toast.success(text.settings.accountPrivacy.changePassword.success)
       reset()
@@ -96,17 +115,20 @@ export function ChangePassword({ onBack }: ChangePasswordProps) {
               type={showOldPassword ? 'text' : 'password'}
               placeholder={text.settings.accountPrivacy.changePassword.currentPasswordPlaceholder}
               {...register('oldPassword')}
-              className={cn('pr-10', errors.oldPassword && 'border-destructive')}
+              className={cn('pr-10 bg-white', errors.oldPassword && 'border-destructive')}
             />
             <button
               type='button'
               onClick={() => setShowOldPassword(!showOldPassword)}
+              tabIndex={-1}
               className='absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors'
             >
               {showOldPassword ? <EyeOff className='w-4 h-4' /> : <Eye className='w-4 h-4' />}
             </button>
           </div>
-          {errors.oldPassword && <p className='text-xs text-destructive'>{errors.oldPassword.message}</p>}
+          <p className={cn('text-xs text-destructive min-h-4', !errors.oldPassword && 'invisible')}>
+            {errors.oldPassword?.message ?? '.'}
+          </p>
         </div>
 
         {/* New Password */}
@@ -120,17 +142,20 @@ export function ChangePassword({ onBack }: ChangePasswordProps) {
               type={showNewPassword ? 'text' : 'password'}
               placeholder={text.settings.accountPrivacy.changePassword.newPasswordPlaceholder}
               {...register('newPassword')}
-              className={cn('pr-10', errors.newPassword && 'border-destructive')}
+              className={cn('pr-10 bg-white', errors.newPassword && 'border-destructive')}
             />
             <button
               type='button'
               onClick={() => setShowNewPassword(!showNewPassword)}
+              tabIndex={-1}
               className='absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors'
             >
               {showNewPassword ? <EyeOff className='w-4 h-4' /> : <Eye className='w-4 h-4' />}
             </button>
           </div>
-          {errors.newPassword && <p className='text-xs text-destructive'>{errors.newPassword.message}</p>}
+          <p className={cn('text-xs text-destructive min-h-4', !errors.newPassword && 'invisible')}>
+            {errors.newPassword?.message ?? '.'}
+          </p>
         </div>
 
         {/* Confirm Password */}
@@ -144,17 +169,44 @@ export function ChangePassword({ onBack }: ChangePasswordProps) {
               type={showConfirmPassword ? 'text' : 'password'}
               placeholder={text.settings.accountPrivacy.changePassword.confirmPasswordPlaceholder}
               {...register('confirmPassword')}
-              className={cn('pr-10', errors.confirmPassword && 'border-destructive')}
+              className={cn('pr-10 bg-white', errors.confirmPassword && 'border-destructive')}
             />
             <button
               type='button'
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              tabIndex={-1}
               className='absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors'
             >
               {showConfirmPassword ? <EyeOff className='w-4 h-4' /> : <Eye className='w-4 h-4' />}
             </button>
           </div>
-          {errors.confirmPassword && <p className='text-xs text-destructive'>{errors.confirmPassword.message}</p>}
+          <p className={cn('text-xs text-destructive min-h-4', !errors.confirmPassword && 'invisible')}>
+            {errors.confirmPassword?.message ?? '.'}
+          </p>
+        </div>
+
+        <div className='flex items-center justify-between py-2'>
+          <Label htmlFor='logoutOtherDevices' className='text-sm font-medium text-foreground cursor-pointer'>
+            {text.settings.accountPrivacy.changePassword.logoutOtherSessions}
+          </Label>
+          <button
+            type='button'
+            role='switch'
+            aria-checked={logoutOtherDevices}
+            onClick={() => setValue('logoutOtherDevices', !logoutOtherDevices)}
+            className={cn(
+              'relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2',
+              logoutOtherDevices ? 'bg-primary' : 'bg-muted'
+            )}
+          >
+            <span
+              aria-hidden='true'
+              className={cn(
+                'pointer-events-none inline-block h-4 w-4 transform rounded-full bg-background shadow ring-0 transition duration-200 ease-in-out',
+                logoutOtherDevices ? 'translate-x-4' : 'translate-x-0'
+              )}
+            />
+          </button>
         </div>
 
         <div className='pt-2'>

@@ -195,10 +195,19 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
         newPasswordPlaceholder: t(USER_KEYS.settings.accountPrivacy.changePassword.newPasswordPlaceholder),
         confirmPasswordLabel: t(USER_KEYS.settings.accountPrivacy.changePassword.confirmPasswordLabel),
         confirmPasswordPlaceholder: t(USER_KEYS.settings.accountPrivacy.changePassword.confirmPasswordPlaceholder),
+        logoutOtherSessions: t(USER_KEYS.settings.accountPrivacy.changePassword.logoutOtherSessions),
         changeButton: t(USER_KEYS.settings.accountPrivacy.changePassword.changeButton),
         changing: t(USER_KEYS.settings.accountPrivacy.changePassword.changing),
         success: t(USER_KEYS.settings.accountPrivacy.changePassword.success),
-        error: t(USER_KEYS.settings.accountPrivacy.changePassword.error)
+        error: t(USER_KEYS.settings.accountPrivacy.changePassword.error),
+        validation: {
+          currentPasswordRequired: t(
+            USER_KEYS.settings.accountPrivacy.changePassword.validation.currentPasswordRequired
+          ),
+          confirmPasswordRequired: t(
+            USER_KEYS.settings.accountPrivacy.changePassword.validation.confirmPasswordRequired
+          )
+        }
       },
       deviceManagement: {
         title: t(USER_KEYS.settings.accountPrivacy.deviceManagement.title),
@@ -222,6 +231,9 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
         logoutOthersConfirm: t(USER_KEYS.settings.accountPrivacy.deviceManagement.logoutOthersConfirm),
         logoutOthersSuccess: t(USER_KEYS.settings.accountPrivacy.deviceManagement.logoutOthersSuccess),
         logoutOthersError: t(USER_KEYS.settings.accountPrivacy.deviceManagement.logoutOthersError),
+        logoutConfirm: t(USER_KEYS.settings.accountPrivacy.deviceManagement.logoutConfirm),
+        logoutSuccess: t(USER_KEYS.settings.accountPrivacy.deviceManagement.logoutSuccess),
+        logoutError: t(USER_KEYS.settings.accountPrivacy.deviceManagement.logoutError),
         activeStatus: t(USER_KEYS.settings.accountPrivacy.deviceManagement.activeStatus),
         activeDevices: t(USER_KEYS.settings.accountPrivacy.deviceManagement.activeDevices),
         inactiveDevices: t(USER_KEYS.settings.accountPrivacy.deviceManagement.inactiveDevices)

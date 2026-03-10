@@ -1,17 +1,17 @@
 import { Loader2 } from 'lucide-react'
 import { useUserText } from '@/features/user/i18n/use-user-text'
 import { cn } from '@/lib/utils'
-import { useMySettings, useUpdateSecuritySettings } from '@/features/user-settings/queries/use-settings'
+import { ActionRow } from './action-row'
+import { useSettingsState } from '../settings-state-context'
 
 export function SecuritySettings() {
   const { text } = useUserText()
-  const { data: settings, isLoading } = useMySettings()
-  const updateSettings = useUpdateSecuritySettings()
+  const { settings, isLoading, pending, updateSecuritySettings } = useSettingsState()
 
   const twoFactorEnabled = settings?.securitySettings.twoFactorEnabled ?? false
 
   const handleToggle = () => {
-    updateSettings.mutate({
+    updateSecuritySettings({
       twoFactorEnabled: !twoFactorEnabled
     })
   }
@@ -28,27 +28,28 @@ export function SecuritySettings() {
     <div className='space-y-4'>
       <h2 className='text-lg font-semibold text-foreground'>{text.settings.security.title}</h2>
 
-      <div className='rounded-lg border p-4 flex items-center justify-between'>
-        <div>
-          <h3 className='text-sm font-medium text-foreground'>{text.settings.security.twoFactor.title}</h3>
-          <p className='text-xs text-muted-foreground'>{text.settings.security.twoFactor.description}</p>
-        </div>
-        <button
-          onClick={handleToggle}
-          disabled={updateSettings.isPending}
-          className={cn(
-            'w-10 h-6 rounded-full transition-colors relative disabled:opacity-50 disabled:cursor-not-allowed',
-            twoFactorEnabled ? 'bg-primary' : 'bg-muted'
-          )}
-        >
-          <div
+      <ActionRow
+        mode='inline'
+        title={text.settings.security.twoFactor.title}
+        description={text.settings.security.twoFactor.description}
+        action={
+          <button
+            onClick={handleToggle}
+            disabled={pending.security}
             className={cn(
-              'absolute top-1 w-4 h-4 rounded-full bg-primary-foreground shadow-sm transition-transform',
-              twoFactorEnabled ? 'translate-x-5' : 'translate-x-1'
+              'w-10 h-6 rounded-full transition-colors relative disabled:opacity-50 disabled:cursor-not-allowed',
+              twoFactorEnabled ? 'bg-primary' : 'bg-muted'
             )}
-          />
-        </button>
-      </div>
+          >
+            <div
+              className={cn(
+                'absolute top-1 w-4 h-4 rounded-full bg-primary-foreground shadow-sm transition-transform',
+                twoFactorEnabled ? 'translate-x-5' : 'translate-x-1'
+              )}
+            />
+          </button>
+        }
+      />
     </div>
   )
 }

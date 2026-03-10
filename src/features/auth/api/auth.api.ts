@@ -11,7 +11,8 @@ import type {
   TokenResponse,
   QrGenerationResponse,
   QrStatusResponse,
-  ChangePasswordRequest
+  ChangePasswordRequest,
+  LogoutDeviceRequest
 } from '@/features/auth/schemas/auth.schema'
 import { QrSessionStatus } from '@/constants/enum'
 import http from '@/lib/axios-client'
@@ -37,6 +38,8 @@ export const authApi = {
   logout: (request?: LogoutRequest) => http.post<ApiResponse<void>>('/auth/logout', request),
 
   logoutOthers: () => http.post<ApiResponse<void>>('/auth/logout-others'),
+
+  logoutDevice: (request: LogoutDeviceRequest) => http.post<ApiResponse<void>>('/auth/logout-device', request),
 
   changePassword: (request: ChangePasswordRequest) => http.post<ApiResponse<void>>('/auth/change-password', request),
 
