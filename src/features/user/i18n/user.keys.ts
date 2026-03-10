@@ -50,7 +50,6 @@ export const USER_KEYS = {
     noImages: 'user.profile.noImages',
     mutualGroups: 'user.profile.mutualGroups',
     shareContact: 'user.profile.shareContact',
-    block: 'user.profile.block',
     report: 'user.profile.report',
     deleteFriend: 'user.profile.deleteFriend'
   },

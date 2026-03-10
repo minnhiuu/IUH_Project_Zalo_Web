@@ -13,6 +13,9 @@ import {
 } from '@/components/ui/table'
 import type { AdminUserListItem } from '@/features/user/schemas/admin-user.schema'
 import type { PageResponse } from '@/shared/api'
+import { useAdminText } from '@/features/user/i18n/use-admin-text'
+import { formatDateTimeShort } from '@/utils/date'
+import { useAuth } from '@/features/auth/hooks/use-auth'
 
 type UsersTableProps = {
   data?: PageResponse<AdminUserListItem>
@@ -24,26 +27,19 @@ type UsersTableProps = {
 }
 
 export function UsersTable({ data, isLoading, onView, onBan, onUnban, onPageChange }: UsersTableProps) {
+  const { text } = useAdminText()
+  const t = text.userManagement
+  const { user: currentUser } = useAuth()
+
   if (isLoading) return <TableSkeleton />
 
   if (!data || data.data.length === 0) {
     return (
       <div className='text-center py-12'>
-        <p className='text-muted-foreground'>Không tìm thấy người dùng nào</p>
+        <p className='text-muted-foreground'>{t.table.noData}</p>
       </div>
     )
   }
-
-  const fmt = (d?: string) =>
-    d
-      ? new Intl.DateTimeFormat('vi-VN', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit'
-        }).format(new Date(d))
-      : '—'
 
   return (
     <div className='space-y-4'>
@@ -52,21 +48,21 @@ export function UsersTable({ data, isLoading, onView, onBan, onUnban, onPageChan
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className='w-10 font-bold'>#</TableHead>
-                <TableHead className='font-bold'>Người dùng</TableHead>
-                <TableHead className='font-bold'>Email</TableHead>
-                <TableHead className='font-bold'>Số điện thoại</TableHead>
-                <TableHead className='font-bold'>Vai trò</TableHead>
-                <TableHead className='font-bold'>Trạng thái</TableHead>
-                <TableHead className='font-bold'>Ngày tạo</TableHead>
-                <TableHead className='font-bold'>Đăng nhập cuối</TableHead>
-                <TableHead className='text-right font-bold'>Hành động</TableHead>
+                <TableHead className='w-10 font-bold'>{t.table.no}</TableHead>
+                <TableHead className='font-bold'>{t.table.userName}</TableHead>
+                <TableHead className='font-bold'>{t.table.email}</TableHead>
+                <TableHead className='font-bold'>{t.table.phone}</TableHead>
+                <TableHead className='font-bold'>{t.table.role}</TableHead>
+                <TableHead className='font-bold'>{t.table.status}</TableHead>
+                <TableHead className='font-bold'>{t.table.createdAt}</TableHead>
+                <TableHead className='font-bold'>{t.table.lastLogin}</TableHead>
+                <TableHead className='text-right font-bold'>{t.table.actions}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {data.data.map((item, index) => {
                 const u = item.user
-                const isActive = u.accountInfo?.enabled !== false
+                const isActive = item.audit.active
                 return (
                   <TableRow key={u.id}>
                     <TableCell className='font-medium text-muted-foreground'>
@@ -88,35 +84,35 @@ export function UsersTable({ data, isLoading, onView, onBan, onUnban, onPageChan
                     </TableCell>
                     <TableCell>
                       <Badge variant={isActive ? 'default' : 'destructive'} className='text-xs'>
-                        {isActive ? 'Hoạt động' : 'Đã cấm'}
+                        {isActive ? t.active : t.banned}
                       </Badge>
                     </TableCell>
-                    <TableCell className='text-sm'>{fmt(item.audit.createdAt)}</TableCell>
-                    <TableCell className='text-sm'>{fmt(item.audit.lastLoginAt)}</TableCell>
+                    <TableCell className='text-sm'>{formatDateTimeShort(item.audit.createdAt)}</TableCell>
+                    <TableCell className='text-sm'>{formatDateTimeShort(item.audit.lastLoginAt)}</TableCell>
                     <TableCell>
                       <div className='flex items-center justify-end gap-1'>
-                        <Button variant='ghost' size='sm' onClick={() => onView(item)} title='Xem chi tiết'>
-                          <Eye className='w-4 h-4' />
-                        </Button>
-                        {isActive ? (
+                        {isActive && u.id !== currentUser?.id ? (
                           <Button
                             variant='ghost' size='sm'
                             onClick={() => onBan(item)}
                             className='text-destructive hover:text-destructive'
-                            title='Cấm người dùng'
+                            title={t.actions.ban}
                           >
                             <Ban className='w-4 h-4' />
                           </Button>
-                        ) : (
+                        ) : !isActive ? (
                           <Button
                             variant='ghost' size='sm'
                             onClick={() => onUnban(item)}
                             className='text-green-600 hover:text-green-700'
-                            title='Bỏ cấm người dùng'
+                            title={t.actions.unban}
                           >
                             <ShieldCheck className='w-4 h-4' />
                           </Button>
-                        )}
+                        ) : <div className='w-8 h-8' />}
+                        <Button variant='ghost' size='sm' onClick={() => onView(item)} title={t.actions.view}>
+                          <Eye className='w-4 h-4' />
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -135,11 +131,11 @@ export function UsersTable({ data, isLoading, onView, onBan, onUnban, onPageChan
         <div className='flex items-center gap-2'>
           <Button variant='outline' size='sm' onClick={() => onPageChange(data.page - 1)} disabled={data.page === 0}>
             <ChevronLeft className='w-4 h-4' />
-            Trước
+            {t.pagination.previous}
           </Button>
-          <span className='text-sm'>Trang {data.page + 1} / {data.totalPages}</span>
+          <span className='text-sm'>{t.pagination.pageOf(data.page + 1, data.totalPages)}</span>
           <Button variant='outline' size='sm' onClick={() => onPageChange(data.page + 1)} disabled={data.page >= data.totalPages - 1}>
-            Sau
+            {t.pagination.next}
             <ChevronRight className='w-4 h-4' />
           </Button>
         </div>
@@ -149,6 +145,8 @@ export function UsersTable({ data, isLoading, onView, onBan, onUnban, onPageChan
 }
 
 function TableSkeleton() {
+  const { text } = useAdminText()
+  const t = text.userManagement
   const cols = 9
   return (
     <div className='border rounded-lg overflow-hidden'>
@@ -156,7 +154,10 @@ function TableSkeleton() {
         <Table>
           <TableHeader>
             <TableRow>
-              {['#', 'Người dùng', 'Email', 'SĐT', 'Vai trò', 'Trạng thái', 'Ngày tạo', 'Đăng nhập', 'Hành động'].map((h) => (
+              {[
+                t.table.no, t.table.userName, t.table.email, t.table.phone,
+                t.table.role, t.table.status, t.table.createdAt, t.table.lastLogin, t.table.actions
+              ].map((h) => (
                 <TableHead key={h}>{h}</TableHead>
               ))}
             </TableRow>

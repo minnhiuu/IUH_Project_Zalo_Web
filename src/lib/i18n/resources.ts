@@ -15,12 +15,14 @@ export const resources = {
     common: commonVi,
     auth: authVi,
     user: userVi,
+    admin: userVi,
     search: searchVi
   },
   en: {
     common: commonEn,
     auth: authEn,
     user: userEn,
+    admin: userEn,
     search: searchEn
   }
 } as const

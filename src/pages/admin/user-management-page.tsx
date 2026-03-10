@@ -10,6 +10,7 @@ import { BanUserDialog } from '@/features/user/components/admin/ban-user-dialog'
 import { UnbanUserDialog } from '@/features/user/components/admin/unban-user-dialog'
 import { ViewUserDialog } from '@/features/user/components/admin/view-user-dialog'
 import type { UserFilterParams, AdminUserListItem } from '@/features/user/schemas/admin-user.schema'
+import { useAdminText } from '@/features/user/i18n/use-admin-text'
 
 export default function UserManagementPage() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -17,6 +18,8 @@ export default function UserManagementPage() {
   const [viewDialogOpen, setViewDialogOpen] = useState(false)
   const [banDialogOpen, setBanDialogOpen] = useState(false)
   const [unbanDialogOpen, setUnbanDialogOpen] = useState(false)
+  const { text } = useAdminText()
+  const t = text.userManagement
 
   const activeTab = (searchParams.get('status') as 'ACTIVE' | 'BANNED') ?? 'ACTIVE'
   const currentPage = Number(searchParams.get('page') ?? '0')
@@ -79,31 +82,31 @@ export default function UserManagementPage() {
           <div className='p-2 bg-primary/10 rounded-lg'>
             <Users className='w-6 h-6 text-primary' />
           </div>
-          <h1 className='text-3xl font-bold'>Quản lý người dùng</h1>
+          <h1 className='text-3xl font-bold'>{t.title}</h1>
         </div>
-        <p className='text-muted-foreground'>Quản lý tất cả người dùng trong hệ thống</p>
+        <p className='text-muted-foreground'>{t.description}</p>
       </div>
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className='mb-6'>
-        <TabsList>
+        <TabsList className='w-full sm:w-auto'>
           <TabsTrigger
             value='ACTIVE'
-            className='data-[state=active]:bg-green-500 data-[state=active]:text-white'
+            className='flex-1 sm:flex-none data-[state=active]:bg-green-500 data-[state=active]:text-white'
           >
-            Đang hoạt động
+            {t.tabs.active}
             {activeCount !== undefined && (
-              <span className='ml-2 px-1.5 py-0.5 text-xs rounded-full bg-green-100 text-green-700'>
+              <span className={`ml-2 px-1.5 py-0.5 text-xs rounded-full ${activeTab === 'ACTIVE' ? 'bg-white/30 text-white' : 'bg-green-100 text-green-700'}`}>
                 {activeCount}
               </span>
             )}
           </TabsTrigger>
           <TabsTrigger
             value='BANNED'
-            className='data-[state=active]:bg-red-500 data-[state=active]:text-white'
+            className='flex-1 sm:flex-none data-[state=active]:bg-red-500 data-[state=active]:text-white'
           >
-            Đã bị cấm
+            {t.tabs.banned}
             {bannedCount !== undefined && (
-              <span className='ml-2 px-1.5 py-0.5 text-xs rounded-full bg-red-100 text-red-700'>
+              <span className={`ml-2 px-1.5 py-0.5 text-xs rounded-full ${activeTab === 'BANNED' ? 'bg-white/30 text-white' : 'bg-red-100 text-red-700'}`}>
                 {bannedCount}
               </span>
             )}

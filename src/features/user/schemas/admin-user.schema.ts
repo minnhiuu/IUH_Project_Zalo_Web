@@ -7,7 +7,6 @@ export type AccountInfo = {
   phoneNumber?: string
   email?: string
   role: string
-  enabled: boolean
   isVerified: boolean
 }
 
@@ -54,7 +53,6 @@ export type AdminUserDetailResponse = {
   email?: string
   phoneNumber?: string
   role: string
-  enabled: boolean
   isVerified: boolean
   createdAt: string
   lastModifiedAt?: string
@@ -62,6 +60,12 @@ export type AdminUserDetailResponse = {
   lastModifiedBy?: string
   lastLoginAt?: string
   totalActivityLogs: number
+
+  // Ban status (source of truth for FE)
+  active: boolean
+
+  // Ban info (null if not banned)
+  banReason?: string
 }
 
 export const banUserRequestSchema = z.object({

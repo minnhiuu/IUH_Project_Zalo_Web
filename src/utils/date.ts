@@ -22,3 +22,27 @@ export const formatDate = (
     return ''
   }
 }
+
+const VI_VN = 'vi-VN'
+
+export const formatDateTimeShort = (d?: string): string =>
+  d
+    ? new Intl.DateTimeFormat(VI_VN, {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).format(new Date(d))
+    : '—'
+
+export const formatDateTimeLong = (d?: string): string =>
+  d
+    ? new Intl.DateTimeFormat(VI_VN, {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).format(new Date(d))
+    : '—'

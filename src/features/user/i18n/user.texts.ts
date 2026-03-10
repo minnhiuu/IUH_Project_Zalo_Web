@@ -53,7 +53,6 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
     noImages: t(USER_KEYS.profile.noImages),
     mutualGroups: (count: number) => t(USER_KEYS.profile.mutualGroups, { count }),
     shareContact: t(USER_KEYS.profile.shareContact),
-    block: t(USER_KEYS.profile.block),
     report: t(USER_KEYS.profile.report),
     deleteFriend: t(USER_KEYS.profile.deleteFriend)
   },
