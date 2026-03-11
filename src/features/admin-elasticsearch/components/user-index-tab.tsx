@@ -59,7 +59,7 @@ export const UserIndexTab = ({ activeModule }: UserIndexTabProps) => {
   const health = summary?.health
   const stats = summary?.stats
   const compare = summary?.compare
-  const deadEventsCount = summary?.deadEventsCount
+  const failedEventsCount = summary?.failedEventsCount
 
   const { data: indexes, isLoading: indexesLoading } = useEsIndexes()
 
@@ -89,14 +89,14 @@ export const UserIndexTab = ({ activeModule }: UserIndexTabProps) => {
 
         <CardContent className='p-6'>
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-5 gap-x-12'>
-            <StatusRow label={text.stats.documents} value={stats?.documentCount.toLocaleString()} />
+            <StatusRow label={text.stats.documents} value={stats?.documentCount?.toLocaleString()} />
             <StatusRow label={text.stats.storage} value={stats?.primaryStoreSize} />
             <StatusRow label={text.health.index} value={health?.currentIndexName} />
             <StatusRow label={text.health.alias} value={health?.aliasName} />
             <StatusRow label={text.stats.shards} value={stats?.numberOfShards} />
             <StatusRow label={text.stats.replicas} value={stats?.numberOfReplicas} />
-            <StatusRow label={text.compare.mongodb} value={compare?.databaseCount.toLocaleString()} />
-            <StatusRow label={text.compare.elasticsearch} value={compare?.elasticsearchCount.toLocaleString()} />
+            <StatusRow label={text.compare.mongodb} value={compare?.databaseCount?.toLocaleString()} />
+            <StatusRow label={text.compare.elasticsearch} value={compare?.elasticsearchCount?.toLocaleString()} />
             <StatusRow
               label={text.compare.title}
               value={
@@ -110,18 +110,18 @@ export const UserIndexTab = ({ activeModule }: UserIndexTabProps) => {
                 </span>
               }
             />
-            {deadEventsCount && deadEventsCount > 0 ? (
-              <div className='cursor-pointer group' onClick={() => navigate(PATHS.ADMIN.DEAD_EVENTS)}>
+            {failedEventsCount && failedEventsCount > 0 ? (
+              <div className='cursor-pointer group' onClick={() => navigate(PATHS.ADMIN.FAILED_EVENTS)}>
                 <StatusRow
                   label={text.userTab.deadEventsLabel}
                   value={
                     <div className='flex items-center gap-2'>
-                      <span>{deadEventsCount}</span>
+                      <span>{failedEventsCount}</span>
                       <ExternalLink className='h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity' />
                     </div>
                   }
                   color='text-warning-text font-bold'
-                  tooltip={t(ELASTICSEARCH_KEYS.userTab.deadEventsTooltip, { count: deadEventsCount })}
+                  tooltip={t(ELASTICSEARCH_KEYS.userTab.deadEventsTooltip, { count: failedEventsCount })}
                 />
               </div>
             ) : (
@@ -212,7 +212,7 @@ export const UserIndexTab = ({ activeModule }: UserIndexTabProps) => {
                       <TableCell>
                         <div className='flex items-center gap-1.5 text-muted-foreground font-semibold'>
                           <FileText className='h-3.5 w-3.5 opacity-40' />
-                          <span className='text-[15px] tabular-nums'>{idx.docCount.toLocaleString()}</span>
+                          <span className='text-[15px] tabular-nums'>{idx.docCount?.toLocaleString() ?? 0}</span>
                         </div>
                       </TableCell>
                       <TableCell>

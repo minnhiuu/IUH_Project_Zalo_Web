@@ -90,7 +90,8 @@
     },
     "controlBar": {
       "inputPlaceholder": "User ID...",
-      "syncUser": "Sync",
+      "syncUser": "Đồng bộ",
+      "sync": "ĐỒNG BỘ",
       "reindexAll": "Đồng bộ",
       "reindexMessages": "REINDEX MESSAGES",
       "reindexGroups": "REINDEX GROUPS",
@@ -169,9 +170,9 @@
     "dlq": {
       "title": "QUẢN LÝ SỰ CỐ DLQ",
       "subtitle": "Thống kê vận hành và điều khiển tập trung hàng đợi lỗi Kafka",
-      "retryAll": "Xử lý lại",
+      "retryAll": "Thử lại tất cả",
       "retrying": "Đang xử lý...",
-      "searchPlaceholder": "Tìm kiếm bản ghi...",
+      "searchPlaceholder": "Tìm theo ID hoặc nội dung lỗi...",
       "allEvents": "Tất cả loại sự kiện",
       "allRetries": "Mọi lần xử lý",
       "notRetried": "Chưa xử lý (0)",
@@ -203,15 +204,27 @@
         "actions": "Hành động"
       },
       "noData": "Không tìm thấy dữ liệu sự cố phù hợp với bộ lọc",
+      "actions": {
+        "viewDetail": "Xem chi tiết",
+        "cancelRecord": "Hủy bỏ bản ghi",
+        "retrySingle": "Thử lại bản ghi",
+        "markResolved": "Đánh dấu đã xử lý",
+        "markUnprocessed": "Đánh dấu chưa xử lý"
+      },
       "status": {
         "new": "Mới",
         "retrying": "Đang xử lý",
-        "critical": "Lỗi nặng"
+        "critical": "Lỗi nặng",
+        "unprocessed": "Chưa xử lý",
+        "processed": "Đã xử lý"
       },
-      "actions": {
-        "viewDetail": "Xem chi tiết",
-        "cancelRecord": "Hủy bỏ bản ghi"
+      "label": {
+        "status": "Trạng thái",
+        "time": "Thời gian"
       },
+      "retryRangeXh": "{{hours}} giờ qua",
+      "retryRangeXd": "{{days}} ngày qua",
+      "retryRangeButton": "Thử lại theo khoảng",
       "pagination": {
         "showing": "Hiển thị",
         "of": "trong số",
@@ -223,6 +236,8 @@
         "errorTitle": "Thông báo lỗi chi tiết",
         "noErrorMessage": "Hệ thống không ghi nhận được mã lỗi chi tiết.",
         "jsonTitle": "Dữ liệu JSON",
+        "retryCount": "Số lần thử lại",
+        "retryUnit": "lần",
         "close": "Đóng"
       },
       "tooltip": {
@@ -231,7 +246,18 @@
         "timeLabel": "Thời gian",
         "eventLabel": "Sự kiện"
       },
-      "unknownError": "Lỗi kết nối không xác định"
+      "unknownError": "Lỗi kết nối không xác định",
+      "bulk": {
+        "selectedCount": "Đã chọn {{count}} bản ghi",
+        "retrySelected": "Thử lại các mục đã chọn"
+      }
+    },
+    "errors": {
+      "updateStatus": "Có lỗi xảy ra khi cập nhật trạng thái",
+      "retrySingle": "Có lỗi xảy ra khi thử lại bản ghi",
+      "retryAll": "Có lỗi xảy ra khi thử lại tất cả bản ghi",
+      "retryDuration": "Có lỗi xảy ra khi thử lại các bản ghi theo thời gian",
+      "retryBulk": "Có lỗi xảy ra khi thử lại các bản ghi đã chọn"
     }
   }
 }

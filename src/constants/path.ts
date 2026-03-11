@@ -21,6 +21,6 @@ export const PATHS = {
     DASHBOARD: '/admin',
     USERS: '/admin/users',
     ELASTICSEARCH: '/admin/elasticsearch',
-    DEAD_EVENTS: '/admin/elasticsearch/dead-events'
+    FAILED_EVENTS: '/admin/elasticsearch/failed-events'
   }
 } as const

@@ -6,7 +6,7 @@ import type { SearchType } from '@/constants/enum'
 
 export const searchUserApi = {
   search: (keyword: string, page = 0, size = 5) =>
-    http.get<ApiResponse<PageResponse<UserSummaryResponse>>>('/users/search', {
+    http.get<ApiResponse<PageResponse<UserSummaryResponse>>>('/search/users', {
       params: { keyword, page, size }
     }),
 

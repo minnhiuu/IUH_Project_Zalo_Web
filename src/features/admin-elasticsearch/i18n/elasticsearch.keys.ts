@@ -84,6 +84,7 @@ export const ELASTICSEARCH_KEYS = {
   controlBar: {
     inputPlaceholder: 'elasticsearch.controlBar.inputPlaceholder',
     syncUser: 'elasticsearch.controlBar.syncUser',
+    sync: 'elasticsearch.controlBar.sync',
     reindexAll: 'elasticsearch.controlBar.reindexAll',
     reindexMessages: 'elasticsearch.controlBar.reindexMessages',
     reindexGroups: 'elasticsearch.controlBar.reindexGroups',
@@ -189,15 +190,29 @@ export const ELASTICSEARCH_KEYS = {
     eventType: 'elasticsearch.dlq.table.eventType',
     errorMessage: 'elasticsearch.dlq.table.errorMessage',
     retryCount: 'elasticsearch.dlq.table.retryCount',
-    status: 'elasticsearch.dlq.table.status',
+    tableStatus: 'elasticsearch.dlq.table.status',
     updatedAt: 'elasticsearch.dlq.table.updatedAt',
-    actions: 'elasticsearch.dlq.table.actions',
+    tableActions: 'elasticsearch.dlq.table.actions',
     noData: 'elasticsearch.dlq.noData',
-    statusNew: 'elasticsearch.dlq.status.new',
-    statusRetrying: 'elasticsearch.dlq.status.retrying',
-    statusCritical: 'elasticsearch.dlq.status.critical',
-    viewDetail: 'elasticsearch.dlq.actions.viewDetail',
-    cancelRecord: 'elasticsearch.dlq.actions.cancelRecord',
+    actions: {
+      viewDetail: 'elasticsearch.dlq.actions.viewDetail',
+      cancelRecord: 'elasticsearch.dlq.actions.cancelRecord',
+      retrySingle: 'elasticsearch.dlq.actions.retrySingle',
+      markResolved: 'elasticsearch.dlq.actions.markResolved',
+      markUnprocessed: 'elasticsearch.dlq.actions.markUnprocessed'
+    },
+    status: {
+      new: 'elasticsearch.dlq.status.new',
+      retrying: 'elasticsearch.dlq.status.retrying',
+      critical: 'elasticsearch.dlq.status.critical',
+      unprocessed: 'elasticsearch.dlq.status.unprocessed',
+      processed: 'elasticsearch.dlq.status.processed'
+    },
+    retryRangeXh: 'elasticsearch.dlq.retryRangeXh',
+    retryRangeXd: 'elasticsearch.dlq.retryRangeXd',
+    retryRangeButton: 'elasticsearch.dlq.retryRangeButton',
+    labelStatus: 'elasticsearch.dlq.label.status',
+    labelTime: 'elasticsearch.dlq.label.time',
     showing: 'elasticsearch.dlq.pagination.showing',
     of: 'elasticsearch.dlq.pagination.of',
     incidents: 'elasticsearch.dlq.pagination.incidents',
@@ -207,6 +222,8 @@ export const ELASTICSEARCH_KEYS = {
       errorTitle: 'elasticsearch.dlq.modal.errorTitle',
       noErrorMessage: 'elasticsearch.dlq.modal.noErrorMessage',
       jsonTitle: 'elasticsearch.dlq.modal.jsonTitle',
+      retryCount: 'elasticsearch.dlq.modal.retryCount',
+      retryUnit: 'elasticsearch.dlq.modal.retryUnit',
       close: 'elasticsearch.dlq.modal.close'
     },
     to: 'elasticsearch.dlq.to',
@@ -216,6 +233,17 @@ export const ELASTICSEARCH_KEYS = {
       timeLabel: 'elasticsearch.dlq.tooltip.timeLabel',
       eventLabel: 'elasticsearch.dlq.tooltip.eventLabel'
     },
-    unknownError: 'elasticsearch.dlq.unknownError'
+    unknownError: 'elasticsearch.dlq.unknownError',
+    bulk: {
+      selectedCount: 'elasticsearch.dlq.bulk.selectedCount',
+      retrySelected: 'elasticsearch.dlq.bulk.retrySelected'
+    }
+  },
+  errors: {
+    updateStatus: 'elasticsearch.errors.updateStatus',
+    retrySingle: 'elasticsearch.errors.retrySingle',
+    retryAll: 'elasticsearch.errors.retryAll',
+    retryDuration: 'elasticsearch.errors.retryDuration',
+    retryBulk: 'elasticsearch.errors.retryBulk'
   }
 } as const

@@ -4,7 +4,7 @@ import { Activity, Database, Zap, Terminal } from 'lucide-react'
 import { useEsSummary, useReindexStatus } from '../queries/use-queries'
 import { elasticsearchKeys } from '../queries/keys'
 import { useQueryClient } from '@tanstack/react-query'
-import { useReindexUsers, useReindexUser } from '../queries/use-mutations'
+import { useReindexUsers, useReindexUser, useUpdateFailedEventResolved } from '../queries/use-mutations'
 import { useElasticsearchText } from '../i18n/use-elasticsearch-text'
 import { StatsCard } from './stats-card'
 import { UserIndexTab } from './user-index-tab'
@@ -23,24 +23,30 @@ export const ElasticsearchDashboard = () => {
   const health = summary?.health
   const stats = summary?.stats
   const compare = summary?.compare
-  const deadEventsCount = summary?.deadEventsCount
+  const failedEventsCount = summary?.failedEventsCount
 
   const { data: taskStatus } = useReindexStatus(activeTaskId)
   const queryClient = useQueryClient()
 
   useEffect(() => {
     if (taskStatus?.status === ReindexTaskStatus.Completed) {
-      queryClient.invalidateQueries({
-        queryKey: elasticsearchKeys.summary()
-      })
-      queryClient.invalidateQueries({
-        queryKey: elasticsearchKeys.indexes()
-      })
+      const timer = setTimeout(() => {
+        queryClient.invalidateQueries({
+          queryKey: elasticsearchKeys.summary()
+        })
+        queryClient.invalidateQueries({
+          queryKey: elasticsearchKeys.indexes()
+        })
+        toast.success(text.messages.reindexAllSuccess)
+      }, 500)
+
+      return () => clearTimeout(timer)
     }
-  }, [taskStatus?.status, queryClient])
+  }, [taskStatus?.status, queryClient, text.messages.reindexAllSuccess])
 
   const reindexUsersMutation = useReindexUsers()
   const reindexUserMutation = useReindexUser()
+  const updateResolvedMutation = useUpdateFailedEventResolved()
 
   const handleReindexAll = () => {
     switch (activeModule) {
@@ -97,8 +103,8 @@ export const ElasticsearchDashboard = () => {
         isReindexingUser={reindexUserMutation.isPending}
         isReindexingAll={isReindexingAll}
         modulesText={text.modules}
-        isRetryingDeadEvents={false}
-        deadEventsCount={deadEventsCount || 0}
+        isUpdatingFailedEventResolved={updateResolvedMutation.isPending}
+        failedEventsCount={failedEventsCount || 0}
       />
 
       {activeTaskId && <ReindexProgressBar status={taskStatus} onClose={() => setActiveTaskId(null)} />}
@@ -116,7 +122,7 @@ export const ElasticsearchDashboard = () => {
         />
         <StatsCard
           title={text.stats.documents}
-          value={isModuleActive ? stats?.documentCount.toLocaleString() || '0' : '—'}
+          value={isModuleActive ? stats?.documentCount?.toLocaleString() || '0' : '—'}
           subValue={isModuleActive ? `${text.stats.storage}: ${stats?.totalStoreSize || 'N/A'}` : text.dashboard.noData}
           icon={Database}
           color='info'
@@ -124,7 +130,7 @@ export const ElasticsearchDashboard = () => {
         />
         <StatsCard
           title={text.compare.title}
-          value={isModuleActive ? compare?.difference.toLocaleString() || '0' : '—'}
+          value={isModuleActive ? compare?.difference?.toLocaleString() || '0' : '—'}
           subValue={
             isModuleActive
               ? compare?.status === DataSyncStatus.InSync
