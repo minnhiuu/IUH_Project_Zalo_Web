@@ -86,9 +86,9 @@ export default function RegisterForm() {
     setIsSubmitting(true)
     try {
       const result = await verifyRegistrationMutation.mutateAsync(data)
-      const { accessToken } = result.data.data!
+      const { accessToken, refreshTokenExpirationMs } = result.data.data!
       toast.success(text.verifyOtp.success)
-      await loginSuccess(accessToken)
+      await loginSuccess(accessToken, refreshTokenExpirationMs)
       navigate(PATHS.HOME)
     } catch (error) {
       setIsSubmitting(false)
