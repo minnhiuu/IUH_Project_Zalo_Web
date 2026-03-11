@@ -10,14 +10,14 @@ export const searchUserApi = {
       params: { keyword, page, size }
     }),
 
-  getRecentItems: () => http.get<ApiResponse<RecentSearchResponse[]>>('/users/recent-search/items'),
+  getRecentItems: () => http.get<ApiResponse<RecentSearchResponse[]>>('/search/recent/items'),
 
-  getRecentQueries: () => http.get<ApiResponse<RecentSearchResponse[]>>('/users/recent-search/queries'),
+  getRecentQueries: () => http.get<ApiResponse<RecentSearchResponse[]>>('/search/recent/queries'),
 
-  addSearchItem: (data: RecentSearchRequest) => http.post<ApiResponse<void>>('/users/recent-search', data),
+  addSearchItem: (data: RecentSearchRequest) => http.post<ApiResponse<void>>('/search/recent', data),
 
   removeItem: (id: string, type: SearchType) =>
-    http.delete<ApiResponse<void>>(`/users/recent-search/${id}`, { params: { type } }),
+    http.delete<ApiResponse<void>>(`/search/recent/${id}`, { params: { type } }),
 
-  clearAll: () => http.delete<ApiResponse<void>>('/users/recent-search/clear-all')
+  clearAll: () => http.delete<ApiResponse<void>>('/search/recent/clear-all')
 }

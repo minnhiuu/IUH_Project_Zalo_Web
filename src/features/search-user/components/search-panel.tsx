@@ -68,6 +68,15 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
             <Input
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && searchValue.trim() !== '') {
+                  addSearchItem({
+                    id: `k-${Date.now()}`,
+                    name: searchValue.trim(),
+                    type: SearchType.Keyword
+                  })
+                }
+              }}
               placeholder={text.placeholder}
               className='h-9 pl-10 pr-8 bg-muted border-none rounded-sm focus-visible:ring-1 focus-visible:ring-primary/20 placeholder:text-muted-foreground/60 text-sm'
               autoFocus
