@@ -1,7 +1,7 @@
 import http from '@/lib/axios-client'
 import type { UserSummaryResponse } from '@/shared/user/user-summary'
 import type { ApiResponse, PageResponse } from '@/shared/api'
-import type { RecentSearchRequest, RecentSearchResponse } from '../schemas/search.schema'
+import type { RecentSearchRequest, RecentHistoryResponse } from '../schemas/search.schema'
 import type { SearchType } from '@/constants/enum'
 
 export const searchUserApi = {
@@ -10,9 +10,7 @@ export const searchUserApi = {
       params: { keyword, page, size }
     }),
 
-  getRecentItems: () => http.get<ApiResponse<RecentSearchResponse[]>>('/search/recent/items'),
-
-  getRecentQueries: () => http.get<ApiResponse<RecentSearchResponse[]>>('/search/recent/queries'),
+  getRecentHistory: () => http.get<ApiResponse<RecentHistoryResponse>>('/search/recent/history'),
 
   addSearchItem: (data: RecentSearchRequest) => http.post<ApiResponse<void>>('/search/recent', data),
 

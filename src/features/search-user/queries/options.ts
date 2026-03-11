@@ -2,20 +2,11 @@ import { queryOptions, infiniteQueryOptions, keepPreviousData } from '@tanstack/
 import { searchUserApi } from '../api/search-user.api'
 import { searchKeys } from './keys'
 
-export const recentItemsQueryOptions = () =>
+export const recentHistoryQueryOptions = () =>
   queryOptions({
-    queryKey: searchKeys.recentItems(),
+    queryKey: searchKeys.recentHistory(),
     queryFn: async () => {
-      const response = await searchUserApi.getRecentItems()
-      return response.data.data
-    }
-  })
-
-export const recentQueriesQueryOptions = () =>
-  queryOptions({
-    queryKey: searchKeys.recentQueries(),
-    queryFn: async () => {
-      const response = await searchUserApi.getRecentQueries()
+      const response = await searchUserApi.getRecentHistory()
       return response.data.data
     }
   })

@@ -18,5 +18,13 @@ export const SEARCH_KEYS = {
     idRequired: 'validation.idRequired',
     nameRequired: 'validation.nameRequired',
     typeInvalid: 'validation.typeInvalid'
+  },
+  findByPhone: 'findByPhone',
+  phoneNumber: 'phoneNumber',
+  tabs: {
+    all: 'tabs.all',
+    contacts: 'tabs.contacts',
+    messages: 'tabs.messages',
+    file: 'tabs.file'
   }
 } as const
