@@ -2,7 +2,6 @@ import http from '@/lib/axios-client'
 import type { ApiResponse } from '@/shared/api'
 import type {
   UserSettingResponse,
-  GeneralSettings,
   PrivacySettings,
   NotificationSettings,
   GeneralSettingsUpdateRequest,
