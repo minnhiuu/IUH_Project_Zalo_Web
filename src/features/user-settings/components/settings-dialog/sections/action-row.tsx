@@ -27,7 +27,12 @@ export function ActionRow({
 
   if (mode === 'inline') {
     return (
-      <div className={cn('rounded-lg border bg-white p-4 flex items-center justify-between gap-4', contentClassName)}>
+      <div
+        className={cn(
+          'rounded-lg border border-border bg-card p-4 flex items-center justify-between gap-4',
+          contentClassName
+        )}
+      >
         <div>
           <h3 className={cn(baseTitleClass, titleClassName)}>{title}</h3>
           {description && <p className='text-xs text-muted-foreground'>{description}</p>}
@@ -40,7 +45,7 @@ export function ActionRow({
   return (
     <div className={cn('space-y-3', className)}>
       <h3 className={cn(baseTitleClass, titleClassName)}>{title}</h3>
-      <div className={cn('rounded-lg border bg-white p-4 space-y-2', contentClassName)}>
+      <div className={cn('rounded-lg border border-border bg-card p-4 space-y-2', contentClassName)}>
         {description && <p className='text-xs text-muted-foreground'>{description}</p>}
         {children}
       </div>
