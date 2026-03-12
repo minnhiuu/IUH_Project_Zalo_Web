@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Eye, EyeOff, Loader2, ArrowLeft } from 'lucide-react'
 import { useUserText } from '@/features/user/i18n/use-user-text'
 import { cn } from '@/lib/utils'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
@@ -53,7 +53,7 @@ export function ChangePassword({ onBack }: ChangePasswordProps) {
     handleSubmit,
     formState: { errors },
     reset,
-    watch,
+    control,
     setValue
   } = useForm<ChangePasswordFormData>({
     resolver: zodResolver(changePasswordSchema),
@@ -62,7 +62,10 @@ export function ChangePassword({ onBack }: ChangePasswordProps) {
     }
   })
 
-  const logoutOtherDevices = watch('logoutOtherDevices')
+  const logoutOtherDevices = useWatch({
+    control,
+    name: 'logoutOtherDevices'
+  })
 
   const onSubmit = async (data: ChangePasswordFormData) => {
     try {

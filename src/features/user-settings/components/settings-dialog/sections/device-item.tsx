@@ -78,7 +78,11 @@ export function DeviceItem({ device, onDelete, onLogout, isDeleting, isLoggingOu
                     className='text-destructive focus:text-destructive'
                     onClick={() => onLogout?.(device.sessionId)}
                   >
-                    {isLoggingOut ? <Loader2 className='w-4 h-4 mr-2 animate-spin' /> : <LogOut className='w-4 h-4 mr-2' />}
+                    {isLoggingOut ? (
+                      <Loader2 className='w-4 h-4 mr-2 animate-spin' />
+                    ) : (
+                      <LogOut className='w-4 h-4 mr-2' />
+                    )}
                     {text.settings.accountPrivacy.deviceManagement.logout || 'Log out'}
                   </DropdownMenuItem>
                   <DropdownMenuItem
