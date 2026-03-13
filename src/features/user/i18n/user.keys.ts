@@ -51,6 +51,7 @@ export const USER_KEYS = {
     mutualGroups: 'user.profile.mutualGroups',
     shareContact: 'user.profile.shareContact',
     block: 'user.profile.block',
+    editBlock: 'user.profile.editBlock',
     report: 'user.profile.report',
     deleteFriend: 'user.profile.deleteFriend'
   },
@@ -242,6 +243,43 @@ export const USER_KEYS = {
         activeStatus: 'user.settings.accountPrivacy.deviceManagement.activeStatus',
         activeDevices: 'user.settings.accountPrivacy.deviceManagement.activeDevices',
         inactiveDevices: 'user.settings.accountPrivacy.deviceManagement.inactiveDevices'
+      },
+      blockedUsers: {
+        title: 'user.settings.accountPrivacy.blockedUsers.title',
+        description: 'user.settings.accountPrivacy.blockedUsers.description',
+        showAllButton: 'user.settings.accountPrivacy.blockedUsers.showAllButton',
+        unblockConfirm: 'user.settings.accountPrivacy.blockedUsers.unblockConfirm',
+        unblockSuccess: 'user.settings.accountPrivacy.blockedUsers.unblockSuccess',
+        unblockError: 'user.settings.accountPrivacy.blockedUsers.unblockError',
+        unblocking: 'user.settings.accountPrivacy.blockedUsers.unblocking',
+        unblockButton: 'user.settings.accountPrivacy.blockedUsers.unblockButton',
+        blockDate: 'user.settings.accountPrivacy.blockedUsers.blockDate',
+        empty: 'user.settings.accountPrivacy.blockedUsers.empty',
+        emptyDescription: 'user.settings.accountPrivacy.blockedUsers.emptyDescription',
+        types: {
+          message: 'user.settings.accountPrivacy.blockedUsers.types.message',
+          call: 'user.settings.accountPrivacy.blockedUsers.types.call',
+          story: 'user.settings.accountPrivacy.blockedUsers.types.story'
+        }
+      },
+      blockModal: {
+        title: 'user.settings.accountPrivacy.blockModal.title',
+        editTitle: 'user.settings.accountPrivacy.blockModal.editTitle',
+        description: 'user.settings.accountPrivacy.blockModal.description',
+        editDescription: 'user.settings.accountPrivacy.blockModal.editDescription',
+        blockMessage: 'user.settings.accountPrivacy.blockModal.blockMessage',
+        blockCall: 'user.settings.accountPrivacy.blockModal.blockCall',
+        blockStory: 'user.settings.accountPrivacy.blockModal.blockStory',
+        confirmButton: 'user.settings.accountPrivacy.blockModal.confirmButton',
+        updateButton: 'user.settings.accountPrivacy.blockModal.updateButton',
+        cancelButton: 'user.settings.accountPrivacy.blockModal.cancelButton',
+        unblockButton: 'user.settings.accountPrivacy.blockModal.unblockButton',
+        blockSuccess: 'user.settings.accountPrivacy.blockModal.blockSuccess',
+        blockError: 'user.settings.accountPrivacy.blockModal.blockError',
+        updateSuccess: 'user.settings.accountPrivacy.blockModal.updateSuccess',
+        updateError: 'user.settings.accountPrivacy.blockModal.updateError',
+        unblockSuccess: 'user.settings.accountPrivacy.blockModal.unblockSuccess',
+        unblockError: 'user.settings.accountPrivacy.blockModal.unblockError'
       }
     }
   }

@@ -1,5 +1,5 @@
 import { Settings } from 'lucide-react'
-import { BlockedUsersSection } from '@/features/user/components/settings/blocked-users-section'
+import { BlockedUsersSection } from '@/features/user-settings/components/settings-dialog/sections'
 
 export default function SettingsPage() {
   return (

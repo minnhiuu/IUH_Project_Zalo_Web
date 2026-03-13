@@ -15,6 +15,7 @@ import { blockApi } from '@/features/user/api/block.api'
 import { blockKeys, userKeys } from '@/features/user/queries/keys'
 import { toast } from 'sonner'
 import { Ban, MessageSquare, Phone, Camera } from 'lucide-react'
+import { useUserText } from '@/features/user/i18n/use-user-text'
 
 interface BlockUserModalProps {
   userId: string
@@ -37,19 +38,20 @@ export function BlockUserModal({
   isBlocked = false,
   currentPreference
 }: BlockUserModalProps) {
-  const [blockMessage, setBlockMessage] = useState(currentPreference?.message ?? true)
-  const [blockCall, setBlockCall] = useState(currentPreference?.call ?? true)
-  const [blockStory, setBlockStory] = useState(currentPreference?.story ?? true)
+  const { text } = useUserText()
+  const [blockMessage, setBlockMessage] = useState(isBlocked ? (currentPreference?.message ?? false) : false)
+  const [blockCall, setBlockCall] = useState(isBlocked ? (currentPreference?.call ?? false) : false)
+  const [blockStory, setBlockStory] = useState(isBlocked ? (currentPreference?.story ?? false) : false)
   const queryClient = useQueryClient()
 
 
   useEffect(() => {
     if (open) {
-      setBlockMessage(currentPreference?.message ?? true)
-      setBlockCall(currentPreference?.call ?? true)
-      setBlockStory(currentPreference?.story ?? true)
+      setBlockMessage(isBlocked ? (currentPreference?.message ?? false) : false)
+      setBlockCall(isBlocked ? (currentPreference?.call ?? false) : false)
+      setBlockStory(isBlocked ? (currentPreference?.story ?? false) : false)
     }
-  }, [open, currentPreference])
+  }, [open, currentPreference, isBlocked])
 
   const blockMutation = useMutation({
     mutationFn: () =>
@@ -60,14 +62,14 @@ export function BlockUserModal({
         blockStory
       }),
     onSuccess: () => {
-      toast.success(`Đã chặn ${userName}`)
+      toast.success(text.settings.accountPrivacy.blockModal.blockSuccess(userName))
       queryClient.invalidateQueries({ queryKey: userKeys.detail(userId) })
       queryClient.invalidateQueries({ queryKey: blockKeys.detail(userId) })
       queryClient.invalidateQueries({ queryKey: blockKeys.myBlocks() })
       onOpenChange(false)
     },
     onError: () => {
-      toast.error('Không thể chặn người dùng này')
+      toast.error(text.settings.accountPrivacy.blockModal.blockError)
     }
   })
 
@@ -79,28 +81,28 @@ export function BlockUserModal({
         blockStory
       }),
     onSuccess: () => {
-      toast.success('Đã cập nhật cài đặt chặn')
+      toast.success(text.settings.accountPrivacy.blockModal.updateSuccess)
       queryClient.invalidateQueries({ queryKey: userKeys.detail(userId) })
       queryClient.invalidateQueries({ queryKey: blockKeys.detail(userId) })
       queryClient.invalidateQueries({ queryKey: blockKeys.myBlocks() })
       onOpenChange(false)
     },
     onError: () => {
-      toast.error('Không thể cập nhật cài đặt')
+      toast.error(text.settings.accountPrivacy.blockModal.updateError)
     }
   })
 
   const unblockMutation = useMutation({
     mutationFn: () => blockApi.unblockUser(userId),
     onSuccess: () => {
-      toast.success(`Đã bỏ chặn ${userName}`)
+      toast.success(text.settings.accountPrivacy.blockModal.unblockSuccess(userName))
       queryClient.invalidateQueries({ queryKey: userKeys.detail(userId) })
       queryClient.invalidateQueries({ queryKey: blockKeys.detail(userId) })
       queryClient.invalidateQueries({ queryKey: blockKeys.myBlocks() })
       onOpenChange(false)
     },
     onError: () => {
-      toast.error('Không thể bỏ chặn người dùng này')
+      toast.error(text.settings.accountPrivacy.blockModal.unblockError)
     }
   })
 
@@ -122,12 +124,14 @@ export function BlockUserModal({
         <DialogHeader>
           <DialogTitle className='flex items-center gap-2'>
             <Ban className='h-5 w-5 text-destructive' />
-            {isBlocked ? 'Cài đặt chặn' : 'Chặn người dùng'}
+            {isBlocked
+              ? text.settings.accountPrivacy.blockModal.editTitle
+              : text.settings.accountPrivacy.blockModal.title}
           </DialogTitle>
           <DialogDescription>
             {isBlocked
-              ? `Tùy chỉnh cách bạn chặn ${userName}`
-              : `Chọn những gì bạn muốn chặn từ ${userName}`}
+              ? text.settings.accountPrivacy.blockModal.editDescription(userName)
+              : text.settings.accountPrivacy.blockModal.description(userName)}
           </DialogDescription>
         </DialogHeader>
 
@@ -140,7 +144,7 @@ export function BlockUserModal({
             />
             <Label htmlFor='blockMessage' className='flex items-center gap-2 cursor-pointer'>
               <MessageSquare className='h-4 w-4 text-muted-foreground' />
-              <span>Chặn tin nhắn</span>
+              <span>{text.settings.accountPrivacy.blockModal.blockMessage}</span>
             </Label>
           </div>
 
@@ -152,7 +156,7 @@ export function BlockUserModal({
             />
             <Label htmlFor='blockCall' className='flex items-center gap-2 cursor-pointer'>
               <Phone className='h-4 w-4 text-muted-foreground' />
-              <span>Chặn cuộc gọi</span>
+              <span>{text.settings.accountPrivacy.blockModal.blockCall}</span>
             </Label>
           </div>
 
@@ -164,7 +168,7 @@ export function BlockUserModal({
             />
             <Label htmlFor='blockStory' className='flex items-center gap-2 cursor-pointer'>
               <Camera className='h-4 w-4 text-muted-foreground' />
-              <span>Chặn nhật ký</span>
+              <span>{text.settings.accountPrivacy.blockModal.blockStory}</span>
             </Label>
           </div>
         </div>
@@ -176,18 +180,20 @@ export function BlockUserModal({
               onClick={handleUnblock}
               disabled={unblockMutation.isPending}
             >
-              Bỏ chặn
+              {text.settings.accountPrivacy.blockModal.unblockButton}
             </Button>
           )}
           <Button variant='secondary' onClick={() => onOpenChange(false)}>
-            Hủy
+            {text.settings.accountPrivacy.blockModal.cancelButton}
           </Button>
           <Button
             variant='destructive'
             onClick={handleSubmit}
             disabled={blockMutation.isPending || updatePreferenceMutation.isPending}
           >
-            {isBlocked ? 'Cập nhật' : 'Chặn'}
+            {isBlocked
+              ? text.settings.accountPrivacy.blockModal.updateButton
+              : text.settings.accountPrivacy.blockModal.confirmButton}
           </Button>
         </DialogFooter>
       </DialogContent>

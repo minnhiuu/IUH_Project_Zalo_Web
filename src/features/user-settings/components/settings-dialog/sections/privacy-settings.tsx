@@ -1,4 +1,4 @@
-import { Check, Loader2, Smartphone, ChevronRight, KeyRound } from 'lucide-react'
+import { Check, Loader2, Smartphone, ChevronRight, KeyRound, Ban } from 'lucide-react'
 import { useUserText } from '@/features/user/i18n/use-user-text'
 import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
@@ -11,9 +11,10 @@ import { useSettingsState } from '../settings-state-context'
 interface PrivacySettingsProps {
   onNavigateToDevices?: () => void
   onNavigateToChangePassword?: () => void
+  onNavigateToBlockedUsers?: () => void
 }
 
-export function PrivacySettings({ onNavigateToDevices, onNavigateToChangePassword }: PrivacySettingsProps) {
+export function PrivacySettings({ onNavigateToDevices, onNavigateToChangePassword, onNavigateToBlockedUsers }: PrivacySettingsProps) {
   const { text } = useUserText()
   const { settings, isLoading, pending, updatePrivacySettings } = useSettingsState()
 
@@ -248,6 +249,21 @@ export function PrivacySettings({ onNavigateToDevices, onNavigateToChangePasswor
           <Button onClick={onNavigateToDevices} variant='outline' className='w-full'>
             <Smartphone className='w-4 h-4 mr-2' />
             {text.settings.accountPrivacy.deviceManagement.showAllButton}
+            <ChevronRight className='w-4 h-4 ml-auto' />
+          </Button>
+        </ActionRow>
+
+        <Separator />
+
+        {/* Blocked Users Section */}
+        <ActionRow
+          title={text.settings.accountPrivacy.blockedUsers.title}
+          description={text.settings.accountPrivacy.blockedUsers.description}
+          contentClassName='space-y-4'
+        >
+          <Button onClick={onNavigateToBlockedUsers} variant='outline' className='w-full'>
+            <Ban className='w-4 h-4 mr-2' />
+            {text.settings.accountPrivacy.blockedUsers.showAllButton}
             <ChevronRight className='w-4 h-4 ml-auto' />
           </Button>
         </ActionRow>

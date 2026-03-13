@@ -73,7 +73,7 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
               { icon: IdCard, label: text.profile.shareContact, color: 'text-disabled', disabled: true },
               { 
                 icon: Ban, 
-                label: text.profile.block, 
+                label: blockDetails ? text.profile.editBlock : text.profile.block, 
                 color: 'text-icon-secondary', 
                 disabled: false,
                 onClick: () => setIsBlockModalOpen(true)

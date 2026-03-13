@@ -8,7 +8,8 @@ import {
   MessageCircle,
   Bell,
   Wrench,
-  Smartphone
+  Smartphone,
+  Ban
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -23,6 +24,7 @@ export type SettingsMenuItem =
   | 'utilities'
   | 'changePassword'
   | 'devices'
+  | 'blockedUsers'
 
 interface MenuItemConfig {
   id: SettingsMenuItem
@@ -45,7 +47,8 @@ const menuIcons: Record<SettingsMenuItem, React.ReactNode> = {
   messages: <MessageCircle className='w-4 h-4' />,
   utilities: <Wrench className='w-4 h-4' />,
   changePassword: <KeyRound className='w-4 h-4' />,
-  devices: <Smartphone className='w-4 h-4' />
+  devices: <Smartphone className='w-4 h-4' />,
+  blockedUsers: <Ban className='w-4 h-4' />
 }
 
 export function SettingsSidebar({ menuItems, activeMenu, onSelectMenu }: SettingsSidebarProps) {
