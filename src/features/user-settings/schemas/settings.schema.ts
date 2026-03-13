@@ -61,6 +61,8 @@ export type MessageSettings = {
 }
 
 export type NotificationSettings = {
+  notifSound: boolean
+
   // Direct message
   notifyNewMessageFromDirect: boolean
   previewNewMessageFromDirect: boolean
@@ -136,6 +138,7 @@ export type MessageSettingsUpdateRequest = {
 }
 
 export type NotificationSettingsUpdateRequest = {
+  notifSound: boolean
   notifyNewMessageFromDirect: boolean
   previewNewMessageFromDirect: boolean
   notifyNewMessageFromGroup: boolean
