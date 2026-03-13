@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
 } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { UserAvatar } from '@/components/common/user-avatar'
@@ -14,15 +14,14 @@ import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { userApi } from '@/features/user/api/user.api'
 import { GENDER_LABELS } from '@/constants/enum'
-import { 
-  Mail, 
-  Phone, 
-  Calendar, 
-  User as UserIcon, 
+import {
+  Mail,
+  Phone,
+  Calendar,
+  User as UserIcon,
   Activity,
   Info
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
 
 interface UserDetailModalProps {
   userId: string
@@ -93,8 +92,8 @@ export function UserDetailModal({ userId, open, onOpenChange }: UserDetailModalP
                     fallbackClassName="text-2xl"
                   />
                   {user.role === 'ADMIN' && (
-                    <Badge 
-                      variant="default" 
+                    <Badge
+                      variant="default"
                       className="absolute -bottom-2 left-1/2 -translate-x-1/2 text-xs"
                     >
                       Admin
@@ -123,7 +122,7 @@ export function UserDetailModal({ userId, open, onOpenChange }: UserDetailModalP
                   {/* Basic Info */}
                   <div className="space-y-3">
                     <h3 className="text-lg font-semibold">{user.fullName}</h3>
-                    
+
                     {user.bio && (
                       <p className="text-sm text-muted-foreground">{user.bio}</p>
                     )}
@@ -234,7 +233,7 @@ function UserDetailSkeleton() {
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-3/4" />
-        
+
         <div className="space-y-3 mt-6">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="flex gap-3">

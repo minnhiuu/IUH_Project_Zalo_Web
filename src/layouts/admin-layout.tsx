@@ -1,7 +1,6 @@
 import { Outlet, Link, useLocation } from 'react-router'
 import { Users, LogOut } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { PATHS } from '@/constants/path'
 import { useAuthContext } from '@/features/auth/context/auth-context'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { UserNavDropdown } from '@/features/user'
@@ -9,7 +8,8 @@ import { LogoutConfirmDialog } from '@/features/auth'
 import { useState } from 'react'
 
 const navItems = [
-  { icon: Users, path: '/admin/users', label: 'Người dùng' }
+  { icon: Users, path: '/admin/users', label: 'User' },
+  { icon: Users, path: '/admin/elasticsearch', label: 'Elasticsearch' },
 ]
 
 export default function AdminLayout() {
@@ -70,7 +70,7 @@ export default function AdminLayout() {
         </div>
       </nav>
 
-      <main className='flex-1 overflow-y-auto bg-background'>
+      <main className='flex-1 overflow-y-auto bg-background py-8 px-10 mx-auto  '>
         <Outlet />
       </main>
 

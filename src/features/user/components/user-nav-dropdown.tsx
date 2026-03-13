@@ -1,4 +1,4 @@
-import { User, Settings, Globe, Check, Sun, Moon, Laptop } from 'lucide-react'
+import { User, Settings, Globe, Check } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,10 +10,8 @@ import {
   DropdownMenuSubTrigger
 } from '@/components/ui/dropdown-menu'
 import { useLogoutMutation, LogoutConfirmDialog } from '@/features/auth'
-import { useUserText, OwnerProfileDialog } from '@/features/user'
-import { SettingsDialog } from './settings/settings-dialog'
+import { useUserText, OwnerProfileDialog, SettingsDialog } from '@/features/user'
 import { useState } from 'react'
-import { useTheme } from 'next-themes'
 
 import { useLocale } from '@/lib/i18n'
 
@@ -29,7 +27,6 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
   const [showSettingsDialog, setShowSettingsDialog] = useState(false)
   const { text } = useUserText()
   const { locale: language, changeLocale: setLocale, languages } = useLocale()
-  const { theme, setTheme } = useTheme()
 
   return (
     <>
@@ -85,48 +82,6 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
             </DropdownMenuSubContent>
           </DropdownMenuSub>
 
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger className='flex items-center gap-3 py-2 px-3 cursor-pointer hover:bg-muted focus:bg-muted rounded-md text-[14px] outline-none'>
-              {theme === 'dark' ? <Moon className='w-[17px] h-[17px]' /> : <Sun className='w-[17px] h-[17px]' />}
-              <span className='flex-1 font-medium'>{text.menu.appearance}</span>
-            </DropdownMenuSubTrigger>
-            <DropdownMenuSubContent
-              sideOffset={5}
-              className='w-44 p-1 shadow-lg border border-border animate-in slide-in-from-left-1 duration-200 bg-popover text-popover-foreground'
-            >
-              <DropdownMenuItem
-                onClick={() => setTheme('light')}
-                className='flex items-center justify-between py-1.5 px-3 cursor-pointer hover:bg-muted rounded-md group text-[13.5px] outline-none'
-              >
-                <div className='flex items-center gap-3'>
-                  <Sun className='w-4 h-4' />
-                  <span className='font-medium'>{text.menu.themeLight}</span>
-                </div>
-                {theme === 'light' && <Check className='w-3.5 h-3.5 text-primary' />}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setTheme('dark')}
-                className='flex items-center justify-between py-1.5 px-3 cursor-pointer hover:bg-muted rounded-md group text-[13.5px] outline-none'
-              >
-                <div className='flex items-center gap-3'>
-                  <Moon className='w-4 h-4' />
-                  <span className='font-medium'>{text.menu.themeDark}</span>
-                </div>
-                {theme === 'dark' && <Check className='w-3.5 h-3.5 text-primary' />}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setTheme('system')}
-                className='flex items-center justify-between py-1.5 px-3 cursor-pointer hover:bg-muted rounded-md group text-[13.5px] outline-none'
-              >
-                <div className='flex items-center gap-3'>
-                  <Laptop className='w-4 h-4' />
-                  <span className='font-medium'>{text.menu.themeSystem}</span>
-                </div>
-                {theme === 'system' && <Check className='w-3.5 h-3.5 text-primary' />}
-              </DropdownMenuItem>
-            </DropdownMenuSubContent>
-          </DropdownMenuSub>
-
           <DropdownMenuSeparator className='my-1.5 bg-border/40' />
 
           <DropdownMenuItem
@@ -140,6 +95,7 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
             </span>
           </DropdownMenuItem>
         </DropdownMenuContent>
+        <SettingsDialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog} />
 
         <LogoutConfirmDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog} />
         <OwnerProfileDialog open={showProfileDialog} onOpenChange={setShowProfileDialog} />

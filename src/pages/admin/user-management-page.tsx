@@ -76,7 +76,7 @@ export default function UserManagementPage() {
   const pageData = data?.data?.data
 
   return (
-    <div className='container mx-auto py-8 px-4 max-w-7xl'>
+    <div className='container'>
       <div className='mb-6'>
         <div className='flex items-center gap-3 mb-2'>
           <div className='p-2 bg-primary/10 rounded-lg'>

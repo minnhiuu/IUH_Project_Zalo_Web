@@ -59,6 +59,179 @@
       "dobInvalid": "Birthday cannot be in the future",
       "genderRequired": "Please select a gender",
       "bioTooLong": "Bio cannot exceed 150 characters"
+    },
+    "settings": {
+      "title": "Settings",
+      "menu": {
+        "general": "General Settings",
+        "security": "Security",
+        "privacy": "Privacy",
+        "sync": "Sync",
+        "appearance": "Appearance",
+        "messages": "Messages",
+        "utilities": "Utilities",
+        "accountPrivacy": "Account & Privacy"
+      },
+      "general": {
+        "title": "General Settings",
+        "showAllFriends": {
+          "title": "Show All Friends",
+          "description": "Show all friends or only friends using BondHub",
+          "all": "All friends",
+          "onlyBondhub": "Only friends on BondHub"
+        },
+        "language": {
+          "title": "Language",
+          "description": "Choose your display language",
+          "english": "English",
+          "vietnamese": "Tiếng Việt"
+        }
+      },
+      "security": {
+        "title": "Security",
+        "twoFactor": {
+          "title": "Two-Factor Authentication",
+          "description": "Add extra security to your account"
+        }
+      },
+      "privacy": {
+        "title": "Privacy",
+        "personal": {
+          "title": "Personal Information",
+          "showDob": {
+            "title": "Show Date of Birth",
+            "description": "Choose how others can see your date of birth",
+            "hidden": "Do not show",
+            "fullDate": "Show full date",
+            "monthDayOnly": "Show only month and day"
+          },
+          "showActiveStatus": {
+            "title": "Show Active Status",
+            "description": "Let others know when you're online"
+          }
+        },
+        "textAndCall": {
+          "title": "Messaging and Calling",
+          "showReadStatus": {
+            "title": "Show Read Status",
+            "description": "Let others know when you've read messages"
+          },
+          "canText": {
+            "title": "Who can message me",
+            "everybody": "Everybody",
+            "friends": "Friends",
+            "contacted": "Only people I've contacted"
+          },
+          "canCall": {
+            "title": "Who can call me",
+            "everybody": "Everybody",
+            "friends": "Friends",
+            "contacted": "Only people I've contacted"
+          }
+        },
+        "search": {
+          "title": "Search",
+          "allowSearchOnPhoneNumber": {
+            "title": "Allow search by phone number",
+            "description": "Others can find you using your phone number"
+          }
+        }
+      },
+      "sync": {
+        "title": "Sync",
+        "syncSuggestion": {
+          "title": "Sync Suggestions",
+          "description": "Sync contacts to suggest friends"
+        },
+        "showSyncProgress": {
+          "title": "Show Sync Progress",
+          "description": "Display progress bar while syncing"
+        }
+      },
+      "appearance": {
+        "title": "Appearance",
+        "theme": {
+          "title": "Theme",
+          "description": "Choose between light, dark, or system theme",
+          "light": "Light",
+          "dark": "Dark",
+          "system": "System"
+        }
+      },
+      "messages": {
+        "title": "Messages",
+        "quickResponse": {
+          "title": "Quick Response",
+          "description": "Enable quick response feature"
+        },
+        "separatePriorityAndOther": {
+          "title": "Separate Priority and Other",
+          "description": "Display priority messages separately"
+        },
+        "showTypingStatus": {
+          "title": "Show Typing Status",
+          "description": "Let others know when you're typing"
+        }
+      },
+      "utilities": {
+        "title": "Utilities",
+        "stickerSuggestion": {
+          "title": "Sticker Suggestions",
+          "description": "Show sticker suggestions while typing"
+        }
+      },
+      "accountPrivacy": {
+        "title": "Account & Privacy",
+        "description": "Manage your account security and privacy settings",
+        "changePassword": {
+          "title": "Change Password",
+          "description": "Update your password to keep your account secure",
+          "currentPasswordLabel": "Current Password",
+          "currentPasswordPlaceholder": "Enter your current password",
+          "newPasswordLabel": "New Password",
+          "newPasswordPlaceholder": "Enter your new password (min. 8 characters)",
+          "confirmPasswordLabel": "Confirm New Password",
+          "confirmPasswordPlaceholder": "Re-enter your new password",
+          "logoutOtherSessions": "Log out other running sessions",
+          "changeButton": "Change Password",
+          "changing": "Changing...",
+          "success": "Password changed successfully",
+          "error": "Failed to change password. Please try again.",
+          "validation": {
+            "currentPasswordRequired": "Current password is required",
+            "confirmPasswordRequired": "Please confirm your password"
+          }
+        },
+        "deviceManagement": {
+          "title": "Device Management",
+          "description": "View and manage devices that are logged into your account",
+          "showAllButton": "Show All Devices",
+          "hideButton": "Hide Devices",
+          "currentDevice": "Current Device",
+          "lastActive": "Last active",
+          "createdAt": "Added",
+          "loading": "Loading devices...",
+          "noDevices": "No devices found",
+          "deleteButton": "Remove",
+          "deleteConfirm": "Are you sure you want to remove this device?",
+          "deleteSuccess": "Device removed successfully",
+          "deleteError": "Failed to remove device. Please try again.",
+          "browserLabel": "Browser",
+          "osLabel": "Operating System",
+          "ipLabel": "IP Address",
+          "logout": "Log out",
+          "logoutOthers": "Log out of other devices",
+          "logoutOthersConfirm": "Are you sure you want to log out of all other devices?",
+          "logoutOthersSuccess": "Logged out of all other devices",
+          "logoutOthersError": "Failed to log out of other devices",
+          "logoutConfirm": "Are you sure you want to log out of this device?",
+          "logoutSuccess": "Logged out successfully",
+          "logoutError": "Failed to log out. Please try again.",
+          "activeStatus": "Active now",
+          "activeDevices": "Active Devices",
+          "inactiveDevices": "Other Devices"
+        }
+      }
     }
   },
   "admin": {

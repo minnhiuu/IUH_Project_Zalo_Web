@@ -1,13 +1,12 @@
 import { type AuditLog, AuditAction } from '@/features/user/schemas/audit-log.schema'
 import { cn } from '@/lib/utils'
-import { 
-  User, 
-  Lock, 
-  Unlock, 
-  Shield, 
-  Image, 
-  UserCircle, 
-  LogIn, 
+import {
+  User,
+  Lock,
+  Unlock,
+  Image,
+  UserCircle,
+  LogIn,
   LogOut,
   Edit,
   CheckCircle,
@@ -87,7 +86,7 @@ export function AuditTimeline({ logs, className }: AuditTimelineProps) {
         {/* Timeline line */}
         <div className="absolute left-4 top-2 bottom-2 w-px bg-border" />
 
-        {logs.map((log, index) => (
+        {logs.map((log) => (
           <div key={log.id} className="relative flex gap-4 group">
             {/* Icon */}
             <div className={cn(

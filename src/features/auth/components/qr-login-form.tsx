@@ -9,7 +9,7 @@ import { useAuthContext } from '../context/auth-context'
 import { useNavigate } from 'react-router'
 import { PATHS } from '@/constants/path'
 import { UserAvatar } from '@/components/common/user-avatar'
-import { QrSessionStatus } from '@/constants/enum'
+import { QrSessionStatus, Role } from '@/constants/enum'
 import { cn } from '@/lib/utils'
 import { authApi } from '@/features/auth/api/auth.api'
 import { handleErrorApi, getErrorCode } from '@/utils/error-handler'
@@ -98,8 +98,12 @@ export default function QRLoginForm({ onSwitchToPassword }: QRLoginFormProps) {
         if (data.status === QrSessionStatus.Confirmed && data.accessToken) {
           setIsFinishingLogin(true)
           try {
-            const userData = await loginSuccessRef.current(data.accessToken)
-            window.location.href = userData.role === 'ADMIN' ? PATHS.ADMIN.USERS : PATHS.HOME
+            const user = await loginSuccessRef.current(data.accessToken, data.refreshTokenExpirationMs)
+            if (user.role === Role.Admin) {
+              navigateRef.current(PATHS.ADMIN.DASHBOARD)
+            } else {
+              navigateRef.current(PATHS.HOME)
+            }
           } catch (loginError: unknown) {
             setIsFinishingLogin(false)
             handleErrorApi({ error: loginError })
