@@ -95,7 +95,8 @@ export const resetPasswordRequestSchema = z
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
         i18n.t('auth:auth.validation.passwordComplex')
       ),
-    confirmPassword: z.string().min(1, i18n.t('auth:auth.validation.confirmPasswordReset'))
+    confirmPassword: z.string().min(1, i18n.t('auth:auth.validation.confirmPasswordReset')),
+    logoutOtherDevices: z.boolean().optional()
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
     message: i18n.t('auth:auth.validation.passwordMismatch'),
@@ -103,6 +104,12 @@ export const resetPasswordRequestSchema = z
   })
 
 export type ResetPasswordRequest = z.infer<typeof resetPasswordRequestSchema>
+
+export type ChangePasswordRequest = {
+  oldPassword: string
+  newPassword: string
+  logoutOtherDevices?: boolean
+}
 
 export type QrGenerationResponse = {
   qrId: string
@@ -117,4 +124,9 @@ export type QrStatusResponse = {
   accessToken?: string
   refreshToken?: string
   refreshTokenExpirationMs?: number
+}
+
+export type LogoutDeviceRequest = {
+  sessionId: string
+  refreshToken?: string
 }

@@ -1,4 +1,4 @@
-import { User, Settings, Globe, Check, Sun, Moon, Laptop } from 'lucide-react'
+import { User, Settings, Globe, Check } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,10 +10,9 @@ import {
   DropdownMenuSubTrigger
 } from '@/components/ui/dropdown-menu'
 import { useLogoutMutation, LogoutConfirmDialog } from '@/features/auth'
-import { useUserText, OwnerProfileDialog } from '@/features/user'
-import { SettingsDialog } from './settings/settings-dialog'
+import { useUserText, OwnerProfileDialog, SettingsDialog } from '@/features/user'
+import { useMySettings, useUpdateGeneralSettings } from '@/features/user-settings'
 import { useState } from 'react'
-import { useTheme } from 'next-themes'
 
 import { useLocale } from '@/lib/i18n'
 
@@ -24,12 +23,23 @@ interface UserNavDropdownProps {
 
 export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdownProps) => {
   const logoutMutation = useLogoutMutation()
+  const updateGeneralSettings = useUpdateGeneralSettings()
+  const { data: settings } = useMySettings()
   const [showLogoutDialog, setShowLogoutDialog] = useState(false)
   const [showProfileDialog, setShowProfileDialog] = useState(false)
   const [showSettingsDialog, setShowSettingsDialog] = useState(false)
   const { text } = useUserText()
   const { locale: language, changeLocale: setLocale, languages } = useLocale()
-  const { theme, setTheme } = useTheme()
+
+  const handleLanguageChange = (nextLang: (typeof languages)[number]['code']) => {
+    if (nextLang === language || updateGeneralSettings.isPending) return
+
+    setLocale(nextLang)
+    updateGeneralSettings.mutate({
+      showAllFriends: settings?.generalSettings.showAllFriends ?? false,
+      languageEn: nextLang === 'en'
+    })
+  }
 
   return (
     <>
@@ -72,7 +82,8 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
               {languages.map((lang) => (
                 <DropdownMenuItem
                   key={lang.code}
-                  onClick={() => setLocale(lang.code)}
+                  onClick={() => handleLanguageChange(lang.code)}
+                  disabled={updateGeneralSettings.isPending}
                   className='flex items-center justify-between py-1.5 px-3 cursor-pointer hover:bg-muted rounded-md group text-[13.5px] outline-none'
                 >
                   <div className='flex items-center gap-3'>
@@ -82,48 +93,6 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
                   {language === lang.code && <Check className='w-3.5 h-3.5 text-primary' />}
                 </DropdownMenuItem>
               ))}
-            </DropdownMenuSubContent>
-          </DropdownMenuSub>
-
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger className='flex items-center gap-3 py-2 px-3 cursor-pointer hover:bg-muted focus:bg-muted rounded-md text-[14px] outline-none'>
-              {theme === 'dark' ? <Moon className='w-[17px] h-[17px]' /> : <Sun className='w-[17px] h-[17px]' />}
-              <span className='flex-1 font-medium'>{text.menu.appearance}</span>
-            </DropdownMenuSubTrigger>
-            <DropdownMenuSubContent
-              sideOffset={5}
-              className='w-44 p-1 shadow-lg border border-border animate-in slide-in-from-left-1 duration-200 bg-popover text-popover-foreground'
-            >
-              <DropdownMenuItem
-                onClick={() => setTheme('light')}
-                className='flex items-center justify-between py-1.5 px-3 cursor-pointer hover:bg-muted rounded-md group text-[13.5px] outline-none'
-              >
-                <div className='flex items-center gap-3'>
-                  <Sun className='w-4 h-4' />
-                  <span className='font-medium'>{text.menu.themeLight}</span>
-                </div>
-                {theme === 'light' && <Check className='w-3.5 h-3.5 text-primary' />}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setTheme('dark')}
-                className='flex items-center justify-between py-1.5 px-3 cursor-pointer hover:bg-muted rounded-md group text-[13.5px] outline-none'
-              >
-                <div className='flex items-center gap-3'>
-                  <Moon className='w-4 h-4' />
-                  <span className='font-medium'>{text.menu.themeDark}</span>
-                </div>
-                {theme === 'dark' && <Check className='w-3.5 h-3.5 text-primary' />}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setTheme('system')}
-                className='flex items-center justify-between py-1.5 px-3 cursor-pointer hover:bg-muted rounded-md group text-[13.5px] outline-none'
-              >
-                <div className='flex items-center gap-3'>
-                  <Laptop className='w-4 h-4' />
-                  <span className='font-medium'>{text.menu.themeSystem}</span>
-                </div>
-                {theme === 'system' && <Check className='w-3.5 h-3.5 text-primary' />}
-              </DropdownMenuItem>
             </DropdownMenuSubContent>
           </DropdownMenuSub>
 
@@ -140,6 +109,7 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
             </span>
           </DropdownMenuItem>
         </DropdownMenuContent>
+        <SettingsDialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog} />
 
         <LogoutConfirmDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog} />
         <OwnerProfileDialog open={showProfileDialog} onOpenChange={setShowProfileDialog} />

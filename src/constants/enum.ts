@@ -42,3 +42,44 @@ export const QrSessionStatus = {
 } as const
 
 export type QrSessionStatus = (typeof QrSessionStatus)[keyof typeof QrSessionStatus]
+
+export const ElasticsearchClusterStatus = {
+  Green: 'GREEN',
+  Yellow: 'YELLOW',
+  Red: 'RED',
+  Unreachable: 'UNREACHABLE',
+  Unknown: 'UNKNOWN'
+} as const
+
+export type ElasticsearchClusterStatus = (typeof ElasticsearchClusterStatus)[keyof typeof ElasticsearchClusterStatus]
+
+export const DataSyncStatus = {
+  InSync: 'IN_SYNC',
+  EsAhead: 'ES_AHEAD',
+  DbAhead: 'DB_AHEAD'
+} as const
+
+export type DataSyncStatus = (typeof DataSyncStatus)[keyof typeof DataSyncStatus]
+
+export const ReindexTaskStatus = {
+  Running: 'RUNNING',
+  Completed: 'COMPLETED',
+  Failed: 'FAILED'
+} as const
+
+export type ReindexTaskStatus = (typeof ReindexTaskStatus)[keyof typeof ReindexTaskStatus]
+
+export const IndexStatus = {
+  Active: 'ACTIVE',
+  Standby: 'STANDBY'
+} as const
+
+export type IndexStatus = (typeof IndexStatus)[keyof typeof IndexStatus]
+
+export const SearchType = {
+  User: 'USER',
+  Group: 'GROUP',
+  Keyword: 'KEYWORD'
+} as const
+
+export type SearchType = (typeof SearchType)[keyof typeof SearchType]

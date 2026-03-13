@@ -1,0 +1,31 @@
+{
+  "admin": {
+    "brand": "BONDHUB",
+    "panel": "Admin Panel",
+    "systemAdmin": "System Admin",
+    "menu": {
+      "dashboard": "Tổng quan",
+      "users": "Người dùng",
+      "elasticsearch": "Elasticsearch",
+      "logout": "Đăng xuất",
+      "profile": "Hồ sơ cá nhân",
+      "changePassword": "Đổi mật khẩu",
+      "myAccount": "Tài khoản của tôi",
+      "language": "Ngôn ngữ",
+      "appearance": "Giao diện",
+      "themeLight": "Sáng",
+      "themeDark": "Tối",
+      "themeSystem": "Hệ thống"
+    },
+    "header": {
+      "searchPlaceholder": "Nhấn / để tìm kiếm..."
+    },
+    "elasticsearch": {
+      "modules": {
+        "users": "Người dùng",
+        "messages": "Tin nhắn",
+        "groups": "Nhóm chat"
+      }
+    }
+  }
+}
