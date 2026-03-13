@@ -43,7 +43,6 @@ export default function LoginForm({ onSwitchToQR }: { onSwitchToQR: () => void }
       const result = await loginMutation.mutateAsync(data)
       const { accessToken, refreshTokenExpirationMs } = result.data.data!
       const user = await loginSuccess(accessToken, refreshTokenExpirationMs)
-
       if (user.role === Role.Admin) {
         navigate(PATHS.ADMIN.DASHBOARD)
       } else {

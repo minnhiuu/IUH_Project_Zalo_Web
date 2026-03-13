@@ -28,8 +28,8 @@ interface ControlBarProps {
   isReindexingUser: boolean
   isReindexingAll: boolean
   modulesText: Record<string, string>
-  isRetryingDeadEvents: boolean
-  deadEventsCount: number
+  isUpdatingFailedEventResolved: boolean
+  failedEventsCount: number
 }
 
 export const ControlBar = ({
@@ -42,8 +42,8 @@ export const ControlBar = ({
   isReindexingUser,
   isReindexingAll,
   modulesText,
-  isRetryingDeadEvents,
-  deadEventsCount
+  isUpdatingFailedEventResolved,
+  failedEventsCount
 }: ControlBarProps) => {
   const { text } = useElasticsearchText()
   const navigate = useNavigate()
@@ -61,7 +61,7 @@ export const ControlBar = ({
               value={mod}
               className='rounded-md px-6 py-2 h-9 text-[13px] font-bold data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all text-muted-foreground hover:text-foreground'
             >
-              {modulesText[mod].replace(' (SẮP TỚI)', '')}
+              {modulesText[mod].replace(/\s*\(.*?\)\s*$/, '')}
             </TabsTrigger>
           ))}
         </TabsList>
@@ -92,7 +92,7 @@ export const ControlBar = ({
                 onClick={() => onReindexUser(userId)}
                 className='text-[12px] font-bold uppercase text-primary hover:text-primary-hover disabled:opacity-30 transition-colors tracking-wide'
               >
-                {isReindexingUser ? `${text.controlBar.syncUser}...` : 'SYNC'}
+                {isReindexingUser ? `${text.controlBar.syncUser}...` : text.controlBar.sync}
               </button>
             </div>
 
@@ -137,22 +137,22 @@ export const ControlBar = ({
               variant='outline'
               className={cn(
                 'h-10 px-4 font-medium text-sm shadow-sm gap-2 transition-all duration-300 rounded-lg border-border hover:bg-muted',
-                deadEventsCount > 0
+                failedEventsCount > 0
                   ? 'bg-warning-bg/10 text-warning-text border-warning-border hover:bg-warning-bg/20'
                   : 'text-muted-foreground'
               )}
-              disabled={isRetryingDeadEvents}
-              onClick={() => navigate(PATHS.ADMIN.DEAD_EVENTS)}
+              disabled={isUpdatingFailedEventResolved}
+              onClick={() => navigate(PATHS.ADMIN.FAILED_EVENTS)}
             >
-              {isRetryingDeadEvents ? (
+              {isUpdatingFailedEventResolved ? (
                 <Loader2 className='h-4 w-4 animate-spin' />
               ) : (
-                <RefreshCw className={cn('h-4 w-4', deadEventsCount > 0 && 'animate-spin-slow')} />
+                <RefreshCw className={cn('h-4 w-4', failedEventsCount > 0 && 'animate-spin-slow')} />
               )}
               {text.controlBar.retryDeadEvents}
-              {deadEventsCount > 0 && (
+              {failedEventsCount > 0 && (
                 <span className='flex items-center justify-center ml-1 min-w-[20px] h-[20px] px-1.5 bg-warning-text text-white rounded-full text-[10px] font-black'>
-                  {deadEventsCount}
+                  {failedEventsCount}
                 </span>
               )}
             </Button>

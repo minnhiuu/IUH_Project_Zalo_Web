@@ -29,7 +29,7 @@ export type ElasticsearchSummaryResponse = {
   health: ElasticsearchHealthResponse
   stats: IndexStatsResponse
   compare: DataComparisonResponse
-  deadEventsCount: number
+  failedEventsCount: number
 }
 
 export type UserIndex = {
@@ -64,15 +64,17 @@ export type IndexDetail = {
   status: IndexStatus
 }
 
-export type DeadEvent = {
+export type FailedEvent = {
   id: string
-  aggregateId: string
-  aggregateType: string
+  eventId: string
   eventType: string
-  status: string
-  retryCount: number
-  errorMessage: string | null
+  topic: string
   payload: string | null
+  errorMessage: string | null
+  stackTrace: string | null
+  partition: number
+  offset: number
   createdAt: string
-  lastModifiedAt: string
+  retryCount: number
+  resolved: boolean
 }

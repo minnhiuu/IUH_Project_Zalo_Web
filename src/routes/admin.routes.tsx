@@ -4,7 +4,7 @@ import { PrivateRoute } from './private-route'
 import AdminLayout from '@/layouts/admin-layout'
 import AdminDashboardPage from '@/pages/admin/dashboard.page'
 import AdminElasticsearchPage from '@/pages/admin/elasticsearch.page'
-import AdminDeadEventsPage from '@/pages/admin/dead-events.page'
+import AdminFailedEventsPage from '@/pages/admin/failed-events.page'
 
 export const adminRoutes: RouteObject = {
   element: <PrivateRoute requireAuth requireAdmin />,
@@ -18,8 +18,8 @@ export const adminRoutes: RouteObject = {
           element: <AdminElasticsearchPage />
         },
         {
-          path: PATHS.ADMIN.DEAD_EVENTS,
-          element: <AdminDeadEventsPage />
+          path: PATHS.ADMIN.FAILED_EVENTS,
+          element: <AdminFailedEventsPage />
         }
       ]
     }

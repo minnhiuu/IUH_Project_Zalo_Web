@@ -21,20 +21,21 @@ export const useReindexUsers = () => {
   })
 }
 
-export const useRetryDeadEvents = () => {
+export const useUpdateFailedEventResolved = () => {
   const queryClient = useQueryClient()
   const { text: t } = useElasticsearchText()
 
   return useMutation({
-    mutationFn: (data?: { fromDate?: string; toDate?: string }) =>
-      elasticsearchApi.retryDeadEvents(data).then((res) => res.data.data),
+    mutationFn: ({ id, resolved }: { id: string; resolved: boolean }) =>
+      elasticsearchApi.updateFailedEventResolved(id, resolved).then((res) => res.data.data),
     onSuccess: (data) => {
-      toast.success(data.message || t.messages.retryDeadEventsSuccess.replace('{{count}}', data.count.toString()))
-      queryClient.invalidateQueries({ queryKey: elasticsearchKeys.deadEvents() })
+      toast.success(data.message)
+      queryClient.invalidateQueries({ queryKey: elasticsearchKeys.failedEvents() })
+      queryClient.invalidateQueries({ queryKey: elasticsearchKeys.summary() })
     },
     onError: (error) => {
       const axiosError = error as AxiosError<ApiResponse>
-      toast.error(axiosError.response?.data?.message || t.messages.retryDeadEventsError)
+      toast.error(axiosError.response?.data?.message || t.errors.updateStatus)
     }
   })
 }
@@ -98,6 +99,77 @@ export const useDeleteIndex = () => {
     onError: (error) => {
       const axiosError = error as AxiosError<ApiResponse>
       toast.error(axiosError.response?.data?.message || t.messages.errorDeleteIndex)
+    }
+  })
+}
+
+export const useRetryFailedEvent = () => {
+  const queryClient = useQueryClient()
+  const { text: t } = useElasticsearchText()
+
+  return useMutation({
+    mutationFn: (id: string) => elasticsearchApi.retryFailedEvent(id).then((res) => res.data.data),
+    onSuccess: (data) => {
+      toast.success(data.message)
+      queryClient.invalidateQueries({ queryKey: elasticsearchKeys.failedEvents() })
+      queryClient.invalidateQueries({ queryKey: elasticsearchKeys.summary() })
+    },
+    onError: (error) => {
+      const axiosError = error as AxiosError<ApiResponse>
+      toast.error(axiosError.response?.data?.message || t.errors.retrySingle)
+    }
+  })
+}
+
+export const useRetryAllFailedEvents = () => {
+  const queryClient = useQueryClient()
+  const { text: t } = useElasticsearchText()
+
+  return useMutation({
+    mutationFn: () => elasticsearchApi.retryAllFailedEvents().then((res) => res.data.data),
+    onSuccess: (data) => {
+      toast.success(data.message)
+      queryClient.invalidateQueries({ queryKey: elasticsearchKeys.failedEvents() })
+      queryClient.invalidateQueries({ queryKey: elasticsearchKeys.summary() })
+    },
+    onError: (error) => {
+      const axiosError = error as AxiosError<ApiResponse>
+      toast.error(axiosError.response?.data?.message || t.errors.retryAll)
+    }
+  })
+}
+
+export const useRetryFailedEventsByDuration = () => {
+  const queryClient = useQueryClient()
+  const { text: t } = useElasticsearchText()
+
+  return useMutation({
+    mutationFn: (hours: number) => elasticsearchApi.retryFailedEventsByDuration(hours).then((res) => res.data.data),
+    onSuccess: (data) => {
+      toast.success(data.message)
+      queryClient.invalidateQueries({ queryKey: elasticsearchKeys.failedEvents() })
+      queryClient.invalidateQueries({ queryKey: elasticsearchKeys.summary() })
+    },
+    onError: (error) => {
+      const axiosError = error as AxiosError<ApiResponse>
+      toast.error(axiosError.response?.data?.message || t.errors.retryDuration)
+    }
+  })
+}
+export const useRetryFailedEventsBulk = () => {
+  const queryClient = useQueryClient()
+  const { text: t } = useElasticsearchText()
+
+  return useMutation({
+    mutationFn: (ids: string[]) => elasticsearchApi.retryFailedEventsBulk(ids).then((res) => res.data.data),
+    onSuccess: (data) => {
+      toast.success(data.message)
+      queryClient.invalidateQueries({ queryKey: elasticsearchKeys.failedEvents() })
+      queryClient.invalidateQueries({ queryKey: elasticsearchKeys.summary() })
+    },
+    onError: (error) => {
+      const axiosError = error as AxiosError<ApiResponse>
+      toast.error(axiosError.response?.data?.message || t.errors.retryBulk)
     }
   })
 }

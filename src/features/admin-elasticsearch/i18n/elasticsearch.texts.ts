@@ -93,6 +93,7 @@ export interface ElasticsearchTexts {
   controlBar: {
     inputPlaceholder: string
     syncUser: string
+    sync: string
     reindexAll: string
     reindexMessages: string
     reindexGroups: string
@@ -205,15 +206,27 @@ export interface ElasticsearchTexts {
       actions: string
     }
     noData: string
+    actions: {
+      viewDetail: string
+      cancelRecord: string
+      retrySingle: string
+      markResolved: string
+      markUnprocessed: string
+    }
     status: {
       new: string
       retrying: string
       critical: string
+      unprocessed: string
+      processed: string
     }
-    actions: {
-      viewDetail: string
-      cancelRecord: string
+    label: {
+      status: string
+      time: string
     }
+    retryRangeXh: string
+    retryRangeXd: string
+    retryRangeButton: string
     pagination: {
       showing: string
       of: string
@@ -225,6 +238,8 @@ export interface ElasticsearchTexts {
       errorTitle: string
       noErrorMessage: string
       jsonTitle: string
+      retryCount: string
+      retryUnit: string
       close: string
     }
     tooltip: {
@@ -234,6 +249,17 @@ export interface ElasticsearchTexts {
       eventLabel: string
     }
     unknownError: string
+    bulk: {
+      selectedCount: string
+      retrySelected: string
+    }
+  }
+  errors: {
+    updateStatus: string
+    retrySingle: string
+    retryAll: string
+    retryDuration: string
+    retryBulk: string
   }
 }
 
@@ -329,6 +355,7 @@ export const createElasticsearchTexts = (t: TFunction<'admin-elasticsearch'>): E
   controlBar: {
     inputPlaceholder: t(ELASTICSEARCH_KEYS.controlBar.inputPlaceholder),
     syncUser: t(ELASTICSEARCH_KEYS.controlBar.syncUser),
+    sync: t(ELASTICSEARCH_KEYS.controlBar.sync),
     reindexAll: t(ELASTICSEARCH_KEYS.controlBar.reindexAll),
     reindexMessages: t(ELASTICSEARCH_KEYS.controlBar.reindexMessages),
     reindexGroups: t(ELASTICSEARCH_KEYS.controlBar.reindexGroups),
@@ -436,20 +463,32 @@ export const createElasticsearchTexts = (t: TFunction<'admin-elasticsearch'>): E
       eventType: t(ELASTICSEARCH_KEYS.dlq.eventType),
       errorMessage: t(ELASTICSEARCH_KEYS.dlq.errorMessage),
       retryCount: t(ELASTICSEARCH_KEYS.dlq.retryCount),
-      status: t(ELASTICSEARCH_KEYS.dlq.status),
+      status: t(ELASTICSEARCH_KEYS.dlq.tableStatus),
       updatedAt: t(ELASTICSEARCH_KEYS.dlq.updatedAt),
-      actions: t(ELASTICSEARCH_KEYS.dlq.actions)
+      actions: t(ELASTICSEARCH_KEYS.dlq.tableActions)
     },
     noData: t(ELASTICSEARCH_KEYS.dlq.noData),
-    status: {
-      new: t(ELASTICSEARCH_KEYS.dlq.statusNew),
-      retrying: t(ELASTICSEARCH_KEYS.dlq.statusRetrying),
-      critical: t(ELASTICSEARCH_KEYS.dlq.statusCritical)
-    },
     actions: {
-      viewDetail: t(ELASTICSEARCH_KEYS.dlq.viewDetail),
-      cancelRecord: t(ELASTICSEARCH_KEYS.dlq.cancelRecord)
+      viewDetail: t(ELASTICSEARCH_KEYS.dlq.actions.viewDetail),
+      cancelRecord: t(ELASTICSEARCH_KEYS.dlq.actions.cancelRecord),
+      retrySingle: t(ELASTICSEARCH_KEYS.dlq.actions.retrySingle),
+      markResolved: t(ELASTICSEARCH_KEYS.dlq.actions.markResolved),
+      markUnprocessed: t(ELASTICSEARCH_KEYS.dlq.actions.markUnprocessed)
     },
+    status: {
+      new: t(ELASTICSEARCH_KEYS.dlq.status.new),
+      retrying: t(ELASTICSEARCH_KEYS.dlq.status.retrying),
+      critical: t(ELASTICSEARCH_KEYS.dlq.status.critical),
+      unprocessed: t(ELASTICSEARCH_KEYS.dlq.status.unprocessed),
+      processed: t(ELASTICSEARCH_KEYS.dlq.status.processed)
+    },
+    label: {
+      status: t(ELASTICSEARCH_KEYS.dlq.labelStatus),
+      time: t(ELASTICSEARCH_KEYS.dlq.labelTime)
+    },
+    retryRangeXh: t(ELASTICSEARCH_KEYS.dlq.retryRangeXh),
+    retryRangeXd: t(ELASTICSEARCH_KEYS.dlq.retryRangeXd),
+    retryRangeButton: t(ELASTICSEARCH_KEYS.dlq.retryRangeButton),
     pagination: {
       showing: t(ELASTICSEARCH_KEYS.dlq.showing),
       of: t(ELASTICSEARCH_KEYS.dlq.of),
@@ -461,6 +500,8 @@ export const createElasticsearchTexts = (t: TFunction<'admin-elasticsearch'>): E
       errorTitle: t(ELASTICSEARCH_KEYS.dlq.modal.errorTitle),
       noErrorMessage: t(ELASTICSEARCH_KEYS.dlq.modal.noErrorMessage),
       jsonTitle: t(ELASTICSEARCH_KEYS.dlq.modal.jsonTitle),
+      retryCount: t(ELASTICSEARCH_KEYS.dlq.modal.retryCount),
+      retryUnit: t(ELASTICSEARCH_KEYS.dlq.modal.retryUnit),
       close: t(ELASTICSEARCH_KEYS.dlq.modal.close)
     },
     tooltip: {
@@ -469,6 +510,17 @@ export const createElasticsearchTexts = (t: TFunction<'admin-elasticsearch'>): E
       timeLabel: t(ELASTICSEARCH_KEYS.dlq.tooltip.timeLabel),
       eventLabel: t(ELASTICSEARCH_KEYS.dlq.tooltip.eventLabel)
     },
-    unknownError: t(ELASTICSEARCH_KEYS.dlq.unknownError)
+    unknownError: t(ELASTICSEARCH_KEYS.dlq.unknownError),
+    bulk: {
+      selectedCount: t(ELASTICSEARCH_KEYS.dlq.bulk.selectedCount),
+      retrySelected: t(ELASTICSEARCH_KEYS.dlq.bulk.retrySelected)
+    }
+  },
+  errors: {
+    updateStatus: t(ELASTICSEARCH_KEYS.errors.updateStatus),
+    retrySingle: t(ELASTICSEARCH_KEYS.errors.retrySingle),
+    retryAll: t(ELASTICSEARCH_KEYS.errors.retryAll),
+    retryDuration: t(ELASTICSEARCH_KEYS.errors.retryDuration),
+    retryBulk: t(ELASTICSEARCH_KEYS.errors.retryBulk)
   }
 })

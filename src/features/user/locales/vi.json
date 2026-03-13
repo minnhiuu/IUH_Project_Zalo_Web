@@ -60,6 +60,179 @@
       "dobInvalid": "Ngày sinh không được lớn hơn ngày hiện tại",
       "genderRequired": "Vui lòng chọn giới tính",
       "bioTooLong": "Tiểu sử không được vượt quá 150 ký tự"
+    },
+    "settings": {
+      "title": "Cài đặt",
+      "menu": {
+        "general": "Cài đặt chung",
+        "security": "Bảo mật",
+        "privacy": "Quyền riêng tư",
+        "sync": "Đồng bộ",
+        "appearance": "Giao diện",
+        "messages": "Tin nhắn",
+        "utilities": "Tiện ích",
+        "accountPrivacy": "Tài khoản & Bảo mật"
+      },
+      "general": {
+        "title": "Cài đặt chung",
+        "showAllFriends": {
+          "title": "Hiển thị tất cả bạn bè",
+          "description": "Hiện tất cả bạn bè hoặc chỉ bạn đang dùng BondHub",
+          "all": "Tất cả bạn bè",
+          "onlyBondhub": "Chỉ bạn trên BondHub"
+        },
+        "language": {
+          "title": "Ngôn ngữ",
+          "description": "Chọn ngôn ngữ hiển thị",
+          "english": "English",
+          "vietnamese": "Tiếng Việt"
+        }
+      },
+      "security": {
+        "title": "Bảo mật",
+        "twoFactor": {
+          "title": "Xác thực hai yếu tố",
+          "description": "Tăng cường bảo mật cho tài khoản"
+        }
+      },
+      "privacy": {
+        "title": "Quyền riêng tư",
+        "personal": {
+          "title": "Thông tin cá nhân",
+          "showDob": {
+            "title": "Hiển thị ngày sinh",
+            "description": "Chọn cách người khác xem ngày sinh của bạn",
+            "hidden": "Không hiển thị",
+            "fullDate": "Hiển thị đầy đủ",
+            "monthDayOnly": "Chỉ hiển thị ngày và tháng"
+          },
+          "showActiveStatus": {
+            "title": "Hiển thị trạng thái hoạt động",
+            "description": "Cho phép người khác biết khi bạn đang online"
+          }
+        },
+        "textAndCall": {
+          "title": "Nhắn tin và cuộc gọi",
+          "showReadStatus": {
+            "title": "Hiển thị đã đọc",
+            "description": "Cho người khác biết bạn đã đọc tin nhắn"
+          },
+          "canText": {
+            "title": "Ai có thể nhắn tin cho tôi",
+            "everybody": "Mọi người",
+            "friends": "Bạn bè",
+            "contacted": "Chỉ người tôi đã liên hệ"
+          },
+          "canCall": {
+            "title": "Ai có thể gọi cho tôi",
+            "everybody": "Mọi người",
+            "friends": "Bạn bè",
+            "contacted": "Chỉ người tôi đã liên hệ"
+          }
+        },
+        "search": {
+          "title": "Tìm kiếm",
+          "allowSearchOnPhoneNumber": {
+            "title": "Cho phép tìm kiếm bằng số điện thoại",
+            "description": "Người khác có thể tìm thấy bạn qua số điện thoại"
+          }
+        }
+      },
+      "sync": {
+        "title": "Đồng bộ",
+        "syncSuggestion": {
+          "title": "Đồng bộ gợi ý",
+          "description": "Đồng bộ danh bạ để gợi ý kết bạn"
+        },
+        "showSyncProgress": {
+          "title": "Hiển thị tiến trình đồng bộ",
+          "description": "Hiển thị thanh tiến trình khi đang đồng bộ"
+        }
+      },
+      "appearance": {
+        "title": "Giao diện",
+        "theme": {
+          "title": "Chế độ hiển thị",
+          "description": "Chọn giao diện sáng, tối hoặc theo hệ thống",
+          "light": "Sáng",
+          "dark": "Tối",
+          "system": "Hệ thống"
+        }
+      },
+      "messages": {
+        "title": "Tin nhắn",
+        "quickResponse": {
+          "title": "Trả lời nhanh",
+          "description": "Bật tính năng trả lời nhanh"
+        },
+        "separatePriorityAndOther": {
+          "title": "Phân tách tin ưu tiên và khác",
+          "description": "Hiển thị tin nhắn ưu tiên riêng biệt"
+        },
+        "showTypingStatus": {
+          "title": "Hiển thị đang nhập",
+          "description": "Cho người khác biết khi bạn đang nhập"
+        }
+      },
+      "utilities": {
+        "title": "Tiện ích",
+        "stickerSuggestion": {
+          "title": "Gợi ý sticker",
+          "description": "Hiển thị gợi ý sticker khi nhập tin nhắn"
+        }
+      },
+      "accountPrivacy": {
+        "title": "Tài khoản & Bảo mật",
+        "description": "Quản lý bảo mật tài khoản và cài đặt quyền riêng tư",
+        "changePassword": {
+          "title": "Đổi mật khẩu",
+          "description": "Cập nhật mật khẩu để bảo mật tài khoản của bạn",
+          "currentPasswordLabel": "Mật khẩu hiện tại",
+          "currentPasswordPlaceholder": "Nhập mật khẩu hiện tại",
+          "newPasswordLabel": "Mật khẩu mới",
+          "newPasswordPlaceholder": "Nhập mật khẩu mới (tối thiểu 8 ký tự)",
+          "confirmPasswordLabel": "Xác nhận mật khẩu mới",
+          "confirmPasswordPlaceholder": "Nhập lại mật khẩu mới",
+          "logoutOtherSessions": "Đăng xuất các phiên đang hoạt động khác",
+          "changeButton": "Đổi mật khẩu",
+          "changing": "Đang đổi...",
+          "success": "Đổi mật khẩu thành công",
+          "error": "Không thể đổi mật khẩu. Vui lòng thử lại.",
+          "validation": {
+            "currentPasswordRequired": "Mật khẩu hiện tại không được để trống",
+            "confirmPasswordRequired": "Vui lòng xác nhận mật khẩu"
+          }
+        },
+        "deviceManagement": {
+          "title": "Quản lý thiết bị",
+          "description": "Xem và quản lý các thiết bị đã đăng nhập vào tài khoản của bạn",
+          "showAllButton": "Hiển thị tất cả thiết bị",
+          "hideButton": "Ẩn danh sách thiết bị",
+          "currentDevice": "Thiết bị hiện tại",
+          "lastActive": "Hoạt động lần cuối",
+          "createdAt": "Đã thêm",
+          "loading": "Đang tải thiết bị...",
+          "noDevices": "Không tìm thấy thiết bị nào",
+          "deleteButton": "Xóa",
+          "deleteConfirm": "Bạn có chắc chắn muốn xóa thiết bị này?",
+          "deleteSuccess": "Xóa thiết bị thành công",
+          "deleteError": "Không thể xóa thiết bị. Vui lòng thử lại.",
+          "browserLabel": "Trình duyệt",
+          "osLabel": "Hệ điều hành",
+          "ipLabel": "Địa chỉ IP",
+          "logout": "Đăng xuất",
+          "logoutOthers": "Đăng xuất khỏi các thiết bị khác",
+          "logoutOthersConfirm": "Bạn có chắc chắn muốn đăng xuất khỏi tất cả các thiết bị khác không?",
+          "logoutOthersSuccess": "Đã đăng xuất khỏi tất cả các thiết bị khác",
+          "logoutOthersError": "Không thể đăng xuất các thiết bị khác",
+          "logoutConfirm": "Bạn có chắc chắn muốn đăng xuất khỏi thiết bị này?",
+          "logoutSuccess": "Đăng xuất thành công",
+          "logoutError": "Không thể đăng xuất. Vui lòng thử lại.",
+          "activeStatus": "Đang hoạt động",
+          "activeDevices": "Thiết bị đang hoạt động",
+          "inactiveDevices": "Thiết bị khác"
+        }
+      }
     }
   }
 }

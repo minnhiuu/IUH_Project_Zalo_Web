@@ -201,20 +201,48 @@
         "actions": "Actions"
       },
       "noData": "No incidents found matching the criteria",
+      "actions": {
+        "viewDetail": "View Details",
+        "cancelRecord": "Cancel Record",
+        "retrySingle": "Retry record",
+        "markResolved": "Mark as Resolved",
+        "markUnprocessed": "Mark as Unprocessed"
+      },
       "status": {
         "new": "New",
         "retrying": "Retrying",
-        "critical": "Critical"
+        "critical": "Critical",
+        "unprocessed": "Unprocessed",
+        "processed": "Processed"
       },
-      "actions": {
-        "viewDetail": "View Details",
-        "cancelRecord": "Cancel Record"
+      "label": {
+        "status": "Status",
+        "time": "Time Range"
       },
+      "retryRangeXh": "Last {{hours}} hours",
+      "retryRangeButton": "Retry by Range",
       "pagination": {
         "showing": "Showing",
         "of": "of",
         "incidents": "incidents"
-      }
+      },
+      "modal": {
+        "title": "DLQ Incident Details",
+        "subtitle": "Detailed information about Kafka to Elasticsearch sync failure.",
+        "errorTitle": "Detailed Error Message",
+        "noErrorMessage": "No detailed error message recorded.",
+        "jsonTitle": "JSON Payload",
+        "retryCount": "Retry Count",
+        "retryUnit": "times",
+        "close": "Close"
+      },
+      "tooltip": {
+        "prefix": "Retry events:",
+        "allPrefix": "Retry all failed events",
+        "timeLabel": "Time",
+        "eventLabel": "Event"
+      },
+      "unknownError": "Unknown connection error"
     }
   }
 }

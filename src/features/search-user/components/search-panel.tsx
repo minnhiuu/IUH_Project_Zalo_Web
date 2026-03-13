@@ -6,13 +6,11 @@ import { cn } from '@/lib/utils'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useSearchUser } from '../queries/use-queries'
+import { useSearchUser, useAddSearchItem, useRemoveSearchItem, useClearAllSearchHistory, useRecentHistory } from '../queries/use-queries'
 import { SearchEmpty } from '@/components/common/search-empty'
 import { useDebounce } from '@/hooks/use-debounce'
-import { OthersProfileDialog } from '@/features/user'
-import { storage, STORAGE_KEYS } from '@/utils/local-storage'
-import { type RecentSearch } from '../schemas/search.schema'
-import { getCurrentTimestamp } from '@/utils/date'
+import { OthersProfileDialog, useMyProfile } from '@/features/user'
+import { SearchType } from '@/constants/enum'
 import { ClearSearchConfirmDialog } from './clear-search-confirm-dialog'
 
 interface SearchPanelProps {
@@ -24,56 +22,41 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
   const [searchValue, setSearchValue] = useState('')
   const [selectedUserId, setSelectedUserId] = useState<string | undefined>(undefined)
   const [isClearDialogOpen, setIsClearDialogOpen] = useState(false)
-  const [recentSearches, setRecentSearches] = useState<RecentSearch[]>(
-    () => storage.get<RecentSearch[]>(STORAGE_KEYS.RECENT_SEARCHES, []) || []
-  )
+  const [activeTab, setActiveTab] = useState('all')
+
   const debouncedKeyword = useDebounce(searchValue, 500)
   const { text } = useSearchText()
+
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isFetching } =
     useSearchUser(debouncedKeyword)
+
+  const { data: recentHistory } = useRecentHistory()
+  const { data: myProfile } = useMyProfile()
+ 
+  const { mutate: addSearchItem } = useAddSearchItem()
+  const { mutate: removeItem } = useRemoveSearchItem()
+  const { mutate: clearAll, isPending: isClearing } = useClearAllSearchHistory()
+
+  const recentSearches = [...(recentHistory?.items || []), ...(recentHistory?.queries || [])].sort(
+    (a, b) => b.timestamp - a.timestamp
+  )
 
   const searchResults = data?.pages.flatMap((page) => page.data) || []
   const isSearching = searchValue !== '' && (isLoading || isFetching || searchValue !== debouncedKeyword)
 
-  const saveRecent = (updated: RecentSearch[]) => {
-    setRecentSearches(updated)
-    storage.set(STORAGE_KEYS.RECENT_SEARCHES, updated)
-  }
-
-  const addToRecent = (item: RecentSearch) => {
-    const updated = [item, ...recentSearches.filter((s) => s.id !== item.id)].slice(0, 10)
-    saveRecent(updated)
-  }
-
-  const removeFromRecent = (id: string) => {
-    const updated = recentSearches.filter((s) => s.id !== id)
-    saveRecent(updated)
-  }
-
-  const clearAllRecent = () => {
-    saveRecent([])
-  }
+  const phoneMatchItem = searchResults.find((item) => item.phoneNumber)
 
   const handleSelectItem = (item: { id: string; fullName: string; avatar?: string }) => {
-    addToRecent({
-      id: item.id,
-      type: 'user',
-      displayName: item.fullName,
-      avatar: item.avatar,
-      timestamp: getCurrentTimestamp()
-    })
+    addSearchItem({ id: item.id, name: item.fullName, avatar: item.avatar, type: SearchType.User })
     setSelectedUserId(item.id)
   }
 
-  const handleSearchConfirm = () => {
-    if (!searchValue.trim()) return
-    addToRecent({
-      id: `kw-${searchValue.trim()}`,
-      type: 'keyword',
-      displayName: searchValue.trim(),
-      timestamp: getCurrentTimestamp()
-    })
-  }
+  const tabs = [
+    { id: 'all', label: text.tabs.all },
+    { id: 'contacts', label: text.tabs.contacts },
+    { id: 'messages', label: text.tabs.messages },
+    { id: 'file', label: text.tabs.file }
+  ]
 
   return (
     <>
@@ -84,25 +67,36 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
         )}
         style={{ left: '64px' }}
       >
-        <div className='flex items-center gap-2 px-4 py-3 shrink-0 bg-background'>
+        <div className='flex items-center gap-2 px-4 pt-3 pb-1 shrink-0 bg-background'>
           <div className='relative flex-1 group'>
             <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground transition-colors group-focus-within:text-primary' />
             <Input
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearchConfirm()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && searchValue.trim() !== '') {
+                const trimmedValue = searchValue.trim()
+                const isSelfPhone = myProfile?.phoneNumber === trimmedValue
+ 
+                addSearchItem({
+                  id: isSelfPhone ? myProfile.id : `k-${Date.now()}`,
+                  name: trimmedValue,
+                  type: SearchType.Keyword
+                })
+              }
+            }}
               placeholder={text.placeholder}
-              className='h-9 pl-10 pr-8 bg-muted border-none rounded-sm focus-visible:ring-1 focus-visible:ring-primary/20 placeholder:text-muted-foreground/60 text-sm'
+              className='h-8 pl-10 pr-8 bg-muted border-none rounded-md focus-visible:ring-1 focus-visible:ring-primary/20 placeholder:text-muted-foreground/60 text-sm'
               autoFocus
             />
             {searchValue && (
               <Button
-                variant='icon-circle'
+                variant='ghost'
                 size='icon'
                 onClick={() => setSearchValue('')}
-                className='absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 p-0'
+                className='absolute right-1 top-1/2 -translate-y-1/2 w-6 h-6 p-0 hover:bg-transparent text-muted-foreground'
               >
-                <X className='size-2.5 text-background' strokeWidth={2} />
+                <X className='size-4 bg-muted-foreground/20 rounded-full p-0.5' />
               </Button>
             )}
           </div>
@@ -112,11 +106,30 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
               onOpenChange(false)
               setSearchValue('')
             }}
-            className='text-[15px] font-semibold whitespace-nowrap h-9 hover:bg-accent-hover rounded-[4px] px-3'
+            className='text-[15px] font-semibold whitespace-nowrap h-9 hover:bg-transparent rounded-[4px] px-1'
           >
             {text.close}
           </Button>
         </div>
+
+        {searchValue && (
+          <div className='flex border-b border-border px-4'>
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={cn(
+                  'px-3 py-2 text-sm font-medium border-b-2 transition-colors relative',
+                  activeTab === tab.id
+                    ? 'text-primary border-primary'
+                    : 'text-muted-foreground border-transparent hover:text-foreground'
+                )}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className='flex-1 flex flex-col overflow-hidden'>
           <div className='flex-1 overflow-y-auto px-1'>
@@ -152,36 +165,30 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
                           key={item.id}
                           className='flex items-center gap-3 px-3 py-2 hover:bg-muted/50 cursor-pointer transition-colors rounded-lg mx-2 my-0.5 group relative'
                           onClick={() => {
-                            if (item.type === 'user') {
-                              handleSelectItem({
-                                id: item.id,
-                                fullName: item.displayName,
-                                avatar: item.avatar
-                              })
+                            if (item.type === SearchType.User || item.type === SearchType.Group) {
+                              handleSelectItem({ id: item.id, fullName: item.name, avatar: item.avatar })
                             } else {
-                              setSearchValue(item.displayName)
-                              addToRecent(item)
+                              setSearchValue(item.name)
+                              addSearchItem({ id: item.id, name: item.name, type: SearchType.Keyword })
                             }
                           }}
                         >
-                          {item.type === 'user' ? (
-                            <UserAvatar src={item.avatar} name={item.displayName} className='w-10 h-10' />
+                          {item.type === SearchType.User || item.type === SearchType.Group ? (
+                            <UserAvatar src={item.avatar} name={item.name} className='w-10 h-10' />
                           ) : (
                             <div className='w-10 h-10 rounded-full bg-muted flex items-center justify-center'>
                               <Search className='w-5 h-5 text-muted-foreground' />
                             </div>
                           )}
                           <div className='flex-1 min-w-0'>
-                            <span className='text-sm text-foreground font-medium truncate block'>
-                              {item.displayName}
-                            </span>
+                            <span className='text-sm text-foreground font-medium truncate block'>{item.name}</span>
                           </div>
                           <Button
                             variant='ghost'
                             size='icon'
                             onClick={(e) => {
                               e.stopPropagation()
-                              removeFromRecent(item.id)
+                              removeItem({ id: item.id, type: item.type })
                             }}
                             className='w-8 h-8 opacity-0 group-hover:opacity-100 transition-opacity'
                           >
@@ -195,6 +202,11 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
               </div>
             ) : (
               <>
+                {phoneMatchItem && (
+                  <div className='px-4 py-3'>
+                    <h3 className='text-[15px] font-bold text-foreground'>{text.findByPhone}</h3>
+                  </div>
+                )}
                 {searchResults.map((item) => (
                   <div
                     key={item.id}
@@ -204,6 +216,11 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
                     <UserAvatar src={item.avatar} name={item.fullName} className='w-12 h-12' />
                     <div className='flex flex-col min-w-0'>
                       <span className='text-base text-foreground font-medium truncate'>{item.fullName}</span>
+                      {item.phoneNumber && (
+                        <span className='text-sm text-muted-foreground'>
+                          {text.phoneNumber} <span className='text-primary'>{item.phoneNumber}</span>
+                        </span>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -240,7 +257,8 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
       <ClearSearchConfirmDialog
         open={isClearDialogOpen}
         onOpenChange={setIsClearDialogOpen}
-        onConfirm={clearAllRecent}
+        onConfirm={() => clearAll()}
+        isPending={isClearing}
       />
     </>
   )
