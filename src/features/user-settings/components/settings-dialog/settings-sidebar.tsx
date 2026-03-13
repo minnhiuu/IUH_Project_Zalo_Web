@@ -6,6 +6,7 @@ import {
   RefreshCw,
   Palette,
   MessageCircle,
+  Bell,
   Wrench,
   Smartphone
 } from 'lucide-react'
@@ -17,6 +18,7 @@ export type SettingsMenuItem =
   | 'privacy'
   | 'sync'
   | 'appearance'
+  | 'notification'
   | 'messages'
   | 'utilities'
   | 'changePassword'
@@ -39,6 +41,7 @@ const menuIcons: Record<SettingsMenuItem, React.ReactNode> = {
   privacy: <Lock className='w-4 h-4' />,
   sync: <RefreshCw className='w-4 h-4' />,
   appearance: <Palette className='w-4 h-4' />,
+  notification: <Bell className='w-4 h-4' />,
   messages: <MessageCircle className='w-4 h-4' />,
   utilities: <Wrench className='w-4 h-4' />,
   changePassword: <KeyRound className='w-4 h-4' />,

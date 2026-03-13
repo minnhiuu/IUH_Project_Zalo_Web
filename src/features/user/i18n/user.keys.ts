@@ -67,6 +67,7 @@ export const USER_KEYS = {
       privacy: 'user.settings.menu.privacy',
       sync: 'user.settings.menu.sync',
       appearance: 'user.settings.menu.appearance',
+      notification: 'user.settings.menu.notification',
       messages: 'user.settings.menu.messages',
       utilities: 'user.settings.menu.utilities',
       accountPrivacy: 'user.settings.menu.accountPrivacy'
@@ -155,6 +156,17 @@ export const USER_KEYS = {
         light: 'user.settings.appearance.theme.light',
         dark: 'user.settings.appearance.theme.dark',
         system: 'user.settings.appearance.theme.system'
+      }
+    },
+    notification: {
+      title: 'user.settings.notification.title',
+      allowNotifications: {
+        title: 'user.settings.notification.allowNotifications.title',
+        description: 'user.settings.notification.allowNotifications.description'
+      },
+      sound: {
+        title: 'user.settings.notification.sound.title',
+        description: 'user.settings.notification.sound.description'
       }
     },
     messages: {

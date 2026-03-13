@@ -68,6 +68,7 @@
         "privacy": "Privacy",
         "sync": "Sync",
         "appearance": "Appearance",
+        "notification": "Notifications",
         "messages": "Messages",
         "utilities": "Utilities",
         "accountPrivacy": "Account & Privacy"
@@ -156,6 +157,17 @@
           "light": "Light",
           "dark": "Dark",
           "system": "System"
+        }
+      },
+      "notification": {
+        "title": "Notifications",
+        "allowNotifications": {
+          "title": "Allow notifications",
+          "description": "Enable or disable notifications for this device"
+        },
+        "sound": {
+          "title": "Notification sound",
+          "description": "Play sound when a notification arrives"
         }
       },
       "messages": {

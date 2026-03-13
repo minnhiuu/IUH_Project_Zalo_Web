@@ -70,6 +70,7 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
       privacy: t(USER_KEYS.settings.menu.privacy),
       sync: t(USER_KEYS.settings.menu.sync),
       appearance: t(USER_KEYS.settings.menu.appearance),
+      notification: t(USER_KEYS.settings.menu.notification),
       messages: t(USER_KEYS.settings.menu.messages),
       utilities: t(USER_KEYS.settings.menu.utilities),
       accountPrivacy: t(USER_KEYS.settings.menu.accountPrivacy)
@@ -158,6 +159,17 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
         light: t(USER_KEYS.settings.appearance.theme.light),
         dark: t(USER_KEYS.settings.appearance.theme.dark),
         system: t(USER_KEYS.settings.appearance.theme.system)
+      }
+    },
+    notification: {
+      title: t(USER_KEYS.settings.notification.title),
+      allowNotifications: {
+        title: t(USER_KEYS.settings.notification.allowNotifications.title),
+        description: t(USER_KEYS.settings.notification.allowNotifications.description)
+      },
+      sound: {
+        title: t(USER_KEYS.settings.notification.sound.title),
+        description: t(USER_KEYS.settings.notification.sound.description)
       }
     },
     messages: {
