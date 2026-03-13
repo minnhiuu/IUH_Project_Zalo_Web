@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useLogoutMutation, LogoutConfirmDialog } from '@/features/auth'
 import { useUserText, OwnerProfileDialog, SettingsDialog } from '@/features/user'
+import { useMySettings, useUpdateGeneralSettings } from '@/features/user-settings'
 import { useState } from 'react'
 
 import { useLocale } from '@/lib/i18n'
@@ -22,11 +23,23 @@ interface UserNavDropdownProps {
 
 export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdownProps) => {
   const logoutMutation = useLogoutMutation()
+  const updateGeneralSettings = useUpdateGeneralSettings()
+  const { data: settings } = useMySettings()
   const [showLogoutDialog, setShowLogoutDialog] = useState(false)
   const [showProfileDialog, setShowProfileDialog] = useState(false)
   const [showSettingsDialog, setShowSettingsDialog] = useState(false)
   const { text } = useUserText()
   const { locale: language, changeLocale: setLocale, languages } = useLocale()
+
+  const handleLanguageChange = (nextLang: (typeof languages)[number]['code']) => {
+    if (nextLang === language || updateGeneralSettings.isPending) return
+
+    setLocale(nextLang)
+    updateGeneralSettings.mutate({
+      showAllFriends: settings?.generalSettings.showAllFriends ?? false,
+      languageEn: nextLang === 'en'
+    })
+  }
 
   return (
     <>
@@ -69,7 +82,8 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
               {languages.map((lang) => (
                 <DropdownMenuItem
                   key={lang.code}
-                  onClick={() => setLocale(lang.code)}
+                  onClick={() => handleLanguageChange(lang.code)}
+                  disabled={updateGeneralSettings.isPending}
                   className='flex items-center justify-between py-1.5 px-3 cursor-pointer hover:bg-muted rounded-md group text-[13.5px] outline-none'
                 >
                   <div className='flex items-center gap-3'>

@@ -10,6 +10,7 @@ import type {
   SyncSettingsUpdateRequest,
   AppearanceSettingsUpdateRequest,
   MessageSettingsUpdateRequest,
+  NotificationSettingsUpdateRequest,
   UtilitiesSettingsUpdateRequest
 } from '@/features/user-settings/schemas/settings.schema'
 import { useQueryClient } from '@tanstack/react-query'
@@ -20,6 +21,7 @@ interface PendingState {
   privacy: boolean
   sync: boolean
   appearance: boolean
+  notification: boolean
   message: boolean
   utilities: boolean
 }
@@ -34,6 +36,7 @@ interface SettingsStateContextValue {
   updateSyncSettings: (data: SyncSettingsUpdateRequest) => Promise<void>
   updateAppearanceSettings: (data: AppearanceSettingsUpdateRequest) => Promise<void>
   updateMessageSettings: (data: MessageSettingsUpdateRequest) => Promise<void>
+  updateNotificationSettings: (data: NotificationSettingsUpdateRequest) => Promise<void>
   updateUtilitiesSettings: (data: UtilitiesSettingsUpdateRequest) => Promise<void>
 }
 
@@ -43,6 +46,7 @@ const defaultPending: PendingState = {
   privacy: false,
   sync: false,
   appearance: false,
+  notification: false,
   message: false,
   utilities: false
 }
@@ -141,6 +145,13 @@ export function SettingsStateProvider({ children }: SettingsStateProviderProps) 
         (prev) => ({ ...prev, messageSettings: data }),
         () => settingsApi.updateMessageSettings(data),
         'Failed to update message settings'
+      ),
+    updateNotificationSettings: async (data) =>
+      updateSection(
+        'notification',
+        (prev) => ({ ...prev, notificationSettings: data }),
+        () => settingsApi.updateNotificationSettings(data),
+        'Failed to update notification settings'
       ),
     updateUtilitiesSettings: async (data) =>
       updateSection(

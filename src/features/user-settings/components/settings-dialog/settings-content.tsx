@@ -6,6 +6,7 @@ import {
   PrivacySettings,
   SyncSettings,
   AppearanceSettings,
+  NotificationSettings,
   MessagesSettings,
   UtilitiesSettings,
   ChangePassword,
@@ -24,6 +25,7 @@ export function SettingsContent() {
     { id: 'privacy', label: text.settings.menu.privacy },
     { id: 'sync', label: text.settings.menu.sync },
     { id: 'appearance', label: text.settings.menu.appearance },
+    { id: 'notification', label: text.settings.menu.notification },
     { id: 'messages', label: text.settings.menu.messages },
     { id: 'utilities', label: text.settings.menu.utilities }
   ]
@@ -45,6 +47,8 @@ export function SettingsContent() {
         return <SyncSettings />
       case 'appearance':
         return <AppearanceSettings />
+      case 'notification':
+        return <NotificationSettings />
       case 'messages':
         return <MessagesSettings />
       case 'utilities':
