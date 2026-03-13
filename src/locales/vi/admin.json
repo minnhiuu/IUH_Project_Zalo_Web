@@ -26,6 +26,111 @@
         "messages": "Tin nhắn",
         "groups": "Nhóm chat"
       }
+    },
+    "userManagement": {
+      "title": "Quản lý người dùng",
+      "description": "Quản lý tất cả người dùng trong hệ thống",
+      "search": "Tìm kiếm",
+      "searchPlaceholder": "Tên, email, số điện thoại...",
+      "filter": "Bộ lọc",
+      "reset": "Đặt lại",
+      "status": "Trạng thái",
+      "role": "Vai trò",
+      "allStatus": "Tất cả",
+      "active": "Hoạt động",
+      "banned": "Đã cấm",
+      "allRoles": "Tất cả",
+      "user": "Người dùng",
+      "admin": "Quản trị viên",
+      "table": {
+        "no": "#",
+        "userName": "Người dùng",
+        "email": "Email",
+        "phone": "Số điện thoại",
+        "role": "Vai trò",
+        "status": "Trạng thái",
+        "createdAt": "Ngày tạo",
+        "lastLogin": "Đăng nhập cuối",
+        "actions": "Hành động",
+        "noData": "Không tìm thấy người dùng nào"
+      },
+      "stats": {
+        "totalUsers": "Tổng số người dùng",
+        "activeUsers": "Đang hoạt động",
+        "bannedUsers": "Đã cấm",
+        "totalPages": "Tổng số trang"
+      },
+      "pagination": {
+        "showing": "Hiển thị",
+        "of": "trong tổng số",
+        "users": "người dùng",
+        "page": "Trang",
+        "previous": "Trước",
+        "next": "Sau",
+        "pageOf": "Trang {{current}} / {{total}}"
+      },
+      "actions": {
+        "view": "Xem chi tiết",
+        "ban": "Cấm người dùng",
+        "unban": "Bỏ cấm người dùng",
+        "update": "Cập nhật"
+      },
+      "tabs": {
+        "active": "Đang hoạt động",
+        "banned": "Đã bị cấm"
+      },
+      "filters": {
+        "name": "Tên",
+        "namePlaceholder": "Tìm theo tên...",
+        "phone": "Số điện thoại",
+        "phonePlaceholder": "Số điện thoại chính xác...",
+        "email": "Email",
+        "emailPlaceholder": "Email chính xác...",
+        "search": "Tìm",
+        "reset": "Đặt lại"
+      },
+      "banDialog": {
+        "title": "Cấm người dùng",
+        "description": "Bạn đang cấm người dùng",
+        "reason": "Lý do cấm",
+        "reasonRequired": "Lý do cấm không được để trống",
+        "reasonPlaceholder": "Nhập lý do cấm người dùng...",
+        "cancel": "Hủy",
+        "confirm": "Xác nhận cấm",
+        "success": "Đã cấm người dùng {{name}}",
+        "error": "Không thể cấm người dùng"
+      },
+      "unbanDialog": {
+        "title": "Bỏ cấm người dùng",
+        "description": "Bạn có chắc chắn muốn bỏ cấm người dùng",
+        "banReason": "Lý do cấm",
+        "cancel": "Hủy",
+        "confirm": "Xác nhận bỏ cấm",
+        "success": "Đã bỏ cấm người dùng {{name}}",
+        "error": "Không thể bỏ cấm người dùng"
+      },
+      "viewDialog": {
+        "title": "Chi tiết người dùng",
+        "personalInfo": "Thông tin cá nhân",
+        "contactInfo": "Thông tin liên hệ",
+        "accountHistory": "Lịch sử tài khoản",
+        "banInfo": "Thông tin cấm",
+        "email": "Email",
+        "phone": "Số điện thoại",
+        "dob": "Ngày sinh",
+        "gender": "Giới tính",
+        "male": "Nam",
+        "female": "Nữ",
+        "bio": "Giới thiệu",
+        "role": "Vai trò",
+        "status": "Trạng thái",
+        "createdAt": "Ngày tạo",
+        "updatedAt": "Cập nhật lần cuối",
+        "lastLogin": "Đăng nhập lần cuối",
+        "userId": "ID người dùng",
+        "banReason": "Lý do",
+        "verified": "Đã xác minh"
+      }
     }
   }
 }

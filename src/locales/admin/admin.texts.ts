@@ -1,4 +1,4 @@
-import { ADMIN_KEYS } from './admin.keys'
+import { ADMIN_KEYS } from './keys'
 
 import type { TFunction } from 'i18next'
 

@@ -88,7 +88,7 @@ export default function UserManagementPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className='mb-6'>
-        <TabsList className='w-full sm:w-auto'>
+        <TabsList className='justify-start'>
           <TabsTrigger
             value='ACTIVE'
             className='flex-1 sm:flex-none data-[state=active]:bg-green-500 data-[state=active]:text-white'

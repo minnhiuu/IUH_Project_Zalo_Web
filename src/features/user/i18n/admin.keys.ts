@@ -1,89 +1,89 @@
 export const ADMIN_KEYS = {
   userManagement: {
-    title: 'admin.userManagement.title',
-    description: 'admin.userManagement.description',
-    active: 'admin.userManagement.active',
-    banned: 'admin.userManagement.banned',
+    title: 'userManagement.title',
+    description: 'userManagement.description',
+    active: 'userManagement.active',
+    banned: 'userManagement.banned',
 
     table: {
-      no: 'admin.userManagement.table.no',
-      userName: 'admin.userManagement.table.userName',
-      email: 'admin.userManagement.table.email',
-      phone: 'admin.userManagement.table.phone',
-      role: 'admin.userManagement.table.role',
-      status: 'admin.userManagement.table.status',
-      createdAt: 'admin.userManagement.table.createdAt',
-      lastLogin: 'admin.userManagement.table.lastLogin',
-      actions: 'admin.userManagement.table.actions',
-      noData: 'admin.userManagement.table.noData'
+      no: 'userManagement.table.no',
+      userName: 'userManagement.table.userName',
+      email: 'userManagement.table.email',
+      phone: 'userManagement.table.phone',
+      role: 'userManagement.table.role',
+      status: 'userManagement.table.status',
+      createdAt: 'userManagement.table.createdAt',
+      lastLogin: 'userManagement.table.lastLogin',
+      actions: 'userManagement.table.actions',
+      noData: 'userManagement.table.noData'
     },
 
     pagination: {
-      previous: 'admin.userManagement.pagination.previous',
-      next: 'admin.userManagement.pagination.next',
-      pageOf: 'admin.userManagement.pagination.pageOf'
+      previous: 'userManagement.pagination.previous',
+      next: 'userManagement.pagination.next',
+      pageOf: 'userManagement.pagination.pageOf'
     },
 
     actions: {
-      view: 'admin.userManagement.actions.view',
-      ban: 'admin.userManagement.actions.ban',
-      unban: 'admin.userManagement.actions.unban'
+      view: 'userManagement.actions.view',
+      ban: 'userManagement.actions.ban',
+      unban: 'userManagement.actions.unban'
     },
 
     tabs: {
-      active: 'admin.userManagement.tabs.active',
-      banned: 'admin.userManagement.tabs.banned'
+      active: 'userManagement.tabs.active',
+      banned: 'userManagement.tabs.banned'
     },
 
     filters: {
-      name: 'admin.userManagement.filters.name',
-      namePlaceholder: 'admin.userManagement.filters.namePlaceholder',
-      phone: 'admin.userManagement.filters.phone',
-      phonePlaceholder: 'admin.userManagement.filters.phonePlaceholder',
-      email: 'admin.userManagement.filters.email',
-      emailPlaceholder: 'admin.userManagement.filters.emailPlaceholder',
-      search: 'admin.userManagement.filters.search',
-      reset: 'admin.userManagement.filters.reset'
+      name: 'userManagement.filters.name',
+      namePlaceholder: 'userManagement.filters.namePlaceholder',
+      phone: 'userManagement.filters.phone',
+      phonePlaceholder: 'userManagement.filters.phonePlaceholder',
+      email: 'userManagement.filters.email',
+      emailPlaceholder: 'userManagement.filters.emailPlaceholder',
+      search: 'userManagement.filters.search',
+      reset: 'userManagement.filters.reset'
     },
 
     banDialog: {
-      title: 'admin.userManagement.banDialog.title',
-      description: 'admin.userManagement.banDialog.description',
-      reason: 'admin.userManagement.banDialog.reason',
-      reasonRequired: 'admin.userManagement.banDialog.reasonRequired',
-      reasonPlaceholder: 'admin.userManagement.banDialog.reasonPlaceholder',
-      cancel: 'admin.userManagement.banDialog.cancel',
-      confirm: 'admin.userManagement.banDialog.confirm',
-      success: 'admin.userManagement.banDialog.success',
-      error: 'admin.userManagement.banDialog.error'
+      title: 'userManagement.banDialog.title',
+      description: 'userManagement.banDialog.description',
+      reason: 'userManagement.banDialog.reason',
+      reasonRequired: 'userManagement.banDialog.reasonRequired',
+      reasonPlaceholder: 'userManagement.banDialog.reasonPlaceholder',
+      cancel: 'userManagement.banDialog.cancel',
+      confirm: 'userManagement.banDialog.confirm',
+      success: 'userManagement.banDialog.success',
+      error: 'userManagement.banDialog.error'
     },
 
     unbanDialog: {
-      title: 'admin.userManagement.unbanDialog.title',
-      description: 'admin.userManagement.unbanDialog.description',
-      cancel: 'admin.userManagement.unbanDialog.cancel',
-      confirm: 'admin.userManagement.unbanDialog.confirm',
-      success: 'admin.userManagement.unbanDialog.success',
-      error: 'admin.userManagement.unbanDialog.error'
+      title: 'userManagement.unbanDialog.title',
+      description: 'userManagement.unbanDialog.description',
+      cancel: 'userManagement.unbanDialog.cancel',
+      confirm: 'userManagement.unbanDialog.confirm',
+      success: 'userManagement.unbanDialog.success',
+      error: 'userManagement.unbanDialog.error'
     },
 
     viewDialog: {
-      title: 'admin.userManagement.viewDialog.title',
-      contactInfo: 'admin.userManagement.viewDialog.contactInfo',
-      accountHistory: 'admin.userManagement.viewDialog.accountHistory',
-      banInfo: 'admin.userManagement.viewDialog.banInfo',
-      email: 'admin.userManagement.viewDialog.email',
-      phone: 'admin.userManagement.viewDialog.phone',
-      dob: 'admin.userManagement.viewDialog.dob',
-      gender: 'admin.userManagement.viewDialog.gender',
-      male: 'admin.userManagement.viewDialog.male',
-      female: 'admin.userManagement.viewDialog.female',
-      createdAt: 'admin.userManagement.viewDialog.createdAt',
-      updatedAt: 'admin.userManagement.viewDialog.updatedAt',
-      lastLogin: 'admin.userManagement.viewDialog.lastLogin',
-      userId: 'admin.userManagement.viewDialog.userId',
-      banReason: 'admin.userManagement.viewDialog.banReason',
-      verified: 'admin.userManagement.viewDialog.verified'
+      title: 'userManagement.viewDialog.title',
+      contactInfo: 'userManagement.viewDialog.contactInfo',
+      accountHistory: 'userManagement.viewDialog.accountHistory',
+      banInfo: 'userManagement.viewDialog.banInfo',
+      email: 'userManagement.viewDialog.email',
+      phone: 'userManagement.viewDialog.phone',
+      dob: 'userManagement.viewDialog.dob',
+      gender: 'userManagement.viewDialog.gender',
+      male: 'userManagement.viewDialog.male',
+      female: 'userManagement.viewDialog.female',
+      createdAt: 'userManagement.viewDialog.createdAt',
+      updatedAt: 'userManagement.viewDialog.updatedAt',
+      lastLogin: 'userManagement.viewDialog.lastLogin',
+      userId: 'userManagement.viewDialog.userId',
+      banReason: 'userManagement.viewDialog.banReason',
+      verified: 'userManagement.viewDialog.verified'
     }
   }
 } as const

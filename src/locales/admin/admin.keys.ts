@@ -1,29 +1,29 @@
 export const ADMIN_KEYS = {
-  BRAND: 'admin.brand',
-  PANEL: 'admin.panel',
-  SYSTEM_ADMIN: 'admin.systemAdmin',
+  BRAND: 'brand',
+  PANEL: 'panel',
+  SYSTEM_ADMIN: 'systemAdmin',
   MENU: {
-    DASHBOARD: 'admin.menu.dashboard',
-    USERS: 'admin.menu.users',
-    ELASTICSEARCH: 'admin.menu.elasticsearch',
-    LOGOUT: 'admin.menu.logout',
-    PROFILE: 'admin.menu.profile',
-    CHANGE_PASSWORD: 'admin.menu.changePassword',
-    MY_ACCOUNT: 'admin.menu.myAccount',
-    LANGUAGE: 'admin.menu.language',
-    APPEARANCE: 'admin.menu.appearance',
-    THEME_LIGHT: 'admin.menu.themeLight',
-    THEME_DARK: 'admin.menu.themeDark',
-    THEME_SYSTEM: 'admin.menu.themeSystem'
+    DASHBOARD: 'menu.dashboard',
+    USERS: 'menu.users',
+    ELASTICSEARCH: 'menu.elasticsearch',
+    LOGOUT: 'menu.logout',
+    PROFILE: 'menu.profile',
+    CHANGE_PASSWORD: 'menu.changePassword',
+    MY_ACCOUNT: 'menu.myAccount',
+    LANGUAGE: 'menu.language',
+    APPEARANCE: 'menu.appearance',
+    THEME_LIGHT: 'menu.themeLight',
+    THEME_DARK: 'menu.themeDark',
+    THEME_SYSTEM: 'menu.themeSystem'
   },
   HEADER: {
-    SEARCH_PLACEHOLDER: 'admin.header.searchPlaceholder'
+    SEARCH_PLACEHOLDER: 'header.searchPlaceholder'
   },
   ELASTICSEARCH: {
     MODULES: {
-      USERS: 'admin.elasticsearch.modules.users',
-      MESSAGES: 'admin.elasticsearch.modules.messages',
-      GROUPS: 'admin.elasticsearch.modules.groups'
+      USERS: 'elasticsearch.modules.users',
+      MESSAGES: 'elasticsearch.modules.messages',
+      GROUPS: 'elasticsearch.modules.groups'
     }
   }
 } as const
