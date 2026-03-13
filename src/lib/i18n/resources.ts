@@ -10,17 +10,22 @@ import commonEn from '@/locales/en/common.json'
 import searchVi from '@/features/search-user/locales/vi.json'
 import searchEn from '@/features/search-user/locales/en.json'
 
+import friendVi from '@/features/friend/locales/vi.json'
+import friendEn from '@/features/friend/locales/en.json'
+
 export const resources = {
   vi: {
     common: commonVi,
     auth: authVi,
     user: userVi,
-    search: searchVi
+    search: searchVi,
+    friend: friendVi
   },
   en: {
     common: commonEn,
     auth: authEn,
     user: userEn,
-    search: searchEn
+    search: searchEn,
+    friend: friendEn
   }
 } as const

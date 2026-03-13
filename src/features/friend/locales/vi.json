@@ -1,0 +1,108 @@
+{
+  "friend": {
+    "title": "Lời mời kết bạn",
+    "sidebar": {
+      "friendList": "Danh sách bạn bè",
+      "groupList": "Danh sách nhóm và cộng đồng",
+      "friendRequests": "Lời mời kết bạn",
+      "groupInvites": "Lời mời vào nhóm và cộng đồng"
+    },
+    "header": {
+      "friendCount": "Bạn bè ({{count}})"
+    },
+    "tabs": {
+      "received": "Đã nhận",
+      "sent": "Đã gửi"
+    },
+    "actions": {
+      "accept": "Đồng ý",
+      "decline": "Từ chối",
+      "withdraw": "Thu hồi",
+      "addFriend": "Kết bạn",
+      "unfriend": "Hủy kết bạn",
+      "cancelRequest": "Hủy lời mời",
+      "message": "Nhắn tin",
+      "call": "Gọi điện",
+      "videoCall": "Gọi video",
+      "skip": "Bỏ qua"
+    },
+    "menu": {
+      "viewProfile": "Xem trang cá nhân"
+    },
+    "search": {
+      "placeholder": "Tìm bạn",
+      "noResult": "Không tìm thấy bạn bè"
+    },
+    "sort": {
+      "nameAsc": "Tên (A-Z)",
+      "nameDesc": "Tên (Z-A)",
+      "recent": "Mới thêm gần đây"
+    },
+    "filter": {
+      "all": "Tất cả",
+      "newFriends": "Bạn mới"
+    },
+    "sections": {
+      "newFriends": "Bạn mới",
+      "receivedRequests": "Lời mời đã nhận ({{count}})",
+      "suggestions": "Gợi ý kết bạn ({{count}})"
+    },
+    "source": {
+      "phoneContact": "Từ danh bạ máy",
+      "friendSuggestion": "Có thể bạn quen biết",
+      "qrCode": "Từ mã QR",
+      "nearby": "Từ người lân cận",
+      "group": "Từ nhóm {{groupName}}",
+      "mutualGroups": "{{count}} nhóm chung",
+      "mutualFriendsSource": "{{count}} bạn chung"
+    },
+    "time": {
+      "justNow": "Vừa xong",
+      "minutesAgo": "{{count}} phút trước",
+      "hoursAgo": "{{count}} giờ trước",
+      "daysAgo": "{{count}} ngày trước",
+      "weeksAgo": "{{count}} tuần trước"
+    },
+    "empty": {
+      "received": "Không có lời mời kết bạn nào",
+      "sent": "Chưa gửi lời mời kết bạn nào",
+      "friends": "Chưa có bạn bè nào",
+      "suggestions": "Không có gợi ý kết bạn nào"
+    },
+    "toast": {
+      "sendSuccess": "Đã gửi lời mời kết bạn",
+      "acceptSuccess": "Đã chấp nhận lời mời kết bạn",
+      "declineSuccess": "Đã từ chối lời mời kết bạn",
+      "cancelSuccess": "Đã thu hồi lời mời kết bạn",
+      "unfriendSuccess": "Đã hủy kết bạn"
+    },
+    "status": {
+      "pending": "Đang chờ",
+      "accepted": "Bạn bè",
+      "declined": "Đã từ chối",
+      "cancelled": "Đã hủy",
+      "notFriend": "Chưa kết bạn"
+    },
+    "comingSoon": {
+      "title": "Sắp ra mắt",
+      "description": "Tính năng đang được phát triển"
+    },
+    "addFriend": {
+      "title": "Thêm bạn",
+      "phonePlaceholder": "Số điện thoại",
+      "recentResults": "Kết quả gần nhất",
+      "cancel": "Hủy",
+      "search": "Tìm kiếm",
+      "accountInfo": "Thông tin tài khoản",
+      "defaultMessagePrefix": "Xin chào, tôi là ",
+      "messagePlaceholder": "Nhập lời nhắn...",
+      "characters": "ký tự",
+      "blockDiary": "Chặn người này xem nhật ký của tôi",
+      "viewInfo": "Thông tin"
+    },
+    "mutualFriends": "{{count}} bạn chung",
+    "viewMore": "Xem thêm",
+    "loading": "Đang tải...",
+    "error": "Có lỗi xảy ra, vui lòng thử lại"
+  }
+}
