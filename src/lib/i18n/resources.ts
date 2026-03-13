@@ -21,7 +21,7 @@ export const resources = {
     user: userVi,
     search: searchVi,
     'admin-elasticsearch': adminEsVi,
-    admin: adminVi
+    admin: adminVi.admin
   },
   en: {
     common: commonEn,
@@ -29,6 +29,6 @@ export const resources = {
     user: userEn,
     search: searchEn,
     'admin-elasticsearch': adminEsEn,
-    admin: adminEn
+    admin: adminEn.admin
   }
 } as const

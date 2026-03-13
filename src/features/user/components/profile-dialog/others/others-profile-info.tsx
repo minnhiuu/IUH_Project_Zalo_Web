@@ -66,7 +66,13 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
             {[
               { icon: Users, label: text.profile.mutualGroups(0), color: 'text-disabled', disabled: true },
               { icon: IdCard, label: text.profile.shareContact, color: 'text-disabled', disabled: true },
-              { icon: Ban, label: text.profile.block, color: 'text-icon-secondary', disabled: false },
+              { 
+                icon: Ban, 
+                label: text.profile.block, 
+                color: 'text-icon-secondary', 
+                disabled: false,
+                onClick: undefined
+              },
               { icon: MessageSquareWarning, label: text.profile.report, color: 'text-icon-secondary', disabled: false }
             ].map((item, idx, arr) => (
               <div key={item.label}>
@@ -76,7 +82,10 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
                     <span className={cn('font-medium', item.color)}>{item.label}</span>
                   </div>
                 ) : (
-                  <button className='flex w-full items-center gap-3 px-4 py-3.5 text-[15px] hover:bg-muted transition-colors text-foreground group cursor-pointer'>
+                  <button 
+                    className='flex w-full items-center gap-3 px-4 py-3.5 text-[15px] hover:bg-muted transition-colors text-foreground group cursor-pointer'
+                    onClick={item.onClick}
+                  >
                     <item.icon
                       className={cn('h-5 w-5 group-hover:opacity-80 transition-opacity', item.color)}
                       strokeWidth={1.5}

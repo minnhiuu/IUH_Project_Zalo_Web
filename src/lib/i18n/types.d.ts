@@ -13,6 +13,7 @@ declare module 'i18next' {
       common: typeof common
       auth: typeof auth
       user: typeof user
+      admin: typeof user
       search: typeof search
       'admin-elasticsearch': typeof adminEs
       admin: typeof admin
