@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 import { NotificationType } from '@/constants'
 import React from 'react'
 import { useNotificationText } from '../locales/use-notification-text'
-import { MessageCircle, Heart, Gift, Phone, User, Shield, AtSign, UserPlus } from 'lucide-react'
+import { MessageCircle, Heart, Gift, Phone, User, Shield, AtSign, UserPlus, AlertTriangle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { formatTimeAgo } from '@/utils/date'
 
@@ -38,6 +38,8 @@ const getBadgeConfig = (type: NotificationType) => {
       return { icon: AtSign, color: 'bg-brand-blue' }
     case 'SYSTEM':
       return { icon: Shield, color: 'bg-brand-blue' }
+    case 'DLQ_ALERT':
+      return { icon: AlertTriangle, color: 'bg-destructive' }
     default:
       return { icon: User, color: 'bg-gray-500' }
   }

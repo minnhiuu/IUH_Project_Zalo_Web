@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils'
-import { NotificationList } from './notification-list'
+import { NotificationList, type NotificationFilter } from './notification-list'
 import { useNotificationText } from '../locales/use-notification-text'
 import { useState } from 'react'
 import { NotificationMenu } from './notification-menu'
@@ -8,8 +8,6 @@ interface NotificationPanelProps {
   open: boolean
   onOpenChange: (open: boolean) => void
 }
-
-export type NotificationFilter = 'all' | 'unread'
 
 export function NotificationPanel({ open }: NotificationPanelProps) {
   const { title, filter: filterText } = useNotificationText()

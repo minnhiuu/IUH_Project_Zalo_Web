@@ -9,7 +9,6 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { getMyNotificationsOptions } from '../queries/options'
 import { ChevronUp } from 'lucide-react'
-import type { NotificationFilter } from './notification-panel'
 import { useNotificationText } from '../locales/use-notification-text'
 import {
   type NotificationFlatHistoryResponse,
@@ -18,6 +17,8 @@ import {
 } from '@/features/notification/schemas/notification.schema'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+
+export type NotificationFilter = 'all' | 'unread'
 
 const NotificationSkeleton = () => (
   <div className='flex flex-col gap-1'>

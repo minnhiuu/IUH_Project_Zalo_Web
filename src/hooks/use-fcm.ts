@@ -1,84 +1,120 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { getToken, onMessage } from 'firebase/messaging'
 import { messaging } from '@/firebaseConfig'
 import { useRegisterDeviceMutation } from '@/features/notification/queries/use-mutations'
 import { storage, STORAGE_KEYS } from '@/utils/local-storage'
-import type { UserResponse } from '@/features/user/schemas/user.schema'
 import { useQueryClient } from '@tanstack/react-query'
+import { useAuth } from '@/features/auth/hooks/use-auth'
 import { notificationKeys } from '@/features/notification/queries/keys'
+import { useTranslation } from 'react-i18next'
 
 const VAPID_KEY = import.meta.env.VITE_FIREBASE_VAPID_KEY
 
-export function useFCM(onForegroundMessage?: (payload: unknown) => void) {
-  const registerDeviceMutation = useRegisterDeviceMutation()
+export function useFCM(onForegroundMessage?: (payload: unknown) => void, onNotificationClick?: () => void) {
+  const { user } = useAuth()
+  const { i18n } = useTranslation()
+  const { mutateAsync: registerDevice } = useRegisterDeviceMutation()
+  const registerDeviceRef = useRef(registerDevice)
+  useEffect(() => {
+    registerDeviceRef.current = registerDevice
+  }, [registerDevice])
   const queryClient = useQueryClient()
-  const userId = storage.get<UserResponse>(STORAGE_KEYS.USER_PROFILE)?.id
+  const userId = user?.id
+
+  // Use refs to avoid re-triggering effect when callbacks change
+  const onForegroundMessageRef = useRef(onForegroundMessage)
+  const onNotificationClickRef = useRef(onNotificationClick)
 
   useEffect(() => {
+    onForegroundMessageRef.current = onForegroundMessage
+    onNotificationClickRef.current = onNotificationClick
+  }, [onForegroundMessage, onNotificationClick])
+
+  useEffect(() => {
+    let isMounted = true
+
     async function initFCM() {
       try {
-        if (!userId) {
-          console.log('[FCM] Pending login, skipping init')
-          return
-        }
+        if (!userId) return
+
+        if (!('Notification' in window)) return
+
+        if (Notification.permission === 'denied') return
 
         const permission = await Notification.requestPermission()
-        if (permission !== 'granted') {
-          console.warn('[FCM] Notification permission denied')
-          return
-        }
+        if (permission !== 'granted') return
 
-        const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js')
+        if (!('serviceWorker' in navigator)) return
+
+        const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
+          scope: '/'
+        })
+        await navigator.serviceWorker.ready
 
         const token = await getToken(messaging, {
           vapidKey: VAPID_KEY,
           serviceWorkerRegistration: registration
         })
 
-        if (token) {
-          const storedToken = storage.get(STORAGE_KEYS.FCM_TOKEN)
-          if (storedToken !== token) {
-            console.log('[FCM] Registering new token:', token)
-            await registerDeviceMutation.mutateAsync({ userId, token, platform: 'WEB' })
-            storage.set(STORAGE_KEYS.FCM_TOKEN, token)
-          } else {
-            console.log('[FCM] Token already registered')
+        if (token && isMounted) {
+          try {
+            let deviceId = storage.get<string>(STORAGE_KEYS.DEVICE_ID)
+            if (!deviceId) {
+              deviceId = crypto.randomUUID()
+              storage.set(STORAGE_KEYS.DEVICE_ID, deviceId)
+            }
+
+            await registerDeviceRef.current({
+              token,
+              platform: 'WEB',
+              deviceId: deviceId,
+              locale: i18n.language
+            })
+            if (isMounted) {
+              storage.set(STORAGE_KEYS.FCM_TOKEN, token)
+              storage.set(STORAGE_KEYS.FCM_REGISTERED_USER_ID, userId)
+              console.log('[FCM] Registration successful with deviceId:', deviceId)
+            }
+          } catch (mutationError) {
+            console.error('[FCM] Registration failed:', mutationError)
           }
         }
       } catch (error) {
-        console.error('[FCM] Error initializing:', error)
+        console.error('[FCM] Error during initFCM:', error)
       }
     }
 
     initFCM()
 
-    // Foreground messages
     const unsubscribe = onMessage(messaging, (payload) => {
-      console.warn('[FCM] Foreground message received:', payload)
       queryClient.refetchQueries({
         queryKey: notificationKeys.all,
         type: 'active'
       })
-      onForegroundMessage?.(payload)
+      onForegroundMessageRef.current?.(payload)
     })
 
-    // Background messages
     const handleServiceWorkerMessage = (event: MessageEvent) => {
       if (event.data?.type === 'FCM_BACKGROUND_MESSAGE') {
-        console.warn('[FCM] Signal from Service Worker received:', event.data.payload)
         queryClient.refetchQueries({
           queryKey: notificationKeys.all,
           type: 'active'
         })
-        onForegroundMessage?.(event.data.payload)
+        onForegroundMessageRef.current?.(event.data.payload)
+      } else if (event.data?.type === 'FCM_CLICK_ACTION') {
+        if (event.data.action === 'OPEN_NOTIFICATIONS') {
+          onNotificationClickRef.current?.()
+        }
       }
     }
 
     navigator.serviceWorker.addEventListener('message', handleServiceWorkerMessage)
 
     return () => {
+      isMounted = false
       unsubscribe()
       navigator.serviceWorker.removeEventListener('message', handleServiceWorkerMessage)
     }
-  }, [onForegroundMessage, queryClient, userId, registerDeviceMutation])
+  }, [userId, queryClient, i18n.language])
+  // Success/Error of registerDevice doesn't change its reference
 }

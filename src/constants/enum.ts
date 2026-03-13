@@ -103,7 +103,8 @@ export const NotificationType = {
   POST_TAG: 'POST_TAG',
   POST_MENTION: 'POST_MENTION',
   COMMENT_MENTION: 'COMMENT_MENTION',
-  SYSTEM: 'SYSTEM'
+  SYSTEM: 'SYSTEM',
+  DLQ_ALERT: 'DLQ_ALERT'
 } as const
 
 export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]

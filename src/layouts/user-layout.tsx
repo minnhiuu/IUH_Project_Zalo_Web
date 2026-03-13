@@ -33,7 +33,12 @@ export default function UserLayout() {
 
   const { text: commonText } = useCommonText()
 
-  useFCM()
+  useFCM(undefined, () => {
+    setIsNotificationOpen(true)
+    setIsSearchOpen(false)
+    markAsChecked()
+    queryClient.invalidateQueries({ queryKey: notificationKeys.all })
+  })
 
   const navItems = [
     { icon: MessageCircle, path: PATHS.HOME, label: commonText.nav.messages },

@@ -13,7 +13,8 @@ export const STORAGE_KEYS = {
   DEVICE_ID: `${APP_PREFIX}device_id`,
   LOCALE: `${APP_PREFIX}locale`,
   RECENT_SEARCHES: `${APP_PREFIX}recent_searches`,
-  FCM_TOKEN: `${APP_PREFIX}fcm_token`
+  FCM_TOKEN: `${APP_PREFIX}fcm_token`,
+  FCM_REGISTERED_USER_ID: `${APP_PREFIX}fcm_registered_user_id`
 } as const
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS]

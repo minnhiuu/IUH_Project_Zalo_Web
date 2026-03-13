@@ -60,6 +60,7 @@ const refreshAccessToken = async (): Promise<string | null> => {
 http.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const locale = storage.get(STORAGE_KEYS.LOCALE) || 'vi'
   config.headers['Accept-Language'] = locale
+  config.headers['X-Device-Id'] = getDeviceId()
   const isAuthEndpoint =
     config.url?.includes('/auth/login') ||
     config.url?.includes('/auth/register') ||

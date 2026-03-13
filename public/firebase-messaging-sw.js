@@ -15,6 +15,14 @@ firebase.initializeApp(firebaseConfig)
 
 const messaging = firebase.messaging()
 
+self.addEventListener('install', () => {
+  self.skipWaiting()
+})
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(self.clients.claim())
+})
+
 messaging.onBackgroundMessage((payload) => {
   console.log('[SW] Background message received:', payload)
 
@@ -22,13 +30,12 @@ messaging.onBackgroundMessage((payload) => {
   const notificationTitle = payload.notification?.title || payload.data?.title || 'Tin nhắn mới'
   const notificationOptions = {
     body: payload.notification?.body || payload.data?.body,
-    icon: payload.data?.actorAvatar || payload.notification?.icon || origin + '/images/logo.png',
-    badge: origin + '/images/logo.png',
+    icon: payload.data?.actorAvatar || payload.notification?.icon || origin + '/images/logo.jpg',
+    badge: origin + '/images/logo.jpg',
     data: payload.data,
-    tag: payload.notification?.tag || payload.data?.type
+    tag: payload.messageId || payload.data?.type
   }
 
-  // Gửi message vào trang web nếu tab đang mở để cập nhật UI realtime
   self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
     clientList.forEach((client) => {
       client.postMessage({
@@ -37,15 +44,6 @@ messaging.onBackgroundMessage((payload) => {
       })
     })
 
-    // KHÔNG HIỂN THỊ THÊM: Nếu FCM đã có sẵn block notification (SDK tự hiện)
-    // hoặc App đang được nhìn thấy (focused).
-    const isAnyClientFocused = clientList.some((client) => client.focused)
-    if (payload.notification || isAnyClientFocused) {
-      console.log('[SW] Notification already handled or App is focused. Skipping manual show.')
-      return
-    }
-
-    // HIỂN THỊ THÔNG BÁO THỦ CÔNG: Chỉ khi đây là Data-only message và tab không focused.
     return self.registration.showNotification(notificationTitle, notificationOptions)
   })
 })
@@ -54,12 +52,24 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close()
 
   const url = event.notification.data?.url ?? '/'
+
   event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      // Tìm tab đang mở
       for (const client of clientList) {
-        if (client.url === url && 'focus' in client) return client.focus()
+        if (client.url.includes(self.location.origin) && 'focus' in client) {
+          client.postMessage({
+            type: 'FCM_CLICK_ACTION',
+            action: 'OPEN_NOTIFICATIONS'
+          })
+          return client.focus()
+        }
       }
-      if (clients.openWindow) return clients.openWindow(url)
+
+      // Nếu không có tab nào mở thì mở mới
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(url)
+      }
     })
   )
 })
