@@ -51,7 +51,6 @@
       "noImages": "Chưa có ảnh nào được chia sẻ",
       "mutualGroups": "Nhóm chung ({{count}})",
       "shareContact": "Chia sẻ danh thiếp",
-      "block": "Chặn tin nhắn và cuộc gọi",
       "report": "Báo xấu",
       "deleteFriend": "Xóa khỏi danh sách bạn bè"
     },
@@ -69,6 +68,7 @@
         "privacy": "Quyền riêng tư",
         "sync": "Đồng bộ",
         "appearance": "Giao diện",
+        "notification": "Thông báo",
         "messages": "Tin nhắn",
         "utilities": "Tiện ích",
         "accountPrivacy": "Tài khoản & Bảo mật"
@@ -157,6 +157,17 @@
           "light": "Sáng",
           "dark": "Tối",
           "system": "Hệ thống"
+        }
+      },
+      "notification": {
+        "title": "Thông báo",
+        "allowNotifications": {
+          "title": "Cho phép thông báo",
+          "description": "Bật hoặc tắt thông báo cho thiết bị này"
+        },
+        "sound": {
+          "title": "Âm thanh thông báo",
+          "description": "Phát âm thanh khi có thông báo mới"
         }
       },
       "messages": {

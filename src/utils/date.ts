@@ -59,3 +59,27 @@ export const formatCompactDateTime = (date: string | Date | number | null | unde
   formatDate(date, lang, 'dd/MM/yyyy HH:mm')
 
 export const getCurrentTimestamp = () => Date.now()
+
+const VI_VN = 'vi-VN'
+
+export const formatDateTimeShort = (d?: string): string =>
+  d
+    ? new Intl.DateTimeFormat(VI_VN, {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(new Date(d))
+    : '—'
+
+export const formatDateTimeLong = (d?: string): string =>
+  d
+    ? new Intl.DateTimeFormat(VI_VN, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(new Date(d))
+    : '—'

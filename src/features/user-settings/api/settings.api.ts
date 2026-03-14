@@ -148,6 +148,7 @@ const toFrontendSettings = (backend: BackendUserSettingResponse): UserSettingRes
     showTypingStatus: backend.messageSettings?.autoDownload ?? true
   },
   notificationSettings: {
+    notifSound: backend.notificationSettings?.notifSound ?? true,
     notifyNewMessageFromDirect: backend.notificationSettings?.notifMessages ?? true,
     previewNewMessageFromDirect: backend.messageSettings?.messagePreview ?? true,
     notifyNewMessageFromGroup: backend.notificationSettings?.notifGroups ?? true,
@@ -220,6 +221,7 @@ export const settingsApi = {
     )
     const notification = response.data.data
     const mapped: NotificationSettings = {
+      notifSound: notification.notifSound,
       notifyNewMessageFromDirect: notification.notifMessages,
       previewNewMessageFromDirect: true,
       notifyNewMessageFromGroup: notification.notifGroups,
@@ -347,7 +349,7 @@ export const settingsApi = {
   updateNotificationSettings: async (data: NotificationSettingsUpdateRequest) => {
     const response = await http.put<ApiResponse<BackendUserSettingResponse>>('/users/settings/me/notification', {
       allowNotifications: data.notifyCall,
-      notifSound: true,
+      notifSound: data.notifSound,
       notifVibration: data.shakeOnNewMessage,
       notifMessages: data.notifyNewMessageFromDirect || data.notifyNewMessage,
       notifGroups: data.notifyNewMessageFromGroup,

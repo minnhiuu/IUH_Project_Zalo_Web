@@ -60,8 +60,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const refetchUser = useCallback(async () => {
     if (!getAccessToken()) return
     try {
-      const userData = await queryClient.fetchQuery(getMyProfileQueryOptions())
-      if (userData) {
+      const rawUser = await queryClient.fetchQuery(getMyProfileQueryOptions())
+      if (rawUser) {
+        let userData = rawUser
+        if (!userData.role) {
+          try {
+            const token = getAccessToken()!
+            const payload = JSON.parse(atob(token.split('.')[1]))
+            if (payload.role) {
+              userData = { ...rawUser, role: payload.role }
+            }
+          } catch {
+            // ignore decode errors
+          }
+        }
         setAuthUser(userData)
       }
     } catch (error) {
@@ -73,7 +85,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     async (accessToken: string, refreshTokenExpirationMs?: number) => {
       setAccessToken(accessToken, refreshTokenExpirationMs)
       await new Promise((resolve) => setTimeout(resolve, 800))
-      const userData = await queryClient.fetchQuery(getMyProfileQueryOptions())
+      // Invalidate cache để đảm bảo fetch fresh data
+      await queryClient.invalidateQueries({ queryKey: ['users', 'me'] })
+      const rawUser = await queryClient.fetchQuery(getMyProfileQueryOptions())
+      let userData = rawUser
+      // Decode role from JWT if API response doesn't include it
+      if (!userData.role) {
+        try {
+          const payload = JSON.parse(atob(accessToken.split('.')[1]))
+          console.log('[Auth] JWT payload:', payload)
+          if (payload.role) {
+            userData = { ...rawUser, role: payload.role }
+          }
+        } catch {
+          // ignore decode errors
+        }
+      }
+      console.log('[Auth] Final userData.role:', userData.role)
       setAuthUser(userData)
       return userData
     },

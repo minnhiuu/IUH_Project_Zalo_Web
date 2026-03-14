@@ -1,5 +1,13 @@
 import { X } from 'lucide-react'
-import { Dialog, DialogContent, DialogOverlay, DialogPortal, DialogFooter } from '@/components/ui/dialog'
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogOverlay, 
+  DialogPortal, 
+  DialogFooter, 
+  DialogTitle, 
+  DialogDescription 
+} from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useAuthContext } from '../context/auth-context'
@@ -58,7 +66,7 @@ export function LogoutConfirmDialog({ open, onOpenChange }: LogoutConfirmDialogP
           )}
         >
           <div className='flex items-center justify-between px-4 h-11 border-b border-border'>
-            <h2 className='text-[15px] font-bold text-foreground'>{text.logoutDialog.title}</h2>
+            <DialogTitle className='text-[15px] font-bold text-foreground'>{text.logoutDialog.title}</DialogTitle>
             <button
               onClick={() => onOpenChange(false)}
               className='p-1 hover:bg-secondary-hover rounded-full transition-colors outline-none cursor-pointer'
@@ -68,7 +76,9 @@ export function LogoutConfirmDialog({ open, onOpenChange }: LogoutConfirmDialogP
           </div>
 
           <div className='p-4 pt-5 pb-5'>
-            <p className='text-[15px] text-foreground font-normal leading-normal'>{text.logoutDialog.confirmMessage}</p>
+            <DialogDescription className='text-[15px] text-foreground font-normal leading-normal'>
+              {text.logoutDialog.confirmMessage}
+            </DialogDescription>
           </div>
 
           <DialogFooter className='flex flex-row justify-end gap-3 px-4 pb-4'>
