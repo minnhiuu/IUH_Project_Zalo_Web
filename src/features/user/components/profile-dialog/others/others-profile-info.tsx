@@ -7,48 +7,12 @@ import { useUserText } from '../../../i18n/use-user-text'
 import { ProfileInfoBase } from '../shared/profile-info-base'
 import { cn } from '@/lib/utils'
 
-import { useAuth } from '@/features/auth/hooks/use-auth'
-import { useCreateFriendRequestNotificationMutation } from '@/features/notification/queries/use-mutations'
-import { showErrorToast, showSuccessToast } from '@/utils/toast'
-
 interface OthersProfileInfoProps {
   user: UserResponse
 }
 
 export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
   const { text } = useUserText()
-  const { user: currentUser } = useAuth()
-  const createFriendRequestNotification = useCreateFriendRequestNotificationMutation()
-
-  const generateMockObjectId = () => {
-    return (
-      Math.floor(Date.now() / 1000)
-        .toString(16)
-        .padStart(8, '0') + 'xxxxxxxxxxxxxxxx'.replace(/[x]/g, () => Math.floor(Math.random() * 16).toString(16))
-    )
-  }
-
-  const handleAddFriend = () => {
-    if (!currentUser) return
-
-    createFriendRequestNotification.mutate(
-      {
-        receiverId: user.id,
-        senderId: currentUser.id,
-        senderName: currentUser.fullName,
-        senderAvatar: currentUser.avatar,
-        requestId: generateMockObjectId()
-      },
-      {
-        onSuccess: () => {
-          showSuccessToast('Gửi lời mời kết bạn thành công')
-        },
-        onError: () => {
-          showErrorToast('Gửi lời mời kết bạn thất bại')
-        }
-      }
-    )
-  }
 
   return (
     <ProfileInfoBase
@@ -81,14 +45,6 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
       }
       contentBeforeInfo={
         <div className='flex gap-3 w-full mb-4 mt-2'>
-          <Button
-            variant='secondary'
-            className='flex-1 font-bold h-9 rounded-md border-none shadow-none transition-all active:scale-95'
-            onClick={handleAddFriend}
-            disabled={createFriendRequestNotification.isPending}
-          >
-            {text.profile.addFriend}
-          </Button>
           <Button
             variant='secondary-blue'
             className='flex-1 font-bold h-9 rounded-md border-none shadow-none transition-all active:scale-95'

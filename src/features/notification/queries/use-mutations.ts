@@ -18,10 +18,6 @@ export const useUnregisterDeviceMutation = () =>
     mutationFn: (token: string) => notificationApi.unregisterDevice(token)
   })
 
-export const useCreateFriendRequestNotificationMutation = () =>
-  useMutation({
-    mutationFn: notificationApi.createFriendRequest
-  })
 
 export const useMarkHistoryAsCheckedMutation = () => {
   const queryClient = useQueryClient()

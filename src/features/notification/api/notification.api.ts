@@ -1,6 +1,4 @@
 import type {
-  CreateFriendRequestNotificationRequest,
-  NotificationAcceptedResponse,
   NotificationHistoryResponse,
   UserNotificationStateResponse,
   NotificationFlatHistoryResponse
@@ -16,9 +14,6 @@ export const notificationApi = {
     http.delete<ApiResponse<string>>('/notifications/devices', {
       params: { token }
     }),
-
-  createFriendRequest: (body: CreateFriendRequestNotificationRequest) =>
-    http.post<ApiResponse<NotificationAcceptedResponse>>('/notifications/friend-request', body),
 
   getNotificationHistory: (params: { cursor?: string | null; limit?: number }) =>
     http.get<ApiResponse<NotificationHistoryResponse>>('/notifications/history', { params }),
