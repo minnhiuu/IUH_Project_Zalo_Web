@@ -4,6 +4,7 @@ import { userKeys } from './keys'
 import { useAuthContext } from '@/features/auth/context/auth-context'
 import type { ApiResponse } from '@/shared/api'
 import type { UserResponse } from '@/features/user/schemas/user.schema'
+import { handleErrorApi } from '@/utils/error-handler'
 
 export const useUpdateProfileMutation = () => {
   const queryClient = useQueryClient()
@@ -17,6 +18,9 @@ export const useUpdateProfileMutation = () => {
         updateUser(updatedUser)
       }
       queryClient.invalidateQueries({ queryKey: userKeys.profile() })
+    },
+    onError: (error: Error) => {
+      handleErrorApi({ error })
     }
   })
 }
@@ -49,6 +53,9 @@ export const useUpdateAvatarMutation = () => {
       }
 
       queryClient.invalidateQueries({ queryKey: userKeys.profile() })
+    },
+    onError: (error: Error) => {
+      handleErrorApi({ error })
     }
   })
 }
@@ -83,6 +90,9 @@ export const useUpdateBackgroundMutation = () => {
       }
 
       queryClient.invalidateQueries({ queryKey: userKeys.profile() })
+    },
+    onError: (error: Error) => {
+      handleErrorApi({ error })
     }
   })
 }
@@ -115,6 +125,10 @@ export const useUpdateBackgroundPositionMutation = () => {
       }
 
       queryClient.invalidateQueries({ queryKey: userKeys.profile() })
+    },
+    onError: (error: Error) => {
+      handleErrorApi({ error })
     }
   })
 }
+
