@@ -1,0 +1,17 @@
+{
+  "chat": {
+    "title": "Messages",
+    "searchPlaceholder": "Search conversations...",
+    "emptyState": "Select a conversation to start chatting",
+    "inputPlaceholder": "Type a message...",
+    "send": "Send",
+    "status": {
+      "online": "Active now",
+      "lastSeen": "Last seen {{time}} ago"
+    },
+    "errors": {
+      "loadConversations": "Failed to load conversations.",
+      "loadMessages": "Failed to load messages."
+    }
+  }
+}

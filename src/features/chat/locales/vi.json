@@ -1,0 +1,17 @@
+{
+  "chat": {
+    "title": "Tin nhắn",
+    "searchPlaceholder": "Tìm kiếm trò chuyện...",
+    "emptyState": "Chọn một đoạn hội thoại để bắt đầu",
+    "inputPlaceholder": "Nhập tin nhắn...",
+    "send": "Gửi",
+    "status": {
+      "online": "Đang hoạt động",
+      "lastSeen": "Truy cập {{time}} trước"
+    },
+    "errors": {
+      "loadConversations": "Lỗi khi tải danh sách hội thoại.",
+      "loadMessages": "Lỗi khi tải tin nhắn."
+    }
+  }
+}
