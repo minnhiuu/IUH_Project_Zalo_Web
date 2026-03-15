@@ -1,5 +1,4 @@
-import { Fragment } from 'react'
-import { Phone, Video, Search, PanelsTopLeft, MoreHorizontal } from 'lucide-react'
+import { Phone, Video, Search, PanelsTopLeft } from 'lucide-react'
 import { useMessagesInfiniteQuery } from '../queries/use-queries'
 import { useAuth } from '@/features/auth'
 import { MessageBubble } from './message-bubble'
@@ -16,6 +15,17 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   )
 
   const { scrollRef, handleScroll } = useChatScroll({ fetchNextPage, hasNextPage, isFetchingNextPage })
+
+  const allMessages = data?.pages.flatMap((page) => page.data) || []
+
+  const isSameGroup = (msg1: MessageResponse, msg2: MessageResponse) => {
+    if (!msg1 || !msg2) return false
+    if (msg1.senderId !== msg2.senderId) return false
+    const time1 = new Date(msg1.createdAt || '').getTime()
+    const time2 = new Date(msg2.createdAt || '').getTime()
+    const diffMinutes = Math.abs(time1 - time2) / (1000 * 60)
+    return diffMinutes < 5
+  }
 
   return (
     <div className='flex-1 flex flex-col bg-[#eef0f1] dark:bg-zinc-950 relative overflow-hidden h-full'>
@@ -72,14 +82,24 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
         className='flex-1 overflow-y-auto px-4 py-4 flex flex-col-reverse custom-scrollbar'
       >
         {isLoading && <div className='flex items-center justify-center flex-1 text-sm text-primary py-8'>Đang tải...</div>}
-        
-        {data?.pages.map((page, i) => (
-          <Fragment key={i}>
-            {page.data.map((msg: MessageResponse) => (
-              <MessageBubble key={msg.id} message={msg} isOwn={msg.senderId === user?.id} />
-            ))}
-          </Fragment>
-        ))}
+
+        {allMessages.map((msg, index) => {
+          const prevMsg = allMessages[index + 1]
+          const nextMsg = allMessages[index - 1]
+
+          const isFirst = !isSameGroup(msg, prevMsg)
+          const isLast = !isSameGroup(msg, nextMsg)
+
+          return (
+            <MessageBubble 
+              key={msg.id} 
+              message={msg} 
+              isOwn={msg.senderId === user?.id}
+              isFirst={isFirst}
+              isLast={isLast}
+            />
+          )
+        })}
 
         {isFetchingNextPage && (
           <div className='py-4 text-center text-sm text-muted-foreground'>Đang tải thêm...</div>
