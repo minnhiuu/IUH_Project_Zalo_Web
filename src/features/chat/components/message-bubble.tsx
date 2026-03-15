@@ -1,17 +1,21 @@
 import { cn } from '@/lib/utils'
-import type { MessageResponse } from '../schemas/chat.schema'
+import type { ConversationResponse, MessageResponse, ConversationMemberResponse } from '../schemas/chat.schema'
 import { useChatText } from '../i18n/use-chat-text'
 
 export function MessageBubble({ 
   message, 
   isOwn, 
   isFirst = true, 
-  isLast = true 
+  isLast = true,
+  isNewest = false,
+  conversation
 }: { 
   message: MessageResponse; 
   isOwn: boolean;
   isFirst?: boolean;
   isLast?: boolean;
+  isNewest?: boolean;
+  conversation?: ConversationResponse;
 }) {
   const { text } = useChatText()
   return (
@@ -62,10 +66,53 @@ export function MessageBubble({
           )}
         </div>
         
-        {isOwn && isLast && (
-          <span className="text-[11px] text-muted-foreground mt-1 px-1 select-none">
-            {message.status === 'PENDING' ? text.status.sending : text.status.sent}
-          </span>
+        {isOwn && (
+          <div className="flex flex-col items-end mt-1">
+            {(() => {
+              const readers = conversation?.members?.filter((m: ConversationMemberResponse) => m.lastReadMessageId === message.id) || []
+              const hasReaders = readers.length > 0
+
+              return (
+                <>
+                  {!hasReaders && isNewest && (
+                    <span className="text-[11px] text-muted-foreground px-1 select-none">
+                      {message.status === 'PENDING' ? text.status.sending : text.status.sent}
+                    </span>
+                  )}
+                  
+                  {/* Read Receipts Avatars */}
+                  {hasReaders && (
+                    <div className="flex -space-x-1 items-center mt-1 pr-1">
+                      {(() => {
+                        const MAX_AVATARS = 3
+                        const visibleReaders = readers.slice(0, MAX_AVATARS)
+                        const extraCount = readers.length - MAX_AVATARS
+
+                        return (
+                          <>
+                            {visibleReaders.map((reader: ConversationMemberResponse) => (
+                              <img
+                                key={reader.userId}
+                                src={reader.avatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${reader.userId}`}
+                                className="w-3 h-3 rounded-full border border-background shadow-sm"
+                                alt={reader.fullName}
+                                title={`Đã xem bởi ${reader.fullName}`}
+                              />
+                            ))}
+                            {extraCount > 0 && (
+                              <div className="w-3 h-3 rounded-full bg-muted border border-background flex items-center justify-center">
+                                <span className="text-[6px] font-bold">+{extraCount}</span>
+                              </div>
+                            )}
+                          </>
+                        )
+                      })()}
+                    </div>
+                  )}
+                </>
+              )
+            })()}
+          </div>
         )}
       </div>
     </div>

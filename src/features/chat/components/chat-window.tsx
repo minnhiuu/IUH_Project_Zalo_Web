@@ -5,6 +5,8 @@ import { MessageBubble } from './message-bubble'
 import { ChatInput } from './chat-input'
 import { useChatScroll } from '../hooks/use-chat-scroll'
 import { useChatText } from '../i18n/use-chat-text'
+import { useMarkAsReadMutation } from '../queries/use-mutations'
+import { useEffect, useRef, useMemo } from 'react'
 import type { ConversationResponse, MessageResponse } from '../schemas/chat.schema'
 
 export function ChatWindow({ conversation }: { conversation: ConversationResponse }) {
@@ -15,8 +17,40 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   )
 
   const { scrollRef, handleScroll } = useChatScroll({ fetchNextPage, hasNextPage, isFetchingNextPage })
+  const { mutate: markAsRead } = useMarkAsReadMutation()
+  const lastMessageRef = useRef<HTMLDivElement>(null)
+  const lastReadSentId = useRef<string | null>(null)
 
-  const allMessages = data?.pages.flatMap((page) => page.data) || []
+  const allMessages = useMemo(() => data?.pages.flatMap((page) => page.data) || [], [data])
+  const latestMessageId = allMessages[0]?.id
+  const latestMessageSenderId = allMessages[0]?.senderId
+
+  useEffect(() => {
+    if (!latestMessageId || !conversation.chatId || conversation.unreadCount === 0) return
+    if (latestMessageSenderId === user?.id) return // Don't mark as read if it's our own message
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && document.visibilityState === 'visible') {
+          if (lastReadSentId.current === latestMessageId) return
+          lastReadSentId.current = latestMessageId
+          markAsRead(conversation.chatId)
+        }
+      },
+      { threshold: 0.5 }
+    )
+
+    const currentRef = lastMessageRef.current
+    if (currentRef) {
+      observer.observe(currentRef)
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef)
+      }
+    }
+  }, [latestMessageId, latestMessageSenderId, conversation.chatId, conversation.unreadCount, markAsRead, user?.id])
 
   const isSameGroup = (msg1: MessageResponse, msg2: MessageResponse) => {
     if (!msg1 || !msg2) return false
@@ -91,13 +125,16 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
           const isLast = !isSameGroup(msg, nextMsg)
 
           return (
-            <MessageBubble 
-              key={msg.id} 
-              message={msg} 
-              isOwn={msg.senderId === user?.id}
-              isFirst={isFirst}
-              isLast={isLast}
-            />
+            <div key={msg.id} ref={index === 0 ? lastMessageRef : null}>
+              <MessageBubble 
+                message={msg} 
+                isOwn={msg.senderId === user?.id}
+                isFirst={isFirst}
+                isLast={isLast}
+                isNewest={index === 0}
+                conversation={conversation}
+              />
+            </div>
           )
         })}
 

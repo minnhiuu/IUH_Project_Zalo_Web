@@ -1,6 +1,16 @@
 import { z } from 'zod'
 import { MessageType, Status } from '@/constants/enum'
 
+export const ConversationMemberResponseSchema = z.object({
+  userId: z.string(),
+  fullName: z.string(),
+  avatar: z.string().nullable().optional(),
+  lastReadMessageId: z.string().nullable().optional(),
+  role: z.string().nullable().optional()
+})
+
+export type ConversationMemberResponse = z.infer<typeof ConversationMemberResponseSchema>
+
 export const ConversationResponseSchema = z.object({
   chatId: z.string(),
   partnerId: z.string(),
@@ -9,8 +19,10 @@ export const ConversationResponseSchema = z.object({
   partnerStatus: z.nativeEnum(Status).nullable().optional(),
   lastSeenAt: z.string().datetime().nullable().optional(),
   lastMessage: z.string().nullable().optional(),
+  lastMessageId: z.string().nullable().optional(),
   lastMessageTime: z.string().datetime().nullable().optional(),
-  unreadCount: z.number().nullable().optional()
+  unreadCount: z.number().nullable().optional(),
+  members: z.array(ConversationMemberResponseSchema).nullable().optional()
 })
 
 export type ConversationResponse = z.infer<typeof ConversationResponseSchema>

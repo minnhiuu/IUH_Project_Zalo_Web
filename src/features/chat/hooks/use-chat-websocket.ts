@@ -117,6 +117,22 @@ export const useChatWebSocket = () => {
           })
         })
 
+        client.subscribe('/user/queue/read-receipts', (payload) => {
+          const receipt = JSON.parse(payload.body)
+          queryClient.setQueryData(chatKeys.conversations(), (oldData: any) => {
+            if (!oldData) return oldData
+            return oldData.map((conv: ConversationResponse) => {
+              if (conv.chatId !== receipt.chatId) return conv
+              const updatedMembers = conv.members?.map(m => 
+                m.userId === receipt.userId 
+                  ? { ...m, lastReadMessageId: receipt.lastReadMessageId } 
+                  : m
+              )
+              return { ...conv, members: updatedMembers }
+            })
+          })
+        })
+
         client.subscribe('/user/queue/conversations', (payload) => {
           try {
             const newConv = JSON.parse(payload.body)
