@@ -23,6 +23,8 @@ export const MessageResponseSchema = z.object({
   recipientId: z.string().nullable().optional(),
   content: z.string(),
   type: z.nativeEnum(MessageType),
+  clientMessageId: z.string().nullable().optional(),
+  status: z.enum(['PENDING', 'SENT', 'ERROR']).nullable().optional(),
   createdAt: z.string().datetime().nullable().optional(),
   lastModifiedAt: z.string().datetime().nullable().optional()
 })
@@ -45,7 +47,8 @@ export type ChatUser = z.infer<typeof ChatUserSchema>
 
 export const ChatMessageRequestSchema = z.object({
   recipientId: z.string(),
-  content: z.string()
+  content: z.string(),
+  clientMessageId: z.string().optional()
 })
 
 export type ChatMessageRequest = z.infer<typeof ChatMessageRequestSchema>

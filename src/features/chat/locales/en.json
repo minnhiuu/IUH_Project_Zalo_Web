@@ -7,7 +7,9 @@
     "send": "Send",
     "status": {
       "online": "Active now",
-      "lastSeen": "Last seen {{time}} ago"
+      "lastSeen": "Last seen {{time}} ago",
+      "sending": "Sending...",
+      "sent": "Sent"
     },
     "errors": {
       "loadConversations": "Failed to load conversations.",

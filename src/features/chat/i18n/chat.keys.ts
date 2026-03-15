@@ -6,7 +6,9 @@ export const CHAT_KEYS = {
   send: 'chat.send',
   status: {
     online: 'chat.status.online',
-    lastSeen: 'chat.status.lastSeen'
+    lastSeen: 'chat.status.lastSeen',
+    sending: 'chat.status.sending',
+    sent: 'chat.status.sent'
   },
   errors: {
     loadConversations: 'chat.errors.loadConversations',

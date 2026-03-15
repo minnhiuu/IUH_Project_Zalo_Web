@@ -9,7 +9,9 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
   send: t(CHAT_KEYS.send),
   status: {
     online: t(CHAT_KEYS.status.online),
-    lastSeen: (time: string) => t(CHAT_KEYS.status.lastSeen, { time })
+    lastSeen: (time: string) => t(CHAT_KEYS.status.lastSeen, { time }),
+    sending: t(CHAT_KEYS.status.sending),
+    sent: t(CHAT_KEYS.status.sent)
   },
   errors: {
     loadConversations: t(CHAT_KEYS.errors.loadConversations),

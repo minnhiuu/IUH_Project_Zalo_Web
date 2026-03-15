@@ -7,7 +7,9 @@
     "send": "Gửi",
     "status": {
       "online": "Đang hoạt động",
-      "lastSeen": "Truy cập {{time}} trước"
+      "lastSeen": "Truy cập {{time}} trước",
+      "sending": "Đang gửi",
+      "sent": "Đã nhận"
     },
     "errors": {
       "loadConversations": "Lỗi khi tải danh sách hội thoại.",

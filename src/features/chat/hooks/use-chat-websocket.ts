@@ -31,8 +31,41 @@ export const useChatWebSocket = () => {
         setConnected(true)
 
         client.subscribe('/user/queue/messages', (payload) => {
-          const msg: MessageResponse = JSON.parse(payload.body)
-          if (msg.senderId === user.id) return
+          const rawMsg = JSON.parse(payload.body)
+          const msg: MessageResponse = {
+            ...rawMsg,
+            createdAt: rawMsg.createdAt || rawMsg.timestamp
+          }
+          
+          if (msg.senderId === user.id) {
+            // ACK for my own message
+            if (msg.recipientId) {
+              queryClient.setQueryData(chatKeys.messages(msg.recipientId), (oldData: any) => {
+                if (!oldData) return oldData
+                const firstPage = oldData.pages[0]
+                const hasOptimistic = firstPage.data.some((m: any) => m.clientMessageId === msg.clientMessageId)
+                if (hasOptimistic) {
+                  return {
+                    ...oldData,
+                    pages: [
+                      {
+                        ...firstPage,
+                        data: firstPage.data.map((m: any) => 
+                          (m.clientMessageId && m.clientMessageId === msg.clientMessageId) ? { ...msg, status: 'SENT' } : m
+                        )
+                      },
+                      ...oldData.pages.slice(1)
+                    ]
+                  }
+                }
+                return {
+                  ...oldData,
+                  pages: [{ ...firstPage, data: [{ ...msg, status: 'SENT' }, ...firstPage.data] }, ...oldData.pages.slice(1)]
+                }
+              })
+            }
+            return
+          }
 
           queryClient.setQueryData(chatKeys.messages(msg.senderId), (oldData: any) => {
             if (!oldData) return oldData
@@ -140,9 +173,11 @@ export const useChatWebSocket = () => {
     (recipientId: string, content: string) => {
       if (!stompClientRef.current?.connected || !content.trim()) return
 
+      const clientMessageId = `temp-${Date.now()}`
       const chatMessage: ChatMessageRequest = {
         recipientId,
-        content: content.trim()
+        content: content.trim(),
+        clientMessageId
       }
 
       stompClientRef.current.publish({
@@ -152,11 +187,13 @@ export const useChatWebSocket = () => {
 
       const now = new Date().toISOString()
       const optimisticMsg: MessageResponse = {
-        id: 'temp-' + Date.now(),
+        id: clientMessageId,
+        clientMessageId,
         senderId: user?.id || '',
         recipientId,
         content,
         type: 'CHAT' as any,
+        status: 'PENDING',
         createdAt: now,
         lastModifiedAt: now,
         chatId: undefined,
