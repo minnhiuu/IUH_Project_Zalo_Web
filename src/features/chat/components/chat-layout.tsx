@@ -2,11 +2,52 @@ import { useState } from 'react'
 import { ChatSidebar } from './chat-sidebar'
 import { ChatWindow } from './chat-window'
 import { useChatText } from '../i18n/use-chat-text'
+import { useConversationsQuery } from '../queries/use-queries'
+import { useMarkAsReadMutation } from '../queries/use-mutations'
+import { useEffect } from 'react'
 import type { ConversationResponse } from '../schemas/chat.schema'
 
 export function ChatLayout() {
   const { text } = useChatText()
   const [selectedChat, setSelectedChat] = useState<ConversationResponse | null>(null)
+  const { data: conversations } = useConversationsQuery()
+  const { mutate: markAsRead } = useMarkAsReadMutation()
+
+  useEffect(() => {
+    if (!conversations) return
+    const totalUnread = conversations.reduce((sum: number, c: ConversationResponse) => sum + (c.unreadCount || 0), 0)
+    
+    if (totalUnread > 0) {
+      document.title = `(${totalUnread}) Tin nhắn mới | Zalo Web`
+    } else {
+      document.title = 'Zalo Web - PC'
+    }
+  }, [conversations])
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && selectedChat) {
+        const activeConversation = conversations?.find((c: ConversationResponse) => c.chatId === selectedChat.chatId)
+        if (activeConversation && activeConversation.unreadCount && activeConversation.unreadCount > 0) {
+          markAsRead(selectedChat.chatId)
+        }
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    
+    // Auto mark as read immediately after opening a new tab or when selected chat updates with unread > 0
+    if (document.visibilityState === 'visible' && selectedChat) {
+      const activeConversation = conversations?.find((c: ConversationResponse) => c.chatId === selectedChat.chatId)
+      if (activeConversation && activeConversation.unreadCount && activeConversation.unreadCount > 0) {
+        markAsRead(selectedChat.chatId)
+      }
+    }
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [selectedChat, conversations, markAsRead])
 
   return (
     <div className='flex w-full h-full overflow-hidden'>

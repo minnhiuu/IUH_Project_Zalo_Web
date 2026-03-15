@@ -90,6 +90,7 @@ export const useChatWebSocket = () => {
                 ...conversations[existingConvIndex],
                 lastMessage: msg.content,
                 lastMessageTime: msg.createdAt,
+                unreadCount: msg.unreadCount !== undefined ? msg.unreadCount : (conversations[existingConvIndex].unreadCount || 0) + 1,
                 hasUnread: true
               }
               return [

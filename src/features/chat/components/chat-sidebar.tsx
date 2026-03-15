@@ -2,6 +2,7 @@ import { Search, UserPlus, Users, Filter, MoreHorizontal } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { useConversationsQuery } from '../queries/use-queries'
+import { useMarkAsReadMutation } from '../queries/use-mutations'
 import { useChatText } from '../i18n/use-chat-text'
 import type { ConversationResponse } from '../schemas/chat.schema'
 
@@ -13,6 +14,14 @@ interface ChatSidebarProps {
 export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) {
   const { text } = useChatText()
   const { data: conversations, isLoading, isError } = useConversationsQuery()
+  const { mutate: markAsRead } = useMarkAsReadMutation()
+
+  const handleSelectChat = (chat: ConversationResponse) => {
+    onSelectChat(chat)
+    if (chat.unreadCount && chat.unreadCount > 0) {
+      markAsRead(chat.chatId)
+    }
+  }
 
   return (
     <div className='w-[344px] flex flex-col border-r border-border bg-background shrink-0'>
@@ -56,7 +65,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
         {conversations?.map((chat: ConversationResponse) => (
           <div
             key={chat.chatId}
-            onClick={() => onSelectChat(chat)}
+            onClick={() => handleSelectChat(chat)}
             className={cn(
               'flex items-center px-4 py-3 cursor-pointer hover:bg-muted/50 active:bg-muted transition-colors relative group',
               selectedChatId === chat.chatId && 'bg-muted'
@@ -80,10 +89,14 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
                 </span>
               </div>
               <div className='flex items-center justify-between'>
-                <p className='text-[13px] text-muted-foreground truncate font-normal'>{chat.lastMessage}</p>
-                {/* 
-                  if chat hasUnread or similar
-                */}
+                <p className={cn('text-[13px] truncate', chat.unreadCount && chat.unreadCount > 0 ? 'text-foreground font-semibold' : 'text-muted-foreground font-normal')}>
+                  {chat.lastMessage}
+                </p>
+                {chat.unreadCount && chat.unreadCount > 0 ? (
+                  <div className='bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full flex items-center justify-center min-w-[20px] h-[20px] ml-2 shrink-0'>
+                    {chat.unreadCount > 5 ? '5+' : chat.unreadCount}
+                  </div>
+                ) : null}
               </div>
             </div>
             <div className='absolute right-4 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center space-x-1'>

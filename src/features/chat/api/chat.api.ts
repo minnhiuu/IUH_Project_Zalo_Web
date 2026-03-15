@@ -6,5 +6,7 @@ export const chatApi = {
     http.get<ApiResponse<any>>('/messages/conversations', { params: { page, size } }),
 
   getMessages: (recipientId: string, page = 0, size = 20) =>
-    http.get<ApiResponse<any>>(`/messages/${recipientId}`, { params: { page, size } })
+    http.get<ApiResponse<any>>(`/messages/${recipientId}`, { params: { page, size } }),
+
+  markAsRead: (chatId: string) => http.put<ApiResponse<any>>(`/messages/conversations/${chatId}/read`)
 }

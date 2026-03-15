@@ -9,7 +9,8 @@ export const ConversationResponseSchema = z.object({
   partnerStatus: z.nativeEnum(Status).nullable().optional(),
   lastSeenAt: z.string().datetime().nullable().optional(),
   lastMessage: z.string().nullable().optional(),
-  lastMessageTime: z.string().datetime().nullable().optional()
+  lastMessageTime: z.string().datetime().nullable().optional(),
+  unreadCount: z.number().nullable().optional()
 })
 
 export type ConversationResponse = z.infer<typeof ConversationResponseSchema>
@@ -26,7 +27,8 @@ export const MessageResponseSchema = z.object({
   clientMessageId: z.string().nullable().optional(),
   status: z.enum(['PENDING', 'SENT', 'ERROR']).nullable().optional(),
   createdAt: z.string().datetime().nullable().optional(),
-  lastModifiedAt: z.string().datetime().nullable().optional()
+  lastModifiedAt: z.string().datetime().nullable().optional(),
+  unreadCount: z.number().nullable().optional()
 })
 
 export type MessageResponse = z.infer<typeof MessageResponseSchema>
