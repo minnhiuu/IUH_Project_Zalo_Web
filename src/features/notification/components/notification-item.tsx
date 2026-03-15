@@ -3,11 +3,12 @@ import { Button } from '@/components/ui/button'
 import type { NotificationGroupResponse } from '@/features/notification/schemas/notification.schema'
 import { cn } from '@/lib/utils'
 import { NotificationType } from '@/constants'
-import React from 'react'
+import React, { useState } from 'react'
 import { useNotificationText } from '../locales/use-notification-text'
 import { MessageCircle, Heart, Gift, Phone, User, Shield, AtSign, UserPlus, AlertTriangle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { formatTimeAgo } from '@/utils/date'
+import { userApi } from '@/features/user/api/user.api'
 
 interface NotificationItemProps {
   notification: NotificationGroupResponse
@@ -48,6 +49,7 @@ const getBadgeConfig = (type: NotificationType) => {
 export const NotificationItem = ({ notification, onMarkAsRead }: NotificationItemProps) => {
   const { action } = useNotificationText()
   const { i18n } = useTranslation()
+  const [status, setStatus] = useState<'pending' | 'accepted' | 'declined'>('pending')
 
   const handleClick = () => {
     if (!notification.read) {
@@ -101,28 +103,52 @@ export const NotificationItem = ({ notification, onMarkAsRead }: NotificationIte
 
         {notification.type === 'FRIEND_REQUEST' && (
           <div className='mt-2'>
-            <div className='flex gap-2'>
-              <Button
-                variant='secondary'
-                className='h-9 flex-1 font-bold text-[15px] rounded-lg border-none shadow-none transition-all active:scale-95'
-                onClick={(e: React.MouseEvent) => {
-                  e.stopPropagation()
-                  // Logic for reject will go here
-                }}
-              >
-                {action.decline}
-              </Button>
-              <Button
-                variant='secondary-blue'
-                className='h-9 flex-1 font-bold text-[15px] rounded-lg border-none shadow-none transition-all active:scale-95'
-                onClick={(e: React.MouseEvent) => {
-                  e.stopPropagation()
-                  // Logic for accept will go here
-                }}
-              >
-                {action.accept}
-              </Button>
-            </div>
+            {status === 'pending' ? (
+              <div className='flex gap-2'>
+                <Button
+                  variant='secondary'
+                  className='h-9 flex-1 font-bold text-[15px] rounded-lg border-none shadow-none transition-all active:scale-95'
+                  onClick={async (e: React.MouseEvent) => {
+                    e.stopPropagation()
+                    const requestId = notification.payload?.requestId as string
+                    if (!requestId) return
+
+                    try {
+                      await userApi.declineFriendRequest(requestId)
+                      setStatus('declined')
+                      if (!notification.read) onMarkAsRead(notification.id)
+                    } catch (error) {
+                      console.error('Error declining friend request:', error)
+                    }
+                  }}
+                >
+                  {action.decline}
+                </Button>
+                <Button
+                  variant='secondary-blue'
+                  className='h-9 flex-1 font-bold text-[15px] rounded-lg border-none shadow-none transition-all active:scale-95'
+                  onClick={async (e: React.MouseEvent) => {
+                    e.stopPropagation()
+                    const requestId = notification.payload?.requestId as string
+                    if (!requestId) return
+
+                    try {
+                      await userApi.acceptFriendRequest(requestId)
+                      setStatus('accepted')
+                      if (!notification.read) onMarkAsRead(notification.id)
+                    } catch (error) {
+                      console.error('Error accepting friend request:', error)
+                    }
+                  }}
+                >
+                  {action.accept}
+                </Button>
+              </div>
+            ) : (
+              <div className='text-[14px] text-muted-foreground font-normal'>
+                {status === 'accepted' ? action.accepted : action.declined}
+              </div>
+            )}
           </div>
         )}
       </div>

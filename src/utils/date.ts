@@ -19,6 +19,13 @@ export const formatTimeAgo = (
   if (isNaN(d.getTime())) return String(date)
 
   try {
+    const now = new Date()
+    const diffInSeconds = Math.floor((now.getTime() - d.getTime()) / 1000)
+
+    if (diffInSeconds < 60) {
+      return lang === 'vi' ? '1 phút' : '1 minute'
+    }
+
     const timeAgo = formatDistanceToNow(d, {
       addSuffix: !short,
       locale: getLocale(lang)
@@ -65,21 +72,21 @@ const VI_VN = 'vi-VN'
 export const formatDateTimeShort = (d?: string): string =>
   d
     ? new Intl.DateTimeFormat(VI_VN, {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(new Date(d))
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).format(new Date(d))
     : '—'
 
 export const formatDateTimeLong = (d?: string): string =>
   d
     ? new Intl.DateTimeFormat(VI_VN, {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(new Date(d))
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).format(new Date(d))
     : '—'

@@ -18,6 +18,9 @@
     "action": {
       "accept": "Accept",
       "decline": "Decline",
+      "accepted": "Accepted friend invitation",
+      "declined": "Declined friend invitation",
+      "viewProfile": "View Profile",
       "followers": "{{count}} followers"
     },
     "menu": {

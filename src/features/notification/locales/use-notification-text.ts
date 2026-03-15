@@ -22,6 +22,9 @@ export const useNotificationText = () => {
     action: {
       accept: t('notification.action.accept'),
       decline: t('notification.action.decline'),
+      accepted: t('notification.action.accepted'),
+      declined: t('notification.action.declined'),
+      viewProfile: t('notification.action.viewProfile'),
       followers: (count: number) => t('notification.action.followers', { count })
     },
     menu: {

@@ -18,6 +18,9 @@
     "action": {
       "accept": "Đồng ý",
       "decline": "Từ chối",
+      "accepted": "Đã chấp nhận lời mời kết bạn",
+      "declined": "Đã gỡ lời mời kết bạn",
+      "viewProfile": "Xem trang cá nhân",
       "followers": "Có {{count}} người theo dõi"
     },
     "menu": {

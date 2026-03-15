@@ -1,4 +1,4 @@
-import { Users, Ban, MessageSquareWarning, IdCard } from 'lucide-react'
+import { Users, Ban, MessageSquareWarning, IdCard, UserPlus } from 'lucide-react'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -6,6 +6,8 @@ import { type UserResponse } from '@/features/user/schemas/user.schema'
 import { useUserText } from '../../../i18n/use-user-text'
 import { ProfileInfoBase } from '../shared/profile-info-base'
 import { cn } from '@/lib/utils'
+import { userApi } from '@/features/user/api/user.api'
+import { toast } from 'sonner'
 
 interface OthersProfileInfoProps {
   user: UserResponse
@@ -13,6 +15,19 @@ interface OthersProfileInfoProps {
 
 export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
   const { text } = useUserText()
+
+  const handleAddFriend = async () => {
+    try {
+      await userApi.sendFriendRequest(user.id)
+      toast.success('Đã gửi lời mời kết bạn', {
+        description: `Đã gửi yêu cầu tới ${user.fullName}`
+      })
+    } catch {
+      toast.error('Lỗi', {
+        description: 'Không thể gửi lời mời kết bạn'
+      })
+    }
+  }
 
   return (
     <ProfileInfoBase
@@ -51,6 +66,14 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
           >
             {text.profile.message}
           </Button>
+          <Button
+            variant='vibrant'
+            className='flex-1 font-bold h-9 rounded-md border-none shadow-none transition-all active:scale-95'
+            onClick={handleAddFriend}
+          >
+            <UserPlus className='h-4 w-4 mr-2' />
+            {text.profile.addFriend}
+          </Button>
         </div>
       }
       footer={
@@ -62,7 +85,7 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
               { icon: IdCard, label: text.profile.shareContact, color: 'text-disabled', disabled: true },
               { 
                 icon: Ban, 
-                label: text.profile.block, 
+                label: 'Chặn người này', 
                 color: 'text-icon-secondary', 
                 disabled: false,
                 onClick: undefined
