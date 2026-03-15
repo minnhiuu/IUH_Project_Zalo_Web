@@ -7,6 +7,7 @@ export const createCommonTexts = (t: TFunction<'common'>) => ({
     search: t(COMMON_KEYS.nav.search),
     contacts: t(COMMON_KEYS.nav.contacts),
     todo: t(COMMON_KEYS.nav.todo),
+    notifications: t(COMMON_KEYS.nav.notifications),
     cloud: t(COMMON_KEYS.nav.cloud),
     business: t(COMMON_KEYS.nav.business),
     settings: t(COMMON_KEYS.nav.settings)

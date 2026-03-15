@@ -524,3 +524,47 @@ input[type='radio']:checked::before {
 input[type='radio']:checked {
   @apply border-primary;
 }
+@layer components {
+  /* Generic Centered Toast Style */
+  .centered-toast-content {
+    @apply flex flex-col items-center justify-center gap-3 bg-[#171718]/90 text-white p-4 rounded-[12px] w-[220px] h-[130px] shadow-lg backdrop-blur-sm;
+    animation: scale-in-center 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+    transform-origin: center;
+  }
+
+  .centered-toast-icon-circle {
+    @apply flex items-center justify-center w-12 h-12 rounded-full border-2 border-white mb-1;
+  }
+
+  .centered-toast-text {
+    @apply text-[14px] font-normal text-center leading-tight text-white/80 px-2;
+  }
+}
+
+@layer utilities {
+  .sonner-toast-center {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    margin: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    pointer-events: none !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+  }
+}
+
+@keyframes scale-in-center {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

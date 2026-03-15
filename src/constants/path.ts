@@ -3,6 +3,7 @@ export const PATHS = {
   SEARCH: '/search',
   CONTACTS: '/contacts',
   TODO: '/todo',
+  NOTIFICATIONS: '/notifications',
   CLOUD: '/cloud',
   BUSINESS: '/business',
 

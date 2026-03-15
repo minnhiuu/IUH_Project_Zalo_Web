@@ -1,5 +1,6 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { Outlet, Link, useLocation } from 'react-router'
-import { Contact2, CheckSquare, Settings, Cloud, Briefcase, MessageCircle, Search } from 'lucide-react'
+import { Contact2, CheckSquare, Settings, Cloud, Briefcase, MessageCircle, Search, Bell } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { PATHS } from '@/constants/path'
 import { UserNavDropdown } from '@/features/user'
@@ -8,19 +9,43 @@ import { UserAvatar } from '@/components/common/user-avatar'
 import { useState } from 'react'
 import { SearchPanel } from '@/features/search-user'
 import { useCommonText } from '@/locales/common/use-common-text'
+import { useFCM } from '@/hooks/use-fcm'
+import { NotificationPanel } from '@/features/notification'
+import { notificationKeys } from '@/features/notification/queries/keys'
+import { useNotificationStateQuery } from '@/features/notification/queries/use-queries'
+import { useMarkHistoryAsCheckedMutation } from '@/features/notification/queries/use-mutations'
+
+import { useNotificationBadge } from '@/hooks/use-notification-badge'
 
 export default function UserLayout() {
   const location = useLocation()
   const { user } = useAuthContext()
+  const queryClient = useQueryClient()
   const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
+
+  const { data: notificationState } = useNotificationStateQuery()
+  const { mutate: markAsChecked } = useMarkHistoryAsCheckedMutation()
+
+  const unreadCount = notificationState?.unreadCount ?? 0
+
+  useNotificationBadge({ count: unreadCount, title: 'BondHub' })
 
   const { text: commonText } = useCommonText()
+
+  useFCM(undefined, () => {
+    setIsNotificationOpen(true)
+    setIsSearchOpen(false)
+    markAsChecked()
+    queryClient.invalidateQueries({ queryKey: notificationKeys.all })
+  })
 
   const navItems = [
     { icon: MessageCircle, path: PATHS.HOME, label: commonText.nav.messages },
     { icon: Search, path: PATHS.SEARCH, label: commonText.nav.search },
     { icon: Contact2, path: PATHS.CONTACTS, label: commonText.nav.contacts },
-    { icon: CheckSquare, path: PATHS.TODO, label: commonText.nav.todo }
+    { icon: CheckSquare, path: PATHS.TODO, label: commonText.nav.todo },
+    { icon: Bell, path: PATHS.NOTIFICATIONS, label: commonText.nav.notifications }
   ]
 
   const bottomItems = [
@@ -52,7 +77,10 @@ export default function UserLayout() {
               return (
                 <button
                   key={item.path}
-                  onClick={() => setIsSearchOpen(true)}
+                  onClick={() => {
+                    setIsSearchOpen(true)
+                    setIsNotificationOpen(false)
+                  }}
                   className={cn(
                     'flex items-center justify-center w-[48px] h-[48px] rounded-lg transition-all mx-auto group relative mb-1',
                     isActive ? 'bg-sidebar-accent' : 'hover:bg-white/10'
@@ -67,12 +95,49 @@ export default function UserLayout() {
                 </button>
               )
             }
+            if (item.path === PATHS.NOTIFICATIONS) {
+              const isActive = isNotificationOpen
+              const unreadCount = notificationState?.unreadCount ?? 0
+              return (
+                <button
+                  key={item.path}
+                  onClick={() => {
+                    const nextState = !isNotificationOpen
+                    setIsNotificationOpen(nextState)
+                    setIsSearchOpen(false)
+                    if (nextState) {
+                      markAsChecked()
+                    }
+                    queryClient.invalidateQueries({ queryKey: notificationKeys.all })
+                  }}
+                  className={cn(
+                    'flex items-center justify-center w-[48px] h-[48px] rounded-lg transition-all mx-auto group relative mb-1',
+                    isActive ? 'bg-sidebar-accent' : 'hover:bg-white/10'
+                  )}
+                >
+                  <item.icon
+                    className={cn(
+                      'w-[24px] h-[24px] transition-colors',
+                      isActive ? 'text-white' : 'text-white/80 group-hover:text-white'
+                    )}
+                  />
+                  {unreadCount > 0 && (
+                    <span className='absolute top-2 right-2 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-medium text-white ring-2 ring-sidebar'>
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
+                </button>
+              )
+            }
             const isActive = location.pathname === item.path && !isSearchOpen
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                onClick={() => setIsSearchOpen(false)}
+                onClick={() => {
+                  setIsSearchOpen(false)
+                  setIsNotificationOpen(false)
+                }}
                 className={cn(
                   'flex items-center justify-center w-[48px] h-[48px] rounded-lg transition-all mx-auto group relative mb-1',
                   isActive ? 'bg-sidebar-accent' : 'hover:bg-white/10'
@@ -139,6 +204,7 @@ export default function UserLayout() {
       </main>
 
       <SearchPanel open={isSearchOpen} onOpenChange={setIsSearchOpen} />
+      <NotificationPanel open={isNotificationOpen} onOpenChange={setIsNotificationOpen} />
     </div>
   )
 }

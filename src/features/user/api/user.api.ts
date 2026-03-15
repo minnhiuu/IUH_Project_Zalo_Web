@@ -18,5 +18,14 @@ export const userApi = {
     http.get<ApiResponse<PageResponse<AuditLog>>>('/audit-logs', { params }),
   
   getUserAuditLogs: (userId: string, params?: { page?: number; size?: number }) =>
-    http.get<ApiResponse<PageResponse<AuditLog>>>(`/audit-logs/${userId}`, { params })
+    http.get<ApiResponse<PageResponse<AuditLog>>>(`/audit-logs/${userId}`, { params }),
+
+  sendFriendRequest: (receiverId: string) =>
+    http.post<ApiResponse<any>>('/friendships/requests', { receiverId, message: 'Xin chào, kết bạn với mình nhé!' }),
+
+  acceptFriendRequest: (requestId: string) =>
+    http.put<ApiResponse<void>>(`/friendships/requests/${requestId}/accept`),
+
+  declineFriendRequest: (requestId: string) =>
+    http.put<ApiResponse<void>>(`/friendships/requests/${requestId}/decline`)
 }

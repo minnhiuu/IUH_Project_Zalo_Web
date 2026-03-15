@@ -4,6 +4,7 @@ export const COMMON_KEYS = {
     search: 'nav.search',
     contacts: 'nav.contacts',
     todo: 'nav.todo',
+    notifications: 'nav.notifications',
     cloud: 'nav.cloud',
     business: 'nav.business',
     settings: 'nav.settings'
