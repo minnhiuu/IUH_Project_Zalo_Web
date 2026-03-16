@@ -12,9 +12,7 @@ export const authOptions = {
       queryFn: async () => {
         const response = await authApi.generateQr()
         return response.data.data
-      },
-      refetchOnWindowFocus: false,
-      refetchOnMount: false
+      }
     }),
 
   waitQrStatus: (qrId: string, expectedStatus: QrSessionStatus, enabled: boolean) =>

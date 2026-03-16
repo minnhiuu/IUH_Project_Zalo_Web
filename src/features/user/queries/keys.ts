@@ -6,7 +6,6 @@ export const userKeys = {
 
 export const blockKeys = {
   all: ['blocks'] as const,
-  myBlocks: () => [...blockKeys.all, 'my'] as const,
-  detail: (userId: string) => [...blockKeys.all, 'detail', userId] as const,
-  check: (userId: string) => [...blockKeys.all, 'check', userId] as const
+  myBlocks: () => [...blockKeys.all, 'me'] as const,
+  detail: (id: string) => [...blockKeys.all, 'detail', id] as const
 }

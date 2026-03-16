@@ -89,6 +89,7 @@ export default function RegisterForm() {
       const { accessToken, refreshTokenExpirationMs } = result.data.data!
       toast.success(text.verifyOtp.success)
       await loginSuccess(accessToken, refreshTokenExpirationMs)
+
       navigate(PATHS.HOME)
     } catch (error) {
       setIsSubmitting(false)
