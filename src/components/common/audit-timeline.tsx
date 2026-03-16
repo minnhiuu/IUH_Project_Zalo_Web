@@ -22,19 +22,19 @@ interface AuditTimelineProps {
 }
 
 const actionIcons: Record<AuditAction, React.ReactNode> = {
-  [AuditAction.USER_CREATED]: <User className="size-4" />,
-  [AuditAction.USER_UPDATED]: <Edit className="size-4" />,
-  [AuditAction.PROFILE_UPDATED]: <UserCircle className="size-4" />,
-  [AuditAction.AVATAR_UPDATED]: <Image className="size-4" />,
-  [AuditAction.BACKGROUND_UPDATED]: <Image className="size-4" />,
-  [AuditAction.PASSWORD_CHANGED]: <Lock className="size-4" />,
-  [AuditAction.EMAIL_VERIFIED]: <CheckCircle className="size-4" />,
-  [AuditAction.PHONE_VERIFIED]: <CheckCircle className="size-4" />,
-  [AuditAction.ACCOUNT_LOCKED]: <Lock className="size-4" />,
-  [AuditAction.ACCOUNT_UNLOCKED]: <Unlock className="size-4" />,
-  [AuditAction.LOGIN_SUCCESS]: <LogIn className="size-4" />,
-  [AuditAction.LOGIN_FAILED]: <XCircle className="size-4" />,
-  [AuditAction.LOGOUT]: <LogOut className="size-4" />
+  [AuditAction.USER_CREATED]: <User className='size-4' />,
+  [AuditAction.USER_UPDATED]: <Edit className='size-4' />,
+  [AuditAction.PROFILE_UPDATED]: <UserCircle className='size-4' />,
+  [AuditAction.AVATAR_UPDATED]: <Image className='size-4' />,
+  [AuditAction.BACKGROUND_UPDATED]: <Image className='size-4' />,
+  [AuditAction.PASSWORD_CHANGED]: <Lock className='size-4' />,
+  [AuditAction.EMAIL_VERIFIED]: <CheckCircle className='size-4' />,
+  [AuditAction.PHONE_VERIFIED]: <CheckCircle className='size-4' />,
+  [AuditAction.ACCOUNT_LOCKED]: <Lock className='size-4' />,
+  [AuditAction.ACCOUNT_UNLOCKED]: <Unlock className='size-4' />,
+  [AuditAction.LOGIN_SUCCESS]: <LogIn className='size-4' />,
+  [AuditAction.LOGIN_FAILED]: <XCircle className='size-4' />,
+  [AuditAction.LOGOUT]: <LogOut className='size-4' />
 }
 
 const actionColors: Record<AuditAction, string> = {
@@ -73,52 +73,50 @@ function formatDate(dateString: string) {
 export function AuditTimeline({ logs, className }: AuditTimelineProps) {
   if (!logs || logs.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <Activity className="size-12 text-muted-foreground/50 mb-4" />
-        <p className="text-muted-foreground text-sm">No activity history yet</p>
+      <div className='flex flex-col items-center justify-center py-12 text-center'>
+        <Activity className='size-12 text-muted-foreground/50 mb-4' />
+        <p className='text-muted-foreground text-sm'>No activity history yet</p>
       </div>
     )
   }
 
   return (
-    <ScrollArea className={cn("h-[400px] pr-4", className)}>
-      <div className="relative space-y-4 pb-4">
+    <ScrollArea className={cn('h-[400px] pr-4', className)}>
+      <div className='relative space-y-4 pb-4'>
         {/* Timeline line */}
-        <div className="absolute left-4 top-2 bottom-2 w-px bg-border" />
+        <div className='absolute left-4 top-2 bottom-2 w-px bg-border' />
 
         {logs.map((log) => (
-          <div key={log.id} className="relative flex gap-4 group">
+          <div key={log.id} className='relative flex gap-4 group'>
             {/* Icon */}
-            <div className={cn(
-              "relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full border-2",
-              actionColors[log.action]
-            )}>
+            <div
+              className={cn(
+                'relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full border-2',
+                actionColors[log.action]
+              )}
+            >
               {actionIcons[log.action]}
             </div>
 
             {/* Content */}
-            <div className="flex-1 space-y-1 pb-4">
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex-1 space-y-1">
-                  <p className="text-sm font-medium leading-none">
-                    {log.description}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {formatDate(log.createdAt)}
-                  </p>
+            <div className='flex-1 space-y-1 pb-4'>
+              <div className='flex items-start justify-between gap-2'>
+                <div className='flex-1 space-y-1'>
+                  <p className='text-sm font-medium leading-none'>{log.description}</p>
+                  <p className='text-xs text-muted-foreground'>{formatDate(log.createdAt)}</p>
                 </div>
-                <Badge variant="outline" className="text-xs">
+                <Badge variant='outline' className='text-xs'>
                   {log.action.replace(/_/g, ' ').toLowerCase()}
                 </Badge>
               </div>
 
               {/* Metadata */}
               {log.metadata && Object.keys(log.metadata).length > 0 && (
-                <div className="mt-2 rounded-md bg-muted p-2 text-xs space-y-1">
+                <div className='mt-2 rounded-md bg-muted p-2 text-xs space-y-1'>
                   {Object.entries(log.metadata).map(([key, value]) => (
-                    <div key={key} className="flex justify-between">
-                      <span className="text-muted-foreground capitalize">{key}:</span>
-                      <span className="font-mono">{String(value)}</span>
+                    <div key={key} className='flex justify-between'>
+                      <span className='text-muted-foreground capitalize'>{key}:</span>
+                      <span className='font-mono'>{String(value)}</span>
                     </div>
                   ))}
                 </div>
@@ -126,13 +124,9 @@ export function AuditTimeline({ logs, className }: AuditTimelineProps) {
 
               {/* IP Address & User Agent */}
               {(log.ipAddress || log.userAgent) && (
-                <div className="mt-2 space-y-1 text-xs text-muted-foreground">
-                  {log.ipAddress && (
-                    <p className="font-mono">IP: {log.ipAddress}</p>
-                  )}
-                  {log.userAgent && (
-                    <p className="truncate">Device: {log.userAgent}</p>
-                  )}
+                <div className='mt-2 space-y-1 text-xs text-muted-foreground'>
+                  {log.ipAddress && <p className='font-mono'>IP: {log.ipAddress}</p>}
+                  {log.userAgent && <p className='truncate'>Device: {log.userAgent}</p>}
                 </div>
               )}
             </div>

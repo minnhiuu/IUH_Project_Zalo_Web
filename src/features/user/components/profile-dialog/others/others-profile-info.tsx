@@ -71,10 +71,10 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
             {[
               { icon: Users, label: text.profile.mutualGroups(0), color: 'text-disabled', disabled: true },
               { icon: IdCard, label: text.profile.shareContact, color: 'text-disabled', disabled: true },
-              { 
-                icon: Ban, 
-                label: blockDetails ? text.profile.editBlock : text.profile.block, 
-                color: 'text-icon-secondary', 
+              {
+                icon: Ban,
+                label: blockDetails ? text.profile.editBlock : text.profile.block,
+                color: 'text-icon-secondary',
                 disabled: false,
                 onClick: () => setIsBlockModalOpen(true)
               },
@@ -87,7 +87,7 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
                     <span className={cn('font-medium', item.color)}>{item.label}</span>
                   </div>
                 ) : (
-                  <button 
+                  <button
                     className='flex w-full items-center gap-3 px-4 py-3.5 text-[15px] hover:bg-muted transition-colors text-foreground group cursor-pointer'
                     onClick={item.onClick}
                   >
@@ -102,7 +102,7 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
               </div>
             ))}
           </div>
-          
+
           <BlockUserModal
             open={isBlockModalOpen}
             onOpenChange={setIsBlockModalOpen}

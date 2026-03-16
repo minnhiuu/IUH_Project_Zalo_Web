@@ -1,10 +1,6 @@
 import { Bell } from 'lucide-react'
 import { useState } from 'react'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
 import { NotificationList, type NotificationFilter } from './notification-list'
 import { useNotificationText } from '../locales/use-notification-text'

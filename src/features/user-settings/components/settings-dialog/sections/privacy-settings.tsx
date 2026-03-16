@@ -14,7 +14,11 @@ interface PrivacySettingsProps {
   onNavigateToBlockedUsers?: () => void
 }
 
-export function PrivacySettings({ onNavigateToDevices, onNavigateToChangePassword, onNavigateToBlockedUsers }: PrivacySettingsProps) {
+export function PrivacySettings({
+  onNavigateToDevices,
+  onNavigateToChangePassword,
+  onNavigateToBlockedUsers
+}: PrivacySettingsProps) {
   const { text } = useUserText()
   const { settings, isLoading, pending, updatePrivacySettings } = useSettingsState()
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Dialog,
@@ -44,14 +44,16 @@ export function BlockUserModal({
   const [blockStory, setBlockStory] = useState(isBlocked ? (currentPreference?.story ?? false) : false)
   const queryClient = useQueryClient()
 
+  const [prevOpen, setPrevOpen] = useState(open)
 
-  useEffect(() => {
+  if (open !== prevOpen) {
+    setPrevOpen(open)
     if (open) {
       setBlockMessage(isBlocked ? (currentPreference?.message ?? false) : false)
       setBlockCall(isBlocked ? (currentPreference?.call ?? false) : false)
       setBlockStory(isBlocked ? (currentPreference?.story ?? false) : false)
     }
-  }, [open, currentPreference, isBlocked])
+  }
 
   const blockMutation = useMutation({
     mutationFn: () =>
@@ -175,11 +177,7 @@ export function BlockUserModal({
 
         <DialogFooter className='gap-2'>
           {isBlocked && (
-            <Button
-              variant='outline'
-              onClick={handleUnblock}
-              disabled={unblockMutation.isPending}
-            >
+            <Button variant='outline' onClick={handleUnblock} disabled={unblockMutation.isPending}>
               {text.settings.accountPrivacy.blockModal.unblockButton}
             </Button>
           )}

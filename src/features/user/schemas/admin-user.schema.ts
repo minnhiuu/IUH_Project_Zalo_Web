@@ -30,6 +30,7 @@ export type AuditInfo = {
   createdBy?: string
   lastModifiedBy?: string
   lastLoginAt?: string
+  lastLogin?: string
   active: boolean
 }
 
@@ -59,6 +60,7 @@ export type AdminUserDetailResponse = {
   createdBy?: string
   lastModifiedBy?: string
   lastLoginAt?: string
+  lastLogin?: string
   totalActivityLogs: number
 
   // Ban status (source of truth for FE)

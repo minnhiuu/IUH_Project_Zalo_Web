@@ -18,7 +18,6 @@ export const useUnregisterDeviceMutation = () =>
     mutationFn: (token: string) => notificationApi.unregisterDevice(token)
   })
 
-
 export const useMarkHistoryAsCheckedMutation = () => {
   const queryClient = useQueryClient()
   return useMutation({

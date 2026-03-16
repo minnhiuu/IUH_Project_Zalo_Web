@@ -1,4 +1,4 @@
-import { ArrowLeft, Loader2, Ban } from 'lucide-react'
+import { ArrowLeft, Loader2, Ban, MessageSquare, Phone, Camera } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { UserAvatar } from '@/components/common/user-avatar'
@@ -43,9 +43,7 @@ export function BlockedUsersSection({ onBack }: BlockedUsersSectionProps) {
             <ArrowLeft className='w-5 h-5' strokeWidth={1.5} />
           </Button>
         )}
-        <h2 className='text-[16px] font-semibold text-foreground'>
-          {text.settings.accountPrivacy.blockedUsers.title}
-        </h2>
+        <h2 className='text-[16px] font-semibold text-foreground'>{text.settings.accountPrivacy.blockedUsers.title}</h2>
       </div>
 
       <div className='flex-1 bg-white dark:bg-zinc-900 rounded-lg shadow-sm border border-border/50 overflow-hidden flex flex-col'>
@@ -70,10 +68,7 @@ export function BlockedUsersSection({ onBack }: BlockedUsersSectionProps) {
             </div>
             <div className='flex-1 overflow-y-auto p-4 space-y-4'>
               {blockedUsers.map((user) => (
-                <div
-                  key={user.id}
-                  className='flex items-center gap-3 group transition-colors'
-                >
+                <div key={user.id} className='flex items-center gap-3 group transition-colors'>
                   <UserAvatar
                     src={user.avatar}
                     name={user.fullName}
@@ -81,9 +76,24 @@ export function BlockedUsersSection({ onBack }: BlockedUsersSectionProps) {
                     fallbackClassName='bg-muted text-foreground'
                   />
                   <div className='flex-1 min-w-0'>
-                    <h3 className='text-[15px] font-medium text-foreground truncate'>
-                      {user.fullName}
-                    </h3>
+                    <h3 className='text-[15px] font-medium text-foreground truncate'>{user.fullName}</h3>
+                  </div>
+                  <div className='flex items-center gap-2 mr-1'>
+                    {user.preference.message && (
+                      <span title={text.settings.accountPrivacy.blockedUsers.types.message}>
+                        <MessageSquare className='w-3.5 h-3.5 text-muted-foreground/70' />
+                      </span>
+                    )}
+                    {user.preference.call && (
+                      <span title={text.settings.accountPrivacy.blockedUsers.types.call}>
+                        <Phone className='w-3.5 h-3.5 text-muted-foreground/70' />
+                      </span>
+                    )}
+                    {user.preference.story && (
+                      <span title={text.settings.accountPrivacy.blockedUsers.types.story}>
+                        <Camera className='w-3.5 h-3.5 text-muted-foreground/70' />
+                      </span>
+                    )}
                   </div>
                   <Button
                     variant='secondary'
@@ -106,10 +116,7 @@ export function BlockedUsersSection({ onBack }: BlockedUsersSectionProps) {
           <div className='flex-1 flex flex-col items-center justify-center p-12 text-center'>
             <div className='relative mb-4'>
               <div className='w-20 h-20 bg-blue-50 dark:bg-blue-950/20 rounded-full flex items-center justify-center'>
-                <UserAvatar
-                  name=''
-                  className='w-14 h-14 opacity-40'
-                />
+                <UserAvatar name='' className='w-14 h-14 opacity-40' />
               </div>
               <div className='absolute bottom-0 right-0 bg-white dark:bg-zinc-900 rounded-full p-1 border-2 border-white dark:border-zinc-900'>
                 <Ban className='w-6 h-6 text-destructive ring-2 ring-white dark:ring-zinc-900 rounded-full bg-white dark:bg-zinc-900' />

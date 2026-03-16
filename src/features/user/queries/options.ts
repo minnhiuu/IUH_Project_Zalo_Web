@@ -34,7 +34,7 @@ export const getBlockDetailsQueryOptions = (userId: string) =>
       try {
         const response = await blockApi.getBlockDetails(userId)
         return response.data.data ?? null
-      } catch (error) {
+      } catch {
         return null
       }
     },
