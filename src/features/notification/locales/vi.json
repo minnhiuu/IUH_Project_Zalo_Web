@@ -1,0 +1,38 @@
+{
+  "notification": {
+    "title": "Thông báo",
+    "filter": {
+      "all": "Tất cả",
+      "unread": "Chưa đọc"
+    },
+    "group": {
+      "newest": "Mới",
+      "today": "Hôm nay",
+      "previous": "Trước đó"
+    },
+    "empty": {
+      "title": "Bạn không có thông báo nào",
+      "description": "Bạn sẽ nhận được thông báo khi có hoạt động mới.",
+      "placeholder": "Hãy quay lại sau khi có cập nhật mới nhé"
+    },
+    "action": {
+      "accept": "Đồng ý",
+      "decline": "Từ chối",
+      "accepted": "Đã chấp nhận lời mời kết bạn",
+      "declined": "Đã gỡ lời mời kết bạn",
+      "viewProfile": "Xem trang cá nhân",
+      "followers": "Có {{count}} người theo dõi"
+    },
+    "menu": {
+      "markAllAsRead": "Đánh dấu tất cả là đã đọc",
+      "settings": "Cài đặt thông báo",
+      "open": "Mở thông báo"
+    },
+    "validation": {
+      "receiverIdRequired": "ID người nhận là bắt buộc",
+      "senderIdRequired": "ID người gửi là bắt buộc",
+      "senderNameRequired": "Tên người gửi là bắt buộc",
+      "requestIdRequired": "ID yêu cầu là bắt buộc"
+    }
+  }
+}

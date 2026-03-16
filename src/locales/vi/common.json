@@ -1,0 +1,19 @@
+{
+  "nav": {
+    "messages": "Tin nhắn",
+    "search": "Tìm kiếm",
+    "contacts": "Danh bạ",
+    "todo": "To-do",
+    "notifications": "Thông báo",
+    "cloud": "Cloud",
+    "business": "Business",
+    "settings": "Cài đặt"
+  },
+  "ok": "OK",
+  "cancel": "Huỷ",
+  "loading": "Đang tải...",
+  "pleaseWait": "Vui lòng chờ trong giây lát...",
+  "error_toast_title": "Thất bại",
+  "errorDefault": "Đã có lỗi xảy ra",
+  "errorContactAdmin": "Đã có lỗi xảy ra, vui lòng liên hệ admin"
+}

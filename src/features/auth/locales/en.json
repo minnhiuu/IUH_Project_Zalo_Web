@@ -1,0 +1,111 @@
+{
+  "auth": {
+    "page": {
+      "subtitle": "Login to Zalo account\nto connect to Zalo Web"
+    },
+    "form": {
+      "title": "Login with password",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Login",
+      "submitting": "Processing...",
+      "loggingIn": "Logging in...",
+      "forgot": "Forgot password",
+      "qr": "Login with QR code",
+      "noAccount": "Don't have an account?",
+      "registerNow": "Register now"
+    },
+    "qr": {
+      "title": "Login with QR code",
+      "loginWithPassword": "Login with password",
+      "expired": "QR Code has expired",
+      "refresh": "Get new code",
+      "confirmPhone": "Please confirm on your phone",
+      "scannedSuccess": "Scan successful.",
+      "loggingIn": "Logging in...",
+      "instruction": "Scan QR code with Zalo app to login",
+      "generating": "Generating QR Code...",
+      "generateError": "Could not generate QR Code",
+      "retry": "Retry",
+      "loginFailed": "Login failed, please try again.",
+      "rejected": "You rejected the login request.",
+      "expiredError": "QR code has expired, please get a new code",
+      "onlyForLogin": "Only for login",
+      "appNameOnPC": "Zalo on PC"
+    },
+    "upload": {
+      "title": "Drag and drop or click to select image",
+      "hint": "JPG, PNG, WEBP (Max 5MB)",
+      "change": "Click to change",
+      "remove": "Remove image",
+      "errorLimit": "Maximum image size is 5MB",
+      "errorInvalid": "Please select a valid image file"
+    },
+    "toast": {
+      "loginSuccess": "Login successful",
+      "qrComing": "Feature coming soon"
+    },
+    "menu": {
+      "profile": "Profile",
+      "settings": "Settings",
+      "language": "Language",
+      "logout": "Logout"
+    },
+    "logoutDialog": {
+      "title": "Confirmation",
+      "confirmMessage": "Do you want to logout from Zalo?",
+      "no": "Cancel",
+      "yes": "Logout"
+    },
+    "forgotPassword": {
+      "subtitle": "Recover Zalo password\nto connect to Zalo Web",
+      "instruction": "Enter your email",
+      "email": "Email",
+      "continue": "Continue",
+      "back": "Back",
+      "otp": "Enter activation code",
+      "newPassword": "Please input password",
+      "confirmPassword": "Confirm password",
+      "confirm": "Confirm",
+      "success": "Password reset successfully!",
+      "resetInstruction": "Set a new password for your account\n{{email}}"
+    },
+    "register": {
+      "title": "Create Account",
+      "subtitle": "Create Zalo account\nto connect to Zalo Web",
+      "fullname": "Full name",
+      "email": "Email",
+      "phoneNumber": "Phone number",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "submit": "Register",
+      "submitting": "Processing...",
+      "hasAccount": "Already have an account?",
+      "loginNow": "Login now"
+    },
+    "verifyOtp": {
+      "title": "Verify Account",
+      "subtitle": "Verify Zalo account\nto complete registration",
+      "instruction": "Enter OTP code sent to your email",
+      "otp": "OTP Code (6 digits)",
+      "submit": "Verify",
+      "submitting": "Processing...",
+      "resend": "Resend code",
+      "success": "Verification successful!"
+    },
+    "validation": {
+      "emailInvalid": "Invalid email format",
+      "passwordRequired": "Password is required",
+      "deviceIdRequired": "Device ID is required",
+      "passwordMin": "Password must be at least 8 characters long",
+      "passwordComplex": "Password must include uppercase, lowercase, numbers and special characters",
+      "confirmPasswordRequired": "Please confirm your password",
+      "fullNameRequired": "Full name is required",
+      "phoneInvalid": "Phone number must be exactly 10 digits",
+      "passwordMismatch": "Passwords do not match",
+      "otpInvalid": "OTP must be exactly 6 digits",
+      "resetOtpMin": "OTP must be at least 6 characters long",
+      "confirmPasswordReset": "Please confirm your new password"
+    }
+  }
+}

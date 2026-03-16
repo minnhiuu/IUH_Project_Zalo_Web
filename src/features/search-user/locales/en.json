@@ -1,0 +1,30 @@
+{
+  "placeholder": "Search",
+  "close": "Close",
+  "recentHeader": "Recent searches",
+  "noRecent": "No recent searches",
+  "searchResult": "Result for \"{{query}}\"",
+  "noResult": "No results found",
+  "noResultDescription": "Please try another keyword or search by phone number",
+  "recent": "Recent",
+  "clearAll": "Clear all",
+  "clearHistory": {
+    "title": "Clear search history?",
+    "confirmMessage": "You won't be able to undo this. If you clear your search history, you may still see accounts you've searched for in suggested results.",
+    "cancel": "Not now",
+    "confirm": "Clear all"
+  },
+  "validation": {
+    "idRequired": "ID is required",
+    "nameRequired": "Name is required",
+    "typeInvalid": "Invalid search type"
+  },
+  "findByPhone": "Find friends by phone number:",
+  "phoneNumber": "Phone number:",
+  "tabs": {
+    "all": "All",
+    "contacts": "Contacts",
+    "messages": "Messages",
+    "file": "File"
+  }
+}
