@@ -22,16 +22,13 @@ export const adminUserApi = {
     })
   },
 
-  getUserDetail: (userId: string) =>
-    http.get<ApiResponse<AdminUserDetailResponse>>(`/admin/users/${userId}`),
+  getUserDetail: (userId: string) => http.get<ApiResponse<AdminUserDetailResponse>>(`/admin/users/${userId}`),
 
   getUserActivityLogs: (userId: string, params?: { page?: number; size?: number }) =>
     http.get<ApiResponse<PageResponse<AuditLog>>>(`/admin/users/${userId}/activity-logs`, { params }),
 
   // POST — matches @PostMapping on backend
-  banUser: (userId: string, data: BanUserRequest) =>
-    http.post<ApiResponse<void>>(`/admin/users/${userId}/ban`, data),
+  banUser: (userId: string, data: BanUserRequest) => http.post<ApiResponse<void>>(`/admin/users/${userId}/ban`, data),
 
-  unbanUser: (userId: string) =>
-    http.post<ApiResponse<void>>(`/admin/users/${userId}/unban`)
+  unbanUser: (userId: string) => http.post<ApiResponse<void>>(`/admin/users/${userId}/unban`)
 }

@@ -12,10 +12,8 @@ export const adminRoutes: RouteObject = {
     {
       element: <AdminLayout />,
       children: [
-
         { path: PATHS.ADMIN.DASHBOARD, element: <Navigate to={PATHS.ADMIN.USERS} replace /> },
-        { path: PATHS.ADMIN.USERS, element: <UserManagementPage /> }
-        ,
+        { path: PATHS.ADMIN.USERS, element: <UserManagementPage /> },
         {
           path: PATHS.ADMIN.ELASTICSEARCH,
           element: <AdminElasticsearchPage />

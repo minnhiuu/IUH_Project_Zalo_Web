@@ -15,16 +15,16 @@ export const useRecentHistory = () => {
 
 export const useAddSearchItem = () => {
   const queryClient = useQueryClient()
- 
+
   return useMutation({
     mutationFn: (data: RecentSearchRequest) => searchUserApi.addSearchItem(data),
     onMutate: async (newItem) => {
       const historyKey = searchKeys.recentHistory()
       await queryClient.cancelQueries({ queryKey: historyKey })
- 
+
       const previousHistory = queryClient.getQueryData<RecentHistoryResponse>(historyKey)
       const optimisticItem = { ...newItem, timestamp: Date.now() } as RecentSearchResponse
- 
+
       if (previousHistory) {
         const isKeyword = newItem.type === SearchType.Keyword
         const updatedItems = !isKeyword
@@ -33,10 +33,10 @@ export const useAddSearchItem = () => {
         const updatedQueries = isKeyword
           ? [optimisticItem, ...previousHistory.queries.filter((i) => i.id !== newItem.id)].slice(0, 15)
           : previousHistory.queries
- 
+
         queryClient.setQueryData(historyKey, { items: updatedItems, queries: updatedQueries })
       }
- 
+
       return { previousHistory, historyKey }
     },
     onError: (_err, _newItem, context) => {

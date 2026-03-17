@@ -6,6 +6,5 @@ export const adminUserKeys = {
   list: (filters: UserFilterParams) => [...adminUserKeys.lists(), filters] as const,
   details: () => [...adminUserKeys.all, 'detail'] as const,
   detail: (id: string) => [...adminUserKeys.details(), id] as const,
-  activityLogs: (userId: string, page: number) =>
-    [...adminUserKeys.all, 'activity-logs', userId, page] as const
+  activityLogs: (userId: string, page: number) => [...adminUserKeys.all, 'activity-logs', userId, page] as const
 }

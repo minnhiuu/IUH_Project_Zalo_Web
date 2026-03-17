@@ -69,9 +69,18 @@ export default function UserManagementPage() {
     updateParams({ page: page === 0 ? undefined : String(page) })
   }
 
-  const handleView = (item: AdminUserListItem) => { setSelected(item); setViewDialogOpen(true) }
-  const handleBan = (item: AdminUserListItem) => { setSelected(item); setBanDialogOpen(true) }
-  const handleUnban = (item: AdminUserListItem) => { setSelected(item); setUnbanDialogOpen(true) }
+  const handleView = (item: AdminUserListItem) => {
+    setSelected(item)
+    setViewDialogOpen(true)
+  }
+  const handleBan = (item: AdminUserListItem) => {
+    setSelected(item)
+    setBanDialogOpen(true)
+  }
+  const handleUnban = (item: AdminUserListItem) => {
+    setSelected(item)
+    setUnbanDialogOpen(true)
+  }
 
   const pageData = data?.data?.data
 
@@ -95,7 +104,9 @@ export default function UserManagementPage() {
           >
             {t.tabs.active}
             {activeCount !== undefined && (
-              <span className={`ml-2 px-1.5 py-0.5 text-xs rounded-full ${activeTab === 'ACTIVE' ? 'bg-white/30 text-white' : 'bg-green-100 text-green-700'}`}>
+              <span
+                className={`ml-2 px-1.5 py-0.5 text-xs rounded-full ${activeTab === 'ACTIVE' ? 'bg-white/30 text-white' : 'bg-green-100 text-green-700'}`}
+              >
                 {activeCount}
               </span>
             )}
@@ -106,7 +117,9 @@ export default function UserManagementPage() {
           >
             {t.tabs.banned}
             {bannedCount !== undefined && (
-              <span className={`ml-2 px-1.5 py-0.5 text-xs rounded-full ${activeTab === 'BANNED' ? 'bg-white/30 text-white' : 'bg-red-100 text-red-700'}`}>
+              <span
+                className={`ml-2 px-1.5 py-0.5 text-xs rounded-full ${activeTab === 'BANNED' ? 'bg-white/30 text-white' : 'bg-red-100 text-red-700'}`}
+              >
                 {bannedCount}
               </span>
             )}
