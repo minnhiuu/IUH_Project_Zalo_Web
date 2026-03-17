@@ -1,13 +1,14 @@
-import { Users, Ban, MessageSquareWarning, IdCard, UserPlus } from 'lucide-react'
+import { useState } from 'react'
+import { Users, Ban, MessageSquareWarning, IdCard } from 'lucide-react'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { type UserResponse } from '@/features/user/schemas/user.schema'
 import { useUserText } from '../../../i18n/use-user-text'
 import { ProfileInfoBase } from '../shared/profile-info-base'
+import { BlockUserModal } from '../block-user-modal'
+import { useBlockDetails } from '../../../queries/use-queries'
 import { cn } from '@/lib/utils'
-import { userApi } from '@/features/user/api/user.api'
-import { toast } from 'sonner'
 
 interface OthersProfileInfoProps {
   user: UserResponse
@@ -15,19 +16,8 @@ interface OthersProfileInfoProps {
 
 export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
   const { text } = useUserText()
-
-  const handleAddFriend = async () => {
-    try {
-      await userApi.sendFriendRequest(user.id)
-      toast.success('Đã gửi lời mời kết bạn', {
-        description: `Đã gửi yêu cầu tới ${user.fullName}`
-      })
-    } catch {
-      toast.error('Lỗi', {
-        description: 'Không thể gửi lời mời kết bạn'
-      })
-    }
-  }
+  const [isBlockModalOpen, setIsBlockModalOpen] = useState(false)
+  const { data: blockDetails } = useBlockDetails(user.id)
 
   return (
     <ProfileInfoBase
@@ -61,18 +51,16 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
       contentBeforeInfo={
         <div className='flex gap-3 w-full mb-4 mt-2'>
           <Button
+            variant='secondary'
+            className='flex-1 font-bold h-9 rounded-md border-none shadow-none transition-all active:scale-95'
+          >
+            {text.profile.addFriend}
+          </Button>
+          <Button
             variant='secondary-blue'
             className='flex-1 font-bold h-9 rounded-md border-none shadow-none transition-all active:scale-95'
           >
             {text.profile.message}
-          </Button>
-          <Button
-            variant='vibrant'
-            className='flex-1 font-bold h-9 rounded-md border-none shadow-none transition-all active:scale-95'
-            onClick={handleAddFriend}
-          >
-            <UserPlus className='h-4 w-4 mr-2' />
-            {text.profile.addFriend}
           </Button>
         </div>
       }
@@ -83,12 +71,12 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
             {[
               { icon: Users, label: text.profile.mutualGroups(0), color: 'text-disabled', disabled: true },
               { icon: IdCard, label: text.profile.shareContact, color: 'text-disabled', disabled: true },
-              { 
-                icon: Ban, 
-                label: 'Chặn người này', 
-                color: 'text-icon-secondary', 
+              {
+                icon: Ban,
+                label: blockDetails ? text.profile.editBlock : text.profile.block,
+                color: 'text-icon-secondary',
                 disabled: false,
-                onClick: undefined
+                onClick: () => setIsBlockModalOpen(true)
               },
               { icon: MessageSquareWarning, label: text.profile.report, color: 'text-icon-secondary', disabled: false }
             ].map((item, idx, arr) => (
@@ -99,7 +87,7 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
                     <span className={cn('font-medium', item.color)}>{item.label}</span>
                   </div>
                 ) : (
-                  <button 
+                  <button
                     className='flex w-full items-center gap-3 px-4 py-3.5 text-[15px] hover:bg-muted transition-colors text-foreground group cursor-pointer'
                     onClick={item.onClick}
                   >
@@ -114,6 +102,15 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
               </div>
             ))}
           </div>
+
+          <BlockUserModal
+            open={isBlockModalOpen}
+            onOpenChange={setIsBlockModalOpen}
+            userId={user.id}
+            userName={user.fullName}
+            isBlocked={!!blockDetails}
+            currentPreference={blockDetails?.preference}
+          />
         </>
       }
     />

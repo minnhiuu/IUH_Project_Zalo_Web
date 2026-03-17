@@ -7,8 +7,7 @@ import type { BanUserRequest } from '../schemas/admin-user.schema'
 export const useBanUserMutation = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ userId, data }: { userId: string; data: BanUserRequest }) =>
-      adminUserApi.banUser(userId, data),
+    mutationFn: ({ userId, data }: { userId: string; data: BanUserRequest }) => adminUserApi.banUser(userId, data),
     onSuccess: (_, { userId }) => {
       queryClient.invalidateQueries({ queryKey: adminUserKeys.lists() })
       queryClient.invalidateQueries({ queryKey: adminUserKeys.detail(userId) })

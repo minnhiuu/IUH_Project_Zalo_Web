@@ -10,7 +10,8 @@ import {
   MessagesSettings,
   UtilitiesSettings,
   ChangePassword,
-  DeviceManagement
+  DeviceManagement,
+  BlockedUsersSection
 } from './sections'
 import { SettingsSidebar, type SettingsMenuItem } from './settings-sidebar'
 import { SettingsStateProvider } from './settings-state-context'
@@ -41,6 +42,7 @@ export function SettingsContent() {
           <PrivacySettings
             onNavigateToDevices={() => setActiveMenu('devices')}
             onNavigateToChangePassword={() => setActiveMenu('changePassword')}
+            onNavigateToBlockedUsers={() => setActiveMenu('blockedUsers')}
           />
         )
       case 'sync':
@@ -57,6 +59,8 @@ export function SettingsContent() {
         return <ChangePassword onBack={() => setActiveMenu('privacy')} />
       case 'devices':
         return <DeviceManagement onBack={() => setActiveMenu('privacy')} />
+      case 'blockedUsers':
+        return <BlockedUsersSection onBack={() => setActiveMenu('privacy')} />
       default:
         return null
     }
