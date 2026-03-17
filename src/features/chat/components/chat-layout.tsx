@@ -38,7 +38,7 @@ export function ChatLayout() {
     }
 
     document.addEventListener('visibilitychange', handleVisibilityChange)
-    
+
     // Auto mark as read immediately after opening a new tab or when selected chat updates with unread > 0
     if (document.visibilityState === 'visible' && selectedChat) {
       const activeConversation = conversations?.find((c: ConversationResponse) => c.chatId === selectedChat.chatId)
@@ -57,7 +57,8 @@ export function ChatLayout() {
       <ChatSidebar selectedChatId={selectedChat?.chatId} onSelectChat={setSelectedChat} />
 
       {(() => {
-        const activeConversation = conversations?.find((c: ConversationResponse) => c.chatId === selectedChat?.chatId) || selectedChat
+        const activeConversation =
+          conversations?.find((c: ConversationResponse) => c.chatId === selectedChat?.chatId) || selectedChat
         return activeConversation ? (
           <ChatWindow conversation={activeConversation} />
         ) : (
@@ -66,8 +67,8 @@ export function ChatLayout() {
               <div className='space-y-4'>
                 <h1 className='text-[22px] font-semibold text-foreground/80'>Chào mừng đến với Zalo Web!</h1>
                 <p className='text-[15px] text-muted-foreground leading-relaxed px-8'>
-                  Khám phá những tiện ích hỗ trợ làm việc và trò chuyện cùng người thân, bạn bè được tối ưu hoá cho máy tính
-                  của bạn.
+                  Khám phá những tiện ích hỗ trợ làm việc và trò chuyện cùng người thân, bạn bè được tối ưu hoá cho máy
+                  tính của bạn.
                 </p>
               </div>
 
@@ -92,7 +93,7 @@ export function ChatLayout() {
                   thường dùng và gửi nhanh trong hội thoại bất kỳ.
                 </p>
               </div>
-              
+
               <p className='text-sm text-muted-foreground pt-4'>{text.emptyState}</p>
             </div>
           </div>

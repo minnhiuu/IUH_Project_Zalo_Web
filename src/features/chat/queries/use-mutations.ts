@@ -7,8 +7,7 @@ export const useMarkAsReadMutation = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (chatId: string) => 
-      chatApi.markAsRead(chatId),
+    mutationFn: (chatId: string) => chatApi.markAsRead(chatId),
     onMutate: async (chatId) => {
       await queryClient.cancelQueries({ queryKey: chatKeys.conversations() })
       const previousConversations = queryClient.getQueryData<ConversationResponse[]>(chatKeys.conversations())
@@ -16,9 +15,7 @@ export const useMarkAsReadMutation = () => {
       if (previousConversations) {
         queryClient.setQueryData(
           chatKeys.conversations(),
-          previousConversations.map((conv: any) =>
-            conv.chatId === chatId ? { ...conv, unreadCount: 0 } : conv
-          )
+          previousConversations.map((conv: any) => (conv.chatId === chatId ? { ...conv, unreadCount: 0 } : conv))
         )
       }
 

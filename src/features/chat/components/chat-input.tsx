@@ -1,15 +1,18 @@
-import { useState, FormEvent, useRef, KeyboardEvent } from 'react'
-import { SendHorizonal, Smile, Paperclip, ImageIcon } from 'lucide-react'
+import { useState, useRef, type FormEvent, type KeyboardEvent } from 'react'
+import { SendHorizonal, Smile, Paperclip, ImageIcon, X, Quote, ThumbsUp } from 'lucide-react'
 import { Textarea } from '@/components/ui/textarea'
+import type { MessageResponse } from '../schemas/chat.schema'
 import { useChatContext } from '../context/chat-context'
 import { useChatText } from '../i18n/use-chat-text'
 import { cn } from '@/lib/utils'
 
 interface ChatInputProps {
   recipientId: string
+  replyTo?: MessageResponse | null
+  onCancelReply?: () => void
 }
 
-export function ChatInput({ recipientId }: ChatInputProps) {
+export function ChatInput({ recipientId, replyTo, onCancelReply }: ChatInputProps) {
   const { sendMessage } = useChatContext()
   const { text } = useChatText()
   const [content, setContent] = useState('')
@@ -18,8 +21,20 @@ export function ChatInput({ recipientId }: ChatInputProps) {
   const handleSend = (e?: FormEvent) => {
     e?.preventDefault()
     if (!content.trim()) return
-    sendMessage(recipientId, content)
+
+    const replyMetadata = replyTo
+      ? {
+          messageId: replyTo.id,
+          senderId: replyTo.senderId,
+          senderName: replyTo.senderName || '',
+          content: replyTo.content,
+          type: replyTo.type
+        }
+      : null
+
+    sendMessage(recipientId, content, replyMetadata)
     setContent('')
+    onCancelReply?.()
   }
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -30,45 +45,77 @@ export function ChatInput({ recipientId }: ChatInputProps) {
   }
 
   return (
-    <form
-      ref={formRef}
-      onSubmit={handleSend}
-      className='bg-background border-t border-border flex items-end p-3 gap-2'
-    >
-      <div className='flex gap-1 mb-1'>
-        <button type='button' className='p-2 hover:bg-muted rounded-full text-muted-foreground'>
-          <Paperclip className='w-5 h-5' />
+    <div className='bg-background border-t border-border flex flex-col p-0 gap-0'>
+      {/* 1. Thành công cụ (Toolbar) */}
+      <div className='flex items-center px-4 py-2 border-b border-border bg-background gap-1 overflow-x-auto no-scrollbar shrink-0'>
+        <button className='p-1.5 hover:bg-muted rounded text-muted-foreground transition-colors'>
+          <Smile size={20} />
         </button>
-        <button type='button' className='p-2 hover:bg-muted rounded-full text-muted-foreground'>
-          <ImageIcon className='w-5 h-5' />
+        <button className='p-1.5 hover:bg-muted rounded text-muted-foreground transition-colors'>
+          <ImageIcon size={20} />
         </button>
-      </div>
-      <div className='flex-1 relative bg-muted rounded-xl border border-transparent hover:border-border transition-colors'>
-        <Textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={text.inputPlaceholder}
-          className='min-h-[40px] max-h-[120px] bg-transparent border-none focus-visible:ring-0 resize-none py-2.5 px-4 text-[15px]'
-          rows={1}
-        />
-        <button
-          type='button'
-          className='absolute right-2 bottom-2 p-1.5 hover:bg-background rounded-full text-muted-foreground transition-colors'
-        >
-          <Smile className='w-5 h-5' />
+        <button className='p-1.5 hover:bg-muted rounded text-muted-foreground transition-colors'>
+          <Paperclip size={20} />
+        </button>
+        <div className='w-[1px] h-4 bg-border mx-1' />
+        <button className='px-2 py-1 text-[13px] hover:bg-muted rounded text-muted-foreground'>@</button>
+        <button className='p-1.5 hover:bg-muted rounded text-muted-foreground transition-colors'>
+          <span className='font-bold text-lg'>...</span>
         </button>
       </div>
-      <button
-        type='submit'
-        disabled={!content.trim()}
-        className={cn(
-          'p-2.5 rounded-full flex items-center justify-center transition-colors mb-0.5',
-          content.trim() ? 'bg-primary text-primary-foreground hover:opacity-90' : 'bg-muted text-muted-foreground'
-        )}
+
+      {/* 2. Trả lời (Reply Preview) */}
+      {replyTo && (
+        <div className='px-4 py-2 bg-background animate-in slide-in-from-bottom-1 duration-200'>
+          <div className='flex items-center justify-between bg-[#F1F2F4] px-4 py-2.5 rounded-md border-l-2 border-[#1972F5]'>
+            <div className='flex items-start gap-2 truncate'>
+              <Quote size={14} className='text-muted-foreground mt-1 shrink-0' />
+              <div className='flex flex-col truncate'>
+                <span className='text-[13px]'>
+                  Trả lời <span className='font-bold'>{replyTo.senderName}</span>
+                </span>
+                <span className='truncate text-[13px] text-muted-foreground max-w-[600px]'>{replyTo.content}</span>
+              </div>
+            </div>
+            <button onClick={onCancelReply} className='p-1 hover:bg-muted rounded-full transition-colors shrink-0 ml-2'>
+              <X size={18} className='text-muted-foreground' />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 3. Chat Input */}
+      <form
+        ref={formRef}
+        onSubmit={handleSend}
+        className='bg-background flex-1 flex items-center p-2 gap-2 pr-4 min-w-0'
       >
-        <SendHorizonal className='w-5 h-5' />
-      </button>
-    </form>
+        <div className='flex-1 min-w-0'>
+          <Textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={text.inputPlaceholder}
+            className='min-h-[44px] max-h-[120px] bg-transparent border-none focus-visible:ring-0 shadow-none resize-none py-2.5 px-4 text-[16px] break-words'
+            rows={1}
+          />
+        </div>
+        <div className='flex items-center gap-1'>
+          <button
+            type='submit'
+            className={cn(
+              'p-2.5 rounded-full flex items-center justify-center transition-all',
+              content.trim() ? 'text-primary' : 'text-muted-foreground'
+            )}
+          >
+            {content.trim() ? (
+              <SendHorizonal className='w-6 h-6' />
+            ) : (
+              <ThumbsUp className='w-6 h-6 text-amber-500 hover:scale-110 active:scale-90 transition-transform' />
+            )}
+          </button>
+        </div>
+      </form>
+    </div>
   )
 }

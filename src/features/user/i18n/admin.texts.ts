@@ -24,8 +24,7 @@ export const createAdminTexts = (t: TFunction<'admin'>) => ({
     pagination: {
       previous: t(ADMIN_KEYS.userManagement.pagination.previous),
       next: t(ADMIN_KEYS.userManagement.pagination.next),
-      pageOf: (current: number, total: number) =>
-        t(ADMIN_KEYS.userManagement.pagination.pageOf, { current, total })
+      pageOf: (current: number, total: number) => t(ADMIN_KEYS.userManagement.pagination.pageOf, { current, total })
     },
 
     actions: {

@@ -1,9 +1,4 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
@@ -47,9 +42,13 @@ export function ViewUserDialog({ item, open, onOpenChange }: ViewUserDialogProps
                   {isActive ? t.active : t.banned}
                 </Badge>
               </div>
-              <Badge variant='outline' className='mt-1 text-sm'>{user.accountInfo?.role ?? '—'}</Badge>
+              <Badge variant='outline' className='mt-1 text-sm'>
+                {user.accountInfo?.role ?? '—'}
+              </Badge>
               {user.accountInfo?.isVerified && (
-                <Badge variant='secondary' className='mt-1 block w-fit text-sm'>{t.viewDialog.verified}</Badge>
+                <Badge variant='secondary' className='mt-1 block w-fit text-sm'>
+                  {t.viewDialog.verified}
+                </Badge>
               )}
               {user.bio && <p className='text-base text-muted-foreground mt-2'>{user.bio}</p>}
             </div>
@@ -71,7 +70,13 @@ export function ViewUserDialog({ item, open, onOpenChange }: ViewUserDialogProps
               />
               <InfoItem
                 label={t.viewDialog.gender}
-                value={user.gender === 'MALE' ? t.viewDialog.male : user.gender === 'FEMALE' ? t.viewDialog.female : undefined}
+                value={
+                  user.gender === 'MALE'
+                    ? t.viewDialog.male
+                    : user.gender === 'FEMALE'
+                      ? t.viewDialog.female
+                      : undefined
+                }
               />
             </div>
           </div>
@@ -119,5 +124,3 @@ function InfoItem({ label, value }: { label: string; value?: string }) {
     </div>
   )
 }
-
-

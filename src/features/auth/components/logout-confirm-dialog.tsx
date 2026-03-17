@@ -1,12 +1,12 @@
 import { X } from 'lucide-react'
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogOverlay, 
-  DialogPortal, 
-  DialogFooter, 
-  DialogTitle, 
-  DialogDescription 
+import {
+  Dialog,
+  DialogContent,
+  DialogOverlay,
+  DialogPortal,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'

@@ -7,7 +7,6 @@ import userEn from '@/features/user/locales/en.json'
 import chatVi from '@/features/chat/locales/vi.json'
 import chatEn from '@/features/chat/locales/en.json'
 
-
 import commonVi from '@/locales/vi/common.json'
 import commonEn from '@/locales/en/common.json'
 

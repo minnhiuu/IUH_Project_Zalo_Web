@@ -58,7 +58,9 @@ const refreshAccessToken = async (): Promise<string | null> => {
     if (code === 1013) {
       clearAccessToken()
       toast.error('Tài khoản của bạn đã bị cấm', { duration: 4000 })
-      setTimeout(() => { window.location.href = '/login' }, 2000)
+      setTimeout(() => {
+        window.location.href = '/login'
+      }, 2000)
     }
     return null
   }
@@ -94,7 +96,9 @@ http.interceptors.response.use(
       clearAccessToken()
       toast.error('Tài khoản của bạn đã bị cấm', { duration: 4000 })
       if (!window.location.pathname.includes('/login')) {
-        setTimeout(() => { window.location.href = '/login' }, 2000)
+        setTimeout(() => {
+          window.location.href = '/login'
+        }, 2000)
       }
       return Promise.reject(error)
     }

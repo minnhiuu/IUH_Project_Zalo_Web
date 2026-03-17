@@ -6,7 +6,13 @@ import { cn } from '@/lib/utils'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useSearchUser, useAddSearchItem, useRemoveSearchItem, useClearAllSearchHistory, useRecentHistory } from '../queries/use-queries'
+import {
+  useSearchUser,
+  useAddSearchItem,
+  useRemoveSearchItem,
+  useClearAllSearchHistory,
+  useRecentHistory
+} from '../queries/use-queries'
 import { SearchEmpty } from '@/components/common/search-empty'
 import { useDebounce } from '@/hooks/use-debounce'
 import { OthersProfileDialog, useMyProfile } from '@/features/user'
@@ -32,7 +38,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
 
   const { data: recentHistory } = useRecentHistory()
   const { data: myProfile } = useMyProfile()
- 
+
   const { mutate: addSearchItem } = useAddSearchItem()
   const { mutate: removeItem } = useRemoveSearchItem()
   const { mutate: clearAll, isPending: isClearing } = useClearAllSearchHistory()
@@ -73,18 +79,18 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
             <Input
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && searchValue.trim() !== '') {
-                const trimmedValue = searchValue.trim()
-                const isSelfPhone = myProfile?.phoneNumber === trimmedValue
- 
-                addSearchItem({
-                  id: isSelfPhone ? myProfile.id : `k-${Date.now()}`,
-                  name: trimmedValue,
-                  type: SearchType.Keyword
-                })
-              }
-            }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && searchValue.trim() !== '') {
+                  const trimmedValue = searchValue.trim()
+                  const isSelfPhone = myProfile?.phoneNumber === trimmedValue
+
+                  addSearchItem({
+                    id: isSelfPhone ? myProfile.id : `k-${Date.now()}`,
+                    name: trimmedValue,
+                    type: SearchType.Keyword
+                  })
+                }
+              }}
               placeholder={text.placeholder}
               className='h-8 pl-10 pr-8 bg-muted border-none rounded-md focus-visible:ring-1 focus-visible:ring-primary/20 placeholder:text-muted-foreground/60 text-sm'
               autoFocus

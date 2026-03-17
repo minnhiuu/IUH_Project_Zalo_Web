@@ -9,7 +9,7 @@ import { useState } from 'react'
 
 const navItems = [
   { icon: Users, path: '/admin/users', label: 'User' },
-  { icon: Users, path: '/admin/elasticsearch', label: 'Elasticsearch' },
+  { icon: Users, path: '/admin/elasticsearch', label: 'Elasticsearch' }
 ]
 
 export default function AdminLayout() {

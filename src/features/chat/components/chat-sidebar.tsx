@@ -5,6 +5,7 @@ import { useConversationsQuery } from '../queries/use-queries'
 import { useMarkAsReadMutation } from '../queries/use-mutations'
 import { useChatText } from '../i18n/use-chat-text'
 import type { ConversationResponse } from '../schemas/chat.schema'
+import { formatPreview } from '../utils/chat-preview'
 
 interface ChatSidebarProps {
   selectedChatId?: string
@@ -21,6 +22,19 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
     if (chat.unreadCount && chat.unreadCount > 0) {
       markAsRead(chat.chatId)
     }
+  }
+
+  const getPreviewText = (chat: ConversationResponse) => {
+    return formatPreview(
+      {
+        content: chat.lastMessage,
+        isFromMe: chat.isLastMessageFromMe,
+        senderName: chat.partnerName,
+        type: chat.lastMessageType,
+        status: chat.lastMessageStatus
+      },
+      text
+    )
   }
 
   return (
@@ -61,7 +75,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
       <div className='flex-1 overflow-y-auto custom-scrollbar shadow-none border-none'>
         {isLoading && <div className='p-4 text-center text-muted-foreground'>Đang tải...</div>}
         {isError && <div className='p-4 text-center text-destructive'>{text.errors.loadConversations}</div>}
-        
+
         {conversations?.map((chat: ConversationResponse) => (
           <div
             key={chat.chatId}
@@ -85,12 +99,21 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
               <div className='flex items-center justify-between mb-0.5'>
                 <h3 className='text-[15px] font-medium truncate text-foreground/90'>{chat.partnerName}</h3>
                 <span className='text-[11px] text-muted-foreground whitespace-nowrap'>
-                  {chat.lastMessageTime ? new Date(chat.lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                  {chat.lastMessageTime
+                    ? new Date(chat.lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    : ''}
                 </span>
               </div>
               <div className='flex items-center justify-between'>
-                <p className={cn('text-[13px] truncate', chat.unreadCount && chat.unreadCount > 0 ? 'text-foreground font-semibold' : 'text-muted-foreground font-normal')}>
-                  {chat.lastMessage}
+                <p
+                  className={cn(
+                    'text-[13px] truncate',
+                    chat.unreadCount && chat.unreadCount > 0
+                      ? 'text-foreground font-semibold'
+                      : 'text-muted-foreground font-normal'
+                  )}
+                >
+                  {getPreviewText(chat)}
                 </p>
                 {chat.unreadCount && chat.unreadCount > 0 ? (
                   <div className='bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full flex items-center justify-center min-w-[20px] h-[20px] ml-2 shrink-0'>

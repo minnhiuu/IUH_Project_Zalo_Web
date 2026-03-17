@@ -3,14 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { Skeleton } from '@/components/ui/skeleton'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '@/components/ui/table'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import type { AdminUserListItem } from '@/features/user/schemas/admin-user.schema'
 import type { PageResponse } from '@/shared/api'
 import { useAdminText } from '@/features/user/i18n/use-admin-text'
@@ -80,7 +73,9 @@ export function UsersTable({ data, isLoading, onView, onBan, onUnban, onPageChan
                     <TableCell className='text-sm'>{u.accountInfo?.email ?? '—'}</TableCell>
                     <TableCell className='text-sm'>{u.accountInfo?.phoneNumber ?? '—'}</TableCell>
                     <TableCell>
-                      <Badge variant='outline' className='text-xs'>{u.accountInfo?.role ?? '—'}</Badge>
+                      <Badge variant='outline' className='text-xs'>
+                        {u.accountInfo?.role ?? '—'}
+                      </Badge>
                     </TableCell>
                     <TableCell>
                       <Badge variant={isActive ? 'default' : 'destructive'} className='text-xs'>
@@ -93,7 +88,8 @@ export function UsersTable({ data, isLoading, onView, onBan, onUnban, onPageChan
                       <div className='flex items-center justify-end gap-1'>
                         {isActive && u.id !== currentUser?.id ? (
                           <Button
-                            variant='ghost' size='sm'
+                            variant='ghost'
+                            size='sm'
                             onClick={() => onBan(item)}
                             className='text-destructive hover:text-destructive'
                             title={t.actions.ban}
@@ -102,14 +98,17 @@ export function UsersTable({ data, isLoading, onView, onBan, onUnban, onPageChan
                           </Button>
                         ) : !isActive ? (
                           <Button
-                            variant='ghost' size='sm'
+                            variant='ghost'
+                            size='sm'
                             onClick={() => onUnban(item)}
                             className='text-green-600 hover:text-green-700'
                             title={t.actions.unban}
                           >
                             <ShieldCheck className='w-4 h-4' />
                           </Button>
-                        ) : <div className='w-8 h-8' />}
+                        ) : (
+                          <div className='w-8 h-8' />
+                        )}
                         <Button variant='ghost' size='sm' onClick={() => onView(item)} title={t.actions.view}>
                           <Eye className='w-4 h-4' />
                         </Button>
@@ -125,16 +124,19 @@ export function UsersTable({ data, isLoading, onView, onBan, onUnban, onPageChan
 
       {/* Pagination */}
       <div className='flex items-center justify-between'>
-        <div className='text-sm text-muted-foreground'>
-
-        </div>
+        <div className='text-sm text-muted-foreground'></div>
         <div className='flex items-center gap-2'>
           <Button variant='outline' size='sm' onClick={() => onPageChange(data.page - 1)} disabled={data.page === 0}>
             <ChevronLeft className='w-4 h-4' />
             {t.pagination.previous}
           </Button>
           <span className='text-sm'>{t.pagination.pageOf(data.page + 1, data.totalPages)}</span>
-          <Button variant='outline' size='sm' onClick={() => onPageChange(data.page + 1)} disabled={data.page >= data.totalPages - 1}>
+          <Button
+            variant='outline'
+            size='sm'
+            onClick={() => onPageChange(data.page + 1)}
+            disabled={data.page >= data.totalPages - 1}
+          >
             {t.pagination.next}
             <ChevronRight className='w-4 h-4' />
           </Button>
@@ -155,8 +157,15 @@ function TableSkeleton() {
           <TableHeader>
             <TableRow>
               {[
-                t.table.no, t.table.userName, t.table.email, t.table.phone,
-                t.table.role, t.table.status, t.table.createdAt, t.table.lastLogin, t.table.actions
+                t.table.no,
+                t.table.userName,
+                t.table.email,
+                t.table.phone,
+                t.table.role,
+                t.table.status,
+                t.table.createdAt,
+                t.table.lastLogin,
+                t.table.actions
               ].map((h) => (
                 <TableHead key={h}>{h}</TableHead>
               ))}
@@ -165,7 +174,9 @@ function TableSkeleton() {
           <TableBody>
             {Array.from({ length: 5 }).map((_, i) => (
               <TableRow key={i}>
-                <TableCell><Skeleton className='h-4 w-5' /></TableCell>
+                <TableCell>
+                  <Skeleton className='h-4 w-5' />
+                </TableCell>
                 <TableCell>
                   <div className='flex items-center gap-3'>
                     <Skeleton className='w-9 h-9 rounded-full' />
@@ -176,7 +187,9 @@ function TableSkeleton() {
                   </div>
                 </TableCell>
                 {Array.from({ length: cols - 2 }).map((_, j) => (
-                  <TableCell key={j}><Skeleton className='h-4 w-20' /></TableCell>
+                  <TableCell key={j}>
+                    <Skeleton className='h-4 w-20' />
+                  </TableCell>
                 ))}
               </TableRow>
             ))}
@@ -186,5 +199,3 @@ function TableSkeleton() {
     </div>
   )
 }
-
-

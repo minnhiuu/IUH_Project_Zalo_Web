@@ -14,7 +14,7 @@ export const chatOptions = {
         // Handle properly wrapped PageResponse from Backend
         const innerData = response.data?.data as any
         if (innerData && Array.isArray(innerData.data)) {
-            return innerData.data
+          return innerData.data
         }
         return Array.isArray(innerData) ? innerData : []
       }
@@ -26,13 +26,13 @@ export const chatOptions = {
       queryFn: async ({ pageParam = 0 }) => {
         const response = await chatApi.getMessages(recipientId, pageParam as number)
         const innerData = response.data?.data as any
-        
+
         // If backend flattens PageResponse directly into an Array
         if (Array.isArray(innerData)) {
           return {
             data: innerData as MessageResponse[],
             page: pageParam as number,
-            totalPages: innerData.length < 20 ? (pageParam as number) + 1 : (pageParam as number) + 2,
+            totalPages: innerData.length < 20 ? (pageParam as number) + 1 : (pageParam as number) + 2
           }
         }
         return innerData || { data: [], page: 0, totalPages: 0 } // Fallback if it correctly returns PageResponse object or is empty

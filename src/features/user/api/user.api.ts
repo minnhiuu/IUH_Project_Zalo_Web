@@ -12,11 +12,11 @@ export const userApi = {
     http.patch<ApiResponse<UserImageResponse>>(`/users/profile/background/position?y=${y}`),
 
   getUserById: (id: string) => http.get<ApiResponse<UserResponse>>(`/users/${id}`),
-  
+
   // Audit Logs
   getMyAuditLogs: (params?: { page?: number; size?: number }) =>
     http.get<ApiResponse<PageResponse<AuditLog>>>('/audit-logs', { params }),
-  
+
   getUserAuditLogs: (userId: string, params?: { page?: number; size?: number }) =>
     http.get<ApiResponse<PageResponse<AuditLog>>>(`/audit-logs/${userId}`, { params })
 }

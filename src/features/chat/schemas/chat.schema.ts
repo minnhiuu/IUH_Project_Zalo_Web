@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { MessageType, Status } from '@/constants/enum'
+import { MessageType, Status, MessageStatus } from '@/constants/enum'
 
 export const ConversationMemberResponseSchema = z.object({
   userId: z.string(),
@@ -11,6 +11,16 @@ export const ConversationMemberResponseSchema = z.object({
 
 export type ConversationMemberResponse = z.infer<typeof ConversationMemberResponseSchema>
 
+export const ReplyMetadataSchema = z.object({
+  messageId: z.string(),
+  senderId: z.string(),
+  senderName: z.string().nullable().optional(),
+  content: z.string(),
+  type: z.nativeEnum(MessageType)
+})
+
+export type ReplyMetadata = z.infer<typeof ReplyMetadataSchema>
+
 export const ConversationResponseSchema = z.object({
   chatId: z.string(),
   partnerId: z.string(),
@@ -21,7 +31,10 @@ export const ConversationResponseSchema = z.object({
   lastMessage: z.string().nullable().optional(),
   lastMessageId: z.string().nullable().optional(),
   lastMessageTime: z.string().datetime().nullable().optional(),
+  isLastMessageFromMe: z.boolean().nullable().optional(),
+  lastMessageType: z.nativeEnum(MessageType).nullable().optional(),
   unreadCount: z.number().nullable().optional(),
+  lastMessageStatus: z.nativeEnum(MessageStatus).nullable().optional(),
   members: z.array(ConversationMemberResponseSchema).nullable().optional()
 })
 
@@ -34,13 +47,16 @@ export const MessageResponseSchema = z.object({
   senderName: z.string().nullable().optional(),
   senderAvatar: z.string().nullable().optional(),
   recipientId: z.string().nullable().optional(),
-  content: z.string(),
+  content: z.string().nullable().optional(),
   type: z.nativeEnum(MessageType),
   clientMessageId: z.string().nullable().optional(),
-  status: z.enum(['PENDING', 'SENT', 'ERROR']).nullable().optional(),
+  status: z.nativeEnum(MessageStatus).default(MessageStatus.NORMAL),
   createdAt: z.string().datetime().nullable().optional(),
   lastModifiedAt: z.string().datetime().nullable().optional(),
-  unreadCount: z.number().nullable().optional()
+  replyTo: ReplyMetadataSchema.nullable().optional(),
+  isForwarded: z.boolean().nullable().optional(),
+  unreadCount: z.number().nullable().optional(),
+  isFromMe: z.boolean().nullable().optional()
 })
 
 export type MessageResponse = z.infer<typeof MessageResponseSchema>
@@ -62,7 +78,9 @@ export type ChatUser = z.infer<typeof ChatUserSchema>
 export const ChatMessageRequestSchema = z.object({
   recipientId: z.string(),
   content: z.string(),
-  clientMessageId: z.string().optional()
+  clientMessageId: z.string().optional(),
+  replyTo: ReplyMetadataSchema.nullable().optional(),
+  isForwarded: z.boolean().optional()
 })
 
 export type ChatMessageRequest = z.infer<typeof ChatMessageRequestSchema>

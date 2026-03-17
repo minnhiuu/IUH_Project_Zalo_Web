@@ -6,8 +6,10 @@ import { ChatInput } from './chat-input'
 import { useChatScroll } from '../hooks/use-chat-scroll'
 import { useChatText } from '../i18n/use-chat-text'
 import { useMarkAsReadMutation } from '../queries/use-mutations'
-import { useEffect, useRef, useMemo } from 'react'
+import { useEffect, useRef, useMemo, useState } from 'react'
 import type { ConversationResponse, MessageResponse } from '../schemas/chat.schema'
+import { ForwardModal } from './forward-modal'
+import { formatLastSeen } from '@/utils/date'
 
 export function ChatWindow({ conversation }: { conversation: ConversationResponse }) {
   const { user } = useAuth()
@@ -20,6 +22,9 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   const { mutate: markAsRead } = useMarkAsReadMutation()
   const lastMessageRef = useRef<HTMLDivElement>(null)
   const lastReadSentId = useRef<string | null>(null)
+
+  const [replyTo, setReplyTo] = useState<MessageResponse | null>(null)
+  const [forwardingMessage, setForwardingMessage] = useState<MessageResponse | null>(null)
 
   const allMessages = useMemo(() => data?.pages.flatMap((page) => page.data) || [], [data])
   const latestMessageId = allMessages[0]?.id
@@ -68,7 +73,10 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
         <div className='flex items-center space-x-3'>
           <div className='relative shrink-0 hidden sm:block'>
             <img
-              src={conversation.partnerAvatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${conversation.partnerId}`}
+              src={
+                conversation.partnerAvatar ||
+                `https://api.dicebear.com/7.x/identicon/svg?seed=${conversation.partnerId}`
+              }
               alt={conversation.partnerName || 'User'}
               className='w-10 h-10 rounded-full object-cover border border-black/5'
             />
@@ -77,17 +85,11 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             )}
           </div>
           <div>
-            <h2 className='text-[16px] font-semibold text-foreground/90 leading-tight'>
-              {conversation.partnerName}
-            </h2>
+            <h2 className='text-[16px] font-semibold text-foreground/90 leading-tight'>{conversation.partnerName}</h2>
             <p className='text-[12px] text-muted-foreground mt-0.5 leading-tight'>
               {conversation.partnerStatus === 'ONLINE'
                 ? text.status.online
-                : conversation.lastSeenAt
-                ? text.status.lastSeen(
-                    new Date(conversation.lastSeenAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                  )
-                : 'Offline'}
+                : formatLastSeen(conversation.lastSeenAt, text.status)}
             </p>
           </div>
         </div>
@@ -115,7 +117,9 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
         onScroll={handleScroll}
         className='flex-1 overflow-y-auto px-4 py-4 flex flex-col-reverse custom-scrollbar'
       >
-        {isLoading && <div className='flex items-center justify-center flex-1 text-sm text-primary py-8'>Đang tải...</div>}
+        {isLoading && (
+          <div className='flex items-center justify-center flex-1 text-sm text-primary py-8'>Đang tải...</div>
+        )}
 
         {allMessages.map((msg, index) => {
           const prevMsg = allMessages[index + 1]
@@ -126,25 +130,27 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
 
           return (
             <div key={msg.id} ref={index === 0 ? lastMessageRef : null}>
-              <MessageBubble 
-                message={msg} 
+              <MessageBubble
+                message={msg}
                 isOwn={msg.senderId === user?.id}
                 isFirst={isFirst}
                 isLast={isLast}
                 isNewest={index === 0}
                 conversation={conversation}
+                onReply={() => setReplyTo(msg)}
+                onForward={() => setForwardingMessage(msg)}
               />
             </div>
           )
         })}
 
-        {isFetchingNextPage && (
-          <div className='py-4 text-center text-sm text-muted-foreground'>Đang tải thêm...</div>
-        )}
+        {isFetchingNextPage && <div className='py-4 text-center text-sm text-muted-foreground'>Đang tải thêm...</div>}
       </div>
 
       {/* Input */}
-      <ChatInput recipientId={conversation.partnerId} />
+      <ChatInput recipientId={conversation.partnerId} replyTo={replyTo} onCancelReply={() => setReplyTo(null)} />
+
+      {forwardingMessage && <ForwardModal message={forwardingMessage} onClose={() => setForwardingMessage(null)} />}
     </div>
   )
 }

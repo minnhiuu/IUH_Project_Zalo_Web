@@ -39,21 +39,56 @@ const VI_VN = 'vi-VN'
 export const formatDateTimeShort = (d?: string): string =>
   d
     ? new Intl.DateTimeFormat(VI_VN, {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(new Date(d))
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).format(new Date(d))
     : '—'
 
 export const formatDateTimeLong = (d?: string): string =>
   d
     ? new Intl.DateTimeFormat(VI_VN, {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(new Date(d))
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).format(new Date(d))
     : '—'
+export const formatLastSeen = (
+  date: string | Date | number | null | undefined,
+  statusTexts?: {
+    justNow: string
+    minutesAgo: (count: number) => string
+    hoursAgo: (count: number) => string
+    daysAgo: (count: number) => string
+    onDate: (date: string) => string
+  }
+): string => {
+  if (!date) return '—'
+  const d = new Date(date)
+  if (isNaN(d.getTime())) return String(date)
+
+  if (!statusTexts) {
+    // Fallback if translations not provided
+    return format(d, 'dd/MM/yyyy')
+  }
+
+  const now = new Date()
+  const diffInSeconds = Math.floor((now.getTime() - d.getTime()) / 1000)
+
+  if (diffInSeconds < 60) return statusTexts.justNow
+
+  const diffInMinutes = Math.floor(diffInSeconds / 60)
+  if (diffInMinutes < 60) return statusTexts.minutesAgo(diffInMinutes)
+
+  const diffInHours = Math.floor(diffInMinutes / 60)
+  if (diffInHours < 24) return statusTexts.hoursAgo(diffInHours)
+
+  const diffInDays = Math.floor(diffInHours / 24)
+  if (diffInDays < 7) return statusTexts.daysAgo(diffInDays)
+
+  return statusTexts.onDate(format(d, 'dd/MM/yyyy'))
+}

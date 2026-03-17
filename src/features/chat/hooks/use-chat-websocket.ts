@@ -3,9 +3,11 @@ import { Client } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
 import { useQueryClient } from '@tanstack/react-query'
 import { chatKeys } from '../queries/keys'
-import type { MessageResponse, ConversationResponse, ChatMessageRequest } from '../schemas/chat.schema'
+import type { MessageResponse, ConversationResponse, ChatMessageRequest, ReplyMetadata } from '../schemas/chat.schema'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { getAccessToken } from '@/lib/axios-client'
+import http from '@/lib/axios-client'
+import { MessageStatus } from '@/constants/enum'
 
 const WS_URL = import.meta.env.VITE_API_URL?.replace('/api', '/ws') || 'http://localhost:8080/ws'
 
@@ -36,62 +38,73 @@ export const useChatWebSocket = () => {
             ...rawMsg,
             createdAt: rawMsg.createdAt || rawMsg.timestamp
           }
-          
-          if (msg.senderId === user.id) {
-            // ACK for my own message
-            if (msg.recipientId) {
-              queryClient.setQueryData(chatKeys.messages(msg.recipientId), (oldData: any) => {
-                if (!oldData) return oldData
-                const firstPage = oldData.pages[0]
-                const hasOptimistic = firstPage.data.some((m: any) => m.clientMessageId === msg.clientMessageId)
-                if (hasOptimistic) {
-                  return {
-                    ...oldData,
-                    pages: [
-                      {
-                        ...firstPage,
-                        data: firstPage.data.map((m: any) => 
-                          (m.clientMessageId && m.clientMessageId === msg.clientMessageId) ? { ...msg, status: 'SENT' } : m
-                        )
-                      },
-                      ...oldData.pages.slice(1)
-                    ]
-                  }
-                }
+
+          const isOwnMessage = msg.senderId === user.id
+          const partnerId = isOwnMessage ? msg.recipientId : msg.senderId
+
+          if (!partnerId) return
+
+          // 1. Update Messages Cache
+          if (isOwnMessage) {
+            // ACK/Sync logic for my own message
+            queryClient.setQueryData(chatKeys.messages(partnerId), (oldData: any) => {
+              if (!oldData) return oldData
+              const firstPage = oldData.pages[0]
+              const hasOptimistic = firstPage.data.some((m: any) => m.clientMessageId === msg.clientMessageId)
+              if (hasOptimistic) {
                 return {
                   ...oldData,
-                  pages: [{ ...firstPage, data: [{ ...msg, status: 'SENT' }, ...firstPage.data] }, ...oldData.pages.slice(1)]
+                  pages: [
+                    {
+                      ...firstPage,
+                      data: firstPage.data.map((m: any) =>
+                        m.clientMessageId && m.clientMessageId === msg.clientMessageId
+                          ? { ...msg, status: MessageStatus.NORMAL }
+                          : m
+                      )
+                    },
+                    ...oldData.pages.slice(1)
+                  ]
                 }
-              })
-            }
-            return
+              }
+              return {
+                ...oldData,
+                pages: [
+                  { ...firstPage, data: [{ ...msg, status: MessageStatus.NORMAL }, ...firstPage.data] },
+                  ...oldData.pages.slice(1)
+                ]
+              }
+            })
+          } else {
+            // Incoming message from partner
+            queryClient.setQueryData(chatKeys.messages(partnerId), (oldData: any) => {
+              if (!oldData) return oldData
+              const firstPage = oldData.pages[0]
+              return {
+                ...oldData,
+                pages: [{ ...firstPage, data: [msg, ...firstPage.data] }, ...oldData.pages.slice(1)]
+              }
+            })
           }
 
-          queryClient.setQueryData(chatKeys.messages(msg.senderId), (oldData: any) => {
-            if (!oldData) return oldData
-            const firstPage = oldData.pages[0]
-            const newFirstPage = {
-              ...firstPage,
-              data: [msg, ...firstPage.data]
-            }
-            return {
-              ...oldData,
-              pages: [newFirstPage, ...oldData.pages.slice(1)]
-            }
-          })
-
+          // 2. Update Conversations Cache (Always move to top)
           queryClient.setQueryData(chatKeys.conversations(), (oldData: any) => {
             if (!oldData) return oldData
             const conversations: ConversationResponse[] = oldData
-            const existingConvIndex = conversations.findIndex((c) => c.partnerId === msg.senderId)
+            const existingConvIndex = conversations.findIndex((c) => c.partnerId === partnerId)
 
             if (existingConvIndex >= 0) {
-              const updatedConv = {
+              const updatedConv: ConversationResponse = {
                 ...conversations[existingConvIndex],
                 lastMessage: msg.content,
-                lastMessageTime: msg.createdAt,
-                unreadCount: msg.unreadCount !== undefined ? msg.unreadCount : (conversations[existingConvIndex].unreadCount || 0) + 1,
-                hasUnread: true
+                lastMessageTime: msg.createdAt || new Date().toISOString(),
+                isLastMessageFromMe: msg.isFromMe,
+                lastMessageType: msg.type,
+                unreadCount:
+                  msg.unreadCount !== undefined
+                    ? msg.unreadCount
+                    : (conversations[existingConvIndex].unreadCount || 0) + (isOwnMessage ? 0 : 1),
+                lastMessageStatus: msg.status
               }
               return [
                 updatedConv,
@@ -123,14 +136,33 @@ export const useChatWebSocket = () => {
             if (!oldData) return oldData
             return oldData.map((conv: ConversationResponse) => {
               if (conv.chatId !== receipt.chatId) return conv
-              const updatedMembers = conv.members?.map(m => 
-                m.userId === receipt.userId 
-                  ? { ...m, lastReadMessageId: receipt.lastReadMessageId } 
-                  : m
+              const updatedMembers = conv.members?.map((m) =>
+                m.userId === receipt.userId ? { ...m, lastReadMessageId: receipt.lastReadMessageId } : m
               )
               return { ...conv, members: updatedMembers }
             })
           })
+        })
+
+        client.subscribe('/user/queue/status-updates', (payload) => {
+          const update = JSON.parse(payload.body)
+          if (update.type === 'MESSAGE_STATUS_UPDATE') {
+            queryClient.setQueryData(chatKeys.messages(update.partnerId), (oldData: any) => {
+              if (!oldData) return oldData
+              return {
+                ...oldData,
+                pages: oldData.pages.map((page: any) => ({
+                  ...page,
+                  data: page.data.map((m: any) =>
+                    m.id === update.messageId ? { ...m, status: update.newStatus, content: null } : m
+                  )
+                }))
+              }
+            })
+
+            // Also update conversation last message if needed
+            queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+          }
         })
 
         client.subscribe('/user/queue/conversations', (payload) => {
@@ -138,9 +170,11 @@ export const useChatWebSocket = () => {
             const newConv = JSON.parse(payload.body)
             if (newConv.chatId) {
               queryClient.setQueryData(chatKeys.conversations(), (oldData: any) => {
-                 if (!oldData) return oldData
-                 if (oldData.find((u: any) => u.chatId === newConv.chatId)) return oldData
-                 return [newConv, ...oldData].sort((a,b) => new Date(b.lastMessageTime).getTime() - new Date(a.lastMessageTime).getTime())
+                if (!oldData) return oldData
+                if (oldData.find((u: any) => u.chatId === newConv.chatId)) return oldData
+                return [newConv, ...oldData].sort(
+                  (a, b) => new Date(b.lastMessageTime).getTime() - new Date(a.lastMessageTime).getTime()
+                )
               })
             } else if (newConv.type === 'REFRESH') {
               queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
@@ -187,14 +221,16 @@ export const useChatWebSocket = () => {
   }, [user, connect, disconnect])
 
   const sendMessage = useCallback(
-    (recipientId: string, content: string) => {
-      if (!stompClientRef.current?.connected || !content.trim()) return
+    (recipientId: string, content: string, replyTo?: ReplyMetadata | null, isForwarded: boolean = false) => {
+      if (!stompClientRef.current?.connected || (!content.trim() && !isForwarded)) return
 
       const clientMessageId = `temp-${Date.now()}`
       const chatMessage: ChatMessageRequest = {
         recipientId,
         content: content.trim(),
-        clientMessageId
+        clientMessageId,
+        replyTo,
+        isForwarded
       }
 
       stompClientRef.current.publish({
@@ -210,12 +246,14 @@ export const useChatWebSocket = () => {
         recipientId,
         content,
         type: 'CHAT' as any,
-        status: 'PENDING',
+        status: MessageStatus.NORMAL,
         createdAt: now,
         lastModifiedAt: now,
         chatId: undefined,
         senderName: user?.fullName,
-        senderAvatar: undefined
+        senderAvatar: undefined,
+        replyTo,
+        isForwarded
       }
 
       queryClient.setQueryData(chatKeys.messages(recipientId), (oldData: any) => {
@@ -232,10 +270,13 @@ export const useChatWebSocket = () => {
         const conversations: ConversationResponse[] = oldData
         const existingConvIndex = conversations.findIndex((c) => c.partnerId === recipientId)
         if (existingConvIndex >= 0) {
-          const updatedConv = {
+          const updatedConv: ConversationResponse = {
             ...conversations[existingConvIndex],
             lastMessage: content,
-            lastMessageTime: now
+            lastMessageTime: now,
+            isLastMessageFromMe: true,
+            lastMessageType: optimisticMsg.type,
+            lastMessageStatus: MessageStatus.NORMAL
           }
           return [
             updatedConv,
@@ -249,5 +290,51 @@ export const useChatWebSocket = () => {
     [user, queryClient]
   )
 
-  return { connected, sendMessage }
+  const revokeMessage = useCallback(
+    async (messageId: string, partnerId: string) => {
+      try {
+        await http.patch(`/messages/${messageId}/revoke`)
+        // Optimistic update
+        queryClient.setQueryData(chatKeys.messages(partnerId), (oldData: any) => {
+          if (!oldData) return oldData
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page: any) => ({
+              ...page,
+              data: page.data.map((m: any) =>
+                m.id === messageId ? { ...m, status: MessageStatus.REVOKED, content: null } : m
+              )
+            }))
+          }
+        })
+      } catch (error) {
+        console.error('Failed to revoke message:', error)
+      }
+    },
+    [queryClient]
+  )
+
+  const deleteMessageForMe = useCallback(
+    async (messageId: string, partnerId: string) => {
+      try {
+        await http.delete(`/messages/me/${messageId}`)
+        // Update local state: remove message immediately
+        queryClient.setQueryData(chatKeys.messages(partnerId), (oldData: any) => {
+          if (!oldData) return oldData
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page: any) => ({
+              ...page,
+              data: page.data.filter((m: any) => m.id !== messageId)
+            }))
+          }
+        })
+      } catch (error) {
+        console.error('Failed to delete message for me:', error)
+      }
+    },
+    [queryClient]
+  )
+
+  return { connected, sendMessage, revokeMessage, deleteMessageForMe }
 }

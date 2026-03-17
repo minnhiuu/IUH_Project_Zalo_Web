@@ -1,9 +1,12 @@
 import { createContext, useContext, type ReactNode } from 'react'
 import { useChatWebSocket } from '../hooks/use-chat-websocket'
+import type { ReplyMetadata } from '../schemas/chat.schema'
 
 type ChatContextType = {
   connected: boolean
-  sendMessage: (recipientId: string, content: string) => void
+  sendMessage: (recipientId: string, content: string, replyTo?: ReplyMetadata | null, isForwarded?: boolean) => void
+  revokeMessage: (messageId: string, partnerId: string) => Promise<void>
+  deleteMessageForMe: (messageId: string, partnerId: string) => Promise<void>
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined)

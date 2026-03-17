@@ -101,3 +101,10 @@ export const MessageType = {
 
 export type MessageType = (typeof MessageType)[keyof typeof MessageType]
 
+export const MessageStatus = {
+  NORMAL: 'NORMAL',
+  REVOKED: 'REVOKED',
+  DELETED_BY_ADMIN: 'DELETED_BY_ADMIN'
+} as const
+
+export type MessageStatus = (typeof MessageStatus)[keyof typeof MessageStatus]
