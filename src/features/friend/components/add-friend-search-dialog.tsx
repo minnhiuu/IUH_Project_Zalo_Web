@@ -13,8 +13,10 @@ import { UserAvatar } from '@/components/common/user-avatar'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useSearchUser } from '@/features/search-user/queries/use-queries'
 import { useDebounce } from '@/hooks/use-debounce'
-import { useFriendshipStatus } from '../queries'
+import { useFriendshipStatus, useAcceptFriendRequest, useCancelFriendRequest } from '../queries'
 import { FriendStatus } from '../schemas/friend.schema'
+import { useAuthContext } from '@/features/auth/context/auth-context'
+import { useFriendText } from '../i18n/use-friend-text'
 import type { UserSummaryResponse } from '@/shared/user/user-summary'
 import { AddFriendConfirmDialog } from './add-friend-confirm-dialog'
 
@@ -30,23 +32,55 @@ interface SearchResultItemProps {
 
 function SearchResultItem({ user, onAddFriend }: SearchResultItemProps) {
   const { data: friendshipStatus, isLoading: isLoadingStatus } = useFriendshipStatus(user.id)
+  const { user: currentUser } = useAuthContext()
+  const { text } = useFriendText()
+  const acceptRequestMutation = useAcceptFriendRequest()
+  const cancelRequestMutation = useCancelFriendRequest()
 
   const getButtonState = () => {
     if (isLoadingStatus) {
-      return { disabled: true, label: '...', variant: 'outline' as const }
+      return { disabled: true, label: '...', variant: 'outline' as const, action: null as any }
     }
 
-    if (!friendshipStatus) {
-      return { disabled: false, label: 'Kết bạn', variant: 'default' as const }
+    if (!friendshipStatus || !friendshipStatus.status) {
+      return { disabled: false, label: text.actions.addFriend, variant: 'default' as const, action: 'add' }
     }
 
     switch (friendshipStatus.status) {
       case FriendStatus.Accepted:
-        return { disabled: true, label: 'Đã là bạn', variant: 'secondary' as const }
+        return { disabled: true, label: `${text.status.accepted}`, variant: 'secondary' as const, action: null }
       case FriendStatus.Pending:
-        return { disabled: true, label: 'Đang chờ', variant: 'secondary' as const }
+        // Check if current user sent the request
+        const sentByMe = friendshipStatus.requestedBy === currentUser?.id
+        if (sentByMe) {
+          return { disabled: false, label: text.actions.withdraw, variant: 'outline' as const, action: 'withdraw' }
+        } else {
+          return { disabled: false, label: text.actions.accept, variant: 'default' as const, action: 'accept' }
+        }
+      case FriendStatus.Cancelled:
+      case FriendStatus.Declined:
+        return { disabled: false, label: text.actions.addFriend, variant: 'default' as const, action: 'add' }
       default:
-        return { disabled: false, label: 'Kết bạn', variant: 'default' as const }
+        return { disabled: false, label: text.actions.addFriend, variant: 'default' as const, action: 'add' }
+    }
+  }
+
+  const handleClick = () => {
+    const state = getButtonState()
+    switch (state.action) {
+      case 'add':
+        onAddFriend()
+        break
+      case 'accept':
+        if (friendshipStatus?.friendshipId) {
+          acceptRequestMutation.mutate(friendshipStatus.friendshipId)
+        }
+        break
+      case 'withdraw':
+        if (friendshipStatus?.friendshipId) {
+          cancelRequestMutation.mutate({ friendshipId: friendshipStatus.friendshipId, userId: user.id })
+        }
+        break
     }
   }
 
@@ -60,11 +94,13 @@ function SearchResultItem({ user, onAddFriend }: SearchResultItemProps) {
         <p className='text-xs text-muted-foreground mt-0.5'>Gợi ý kết bạn</p>
       </div>
       <Button
-        onClick={onAddFriend}
-        disabled={buttonState.disabled}
+        onClick={handleClick}
+        disabled={buttonState.disabled || acceptRequestMutation.isPending || cancelRequestMutation.isPending}
         className={`h-7 px-3 text-xs font-medium shrink-0 whitespace-nowrap ${
           buttonState.variant === 'default'
             ? 'bg-primary hover:bg-primary/90 text-white'
+            : buttonState.variant === 'outline'
+            ? 'border border-border bg-background hover:bg-muted text-foreground'
             : 'bg-muted text-foreground'
         }`}
       >

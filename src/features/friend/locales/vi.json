@@ -103,6 +103,13 @@
     "mutualFriends": "{{count}} bạn chung",
     "viewMore": "Xem thêm",
     "loading": "Đang tải...",
-    "error": "Có lỗi xảy ra, vui lòng thử lại"
+    "error": "Có lỗi xảy ra, vui lòng thử lại",
+    "contactList": {
+      "title": "Danh sách bạn bè",
+      "searchPlaceholder": "Tìm bạn",
+      "sortLabel": "Tên (A-Z)",
+      "filterLabel": "Tất cả",
+      "noFriendsMessage": "Chưa có bạn bè nào. Bắt đầu kết bạn ngay!"
+    }
   }
 }

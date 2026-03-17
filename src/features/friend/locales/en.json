@@ -103,6 +103,13 @@
     "mutualFriends": "{{count}} mutual friends",
     "viewMore": "View more",
     "loading": "Loading...",
-    "error": "Something went wrong, please try again"
+    "error": "Something went wrong, please try again",
+    "contactList": {
+      "title": "Friends List",
+      "searchPlaceholder": "Search friends",
+      "sortLabel": "Name (A-Z)",
+      "filterLabel": "All",
+      "noFriendsMessage": "No friends yet. Start adding friends!"
+    }
   }
 }

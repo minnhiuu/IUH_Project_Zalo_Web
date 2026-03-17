@@ -21,15 +21,18 @@ export function FriendListItem({ friend, onMessage, onViewProfile, onUnfriend }:
   const { text } = useFriendText()
 
   return (
-    <div className='flex items-center gap-3 px-4 py-3 hover:bg-muted/50 transition-colors group cursor-pointer'>
+    <div
+      onClick={() => onViewProfile?.(friend)}
+      className='flex items-center gap-3 px-2 py-2 hover:bg-muted/40 transition-colors group cursor-pointer rounded-md'
+    >
       <UserAvatar
         src={friend.userAvatar}
         name={friend.userName}
-        className='w-12 h-12 shrink-0'
+        className='w-10 h-10 shrink-0'
       />
       
       <div className='flex-1 min-w-0'>
-        <h4 className='text-[15px] font-medium text-foreground truncate'>
+        <h4 className='text-sm font-medium text-foreground truncate'>
           {friend.userName}
         </h4>
       </div>
@@ -37,12 +40,13 @@ export function FriendListItem({ friend, onMessage, onViewProfile, onUnfriend }:
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
+            onClick={(e) => e.stopPropagation()}
             className={cn(
-              'p-2 rounded-md transition-colors opacity-0 group-hover:opacity-100 hover:bg-muted',
+              'p-1.5 rounded-md transition-colors opacity-0 group-hover:opacity-100 hover:bg-muted/60',
               'focus:opacity-100 focus:outline-none'
             )}
           >
-            <MoreHorizontal className='w-5 h-5 text-muted-foreground' />
+            <MoreHorizontal className='w-4 h-4 text-muted-foreground' />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end' className='w-48'>

@@ -43,7 +43,7 @@ export default function ContactPage() {
   const renderContent = () => {
     switch (activeTab) {
       case 'friends':
-        return <FriendList />
+        return <FriendList searchQuery={globalSearchQuery} />
       case 'groups':
         return <GroupList />
       case 'friend-requests':
@@ -60,7 +60,7 @@ export default function ContactPage() {
       {/* Left Panel - Sidebar */}
       <div className='w-80 flex flex-col border-r border-border bg-background shrink-0'>
         {/* Search and Quick Actions Header */}
-        <div className='p-3 space-y-3 border-b border-border'>
+        <div className='p-3 space-y-3 border-b border-border flex items-center justify-center gap-2'>
           {/* Search Input */}
           <div className='relative flex-1 group w-full'>
             <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors' />
@@ -73,7 +73,7 @@ export default function ContactPage() {
           </div>
 
           {/* Quick Action Buttons */}
-          <div className='flex items-center gap-1'>
+          <div className='flex items-center gap-1 justify-center'>
             <button
               onClick={() => setShowAddFriendDialog(true)}
               className='p-2 hover:bg-muted rounded-md transition-colors text-muted-foreground hover:text-foreground'

@@ -119,6 +119,14 @@ export const createFriendTexts = (t: TFunction<'friend'>) => ({
     viewInfo: t(FRIEND_KEYS.addFriend.viewInfo)
   },
 
+  contactList: {
+    title: t(FRIEND_KEYS.contactList.title),
+    searchPlaceholder: t(FRIEND_KEYS.contactList.searchPlaceholder),
+    sortLabel: t(FRIEND_KEYS.contactList.sortLabel),
+    filterLabel: t(FRIEND_KEYS.contactList.filterLabel),
+    noFriendsMessage: t(FRIEND_KEYS.contactList.noFriendsMessage)
+  },
+
   mutualFriends: (count: number) => t(FRIEND_KEYS.mutualFriends, { count }),
   viewMore: t(FRIEND_KEYS.viewMore),
   loading: t(FRIEND_KEYS.loading),

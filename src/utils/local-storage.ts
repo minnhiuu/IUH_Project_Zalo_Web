@@ -10,7 +10,8 @@ export const STORAGE_KEYS = {
   USER_PROFILE: `${APP_PREFIX}user_profile`,
   SETTINGS: `${APP_PREFIX}settings`,
   DEVICE_ID: `${APP_PREFIX}device_id`,
-  LOCALE: `${APP_PREFIX}locale`
+  LOCALE: `${APP_PREFIX}locale`,
+  RECENT_SEARCHES: `${APP_PREFIX}recent_searches`
 } as const
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS]

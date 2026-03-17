@@ -9,6 +9,10 @@ import commonEn from '@/locales/en/common.json'
 
 import searchVi from '@/features/search-user/locales/vi.json'
 import searchEn from '@/features/search-user/locales/en.json'
+import adminEsVi from '@/features/admin-elasticsearch/locales/vi.json'
+import adminEsEn from '@/features/admin-elasticsearch/locales/en.json'
+import adminVi from '@/locales/vi/admin.json'
+import adminEn from '@/locales/en/admin.json'
 
 import friendVi from '@/features/friend/locales/vi.json'
 import friendEn from '@/features/friend/locales/en.json'
@@ -19,6 +23,8 @@ export const resources = {
     auth: authVi,
     user: userVi,
     search: searchVi,
+    'admin-elasticsearch': adminEsVi,
+    admin: adminVi,
     friend: friendVi
   },
   en: {
@@ -26,6 +32,8 @@ export const resources = {
     auth: authEn,
     user: userEn,
     search: searchEn,
+    'admin-elasticsearch': adminEsEn,
+    admin: adminEn,
     friend: friendEn
   }
 } as const

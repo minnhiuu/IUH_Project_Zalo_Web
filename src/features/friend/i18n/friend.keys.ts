@@ -116,6 +116,14 @@ export const FRIEND_KEYS = {
     viewInfo: 'friend.addFriend.viewInfo'
   },
 
+  contactList: {
+    title: 'friend.contactList.title',
+    searchPlaceholder: 'friend.contactList.searchPlaceholder',
+    sortLabel: 'friend.contactList.sortLabel',
+    filterLabel: 'friend.contactList.filterLabel',
+    noFriendsMessage: 'friend.contactList.noFriendsMessage'
+  },
+
   mutualFriends: 'friend.mutualFriends',
   viewMore: 'friend.viewMore',
   loading: 'friend.loading',

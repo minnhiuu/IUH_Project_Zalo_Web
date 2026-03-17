@@ -6,7 +6,7 @@ import axios from 'axios'
 
 import { type LoginRequest, loginRequestSchema } from '@/features/auth/schemas/auth.schema'
 import { useLoginMutation } from '@/features/auth/queries/use-mutations'
-import { DeviceType, PATHS } from '@/constants'
+import { DeviceType, PATHS, Role } from '@/constants'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { getDeviceId } from '@/utils/device'
 import { handleErrorApi, getErrorMessage } from '@/utils/error-handler'
@@ -42,8 +42,12 @@ export default function LoginForm({ onSwitchToQR }: { onSwitchToQR: () => void }
     try {
       const result = await loginMutation.mutateAsync(data)
       const { accessToken, refreshTokenExpirationMs } = result.data.data!
-      await loginSuccess(accessToken, refreshTokenExpirationMs)
-      navigate(PATHS.HOME)
+      const user = await loginSuccess(accessToken, refreshTokenExpirationMs)
+      if (user.role === Role.Admin) {
+        navigate(PATHS.ADMIN.DASHBOARD)
+      } else {
+        navigate(PATHS.HOME)
+      }
     } catch (error) {
       setIsLoggingIn(false)
       if (axios.isAxiosError(error)) {

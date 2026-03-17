@@ -2,6 +2,15 @@ import { queryOptions, infiniteQueryOptions, keepPreviousData } from '@tanstack/
 import { searchUserApi } from '../api/search-user.api'
 import { searchKeys } from './keys'
 
+export const recentHistoryQueryOptions = () =>
+  queryOptions({
+    queryKey: searchKeys.recentHistory(),
+    queryFn: async () => {
+      const response = await searchUserApi.getRecentHistory()
+      return response.data.data
+    }
+  })
+
 export const searchUsersQueryOptions = (keyword: string, enabled = true) =>
   queryOptions({
     queryKey: searchKeys.search(keyword),
