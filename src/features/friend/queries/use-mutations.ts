@@ -1,12 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
-
 import { friendApi } from '../api/friend.api'
 import { friendKeys } from './keys'
+import { showSuccessToast, showErrorToast } from '@/utils/toast'
+import { useFriendText } from '../i18n/use-friend-text'
 import type { FriendRequestSendRequest } from '../schemas/friend.schema'
 
 export const useSendFriendRequest = () => {
   const queryClient = useQueryClient()
+  const { toast } = useFriendText()
 
   return useMutation({
     mutationKey: friendKeys.sendRequest(),
@@ -14,16 +15,17 @@ export const useSendFriendRequest = () => {
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: friendKeys.sentRequests() })
       queryClient.refetchQueries({ queryKey: friendKeys.status(variables.receiverId) })
-      toast.success('Friend request sent')
+      showSuccessToast(toast.sendSuccess)
     },
     onError: () => {
-      toast.error('Failed to send friend request')
+      showErrorToast(toast.sendError)
     }
   })
 }
 
 export const useAcceptFriendRequest = () => {
   const queryClient = useQueryClient()
+  const { toast } = useFriendText()
 
   return useMutation({
     mutationKey: friendKeys.acceptRequest(),
@@ -32,16 +34,17 @@ export const useAcceptFriendRequest = () => {
       queryClient.invalidateQueries({ queryKey: friendKeys.receivedRequests() })
       queryClient.invalidateQueries({ queryKey: friendKeys.myFriends() })
       queryClient.invalidateQueries({ queryKey: friendKeys.all() })
-      toast.success('Friend request accepted')
+      showSuccessToast(toast.acceptSuccess)
     },
     onError: () => {
-      toast.error('Failed to accept friend request')
+      showErrorToast(toast.acceptError)
     }
   })
 }
 
 export const useDeclineFriendRequest = () => {
   const queryClient = useQueryClient()
+  const { toast } = useFriendText()
 
   return useMutation({
     mutationKey: friendKeys.declineRequest(),
@@ -49,37 +52,35 @@ export const useDeclineFriendRequest = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: friendKeys.receivedRequests() })
       queryClient.invalidateQueries({ queryKey: friendKeys.all() })
-      toast.success('Friend request declined')
+      showSuccessToast(toast.declineSuccess)
     },
     onError: () => {
-      toast.error('Failed to decline friend request')
+      showErrorToast(toast.declineError)
     }
   })
 }
 
 export const useCancelFriendRequest = () => {
   const queryClient = useQueryClient()
+  const { toast } = useFriendText()
 
   return useMutation({
     mutationKey: friendKeys.cancelRequest(),
-    mutationFn: ({ friendshipId }: { friendshipId: string; userId?: string }) =>
+    mutationFn: ( friendshipId : string ) =>
       friendApi.cancelFriendRequest(friendshipId),
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: friendKeys.sentRequests() })
+    onSuccess: (_data) => {
       queryClient.invalidateQueries({ queryKey: friendKeys.all() })
-      if (variables.userId) {
-        queryClient.refetchQueries({ queryKey: friendKeys.status(variables.userId) })
-      }
-      toast.success('Friend request cancelled')
+      showSuccessToast(toast.cancelSuccess)
     },
     onError: () => {
-      toast.error('Failed to cancel friend request')
+      showErrorToast(toast.cancelError)
     }
   })
 }
 
 export const useUnfriend = () => {
   const queryClient = useQueryClient()
+  const { toast } = useFriendText()
 
   return useMutation({
     mutationKey: friendKeys.unfriend(),
@@ -87,10 +88,10 @@ export const useUnfriend = () => {
     onSuccess: (_data, friendId) => {
       queryClient.invalidateQueries({ queryKey: friendKeys.myFriends() })
       queryClient.invalidateQueries({ queryKey: friendKeys.status(friendId) })
-      toast.success('Unfriended successfully')
+      showSuccessToast(toast.unfriendSuccess)
     },
     onError: () => {
-      toast.error('Failed to unfriend')
+      showErrorToast(toast.unfriendError)
     }
   })
 }

@@ -18,6 +18,7 @@
       "accept": "Đồng ý",
       "decline": "Từ chối",
       "withdraw": "Thu hồi",
+      "recall": "Thu hồi",
       "addFriend": "Kết bạn",
       "unfriend": "Hủy kết bạn",
       "cancelRequest": "Hủy lời mời",
@@ -71,10 +72,15 @@
     },
     "toast": {
       "sendSuccess": "Đã gửi lời mời kết bạn",
+      "sendError": "Không thể gửi lời mời",
       "acceptSuccess": "Đã chấp nhận lời mời kết bạn",
+      "acceptError": "Không thể chấp nhận lời mời",
       "declineSuccess": "Đã từ chối lời mời kết bạn",
+      "declineError": "Không thể từ chối lời mời",
       "cancelSuccess": "Đã thu hồi lời mời kết bạn",
-      "unfriendSuccess": "Đã hủy kết bạn"
+      "cancelError": "Không thể thu hồi lời mời",
+      "unfriendSuccess": "Đã hủy kết bạn",
+      "unfriendError": "Không thể hủy kết bạn"
     },
     "status": {
       "pending": "Đang chờ",
@@ -99,6 +105,50 @@
       "characters": "ký tự",
       "blockDiary": "Chặn người này xem nhật ký của tôi",
       "viewInfo": "Thông tin"
+    },
+    "dialogs": {
+      "addFriendConfirm": {
+        "cancel": "Hủy"
+      },
+      "addFriendAccept": {
+        "title": "Tuỳ chọn bạn bè",
+        "subtitle": "Vừa kết bạn",
+        "cancel": "Hủy",
+        "confirm": "Xác nhận"
+      },
+      "addFriendSearch": {
+        "countryCode": "🇻🇳 +84",
+        "recentResults": "Kết quả gần nhất",
+        "noUsersFound": "Không tìm thấy người dùng",
+        "emptyState": "Nhập số điện thoại hoặc tên để tìm bạn",
+        "friendSuggestion": "Gợi ý kết bạn",
+        "cancel": "Hủy",
+        "search": "Tìm kiếm"
+      }
+    },
+    "contacts": {
+      "searchPlaceholder": "Tìm kiếm bạn bè"
+    },
+    "contactsFilter": {
+      "searchPlaceholder": "Tìm kiếm bạn bè...",
+      "filterOptions": {
+        "all": "Tất cả",
+        "friends": "Bạn bè",
+        "requests": "Lời mời kết bạn",
+        "blocked": "Bị chặn"
+      },
+      "sortOptions": {
+        "nameAZ": "Tên A-Z",
+        "recent": "Gần đây",
+        "online": "Đang hoạt động"
+      },
+      "resultsLabel": "kết quả",
+      "filtersLabel": "Bộ lọc:",
+      "sortLabel": "Sắp xếp:"
+    },
+    "buttons": {
+      "cancel": "Hủy",
+      "confirm": "Xác nhận"
     },
     "mutualFriends": "{{count}} bạn chung",
     "viewMore": "Xem thêm",

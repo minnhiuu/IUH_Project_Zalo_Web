@@ -2,8 +2,9 @@ import { type RouteObject } from 'react-router'
 import { PATHS } from '@/constants/path'
 import UserLayout from '@/layouts/user-layout'
 import ChatPage from '@/pages/user/chat/chat-page'
-import ContactPage from '@/pages/user/contacts/contact-page'
+import SettingsPage from '@/pages/user/settings/settings-page'
 import { PrivateRoute } from './private-route'
+import ContactPage from '@/pages/user/contacts/contact-page'
 
 export const userRoutes: RouteObject = {
   element: <PrivateRoute requireAuth />,
@@ -12,7 +13,8 @@ export const userRoutes: RouteObject = {
       element: <UserLayout />,
       children: [
         { path: PATHS.HOME, element: <ChatPage /> },
-        { path: PATHS.CONTACTS, element: <ContactPage /> }
+        { path : PATHS.CONTACTS, element: <ContactPage /> },
+        { path: PATHS.USER.SETTINGS, element: <SettingsPage /> }
       ]
     }
   ]

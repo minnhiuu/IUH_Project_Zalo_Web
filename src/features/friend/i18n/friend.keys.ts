@@ -21,6 +21,7 @@ export const FRIEND_KEYS = {
     accept: 'friend.actions.accept',
     decline: 'friend.actions.decline',
     withdraw: 'friend.actions.withdraw',
+    recall: 'friend.actions.recall',
     addFriend: 'friend.actions.addFriend',
     unfriend: 'friend.actions.unfriend',
     cancelRequest: 'friend.actions.cancelRequest',
@@ -83,10 +84,15 @@ export const FRIEND_KEYS = {
 
   toast: {
     sendSuccess: 'friend.toast.sendSuccess',
+    sendError: 'friend.toast.sendError',
     acceptSuccess: 'friend.toast.acceptSuccess',
+    acceptError: 'friend.toast.acceptError',
     declineSuccess: 'friend.toast.declineSuccess',
+    declineError: 'friend.toast.declineError',
     cancelSuccess: 'friend.toast.cancelSuccess',
-    unfriendSuccess: 'friend.toast.unfriendSuccess'
+    cancelError: 'friend.toast.cancelError',
+    unfriendSuccess: 'friend.toast.unfriendSuccess',
+    unfriendError: 'friend.toast.unfriendError'
   },
 
   status: {
@@ -122,6 +128,54 @@ export const FRIEND_KEYS = {
     sortLabel: 'friend.contactList.sortLabel',
     filterLabel: 'friend.contactList.filterLabel',
     noFriendsMessage: 'friend.contactList.noFriendsMessage'
+  },
+
+  dialogs: {
+    addFriendConfirm: {
+      cancel: 'friend.dialogs.addFriendConfirm.cancel'
+    },
+    addFriendAccept: {
+      title: 'friend.dialogs.addFriendAccept.title',
+      subtitle: 'friend.dialogs.addFriendAccept.subtitle',
+      cancel: 'friend.dialogs.addFriendAccept.cancel',
+      confirm: 'friend.dialogs.addFriendAccept.confirm'
+    },
+    addFriendSearch: {
+      countryCode: 'friend.dialogs.addFriendSearch.countryCode',
+      recentResults: 'friend.dialogs.addFriendSearch.recentResults',
+      noUsersFound: 'friend.dialogs.addFriendSearch.noUsersFound',
+      emptyState: 'friend.dialogs.addFriendSearch.emptyState',
+      friendSuggestion: 'friend.dialogs.addFriendSearch.friendSuggestion',
+      cancel: 'friend.dialogs.addFriendSearch.cancel',
+      search: 'friend.dialogs.addFriendSearch.search'
+    }
+  },
+
+  contacts: {
+    searchPlaceholder: 'friend.contacts.searchPlaceholder'
+  },
+
+  contactsFilter: {
+    searchPlaceholder: 'friend.contactsFilter.searchPlaceholder',
+    filterOptions: {
+      all: 'friend.contactsFilter.filterOptions.all',
+      friends: 'friend.contactsFilter.filterOptions.friends',
+      requests: 'friend.contactsFilter.filterOptions.requests',
+      blocked: 'friend.contactsFilter.filterOptions.blocked'
+    },
+    sortOptions: {
+      nameAZ: 'friend.contactsFilter.sortOptions.nameAZ',
+      recent: 'friend.contactsFilter.sortOptions.recent',
+      online: 'friend.contactsFilter.sortOptions.online'
+    },
+    resultsLabel: 'friend.contactsFilter.resultsLabel',
+    filtersLabel: 'friend.contactsFilter.filtersLabel',
+    sortLabel: 'friend.contactsFilter.sortLabel'
+  },
+
+  buttons: {
+    cancel: 'friend.buttons.cancel',
+    confirm: 'friend.buttons.confirm'
   },
 
   mutualFriends: 'friend.mutualFriends',

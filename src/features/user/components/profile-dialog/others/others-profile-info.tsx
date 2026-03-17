@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Users, Ban, MessageSquareWarning, IdCard } from 'lucide-react'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { Button } from '@/components/ui/button'
@@ -5,6 +6,8 @@ import { Separator } from '@/components/ui/separator'
 import { type UserResponse } from '@/features/user/schemas/user.schema'
 import { useUserText } from '../../../i18n/use-user-text'
 import { ProfileInfoBase } from '../shared/profile-info-base'
+import { BlockUserModal } from '../block-user-modal'
+import { useBlockDetails } from '../../../queries/use-queries'
 import { cn } from '@/lib/utils'
 import { useFriendshipStatus, useAcceptFriendRequest, useCancelFriendRequest, useSendFriendRequest } from '@/features/friend/queries'
 import { FriendStatus } from '@/features/friend/schemas/friend.schema'
@@ -17,6 +20,9 @@ interface OthersProfileInfoProps {
 
 export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
   const { text: userText } = useUserText()
+  const [isBlockModalOpen, setIsBlockModalOpen] = useState(false)
+
+  const { data: blockDetails } = useBlockDetails(user.id)
   const { text: friendText } = useFriendText()
   const { user: currentUser } = useAuthContext()
   
@@ -101,7 +107,7 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
         break
       case 'withdraw':
         if (friendshipStatus?.friendshipId) {
-          cancelRequestMutation.mutate({ friendshipId: friendshipStatus.friendshipId, userId: user.id })
+          cancelRequestMutation.mutate(friendshipStatus.friendshipId)
         }
         break
     }
@@ -163,7 +169,13 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
             {[
               { icon: Users, label: userText.profile.mutualGroups(0), color: 'text-disabled', disabled: true },
               { icon: IdCard, label: userText.profile.shareContact, color: 'text-disabled', disabled: true },
-              { icon: Ban, label: userText.profile.block, color: 'text-icon-secondary', disabled: false },
+              {
+                icon: Ban,
+                label: blockDetails ? userText.profile.editBlock : userText.profile.block,
+                color: 'text-icon-secondary',
+                disabled: false,
+                onClick: () => setIsBlockModalOpen(true)
+              },
               { icon: MessageSquareWarning, label: userText.profile.report, color: 'text-icon-secondary', disabled: false }
             ].map((item, idx, arr) => (
               <div key={item.label}>
@@ -173,7 +185,10 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
                     <span className={cn('font-medium', item.color)}>{item.label}</span>
                   </div>
                 ) : (
-                  <button className='flex w-full items-center gap-3 px-4 py-3.5 text-[15px] hover:bg-muted transition-colors text-foreground group cursor-pointer'>
+                  <button
+                    className='flex w-full items-center gap-3 px-4 py-3.5 text-[15px] hover:bg-muted transition-colors text-foreground group cursor-pointer'
+                    onClick={item.onClick}
+                  >
                     <item.icon
                       className={cn('h-5 w-5 group-hover:opacity-80 transition-opacity', item.color)}
                       strokeWidth={1.5}
@@ -185,6 +200,15 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
               </div>
             ))}
           </div>
+
+          <BlockUserModal
+            open={isBlockModalOpen}
+            onOpenChange={setIsBlockModalOpen}
+            userId={user.id}
+            userName={user.fullName}
+            isBlocked={!!blockDetails}
+            currentPreference={blockDetails?.preference}
+          />
         </>
       }
     />

@@ -17,6 +17,7 @@ import { useFriendshipStatus, useAcceptFriendRequest, useCancelFriendRequest } f
 import { FriendStatus } from '../schemas/friend.schema'
 import { useAuthContext } from '@/features/auth/context/auth-context'
 import { useFriendText } from '../i18n/use-friend-text'
+import { showSuccessToast, showErrorToast } from '@/utils/toast'
 import type { UserSummaryResponse } from '@/shared/user/user-summary'
 import { AddFriendConfirmDialog } from './add-friend-confirm-dialog'
 
@@ -53,7 +54,7 @@ function SearchResultItem({ user, onAddFriend }: SearchResultItemProps) {
         // Check if current user sent the request
         const sentByMe = friendshipStatus.requestedBy === currentUser?.id
         if (sentByMe) {
-          return { disabled: false, label: text.actions.withdraw, variant: 'outline' as const, action: 'withdraw' }
+          return { disabled: false, label: text.actions.recall, variant: 'outline' as const, action: 'recall' }
         } else {
           return { disabled: false, label: text.actions.accept, variant: 'default' as const, action: 'accept' }
         }
@@ -73,12 +74,26 @@ function SearchResultItem({ user, onAddFriend }: SearchResultItemProps) {
         break
       case 'accept':
         if (friendshipStatus?.friendshipId) {
-          acceptRequestMutation.mutate(friendshipStatus.friendshipId)
+          acceptRequestMutation.mutate(friendshipStatus.friendshipId, {
+            onSuccess: () => {
+              showSuccessToast(text.toast.acceptSuccess)
+            },
+            onError: () => {
+              showErrorToast(text.toast.acceptError)
+            }
+          })
         }
         break
-      case 'withdraw':
+      case 'recall':
         if (friendshipStatus?.friendshipId) {
-          cancelRequestMutation.mutate({ friendshipId: friendshipStatus.friendshipId, userId: user.id })
+          cancelRequestMutation.mutate(friendshipStatus.friendshipId, {
+            onSuccess: () => {
+              showSuccessToast(text.toast.cancelSuccess)
+            },
+            onError: () => {
+              showErrorToast(text.toast.cancelError)
+            }
+          })
         }
         break
     }
@@ -91,7 +106,7 @@ function SearchResultItem({ user, onAddFriend }: SearchResultItemProps) {
       <UserAvatar src={user.avatar} name={user.fullName} className='w-11 h-11 shrink-0' />
       <div className='flex-1 min-w-0'>
         <h4 className='text-sm font-semibold text-foreground truncate'>{user.fullName}</h4>
-        <p className='text-xs text-muted-foreground mt-0.5'>Gợi ý kết bạn</p>
+        <p className='text-xs text-muted-foreground mt-0.5'>{text.dialogs.addFriendSearch.friendSuggestion}</p>
       </div>
       <Button
         onClick={handleClick}
@@ -111,6 +126,7 @@ function SearchResultItem({ user, onAddFriend }: SearchResultItemProps) {
 }
 
 export function AddFriendSearchDialog({ open, onOpenChange }: AddFriendSearchDialogProps) {
+  const { text } = useFriendText()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedUser, setSelectedUser] = useState<UserSummaryResponse | null>(null)
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
@@ -144,7 +160,7 @@ export function AddFriendSearchDialog({ open, onOpenChange }: AddFriendSearchDia
         <DialogContent className='w-full max-w-sm p-0 gap-0 sm:rounded-lg border shadow-lg' showCloseButton>
           {/* Header */}
           <DialogHeader className='px-5 pt-4 pb-3 border-b border-border bg-background'>
-            <DialogTitle className='text-base font-semibold text-foreground'>Thêm bạn</DialogTitle>
+            <DialogTitle className='text-base font-semibold text-foreground'>{text.addFriend.title}</DialogTitle>
           </DialogHeader>
 
           {/* Content */}
@@ -153,14 +169,14 @@ export function AddFriendSearchDialog({ open, onOpenChange }: AddFriendSearchDia
             <div className='px-5 py-4 border-b border-border/60 bg-background'>
               <div className='flex items-center gap-2'>
                 <div className='flex items-center px-2.5 py-1.5 bg-muted rounded-md text-xs font-medium text-muted-foreground'>
-                  🇻🇳 <span className='ml-1'>+84</span>
+                  {text.dialogs.addFriendSearch.countryCode}
                 </div>
                 <div className='flex-1 relative'>
                   <Input
                     type='text'
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder='Số điện thoại'
+                    placeholder={text.addFriend.phonePlaceholder}
                     className='h-9 pl-3 pr-8 border border-border/60 bg-white dark:bg-slate-950 hover:bg-muted/30 focus-visible:bg-background transition-colors rounded-md text-sm'
                   />
                   {searchQuery && (
@@ -180,7 +196,7 @@ export function AddFriendSearchDialog({ open, onOpenChange }: AddFriendSearchDia
               {searchKeyword && (
                 <p className='text-xs font-semibold text-foreground mb-3 flex items-center gap-2'>
                   <SearchIcon className='w-3.5 h-3.5 text-muted-foreground' />
-                  Kết quả gần nhất
+                  {text.dialogs.addFriendSearch.recentResults}
                 </p>
               )}
 
@@ -210,12 +226,12 @@ export function AddFriendSearchDialog({ open, onOpenChange }: AddFriendSearchDia
               ) : searchKeyword ? (
                 <div className='py-8 text-center'>
                   <Phone className='w-8 h-8 text-muted-foreground/30 mx-auto mb-2' />
-                  <p className='text-xs text-muted-foreground'>Không tìm thấy người dùng</p>
+                  <p className='text-xs text-muted-foreground'>{text.dialogs.addFriendSearch.noUsersFound}</p>
                 </div>
               ) : (
                 <div className='py-6 text-center'>
                   <Phone className='w-8 h-8 text-muted-foreground/30 mx-auto mb-2' />
-                  <p className='text-xs text-muted-foreground'>Nhập số điện thoại hoặc tên để tìm bạn</p>
+                  <p className='text-xs text-muted-foreground'>{text.dialogs.addFriendSearch.emptyState}</p>
                 </div>
               )}
             </div>
@@ -228,14 +244,14 @@ export function AddFriendSearchDialog({ open, onOpenChange }: AddFriendSearchDia
               onClick={handleClose}
               className='px-5 h-8 text-sm font-medium'
             >
-              Hủy
+              {text.dialogs.addFriendSearch.cancel}
             </Button>
             <Button
               onClick={handleSearch}
               disabled={searchQuery.trim().length < 2}
               className='px-5 h-8 text-sm font-medium bg-blue-500 hover:bg-blue-600 text-white'
             >
-              Tìm kiếm
+              {text.dialogs.addFriendSearch.search}
             </Button>
           </DialogFooter>
         </DialogContent>

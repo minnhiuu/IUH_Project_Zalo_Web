@@ -24,6 +24,7 @@ export const createFriendTexts = (t: TFunction<'friend'>) => ({
     accept: t(FRIEND_KEYS.actions.accept),
     decline: t(FRIEND_KEYS.actions.decline),
     withdraw: t(FRIEND_KEYS.actions.withdraw),
+    recall: t(FRIEND_KEYS.actions.recall),
     addFriend: t(FRIEND_KEYS.actions.addFriend),
     unfriend: t(FRIEND_KEYS.actions.unfriend),
     cancelRequest: t(FRIEND_KEYS.actions.cancelRequest),
@@ -86,10 +87,15 @@ export const createFriendTexts = (t: TFunction<'friend'>) => ({
 
   toast: {
     sendSuccess: t(FRIEND_KEYS.toast.sendSuccess),
+    sendError: t(FRIEND_KEYS.toast.sendError),
     acceptSuccess: t(FRIEND_KEYS.toast.acceptSuccess),
+    acceptError: t(FRIEND_KEYS.toast.acceptError),
     declineSuccess: t(FRIEND_KEYS.toast.declineSuccess),
+    declineError: t(FRIEND_KEYS.toast.declineError),
     cancelSuccess: t(FRIEND_KEYS.toast.cancelSuccess),
-    unfriendSuccess: t(FRIEND_KEYS.toast.unfriendSuccess)
+    cancelError: t(FRIEND_KEYS.toast.cancelError),
+    unfriendSuccess: t(FRIEND_KEYS.toast.unfriendSuccess),
+    unfriendError: t(FRIEND_KEYS.toast.unfriendError)
   },
 
   status: {
@@ -125,6 +131,54 @@ export const createFriendTexts = (t: TFunction<'friend'>) => ({
     sortLabel: t(FRIEND_KEYS.contactList.sortLabel),
     filterLabel: t(FRIEND_KEYS.contactList.filterLabel),
     noFriendsMessage: t(FRIEND_KEYS.contactList.noFriendsMessage)
+  },
+
+  dialogs: {
+    addFriendConfirm: {
+      cancel: t(FRIEND_KEYS.dialogs.addFriendConfirm.cancel)
+    },
+    addFriendAccept: {
+      title: t(FRIEND_KEYS.dialogs.addFriendAccept.title),
+      subtitle: t(FRIEND_KEYS.dialogs.addFriendAccept.subtitle),
+      cancel: t(FRIEND_KEYS.dialogs.addFriendAccept.cancel),
+      confirm: t(FRIEND_KEYS.dialogs.addFriendAccept.confirm)
+    },
+    addFriendSearch: {
+      countryCode: t(FRIEND_KEYS.dialogs.addFriendSearch.countryCode),
+      recentResults: t(FRIEND_KEYS.dialogs.addFriendSearch.recentResults),
+      noUsersFound: t(FRIEND_KEYS.dialogs.addFriendSearch.noUsersFound),
+      emptyState: t(FRIEND_KEYS.dialogs.addFriendSearch.emptyState),
+      friendSuggestion: t(FRIEND_KEYS.dialogs.addFriendSearch.friendSuggestion),
+      cancel: t(FRIEND_KEYS.dialogs.addFriendSearch.cancel),
+      search: t(FRIEND_KEYS.dialogs.addFriendSearch.search)
+    }
+  },
+
+  contacts: {
+    searchPlaceholder: t(FRIEND_KEYS.contacts.searchPlaceholder)
+  },
+
+  contactsFilter: {
+    searchPlaceholder: t(FRIEND_KEYS.contactsFilter.searchPlaceholder),
+    filterOptions: {
+      all: t(FRIEND_KEYS.contactsFilter.filterOptions.all),
+      friends: t(FRIEND_KEYS.contactsFilter.filterOptions.friends),
+      requests: t(FRIEND_KEYS.contactsFilter.filterOptions.requests),
+      blocked: t(FRIEND_KEYS.contactsFilter.filterOptions.blocked)
+    },
+    sortOptions: {
+      nameAZ: t(FRIEND_KEYS.contactsFilter.sortOptions.nameAZ),
+      recent: t(FRIEND_KEYS.contactsFilter.sortOptions.recent),
+      online: t(FRIEND_KEYS.contactsFilter.sortOptions.online)
+    },
+    resultsLabel: t(FRIEND_KEYS.contactsFilter.resultsLabel),
+    filtersLabel: t(FRIEND_KEYS.contactsFilter.filtersLabel),
+    sortLabel: t(FRIEND_KEYS.contactsFilter.sortLabel)
+  },
+
+  buttons: {
+    cancel: t(FRIEND_KEYS.buttons.cancel),
+    confirm: t(FRIEND_KEYS.buttons.confirm)
   },
 
   mutualFriends: (count: number) => t(FRIEND_KEYS.mutualFriends, { count }),

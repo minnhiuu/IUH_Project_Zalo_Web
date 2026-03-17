@@ -12,6 +12,7 @@ import {
   useReceivedFriendRequests,
   useMyFriends,
   AddFriendSearchDialog,
+  useFriendText,
   type ContactTab
 } from '@/features/friend'
 
@@ -19,6 +20,7 @@ type FilterType = 'all' | 'friends' | 'requests' | 'blocked'
 type SortType = 'name' | 'recent' | 'online'
 
 export default function ContactPage() {
+  const { text } = useFriendText()
   const [activeTab, setActiveTab] = useState<ContactTab>('friends')
   const [showAddFriendDialog, setShowAddFriendDialog] = useState(false)
   const [globalSearchQuery, setGlobalSearchQuery] = useState('')
@@ -65,7 +67,7 @@ export default function ContactPage() {
           <div className='relative flex-1 group w-full'>
             <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors' />
             <Input
-              placeholder='Tìm kiếm bạn bè'
+              placeholder={text.contacts.searchPlaceholder}
               value={globalSearchQuery}
               onChange={(e) => setGlobalSearchQuery(e.target.value)}
               className='pl-10 h-9 w-full bg-muted border-none focus-visible:ring-1 focus-visible:ring-primary/20 placeholder:text-muted-foreground/60 text-sm rounded-full'

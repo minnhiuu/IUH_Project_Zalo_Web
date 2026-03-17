@@ -20,7 +20,7 @@ export type RecentSearchResponse = {
   type: SearchType
   timestamp: number
 }
- 
+
 export type RecentHistoryResponse = {
   items: RecentSearchResponse[]
   queries: RecentSearchResponse[]

@@ -4,10 +4,12 @@ import { createFriendTexts } from './friend.texts'
 
 export const useFriendText = () => {
   const { t } = useTranslation('friend')
+  const text = createFriendTexts(t)
 
   return {
     t,
     keys: FRIEND_KEYS,
-    text: createFriendTexts(t)
+    text,
+    toast: text.toast
   }
 }

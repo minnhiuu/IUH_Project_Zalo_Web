@@ -18,6 +18,7 @@
       "accept": "Accept",
       "decline": "Decline",
       "withdraw": "Withdraw",
+      "recall": "Recall",
       "addFriend": "Add Friend",
       "unfriend": "Unfriend",
       "cancelRequest": "Cancel Request",
@@ -71,10 +72,15 @@
     },
     "toast": {
       "sendSuccess": "Friend request sent",
+      "sendError": "Failed to send friend request",
       "acceptSuccess": "Friend request accepted",
+      "acceptError": "Failed to accept friend request",
       "declineSuccess": "Friend request declined",
-      "cancelSuccess": "Friend request withdrawn",
-      "unfriendSuccess": "Unfriended successfully"
+      "declineError": "Failed to decline friend request",
+      "cancelSuccess": "Friend request cancelled",
+      "cancelError": "Failed to cancel friend request",
+      "unfriendSuccess": "Unfriended successfully",
+      "unfriendError": "Failed to unfriend"
     },
     "status": {
       "pending": "Pending",
@@ -99,6 +105,50 @@
       "characters": "characters",
       "blockDiary": "Block this person from viewing my diary",
       "viewInfo": "Info"
+    },
+    "dialogs": {
+      "addFriendConfirm": {
+        "cancel": "Cancel"
+      },
+      "addFriendAccept": {
+        "title": "Friend Options",
+        "subtitle": "Just became friends",
+        "cancel": "Cancel",
+        "confirm": "Confirm"
+      },
+      "addFriendSearch": {
+        "countryCode": "🇻🇳 +84",
+        "recentResults": "Recent results",
+        "noUsersFound": "No users found",
+        "emptyState": "Enter phone number or name to find friends",
+        "friendSuggestion": "Friend suggestion",
+        "cancel": "Cancel",
+        "search": "Search"
+      }
+    },
+    "contacts": {
+      "searchPlaceholder": "Search friends"
+    },
+    "contactsFilter": {
+      "searchPlaceholder": "Search friends...",
+      "filterOptions": {
+        "all": "All",
+        "friends": "Friends",
+        "requests": "Friend Requests",
+        "blocked": "Blocked"
+      },
+      "sortOptions": {
+        "nameAZ": "Name A-Z",
+        "recent": "Recent",
+        "online": "Online"
+      },
+      "resultsLabel": "results",
+      "filtersLabel": "Filters:",
+      "sortLabel": "Sort:"
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "confirm": "Confirm"
     },
     "mutualFriends": "{{count}} mutual friends",
     "viewMore": "View more",

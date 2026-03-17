@@ -2,6 +2,7 @@ import { Search, X } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { useFriendText } from '../i18n/use-friend-text'
 
 type FilterType = 'all' | 'friends' | 'requests' | 'blocked'
 type SortType = 'name' | 'recent' | 'online'
@@ -25,17 +26,19 @@ export function ContactsFilter({
   onSortChange,
   totalCount = 0
 }: ContactsFilterProps) {
+  const { text } = useFriendText()
+
   const filterOptions: Array<{ value: FilterType; label: string; icon?: string }> = [
-    { value: 'all', label: 'Tất cả' },
-    { value: 'friends', label: 'Bạn bè' },
-    { value: 'requests', label: 'Lời mời kết bạn' },
-    { value: 'blocked', label: 'Bị chặn' }
+    { value: 'all', label: text.contactsFilter.filterOptions.all },
+    { value: 'friends', label: text.contactsFilter.filterOptions.friends },
+    { value: 'requests', label: text.contactsFilter.filterOptions.requests },
+    { value: 'blocked', label: text.contactsFilter.filterOptions.blocked }
   ]
 
   const sortOptions: Array<{ value: SortType; label: string }> = [
-    { value: 'name', label: 'Tên A-Z' },
-    { value: 'recent', label: 'Gần đây' },
-    { value: 'online', label: 'Đang hoạt động' }
+    { value: 'name', label: text.contactsFilter.sortOptions.nameAZ },
+    { value: 'recent', label: text.contactsFilter.sortOptions.recent },
+    { value: 'online', label: text.contactsFilter.sortOptions.online }
   ]
 
   const activeFilter = filterOptions.find((f) => f.value === filterType)
@@ -48,7 +51,7 @@ export function ContactsFilter({
         <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors' />
         <Input
           type='text'
-          placeholder='Tìm kiếm bạn bè...'
+          placeholder={text.contactsFilter.searchPlaceholder}
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           className='pl-9 pr-8 h-9 w-full bg-muted border-none rounded-full text-sm focus-visible:ring-1 focus-visible:ring-primary/20'
@@ -96,7 +99,7 @@ export function ContactsFilter({
         {/* Result Count */}
         {totalCount > 0 && (
           <Badge variant='secondary' className='ml-auto text-xs'>
-            {totalCount} kết quả
+            {totalCount} {text.contactsFilter.resultsLabel}
           </Badge>
         )}
       </div>
@@ -104,7 +107,7 @@ export function ContactsFilter({
       {/* Active Filters Display */}
       {(searchQuery || filterType !== 'all' || sortType !== 'name') && (
         <div className='flex items-center gap-2 text-xs text-muted-foreground'>
-          <span>Bộ lọc:</span>
+          <span>{text.contactsFilter.filtersLabel}</span>
           {searchQuery && (
             <Badge
               variant='outline'
@@ -131,7 +134,7 @@ export function ContactsFilter({
               className='gap-1 cursor-pointer hover:bg-destructive/10'
               onClick={() => onSortChange('name')}
             >
-              Sắp xếp: {activeSort?.label}
+              {text.contactsFilter.sortLabel} {activeSort?.label}
               <X className='w-3 h-3' />
             </Badge>
           )}
