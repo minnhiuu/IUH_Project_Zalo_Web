@@ -1,0 +1,165 @@
+{
+  "friend": {
+    "title": "Friend Requests",
+    "sidebar": {
+      "friendList": "Friend List",
+      "groupList": "Groups & Communities",
+      "friendRequests": "Friend Requests",
+      "groupInvites": "Group Invites"
+    },
+    "header": {
+      "friendCount": "Friends ({{count}})"
+    },
+    "tabs": {
+      "received": "Received",
+      "sent": "Sent"
+    },
+    "actions": {
+      "accept": "Accept",
+      "decline": "Decline",
+      "withdraw": "Withdraw",
+      "recall": "Recall",
+      "addFriend": "Add Friend",
+      "unfriend": "Unfriend",
+      "cancelRequest": "Cancel Request",
+      "message": "Message",
+      "call": "Call",
+      "videoCall": "Video Call",
+      "skip": "Skip"
+    },
+    "menu": {
+      "viewProfile": "View Profile"
+    },
+    "search": {
+      "placeholder": "Search friends",
+      "noResult": "No friends found"
+    },
+    "sort": {
+      "nameAsc": "Name (A-Z)",
+      "nameDesc": "Name (Z-A)",
+      "recent": "Recently added"
+    },
+    "filter": {
+      "all": "All",
+      "newFriends": "New friends"
+    },
+    "sections": {
+      "newFriends": "New friends",
+      "receivedRequests": "Received requests ({{count}})",
+      "suggestions": "Friend suggestions ({{count}})"
+    },
+    "source": {
+      "phoneContact": "From contacts",
+      "friendSuggestion": "People you may know",
+      "qrCode": "From QR code",
+      "nearby": "From nearby",
+      "group": "From group {{groupName}}",
+      "mutualGroups": "{{count}} mutual groups",
+      "mutualFriendsSource": "{{count}} mutual friends"
+    },
+    "time": {
+      "justNow": "Just now",
+      "minutesAgo": "{{count}} minutes ago",
+      "hoursAgo": "{{count}} hours ago",
+      "daysAgo": "{{count}} days ago",
+      "weeksAgo": "{{count}} weeks ago"
+    },
+    "empty": {
+      "received": "No friend requests received",
+      "sent": "No friend requests sent",
+      "friends": "No friends yet",
+      "suggestions": "No friend suggestions"
+    },
+    "toast": {
+      "sendSuccess": "Friend request sent",
+      "sendError": "Failed to send friend request",
+      "acceptSuccess": "Friend request accepted",
+      "acceptError": "Failed to accept friend request",
+      "declineSuccess": "Friend request declined",
+      "declineError": "Failed to decline friend request",
+      "cancelSuccess": "Friend request cancelled",
+      "cancelError": "Failed to cancel friend request",
+      "unfriendSuccess": "Unfriended successfully",
+      "unfriendError": "Failed to unfriend"
+    },
+    "status": {
+      "pending": "Pending",
+      "accepted": "Friends",
+      "declined": "Declined",
+      "cancelled": "Cancelled",
+      "notFriend": "Not friends"
+    },
+    "comingSoon": {
+      "title": "Coming soon",
+      "description": "This feature is under development"
+    },
+    "addFriend": {
+      "title": "Add Friend",
+      "phonePlaceholder": "Phone number",
+      "recentResults": "Recent results",
+      "cancel": "Cancel",
+      "search": "Search",
+      "accountInfo": "Account Info",
+      "defaultMessagePrefix": "Hi, I am ",
+      "messagePlaceholder": "Enter message...",
+      "characters": "characters",
+      "blockDiary": "Block this person from viewing my diary",
+      "viewInfo": "Info"
+    },
+    "dialogs": {
+      "addFriendConfirm": {
+        "cancel": "Cancel"
+      },
+      "addFriendAccept": {
+        "title": "Friend Options",
+        "subtitle": "Just became friends",
+        "cancel": "Cancel",
+        "confirm": "Confirm"
+      },
+      "addFriendSearch": {
+        "countryCode": "🇻🇳 +84",
+        "recentResults": "Recent results",
+        "noUsersFound": "No users found",
+        "emptyState": "Enter phone number or name to find friends",
+        "friendSuggestion": "Friend suggestion",
+        "cancel": "Cancel",
+        "search": "Search"
+      }
+    },
+    "contacts": {
+      "searchPlaceholder": "Search friends"
+    },
+    "contactsFilter": {
+      "searchPlaceholder": "Search friends...",
+      "filterOptions": {
+        "all": "All",
+        "friends": "Friends",
+        "requests": "Friend Requests",
+        "blocked": "Blocked"
+      },
+      "sortOptions": {
+        "nameAZ": "Name A-Z",
+        "recent": "Recent",
+        "online": "Online"
+      },
+      "resultsLabel": "results",
+      "filtersLabel": "Filters:",
+      "sortLabel": "Sort:"
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    },
+    "mutualFriends": "{{count}} mutual friends",
+    "viewMore": "View more",
+    "loading": "Loading...",
+    "error": "Something went wrong, please try again",
+    "contactList": {
+      "title": "Friends List",
+      "searchPlaceholder": "Search friends",
+      "sortLabel": "Name (A-Z)",
+      "filterLabel": "All",
+      "noFriendsMessage": "No friends yet. Start adding friends!"
+    }
+  }
+}
