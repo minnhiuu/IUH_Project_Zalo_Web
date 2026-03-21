@@ -6,6 +6,7 @@ import search from '@/features/search-user/locales/vi.json'
 import adminEs from '@/features/admin-elasticsearch/locales/vi.json'
 import admin from '@/locales/vi/admin.json'
 import notification from '@/features/notification/locales/vi.json'
+import friend from '@/features/friend/locales/vi.json'
 
 declare module 'i18next' {
   interface CustomTypeOptions {
@@ -19,6 +20,7 @@ declare module 'i18next' {
       'admin-elasticsearch': typeof adminEs
       admin: typeof admin
       notification: typeof notification
+      friend: typeof friend
     }
   }
 }

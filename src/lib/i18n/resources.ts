@@ -17,6 +17,9 @@ import adminEn from '@/locales/en/admin.json'
 import notificationVi from '@/features/notification/locales/vi.json'
 import notificationEn from '@/features/notification/locales/en.json'
 
+import friendVi from '@/features/friend/locales/vi.json'
+import friendEn from '@/features/friend/locales/en.json'
+
 export const resources = {
   vi: {
     common: commonVi,
@@ -25,7 +28,8 @@ export const resources = {
     search: searchVi,
     'admin-elasticsearch': adminEsVi,
     admin: adminVi,
-    notification: notificationVi
+    notification: notificationVi,
+    friend: friendVi
   },
   en: {
     common: commonEn,
@@ -34,6 +38,7 @@ export const resources = {
     search: searchEn,
     'admin-elasticsearch': adminEsEn,
     admin: adminEn,
-    notification: notificationEn
+    notification: notificationEn,
+    friend: friendEn
   }
 } as const

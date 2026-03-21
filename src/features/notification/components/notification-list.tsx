@@ -4,7 +4,7 @@ import { useMarkAsReadMutation } from '@/features/notification/queries/use-mutat
 import { useMyNotificationsQuery } from '@/features/notification/queries/use-queries'
 import { NotificationItem } from './notification-item'
 import { useInView } from 'react-intersection-observer'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { getMyNotificationsOptions } from '../queries/options'
@@ -44,6 +44,10 @@ export const NotificationList = ({ filter }: NotificationListProps) => {
   const { mutate: markAsRead } = useMarkAsReadMutation()
   const { ref, inView } = useInView({ rootMargin: '400px', threshold: 0 })
   const { group, empty, filter: localeFilter } = useNotificationText()
+
+  const handleMarkAsRead = useCallback((id: string) => {
+    markAsRead(id)
+  }, [markAsRead])
 
   const grouped = useMemo(() => {
     if (!data) return { newest: [], today: [], previous: [] }
@@ -191,7 +195,7 @@ export const NotificationList = ({ filter }: NotificationListProps) => {
                 <NotificationItem
                   key={notification.id}
                   notification={notification}
-                  onMarkAsRead={(id) => markAsRead(id)}
+                  onMarkAsRead={handleMarkAsRead}
                 />
               ))}
             </div>
@@ -206,7 +210,7 @@ export const NotificationList = ({ filter }: NotificationListProps) => {
                 <NotificationItem
                   key={notification.id}
                   notification={notification}
-                  onMarkAsRead={(id) => markAsRead(id)}
+                  onMarkAsRead={handleMarkAsRead}
                 />
               ))}
             </div>
@@ -221,7 +225,7 @@ export const NotificationList = ({ filter }: NotificationListProps) => {
                 <NotificationItem
                   key={notification.id}
                   notification={notification}
-                  onMarkAsRead={(id) => markAsRead(id)}
+                  onMarkAsRead={handleMarkAsRead}
                 />
               ))}
             </div>
