@@ -53,6 +53,8 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
     noImages: t(USER_KEYS.profile.noImages),
     mutualGroups: (count: number) => t(USER_KEYS.profile.mutualGroups, { count }),
     shareContact: t(USER_KEYS.profile.shareContact),
+    block: t(USER_KEYS.profile.block),
+    editBlock: t(USER_KEYS.profile.editBlock),
     report: t(USER_KEYS.profile.report),
     deleteFriend: t(USER_KEYS.profile.deleteFriend)
   },
@@ -246,8 +248,44 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
         logoutSuccess: t(USER_KEYS.settings.accountPrivacy.deviceManagement.logoutSuccess),
         logoutError: t(USER_KEYS.settings.accountPrivacy.deviceManagement.logoutError),
         activeStatus: t(USER_KEYS.settings.accountPrivacy.deviceManagement.activeStatus),
-        activeDevices: t(USER_KEYS.settings.accountPrivacy.deviceManagement.activeDevices),
         inactiveDevices: t(USER_KEYS.settings.accountPrivacy.deviceManagement.inactiveDevices)
+      },
+      blockedUsers: {
+        title: t(USER_KEYS.settings.accountPrivacy.blockedUsers.title),
+        description: t(USER_KEYS.settings.accountPrivacy.blockedUsers.description),
+        showAllButton: t(USER_KEYS.settings.accountPrivacy.blockedUsers.showAllButton),
+        unblockConfirm: (name: string) => t(USER_KEYS.settings.accountPrivacy.blockedUsers.unblockConfirm, { name }),
+        unblockSuccess: (name: string) => t(USER_KEYS.settings.accountPrivacy.blockedUsers.unblockSuccess, { name }),
+        unblockError: t(USER_KEYS.settings.accountPrivacy.blockedUsers.unblockError),
+        unblocking: t(USER_KEYS.settings.accountPrivacy.blockedUsers.unblocking),
+        unblockButton: t(USER_KEYS.settings.accountPrivacy.blockedUsers.unblockButton),
+        blockDate: (date: string) => t(USER_KEYS.settings.accountPrivacy.blockedUsers.blockDate, { date }),
+        empty: t(USER_KEYS.settings.accountPrivacy.blockedUsers.empty),
+        emptyDescription: t(USER_KEYS.settings.accountPrivacy.blockedUsers.emptyDescription),
+        types: {
+          message: t(USER_KEYS.settings.accountPrivacy.blockedUsers.types.message),
+          call: t(USER_KEYS.settings.accountPrivacy.blockedUsers.types.call),
+          story: t(USER_KEYS.settings.accountPrivacy.blockedUsers.types.story)
+        }
+      },
+      blockModal: {
+        title: t(USER_KEYS.settings.accountPrivacy.blockModal.title),
+        editTitle: t(USER_KEYS.settings.accountPrivacy.blockModal.editTitle),
+        description: (name: string) => t(USER_KEYS.settings.accountPrivacy.blockModal.description, { name }),
+        editDescription: (name: string) => t(USER_KEYS.settings.accountPrivacy.blockModal.editDescription, { name }),
+        blockMessage: t(USER_KEYS.settings.accountPrivacy.blockModal.blockMessage),
+        blockCall: t(USER_KEYS.settings.accountPrivacy.blockModal.blockCall),
+        blockStory: t(USER_KEYS.settings.accountPrivacy.blockModal.blockStory),
+        confirmButton: t(USER_KEYS.settings.accountPrivacy.blockModal.confirmButton),
+        updateButton: t(USER_KEYS.settings.accountPrivacy.blockModal.updateButton),
+        cancelButton: t(USER_KEYS.settings.accountPrivacy.blockModal.cancelButton),
+        unblockButton: t(USER_KEYS.settings.accountPrivacy.blockModal.unblockButton),
+        blockSuccess: (name: string) => t(USER_KEYS.settings.accountPrivacy.blockModal.blockSuccess, { name }),
+        blockError: t(USER_KEYS.settings.accountPrivacy.blockModal.blockError),
+        updateSuccess: t(USER_KEYS.settings.accountPrivacy.blockModal.updateSuccess),
+        updateError: t(USER_KEYS.settings.accountPrivacy.blockModal.updateError),
+        unblockSuccess: (name: string) => t(USER_KEYS.settings.accountPrivacy.blockModal.unblockSuccess, { name }),
+        unblockError: t(USER_KEYS.settings.accountPrivacy.blockModal.unblockError)
       }
     }
   }

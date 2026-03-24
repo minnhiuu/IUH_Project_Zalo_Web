@@ -28,7 +28,7 @@ export function ViewUserDialog({ item, open, onOpenChange }: ViewUserDialogProps
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='w-full max-w-xl! max-h-[90vh] overflow-y-auto'>
         <DialogHeader>
-          <DialogTitle className='text-xl'>{t.viewDialog.title}</DialogTitle>
+          <DialogTitle className='text-xl'>{t.viewDialog.title as string}</DialogTitle>
         </DialogHeader>
 
         <div className='space-y-6'>
@@ -39,7 +39,7 @@ export function ViewUserDialog({ item, open, onOpenChange }: ViewUserDialogProps
               <div className='flex items-center gap-2 flex-wrap'>
                 <h3 className='text-2xl font-semibold'>{user.fullName}</h3>
                 <Badge variant={isActive ? 'default' : 'destructive'} className='text-sm'>
-                  {isActive ? t.active : t.banned}
+                  {isActive ? (t.active as string) : (t.banned as string)}
                 </Badge>
               </div>
               <Badge variant='outline' className='mt-1 text-sm'>
@@ -47,7 +47,7 @@ export function ViewUserDialog({ item, open, onOpenChange }: ViewUserDialogProps
               </Badge>
               {user.accountInfo?.isVerified && (
                 <Badge variant='secondary' className='mt-1 block w-fit text-sm'>
-                  {t.viewDialog.verified}
+                  {t.viewDialog.verified as string}
                 </Badge>
               )}
               {user.bio && <p className='text-base text-muted-foreground mt-2'>{user.bio}</p>}
@@ -59,22 +59,22 @@ export function ViewUserDialog({ item, open, onOpenChange }: ViewUserDialogProps
           {/* Contact info */}
           <div>
             <h4 className='text-xs font-semibold mb-3 text-muted-foreground uppercase tracking-wider'>
-              {t.viewDialog.contactInfo}
+              {t.viewDialog.contactInfo as string}
             </h4>
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4'>
-              <InfoItem label={t.viewDialog.email} value={user.accountInfo?.email} />
-              <InfoItem label={t.viewDialog.phone} value={user.accountInfo?.phoneNumber} />
+              <InfoItem label={t.viewDialog.email as string} value={user.accountInfo?.email} />
+              <InfoItem label={t.viewDialog.phone as string} value={user.accountInfo?.phoneNumber} />
               <InfoItem
-                label={t.viewDialog.dob}
+                label={t.viewDialog.dob as string}
                 value={user.dob ? new Date(user.dob).toLocaleDateString('vi-VN') : undefined}
               />
               <InfoItem
-                label={t.viewDialog.gender}
+                label={t.viewDialog.gender as string}
                 value={
                   user.gender === 'MALE'
-                    ? t.viewDialog.male
+                    ? (t.viewDialog.male as string)
                     : user.gender === 'FEMALE'
-                      ? t.viewDialog.female
+                      ? (t.viewDialog.female as string)
                       : undefined
                 }
               />
@@ -86,10 +86,10 @@ export function ViewUserDialog({ item, open, onOpenChange }: ViewUserDialogProps
               <Separator />
               <div>
                 <h4 className='text-xs font-semibold mb-3 text-muted-foreground uppercase tracking-wider'>
-                  {t.viewDialog.banInfo}
+                  {t.viewDialog.banInfo as string}
                 </h4>
                 <div className='p-3 bg-destructive/10 rounded-lg border border-destructive/20'>
-                  <p className='text-sm font-medium text-destructive mb-1'>{t.viewDialog.banReason}</p>
+                  <p className='text-sm font-medium text-destructive mb-1'>{t.viewDialog.banReason as string}</p>
                   <p className='text-base'>{detail?.banReason ?? '—'}</p>
                 </div>
               </div>
@@ -101,13 +101,16 @@ export function ViewUserDialog({ item, open, onOpenChange }: ViewUserDialogProps
           {/* Audit */}
           <div>
             <h4 className='text-xs font-semibold mb-3 text-muted-foreground uppercase tracking-wider'>
-              {t.viewDialog.accountHistory}
+              {t.viewDialog.accountHistory as string}
             </h4>
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4'>
-              <InfoItem label={t.viewDialog.createdAt} value={formatDateTimeLong(audit.createdAt)} />
-              <InfoItem label={t.viewDialog.updatedAt} value={formatDateTimeLong(audit.lastModifiedAt)} />
-              <InfoItem label={t.viewDialog.lastLogin} value={formatDateTimeLong(audit.lastLoginAt)} />
-              <InfoItem label={t.viewDialog.userId} value={user.id} />
+              <InfoItem label={t.viewDialog.createdAt as string} value={formatDateTimeLong(audit.createdAt)} />
+              <InfoItem label={t.viewDialog.updatedAt as string} value={formatDateTimeLong(audit.lastModifiedAt)} />
+              <InfoItem
+                label={t.viewDialog.lastLogin as string}
+                value={formatDateTimeLong(audit.lastLogin || audit.lastLoginAt)}
+              />
+              <InfoItem label={t.viewDialog.userId as string} value={user.id} />
             </div>
           </div>
         </div>

@@ -29,7 +29,7 @@ export function UsersTable({ data, isLoading, onView, onBan, onUnban, onPageChan
   if (!data || data.data.length === 0) {
     return (
       <div className='text-center py-12'>
-        <p className='text-muted-foreground'>{t.table.noData}</p>
+        <p className='text-muted-foreground'>{t.table.noData as string}</p>
       </div>
     )
   }
@@ -41,15 +41,15 @@ export function UsersTable({ data, isLoading, onView, onBan, onUnban, onPageChan
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className='w-10 font-bold'>{t.table.no}</TableHead>
-                <TableHead className='font-bold'>{t.table.userName}</TableHead>
-                <TableHead className='font-bold'>{t.table.email}</TableHead>
-                <TableHead className='font-bold'>{t.table.phone}</TableHead>
-                <TableHead className='font-bold'>{t.table.role}</TableHead>
-                <TableHead className='font-bold'>{t.table.status}</TableHead>
-                <TableHead className='font-bold'>{t.table.createdAt}</TableHead>
-                <TableHead className='font-bold'>{t.table.lastLogin}</TableHead>
-                <TableHead className='text-right font-bold'>{t.table.actions}</TableHead>
+                <TableHead className='w-10 font-bold'>{t.table.no as string}</TableHead>
+                <TableHead className='font-bold'>{t.table.userName as string}</TableHead>
+                <TableHead className='font-bold'>{t.table.email as string}</TableHead>
+                <TableHead className='font-bold'>{t.table.phone as string}</TableHead>
+                <TableHead className='font-bold'>{t.table.role as string}</TableHead>
+                <TableHead className='font-bold'>{t.table.status as string}</TableHead>
+                <TableHead className='font-bold'>{t.table.createdAt as string}</TableHead>
+                <TableHead className='font-bold'>{t.table.lastLogin as string}</TableHead>
+                <TableHead className='text-right font-bold'>{t.table.actions as string}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -79,11 +79,13 @@ export function UsersTable({ data, isLoading, onView, onBan, onUnban, onPageChan
                     </TableCell>
                     <TableCell>
                       <Badge variant={isActive ? 'default' : 'destructive'} className='text-xs'>
-                        {isActive ? t.active : t.banned}
+                        {isActive ? (t.active as string) : (t.banned as string)}
                       </Badge>
                     </TableCell>
                     <TableCell className='text-sm'>{formatDateTimeShort(item.audit.createdAt)}</TableCell>
-                    <TableCell className='text-sm'>{formatDateTimeShort(item.audit.lastLoginAt)}</TableCell>
+                    <TableCell className='text-sm'>
+                      {formatDateTimeShort(item.audit.lastLogin || item.audit.lastLoginAt)}
+                    </TableCell>
                     <TableCell>
                       <div className='flex items-center justify-end gap-1'>
                         {isActive && u.id !== currentUser?.id ? (
@@ -92,7 +94,7 @@ export function UsersTable({ data, isLoading, onView, onBan, onUnban, onPageChan
                             size='sm'
                             onClick={() => onBan(item)}
                             className='text-destructive hover:text-destructive'
-                            title={t.actions.ban}
+                            title={t.actions.ban as string}
                           >
                             <Ban className='w-4 h-4' />
                           </Button>
@@ -102,14 +104,14 @@ export function UsersTable({ data, isLoading, onView, onBan, onUnban, onPageChan
                             size='sm'
                             onClick={() => onUnban(item)}
                             className='text-green-600 hover:text-green-700'
-                            title={t.actions.unban}
+                            title={t.actions.unban as string}
                           >
                             <ShieldCheck className='w-4 h-4' />
                           </Button>
                         ) : (
                           <div className='w-8 h-8' />
                         )}
-                        <Button variant='ghost' size='sm' onClick={() => onView(item)} title={t.actions.view}>
+                        <Button variant='ghost' size='sm' onClick={() => onView(item)} title={t.actions.view as string}>
                           <Eye className='w-4 h-4' />
                         </Button>
                       </div>
@@ -128,7 +130,7 @@ export function UsersTable({ data, isLoading, onView, onBan, onUnban, onPageChan
         <div className='flex items-center gap-2'>
           <Button variant='outline' size='sm' onClick={() => onPageChange(data.page - 1)} disabled={data.page === 0}>
             <ChevronLeft className='w-4 h-4' />
-            {t.pagination.previous}
+            {t.pagination.previous as string}
           </Button>
           <span className='text-sm'>{t.pagination.pageOf(data.page + 1, data.totalPages)}</span>
           <Button
@@ -137,7 +139,7 @@ export function UsersTable({ data, isLoading, onView, onBan, onUnban, onPageChan
             onClick={() => onPageChange(data.page + 1)}
             disabled={data.page >= data.totalPages - 1}
           >
-            {t.pagination.next}
+            {t.pagination.next as string}
             <ChevronRight className='w-4 h-4' />
           </Button>
         </div>
@@ -166,8 +168,8 @@ function TableSkeleton() {
                 t.table.createdAt,
                 t.table.lastLogin,
                 t.table.actions
-              ].map((h) => (
-                <TableHead key={h}>{h}</TableHead>
+              ].map((h, idx) => (
+                <TableHead key={idx}>{h as string}</TableHead>
               ))}
             </TableRow>
           </TableHeader>

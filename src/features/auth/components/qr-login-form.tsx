@@ -28,11 +28,11 @@ export default function QRLoginForm({ onSwitchToPassword }: QRLoginFormProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [isExpired, setIsExpired] = useState(false)
   const [scannedUser, setScannedUser] = useState<{ fullName: string; avatar: string } | null>(null)
-  const [prevQrId, setPrevQrId] = useState<string | null>(null)
   const [isFinishingLogin, setIsFinishingLogin] = useState(false)
 
   const { data: qrData, isLoading: isGenerating, isError: isGenError, refetch: refetchQr } = useGenerateQrQuery()
   const qrId = qrData?.qrId
+  const [prevQrId, setPrevQrId] = useState<string | null>(null)
 
   if (qrId && qrId !== prevQrId) {
     setPrevQrId(qrId)
@@ -76,7 +76,12 @@ export default function QRLoginForm({ onSwitchToPassword }: QRLoginFormProps) {
     const controller = new AbortController()
 
     const poll = async (waitingFor: QrSessionStatus) => {
-      if (!isActive || isExpiredRef.current) return
+      // Small safety delay to prevent tight loops
+      if (waitingFor === QrSessionStatus.Scanned) {
+        await new Promise((r) => setTimeout(r, 800))
+      }
+
+      if (!isActive || isExpiredRef.current || controller.signal.aborted) return
 
       if (expiresAtRef.current) {
         const expiryTime = new Date(expiresAtRef.current).getTime()
@@ -93,7 +98,7 @@ export default function QRLoginForm({ onSwitchToPassword }: QRLoginFormProps) {
         const res = await authApi.waitQrStatus(currentQrId, waitingFor, controller.signal)
         const data = res.data.data
 
-        if (!isActive || isExpiredRef.current) return
+        if (!isActive || isExpiredRef.current || controller.signal.aborted) return
 
         if (data.status === QrSessionStatus.Confirmed && data.accessToken) {
           setIsFinishingLogin(true)
@@ -117,7 +122,9 @@ export default function QRLoginForm({ onSwitchToPassword }: QRLoginFormProps) {
             fullName: data.userFullName || '',
             avatar: data.userAvatar || ''
           })
-          await poll(QrSessionStatus.Confirmed)
+          setTimeout(() => {
+            if (isActive && !isExpiredRef.current) poll(QrSessionStatus.Confirmed)
+          }, 500)
           return
         }
 
@@ -129,7 +136,10 @@ export default function QRLoginForm({ onSwitchToPassword }: QRLoginFormProps) {
           return
         }
 
-        await poll(waitingFor)
+        // Nếu nhận PENDING hoặc trạng thái khác, đợi 1s và poll tiếp
+        setTimeout(() => {
+          if (isActive && !isExpiredRef.current) poll(waitingFor)
+        }, 1000)
       } catch (error: unknown) {
         if (!isActive || isExpiredRef.current || controller.signal.aborted) return
 
@@ -143,7 +153,7 @@ export default function QRLoginForm({ onSwitchToPassword }: QRLoginFormProps) {
 
         setTimeout(() => {
           if (isActive && !isExpiredRef.current && !controller.signal.aborted) poll(waitingFor)
-        }, 1000)
+        }, 2000)
       }
     }
 
@@ -151,6 +161,7 @@ export default function QRLoginForm({ onSwitchToPassword }: QRLoginFormProps) {
 
     return () => {
       isActive = false
+      controller.abort()
     }
   }, [qrId])
 

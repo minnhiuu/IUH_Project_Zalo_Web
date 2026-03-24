@@ -108,3 +108,28 @@ export const MessageStatus = {
 } as const
 
 export type MessageStatus = (typeof MessageStatus)[keyof typeof MessageStatus]
+
+export const Platform = {
+  Android: 'ANDROID',
+  iOS: 'IOS',
+  Web: 'WEB'
+} as const
+
+export const NotificationType = {
+  DOB: 'DOB',
+  FRIEND_REQUEST: 'FRIEND_REQUEST',
+  FRIEND_ACCEPT: 'FRIEND_ACCEPT',
+  MESSAGE_DIRECT: 'MESSAGE_DIRECT',
+  CALL: 'CALL',
+  POST_LIKE: 'POST_LIKE',
+  POST_COMMENT: 'POST_COMMENT',
+  COMMENT_LIKE: 'COMMENT_LIKE',
+  COMMENT_REPLY: 'COMMENT_REPLY',
+  POST_TAG: 'POST_TAG',
+  POST_MENTION: 'POST_MENTION',
+  COMMENT_MENTION: 'COMMENT_MENTION',
+  SYSTEM: 'SYSTEM',
+  DLQ_ALERT: 'DLQ_ALERT'
+} as const
+
+export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]
