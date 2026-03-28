@@ -9,7 +9,10 @@ import { getAccessToken } from '@/lib/axios-client'
 import http from '@/lib/axios-client'
 import { MessageStatus } from '@/constants/enum'
 
-const WS_URL = import.meta.env.VITE_API_URL?.replace('/api', '/ws') || 'http://localhost:8080/ws'
+const WS_URL = import.meta.env.VITE_WS_URL || 'http://localhost:8080/ws'
+
+import { normalizeDateTime } from '../utils/date-utils'
+
 
 export const useChatWebSocket = () => {
   const { user } = useAuth()
@@ -36,7 +39,8 @@ export const useChatWebSocket = () => {
           const rawMsg = JSON.parse(payload.body)
           const msg: MessageResponse = {
             ...rawMsg,
-            createdAt: rawMsg.createdAt || rawMsg.timestamp
+            createdAt: normalizeDateTime(rawMsg.createdAt || rawMsg.timestamp),
+            lastModifiedAt: normalizeDateTime(rawMsg.lastModifiedAt)
           }
 
           const isOwnMessage = msg.senderId === user.id
@@ -233,9 +237,10 @@ export const useChatWebSocket = () => {
         isForwarded
       }
 
-      stompClientRef.current.publish({
-        destination: '/app/chat',
-        body: JSON.stringify(chatMessage)
+      // Send via REST – socket-service handles WebSocket push;
+      // message-service handles persistence and Kafka event publishing.
+      http.post('/messages/send', chatMessage).catch((err) => {
+        console.error('Failed to send message', err)
       })
 
       const now = new Date().toISOString()
