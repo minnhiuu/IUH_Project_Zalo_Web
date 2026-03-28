@@ -8,11 +8,36 @@ import * as React from 'react'
 import { useEffect } from 'react'
 import type { ConversationResponse } from '../schemas/chat.schema'
 
-export function ChatLayout() {
+export function ChatLayout({ defaultPartnerId }: { defaultPartnerId?: string }) {
   const { text } = useChatText()
   const [selectedChat, setSelectedChat] = useState<ConversationResponse | null>(null)
   const { data: conversations } = useConversationsQuery()
   const { mutate: markAsRead } = useMarkAsReadMutation()
+
+  // Auto-select the defaultPartnerId when conversations are loaded
+  useEffect(() => {
+    if (defaultPartnerId && conversations && !selectedChat) {
+      const targetChat = conversations.find((c: ConversationResponse) => c.partnerId === defaultPartnerId)
+      if (targetChat) {
+        setSelectedChat(targetChat)
+      } else {
+        // Mock a cloud conversation if not found but we need to create one (this lets ChatSidebar and backend do the rest)
+        setSelectedChat({
+          chatId: `${defaultPartnerId}_${defaultPartnerId}`,
+          partnerId: defaultPartnerId,
+          partnerName: 'My Documents', // Standardized name for Cloud
+          partnerAvatar: null,
+          partnerStatus: 'ONLINE',
+          lastSeenAt: new Date().toISOString(),
+          lastMessage: '',
+          lastMessageTime: new Date().toISOString(),
+          isLastMessageFromMe: true,
+          unreadCount: 0,
+          members: []
+        } as unknown as ConversationResponse)
+      }
+    }
+  }, [defaultPartnerId, conversations, selectedChat])
 
   const totalUnread = React.useMemo(() => {
     if (!conversations) return 0
