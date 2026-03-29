@@ -1,0 +1,29 @@
+{
+  "chat": {
+    "title": "Messages",
+    "searchPlaceholder": "Search conversations...",
+    "emptyState": "Select a conversation to start chatting",
+    "inputPlaceholder": "Type a message...",
+    "send": "Send",
+    "you": "You",
+    "user": "User",
+    "type": {
+      "image": "[Image]",
+      "file": "[File]"
+    },
+    "status": {
+      "online": "Active now",
+      "justNow": "Just now",
+      "minutesAgo": "{{count}} minutes ago",
+      "hoursAgo": "{{count}} hours ago",
+      "daysAgo": "{{count}} days ago",
+      "onDate": "Accessed on {{date}}",
+      "sending": "Sending...",
+      "sent": "Sent"
+    },
+    "errors": {
+      "loadConversations": "Failed to load conversations.",
+      "loadMessages": "Failed to load messages."
+    }
+  }
+}

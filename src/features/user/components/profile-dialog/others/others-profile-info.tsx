@@ -25,7 +25,7 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
   const { data: blockDetails } = useBlockDetails(user.id)
   const { text: friendText } = useFriendText()
   const { user: currentUser } = useAuthContext()
-  
+
   const { data: friendshipStatus, isLoading: isLoadingStatus } = useFriendshipStatus(user.id)
   const sendRequestMutation = useSendFriendRequest()
   const acceptRequestMutation = useAcceptFriendRequest()
@@ -33,8 +33,8 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
 
   const getFriendButtonState = () => {
     if (isLoadingStatus) {
-      return { 
-        label: '...', 
+      return {
+        label: '...',
         variant: 'secondary' as const,
         disabled: true,
         action: null as any
@@ -42,8 +42,8 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
     }
 
     if (!friendshipStatus || !friendshipStatus.status) {
-      return { 
-        label: userText.profile.addFriend, 
+      return {
+        label: userText.profile.addFriend,
         variant: 'secondary' as const,
         disabled: false,
         action: 'add'
@@ -52,8 +52,8 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
 
     switch (friendshipStatus.status) {
       case FriendStatus.Accepted:
-        return { 
-          label: `✓ ${friendText.status.accepted}`, 
+        return {
+          label: `✓ ${friendText.status.accepted}`,
           variant: 'secondary' as const,
           disabled: true,
           action: null
@@ -62,15 +62,15 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
         // Check if current user sent the request
         const sentByMe = friendshipStatus.requestedBy === currentUser?.id
         if (sentByMe) {
-          return { 
-            label: friendText.actions.withdraw, 
+          return {
+            label: friendText.actions.withdraw,
             variant: 'secondary' as const,
             disabled: false,
             action: 'withdraw'
           }
         } else {
-          return { 
-            label: friendText.actions.accept, 
+          return {
+            label: friendText.actions.accept,
             variant: 'secondary-blue' as const,
             disabled: false,
             action: 'accept'
@@ -78,15 +78,15 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
         }
       case FriendStatus.Cancelled:
       case FriendStatus.Declined:
-        return { 
-          label: userText.profile.addFriend, 
+        return {
+          label: userText.profile.addFriend,
           variant: 'secondary' as const,
           disabled: false,
           action: 'add'
         }
       default:
-        return { 
-          label: userText.profile.addFriend, 
+        return {
+          label: userText.profile.addFriend,
           variant: 'secondary' as const,
           disabled: false,
           action: 'add'

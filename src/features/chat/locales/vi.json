@@ -1,0 +1,29 @@
+{
+  "chat": {
+    "title": "Tin nhắn",
+    "searchPlaceholder": "Tìm kiếm trò chuyện...",
+    "emptyState": "Chọn một đoạn hội thoại để bắt đầu",
+    "inputPlaceholder": "Nhập tin nhắn...",
+    "send": "Gửi",
+    "you": "Bạn",
+    "user": "Người dùng",
+    "type": {
+      "image": "[Hình ảnh]",
+      "file": "[Tệp tin]"
+    },
+    "status": {
+      "online": "Đang hoạt động",
+      "justNow": "Vừa mới truy cập",
+      "minutesAgo": "Truy cập {{count}} phút trước",
+      "hoursAgo": "Truy cập {{count}} giờ trước",
+      "daysAgo": "Truy cập {{count}} ngày trước",
+      "onDate": "Truy cập vào {{date}}",
+      "sending": "Đang gửi",
+      "sent": "Đã nhận"
+    },
+    "errors": {
+      "loadConversations": "Lỗi khi tải danh sách hội thoại.",
+      "loadMessages": "Lỗi khi tải tin nhắn."
+    }
+  }
+}

@@ -84,6 +84,31 @@ export const SearchType = {
 
 export type SearchType = (typeof SearchType)[keyof typeof SearchType]
 
+export const Status = {
+  Online: 'ONLINE',
+  Offline: 'OFFLINE'
+} as const
+
+export type Status = (typeof Status)[keyof typeof Status]
+
+export const MessageType = {
+  Chat: 'CHAT',
+  Join: 'JOIN',
+  Leave: 'LEAVE',
+  Image: 'IMAGE',
+  File: 'FILE'
+} as const
+
+export type MessageType = (typeof MessageType)[keyof typeof MessageType]
+
+export const MessageStatus = {
+  NORMAL: 'NORMAL',
+  REVOKED: 'REVOKED',
+  DELETED_BY_ADMIN: 'DELETED_BY_ADMIN'
+} as const
+
+export type MessageStatus = (typeof MessageStatus)[keyof typeof MessageStatus]
+
 export const Platform = {
   Android: 'ANDROID',
   iOS: 'IOS',
