@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { useConversationsQuery } from '../queries/use-queries'
 import { useMarkAsReadMutation } from '../queries/use-mutations'
+
 import { useChatText } from '../i18n/use-chat-text'
 import type { ConversationResponse } from '../schemas/chat.schema'
 import { formatPreview } from '../utils/chat-preview'
@@ -20,7 +21,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
   const handleSelectChat = (chat: ConversationResponse) => {
     onSelectChat(chat)
     if (chat.unreadCount && chat.unreadCount > 0) {
-      markAsRead(chat.chatId)
+      markAsRead(chat.conversationId)
     }
   }
 
@@ -76,25 +77,26 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
         {isLoading && <div className='p-4 text-center text-muted-foreground'>Đang tải...</div>}
         {isError && <div className='p-4 text-center text-destructive'>{text.errors.loadConversations}</div>}
 
-        {conversations?.map((chat: ConversationResponse) => (
-          <div
-            key={chat.chatId}
-            onClick={() => handleSelectChat(chat)}
-            className={cn(
-              'flex items-center px-4 py-3 cursor-pointer hover:bg-muted/50 active:bg-muted transition-colors relative group',
-              selectedChatId === chat.chatId && 'bg-muted'
-            )}
-          >
-            <div className='relative shrink-0'>
-              <img
-                src={chat.partnerAvatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${chat.partnerId}`}
-                alt={chat.partnerName || 'User'}
-                className='w-12 h-12 rounded-full object-cover border border-black/5'
-              />
-              {chat.partnerStatus === 'ONLINE' && (
-                <div className='absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-background rounded-full' />
+        {conversations?.map((chat: ConversationResponse) => {
+          return (
+            <div
+              key={chat.conversationId}
+              onClick={() => handleSelectChat(chat)}
+              className={cn(
+                'flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-muted/50 transition-colors',
+                selectedChatId === chat.conversationId && 'bg-muted'
               )}
-            </div>
+            >
+              <div className='relative shrink-0'>
+                <img
+                  src={chat.partnerAvatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${chat.partnerId}`}
+                  alt={chat.partnerName || 'User'}
+                  className='w-12 h-12 rounded-full object-cover border border-black/5 bg-white'
+                />
+                {chat.partnerStatus === 'ONLINE' && (
+                  <div className='absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-background rounded-full' />
+                )}
+              </div>
             <div className='ml-3 flex-1 min-w-0 pr-2'>
               <div className='flex items-center justify-between mb-0.5'>
                 <h3 className='text-[15px] font-medium truncate text-foreground/90'>{chat.partnerName}</h3>
@@ -128,7 +130,8 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
               </button>
             </div>
           </div>
-        ))}
+        )
+      })}
       </div>
     </div>
   )

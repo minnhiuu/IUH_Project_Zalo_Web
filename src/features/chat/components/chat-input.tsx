@@ -1,4 +1,4 @@
-import { useState, useRef, type FormEvent, type KeyboardEvent } from 'react'
+import { useState, useRef, useEffect, type FormEvent, type KeyboardEvent } from 'react'
 import { SendHorizonal, Smile, Paperclip, ImageIcon, X, Quote, ThumbsUp } from 'lucide-react'
 import { Textarea } from '@/components/ui/textarea'
 import type { MessageResponse } from '../schemas/chat.schema'
@@ -17,6 +17,16 @@ export function ChatInput({ recipientId, replyTo, onCancelReply }: ChatInputProp
   const { text } = useChatText()
   const [content, setContent] = useState('')
   const formRef = useRef<HTMLFormElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
+
+  // Focus input when opening a new conversation
+  useEffect(() => {
+    // Adding a slight delay to ensure it focuses after potential layout shifts.
+    const timer = setTimeout(() => {
+      inputRef.current?.focus()
+    }, 50)
+    return () => clearTimeout(timer)
+  }, [recipientId])
 
   const handleSend = (e?: FormEvent) => {
     e?.preventDefault()
@@ -27,7 +37,7 @@ export function ChatInput({ recipientId, replyTo, onCancelReply }: ChatInputProp
           messageId: replyTo.id,
           senderId: replyTo.senderId,
           senderName: replyTo.senderName || '',
-          content: replyTo.content,
+          content: replyTo.content || '',
           type: replyTo.type
         }
       : null
@@ -35,6 +45,11 @@ export function ChatInput({ recipientId, replyTo, onCancelReply }: ChatInputProp
     sendMessage(recipientId, content, replyMetadata)
     setContent('')
     onCancelReply?.()
+    
+    // Auto-focus after send
+    setTimeout(() => {
+      inputRef.current?.focus()
+    }, 0)
   }
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -92,6 +107,7 @@ export function ChatInput({ recipientId, replyTo, onCancelReply }: ChatInputProp
       >
         <div className='flex-1 min-w-0'>
           <Textarea
+            ref={inputRef}
             value={content}
             onChange={(e) => setContent(e.target.value)}
             onKeyDown={handleKeyDown}

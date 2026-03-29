@@ -6,8 +6,8 @@ import { chatKeys } from '../queries/keys'
 import type { MessageResponse, ConversationResponse, ChatMessageRequest, ReplyMetadata } from '../schemas/chat.schema'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { getAccessToken } from '@/lib/axios-client'
-import http from '@/lib/axios-client'
 import { MessageStatus } from '@/constants/enum'
+import { useSendMessageMutation, useRevokeMessageMutation, useDeleteMessageForMeMutation } from '../queries/use-mutations'
 
 const WS_URL = import.meta.env.VITE_WS_URL || 'http://localhost:8080/ws'
 
@@ -19,6 +19,9 @@ export const useChatWebSocket = () => {
   const queryClient = useQueryClient()
   const [connected, setConnected] = useState(false)
   const stompClientRef = useRef<Client | null>(null)
+  const { mutate: sendMsgMutate } = useSendMessageMutation()
+  const { mutate: revokeMsgMutate } = useRevokeMessageMutation()
+  const { mutate: deleteMsgMutate } = useDeleteMessageForMeMutation()
 
   const connect = useCallback(() => {
     if (stompClientRef.current?.active) return
@@ -139,7 +142,7 @@ export const useChatWebSocket = () => {
           queryClient.setQueryData(chatKeys.conversations(), (oldData: any) => {
             if (!oldData) return oldData
             return oldData.map((conv: ConversationResponse) => {
-              if (conv.chatId !== receipt.chatId) return conv
+              if (conv.conversationId !== receipt.conversationId) return conv
               const updatedMembers = conv.members?.map((m) =>
                 m.userId === receipt.userId ? { ...m, lastReadMessageId: receipt.lastReadMessageId } : m
               )
@@ -172,10 +175,10 @@ export const useChatWebSocket = () => {
         client.subscribe('/user/queue/conversations', (payload) => {
           try {
             const newConv = JSON.parse(payload.body)
-            if (newConv.chatId) {
+            if (newConv.conversationId) {
               queryClient.setQueryData(chatKeys.conversations(), (oldData: any) => {
                 if (!oldData) return oldData
-                if (oldData.find((u: any) => u.chatId === newConv.chatId)) return oldData
+                if (oldData.find((u: any) => u.conversationId === newConv.conversationId)) return oldData
                 return [newConv, ...oldData].sort(
                   (a, b) => new Date(b.lastMessageTime).getTime() - new Date(a.lastMessageTime).getTime()
                 )
@@ -237,11 +240,8 @@ export const useChatWebSocket = () => {
         isForwarded
       }
 
-      // Send via REST – socket-service handles WebSocket push;
-      // message-service handles persistence and Kafka event publishing.
-      http.post('/messages/send', chatMessage).catch((err) => {
-        console.error('Failed to send message', err)
-      })
+      // Send via mutation
+      sendMsgMutate(chatMessage)
 
       const now = new Date().toISOString()
       const optimisticMsg: MessageResponse = {
@@ -254,7 +254,7 @@ export const useChatWebSocket = () => {
         status: MessageStatus.NORMAL,
         createdAt: now,
         lastModifiedAt: now,
-        chatId: undefined,
+        conversationId: undefined,
         senderName: user?.fullName,
         senderAvatar: undefined,
         replyTo,
@@ -292,13 +292,15 @@ export const useChatWebSocket = () => {
         return oldData
       })
     },
-    [user, queryClient]
+    [user, queryClient, sendMsgMutate]
   )
 
   const revokeMessage = useCallback(
     async (messageId: string, partnerId: string) => {
+      // Direct optimistic update while mutation runs
+      revokeMsgMutate(messageId)
+      
       try {
-        await http.patch(`/messages/${messageId}/revoke`)
         // Optimistic update
         queryClient.setQueryData(chatKeys.messages(partnerId), (oldData: any) => {
           if (!oldData) return oldData
@@ -321,8 +323,9 @@ export const useChatWebSocket = () => {
 
   const deleteMessageForMe = useCallback(
     async (messageId: string, partnerId: string) => {
+      deleteMsgMutate(messageId)
+      
       try {
-        await http.delete(`/messages/me/${messageId}`)
         // Update local state: remove message immediately
         queryClient.setQueryData(chatKeys.messages(partnerId), (oldData: any) => {
           if (!oldData) return oldData

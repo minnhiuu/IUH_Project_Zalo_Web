@@ -22,7 +22,7 @@ export const ReplyMetadataSchema = z.object({
 export type ReplyMetadata = z.infer<typeof ReplyMetadataSchema>
 
 export const ConversationResponseSchema = z.object({
-  chatId: z.string(),
+  conversationId: z.string(),
   partnerId: z.string(),
   partnerName: z.string().nullable().optional(),
   partnerAvatar: z.string().nullable().optional(),
@@ -42,7 +42,7 @@ export type ConversationResponse = z.infer<typeof ConversationResponseSchema>
 
 export const MessageResponseSchema = z.object({
   id: z.string(),
-  chatId: z.string().nullable().optional(),
+  conversationId: z.string().nullable().optional(),
   senderId: z.string(),
   senderName: z.string().nullable().optional(),
   senderAvatar: z.string().nullable().optional(),

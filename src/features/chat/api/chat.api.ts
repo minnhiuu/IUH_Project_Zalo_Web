@@ -1,12 +1,33 @@
 import http from '@/lib/axios-client'
-import type { ApiResponse } from '@/shared/api'
+import type { ApiResponse, PageResponse } from '@/shared/api'
+import type { ConversationResponse, MessageResponse, ChatMessageRequest } from '../schemas/chat.schema'
 
-export const chatApi = {
-  getConversations: (page = 0, size = 20) =>
-    http.get<ApiResponse<any>>('/messages/conversations', { params: { page, size } }),
+export const getConversations = async (page = 0, size = 20): Promise<PageResponse<ConversationResponse>> => {
+  const response = await http.get<ApiResponse<PageResponse<ConversationResponse>>>('/messages/conversations', {
+    params: { page, size }
+  })
+  return response.data.data
+}
 
-  getMessages: (recipientId: string, page = 0, size = 20) =>
-    http.get<ApiResponse<any>>(`/messages/${recipientId}`, { params: { page, size } }),
+export const getMessages = async (recipientId: string, page = 0, size = 20): Promise<PageResponse<MessageResponse>> => {
+  const response = await http.get<ApiResponse<PageResponse<MessageResponse>>>(`/messages/${recipientId}`, {
+    params: { page, size }
+  })
+  return response.data.data
+}
 
-  markAsRead: (chatId: string) => http.put<ApiResponse<any>>(`/messages/conversations/${chatId}/read`)
+export const markAsRead = async (conversationId: string): Promise<void> => {
+  await http.put(`/messages/conversations/${conversationId}/read`)
+}
+
+export const sendMessageApi = async (data: ChatMessageRequest): Promise<void> => {
+  await http.post('/messages/send', data)
+}
+
+export const revokeMessageApi = async (messageId: string): Promise<void> => {
+  await http.patch(`/messages/${messageId}/revoke`)
+}
+
+export const deleteMessageForMeApi = async (messageId: string): Promise<void> => {
+  await http.delete(`/messages/me/${messageId}`)
 }
