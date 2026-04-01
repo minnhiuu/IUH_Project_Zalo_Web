@@ -45,7 +45,7 @@ export function ChatInput({ recipientId, replyTo, onCancelReply }: ChatInputProp
     sendMessage(recipientId, content, replyMetadata)
     setContent('')
     onCancelReply?.()
-    
+
     // Auto-focus after send
     setTimeout(() => {
       inputRef.current?.focus()

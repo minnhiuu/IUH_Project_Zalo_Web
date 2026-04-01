@@ -57,9 +57,7 @@ export function AddFriendAcceptDialog({
             <UserAvatar src={user.avatar} name={user.fullName} className='w-12 h-12 shrink-0' />
             <div className='flex-1 min-w-0'>
               <h3 className='text-sm font-semibold text-foreground'>{user.fullName}</h3>
-              <p className='text-xs text-muted-foreground mt-0.5'>
-                {text.dialogs.addFriendAccept.subtitle}
-              </p>
+              <p className='text-xs text-muted-foreground mt-0.5'>{text.dialogs.addFriendAccept.subtitle}</p>
             </div>
           </div>
 
@@ -72,18 +70,10 @@ export function AddFriendAcceptDialog({
 
         {/* Footer Actions */}
         <div className='flex items-center gap-2 px-4 py-3 border-t border-border bg-muted/30'>
-          <Button
-            variant='outline'
-            onClick={() => onOpenChange(false)}
-            className='flex-1 h-9 text-sm'
-          >
+          <Button variant='outline' onClick={() => onOpenChange(false)} className='flex-1 h-9 text-sm'>
             {text.dialogs.addFriendAccept.cancel}
           </Button>
-          <Button
-            onClick={handleAccept}
-            disabled={acceptRequestMutation.isPending}
-            className='flex-1 h-9 text-sm'
-          >
+          <Button onClick={handleAccept} disabled={acceptRequestMutation.isPending} className='flex-1 h-9 text-sm'>
             {acceptRequestMutation.isPending ? text.loading : text.dialogs.addFriendAccept.confirm}
           </Button>
         </div>

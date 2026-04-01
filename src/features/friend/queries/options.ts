@@ -11,7 +11,7 @@ export const friendOptions = {
       queryFn: async () => {
         const response = await friendApi.getReceivedFriendRequests(page, size)
         const pageResponse = response.data.data
-        return Array.isArray(pageResponse) ? pageResponse : (pageResponse?.data || [])
+        return Array.isArray(pageResponse) ? pageResponse : pageResponse?.data || []
       },
       enabled
     }),
@@ -23,7 +23,7 @@ export const friendOptions = {
       queryFn: async () => {
         const response = await friendApi.getSentFriendRequests(page, size)
         const pageResponse = response.data.data
-        return Array.isArray(pageResponse) ? pageResponse : (pageResponse?.data || [])
+        return Array.isArray(pageResponse) ? pageResponse : pageResponse?.data || []
       },
       enabled
     }),
@@ -35,7 +35,7 @@ export const friendOptions = {
       queryFn: async () => {
         const response = await friendApi.getMyFriends(page, size)
         const pageResponse = response.data.data
-        return Array.isArray(pageResponse) ? pageResponse : (pageResponse?.data || [])
+        return Array.isArray(pageResponse) ? pageResponse : pageResponse?.data || []
       },
       enabled
     }),

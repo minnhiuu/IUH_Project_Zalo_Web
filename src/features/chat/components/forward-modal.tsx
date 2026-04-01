@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Search, X, Forward, Check } from 'lucide-react'
+import { Search, Forward, Check } from 'lucide-react'
 import { useConversationsQuery } from '../queries/use-queries'
 import { useChatContext } from '../context/chat-context'
 import type { MessageResponse } from '../schemas/chat.schema'
@@ -31,7 +31,7 @@ export function ForwardModal({ message, onClose }: ForwardModalProps) {
   const handleForward = () => {
     selectedPartnerIds.forEach((partnerId) => {
       // Forwarding logic: send a new message with isForwarded=true
-      sendMessage(partnerId, message.content, null, true)
+      sendMessage(partnerId, message.content || '', null, true)
     })
     onClose()
   }

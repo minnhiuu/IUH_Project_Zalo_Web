@@ -26,7 +26,7 @@ export default function ContactPage() {
   const [globalSearchQuery, setGlobalSearchQuery] = useState('')
   const [filterType, setFilterType] = useState<FilterType>('all')
   const [sortType, setSortType] = useState<SortType>('name')
-  
+
   const { data: receivedRequests } = useReceivedFriendRequests()
   const { data: myFriends } = useMyFriends()
 
@@ -84,7 +84,7 @@ export default function ContactPage() {
               <UserPlus className='w-5 h-5' />
             </button>
 
-            <button 
+            <button
               className='p-2 hover:bg-muted rounded-md transition-colors text-muted-foreground hover:text-foreground'
               title='Tạo nhóm'
             >
@@ -119,9 +119,7 @@ export default function ContactPage() {
         )}
 
         {/* Main Content Area */}
-        <div className='flex-1 overflow-hidden'>
-          {renderContent()}
-        </div>
+        <div className='flex-1 overflow-hidden'>{renderContent()}</div>
       </div>
 
       {/* Add Friend Dialog */}

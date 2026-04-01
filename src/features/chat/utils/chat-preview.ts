@@ -8,7 +8,10 @@ interface PreviewData {
   status?: MessageStatus | null
 }
 
-export const formatPreview = (data: PreviewData, text: any) => {
+export const formatPreview = (
+  data: PreviewData,
+  text: { you: string; user: string; type: { image: string; file: string } }
+) => {
   if (!data.content && !data.type) return ''
 
   // 1. Determine prefix

@@ -1,6 +1,8 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { getAccessToken } from '@/lib/axios-client'
+import { getMessages } from '../api/chat.api'
+import type { MessageResponse } from '../schemas/chat.schema'
 
 export type AiMessageRole = 'user' | 'ai'
 
@@ -15,19 +17,54 @@ export interface AiMessage {
 
 const AI_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
-export function useAiChat(conversationId: string) {
+/**
+ * Hook xử lý nghiệp vụ AI Chat:
+ * 1. Fetch lịch sử tin nhắn từ message-service (MongoDB) để duy trì khi F5.
+ * 2. Gửi tin nhắn mới đến ai-service và nhận Streaming (SSE).
+ */
+export function useAiChat(conversationId: string, recipientId: string) {
   const [messages, setMessages] = useState<AiMessage[]>([])
+  const [isInitialLoading, setIsInitialLoading] = useState(true)
   const abortRef = useRef<AbortController | null>(null)
+
+  // BƯỚC 1: Lấy lịch sử tin nhắn từ Database (MongoDB) khi mở cửa sổ chat
+  useEffect(() => {
+    if (!recipientId) return
+
+    const fetchHistory = async () => {
+      try {
+        setIsInitialLoading(true)
+        const response = await getMessages(recipientId, 0) // Lấy page mới nhất
+
+        // Map từ MessageResponse (DB) sang AiMessage (UI)
+        const history: AiMessage[] = response.data
+          .map((msg: MessageResponse) => ({
+            id: msg.id,
+            role: (msg.senderId === recipientId ? 'ai' : 'user') as AiMessageRole,
+            content: msg.content || '',
+            timestamp: new Date(msg.createdAt || Date.now()),
+            isStreaming: false,
+            isClarification: msg.content?.includes('Cần thêm thông tin') || false // Phỏng đoán đơn giản
+          }))
+          .reverse() // Vì API trả về tin mới nhất trước (DESC)
+
+        setMessages(history)
+      } catch (err) {
+        console.error('[AiChat] Failed to fetch history:', err)
+      } finally {
+        setIsInitialLoading(false)
+      }
+    }
+
+    fetchHistory()
+  }, [recipientId])
 
   const mutation = useMutation({
     mutationFn: async (userText: string) => {
       if (!userText.trim()) return
 
       const userMsgId = `user-${Date.now()}`
-      setMessages((prev) => [
-        ...prev,
-        { id: userMsgId, role: 'user', content: userText, timestamp: new Date() }
-      ])
+      setMessages((prev) => [...prev, { id: userMsgId, role: 'user', content: userText, timestamp: new Date() }])
 
       const aiMsgId = `ai-${Date.now()}`
       setMessages((prev) => [
@@ -84,9 +121,7 @@ export function useAiChat(conversationId: string) {
                 isClarification = true
                 setMessages((prev) =>
                   prev.map((m) =>
-                    m.id === aiMsgId
-                      ? { ...m, content: event.content, isClarification: true, isStreaming: false }
-                      : m
+                    m.id === aiMsgId ? { ...m, content: event.content, isClarification: true, isStreaming: false } : m
                   )
                 )
               } else if (event.type === 'ANSWER_CHUNK') {
@@ -100,19 +135,17 @@ export function useAiChat(conversationId: string) {
           }
         }
 
-        setMessages((prev) =>
-          prev.map((m) => (m.id === aiMsgId ? { ...m, isStreaming: false, isClarification } : m))
-        )
+        setMessages((prev) => prev.map((m) => (m.id === aiMsgId ? { ...m, isStreaming: false, isClarification } : m)))
       } catch (err: unknown) {
         if (err instanceof Error && err.name === 'AbortError') return
         setMessages((prev) =>
           prev.map((m) =>
             m.id === aiMsgId
               ? {
-                ...m,
-                content: 'Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại.',
-                isStreaming: false
-              }
+                  ...m,
+                  content: 'Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại.',
+                  isStreaming: false
+                }
               : m
           )
         )
@@ -130,5 +163,10 @@ export function useAiChat(conversationId: string) {
 
   const clearHistory = useCallback(() => setMessages([]), [])
 
-  return { messages, isLoading: mutation.isPending, sendMessage, clearHistory }
+  return {
+    messages,
+    isLoading: mutation.isPending || isInitialLoading,
+    sendMessage,
+    clearHistory
+  }
 }

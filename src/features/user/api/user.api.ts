@@ -18,5 +18,5 @@ export const userApi = {
     http.get<ApiResponse<PageResponse<AuditLog>>>('/audit-logs', { params }),
 
   getUserAuditLogs: (userId: string, params?: { page?: number; size?: number }) =>
-    http.get<ApiResponse<PageResponse<AuditLog>>>(`/audit-logs/${userId}`, { params }),
+    http.get<ApiResponse<PageResponse<AuditLog>>>(`/audit-logs/${userId}`, { params })
 }

@@ -97,41 +97,41 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
                   <div className='absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-background rounded-full' />
                 )}
               </div>
-            <div className='ml-3 flex-1 min-w-0 pr-2'>
-              <div className='flex items-center justify-between mb-0.5'>
-                <h3 className='text-[15px] font-medium truncate text-foreground/90'>{chat.partnerName}</h3>
-                <span className='text-[11px] text-muted-foreground whitespace-nowrap'>
-                  {chat.lastMessageTime
-                    ? new Date(chat.lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                    : ''}
-                </span>
+              <div className='ml-3 flex-1 min-w-0 pr-2'>
+                <div className='flex items-center justify-between mb-0.5'>
+                  <h3 className='text-[15px] font-medium truncate text-foreground/90'>{chat.partnerName}</h3>
+                  <span className='text-[11px] text-muted-foreground whitespace-nowrap'>
+                    {chat.lastMessageTime
+                      ? new Date(chat.lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                      : ''}
+                  </span>
+                </div>
+                <div className='flex items-center justify-between'>
+                  <p
+                    className={cn(
+                      'text-[13px] truncate',
+                      chat.unreadCount && chat.unreadCount > 0
+                        ? 'text-foreground font-semibold'
+                        : 'text-muted-foreground font-normal'
+                    )}
+                  >
+                    {getPreviewText(chat)}
+                  </p>
+                  {chat.unreadCount && chat.unreadCount > 0 ? (
+                    <div className='bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full flex items-center justify-center min-w-[20px] h-[20px] ml-2 shrink-0'>
+                      {chat.unreadCount > 5 ? '5+' : chat.unreadCount}
+                    </div>
+                  ) : null}
+                </div>
               </div>
-              <div className='flex items-center justify-between'>
-                <p
-                  className={cn(
-                    'text-[13px] truncate',
-                    chat.unreadCount && chat.unreadCount > 0
-                      ? 'text-foreground font-semibold'
-                      : 'text-muted-foreground font-normal'
-                  )}
-                >
-                  {getPreviewText(chat)}
-                </p>
-                {chat.unreadCount && chat.unreadCount > 0 ? (
-                  <div className='bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full flex items-center justify-center min-w-[20px] h-[20px] ml-2 shrink-0'>
-                    {chat.unreadCount > 5 ? '5+' : chat.unreadCount}
-                  </div>
-                ) : null}
+              <div className='absolute right-4 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center space-x-1'>
+                <button className='p-1 hover:bg-background rounded-md shadow-sm'>
+                  <MoreHorizontal className='w-4 h-4 text-muted-foreground' />
+                </button>
               </div>
             </div>
-            <div className='absolute right-4 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center space-x-1'>
-              <button className='p-1 hover:bg-background rounded-md shadow-sm'>
-                <MoreHorizontal className='w-4 h-4 text-muted-foreground' />
-              </button>
-            </div>
-          </div>
-        )
-      })}
+          )
+        })}
       </div>
     </div>
   )

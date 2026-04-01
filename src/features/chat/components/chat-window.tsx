@@ -52,8 +52,17 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
 
     const currentRef = lastMessageRef.current
     if (currentRef) observer.observe(currentRef)
-    return () => { if (currentRef) observer.unobserve(currentRef) }
-  }, [latestMessageId, latestMessageSenderId, conversation.conversationId, conversation.unreadCount, markAsRead, user?.id])
+    return () => {
+      if (currentRef) observer.unobserve(currentRef)
+    }
+  }, [
+    latestMessageId,
+    latestMessageSenderId,
+    conversation.conversationId,
+    conversation.unreadCount,
+    markAsRead,
+    user?.id
+  ])
 
   const isSameGroup = (msg1: MessageResponse, msg2: MessageResponse) => {
     if (!msg1 || !msg2) return false
@@ -100,8 +109,8 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
                 {isCloudConversation
                   ? 'Lưu và đồng bộ dữ liệu giữa các thiết bị'
                   : conversation.partnerStatus === 'ONLINE'
-                  ? text.status.online
-                  : formatLastSeen(conversation.lastSeenAt, text.status)}
+                    ? text.status.online
+                    : formatLastSeen(conversation.lastSeenAt, text.status)}
               </p>
             </div>
           </div>
