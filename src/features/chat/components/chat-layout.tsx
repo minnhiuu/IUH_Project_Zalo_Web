@@ -10,34 +10,46 @@ import type { ConversationResponse } from '../schemas/chat.schema'
 
 export function ChatLayout({ defaultPartnerId }: { defaultPartnerId?: string }) {
   const { text } = useChatText()
-  const [selectedChat, setSelectedChat] = useState<ConversationResponse | null>(null)
+  const [userSelectedChatId, setUserSelectedChatId] = useState<string | null>(null)
   const { data: conversations } = useConversationsQuery()
   const { mutate: markAsRead } = useMarkAsReadMutation()
 
-  // Auto-select the defaultPartnerId when conversations are loaded
-  useEffect(() => {
-    if (defaultPartnerId && conversations && !selectedChat) {
-      const targetChat = conversations.find((c: ConversationResponse) => c.partnerId === defaultPartnerId)
-      if (targetChat) {
-        setSelectedChat(targetChat)
-      } else {
-        // Mock a cloud conversation if not found but we need to create one (this lets ChatSidebar and backend do the rest)
-        setSelectedChat({
-          conversationId: `${defaultPartnerId}_${defaultPartnerId}`,
-          partnerId: defaultPartnerId,
-          partnerName: 'My Documents', // Standardized name for Cloud
-          partnerAvatar: null,
-          partnerStatus: 'ONLINE',
-          lastSeenAt: new Date().toISOString(),
-          lastMessage: '',
-          lastMessageTime: new Date().toISOString(),
-          isLastMessageFromMe: true,
-          unreadCount: 0,
-          members: []
-        } as unknown as ConversationResponse)
-      }
+  const defaultChatId = React.useMemo(() => {
+    if (!conversations || !defaultPartnerId) return null
+    return (
+      conversations.find((c: ConversationResponse) => c.partnerId === defaultPartnerId)?.conversationId ||
+      `${defaultPartnerId}_${defaultPartnerId}`
+    )
+  }, [conversations, defaultPartnerId])
+
+  const selectedChatId = userSelectedChatId || defaultChatId
+
+  const selectedChat = React.useMemo(() => {
+    if (!selectedChatId) return null
+
+    // 1. Find in real conversations
+    const found = conversations?.find((c: ConversationResponse) => c.conversationId === selectedChatId)
+    if (found) return found
+
+    // 2. Handle mock for "My Documents" (Cloud) if selectedChatId matches
+    if (defaultPartnerId && selectedChatId === `${defaultPartnerId}_${defaultPartnerId}`) {
+      return {
+        conversationId: `${defaultPartnerId}_${defaultPartnerId}`,
+        partnerId: defaultPartnerId,
+        partnerName: 'My Documents',
+        partnerAvatar: null,
+        partnerStatus: 'ONLINE',
+        lastSeenAt: new Date().toISOString(),
+        lastMessage: '',
+        lastMessageTime: new Date().toISOString(),
+        isLastMessageFromMe: true,
+        unreadCount: 0,
+        members: []
+      } as unknown as ConversationResponse
     }
-  }, [defaultPartnerId, conversations, selectedChat])
+
+    return null
+  }, [selectedChatId, conversations, defaultPartnerId])
 
   const totalUnread = React.useMemo(() => {
     if (!conversations) return 0
@@ -55,7 +67,9 @@ export function ChatLayout({ defaultPartnerId }: { defaultPartnerId?: string }) 
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible' && selectedChat) {
-        const activeConversation = conversations?.find((c: ConversationResponse) => c.conversationId === selectedChat.conversationId)
+        const activeConversation = conversations?.find(
+          (c: ConversationResponse) => c.conversationId === selectedChat.conversationId
+        )
         if (activeConversation && activeConversation.unreadCount && activeConversation.unreadCount > 0) {
           markAsRead(selectedChat.conversationId)
         }
@@ -66,7 +80,9 @@ export function ChatLayout({ defaultPartnerId }: { defaultPartnerId?: string }) 
 
     // Auto mark as read immediately after opening a new tab or when selected chat updates with unread > 0
     if (document.visibilityState === 'visible' && selectedChat) {
-      const activeConversation = conversations?.find((c: ConversationResponse) => c.conversationId === selectedChat.conversationId)
+      const activeConversation = conversations?.find(
+        (c: ConversationResponse) => c.conversationId === selectedChat.conversationId
+      )
       if (activeConversation && activeConversation.unreadCount && activeConversation.unreadCount > 0) {
         markAsRead(selectedChat.conversationId)
       }
@@ -79,11 +95,13 @@ export function ChatLayout({ defaultPartnerId }: { defaultPartnerId?: string }) 
 
   return (
     <div className='flex w-full h-full overflow-hidden'>
-      <ChatSidebar selectedChatId={selectedChat?.conversationId} onSelectChat={setSelectedChat} />
+      <ChatSidebar
+        selectedChatId={selectedChatId || undefined}
+        onSelectChat={(chat: ConversationResponse) => setUserSelectedChatId(chat.conversationId)}
+      />
 
       {(() => {
-        const activeConversation =
-          conversations?.find((c: ConversationResponse) => c.conversationId === selectedChat?.conversationId) || selectedChat
+        const activeConversation = selectedChat
         return activeConversation ? (
           <ChatWindow conversation={activeConversation} />
         ) : (

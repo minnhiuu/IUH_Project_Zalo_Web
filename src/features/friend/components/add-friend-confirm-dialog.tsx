@@ -22,20 +22,12 @@ interface AddFriendConfirmDialogProps {
   onSuccess?: () => void
 }
 
-export function AddFriendConfirmDialog({
-  open,
-  onOpenChange,
-  user,
-  onBack,
-  onSuccess
-}: AddFriendConfirmDialogProps) {
+export function AddFriendConfirmDialog({ open, onOpenChange, user, onBack, onSuccess }: AddFriendConfirmDialogProps) {
   const { text } = useFriendText()
   const { user: currentUser } = useAuth()
   const sendRequestMutation = useSendFriendRequest()
 
-  const defaultMessage = currentUser?.fullName
-    ? `${text.addFriend.defaultMessagePrefix}${currentUser.fullName}`
-    : ''
+  const defaultMessage = currentUser?.fullName ? `${text.addFriend.defaultMessagePrefix}${currentUser.fullName}` : ''
 
   const [message, setMessage] = useState(defaultMessage)
   const [blockDiary, setBlockDiary] = useState(false)
@@ -71,12 +63,7 @@ export function AddFriendConfirmDialog({
   }
 
   return (
-    <BaseProfileDialog
-      open={open}
-      onOpenChange={onOpenChange}
-      title={text.addFriend.accountInfo}
-      onBack={onBack}
-    >
+    <BaseProfileDialog open={open} onOpenChange={onOpenChange} title={text.addFriend.accountInfo} onBack={onBack}>
       <div className='flex-1 overflow-y-auto'>
         {/* Cover Image & Avatar */}
         <div className='relative'>
@@ -91,11 +78,7 @@ export function AddFriendConfirmDialog({
             />
           </div>
           <div className='absolute -bottom-9 left-4'>
-            <UserAvatar
-              src={user.avatar}
-              name={user.fullName}
-              className='w-18 h-18 border-4 border-background'
-            />
+            <UserAvatar src={user.avatar} name={user.fullName} className='w-18 h-18 border-4 border-background' />
           </div>
         </div>
 
@@ -135,18 +118,10 @@ export function AddFriendConfirmDialog({
 
       {/* Footer Actions */}
       <div className='flex items-center justify-end gap-2 px-4 py-3 border-t border-border bg-muted/30 shrink-0'>
-        <Button
-          variant='outline'
-          onClick={() => onOpenChange(false)}
-          className='px-4 h-9 text-sm'
-        >
+        <Button variant='outline' onClick={() => onOpenChange(false)} className='px-4 h-9 text-sm'>
           {text.dialogs.addFriendConfirm.cancel}
         </Button>
-        <Button
-          onClick={handleSendRequest}
-          disabled={sendRequestMutation.isPending}
-          className='px-4 h-9 text-sm'
-        >
+        <Button onClick={handleSendRequest} disabled={sendRequestMutation.isPending} className='px-4 h-9 text-sm'>
           {sendRequestMutation.isPending ? text.loading : text.actions.addFriend}
         </Button>
       </div>

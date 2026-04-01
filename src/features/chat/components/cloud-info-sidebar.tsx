@@ -32,13 +32,24 @@ export function CloudInfoSidebar() {
           </div>
 
           <div className='flex items-center space-x-3 text-[10px] text-muted-foreground mb-4 justify-center'>
-            <div className='flex items-center'><div className='w-1.5 h-1.5 rounded-full bg-orange-400 mr-1' /> Ảnh</div>
-            <div className='flex items-center'><div className='w-1.5 h-1.5 rounded-full bg-green-500 mr-1' /> Video</div>
-            <div className='flex items-center'><div className='w-1.5 h-1.5 rounded-full bg-blue-400 mr-1' /> File</div>
-            <div className='flex items-center'><div className='w-1.5 h-1.5 rounded-full bg-zinc-300 mr-1' /> Khác</div>
+            <div className='flex items-center'>
+              <div className='w-1.5 h-1.5 rounded-full bg-orange-400 mr-1' /> Ảnh
+            </div>
+            <div className='flex items-center'>
+              <div className='w-1.5 h-1.5 rounded-full bg-green-500 mr-1' /> Video
+            </div>
+            <div className='flex items-center'>
+              <div className='w-1.5 h-1.5 rounded-full bg-blue-400 mr-1' /> File
+            </div>
+            <div className='flex items-center'>
+              <div className='w-1.5 h-1.5 rounded-full bg-zinc-300 mr-1' /> Khác
+            </div>
           </div>
 
-          <Button variant='secondary' className='w-full bg-secondary/60 hover:bg-secondary border shadow-none font-medium text-sm text-foreground/80 mb-4'>
+          <Button
+            variant='secondary'
+            className='w-full bg-secondary/60 hover:bg-secondary border shadow-none font-medium text-sm text-foreground/80 mb-4'
+          >
             Xem và dọn dẹp My Documents
           </Button>
 

@@ -117,7 +117,10 @@ function WelcomeScreen({ avatarUrl }: { avatarUrl?: string }) {
 
 // ── Main AI Chat Window ────────────────────────────────────────────────────────
 export function AiChatWindow({ conversation }: AiChatWindowProps) {
-  const { messages, isLoading, sendMessage, clearHistory } = useAiChat(conversation.conversationId)
+  const { messages, isLoading, sendMessage, clearHistory } = useAiChat(
+    conversation.conversationId,
+    conversation.partnerId
+  )
   const [content, setContent] = useState('')
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -189,7 +192,9 @@ export function AiChatWindow({ conversation }: AiChatWindowProps) {
             {messages.map((msg) => (
               <AiMessageBubble key={msg.id} msg={msg} avatarUrl={conversation.partnerAvatar || undefined} />
             ))}
-            {isLoading && messages[messages.length - 1]?.role !== 'ai' && <TypingIndicator avatarUrl={conversation.partnerAvatar || undefined} />}
+            {isLoading && messages[messages.length - 1]?.role !== 'ai' && (
+              <TypingIndicator avatarUrl={conversation.partnerAvatar || undefined} />
+            )}
           </>
         )}
       </div>
@@ -200,10 +205,7 @@ export function AiChatWindow({ conversation }: AiChatWindowProps) {
           <Sparkles size={14} />
           <span>Powered by Bondhub AI • CRAG Pipeline</span>
         </div>
-        <form
-          onSubmit={handleSend}
-          className='flex items-center p-2 gap-2 pr-4'
-        >
+        <form onSubmit={handleSend} className='flex items-center p-2 gap-2 pr-4'>
           <div className='flex-1 min-w-0'>
             <Textarea
               ref={inputRef}

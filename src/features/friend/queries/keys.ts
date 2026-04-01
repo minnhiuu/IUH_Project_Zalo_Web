@@ -2,7 +2,8 @@ export const friendKeys = {
   all: () => ['friendships'] as const,
 
   requests: () => [...friendKeys.all(), 'requests'] as const,
-  receivedRequests: (page: number = 0, size: number = 10) => [...friendKeys.requests(), 'received', page, size] as const,
+  receivedRequests: (page: number = 0, size: number = 10) =>
+    [...friendKeys.requests(), 'received', page, size] as const,
   sentRequests: (page: number = 0, size: number = 10) => [...friendKeys.requests(), 'sent', page, size] as const,
 
   friends: () => [...friendKeys.all(), 'friends'] as const,

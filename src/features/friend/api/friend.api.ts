@@ -35,9 +35,7 @@ export const friendApi = {
   checkFriendshipStatus: (userId: string) =>
     http.get<ApiResponse<FriendshipStatusResponse>>(`/friendships/status/${userId}`),
 
-  getMutualFriends: (userId: string) =>
-    http.get<ApiResponse<MutualFriendsResponse>>(`/friendships/mutual/${userId}`),
+  getMutualFriends: (userId: string) => http.get<ApiResponse<MutualFriendsResponse>>(`/friendships/mutual/${userId}`),
 
-  getMutualFriendsCount: (userId: string) =>
-    http.get<ApiResponse<number>>(`/friendships/mutual/${userId}/count`)
+  getMutualFriendsCount: (userId: string) => http.get<ApiResponse<number>>(`/friendships/mutual/${userId}/count`)
 }

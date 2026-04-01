@@ -15,7 +15,9 @@ export const useMarkAsReadMutation = () => {
       if (previousConversations) {
         queryClient.setQueryData(
           chatKeys.conversations(),
-          previousConversations.map((conv: any) => (conv.conversationId === conversationId ? { ...conv, unreadCount: 0 } : conv))
+          previousConversations.map((conv: ConversationResponse) =>
+            conv.conversationId === conversationId ? { ...conv, unreadCount: 0 } : conv
+          )
         )
       }
 
