@@ -1,109 +1,134 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import * as React from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { ChatSidebar } from './chat-sidebar'
 import { ChatWindow } from './chat-window'
 import { useChatText } from '../i18n/use-chat-text'
 import { useConversationsQuery } from '../queries/use-queries'
 import { useMarkAsReadMutation } from '../queries/use-mutations'
-import * as React from 'react'
-import { useEffect } from 'react'
+import { getOrCreateConversation } from '../api/chat.api'
+import { chatKeys } from '../queries/keys'
 import type { ConversationResponse } from '../schemas/chat.schema'
 
 export function ChatLayout({ defaultPartnerId }: { defaultPartnerId?: string }) {
   const { text } = useChatText()
+  const queryClient = useQueryClient()
+
   const [userSelectedChatId, setUserSelectedChatId] = useState<string | null>(null)
+  // Conversation được resolve từ getOrCreateConversation khi defaultPartnerId không có trong cache
+  const [resolvedConversation, setResolvedConversation] = useState<ConversationResponse | null>(null)
+  const [isResolving, setIsResolving] = useState(false)
+
   const { data: conversations } = useConversationsQuery()
   const { mutate: markAsRead } = useMarkAsReadMutation()
 
-  const defaultChatId = React.useMemo(() => {
+  // ── Tìm conversation trong cache theo partnerId (member matching) ──
+  const cachedConvForPartner = React.useMemo(() => {
     if (!conversations || !defaultPartnerId) return null
     return (
-      conversations.find((c: ConversationResponse) => c.partnerId === defaultPartnerId)?.conversationId ||
-      `${defaultPartnerId}_${defaultPartnerId}`
+      conversations.find((c: ConversationResponse) =>
+        c.members?.some((m) => m.userId === defaultPartnerId)
+      ) || null
     )
   }, [conversations, defaultPartnerId])
 
+  // ── Khi có defaultPartnerId nhưng chưa có trong cache → gọi API getOrCreate ──
+  useEffect(() => {
+    if (!defaultPartnerId) return
+    // Nếu đã có trong cache thì không cần gọi API
+    if (cachedConvForPartner) {
+      setResolvedConversation(cachedConvForPartner)
+      return
+    }
+
+    let cancelled = false
+    setIsResolving(true)
+    getOrCreateConversation(defaultPartnerId)
+      .then((conv) => {
+        if (cancelled) return
+        setResolvedConversation(conv)
+        // Inject vào conversations cache nếu chưa có
+        queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
+          if (!oldData) return [conv]
+          const exists = oldData.find((c) => c.id === conv.id)
+          return exists ? oldData : [conv, ...oldData]
+        })
+      })
+      .catch((err) => {
+        console.error('[ChatLayout] Failed to get/create conversation:', err)
+      })
+      .finally(() => {
+        if (!cancelled) setIsResolving(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [defaultPartnerId, cachedConvForPartner, queryClient])
+
+  // ── Tính selectedChatId theo thứ tự ưu tiên ──
+  const defaultChatId = cachedConvForPartner?.id || resolvedConversation?.id || null
   const selectedChatId = userSelectedChatId || defaultChatId
 
   const selectedChat = React.useMemo(() => {
     if (!selectedChatId) return null
-
-    // 1. Find in real conversations
-    const found = conversations?.find((c: ConversationResponse) => c.conversationId === selectedChatId)
-    if (found) return found
-
-    // 2. Handle mock for "My Documents" (Cloud) if selectedChatId matches
-    if (defaultPartnerId && selectedChatId === `${defaultPartnerId}_${defaultPartnerId}`) {
-      return {
-        conversationId: `${defaultPartnerId}_${defaultPartnerId}`,
-        partnerId: defaultPartnerId,
-        partnerName: 'My Documents',
-        partnerAvatar: null,
-        partnerStatus: 'ONLINE',
-        lastSeenAt: new Date().toISOString(),
-        lastMessage: '',
-        lastMessageTime: new Date().toISOString(),
-        isLastMessageFromMe: true,
-        unreadCount: 0,
-        members: []
-      } as unknown as ConversationResponse
-    }
-
+    // Tìm trong cache trước
+    const fromCache = conversations?.find((c: ConversationResponse) => c.id === selectedChatId)
+    if (fromCache) return fromCache
+    // Fallback sang resolvedConversation nếu chưa kịp inject vào cache
+    if (resolvedConversation?.id === selectedChatId) return resolvedConversation
     return null
-  }, [selectedChatId, conversations, defaultPartnerId])
+  }, [selectedChatId, conversations, resolvedConversation])
 
+  // ── Document title theo unread count ──
   const totalUnread = React.useMemo(() => {
     if (!conversations) return 0
     return conversations.reduce((sum: number, c: ConversationResponse) => sum + (c.unreadCount || 0), 0)
   }, [conversations])
 
   useEffect(() => {
-    if (totalUnread > 0) {
-      document.title = `(${totalUnread}) Tin nhắn mới | Zalo Web`
-    } else {
-      document.title = 'Zalo Web - PC'
-    }
+    document.title =
+      totalUnread > 0 ? `(${totalUnread}) Tin nhắn mới | Zalo Web` : 'Zalo Web - PC'
   }, [totalUnread])
 
+  // ── Auto mark-as-read khi mở / tab visible ──
   useEffect(() => {
-    const handleVisibilityChange = () => {
+    const tryMarkRead = () => {
       if (document.visibilityState === 'visible' && selectedChat) {
-        const activeConversation = conversations?.find(
-          (c: ConversationResponse) => c.conversationId === selectedChat.conversationId
-        )
-        if (activeConversation && activeConversation.unreadCount && activeConversation.unreadCount > 0) {
-          markAsRead(selectedChat.conversationId)
+        const activeConv = conversations?.find((c: ConversationResponse) => c.id === selectedChat.id)
+        if (activeConv && activeConv.unreadCount && activeConv.unreadCount > 0) {
+          markAsRead(selectedChat.id)
         }
       }
     }
 
-    document.addEventListener('visibilitychange', handleVisibilityChange)
+    document.addEventListener('visibilitychange', tryMarkRead)
+    tryMarkRead() // run immediately on mount / conversation change
 
-    // Auto mark as read immediately after opening a new tab or when selected chat updates with unread > 0
-    if (document.visibilityState === 'visible' && selectedChat) {
-      const activeConversation = conversations?.find(
-        (c: ConversationResponse) => c.conversationId === selectedChat.conversationId
-      )
-      if (activeConversation && activeConversation.unreadCount && activeConversation.unreadCount > 0) {
-        markAsRead(selectedChat.conversationId)
-      }
-    }
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-    }
+    return () => document.removeEventListener('visibilitychange', tryMarkRead)
   }, [selectedChat, conversations, markAsRead])
 
   return (
     <div className='flex w-full h-full overflow-hidden'>
       <ChatSidebar
         selectedChatId={selectedChatId || undefined}
-        onSelectChat={(chat: ConversationResponse) => setUserSelectedChatId(chat.conversationId)}
+        onSelectChat={(chat: ConversationResponse) => {
+          setUserSelectedChatId(chat.id)
+          setResolvedConversation(null) // clear resolved khi user chủ động chọn
+        }}
       />
 
       {(() => {
-        const activeConversation = selectedChat
-        return activeConversation ? (
-          <ChatWindow conversation={activeConversation} />
+        if (isResolving && !selectedChat) {
+          return (
+            <div className='flex-1 flex items-center justify-center bg-background'>
+              <div className='text-muted-foreground text-sm animate-pulse'>Đang mở cuộc trò chuyện...</div>
+            </div>
+          )
+        }
+
+        return selectedChat ? (
+          <ChatWindow conversation={selectedChat} />
         ) : (
           <div className='flex-1 flex flex-col items-center justify-center bg-background p-8 text-center'>
             <div className='max-w-[500px] space-y-8 animate-in fade-in zoom-in duration-700'>

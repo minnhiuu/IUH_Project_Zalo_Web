@@ -117,10 +117,7 @@ function WelcomeScreen({ avatarUrl }: { avatarUrl?: string }) {
 
 // ── Main AI Chat Window ────────────────────────────────────────────────────────
 export function AiChatWindow({ conversation }: AiChatWindowProps) {
-  const { messages, isLoading, sendMessage, clearHistory } = useAiChat(
-    conversation.conversationId,
-    conversation.partnerId
-  )
+  const { messages, isLoading, sendMessage, clearHistory } = useAiChat(conversation.id)
   const [content, setContent] = useState('')
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -130,7 +127,7 @@ export function AiChatWindow({ conversation }: AiChatWindowProps) {
     if (!isLoading) {
       setTimeout(() => inputRef.current?.focus(), 0)
     }
-  }, [conversation.conversationId, isLoading])
+  }, [conversation.id, isLoading])
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -161,7 +158,7 @@ export function AiChatWindow({ conversation }: AiChatWindowProps) {
         <div className='flex items-center gap-3'>
           <div className='w-10 h-10'>
             <img
-              src={conversation.partnerAvatar || `https://api.dicebear.com/7.x/identicon/svg?seed=ai-assistant-001`}
+              src={conversation.avatar || `https://api.dicebear.com/7.x/identicon/svg?seed=ai-assistant-001`}
               alt='Bondhub AI'
               className='w-full h-full rounded-full object-cover shadow-md border border-black/5'
             />
@@ -186,14 +183,14 @@ export function AiChatWindow({ conversation }: AiChatWindowProps) {
       {/* Messages area */}
       <div ref={scrollRef} className='flex-1 overflow-y-auto px-2 py-4 flex flex-col custom-scrollbar'>
         {messages.length === 0 ? (
-          <WelcomeScreen avatarUrl={conversation.partnerAvatar || undefined} />
+          <WelcomeScreen avatarUrl={conversation.avatar || undefined} />
         ) : (
           <>
             {messages.map((msg) => (
-              <AiMessageBubble key={msg.id} msg={msg} avatarUrl={conversation.partnerAvatar || undefined} />
+              <AiMessageBubble key={msg.id} msg={msg} avatarUrl={conversation.avatar || undefined} />
             ))}
             {isLoading && messages[messages.length - 1]?.role !== 'ai' && (
-              <TypingIndicator avatarUrl={conversation.partnerAvatar || undefined} />
+              <TypingIndicator avatarUrl={conversation.avatar || undefined} />
             )}
           </>
         )}

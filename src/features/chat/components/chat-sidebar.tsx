@@ -21,7 +21,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
   const handleSelectChat = (chat: ConversationResponse) => {
     onSelectChat(chat)
     if (chat.unreadCount && chat.unreadCount > 0) {
-      markAsRead(chat.conversationId)
+      markAsRead(chat.id)
     }
   }
 
@@ -30,7 +30,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
       {
         content: chat.lastMessage,
         isFromMe: chat.isLastMessageFromMe,
-        senderName: chat.partnerName,
+        senderName: chat.name,
         type: chat.lastMessageType,
         status: chat.lastMessageStatus
       },
@@ -80,26 +80,26 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
         {conversations?.map((chat: ConversationResponse) => {
           return (
             <div
-              key={chat.conversationId}
+              key={chat.id}
               onClick={() => handleSelectChat(chat)}
               className={cn(
                 'flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-muted/50 transition-colors',
-                selectedChatId === chat.conversationId && 'bg-muted'
+                selectedChatId === chat.id && 'bg-muted'
               )}
             >
               <div className='relative shrink-0'>
                 <img
-                  src={chat.partnerAvatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${chat.partnerId}`}
-                  alt={chat.partnerName || 'User'}
+                  src={chat.avatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${chat.id}`}
+                  alt={chat.name || 'User'}
                   className='w-12 h-12 rounded-full object-cover border border-black/5 bg-white'
                 />
-                {chat.partnerStatus === 'ONLINE' && (
+                {chat.status === 'ONLINE' && (
                   <div className='absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-background rounded-full' />
                 )}
               </div>
               <div className='ml-3 flex-1 min-w-0 pr-2'>
                 <div className='flex items-center justify-between mb-0.5'>
-                  <h3 className='text-[15px] font-medium truncate text-foreground/90'>{chat.partnerName}</h3>
+                  <h3 className='text-[15px] font-medium truncate text-foreground/90'>{chat.name}</h3>
                   <span className='text-[11px] text-muted-foreground whitespace-nowrap'>
                     {chat.lastMessageTime
                       ? new Date(chat.lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })

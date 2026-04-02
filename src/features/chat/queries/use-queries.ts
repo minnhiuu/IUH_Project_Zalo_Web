@@ -5,9 +5,9 @@ export const useConversationsQuery = () => {
   return useQuery(chatOptions.conversations())
 }
 
-export const useMessagesInfiniteQuery = (recipientId: string) => {
+export const useMessagesInfiniteQuery = (conversationId: string) => {
   return useInfiniteQuery({
-    ...chatOptions.messages(recipientId),
-    enabled: !!recipientId
+    ...chatOptions.messages(conversationId),
+    enabled: !!conversationId
   })
 }

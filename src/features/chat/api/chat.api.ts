@@ -9,10 +9,30 @@ export const getConversations = async (page = 0, size = 20): Promise<PageRespons
   return response.data.data
 }
 
-export const getMessages = async (recipientId: string, page = 0, size = 20): Promise<PageResponse<MessageResponse>> => {
-  const response = await http.get<ApiResponse<PageResponse<MessageResponse>>>(`/messages/${recipientId}`, {
-    params: { page, size }
-  })
+/**
+ * Lấy hoặc tạo phòng chat 1-1 với partner.
+ * Gọi trước khi mở chat để có được conversationId (ObjectId).
+ */
+export const getOrCreateConversation = async (partnerId: string): Promise<ConversationResponse> => {
+  const response = await http.get<ApiResponse<ConversationResponse>>(
+    `/messages/conversations/partner/${partnerId}`
+  )
+  return response.data.data
+}
+
+/**
+ * Lấy tin nhắn theo conversationId (MongoDB ObjectId).
+ * Endpoint mới: /messages/conversations/{conversationId}/messages
+ */
+export const getMessages = async (
+  conversationId: string,
+  page = 0,
+  size = 20
+): Promise<PageResponse<MessageResponse>> => {
+  const response = await http.get<ApiResponse<PageResponse<MessageResponse>>>(
+    `/messages/conversations/${conversationId}/messages`,
+    { params: { page, size } }
+  )
   return response.data.data
 }
 

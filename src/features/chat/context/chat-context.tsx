@@ -4,9 +4,9 @@ import type { ReplyMetadata } from '../schemas/chat.schema'
 
 type ChatContextType = {
   connected: boolean
-  sendMessage: (recipientId: string, content: string, replyTo?: ReplyMetadata | null, isForwarded?: boolean) => void
-  revokeMessage: (messageId: string, partnerId: string) => Promise<void>
-  deleteMessageForMe: (messageId: string, partnerId: string) => Promise<void>
+  sendMessage: (conversationId: string, content: string, replyTo?: ReplyMetadata | null, isForwarded?: boolean) => void
+  revokeMessage: (messageId: string, conversationId: string) => Promise<void>
+  deleteMessageForMe: (messageId: string, conversationId: string) => Promise<void>
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined)

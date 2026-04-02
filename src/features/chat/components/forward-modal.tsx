@@ -16,22 +16,21 @@ export function ForwardModal({ message, onClose }: ForwardModalProps) {
   const { data: conversations } = useConversationsQuery()
   const { sendMessage } = useChatContext()
   const [search, setSearch] = useState('')
-  const [selectedPartnerIds, setSelectedPartnerIds] = useState<string[]>([])
+  const [selectedConvIds, setSelectedConvIds] = useState<string[]>([])
 
   const filteredConversations = conversations?.filter((c) =>
-    c.partnerName?.toLowerCase().includes(search.toLowerCase())
+    c.name?.toLowerCase().includes(search.toLowerCase())
   )
 
-  const handleToggle = (partnerId: string) => {
-    setSelectedPartnerIds((prev) =>
-      prev.includes(partnerId) ? prev.filter((id) => id !== partnerId) : prev.length < 20 ? [...prev, partnerId] : prev
+  const handleToggle = (convId: string) => {
+    setSelectedConvIds((prev) =>
+      prev.includes(convId) ? prev.filter((id) => id !== convId) : prev.length < 20 ? [...prev, convId] : prev
     )
   }
 
   const handleForward = () => {
-    selectedPartnerIds.forEach((partnerId) => {
-      // Forwarding logic: send a new message with isForwarded=true
-      sendMessage(partnerId, message.content || '', null, true)
+    selectedConvIds.forEach((convId) => {
+      sendMessage(convId, message.content || '', null, true)
     })
     onClose()
   }
@@ -61,27 +60,27 @@ export function ForwardModal({ message, onClose }: ForwardModalProps) {
         <div className='max-h-[350px] overflow-y-auto'>
           {filteredConversations?.map((conv) => (
             <div
-              key={conv.partnerId}
-              onClick={() => handleToggle(conv.partnerId)}
+              key={conv.id}
+              onClick={() => handleToggle(conv.id)}
               className='flex items-center px-4 py-3 hover:bg-muted/50 cursor-pointer transition-colors'
             >
               <img
-                src={conv.partnerAvatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${conv.partnerId}`}
+                src={conv.avatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${conv.id}`}
                 alt=''
                 className='w-10 h-10 rounded-full object-cover border'
               />
               <div className='ml-3 flex-1'>
-                <p className='text-[14px] font-medium'>{conv.partnerName}</p>
+                <p className='text-[14px] font-medium'>{conv.name}</p>
               </div>
               <div
                 className={cn(
                   'w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all',
-                  selectedPartnerIds.includes(conv.partnerId)
+                  selectedConvIds.includes(conv.id)
                     ? 'bg-primary border-primary'
                     : 'border-muted-foreground/30'
                 )}
               >
-                {selectedPartnerIds.includes(conv.partnerId) && <Check size={12} className='text-white' />}
+                {selectedConvIds.includes(conv.id) && <Check size={12} className='text-white' />}
               </div>
             </div>
           ))}
@@ -92,12 +91,12 @@ export function ForwardModal({ message, onClose }: ForwardModalProps) {
         </div>
 
         <DialogFooter className='p-4 border-t flex items-center justify-between sm:justify-between bg-muted/10'>
-          <div className='text-[13px] text-muted-foreground italic'>Đã chọn: {selectedPartnerIds.length}/20</div>
+          <div className='text-[13px] text-muted-foreground italic'>Đã chọn: {selectedConvIds.length}/20</div>
           <div className='flex gap-2'>
             <Button variant='ghost' size='sm' onClick={onClose}>
               Hủy
             </Button>
-            <Button size='sm' onClick={handleForward} disabled={selectedPartnerIds.length === 0} className='gap-2'>
+            <Button size='sm' onClick={handleForward} disabled={selectedConvIds.length === 0} className='gap-2'>
               <Forward size={16} />
               Chuyển tiếp
             </Button>
