@@ -200,11 +200,10 @@ export const useChatWebSocket = () => {
             const newConv = JSON.parse(payload.body)
             if (newConv.id) {
               queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
-                if (!oldData) return oldData
-                if (oldData.find((u: ConversationResponse) => u.id === newConv.id))
-                  return oldData
-                return [newConv, ...oldData].sort(
-                  (a, b) => new Date(b.lastMessageTime).getTime() - new Date(a.lastMessageTime).getTime()
+                const currentData = oldData || []
+                if (currentData.some((u: ConversationResponse) => u.id === newConv.id)) return currentData
+                return [newConv, ...currentData].sort(
+                  (a, b) => new Date(b.lastMessageTime || 0).getTime() - new Date(a.lastMessageTime || 0).getTime()
                 )
               })
             } else if (newConv.type === 'REFRESH') {

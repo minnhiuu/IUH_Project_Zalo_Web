@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Search, UserPlus, Users, Filter, MoreHorizontal } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
@@ -5,6 +6,9 @@ import { useConversationsQuery } from '../queries/use-queries'
 import { useMarkAsReadMutation } from '../queries/use-mutations'
 
 import { useChatText } from '../i18n/use-chat-text'
+import { CreateGroupDialog } from './create-group-dialog'
+import { GroupAvatar } from './group-avatar'
+import { UserAvatar } from '@/components/common/user-avatar'
 import type { ConversationResponse } from '../schemas/chat.schema'
 import { formatPreview } from '../utils/chat-preview'
 
@@ -14,6 +18,7 @@ interface ChatSidebarProps {
 }
 
 export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) {
+  const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false)
   const { text } = useChatText()
   const { data: conversations, isLoading, isError } = useConversationsQuery()
   const { mutate: markAsRead } = useMarkAsReadMutation()
@@ -49,22 +54,29 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
               className='pl-10 h-8 bg-muted border-none focus-visible:ring-1 focus-visible:ring-primary/20 placeholder:text-muted-foreground/60 text-sm rounded-[4px]'
             />
           </div>
-          <button className='p-1.5 hover:bg-muted rounded-full transition-colors'>
+          <button
+            className='p-1.5 hover:bg-muted rounded-full transition-colors'
+            title={text.sidebar.addFriend}
+          >
             <UserPlus className='w-5 h-5 text-muted-foreground' />
           </button>
-          <button className='p-1.5 hover:bg-muted rounded-full transition-colors'>
+          <button 
+            className='p-1.5 hover:bg-muted rounded-full transition-colors'
+            onClick={() => setIsCreateGroupModalOpen(true)}
+            title={text.sidebar.createGroup}
+          >
             <Users className='w-5 h-5 text-muted-foreground' />
           </button>
         </div>
 
         <div className='flex items-center justify-between text-[13px] font-medium'>
           <div className='flex items-center space-x-4'>
-            <button className='text-primary border-b-2 border-primary pb-1'>Tất cả</button>
-            <button className='text-muted-foreground hover:text-foreground pb-1'>Chưa đọc</button>
+            <button className='text-primary border-b-2 border-primary pb-1'>{text.sidebar.all}</button>
+            <button className='text-muted-foreground hover:text-foreground pb-1'>{text.sidebar.unread}</button>
           </div>
           <div className='flex items-center space-x-2 text-muted-foreground'>
             <button className='flex items-center hover:text-foreground'>
-              Phân loại <Filter className='w-3 h-3 ml-1 outline-none border-none' />
+              {text.sidebar.category} <Filter className='w-3 h-3 ml-1 outline-none border-none' />
             </button>
             <button className='hover:text-foreground'>
               <MoreHorizontal className='w-4 h-4' />
@@ -88,12 +100,21 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
               )}
             >
               <div className='relative shrink-0'>
-                <img
-                  src={chat.avatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${chat.id}`}
-                  alt={chat.name || 'User'}
-                  className='w-12 h-12 rounded-full object-cover border border-black/5 bg-white'
-                />
-                {chat.status === 'ONLINE' && (
+                {chat.isGroup && !chat.avatar ? (
+                  <GroupAvatar
+                    avatars={chat.members?.map((m) => m.avatar) || []}
+                    names={chat.members?.map((m) => m.fullName) || []}
+                    count={chat.members?.length || 0}
+                    size='lg'
+                  />
+                ) : (
+                  <UserAvatar
+                    src={chat.avatar}
+                    name={chat.name || 'User'}
+                    className='w-12 h-12'
+                  />
+                )}
+                {chat.status === 'ONLINE' && !chat.isGroup && (
                   <div className='absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-background rounded-full' />
                 )}
               </div>
@@ -133,6 +154,8 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
           )
         })}
       </div>
+
+      <CreateGroupDialog isOpen={isCreateGroupModalOpen} onClose={() => setIsCreateGroupModalOpen(false)} />
     </div>
   )
 }

@@ -102,7 +102,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
                 onClick={() => setSearchValue('')}
                 className='absolute right-1 top-1/2 -translate-y-1/2 w-6 h-6 p-0 hover:bg-transparent text-muted-foreground'
               >
-                <X className='size-4 bg-muted-foreground/20 rounded-full p-0.5' />
+                <X className='size-4 bg-(--icon-x-bg) text-muted-foreground dark:text-brand-blue-dark rounded-full p-0.5' />
               </Button>
             )}
           </div>
@@ -198,7 +198,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
                             }}
                             className='w-8 h-8 opacity-0 group-hover:opacity-100 transition-opacity'
                           >
-                            <X className='w-4 h-4 text-muted-foreground' />
+                            <X className='w-4 h-4 bg-(--icon-x-bg) text-muted-foreground dark:text-brand-blue-dark rounded-full p-0.5' />
                           </Button>
                         </div>
                       ))}

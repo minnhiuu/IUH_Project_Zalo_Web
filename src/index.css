@@ -99,6 +99,14 @@
   --layout-header-bg: #ffffff;
   --layout-header-border: #e2e8f0;
   --layout-sidebar-border: rgba(255, 255, 255, 0.05);
+
+  --dialog-selection-btn-disabled-bg: #add1ff;
+  --dialog-selection-btn-disabled-text: #f0f7ff;
+  --dialog-selection-bg: #e5f1ff;
+  --dialog-selection-text: #0045ad;
+  --dialog-selection-badge-bg: #f0f7ff;
+  --dialog-selection-badge-text: #005ae0;
+  --icon-x-bg: rgba(90, 105, 129, 0.2);
 }
 
 .admin-theme {
@@ -309,6 +317,14 @@
   --layout-header-bg: #1e293b;
   --layout-header-border: #334155;
   --layout-sidebar-border: rgba(255, 255, 255, 0.05);
+
+  --dialog-selection-btn-disabled-bg: #00378a;
+  --dialog-selection-btn-disabled-text: #0068ff;
+  --dialog-selection-bg: #00378a;
+  --dialog-selection-text: #8fbfff;
+  --dialog-selection-badge-bg: #001029;
+  --dialog-selection-badge-text: #66a6ff;
+  --icon-x-bg: #8fbfff;
 }
 
 /* Add to :root as well in the previous block */

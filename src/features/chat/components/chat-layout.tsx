@@ -26,9 +26,7 @@ export function ChatLayout({ defaultPartnerId }: { defaultPartnerId?: string }) 
   const cachedConvForPartner = React.useMemo(() => {
     if (!conversations || !defaultPartnerId) return null
     return (
-      conversations.find((c: ConversationResponse) =>
-        c.members?.some((m) => m.userId === defaultPartnerId)
-      ) || null
+      conversations.find((c: ConversationResponse) => c.members?.some((m) => m.userId === defaultPartnerId)) || null
     )
   }, [conversations, defaultPartnerId])
 
@@ -87,8 +85,7 @@ export function ChatLayout({ defaultPartnerId }: { defaultPartnerId?: string }) 
   }, [conversations])
 
   useEffect(() => {
-    document.title =
-      totalUnread > 0 ? `(${totalUnread}) Tin nhắn mới | Zalo Web` : 'Zalo Web - PC'
+    document.title = totalUnread > 0 ? `(${totalUnread}) Tin nhắn mới | Zalo Web` : 'Zalo Web - PC'
   }, [totalUnread])
 
   // ── Auto mark-as-read khi mở / tab visible ──

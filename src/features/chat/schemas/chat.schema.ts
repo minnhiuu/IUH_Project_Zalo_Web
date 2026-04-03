@@ -26,10 +26,10 @@ export type ReplyMetadata = z.infer<typeof ReplyMetadataSchema>
 // Breaking change: conversationId → id, partner* → name/avatar/status/isGroup
 // ────────────────────────────────────────────────────────────────
 export const ConversationResponseSchema = z.object({
-  id: z.string(),                                               // MongoDB ObjectId của room
-  name: z.string().nullable().optional(),                       // partnerName (1-1) | group name
-  avatar: z.string().nullable().optional(),                     // partnerAvatar (1-1) | group avatar
-  status: z.nativeEnum(Status).nullable().optional(),           // partner online status (1-1 only)
+  id: z.string(), // MongoDB ObjectId của room
+  name: z.string().nullable().optional(), // partnerName (1-1) | group name
+  avatar: z.string().nullable().optional(), // partnerAvatar (1-1) | group avatar
+  status: z.nativeEnum(Status).nullable().optional(), // partner online status (1-1 only)
   lastSeenAt: z.string().datetime().nullable().optional(),
   isGroup: z.boolean().default(false),
   lastMessage: z.string().nullable().optional(),
@@ -85,7 +85,7 @@ export type ChatUser = z.infer<typeof ChatUserSchema>
 // ChatMessageRequest — recipientId → conversationId
 // ────────────────────────────────────────────────────────────────
 export const ChatMessageRequestSchema = z.object({
-  conversationId: z.string(),                 // MongoDB ObjectId của room (thay recipientId)
+  conversationId: z.string(), // MongoDB ObjectId của room (thay recipientId)
   content: z.string(),
   clientMessageId: z.string().optional(),
   replyTo: ReplyMetadataSchema.nullable().optional(),
@@ -93,3 +93,12 @@ export const ChatMessageRequestSchema = z.object({
 })
 
 export type ChatMessageRequest = z.infer<typeof ChatMessageRequestSchema>
+
+export const GroupConversationCreateRequestSchema = z.object({
+  name: z.string().min(1),
+  avatar: z.string().nullable().optional(),
+  isGroup: z.literal(true),
+  memberIds: z.array(z.string()).min(1)
+})
+
+export type GroupConversationCreateRequest = z.infer<typeof GroupConversationCreateRequestSchema>

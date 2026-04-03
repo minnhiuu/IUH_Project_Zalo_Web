@@ -19,11 +19,30 @@
       "daysAgo": "{{count}} days ago",
       "onDate": "Accessed on {{date}}",
       "sending": "Sending...",
-      "sent": "Sent"
+      "sent": "Sent",
+      "membersCount": "{{count}} members"
+    },
+    "sidebar": {
+      "all": "All",
+      "unread": "Unread",
+      "category": "Filters",
+      "createGroup": "Create Group",
+      "addFriend": "Add Friend"
     },
     "errors": {
       "loadConversations": "Failed to load conversations.",
       "loadMessages": "Failed to load messages."
+    },
+    "create-group-dialog": {
+      "title": "Create Group",
+      "namePlaceholder": "Enter group name...",
+      "searchPlaceholder": "Search by name, phone number, etc.",
+      "recentChats": "Recent chats",
+      "selected": "Selected",
+      "cancel": "Cancel",
+      "create": "Create group",
+      "noSelected": "No members selected yet",
+      "andOthers": "and {{count}} others"
     }
   }
 }

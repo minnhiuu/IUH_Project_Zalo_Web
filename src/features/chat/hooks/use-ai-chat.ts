@@ -88,7 +88,7 @@ export function useAiChat(conversationId: string) {
           },
           body: JSON.stringify({
             content: userText,
-            conversationId,        // ← đổi từ recipientId sang conversationId
+            conversationId, // ← đổi từ recipientId sang conversationId
             clientMessageId: userMsgId,
             isForwarded: false
           }),

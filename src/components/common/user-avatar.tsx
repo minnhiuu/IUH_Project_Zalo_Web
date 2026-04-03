@@ -18,11 +18,29 @@ export const getInitials = (fullName: string) => {
   return (first + last).toUpperCase()
 }
 
+/**
+ * Generates a vibrant HSL color based on the hash of a string.
+ */
+export const getNameColor = (name: string) => {
+  let hash = 0
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  // Hue: 0-360, Saturation: 65-80%, Lightness: 45-55% for vivid but readable colors
+  const hue = Math.abs(hash) % 360
+  return `hsl(${hue}, 70%, 50%)`
+}
+
 export const UserAvatar = ({ name, src, className, fallbackClassName }: UserAvatarProps) => {
+  const bgColor = getNameColor(name)
+  
   return (
     <Avatar className={cn('h-8 w-8', className)}>
-      {src && <AvatarImage src={src} alt={name} />}
-      <AvatarFallback className={cn('bg-primary/10 text-primary font-bold', fallbackClassName)}>
+      {src && <AvatarImage src={src} alt={name} className="object-cover" />}
+      <AvatarFallback 
+        className={cn('text-white font-bold', fallbackClassName)}
+        style={{ backgroundColor: bgColor }}
+      >
         {getInitials(name)}
       </AvatarFallback>
     </Avatar>

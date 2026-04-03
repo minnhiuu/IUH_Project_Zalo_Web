@@ -1,4 +1,4 @@
-import { queryOptions } from '@tanstack/react-query'
+import { queryOptions, infiniteQueryOptions } from '@tanstack/react-query'
 import { friendKeys } from './keys'
 import { friendApi } from '../api/friend.api'
 import { QUERY_POLICIES } from '@/constants/query-policies'
@@ -34,9 +34,22 @@ export const friendOptions = {
       queryKey: friendKeys.myFriends(page, size),
       queryFn: async () => {
         const response = await friendApi.getMyFriends(page, size)
-        const pageResponse = response.data.data
-        return Array.isArray(pageResponse) ? pageResponse : pageResponse?.data || []
+        return response.data.data
       },
+      enabled
+    }),
+
+  myFriendsInfinite: (size: number = 20, enabled: boolean = true) =>
+    infiniteQueryOptions({
+      ...QUERY_POLICIES.LIST,
+      queryKey: friendKeys.myFriendsInfinite(size),
+      queryFn: async ({ pageParam = 0 }) => {
+        const response = await friendApi.getMyFriends(pageParam as number, size)
+        return response.data.data
+      },
+      getNextPageParam: (lastPage) => 
+        (lastPage.page + 1 < lastPage.totalPages ? lastPage.page + 1 : undefined),
+      initialPageParam: 0,
       enabled
     }),
 

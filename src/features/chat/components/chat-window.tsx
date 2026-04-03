@@ -1,4 +1,4 @@
-import { Phone, Video, Search, PanelsTopLeft } from 'lucide-react'
+import { Phone, Video, Search, PanelsTopLeft, Users } from 'lucide-react'
 import { useMessagesInfiniteQuery } from '../queries/use-queries'
 import { useAuth } from '@/features/auth'
 import { MessageBubble } from './message-bubble'
@@ -12,13 +12,13 @@ import { ForwardModal } from './forward-modal'
 import { formatLastSeen } from '@/utils/date'
 import { CloudInfoSidebar } from './cloud-info-sidebar'
 import { AiChatWindow } from './ai-chat-window'
+import { UserAvatar } from '@/components/common/user-avatar'
+import { GroupAvatar } from './group-avatar'
 
 export function ChatWindow({ conversation }: { conversation: ConversationResponse }) {
   const { user } = useAuth()
   const { text } = useChatText()
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useMessagesInfiniteQuery(
-    conversation.id
-  )
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useMessagesInfiniteQuery(conversation.id)
 
   const { scrollRef, handleScroll } = useChatScroll({ fetchNextPage, hasNextPage, isFetchingNextPage })
   const { mutate: markAsRead } = useMarkAsReadMutation()
@@ -56,14 +56,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
     return () => {
       if (currentRef) observer.unobserve(currentRef)
     }
-  }, [
-    latestMessageId,
-    latestMessageSenderId,
-    conversation.id,
-    conversation.unreadCount,
-    markAsRead,
-    user?.id
-  ])
+  }, [latestMessageId, latestMessageSenderId, conversation.id, conversation.unreadCount, markAsRead, user?.id])
 
   const isSameGroup = (msg1: MessageResponse, msg2: MessageResponse) => {
     if (!msg1 || !msg2) return false
@@ -90,15 +83,17 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
         <div className='h-[68px] border-b border-border bg-background flex items-center justify-between px-4 shrink-0 shadow-sm z-10'>
           <div className='flex items-center space-x-3'>
             <div className='relative shrink-0 hidden sm:block'>
-              <img
-                src={
-                  conversation.avatar ||
-                  `https://api.dicebear.com/7.x/identicon/svg?seed=${conversation.id}`
-                }
-                alt={conversation.name || 'User'}
-                className='w-10 h-10 rounded-full object-cover border border-black/5'
-              />
-              {conversation.status === 'ONLINE' && (
+              {conversation.isGroup && !conversation.avatar ? (
+                <GroupAvatar
+                  avatars={conversation.members?.map((m) => m.avatar) || []}
+                  names={conversation.members?.map((m) => m.fullName) || []}
+                  count={conversation.members?.length || 0}
+                  size='lg'
+                />
+              ) : (
+                <UserAvatar src={conversation.avatar} name={conversation.name || 'User'} className='w-10 h-10' />
+              )}
+              {conversation.status === 'ONLINE' && !conversation.isGroup && (
                 <div className='absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-background rounded-full' />
               )}
             </div>
@@ -106,12 +101,19 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
               <h2 className='text-[16px] font-semibold text-foreground/90 leading-tight'>
                 {isCloudConversation ? 'My Documents' : conversation.name}
               </h2>
-              <p className='text-[12px] text-muted-foreground mt-0.5 leading-tight'>
-                {isCloudConversation
-                  ? 'Lưu và đồng bộ dữ liệu giữa các thiết bị'
-                  : conversation.status === 'ONLINE'
-                    ? text.status.online
-                    : formatLastSeen(conversation.lastSeenAt, text.status)}
+              <p className='text-[12px] text-muted-foreground mt-0.5 leading-tight flex items-center gap-1'>
+                {isCloudConversation ? (
+                  'Lưu và đồng bộ dữ liệu giữa các thiết bị'
+                ) : conversation.isGroup ? (
+                  <span className='flex items-center gap-1 cursor-pointer hover:text-foreground transition-colors'>
+                    <Users className='w-4 h-4' />
+                    {text.status.membersCount(conversation.members?.length || 0)}
+                  </span>
+                ) : conversation.status === 'ONLINE' ? (
+                  text.status.online
+                ) : (
+                  formatLastSeen(conversation.lastSeenAt, text.status)
+                )}
               </p>
             </div>
           </div>
@@ -121,7 +123,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
               <Phone className='w-[18px] h-[18px]' />
             </button>
             <button className='p-2 hover:bg-muted rounded-full transition-colors hidden sm:block'>
-              <Video className='w-5 h-5' />
+              <Video className='w-4 h-4' />
             </button>
             <div className='w-[1px] h-5 bg-border mx-1 hidden sm:block' />
             <button className='p-2 hover:bg-muted rounded-full transition-colors'>

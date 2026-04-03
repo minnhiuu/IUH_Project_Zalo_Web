@@ -15,7 +15,8 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     daysAgo: (count: number) => t(CHAT_KEYS.status.daysAgo, { count }),
     onDate: (date: string) => t(CHAT_KEYS.status.onDate, { date }),
     sending: t(CHAT_KEYS.status.sending),
-    sent: t(CHAT_KEYS.status.sent)
+    sent: t(CHAT_KEYS.status.sent),
+    membersCount: (count: number) => t(CHAT_KEYS.status.membersCount, { count })
   },
   errors: {
     loadConversations: t(CHAT_KEYS.errors.loadConversations),
@@ -26,5 +27,23 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
   type: {
     image: t(CHAT_KEYS.type.image),
     file: t(CHAT_KEYS.type.file)
+  },
+  sidebar: {
+    all: t(CHAT_KEYS.sidebar.all),
+    unread: t(CHAT_KEYS.sidebar.unread),
+    category: t(CHAT_KEYS.sidebar.category),
+    createGroup: t(CHAT_KEYS.sidebar.createGroup),
+    addFriend: t(CHAT_KEYS.sidebar.addFriend)
+  },
+  'create-group-dialog': {
+    title: t(CHAT_KEYS['create-group-dialog'].title),
+    namePlaceholder: t(CHAT_KEYS['create-group-dialog'].namePlaceholder),
+    searchPlaceholder: t(CHAT_KEYS['create-group-dialog'].searchPlaceholder),
+    recentChats: t(CHAT_KEYS['create-group-dialog'].recentChats),
+    selected: t(CHAT_KEYS['create-group-dialog'].selected),
+    cancel: t(CHAT_KEYS['create-group-dialog'].cancel),
+    create: t(CHAT_KEYS['create-group-dialog'].create),
+    noSelected: t(CHAT_KEYS['create-group-dialog'].noSelected),
+    andOthers: (count: number) => t(CHAT_KEYS['create-group-dialog'].andOthers, { count })
   }
 })

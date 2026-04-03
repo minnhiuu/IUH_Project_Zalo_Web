@@ -19,11 +19,30 @@
       "daysAgo": "Truy cập {{count}} ngày trước",
       "onDate": "Truy cập vào {{date}}",
       "sending": "Đang gửi",
-      "sent": "Đã nhận"
+      "sent": "Đã nhận",
+      "membersCount": "{{count}} thành viên"
+    },
+    "sidebar": {
+      "all": "Tất cả",
+      "unread": "Chưa đọc",
+      "category": "Phân loại",
+      "createGroup": "Tạo nhóm",
+      "addFriend": "Thêm bạn"
     },
     "errors": {
       "loadConversations": "Lỗi khi tải danh sách hội thoại.",
       "loadMessages": "Lỗi khi tải tin nhắn."
+    },
+    "create-group-dialog": {
+      "title": "Tạo nhóm",
+      "namePlaceholder": "Nhập tên nhóm...",
+      "searchPlaceholder": "Nhập tên, số điện thoại, hoặc danh sách số điện thoại",
+      "recentChats": "Trò chuyện gần đây",
+      "selected": "Đã chọn",
+      "cancel": "Hủy",
+      "create": "Tạo nhóm",
+      "noSelected": "Chưa có thành viên nào được chọn",
+      "andOthers": "và {{count}} người khác"
     }
   }
 }

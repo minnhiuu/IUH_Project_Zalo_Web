@@ -1,5 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { markAsRead, sendMessageApi, revokeMessageApi, deleteMessageForMeApi } from '../api/chat.api'
+import {
+  markAsRead,
+  sendMessageApi,
+  revokeMessageApi,
+  deleteMessageForMeApi,
+  createGroupConversation
+} from '../api/chat.api'
 import { chatKeys } from './keys'
 import type { ConversationResponse, ChatMessageRequest } from '../schemas/chat.schema'
 
@@ -58,6 +64,24 @@ export const useDeleteMessageForMeMutation = () => {
     mutationFn: (messageId: string) => deleteMessageForMeApi(messageId),
     onError: (error) => {
       console.error('Failed to delete message for me', error)
+    }
+  })
+}
+
+export const useCreateGroupMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: createGroupConversation,
+    onSuccess: (newConversation) => {
+      queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
+        if (!oldData) return [newConversation]
+        return [newConversation, ...oldData]
+      })
+      queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+    },
+    onError: (error) => {
+      console.error('Failed to create group conversation', error)
     }
   })
 }
