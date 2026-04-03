@@ -17,7 +17,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   const { user } = useAuth()
   const { text } = useChatText()
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useMessagesInfiniteQuery(
-    conversation.partnerId
+    conversation.id
   )
 
   const { scrollRef, handleScroll } = useChatScroll({ fetchNextPage, hasNextPage, isFetchingNextPage })
@@ -32,11 +32,12 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   const latestMessageId = allMessages[0]?.id
   const latestMessageSenderId = allMessages[0]?.senderId
 
-  const isCloudConversation = conversation.partnerId === user?.id
-  const isAiConversation = conversation.partnerId === 'ai-assistant-001'
+  // Cloud = phòng chỉ có 1 member (chính mình), AI = có member ai-assistant-001
+  const isCloudConversation = conversation.members?.length === 1 && conversation.members[0]?.userId === user?.id
+  const isAiConversation = conversation.members?.some((m) => m.userId === 'ai-assistant-001') ?? false
 
   useEffect(() => {
-    if (!latestMessageId || !conversation.conversationId || conversation.unreadCount === 0) return
+    if (!latestMessageId || !conversation.id || conversation.unreadCount === 0) return
     if (latestMessageSenderId === user?.id) return
 
     const observer = new IntersectionObserver(
@@ -44,7 +45,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
         if (entries[0].isIntersecting && document.visibilityState === 'visible') {
           if (lastReadSentId.current === latestMessageId) return
           lastReadSentId.current = latestMessageId
-          markAsRead(conversation.conversationId)
+          markAsRead(conversation.id)
         }
       },
       { threshold: 0.5 }
@@ -58,7 +59,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   }, [
     latestMessageId,
     latestMessageSenderId,
-    conversation.conversationId,
+    conversation.id,
     conversation.unreadCount,
     markAsRead,
     user?.id
@@ -91,24 +92,24 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             <div className='relative shrink-0 hidden sm:block'>
               <img
                 src={
-                  conversation.partnerAvatar ||
-                  `https://api.dicebear.com/7.x/identicon/svg?seed=${conversation.partnerId}`
+                  conversation.avatar ||
+                  `https://api.dicebear.com/7.x/identicon/svg?seed=${conversation.id}`
                 }
-                alt={conversation.partnerName || 'User'}
+                alt={conversation.name || 'User'}
                 className='w-10 h-10 rounded-full object-cover border border-black/5'
               />
-              {conversation.partnerStatus === 'ONLINE' && (
+              {conversation.status === 'ONLINE' && (
                 <div className='absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-background rounded-full' />
               )}
             </div>
             <div>
               <h2 className='text-[16px] font-semibold text-foreground/90 leading-tight'>
-                {isCloudConversation ? 'My Documents' : conversation.partnerName}
+                {isCloudConversation ? 'My Documents' : conversation.name}
               </h2>
               <p className='text-[12px] text-muted-foreground mt-0.5 leading-tight'>
                 {isCloudConversation
                   ? 'Lưu và đồng bộ dữ liệu giữa các thiết bị'
-                  : conversation.partnerStatus === 'ONLINE'
+                  : conversation.status === 'ONLINE'
                     ? text.status.online
                     : formatLastSeen(conversation.lastSeenAt, text.status)}
               </p>
@@ -168,7 +169,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
         </div>
 
         {/* Input */}
-        <ChatInput recipientId={conversation.partnerId} replyTo={replyTo} onCancelReply={() => setReplyTo(null)} />
+        <ChatInput conversationId={conversation.id} replyTo={replyTo} onCancelReply={() => setReplyTo(null)} />
 
         {forwardingMessage && <ForwardModal message={forwardingMessage} onClose={() => setForwardingMessage(null)} />}
       </div>

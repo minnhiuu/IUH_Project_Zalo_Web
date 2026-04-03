@@ -16,14 +16,14 @@ export const useMarkAsReadMutation = () => {
         queryClient.setQueryData(
           chatKeys.conversations(),
           previousConversations.map((conv: ConversationResponse) =>
-            conv.conversationId === conversationId ? { ...conv, unreadCount: 0 } : conv
+            conv.id === conversationId ? { ...conv, unreadCount: 0 } : conv
           )
         )
       }
 
       return { previousConversations }
     },
-    onError: (error, _newTodo, context) => {
+    onError: (error, _conversationId, context) => {
       console.error('Error marking conversation as read:', error)
       if (context?.previousConversations) {
         queryClient.setQueryData(chatKeys.conversations(), context.previousConversations)

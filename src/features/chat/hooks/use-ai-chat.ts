@@ -16,37 +16,40 @@ export interface AiMessage {
 }
 
 const AI_BASE_URL = import.meta.env.VITE_API_BASE_URL
+const AI_ASSISTANT_ID = 'ai-assistant-001'
 
 /**
  * Hook xử lý nghiệp vụ AI Chat:
  * 1. Fetch lịch sử tin nhắn từ message-service (MongoDB) để duy trì khi F5.
  * 2. Gửi tin nhắn mới đến ai-service và nhận Streaming (SSE).
+ *
+ * @param conversationId - MongoDB ObjectId của room AI chat
  */
-export function useAiChat(conversationId: string, recipientId: string) {
+export function useAiChat(conversationId: string) {
   const [messages, setMessages] = useState<AiMessage[]>([])
   const [isInitialLoading, setIsInitialLoading] = useState(true)
   const abortRef = useRef<AbortController | null>(null)
 
   // BƯỚC 1: Lấy lịch sử tin nhắn từ Database (MongoDB) khi mở cửa sổ chat
   useEffect(() => {
-    if (!recipientId) return
+    if (!conversationId) return
 
     const fetchHistory = async () => {
       try {
         setIsInitialLoading(true)
-        const response = await getMessages(recipientId, 0) // Lấy page mới nhất
+        const response = await getMessages(conversationId, 0)
 
         // Map từ MessageResponse (DB) sang AiMessage (UI)
         const history: AiMessage[] = response.data
           .map((msg: MessageResponse) => ({
             id: msg.id,
-            role: (msg.senderId === recipientId ? 'ai' : 'user') as AiMessageRole,
+            role: (msg.senderId === AI_ASSISTANT_ID ? 'ai' : 'user') as AiMessageRole,
             content: msg.content || '',
             timestamp: new Date(msg.createdAt || Date.now()),
             isStreaming: false,
-            isClarification: msg.content?.includes('Cần thêm thông tin') || false // Phỏng đoán đơn giản
+            isClarification: msg.content?.includes('Cần thêm thông tin') || false
           }))
-          .reverse() // Vì API trả về tin mới nhất trước (DESC)
+          .reverse() // API trả về tin mới nhất trước (DESC)
 
         setMessages(history)
       } catch (err) {
@@ -57,7 +60,7 @@ export function useAiChat(conversationId: string, recipientId: string) {
     }
 
     fetchHistory()
-  }, [recipientId])
+  }, [conversationId])
 
   const mutation = useMutation({
     mutationFn: async (userText: string) => {
@@ -76,17 +79,19 @@ export function useAiChat(conversationId: string, recipientId: string) {
 
       try {
         const token = getAccessToken()
-        const params = new URLSearchParams({
-          message: userText,
-          conversationId
-        })
-
-        const response = await fetch(`${AI_BASE_URL}/ai/chat/agentic?${params.toString()}`, {
+        const response = await fetch(`${AI_BASE_URL}/ai/chat/agentic`, {
           method: 'POST',
           headers: {
-            Authorization: token ? `Bearer ${token}` : '',
-            Accept: 'text/event-stream'
+            'Content-Type': 'application/json',
+            Accept: 'text/event-stream',
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
           },
+          body: JSON.stringify({
+            content: userText,
+            conversationId,        // ← đổi từ recipientId sang conversationId
+            clientMessageId: userMsgId,
+            isForwarded: false
+          }),
           signal: abortRef.current?.signal
         })
 

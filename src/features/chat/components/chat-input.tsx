@@ -7,12 +7,12 @@ import { useChatText } from '../i18n/use-chat-text'
 import { cn } from '@/lib/utils'
 
 interface ChatInputProps {
-  recipientId: string
+  conversationId: string
   replyTo?: MessageResponse | null
   onCancelReply?: () => void
 }
 
-export function ChatInput({ recipientId, replyTo, onCancelReply }: ChatInputProps) {
+export function ChatInput({ conversationId, replyTo, onCancelReply }: ChatInputProps) {
   const { sendMessage } = useChatContext()
   const { text } = useChatText()
   const [content, setContent] = useState('')
@@ -21,12 +21,11 @@ export function ChatInput({ recipientId, replyTo, onCancelReply }: ChatInputProp
 
   // Focus input when opening a new conversation
   useEffect(() => {
-    // Adding a slight delay to ensure it focuses after potential layout shifts.
     const timer = setTimeout(() => {
       inputRef.current?.focus()
     }, 50)
     return () => clearTimeout(timer)
-  }, [recipientId])
+  }, [conversationId])
 
   const handleSend = (e?: FormEvent) => {
     e?.preventDefault()
@@ -42,7 +41,7 @@ export function ChatInput({ recipientId, replyTo, onCancelReply }: ChatInputProp
         }
       : null
 
-    sendMessage(recipientId, content, replyMetadata)
+    sendMessage(conversationId, content, replyMetadata)
     setContent('')
     onCancelReply?.()
 

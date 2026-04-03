@@ -34,7 +34,7 @@ export function MessageBubble({
   const { text } = useChatText()
   const { revokeMessage, deleteMessageForMe } = useChatContext()
   const isRevoked = message.status === MessageStatus.REVOKED
-  const partnerId = isOwn ? message.recipientId : message.senderId
+  const conversationId = message.conversationId
   return (
     <div className={cn('flex w-full px-2 gap-2', isOwn ? 'justify-end' : 'justify-start', isFirst ? 'mt-4' : 'mt-1')}>
       {!isOwn && (
@@ -117,7 +117,7 @@ export function MessageBubble({
 
                   {isOwn && (
                     <DropdownMenuItem
-                      onClick={() => partnerId && revokeMessage(message.id, partnerId)}
+                      onClick={() => conversationId && revokeMessage(message.id, conversationId)}
                       className='gap-2 text-orange-500 focus:text-orange-500 focus:bg-orange-50'
                     >
                       <History size={14} />
@@ -125,7 +125,7 @@ export function MessageBubble({
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuItem
-                    onClick={() => partnerId && deleteMessageForMe(message.id, partnerId)}
+                    onClick={() => conversationId && deleteMessageForMe(message.id, conversationId)}
                     className='gap-2 text-destructive focus:text-destructive focus:bg-destructive/10'
                   >
                     <Trash2 size={14} />

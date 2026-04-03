@@ -15,12 +15,13 @@ export const chatOptions = {
         return pageResponse.data
       }
     }),
-  messages: (recipientId: string) =>
+  // conversationId = MongoDB ObjectId của room (thay vì recipientId)
+  messages: (conversationId: string) =>
     infiniteQueryOptions({
       ...QUERY_POLICIES.REALTIME,
-      queryKey: chatKeys.messages(recipientId),
+      queryKey: chatKeys.messages(conversationId),
       queryFn: async ({ pageParam = 0 }) => {
-        const response = await getMessages(recipientId, pageParam as number)
+        const response = await getMessages(conversationId, pageParam as number)
         return response
       },
       initialPageParam: 0,
