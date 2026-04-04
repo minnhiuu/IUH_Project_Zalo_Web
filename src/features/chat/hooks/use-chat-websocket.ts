@@ -114,15 +114,20 @@ export const useChatWebSocket = () => {
             if (existingConvIndex >= 0) {
               const updatedConv: ConversationResponse = {
                 ...conversations[existingConvIndex],
-                lastMessage: msg.content,
-                lastMessageTime: msg.createdAt || new Date().toISOString(),
-                isLastMessageFromMe: isOwnMessage,
-                lastMessageType: msg.type,
+                lastMessage: {
+                  id: msg.id,
+                  content: msg.content,
+                  timestamp: msg.createdAt || new Date().toISOString(),
+                  isFromMe: isOwnMessage,
+                  type: msg.type,
+                  status: msg.status,
+                  senderName: msg.senderName,
+                  senderId: msg.senderId
+                },
                 unreadCount:
                   msg.unreadCount !== undefined
                     ? msg.unreadCount
-                    : (conversations[existingConvIndex].unreadCount || 0) + (isOwnMessage ? 0 : 1),
-                lastMessageStatus: msg.status
+                    : (conversations[existingConvIndex].unreadCount || 0) + (isOwnMessage ? 0 : 1)
               }
               return [
                 updatedConv,
@@ -301,11 +306,16 @@ export const useChatWebSocket = () => {
         if (existingConvIndex >= 0) {
           const updatedConv: ConversationResponse = {
             ...conversations[existingConvIndex],
-            lastMessage: content,
-            lastMessageTime: now,
-            isLastMessageFromMe: true,
-            lastMessageType: optimisticMsg.type,
-            lastMessageStatus: MessageStatus.NORMAL
+            lastMessage: {
+              id: clientMessageId,
+              content,
+              timestamp: now,
+              isFromMe: true,
+              type: optimisticMsg.type,
+              status: MessageStatus.NORMAL,
+              senderName: user?.fullName,
+              senderId: user?.id
+            }
           }
           return [
             updatedConv,

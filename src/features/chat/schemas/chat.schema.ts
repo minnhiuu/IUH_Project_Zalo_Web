@@ -21,6 +21,19 @@ export const ReplyMetadataSchema = z.object({
 
 export type ReplyMetadata = z.infer<typeof ReplyMetadataSchema>
 
+export const LastMessageResponseSchema = z.object({
+  id: z.string().nullable().optional(),
+  senderId: z.string().nullable().optional(),
+  senderName: z.string().nullable().optional(),
+  content: z.string().nullable().optional(),
+  timestamp: z.string().datetime().nullable().optional(),
+  type: z.nativeEnum(MessageType).nullable().optional(),
+  status: z.nativeEnum(MessageStatus).nullable().optional(),
+  isFromMe: z.boolean().nullable().optional()
+})
+
+export type LastMessageResponse = z.infer<typeof LastMessageResponseSchema>
+
 // ────────────────────────────────────────────────────────────────
 // ConversationResponse — Room-centric (ObjectId-based)
 // Breaking change: conversationId → id, partner* → name/avatar/status/isGroup
@@ -32,13 +45,8 @@ export const ConversationResponseSchema = z.object({
   status: z.nativeEnum(Status).nullable().optional(), // partner online status (1-1 only)
   lastSeenAt: z.string().datetime().nullable().optional(),
   isGroup: z.boolean().default(false),
-  lastMessage: z.string().nullable().optional(),
-  lastMessageId: z.string().nullable().optional(),
-  lastMessageTime: z.string().datetime().nullable().optional(),
-  isLastMessageFromMe: z.boolean().nullable().optional(),
-  lastMessageType: z.nativeEnum(MessageType).nullable().optional(),
   unreadCount: z.number().nullable().optional(),
-  lastMessageStatus: z.nativeEnum(MessageStatus).nullable().optional(),
+  lastMessage: LastMessageResponseSchema.nullable().optional(),
   members: z.array(ConversationMemberResponseSchema).nullable().optional()
 })
 

@@ -81,7 +81,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
       <div className='flex-1 flex flex-col bg-[#eef0f1] dark:bg-zinc-950 relative overflow-hidden h-full'>
         {/* Header */}
         <div className='h-[68px] border-b border-border bg-background flex items-center justify-between px-4 shrink-0 shadow-sm z-10'>
-          <div className='flex items-center space-x-3'>
+          <div className='flex items-center space-x-3 min-w-0 flex-1'>
             <div className='relative shrink-0 hidden sm:block'>
               {conversation.isGroup && !conversation.avatar ? (
                 <GroupAvatar
@@ -97,11 +97,11 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
                 <div className='absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-background rounded-full' />
               )}
             </div>
-            <div>
-              <h2 className='text-[16px] font-semibold text-foreground/90 leading-tight'>
+            <div className='min-w-0'>
+              <h2 className='text-[16px] font-semibold text-foreground/90 leading-tight overflow-hidden whitespace-nowrap'>
                 {isCloudConversation ? 'My Documents' : conversation.name}
               </h2>
-              <p className='text-[12px] text-muted-foreground mt-0.5 leading-tight flex items-center gap-1'>
+              <p className='text-[12px] text-muted-foreground mt-0.5 leading-tight flex items-center gap-1 overflow-hidden whitespace-nowrap'>
                 {isCloudConversation ? (
                   'Lưu và đồng bộ dữ liệu giữa các thiết bị'
                 ) : conversation.isGroup ? (

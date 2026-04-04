@@ -9,6 +9,7 @@ import { useChatText } from '../i18n/use-chat-text'
 import { CreateGroupDialog } from './create-group-dialog'
 import { GroupAvatar } from './group-avatar'
 import { UserAvatar } from '@/components/common/user-avatar'
+import { MessageType, MessageStatus } from '@/constants/enum'
 import type { ConversationResponse } from '../schemas/chat.schema'
 import { formatPreview } from '../utils/chat-preview'
 
@@ -31,13 +32,14 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
   }
 
   const getPreviewText = (chat: ConversationResponse) => {
+    if (!chat.lastMessage) return ''
     return formatPreview(
       {
-        content: chat.lastMessage,
-        isFromMe: chat.isLastMessageFromMe,
-        senderName: chat.name,
-        type: chat.lastMessageType,
-        status: chat.lastMessageStatus
+        content: chat.lastMessage.content || '',
+        isFromMe: !!chat.lastMessage.isFromMe,
+        senderName: chat.lastMessage.senderName || '',
+        type: chat.lastMessage.type as MessageType,
+        status: chat.lastMessage.status as MessageStatus
       },
       text
     )
@@ -114,7 +116,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
                     className='w-12 h-12'
                   />
                 )}
-                {chat.status === 'ONLINE' && !chat.isGroup && (
+                {chat.status === 'ONLINE' && (
                   <div className='absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-background rounded-full' />
                 )}
               </div>
@@ -122,8 +124,8 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
                 <div className='flex items-center justify-between mb-0.5'>
                   <h3 className='text-[15px] font-medium truncate text-foreground/90'>{chat.name}</h3>
                   <span className='text-[11px] text-muted-foreground whitespace-nowrap'>
-                    {chat.lastMessageTime
-                      ? new Date(chat.lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    {chat.lastMessage?.timestamp
+                      ? new Date(chat.lastMessage.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                       : ''}
                   </span>
                 </div>
