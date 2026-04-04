@@ -12,6 +12,14 @@ import { useCreateGroupMutation } from '../queries/use-mutations'
 import type { FriendResponse } from '@/features/friend/schemas/friend.schema'
 import { useChatText } from '../i18n/use-chat-text'
 import { formatDefaultGroupName } from '../utils/group-name'
+import { ImageCropperDialog } from '@/components/common/image-cropper-dialog'
+import { getCroppedImg } from '@/utils/image-crop'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
 
 interface CreateGroupDialogProps {
   isOpen: boolean
@@ -34,6 +42,10 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [selectedImage, setSelectedImage] = useState<{
+    url: string
+    file: File
+  } | null>(null)
 
   const friends = useMemo(() => {
     return infiniteData?.pages.flatMap((page) => page.data) || []
@@ -56,6 +68,7 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
     setGroupName('')
     setSelectedFriendIds([])
     setSelectedFile(null)
+    setSelectedImage(null)
     setPreviewUrl((prev) => {
       if (prev) URL.revokeObjectURL(prev)
       return null
@@ -121,12 +134,41 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      setSelectedFile(file)
-
-      // Revoke old preview and set new one
-      if (previewUrl) URL.revokeObjectURL(previewUrl)
-      setPreviewUrl(URL.createObjectURL(file))
+      const reader = new FileReader()
+      reader.onload = () => {
+        setSelectedImage({ url: reader.result as string, file })
+      }
+      reader.readAsDataURL(file)
+      e.target.value = ''
     }
+  }
+
+  const handleCropConfirm = async (data: {
+    percent: { x: number; y: number; width: number; height: number }
+    pixels: { x: number; y: number; width: number; height: number }
+    zoom: number
+  }) => {
+    if (!selectedImage) return
+    try {
+      const croppedBlob = await getCroppedImg(selectedImage.url, data.pixels)
+      if (croppedBlob) {
+        const croppedFile = new File([croppedBlob], 'group-avatar.jpg', { type: 'image/jpeg' })
+        setSelectedFile(croppedFile)
+
+        if (previewUrl) URL.revokeObjectURL(previewUrl)
+        setPreviewUrl(URL.createObjectURL(croppedBlob))
+      }
+      setSelectedImage(null)
+    } catch (err) {
+      console.error('Crop failed', err)
+      setSelectedImage(null)
+    }
+  }
+
+  const handleRemoveAvatar = () => {
+    setSelectedFile(null)
+    if (previewUrl) URL.revokeObjectURL(previewUrl)
+    setPreviewUrl(null)
   }
 
   const triggerFileInput = () => {
@@ -136,11 +178,32 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
   const isCreateDisabled = selectedFriendIds.length < 2 || createGroupMutation.isPending
   const showSidebar = selectedFriendIds.length > 0
 
+  const AvatarButton = (
+    <div className='relative shrink-0'>
+      <input type='file' ref={fileInputRef} onChange={handleFileChange} accept='image/*' className='hidden' />
+      <button
+        onClick={previewUrl ? undefined : triggerFileInput}
+        className='curosr-pointer w-11 h-11 rounded-full border flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors shrink-0 overflow-hidden relative group outline-none'
+      >
+        {previewUrl ? (
+          <img src={previewUrl} alt='Group Avatar Preview' className='w-full h-full object-cover' />
+        ) : (
+          <Camera className='w-5 h-5' />
+        )}
+
+        {/* Hover Overlay */}
+        <div className='cursor-pointer absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity'>
+          <Camera className='w-4 h-4 text-white' />
+        </div>
+      </button>
+    </div>
+  )
+
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent
-          className='p-0 gap-0 overflow-hidden rounded-lg sm:max-w-lg w-full shrink-0'
+          className='p-0 gap-0 overflow-hidden rounded-lg sm:max-w-lg w-full shrink-0 outline-none'
           showCloseButton={true}
         >
           <DialogHeader className='px-4 py-2.5 border-b bg-background'>
@@ -150,24 +213,24 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
           {/* Top Section - Inputs */}
           <div className='p-4 space-y-4 bg-background'>
             <div className='flex items-center gap-3'>
-              <div className='relative shrink-0'>
-                <input type='file' ref={fileInputRef} onChange={handleFileChange} accept='image/*' className='hidden' />
-                <button
-                  onClick={triggerFileInput}
-                  className='curosr-pointer w-11 h-11 rounded-full border flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors shrink-0 overflow-hidden relative group'
-                >
-                  {previewUrl ? (
-                    <img src={previewUrl} alt='Group Avatar Preview' className='w-full h-full object-cover' />
-                  ) : (
-                    <Camera className='w-5 h-5' />
-                  )}
-
-                  {/* Hover Overlay */}
-                  <div className='cursor-pointer absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity'>
-                    <Camera className='w-4 h-4 text-white' />
-                  </div>
-                </button>
-              </div>
+              {previewUrl ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>{AvatarButton}</DropdownMenuTrigger>
+                  <DropdownMenuContent align='start' className='w-48'>
+                    <DropdownMenuItem onClick={triggerFileInput} className='cursor-pointer py-2 text-[14px]'>
+                      {tg.changeAvatar}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={handleRemoveAvatar}
+                      className='cursor-pointer py-2 text-[14px] text-destructive focus:text-destructive focus:bg-destructive/10'
+                    >
+                      {tg.removeAvatar}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                AvatarButton
+              )}
 
               <div className='flex-1 relative'>
                 <Input
@@ -313,6 +376,19 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
         }}
         onCancel={() => setIsCancelConfirmOpen(false)}
       />
+
+      {selectedImage && (
+        <ImageCropperDialog
+          open={!!selectedImage}
+          onOpenChange={(open) => !open && setSelectedImage(null)}
+          image={selectedImage.url}
+          title={tg.updateAvatarTitle}
+          confirmText={tg.confirm}
+          cancelText={tg.cancel}
+          dragToMoveText={tg.dragToMove}
+          onConfirm={handleCropConfirm}
+        />
+      )}
     </>
   )
 }

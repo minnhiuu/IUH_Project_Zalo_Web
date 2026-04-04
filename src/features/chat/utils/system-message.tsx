@@ -6,99 +6,112 @@ import { useAuth } from '../../auth/hooks/use-auth'
 import { useChatText } from '../i18n/use-chat-text'
 import type { ConversationMemberResponse, MessageResponse, ConversationResponse } from '../schemas/chat.schema'
 import { GroupAvatar } from '../components/group-avatar'
+import { Pencil } from 'lucide-react'
 
-export type SystemMessageAction = 'ADD_MEMBERS' | 'REMOVE_MEMBER' | 'LEAVE_GROUP' | 'UPDATE_NAME' | 'UPDATE_AVATAR'
+export type SystemActionType = 'ADD_MEMBERS' | 'REMOVE_MEMBER' | 'LEAVE_GROUP' | 'UPDATE_NAME' | 'UPDATE_AVATAR'
 
 export interface SystemMetadata {
-  action: SystemMessageAction
-  actorId?: string
+  action: SystemActionType
+  actorId: string
+  actorName?: string
   targetIds?: string[]
-  oldValue?: string
-  newValue?: string
+  payload?: Record<string, string | number>
 }
 
 export function getSystemMessageLabel(
-  metadata: Record<string, unknown> | null | undefined,
-  currentUserId: string | null | undefined,
-  members: ConversationMemberResponse[] | null | undefined,
-  t: TFunction<'chat'>,
-  isRich: boolean = false
+  metadataRaw: unknown,
+  currentUserId: string | undefined,
+  members: ConversationMemberResponse[],
+  translate: TFunction<'chat'>,
+  isMainChat: boolean = false
 ): string | ReactNode {
+  const metadata = metadataRaw as SystemMetadata | null | undefined
   if (!metadata) return ''
 
-  const { action, actorId, targetIds } = metadata as unknown as SystemMetadata
-  const memberMap = new Map(members?.map((m) => [m.userId, m.fullName]))
+  const { action, actorId, actorName: actorNameMeta, targetIds, payload } = metadata
+  const actor = members.find((m) => String(m.userId) === String(actorId))
+  const isActorMe = currentUserId && String(actorId) === String(currentUserId)
 
-  const getActorName = () => (actorId === currentUserId ? t('chat.you') : memberMap.get(actorId || '') || actorId || '')
+  const actorNameLower = isActorMe ? String(translate('chat.you_lower')) : actor?.fullName || actorNameMeta || 'User'
+  const actorNameCapital = isActorMe ? String(translate('chat.you')) : actor?.fullName || actorNameMeta || 'User'
+
+  let i18nKey = ''
+  const values: Record<string, string | number> = { actor: actorNameLower }
 
   if (action === 'ADD_MEMBERS') {
-    if (!targetIds || targetIds.length === 0) return ''
-
-    const actor = getActorName()
-    const isMeInTargets = targetIds.includes(currentUserId || '')
-
-    let i18nKey = ''
-    let values: Record<string, unknown> = { actor }
-
-    if (!isRich) {
-      if (actorId === currentUserId) {
-        return t('chat.system.add_members.group_created')
-      }
-      if (isMeInTargets) {
-        return t('chat.system.add_members.joined_group')
-      }
+    if (!targetIds || targetIds.length === 0) {
+      if (actorId === currentUserId) return translate('chat.system.add_members.group_created')
+      return translate('chat.system.add_members.joined_group')
     }
 
-    if (isMeInTargets) {
+    const isSelfAdded = targetIds.includes(currentUserId || '')
+
+    if (isSelfAdded) {
       if (targetIds.length === 1) {
         i18nKey = 'chat.system.add_members.single_self'
       } else {
-        const others = targetIds.filter((id) => id !== currentUserId)
-        if (targetIds.length <= 4) {
-          const names = others.map((id) => memberMap.get(id) || id).join(', ')
+        const otherTargets = targetIds.filter((id) => id !== currentUserId)
+        const firstTargetId = otherTargets[0]
+        const firstTarget = members.find((m) => m.userId === firstTargetId)
+        const firstTargetName = firstTarget?.fullName || 'User'
+
+        if (targetIds.length === 2) {
           i18nKey = 'chat.system.add_members.many_self'
-          values = { ...values, targets: names }
+          values.targets = firstTargetName
         } else {
-          const firstOther = memberMap.get(others[0]) || others[0]
           i18nKey = 'chat.system.add_members.many_self_count'
-          values = { ...values, targets: firstOther, count: targetIds.length - 2 }
+          values.targets = firstTargetName
+          values.count = targetIds.length - 2
         }
       }
     } else {
+      const firstTargetId = targetIds[0]
+      const firstTarget = members.find((m) => m.userId === firstTargetId)
+      const firstTargetName = firstTarget?.fullName || 'User'
+
       if (targetIds.length === 1) {
-        const firstTarget = memberMap.get(targetIds[0]) || targetIds[0]
         i18nKey = 'chat.system.add_members.single_other'
-        values = { ...values, target: firstTarget }
-      } else if (targetIds.length <= 4) {
-        const names = targetIds.map((id) => memberMap.get(id) || id).join(', ')
+        values.target = firstTargetName
+      } else if (targetIds.length <= 2) {
         i18nKey = 'chat.system.add_members.many_other'
-        values = { ...values, targets: names }
+        values.targets = targetIds.map((id) => members.find((m) => m.userId === id)?.fullName || 'User').join(', ')
       } else {
-        const firstTwo = targetIds
-          .slice(0, 2)
-          .map((id) => memberMap.get(id) || id)
-          .join(', ')
         i18nKey = 'chat.system.add_members.many_other_count'
-        values = { ...values, targets: firstTwo, count: targetIds.length - 2 }
+        values.targets = firstTargetName
+        values.count = targetIds.length - 1
       }
     }
+  } else if (action === 'UPDATE_NAME') {
+    i18nKey = 'chat.system.add_members.update_name'
+    values.actor = actorNameCapital // Viết hoa vì đứng đầu câu
+    values.oldName = String(payload?.oldName || '')
+    values.newName = String(payload?.newName || '')
+  } else if (action === 'UPDATE_AVATAR') {
+    i18nKey = 'chat.system.add_members.update_avatar'
+    values.actor = actorNameCapital // Viết hoa vì đứng đầu câu
+  }
 
-    if (isRich) {
+  if (i18nKey) {
+    if (isMainChat) {
       return (
-        <Trans
-          ns='chat'
-          i18nKey={i18nKey}
-          values={values}
-          components={{
-            bold: <strong className='font-semibold' />,
-            actorBold: actorId === currentUserId ? <span /> : <strong className='font-semibold' />
-          }}
-        />
+        <span className='inline text-left'>
+          {action === 'UPDATE_NAME' && (
+            <Pencil className='inline-block w-3 h-3 mb-0.5 mr-1 text-brand-teal cursor-pointer' />
+          )}
+          <Trans
+            ns='chat'
+            i18nKey={i18nKey}
+            values={values}
+            components={{
+              bold: <strong className='font-semibold' />,
+              actorBold: actorId === currentUserId ? <span /> : <strong className='font-semibold' />
+            }}
+          />
+        </span>
       )
     }
 
-    // For sidebar preview: plain text without bold tags
-    const plainText = t(i18nKey, { ns: 'chat', ...values }) as string
+    const plainText = translate(i18nKey, { ns: 'chat', ...values }) as string
     return plainText.replace(/<[^>]*>/g, '')
   }
 
@@ -132,18 +145,20 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
   if (!systemLabel) return null
 
   return (
-    <div className='flex justify-center w-full my-4 px-4'>
-      <div className='system-msg flex items-center gap-2 pr-4 pl-1'>
+    <div className='flex justify-center w-full my-2.5 px-4'>
+      <div className='system-msg flex items-center gap-2.5 py-1.5 px-3.5 max-w-[95%]'>
         {targetAvatars.length > 0 && (
           <GroupAvatar
             avatars={targetAvatars.map((a) => a.avatar)}
             names={targetAvatars.map((a) => a.name)}
             count={targetAvatars.length}
-            size='sm'
-            className='shrink-0 w-8! h-8!'
+            size='xs'
+            className='shrink-0'
           />
         )}
-        <div className='flex-1 text-[12px]'>{systemLabel}</div>
+        <div className='flex-1 text-[12.5px] leading-relaxed text-left'>
+          {systemLabel}
+        </div>
       </div>
     </div>
   )

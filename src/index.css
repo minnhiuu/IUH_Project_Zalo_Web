@@ -78,144 +78,18 @@
   --destructive-text: #be123c;
   --destructive-border: #fecdd3;
   --destructive-solid: #e11d48;
-  /* Elasticsearch Dashboard Theme */
-  --dashboard-header-text: var(--brand-blue-dark);
-  --dashboard-card-bg: #ffffff;
-  --dashboard-card-header-text: var(--brand-blue-dark);
-  --dashboard-card-header-bg: rgba(241, 242, 244, 0.1);
-  --dashboard-card-title: #081b3a;
-  --dashboard-input-bg: rgba(241, 242, 244, 0.2);
-  --dashboard-input-bg-focus: #ffffff;
-  --dashboard-icon-bg: rgba(229, 241, 255, 0.5);
-  --dashboard-badge-bg: #ffffff;
-
-  /* Admin Layout Theme */
-  --layout-sidebar-bg: #0b1120;
-  --layout-sidebar-text: #94a3b8;
-  --layout-sidebar-text-active: #ffffff;
-  --layout-sidebar-bg-active: rgba(255, 255, 255, 0.1);
-  --layout-sidebar-bg-hover: rgba(255, 255, 255, 0.05);
-  --layout-background: #f1f5f9;
-  --layout-header-bg: #ffffff;
-  --layout-header-border: #e2e8f0;
-  --layout-sidebar-border: rgba(255, 255, 255, 0.05);
-
-  --dialog-selection-btn-disabled-bg: #add1ff;
-  --dialog-selection-btn-disabled-text: #f0f7ff;
-  --dialog-selection-bg: #e5f1ff;
-  --dialog-selection-text: #0045ad;
-  --dialog-selection-badge-bg: #f0f7ff;
-  --dialog-selection-badge-text: #005ae0;
-  --icon-x-bg: rgba(90, 105, 129, 0.2);
-}
-
-.admin-theme {
-  --primary: #465fff;
-  --primary-hover: #2a31d8;
-  --vibrant-blue: #465fff;
-  --vibrant-blue-hover: #2a31d8;
-  --brand-blue: #465fff;
-  --brand-blue-dark: #2a31d8;
-  --brand-blue-light: #ecf3ff;
-  --brand-blue-hover: #c2d6ff;
-  --ring: rgba(70, 95, 255, 0.4);
-
-  --background: #f9fafb;
-  --foreground: #1c2434;
-  --card: #ffffff;
-  --card-foreground: #1c2434;
-  --popover: #ffffff;
-  --popover-foreground: #1c2434;
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
-  --accent: #f1f5f9;
-  --accent-foreground: #1c2434;
-  --border: #e2e8f0;
-  --input: #ffffff;
-
-  --success-bg: #ecfdf3;
-  --success-text: #039855;
-  --success-border: #d1fadf;
-  --success-solid: #12b76a;
-
-  --warning-bg: #fffaeb;
-  --warning-text: #dc6803;
-  --warning-border: #fef0c7;
-
-  --destructive-subtle: #fef3f2;
-  --destructive-text: #d92d20;
-  --destructive-border: #fee4e2;
-  --destructive-solid: #f04438;
-
-  /* Admin Layout Specific */
-  --layout-background: #f9fafb;
-  --layout-header-bg: #ffffff;
-  --layout-header-border: #e2e8f0;
-
-  /* Dark Sidebar for Light Mode */
-  --layout-sidebar-bg: #1c2434;
-  --layout-sidebar-text: #cbd5e1;
-  --layout-sidebar-text-active: #ffffff;
-  --layout-sidebar-bg-active: rgba(255, 255, 255, 0.16);
-  --layout-sidebar-bg-hover: rgba(255, 255, 255, 0.1);
-  --layout-sidebar-border: #2e3a47;
-
-  /* Dashboard Theme */
-  --dashboard-header-text: #1c2434;
-  --dashboard-card-bg: #ffffff;
-  --dashboard-card-header-bg: #f9fafb;
-  --dashboard-card-title: #1c2434;
-  --dashboard-icon-bg: #ecf3ff;
-  --dashboard-badge-bg: #f1f5f9;
-}
-
-.dark .admin-theme {
-  --primary: #465fff;
-  --primary-hover: #7592ff;
-  --vibrant-blue: #7592ff;
-  --vibrant-blue-hover: #465fff;
-  --brand-blue: #7592ff;
-  --brand-blue-dark: #465fff;
-  --brand-blue-light: #1a2231;
-  --brand-blue-hover: #1d2939;
-
-  --background: #101828;
-  --foreground: #ffffff;
-  --card: #1c2434;
-  --card-foreground: #ffffff;
-  --muted: #1d2a3d;
-  --muted-foreground: #98a2b3;
-  --accent: #1d2a3d;
-  --accent-foreground: #ffffff;
-  --border: #2e3a47;
-  --input: #101828;
-
-  --success-bg: rgba(18, 183, 106, 0.15);
-  --success-text: #12b76a;
-  --success-solid: #12b76a;
-
-  --destructive-subtle: rgba(240, 68, 56, 0.15);
-  --destructive-text: #f04438;
-  --destructive-solid: #f04438;
-
-  /* Admin Layout Specific */
-  --layout-background: #101828;
-  --layout-header-bg: #101828;
-  --layout-header-border: #2e3a47;
-  --layout-sidebar-bg: #1c2434;
-  --layout-sidebar-text: #8a99af;
-  --layout-sidebar-text-active: #ffffff;
-  --layout-sidebar-bg-active: rgba(255, 255, 255, 0.05);
-  --layout-sidebar-bg-hover: rgba(255, 255, 255, 0.02);
-  --layout-sidebar-border: #2e3a47;
-
-  /* Dashboard Theme */
-  --dashboard-header-text: #ffffff;
-  --dashboard-card-bg: #1c2434;
-  --dashboard-card-header-bg: rgba(255, 255, 255, 0.02);
-  --dashboard-card-title: #ffffff;
-  --dashboard-icon-bg: rgba(70, 95, 255, 0.1);
-  --dashboard-badge-bg: #2e3a47;
+  
+  --bg-icon-link: #ebecf0;
+  --text-icon-link: #081b3a;
+  --bg-avt-group-placeholder: #ebecf0;
+  --text-avt-group-placeholder: #5a6981;
+  --border-avt-group: rgba(0, 0, 0, 0.15);
+  --bg-dialog-secondary: #f4f7f7;
+  --bg-btn-chat: #ebecf0;
+  --text-btn-chat: #081b3a;
+  --text-brand-vibrant: #0068ff;
+  --bg-brand-subtle: rgba(0, 104, 255, 0.1);
+  --bg-brand-subtle-hover: rgba(0, 104, 255, 0.15);
 }
 
 .dark {
@@ -241,9 +115,6 @@
   --primary-foreground: #ffffff;
   --primary-hover: #005ae0;
 
-  --vibrant-blue: #0068ff;
-  --vibrant-blue-hover: #005ae0;
-
   --secondary: #2c323a;
   --secondary-foreground: #dfe2e7;
   --secondary-hover: #38404a;
@@ -253,8 +124,6 @@
 
   --accent: #3e444a;
   --accent-foreground: #ffffff;
-
-  --accent-hover: #3e444a;
 
   --section-divider: #121416;
 
@@ -274,79 +143,17 @@
   --sidebar-border: rgba(255, 255, 255, 0.08);
   --sidebar-ring: #0068ff;
 
-  --icon-muted: #9facbc;
-  --icon-hover: #66a6ff;
-  --icon-subtle: rgba(30, 58, 138, 0.5);
-  --icon-accent: #93c5fd;
-  --icon-secondary: #5a6981;
-
-  --disabled: #8b96a7;
-
-  --success-bg: #064e3b;
-  --success-text: #34d399;
-  --success-border: #065f46;
-  --success-solid: #10b981;
-
-  --warning-bg: #451a03;
-  --warning-text: #fbbf24;
-  --warning-border: #78350f;
-
-  --destructive-subtle: #4c0519;
-  --destructive-text: #fb7185;
-  --destructive-border: #881337;
-  --destructive-solid: #f43f5e;
-
-  /* Elasticsearch Dashboard Theme */
-  --dashboard-header-text: #60a5fa;
-  --dashboard-card-bg: #22262b;
-  --dashboard-card-header-text: #60a5fa;
-  --dashboard-card-header-bg: rgba(255, 255, 255, 0.03);
-  --dashboard-card-title: #f1f5f9;
-  --dashboard-input-bg: #1a1d21;
-  --dashboard-input-bg-focus: #2c323a;
-  --dashboard-icon-bg: rgba(59, 130, 246, 0.15);
-  --dashboard-badge-bg: #3e444a;
-
-  /* Admin Layout Theme */
-  --layout-sidebar-bg: #0b1120;
-  --layout-sidebar-text: #94a3b8;
-  --layout-sidebar-text-active: #ffffff;
-  --layout-sidebar-bg-active: rgba(255, 255, 255, 0.1);
-  --layout-sidebar-bg-hover: rgba(255, 255, 255, 0.05);
-  --layout-background: #0f172a;
-  --layout-header-bg: #1e293b;
-  --layout-header-border: #334155;
-  --layout-sidebar-border: rgba(255, 255, 255, 0.05);
-
-  --dialog-selection-btn-disabled-bg: #00378a;
-  --dialog-selection-btn-disabled-text: #0068ff;
-  --dialog-selection-bg: #00378a;
-  --dialog-selection-text: #8fbfff;
-  --dialog-selection-badge-bg: #001029;
-  --dialog-selection-badge-text: #66a6ff;
-  --icon-x-bg: #8fbfff;
-}
-
-/* Add to :root as well in the previous block */
-
-.auth-theme {
-  --primary: #0190f3;
-  --primary-hover: #0078cc;
-  --vibrant-blue: #0190f3;
-  --vibrant-blue-hover: #0078cc;
-  --ring: #0190f3;
-  --card: #ffffff;
-}
-
-.dark .auth-theme {
-  --background: var(--sidebar);
-  --primary: #0190f3;
-  --primary-hover: #0078cc;
-  --vibrant-blue: #0190f3;
-  --vibrant-blue-hover: #0078cc;
-  --card: var(--secondary);
-  --border: var(--sidebar-border);
-  --foreground: var(--foreground);
+  --bg-icon-link: #2c323a;
+  --text-icon-link: #dfe2e7;
+  --bg-avt-group-placeholder: #38404a;
+  --text-avt-group-placeholder: #dfe2e7;
+  --border-avt-group: rgba(255, 255, 255, 0.1);
+  --bg-dialog-secondary: #09090b;
+  --bg-btn-chat: #2c323a;
+  --text-btn-chat: #dfe2e7;
+  --text-brand-vibrant: #0068ff;
+  --bg-brand-subtle: rgba(0, 104, 255, 0.2);
+  --bg-brand-subtle-hover: rgba(0, 104, 255, 0.25);
 }
 
 @theme inline {
@@ -359,11 +166,6 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -405,7 +207,19 @@
   --color-icon-subtle: var(--icon-subtle);
   --color-icon-accent: var(--icon-accent);
   --color-icon-secondary: var(--icon-secondary);
+  --color-brand-teal: var(--brand-teal);
   --color-disabled: var(--disabled);
+  --color-bg-icon-link: var(--bg-icon-link);
+  --color-text-icon-link: var(--text-icon-link);
+  --color-bg-avt-group-placeholder: var(--bg-avt-group-placeholder);
+  --color-text-avt-group-placeholder: var(--text-avt-group-placeholder);
+  --color-border-avt-group: var(--border-avt-group);
+  --color-bg-dialog-secondary: var(--bg-dialog-secondary);
+  --color-bg-btn-chat: var(--bg-btn-chat);
+  --color-text-btn-chat: var(--text-btn-chat);
+  --color-text-brand-vibrant: var(--text-brand-vibrant);
+  --color-bg-brand-subtle: var(--bg-brand-subtle);
+  --color-bg-brand-subtle-hover: var(--bg-brand-subtle-hover);
 
   --color-success-bg: var(--success-bg);
   --color-success-text: var(--success-text);
@@ -420,28 +234,6 @@
   --color-destructive-text: var(--destructive-text);
   --color-destructive-border: var(--destructive-border);
   --color-destructive-solid: var(--destructive-solid);
-
-  /* Elasticsearch Dashboard Theme */
-  --color-dashboard-header-text: var(--dashboard-header-text);
-  --color-dashboard-card-bg: var(--dashboard-card-bg);
-  --color-dashboard-card-header-text: var(--dashboard-card-header-text);
-  --color-dashboard-card-header-bg: var(--dashboard-card-header-bg);
-  --color-dashboard-card-title: var(--dashboard-card-title);
-  --color-dashboard-input-bg: var(--dashboard-input-bg);
-  --color-dashboard-input-bg-focus: var(--dashboard-input-bg-focus);
-  --color-dashboard-icon-bg: var(--dashboard-icon-bg);
-  --color-dashboard-badge-bg: var(--dashboard-badge-bg);
-
-  /* Admin Layout Theme */
-  --color-layout-sidebar-bg: var(--layout-sidebar-bg);
-  --color-layout-sidebar-text: var(--layout-sidebar-text);
-  --color-layout-sidebar-text-active: var(--layout-sidebar-text-active);
-  --color-layout-sidebar-bg-active: var(--layout-sidebar-bg-active);
-  --color-layout-sidebar-bg-hover: var(--layout-sidebar-bg-hover);
-  --color-layout-background: var(--layout-background);
-  --color-layout-header-bg: var(--layout-header-bg);
-  --color-layout-header-border: var(--layout-header-border);
-  --color-layout-sidebar-border: var(--layout-sidebar-border);
 
   @keyframes pulse-subtle {
     0%,
@@ -464,34 +256,6 @@
   }
   --animate-pulse-subtle: pulse-subtle 2s ease-in-out infinite;
   --animate-spin-slow: spin-slow 3s linear infinite;
-}
-
-/* Custom JSON Pretty Styles */
-.custom-json-pretty {
-  background: transparent !important;
-  font-family:
-    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace !important;
-  line-height: 1.6 !important;
-}
-
-.custom-json-pretty .__json-key__ {
-  color: #f92672 !important;
-}
-
-.custom-json-pretty .__json-value__ {
-  color: #e6db74 !important;
-}
-
-.custom-json-pretty .__json-string__ {
-  color: #e6db74 !important;
-}
-
-.custom-json-pretty .__json-boolean__ {
-  color: #ae81ff !important;
-}
-
-.custom-json-pretty .__json-number__ {
-  color: #ae81ff !important;
 }
 
 @layer base {
@@ -543,21 +307,21 @@ input[type='radio']:checked {
 @layer components {
   /* Generic Centered Toast Style */
   .centered-toast-content {
-    @apply flex flex-col items-center justify-center gap-3 bg-[#171718]/90 text-white p-4 rounded-[12px] w-[220px] h-[130px] shadow-lg backdrop-blur-sm;
+    @apply flex flex-col items-center justify-center gap-3 bg-toast-bg/90 text-toast-text p-4 rounded-[12px] w-[220px] h-[130px] shadow-lg backdrop-blur-sm;
     animation: scale-in-center 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
     transform-origin: center;
   }
 
   .centered-toast-icon-circle {
-    @apply flex items-center justify-center w-12 h-12 rounded-full border-2 border-white mb-1;
+    @apply flex items-center justify-center w-12 h-12 rounded-full border-2 border-toast-text mb-1;
   }
 
   .centered-toast-text {
-    @apply text-[14px] font-normal text-center leading-tight text-white/80 px-2;
+    @apply text-[14px] font-normal text-center leading-tight text-toast-text-muted px-2;
   }
 
   .system-msg {
-    @apply bg-[hsla(0,0%,100%,0.85)] dark:bg-[hsla(0,0%,100%,0.05)] text-[12.5px] text-[#5a6981] dark:text-[#9facbc] px-3 py-1 rounded-full text-center max-w-[85%] leading-relaxed select-none shadow-sm;
+    @apply bg-[hsla(0,0%,100%,0.85)] dark:bg-[hsla(0,0%,100%,0.05)] text-[12.5px] text-icon-secondary dark:text-icon-muted px-4 py-2 rounded-2xl text-left max-w-[95%] leading-snug select-none shadow-none;
   }
 
   .date-divider {

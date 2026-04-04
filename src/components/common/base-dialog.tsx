@@ -24,6 +24,7 @@ interface BaseDialogProps {
   isPending?: boolean
   variant?: 'danger' | 'primary'
   className?: string
+  noContentPadding?: boolean
 }
 
 export function BaseDialog({
@@ -38,7 +39,8 @@ export function BaseDialog({
   onCancel,
   isPending,
   variant = 'primary',
-  className
+  className,
+  noContentPadding = false
 }: BaseDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -63,9 +65,9 @@ export function BaseDialog({
             </button>
           </div>
 
-          <div className='p-4 pt-5 pb-5'>
+          <div className={cn(!noContentPadding && 'p-4 pt-5 pb-5')}>
             {description && (
-              <DialogDescription className='text-[14.5px] text-foreground font-normal leading-normal'>
+              <DialogDescription className='text-[14.5px] text-foreground font-normal leading-normal px-4'>
                 {description}
               </DialogDescription>
             )}

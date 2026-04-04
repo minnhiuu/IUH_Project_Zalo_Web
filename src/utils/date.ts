@@ -1,4 +1,4 @@
-import { format, formatDistanceToNow, type Locale } from 'date-fns'
+import { format, formatDistanceToNow, type Locale, parseISO } from 'date-fns'
 import { vi, enUS } from 'date-fns/locale'
 
 const locales: Record<string, Locale> = {
@@ -77,7 +77,7 @@ export const formatDateTimeShort = (d?: string): string =>
         day: '2-digit',
         hour: '2-digit',
         minute: '2-digit'
-      }).format(new Date(d))
+      }).format(new Date(d.replace(' ', 'T')))
     : '—'
 
 export const formatDateTimeLong = (d?: string): string =>
@@ -159,4 +159,68 @@ export const formatChatDivider = (date: string | Date, lang: string = 'vi'): str
   }
 
   return format(d, 'dd MMMM, yyyy', { locale: getLocale(lang) })
+}
+
+export const formatMessageTime = (date: string | Date | number | null | undefined, lang: string = 'vi'): string => {
+  if (!date) return ''
+  const d = typeof date === 'string' ? parseISO(date) : new Date(date)
+  if (isNaN(d.getTime())) return ''
+
+  const now = new Date()
+  const diffInSeconds = Math.floor((now.getTime() - d.getTime()) / 1000)
+
+  if (diffInSeconds < 60) {
+    return lang === 'vi' ? 'Vài giây' : 'Few sec'
+  }
+
+  // Dưới 1 giờ
+  const diffInMinutes = Math.floor(diffInSeconds / 60)
+  if (diffInMinutes < 60) {
+    return lang === 'vi' ? `${diffInMinutes} phút` : `${diffInMinutes} min${diffInMinutes > 1 ? 's' : ''}`
+  }
+
+  // Dưới 1 ngày
+  const diffInHours = Math.floor(diffInMinutes / 60)
+  if (diffInHours < 24) {
+    return lang === 'vi' ? `${diffInHours} giờ` : `${diffInHours} hour${diffInHours > 1 ? 's' : ''}`
+  }
+
+  // Dưới 7 ngày
+  const diffInDays = Math.floor(diffInHours / 24)
+  if (diffInDays < 7) {
+    return lang === 'vi' ? `${diffInDays} ngày` : `${diffInDays} day${diffInDays > 1 ? 's' : ''}`
+  }
+
+  // Cùng năm
+  if (d.getFullYear() === now.getFullYear()) {
+    return format(d, 'dd/MM')
+  }
+
+  // Khác năm
+  return format(d, 'dd/MM/yy')
+}
+
+/**
+ * Format clock time for message bubble (HH:mm)
+ */
+export const formatMessageHour = (date: string | Date | number | null | undefined): string => {
+  if (!date) return ''
+  let d: Date
+  if (typeof date === 'string') {
+    d = parseISO(date)
+    // TEMPORARY FIX: Subtract 7 hours to compensate for BE's offset error if needed
+    // d = new Date(d.getTime() - 7 * 60 * 60 * 1000)
+    // Actually, if stripping 'Z' makes it 08:00 and it should be 01:00, 
+    // it means the BE is sending a string that is already +7.
+    const cleaned = date.endsWith('Z') ? date.slice(0, -1) : date
+    d = parseISO(cleaned)
+    // Force subtract 7 hours to align with true local time
+    d = new Date(d.getTime() - 7 * 60 * 60 * 1000)
+  } else {
+    d = new Date(date)
+  }
+
+  if (isNaN(d.getTime())) return ''
+
+  return format(d, 'HH:mm')
 }

@@ -14,3 +14,11 @@ export const showErrorToast = (message: string) => {
     className: 'sonner-toast-center'
   })
 }
+
+export const showLoadingToast = (message: string) => {
+  return toast.custom(() => <CenteredToast message={message} type='loading' />, {
+    duration: Infinity,
+    className: 'sonner-toast-center'
+  })
+}
+

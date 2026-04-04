@@ -1,11 +1,15 @@
-import { Phone, Video, Search, PanelsTopLeft, Users } from 'lucide-react'
+import { Phone, Video, Search, PanelsTopLeft, Users, Pencil } from 'lucide-react'
 import { useMessagesInfiniteQuery } from '../queries/use-queries'
 import { useAuth } from '@/features/auth'
 import { MessageBubble } from './message-bubble'
 import { ChatInput } from './chat-input'
 import { useChatScroll } from '../hooks/use-chat-scroll'
 import { useChatText } from '../i18n/use-chat-text'
-import { useMarkAsReadMutation } from '../queries/use-mutations'
+import {
+  useMarkAsReadMutation,
+  useUpdateGroupNameMutation,
+  useUpdateGroupAvatarMutation
+} from '../queries/use-mutations'
 import { useEffect, useRef, useMemo, useState } from 'react'
 import type { ConversationResponse, MessageResponse } from '../schemas/chat.schema'
 import { ForwardModal } from './forward-modal'
@@ -14,6 +18,14 @@ import { CloudInfoSidebar } from './cloud-info-sidebar'
 import { AiChatWindow } from './ai-chat-window'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { GroupAvatar } from './group-avatar'
+import { BaseDialog } from '@/components/common/base-dialog'
+import { Input } from '@/components/ui/input'
+import { ImageCropperDialog } from '@/components/common/image-cropper-dialog'
+import { getCroppedImg } from '@/utils/image-crop'
+import { cn } from '@/lib/utils'
+import { GroupInfoDialog } from './group-info-dialog'
+import { showLoadingToast, showSuccessToast, showErrorToast } from '@/utils/toast'
+import { toast } from 'sonner'
 
 export function ChatWindow({ conversation }: { conversation: ConversationResponse }) {
   const { user } = useAuth()
@@ -27,12 +39,87 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
 
   const [replyTo, setReplyTo] = useState<MessageResponse | null>(null)
   const [forwardingMessage, setForwardingMessage] = useState<MessageResponse | null>(null)
+  const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false)
+  const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false)
+  const [newGroupName, setNewGroupName] = useState('')
+  const { mutate: updateGroupName, isPending: isUpdatingName } = useUpdateGroupNameMutation()
+  const { mutate: updateGroupAvatar } = useUpdateGroupAvatarMutation()
+
+  const [selectedImage, setSelectedImage] = useState<{ url: string; file: File } | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = () => setSelectedImage({ url: reader.result as string, file })
+      reader.readAsDataURL(file)
+      e.target.value = ''
+    }
+  }
+
+  const triggerFileInput = () => fileInputRef.current?.click()
+ 
+  const handleCropConfirm = async (data: { pixels: { x: number; y: number; width: number; height: number } }) => {
+    if (!selectedImage) return
+ 
+    const toastId = showLoadingToast(text.toasts.updating)
+ 
+    try {
+      const croppedBlob = await getCroppedImg(selectedImage.url, data.pixels)
+      if (croppedBlob) {
+        const croppedFile = new File([croppedBlob], 'group-avatar.jpg', { type: 'image/jpeg' })
+        updateGroupAvatar(
+          { id: conversation.id, file: croppedFile },
+          {
+            onSuccess: () => {
+              toast.dismiss(toastId)
+              showSuccessToast(text.toasts.updateAvatarSuccess)
+            },
+            onError: () => {
+              toast.dismiss(toastId)
+              showErrorToast(text.toasts.updateError)
+            }
+          }
+        )
+      } else {
+        toast.dismiss(toastId)
+      }
+      setSelectedImage(null)
+    } catch (err) {
+      console.error('Crop failed', err)
+      toast.dismiss(toastId)
+      showErrorToast(text.toasts.updateError)
+      setSelectedImage(null)
+    }
+  }
+ 
+  const handleRename = () => {
+    if (!newGroupName.trim() || newGroupName === conversation.name) {
+      setIsRenameDialogOpen(false)
+      return
+    }
+    const toastId = showLoadingToast(text.toasts.updating)
+    updateGroupName(
+      { id: conversation.id, name: newGroupName.trim() },
+      {
+        onSuccess: () => {
+          toast.dismiss(toastId)
+          setIsRenameDialogOpen(false)
+          showSuccessToast(text.toasts.updateNameSuccess)
+        },
+        onError: () => {
+          toast.dismiss(toastId)
+          showErrorToast(text.toasts.updateError)
+        }
+      }
+    )
+  }
 
   const allMessages = useMemo(() => data?.pages.flatMap((page) => page.data) || [], [data])
   const latestMessageId = allMessages[0]?.id
   const latestMessageSenderId = allMessages[0]?.senderId
 
-  // Cloud = phòng chỉ có 1 member (chính mình), AI = có member ai-assistant-001
   const isCloudConversation = conversation.members?.length === 1 && conversation.members[0]?.userId === user?.id
   const isAiConversation = conversation.members?.some((m) => m.userId === 'ai-assistant-001') ?? false
 
@@ -67,7 +154,6 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
     return diffMinutes < 5
   }
 
-  // Render AI chat window riêng biệt
   if (isAiConversation) {
     return (
       <div className='flex-1 flex h-full overflow-hidden'>
@@ -79,28 +165,50 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   return (
     <div className='flex-1 flex h-full overflow-hidden'>
       <div className='flex-1 flex flex-col bg-[#eef0f1] dark:bg-zinc-950 relative overflow-hidden h-full'>
-        {/* Header */}
         <div className='h-[68px] border-b border-border bg-background flex items-center justify-between px-4 shrink-0 shadow-sm z-10'>
           <div className='flex items-center space-x-3 min-w-0 flex-1'>
             <div className='relative shrink-0 hidden sm:block'>
-              {conversation.isGroup && !conversation.avatar ? (
-                <GroupAvatar
-                  avatars={conversation.members?.map((m) => m.avatar) || []}
-                  names={conversation.members?.map((m) => m.fullName) || []}
-                  count={conversation.members?.length || 0}
-                  size='lg'
-                />
-              ) : (
-                <UserAvatar src={conversation.avatar} name={conversation.name || 'User'} className='w-10 h-10' />
-              )}
+              <input type='file' ref={fileInputRef} onChange={handleAvatarChange} accept='image/*' className='hidden' />
+              <div
+                onClick={conversation.isGroup && !isAiConversation ? () => setIsInfoDialogOpen(true) : undefined}
+                className={cn(
+                  'relative rounded-full transition-all shrink-0',
+                  conversation.isGroup && !isAiConversation && 'cursor-pointer hover:ring-2 hover:ring-primary/20'
+                )}
+              >
+                {conversation.isGroup && !conversation.avatar ? (
+                  <GroupAvatar
+                    avatars={conversation.members?.map((m) => m.avatar) || []}
+                    names={conversation.members?.map((m) => m.fullName) || []}
+                    count={conversation.members?.length || 0}
+                    size='lg'
+                  />
+                ) : (
+                  <UserAvatar src={conversation.avatar} name={conversation.name || 'User'} className='w-10 h-10' />
+                )}
+              </div>
               {conversation.status === 'ONLINE' && !conversation.isGroup && (
                 <div className='absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-background rounded-full' />
               )}
             </div>
-            <div className='min-w-0'>
-              <h2 className='text-[16px] font-semibold text-foreground/90 leading-tight overflow-hidden whitespace-nowrap'>
-                {isCloudConversation ? 'My Documents' : conversation.name}
-              </h2>
+            <div className='min-w-0 flex-1 group/header'>
+              <button
+                disabled={!conversation.isGroup || isCloudConversation}
+                onClick={() => {
+                  setNewGroupName(conversation.name || '')
+                  setIsRenameDialogOpen(true)
+                }}
+                className='flex items-center gap-1.5 max-w-full group/btn'
+              >
+                <h2 className='text-[16px] font-semibold text-foreground/90 leading-tight overflow-hidden whitespace-nowrap truncate'>
+                  {isCloudConversation ? 'My Documents' : conversation.name}
+                </h2>
+                {conversation.isGroup && !isCloudConversation && (
+                  <div className='p-1 hover:bg-muted rounded-full opacity-0 group-hover/header:opacity-100 transition-all shrink-0 cursor-pointer'>
+                    <Pencil className='w-3.5 h-3.5 text-muted-foreground' />
+                  </div>
+                )}
+              </button>
               <p className='text-[12px] text-muted-foreground mt-0.5 leading-tight flex items-center gap-1 overflow-hidden whitespace-nowrap'>
                 {isCloudConversation ? (
                   'Lưu và đồng bộ dữ liệu giữa các thiết bị'
@@ -117,7 +225,6 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
               </p>
             </div>
           </div>
-
           <div className='flex items-center space-x-1 sm:space-x-2 text-muted-foreground'>
             <button className='p-2 hover:bg-muted rounded-full transition-colors hidden sm:block'>
               <Phone className='w-[18px] h-[18px]' />
@@ -125,7 +232,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             <button className='p-2 hover:bg-muted rounded-full transition-colors hidden sm:block'>
               <Video className='w-4 h-4' />
             </button>
-            <div className='w-[1px] h-5 bg-border mx-1 hidden sm:block' />
+            <div className='w-px h-5 bg-border mx-1 hidden sm:block' />
             <button className='p-2 hover:bg-muted rounded-full transition-colors'>
               <Search className='w-[18px] h-[18px]' />
             </button>
@@ -135,7 +242,6 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
           </div>
         </div>
 
-        {/* Messages */}
         <div
           ref={scrollRef}
           onScroll={handleScroll}
@@ -144,13 +250,11 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
           {isLoading && (
             <div className='flex items-center justify-center flex-1 text-sm text-primary py-8'>Đang tải...</div>
           )}
-
           {allMessages.map((msg, index) => {
             const prevMsg = allMessages[index + 1]
             const nextMsg = allMessages[index - 1]
             const isFirst = !isSameGroup(msg, prevMsg)
             const isLast = !isSameGroup(msg, nextMsg)
-
             return (
               <div key={msg.id} ref={index === 0 ? lastMessageRef : null}>
                 <MessageBubble
@@ -166,18 +270,75 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
               </div>
             )
           })}
-
           {isFetchingNextPage && <div className='py-4 text-center text-sm text-muted-foreground'>Đang tải thêm...</div>}
         </div>
 
-        {/* Input */}
         <ChatInput conversationId={conversation.id} replyTo={replyTo} onCancelReply={() => setReplyTo(null)} />
-
         {forwardingMessage && <ForwardModal message={forwardingMessage} onClose={() => setForwardingMessage(null)} />}
+
+        <BaseDialog
+          open={isRenameDialogOpen}
+          onOpenChange={setIsRenameDialogOpen}
+          title={text['rename-group-dialog'].title}
+          confirmText={text['rename-group-dialog'].confirm}
+          cancelText={text['rename-group-dialog'].cancel}
+          onConfirm={handleRename}
+          isPending={isUpdatingName}
+        >
+          <div className='space-y-4'>
+            <div className='flex justify-center'>
+              <div className='relative'>
+                <GroupAvatar
+                  avatars={conversation.members?.map((m) => m.avatar) || []}
+                  names={conversation.members?.map((m) => m.fullName) || []}
+                  count={conversation.members?.length || 0}
+                  size='lg'
+                />
+              </div>
+            </div>
+            <p className='text-[14.5px] text-center text-foreground px-4 leading-normal'>
+              {text['rename-group-dialog'].description}
+            </p>
+            <div className='px-1'>
+              <Input
+                autoFocus
+                onFocus={(e) => e.target.select()}
+                value={newGroupName}
+                onChange={(e) => setNewGroupName(e.target.value)}
+                placeholder={text['rename-group-dialog'].placeholder}
+                className='h-10 text-[15px]'
+                onKeyDown={(e) => e.key === 'Enter' && handleRename()}
+              />
+            </div>
+          </div>
+        </BaseDialog>
       </div>
 
-      {/* Right Sidebar for Cloud / Info */}
       {isCloudConversation && <CloudInfoSidebar />}
+
+      <GroupInfoDialog
+        conversation={conversation}
+        open={isInfoDialogOpen}
+        onOpenChange={setIsInfoDialogOpen}
+        onRenameClick={() => {
+          setIsInfoDialogOpen(false)
+          setIsRenameDialogOpen(true)
+        }}
+        onAvatarClick={triggerFileInput}
+      />
+
+      {selectedImage && (
+        <ImageCropperDialog
+          open={!!selectedImage}
+          onOpenChange={(open) => !open && setSelectedImage(null)}
+          image={selectedImage.url}
+          title={text['create-group-dialog'].updateAvatarTitle}
+          confirmText={text['create-group-dialog'].confirm}
+          cancelText={text['create-group-dialog'].cancel}
+          dragToMoveText={text['create-group-dialog'].dragToMove}
+          onConfirm={handleCropConfirm}
+        />
+      )}
     </div>
   )
 }

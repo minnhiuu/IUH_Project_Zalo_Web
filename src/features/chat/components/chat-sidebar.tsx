@@ -13,7 +13,8 @@ import { MessageType, MessageStatus } from '@/constants/enum'
 import type { ConversationResponse } from '../schemas/chat.schema'
 import { formatPreview } from '../utils/chat-preview'
 import { useAuth } from '@/features/auth'
-import { getSystemMessageLabel } from '../utils/system-message'
+import { getSystemMessagePreview } from '../utils/system-message-preview'
+import { formatMessageTime } from '@/utils/date'
 
 interface ChatSidebarProps {
   selectedChatId?: string
@@ -22,7 +23,7 @@ interface ChatSidebarProps {
 
 export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) {
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false)
-  const { text, t } = useChatText()
+  const { text, t, i18n } = useChatText()
   const { user } = useAuth()
   const { data: conversations, isLoading, isError } = useConversationsQuery()
   const { mutate: markAsRead } = useMarkAsReadMutation()
@@ -37,7 +38,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
   const getPreviewText = (chat: ConversationResponse) => {
     if (!chat.lastMessage) return ''
     if (chat.lastMessage.type === MessageType.System) {
-      return getSystemMessageLabel(chat.lastMessage.metadata, user?.id, chat.members || [], t, false)
+      return getSystemMessagePreview(chat.lastMessage.metadata, user?.id, chat.members || [], t)
     }
     return formatPreview(
       {
@@ -62,13 +63,10 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
               className='pl-10 h-8 bg-muted border-none focus-visible:ring-1 focus-visible:ring-primary/20 placeholder:text-muted-foreground/60 text-sm rounded-[4px]'
             />
           </div>
-          <button
-            className='p-1.5 hover:bg-muted rounded-full transition-colors'
-            title={text.sidebar.addFriend}
-          >
+          <button className='p-1.5 hover:bg-muted rounded-full transition-colors' title={text.sidebar.addFriend}>
             <UserPlus className='w-5 h-5 text-muted-foreground' />
           </button>
-          <button 
+          <button
             className='p-1.5 hover:bg-muted rounded-full transition-colors'
             onClick={() => setIsCreateGroupModalOpen(true)}
             title={text.sidebar.createGroup}
@@ -116,11 +114,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
                     size='lg'
                   />
                 ) : (
-                  <UserAvatar
-                    src={chat.avatar}
-                    name={chat.name || 'User'}
-                    className='w-12 h-12'
-                  />
+                  <UserAvatar src={chat.avatar} name={chat.name || 'User'} className='w-12 h-12' />
                 )}
                 {chat.status === 'ONLINE' && (
                   <div className='absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-background rounded-full' />
@@ -128,11 +122,16 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
               </div>
               <div className='ml-3 flex-1 min-w-0 pr-2'>
                 <div className='flex items-center justify-between mb-0.5'>
-                  <h3 className='text-[15px] font-medium truncate text-foreground/90'>{chat.name}</h3>
+                  <h3
+                    className={cn(
+                      'text-[15px] truncate text-foreground/90',
+                      chat.unreadCount && chat.unreadCount > 0 ? 'font-bold' : 'font-medium'
+                    )}
+                  >
+                    {chat.name}
+                  </h3>
                   <span className='text-[11px] text-muted-foreground whitespace-nowrap'>
-                    {chat.lastMessage?.timestamp
-                      ? new Date(chat.lastMessage.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                      : ''}
+                    {chat.lastMessage?.timestamp ? formatMessageTime(chat.lastMessage.timestamp, i18n.language) : ''}
                   </span>
                 </div>
                 <div className='flex items-center justify-between'>
@@ -147,7 +146,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
                     {getPreviewText(chat)}
                   </p>
                   {chat.unreadCount && chat.unreadCount > 0 ? (
-                    <div className='bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full flex items-center justify-center min-w-[20px] h-[20px] ml-2 shrink-0'>
+                    <div className='bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full flex items-center justify-center min-w-[18px] h-[18px] ml-2 shrink-0'>
                       {chat.unreadCount > 5 ? '5+' : chat.unreadCount}
                     </div>
                   ) : null}

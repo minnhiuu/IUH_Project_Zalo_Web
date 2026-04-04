@@ -4,7 +4,9 @@ import {
   sendMessageApi,
   revokeMessageApi,
   deleteMessageForMeApi,
-  createGroupConversation
+  createGroupConversation,
+  updateGroupNameApi,
+  updateGroupAvatarApi
 } from '../api/chat.api'
 import { chatKeys } from './keys'
 import type { ConversationResponse, ChatMessageRequest } from '../schemas/chat.schema'
@@ -15,15 +17,29 @@ export const useMarkAsReadMutation = () => {
   return useMutation({
     mutationFn: (conversationId: string) => markAsRead(conversationId),
     onMutate: async (conversationId) => {
+      // Vì hook này k nhận context user, ta lấy từ query cache or pass từ ngoài
+      // Tuy nhiên ta có thể update lastReadMessageId dựa trên lastMessage.id của conv đó
       await queryClient.cancelQueries({ queryKey: chatKeys.conversations() })
       const previousConversations = queryClient.getQueryData<ConversationResponse[]>(chatKeys.conversations())
 
       if (previousConversations) {
         queryClient.setQueryData(
           chatKeys.conversations(),
-          previousConversations.map((conv: ConversationResponse) =>
-            conv.id === conversationId ? { ...conv, unreadCount: 0 } : conv
-          )
+          previousConversations.map((conv: ConversationResponse) => {
+            if (conv.id === conversationId) {
+              return {
+                ...conv,
+                unreadCount: 0,
+                // Cập nhật optimistic lastReadMessageId cho tất cả members (hoặc ít nhất là chính mình)
+                // Phía FE detect unread dựa trên lastReadMessageId của chính mình
+                members: conv.members?.map(m => ({
+                  ...m,
+                  lastReadMessageId: conv.lastMessage?.id || m.lastReadMessageId
+                }))
+              }
+            }
+            return conv
+          })
         )
       }
 
@@ -82,6 +98,62 @@ export const useCreateGroupMutation = () => {
     },
     onError: (error) => {
       console.error('Failed to create group conversation', error)
+    }
+  })
+}
+
+export const useUpdateGroupNameMutation = () => {
+  const queryClient = useQueryClient()
+
+  const updateConversationInList = (updatedConv: ConversationResponse) => {
+    queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
+      if (!oldData) return [updatedConv]
+      const newData = oldData.map((conv) => (conv.id === updatedConv.id ? updatedConv : conv))
+      if (!newData.some((c) => c.id === updatedConv.id)) newData.unshift(updatedConv)
+      return newData.sort(
+        (a, b) =>
+          new Date(b.lastMessage?.timestamp || 0).getTime() -
+          new Date(a.lastMessage?.timestamp || 0).getTime()
+      )
+    })
+    queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+  }
+
+  return useMutation({
+    mutationFn: ({ id, name }: { id: string; name: string }) => updateGroupNameApi(id, name),
+    onSuccess: (updatedConv) => {
+      updateConversationInList(updatedConv)
+    },
+    onError: (error) => {
+      console.error('Failed to update group name', error)
+    }
+  })
+}
+
+export const useUpdateGroupAvatarMutation = () => {
+  const queryClient = useQueryClient()
+
+  const updateConversationInList = (updatedConv: ConversationResponse) => {
+    queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
+      if (!oldData) return [updatedConv]
+      const newData = oldData.map((conv) => (conv.id === updatedConv.id ? updatedConv : conv))
+      if (!newData.some((c) => c.id === updatedConv.id)) newData.unshift(updatedConv)
+      return newData.sort(
+        (a, b) =>
+          new Date(b.lastMessage?.timestamp || 0).getTime() -
+          new Date(a.lastMessage?.timestamp || 0).getTime()
+      )
+    })
+    queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+  }
+
+  return useMutation({
+    mutationFn: ({ id, file }: { id: string; file: File }) => updateGroupAvatarApi(id, file),
+    onSuccess: (updatedConv) => {
+      updateConversationInList(updatedConv)
+    },
+    onError: (error) => {
+      console.error('Failed to update group avatar', error)
     }
   })
 }

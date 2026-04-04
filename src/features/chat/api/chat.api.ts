@@ -76,3 +76,27 @@ export const revokeMessageApi = async (messageId: string): Promise<void> => {
 export const deleteMessageForMeApi = async (messageId: string): Promise<void> => {
   await http.delete(`/messages/messages/${messageId}/me`)
 }
+
+export const updateGroupNameApi = async (conversationId: string, name: string): Promise<ConversationResponse> => {
+  const response = await http.patch<ApiResponse<ConversationResponse>>(
+    `/messages/conversations/${conversationId}/name`,
+    null,
+    { params: { name } }
+  )
+  return response.data.data
+}
+
+export const updateGroupAvatarApi = async (conversationId: string, file: File): Promise<ConversationResponse> => {
+  const formData = new FormData()
+  formData.append('file', file)
+  const response = await http.patch<ApiResponse<ConversationResponse>>(
+    `/messages/conversations/${conversationId}/avatar`,
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    }
+  )
+  return response.data.data
+}

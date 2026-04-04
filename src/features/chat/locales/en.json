@@ -21,7 +21,9 @@
         "many_other": "<bold>{{targets}}</bold> were added to the group by <actorBold>{{actor}}</actorBold>",
         "many_other_count": "<bold>{{targets}}</bold> and {{count}} others were added to the group by <actorBold>{{actor}}</actorBold>",
         "group_created": "You created the group",
-        "joined_group": "You joined the group"
+        "joined_group": "You joined the group",
+        "update_name": "<actorBold>{{actor}}</actorBold> changed group name from <bold>{{oldName}}</bold> to <bold>{{newName}}</bold>",
+        "update_avatar": "<actorBold>{{actor}}</actorBold> changed group profile picture"
       }
     },
     "status": {
@@ -54,8 +56,30 @@
       "selected": "Selected",
       "cancel": "Cancel",
       "create": "Create group",
-      "noSelected": "No members selected yet",
-      "andOthers": "and {{count}} others"
+      "andOthers": "and {{count}} others",
+      "updateAvatarTitle": "Update Group Avatar",
+      "confirm": "Confirm",
+      "dragToMove": "Drag to move",
+      "changeAvatar": "Change Avatar",
+      "removeAvatar": "Remove Avatar"
+    },
+    "rename-group-dialog": {
+      "title": "Set group name",
+      "description": "Are you sure you want to rename this group? A new group name will be visible to all members.",
+      "placeholder": "Enter new group name...",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    },
+    "group-info-dialog": {
+      "title": "Group Info",
+      "members": "Members ({{count}})",
+      "management": "Manage group",
+      "leaveGroup": "Leave group",
+      "viewAll": "View all",
+      "media": "Photos/Videos",
+      "noMedia": "No shared image in this group",
+      "sendMessage": "Chat",
+      "groupLink": "Group link"
     }
   }
 }

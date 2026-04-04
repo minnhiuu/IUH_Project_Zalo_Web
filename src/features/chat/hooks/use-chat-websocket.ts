@@ -63,7 +63,7 @@ export const useChatWebSocket = () => {
               (oldData: InfiniteData<PageResponse<MessageResponse>> | undefined) => {
                 if (!oldData) return oldData
                 const firstPage = oldData.pages[0]
-                const hasOptimistic = firstPage.data.some(
+                const hasOptimistic = msg.clientMessageId && firstPage.data.some(
                   (m: MessageResponse) => m.clientMessageId === msg.clientMessageId
                 )
                 if (hasOptimistic) {
@@ -206,15 +206,26 @@ export const useChatWebSocket = () => {
             if (newConv.id) {
               queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
                 const currentData = oldData || []
-                if (currentData.some((u: ConversationResponse) => u.id === newConv.id)) return currentData
-                return [newConv, ...currentData].sort(
-                  (a, b) => new Date(b.lastMessageTime || 0).getTime() - new Date(a.lastMessageTime || 0).getTime()
+                const exists = currentData.some((u: ConversationResponse) => u.id === newConv.id)
+
+                let nextData
+                if (exists) {
+                  nextData = currentData.map((c) => (c.id === newConv.id ? { ...c, ...newConv } : c))
+                } else {
+                  nextData = [newConv, ...currentData]
+                }
+
+                return nextData.sort(
+                  (a, b) =>
+                    new Date(b.lastMessage?.timestamp || 0).getTime() -
+                    new Date(a.lastMessage?.timestamp || 0).getTime()
                 )
               })
             } else if (newConv.type === 'REFRESH') {
               queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
             }
-          } catch {
+          } catch (error) {
+            console.error('[Socket] Error handling conversation update:', error)
             queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
           }
         })

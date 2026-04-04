@@ -5,12 +5,13 @@ interface GroupAvatarProps {
   avatars: (string | null | undefined)[]
   names: string[]
   count: number
-  size?: 'sm' | 'md' | 'lg' | 'xl'
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
   className?: string
 }
 
 export function GroupAvatar({ avatars, names, count, size = 'md', className }: GroupAvatarProps) {
   const sizeClasses = {
+    xs: 'w-6 h-6',
     sm: 'w-8 h-8',
     md: 'w-10 h-10',
     lg: 'w-12 h-12',
@@ -18,6 +19,7 @@ export function GroupAvatar({ avatars, names, count, size = 'md', className }: G
   }
 
   const innerSizeClasses = {
+    xs: 'w-3 h-3 text-[6px]',
     sm: 'w-4 h-4 text-[8.5px]',
     md: 'w-4.5 h-4.5 text-[8px]',
     lg: 'w-[23px] h-[23px] text-[10px]',

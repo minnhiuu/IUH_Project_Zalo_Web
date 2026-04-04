@@ -1,26 +1,16 @@
 {
   "chat": {
     "title": "Tin nhắn",
-    "searchPlaceholder": "Tìm kiếm trò chuyện...",
-    "emptyState": "Chọn một đoạn hội thoại để bắt đầu",
+    "searchPlaceholder": "Tìm kiếm",
+    "emptyState": "Hãy chọn một cuộc hội thoại để bắt đầu nhắn tin",
     "inputPlaceholder": "Nhập tin nhắn...",
     "send": "Gửi",
-    "you": "bạn",
+    "you": "Bạn",
     "user": "Người dùng",
     "type": {
       "image": "[Hình ảnh]",
-      "file": "[Tệp tin]"
-    },
-    "status": {
-      "online": "Đang hoạt động",
-      "justNow": "Vừa mới truy cập",
-      "minutesAgo": "Truy cập {{count}} phút trước",
-      "hoursAgo": "Truy cập {{count}} giờ trước",
-      "daysAgo": "Truy cập {{count}} ngày trước",
-      "onDate": "Truy cập vào {{date}}",
-      "sending": "Đang gửi",
-      "sent": "Đã nhận",
-      "membersCount": "{{count}} thành viên"
+      "file": "[Tệp]",
+      "confirm": "Xác nhận"
     },
     "system": {
       "add_members": {
@@ -30,9 +20,24 @@
         "single_other": "<bold>{{target}}</bold> đã được <actorBold>{{actor}}</actorBold> thêm vào nhóm",
         "many_other": "<bold>{{targets}}</bold> đã được <actorBold>{{actor}}</actorBold> thêm vào nhóm",
         "many_other_count": "<bold>{{targets}}</bold> và {{count}} người khác đã được <actorBold>{{actor}}</actorBold> thêm vào nhóm",
-        "group_created": "Bạn vừa tạo nhóm",
-        "joined_group": "Bạn vừa trở thành thành viên của nhóm"
+        "group_created": "Bạn đã tạo nhóm",
+        "joined_group": "Bạn đã tham gia nhóm",
+        "update_name": "<actorBold>{{actor}}</actorBold> đã đổi tên nhóm từ <bold>{{oldName}}</bold> thành <bold>{{newName}}</bold>",
+        "update_avatar": "<actorBold>{{actor}}</actorBold> đã thay đổi ảnh đại diện nhóm",
+        "update_name_simple": "Tên nhóm đổi thành {{newName}}",
+        "update_avatar_simple": "Ảnh đại diện nhóm đã thay đổi"
       }
+    },
+    "status": {
+      "online": "Vừa mới truy cập",
+      "justNow": "Vừa xong",
+      "minutesAgo": "{{count}} phút trước",
+      "hoursAgo": "{{count}} giờ trước",
+      "daysAgo": "{{count}} ngày trước",
+      "onDate": "Truy cập ngày {{date}}",
+      "sending": "Đang gửi...",
+      "sent": "Đã gửi",
+      "membersCount": "{{count}} thành viên"
     },
     "sidebar": {
       "all": "Tất cả",
@@ -42,19 +47,41 @@
       "addFriend": "Thêm bạn"
     },
     "errors": {
-      "loadConversations": "Lỗi khi tải danh sách hội thoại.",
-      "loadMessages": "Lỗi khi tải tin nhắn."
+      "loadConversations": "Không thể tải danh sách cuộc trò chuyện.",
+      "loadMessages": "Không thể tải tin nhắn."
     },
     "create-group-dialog": {
       "title": "Tạo nhóm",
       "namePlaceholder": "Nhập tên nhóm...",
-      "searchPlaceholder": "Nhập tên, số điện thoại, hoặc danh sách số điện thoại",
+      "searchPlaceholder": "Tìm tên, số điện thoại, hoặc danh sách đã chọn",
       "recentChats": "Trò chuyện gần đây",
       "selected": "Đã chọn",
       "cancel": "Hủy",
       "create": "Tạo nhóm",
-      "noSelected": "Chưa có thành viên nào được chọn",
-      "andOthers": "và {{count}} người khác"
+      "andOthers": "và {{count}} người khác",
+      "updateAvatarTitle": "Cập nhật ảnh đại diện nhóm",
+      "confirm": "Xác nhận",
+      "dragToMove": "Di chuyển để điều chỉnh",
+      "changeAvatar": "Đổi Ảnh",
+      "removeAvatar": "Xoá Ảnh"
+    },
+    "rename-group-dialog": {
+      "title": "Đặt tên nhóm",
+      "description": "Bạn có chắc chắn muốn đổi tên nhóm? Tên nhóm mới sẽ hiển thị với tất cả thành viên.",
+      "placeholder": "Nhập tên nhóm mới...",
+      "cancel": "Hủy",
+      "confirm": "Xác nhận"
+    },
+    "group-info-dialog": {
+      "title": "Thông tin nhóm",
+      "members": "Thành viên ({{count}})",
+      "management": "Quản lý nhóm",
+      "leaveGroup": "Rời nhóm",
+      "viewAll": "Xem tất cả",
+      "media": "Ảnh/Video",
+      "noMedia": "Chưa có ảnh/video nào được chia sẻ trong nhóm này",
+      "sendMessage": "Nhắn tin",
+      "groupLink": "Link tham gia nhóm"
     }
   }
 }
