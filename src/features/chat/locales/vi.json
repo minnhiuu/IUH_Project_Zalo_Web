@@ -5,7 +5,7 @@
     "emptyState": "Chọn một đoạn hội thoại để bắt đầu",
     "inputPlaceholder": "Nhập tin nhắn...",
     "send": "Gửi",
-    "you": "Bạn",
+    "you": "bạn",
     "user": "Người dùng",
     "type": {
       "image": "[Hình ảnh]",
@@ -21,6 +21,18 @@
       "sending": "Đang gửi",
       "sent": "Đã nhận",
       "membersCount": "{{count}} thành viên"
+    },
+    "system": {
+      "add_members": {
+        "single_self": "bạn đã được <actorBold>{{actor}}</actorBold> thêm vào nhóm",
+        "many_self": "bạn, <bold>{{targets}}</bold> đã được <actorBold>{{actor}}</actorBold> thêm vào nhóm",
+        "many_self_count": "bạn, <bold>{{targets}}</bold> và {{count}} người khác đã được <actorBold>{{actor}}</actorBold> thêm vào nhóm",
+        "single_other": "<bold>{{target}}</bold> đã được <actorBold>{{actor}}</actorBold> thêm vào nhóm",
+        "many_other": "<bold>{{targets}}</bold> đã được <actorBold>{{actor}}</actorBold> thêm vào nhóm",
+        "many_other_count": "<bold>{{targets}}</bold> và {{count}} người khác đã được <actorBold>{{actor}}</actorBold> thêm vào nhóm",
+        "group_created": "Bạn vừa tạo nhóm",
+        "joined_group": "Bạn vừa trở thành thành viên của nhóm"
+      }
     },
     "sidebar": {
       "all": "Tất cả",

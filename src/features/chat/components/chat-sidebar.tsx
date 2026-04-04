@@ -12,6 +12,8 @@ import { UserAvatar } from '@/components/common/user-avatar'
 import { MessageType, MessageStatus } from '@/constants/enum'
 import type { ConversationResponse } from '../schemas/chat.schema'
 import { formatPreview } from '../utils/chat-preview'
+import { useAuth } from '@/features/auth'
+import { getSystemMessageLabel } from '../utils/system-message'
 
 interface ChatSidebarProps {
   selectedChatId?: string
@@ -20,7 +22,8 @@ interface ChatSidebarProps {
 
 export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) {
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false)
-  const { text } = useChatText()
+  const { text, t } = useChatText()
+  const { user } = useAuth()
   const { data: conversations, isLoading, isError } = useConversationsQuery()
   const { mutate: markAsRead } = useMarkAsReadMutation()
 
@@ -33,6 +36,9 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
 
   const getPreviewText = (chat: ConversationResponse) => {
     if (!chat.lastMessage) return ''
+    if (chat.lastMessage.type === MessageType.System) {
+      return getSystemMessageLabel(chat.lastMessage.metadata, user?.id, chat.members || [], t, false)
+    }
     return formatPreview(
       {
         content: chat.lastMessage.content || '',

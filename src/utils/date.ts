@@ -125,3 +125,38 @@ export const formatLastSeen = (
 
   return statusTexts.onDate(format(d, 'dd/MM/yyyy'))
 }
+
+export const isSameDay = (d1: string | Date, d2: string | Date | null | undefined): boolean => {
+  if (!d2) return false
+  const date1 = new Date(d1)
+  const date2 = new Date(d2)
+  return (
+    date1.getFullYear() === date2.getFullYear() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getDate() === date2.getDate()
+  )
+}
+
+export const formatChatDivider = (date: string | Date, lang: string = 'vi'): string => {
+  const d = new Date(date)
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const yesterday = new Date(today)
+  yesterday.setDate(yesterday.getDate() - 1)
+
+  const checkDate = new Date(d.getFullYear(), d.getMonth(), d.getDate())
+
+  if (checkDate.getTime() === today.getTime()) {
+    return lang === 'vi' ? 'Hôm nay' : 'Today'
+  }
+  if (checkDate.getTime() === yesterday.getTime()) {
+    return lang === 'vi' ? 'Hôm qua' : 'Yesterday'
+  }
+
+  // Same year
+  if (d.getFullYear() === now.getFullYear()) {
+    return format(d, 'dd MMMM', { locale: getLocale(lang) })
+  }
+
+  return format(d, 'dd MMMM, yyyy', { locale: getLocale(lang) })
+}

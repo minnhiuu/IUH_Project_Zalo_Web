@@ -10,7 +10,8 @@ import {
   DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu'
 import { useChatContext } from '../context/chat-context'
-import { MessageStatus } from '@/constants/enum'
+import { MessageStatus, MessageType } from '@/constants/enum'
+import { SystemMessage } from '../utils/system-message'
 
 export function MessageBubble({
   message,
@@ -35,6 +36,10 @@ export function MessageBubble({
   const { revokeMessage, deleteMessageForMe } = useChatContext()
   const isRevoked = message.status === MessageStatus.REVOKED
   const conversationId = message.conversationId
+
+  if (message.type === MessageType.System) {
+    return <SystemMessage message={message} conversation={conversation} />
+  }
   return (
     <div className={cn('flex w-full px-2 gap-2', isOwn ? 'justify-end' : 'justify-start', isFirst ? 'mt-4' : 'mt-1')}>
       {!isOwn && (
@@ -54,7 +59,7 @@ export function MessageBubble({
       <div className={cn('flex flex-col items-end', isOwn ? 'items-end' : 'items-start')}>
         <div
           className={cn(
-            'px-4 py-2 max-w-[28rem] break-words text-[15px] shadow-sm flex flex-col relative group',
+            'px-4 py-2 max-w-md wrap-break-word text-[15px] shadow-sm flex flex-col relative group',
             isOwn
               ? 'bg-[#e5efff] text-black dark:bg-primary dark:text-primary-foreground'
               : 'bg-white dark:bg-zinc-900 text-foreground',

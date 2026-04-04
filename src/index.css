@@ -555,6 +555,14 @@ input[type='radio']:checked {
   .centered-toast-text {
     @apply text-[14px] font-normal text-center leading-tight text-white/80 px-2;
   }
+
+  .system-msg {
+    @apply bg-[hsla(0,0%,100%,0.85)] dark:bg-[hsla(0,0%,100%,0.05)] text-[12.5px] text-[#5a6981] dark:text-[#9facbc] px-3 py-1 rounded-full text-center max-w-[85%] leading-relaxed select-none shadow-sm;
+  }
+
+  .date-divider {
+    @apply bg-zinc-300 dark:bg-zinc-700/50 text-white dark:text-zinc-400 text-[11px] font-semibold px-4 py-0.5 rounded-full select-none shadow-sm uppercase tracking-wider;
+  }
 }
 
 @layer utilities {

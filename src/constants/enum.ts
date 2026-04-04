@@ -93,10 +93,9 @@ export type Status = (typeof Status)[keyof typeof Status]
 
 export const MessageType = {
   Chat: 'CHAT',
-  Join: 'JOIN',
-  Leave: 'LEAVE',
   Image: 'IMAGE',
-  File: 'FILE'
+  File: 'FILE',
+  System: 'SYSTEM'
 } as const
 
 export type MessageType = (typeof MessageType)[keyof typeof MessageType]

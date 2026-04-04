@@ -35,6 +35,7 @@ export function ChatLayout({ defaultPartnerId }: { defaultPartnerId?: string }) 
     if (!defaultPartnerId) return
     // Nếu đã có trong cache thì không cần gọi API
     if (cachedConvForPartner) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setResolvedConversation(cachedConvForPartner)
       return
     }

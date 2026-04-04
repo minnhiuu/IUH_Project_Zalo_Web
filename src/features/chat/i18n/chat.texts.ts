@@ -45,5 +45,16 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     create: t(CHAT_KEYS['create-group-dialog'].create),
     noSelected: t(CHAT_KEYS['create-group-dialog'].noSelected),
     andOthers: (count: number) => t(CHAT_KEYS['create-group-dialog'].andOthers, { count })
+  },
+  system: {
+    add_members: {
+      single_self: (actor: string) => t(CHAT_KEYS.system.add_members.single_self, { actor }),
+      many_self: (firstTarget: string, count: number, actor: string) =>
+        t(CHAT_KEYS.system.add_members.many_self, { firstTarget, count, actor }),
+      single_other: (target: string, actor: string) =>
+        t(CHAT_KEYS.system.add_members.single_other, { target, actor }),
+      many_other: (firstTarget: string, count: number, actor: string) =>
+        t(CHAT_KEYS.system.add_members.many_other, { firstTarget, count, actor })
+    }
   }
 })

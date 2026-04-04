@@ -42,5 +42,13 @@ export const CHAT_KEYS = {
     create: 'chat.create-group-dialog.create',
     noSelected: 'chat.create-group-dialog.noSelected',
     andOthers: 'chat.create-group-dialog.andOthers'
+  },
+  system: {
+    add_members: {
+      single_self: 'chat.system.add_members.single_self',
+      many_self: 'chat.system.add_members.many_self',
+      single_other: 'chat.system.add_members.single_other',
+      many_other: 'chat.system.add_members.many_other'
+    }
   }
 } as const

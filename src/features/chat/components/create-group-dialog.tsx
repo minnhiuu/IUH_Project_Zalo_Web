@@ -65,6 +65,7 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
   // Cleanup preview URL to prevent memory leaks and reset state when closing
   useEffect(() => {
     if (!isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       resetState()
     }
   }, [isOpen])

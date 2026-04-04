@@ -29,7 +29,8 @@ export const LastMessageResponseSchema = z.object({
   timestamp: z.string().datetime().nullable().optional(),
   type: z.nativeEnum(MessageType).nullable().optional(),
   status: z.nativeEnum(MessageStatus).nullable().optional(),
-  isFromMe: z.boolean().nullable().optional()
+  isFromMe: z.boolean().nullable().optional(),
+  metadata: z.record(z.string(), z.any()).nullable().optional()
 })
 
 export type LastMessageResponse = z.infer<typeof LastMessageResponseSchema>
@@ -70,7 +71,8 @@ export const MessageResponseSchema = z.object({
   replyTo: ReplyMetadataSchema.nullable().optional(),
   isForwarded: z.boolean().nullable().optional(),
   unreadCount: z.number().nullable().optional(),
-  isFromMe: z.boolean().nullable().optional()
+  isFromMe: z.boolean().nullable().optional(),
+  metadata: z.record(z.string(), z.any()).nullable().optional()
 })
 
 export type MessageResponse = z.infer<typeof MessageResponseSchema>

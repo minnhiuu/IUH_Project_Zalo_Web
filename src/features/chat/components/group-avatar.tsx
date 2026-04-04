@@ -18,7 +18,7 @@ export function GroupAvatar({ avatars, names, count, size = 'md', className }: G
   }
 
   const innerSizeClasses = {
-    sm: 'w-3.5 h-3.5 text-[7px]',
+    sm: 'w-4 h-4 text-[8.5px]',
     md: 'w-4.5 h-4.5 text-[8px]',
     lg: 'w-[23px] h-[23px] text-[10px]',
     xl: 'w-7 h-7 text-[12px]'
@@ -64,7 +64,7 @@ export function GroupAvatar({ avatars, names, count, size = 'md', className }: G
     // ────────── 4+ Members (Grid) ──────────
     const displayAvatars = avatars.slice(0, 3)
     return (
-      <div className='grid grid-cols-2 grid-rows-2 w-full h-full gap-0.5 p-0.5'>
+      <div className={cn('grid grid-cols-2 grid-rows-2 w-full h-full p-0 gap-0', size !== 'sm' && 'p-0.5 gap-0.5')}>
         {displayAvatars.map((url, i) => (
           <div key={i} className='w-full h-full overflow-hidden flex items-center justify-center'>
             <UserAvatar
@@ -87,7 +87,7 @@ export function GroupAvatar({ avatars, names, count, size = 'md', className }: G
                 className={cn(
                   'font-bold text-muted-foreground',
                   size === 'sm'
-                    ? 'text-[7px]'
+                    ? 'text-[8px]'
                     : size === 'md'
                       ? 'text-[9px]'
                       : size === 'lg'

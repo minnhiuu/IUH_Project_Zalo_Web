@@ -38,7 +38,7 @@ export const UserAvatar = ({ name, src, className, fallbackClassName }: UserAvat
     <Avatar className={cn('h-8 w-8', className)}>
       {src && <AvatarImage src={src} alt={name} className="object-cover" />}
       <AvatarFallback 
-        className={cn('text-white font-bold', fallbackClassName)}
+        className={cn('text-white font-bold text-[11px]', fallbackClassName)}
         style={{ backgroundColor: bgColor }}
       >
         {getInitials(name)}

@@ -75,7 +75,7 @@ export function BaseDialog({
           {(confirmText || cancelText) && (
             <DialogFooter className='flex flex-row justify-end gap-3 px-4 pb-4'>
               {cancelText && (
-                <Button variant='secondary' onClick={() => { onCancel?.() || onOpenChange(false) }} className='px-6 h-9 min-w-[80px]'>
+                <Button variant='secondary' onClick={() => { if (onCancel) { onCancel() } else { onOpenChange(false) } }} className='px-6 h-9 min-w-[80px]'>
                   {cancelText}
                 </Button>
               )}
