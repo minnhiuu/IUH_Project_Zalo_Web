@@ -63,9 +63,9 @@ export const useChatWebSocket = () => {
               (oldData: InfiniteData<PageResponse<MessageResponse>> | undefined) => {
                 if (!oldData) return oldData
                 const firstPage = oldData.pages[0]
-                const hasOptimistic = msg.clientMessageId && firstPage.data.some(
-                  (m: MessageResponse) => m.clientMessageId === msg.clientMessageId
-                )
+                const hasOptimistic =
+                  msg.clientMessageId &&
+                  firstPage.data.some((m: MessageResponse) => m.clientMessageId === msg.clientMessageId)
                 if (hasOptimistic) {
                   return {
                     ...oldData,

@@ -78,7 +78,7 @@
   --destructive-text: #be123c;
   --destructive-border: #fecdd3;
   --destructive-solid: #e11d48;
-  
+
   --bg-icon-link: #ebecf0;
   --text-icon-link: #081b3a;
   --bg-avt-group-placeholder: #ebecf0;
@@ -90,6 +90,28 @@
   --text-brand-vibrant: #0068ff;
   --bg-brand-subtle: rgba(0, 104, 255, 0.1);
   --bg-brand-subtle-hover: rgba(0, 104, 255, 0.15);
+  --toast-bg: #171718;
+  --toast-text: #ffffff;
+  --toast-text-muted: rgba(255, 255, 255, 0.8);
+
+  --dialog-selection-btn-disabled-bg: #add1ff;
+  --dialog-selection-btn-disabled-text: #f0f7ff;
+  --dialog-selection-bg: #e5f1ff;
+  --dialog-selection-text: #0045ad;
+  --dialog-selection-badge-bg: #e5f1ff;
+  --dialog-selection-badge-text: #0045ad;
+  --icon-x-bg: #0045ad;
+  --icon-x-text: #ffffff;
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
 }
 
 .dark {
@@ -154,6 +176,18 @@
   --text-brand-vibrant: #0068ff;
   --bg-brand-subtle: rgba(0, 104, 255, 0.2);
   --bg-brand-subtle-hover: rgba(0, 104, 255, 0.25);
+  --toast-bg: #171718;
+  --toast-text: #ffffff;
+  --toast-text-muted: rgba(255, 255, 255, 0.8);
+
+  --dialog-selection-btn-disabled-bg: #00378a;
+  --dialog-selection-btn-disabled-text: #0068ff;
+  --dialog-selection-bg: #00378a;
+  --dialog-selection-text: #8fbfff;
+  --dialog-selection-badge-bg: #001029;
+  --dialog-selection-badge-text: #66a6ff;
+  --icon-x-bg: #8fbfff;
+  --icon-x-text: #00378a;
 }
 
 @theme inline {
@@ -220,6 +254,9 @@
   --color-text-brand-vibrant: var(--text-brand-vibrant);
   --color-bg-brand-subtle: var(--bg-brand-subtle);
   --color-bg-brand-subtle-hover: var(--bg-brand-subtle-hover);
+  --color-toast-bg: var(--toast-bg);
+  --color-toast-text: var(--toast-text);
+  --color-toast-text-muted: var(--toast-text-muted);
 
   --color-success-bg: var(--success-bg);
   --color-success-text: var(--success-text);
@@ -234,6 +271,15 @@
   --color-destructive-text: var(--destructive-text);
   --color-destructive-border: var(--destructive-border);
   --color-destructive-solid: var(--destructive-solid);
+
+  --color-dialog-selection-btn-disabled-bg: var(--dialog-selection-btn-disabled-bg);
+  --color-dialog-selection-btn-disabled-text: var(--dialog-selection-btn-disabled-text);
+  --color-dialog-selection-bg: var(--dialog-selection-bg);
+  --color-dialog-selection-text: var(--dialog-selection-text);
+  --color-dialog-selection-badge-bg: var(--dialog-selection-badge-bg);
+  --color-dialog-selection-badge-text: var(--dialog-selection-badge-text);
+  --color-icon-x-bg: var(--icon-x-bg);
+  --color-icon-x-text: var(--icon-x-text);
 
   @keyframes pulse-subtle {
     0%,

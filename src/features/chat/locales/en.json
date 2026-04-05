@@ -5,7 +5,8 @@
     "emptyState": "Select a conversation to start chatting",
     "inputPlaceholder": "Type a message...",
     "send": "Send",
-    "you": "you",
+    "you": "You",
+    "you_lower": "you",
     "user": "User",
     "type": {
       "image": "[Image]",
@@ -14,16 +15,18 @@
     },
     "system": {
       "add_members": {
-        "single_self": "you were added to the group by <actorBold>{{actor}}</actorBold>",
-        "many_self": "you, <bold>{{targets}}</bold> were added to the group by <actorBold>{{actor}}</actorBold>",
-        "many_self_count": "you, <bold>{{targets}}</bold> and {{count}} others were added to the group by <actorBold>{{actor}}</actorBold>",
+        "single_self": "You were added to the group by <actorBold>{{actor}}</actorBold>",
+        "many_self": "You, <bold>{{targets}}</bold> were added to the group by <actorBold>{{actor}}</actorBold>",
+        "many_self_count": "You, <bold>{{targets}}</bold> and {{count}} others were added to the group by <actorBold>{{actor}}</actorBold>",
         "single_other": "<bold>{{target}}</bold> was added to the group by <actorBold>{{actor}}</actorBold>",
         "many_other": "<bold>{{targets}}</bold> were added to the group by <actorBold>{{actor}}</actorBold>",
         "many_other_count": "<bold>{{targets}}</bold> and {{count}} others were added to the group by <actorBold>{{actor}}</actorBold>",
         "group_created": "You created the group",
         "joined_group": "You joined the group",
         "update_name": "<actorBold>{{actor}}</actorBold> changed group name from <bold>{{oldName}}</bold> to <bold>{{newName}}</bold>",
-        "update_avatar": "<actorBold>{{actor}}</actorBold> changed group profile picture"
+        "update_avatar": "<actorBold>{{actor}}</actorBold> changed group profile picture",
+        "update_name_simple": "Group name changed to {{newName}}",
+        "update_avatar_simple": "Group avatar has been changed"
       }
     },
     "status": {
@@ -80,6 +83,14 @@
       "noMedia": "No shared image in this group",
       "sendMessage": "Chat",
       "groupLink": "Group link"
+    },
+    "toasts": {
+      "updating": "Updating...",
+      "updateAvatarSuccess": "Profile picture updated",
+      "updateNameSuccess": "Group name updated",
+      "updateError": "Update failed",
+      "leaveGroupSuccess": "Left group successfully",
+      "leaveGroupError": "Failed to leave group"
     }
   }
 }

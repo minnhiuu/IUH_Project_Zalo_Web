@@ -20,6 +20,7 @@ export const CHAT_KEYS = {
     loadMessages: 'chat.errors.loadMessages'
   },
   you: 'chat.you',
+  you_lower: 'chat.you_lower',
   user: 'chat.user',
   type: {
     image: 'chat.type.image',
@@ -48,10 +49,11 @@ export const CHAT_KEYS = {
     changeAvatar: 'chat.create-group-dialog.changeAvatar',
     removeAvatar: 'chat.create-group-dialog.removeAvatar'
   },
-  system: {
+      system: {
     add_members: {
       single_self: 'chat.system.add_members.single_self',
       many_self: 'chat.system.add_members.many_self',
+      many_self_count: 'chat.system.add_members.many_self_count',
       single_other: 'chat.system.add_members.single_other',
       many_other: 'chat.system.add_members.many_other',
       many_other_count: 'chat.system.add_members.many_other_count',

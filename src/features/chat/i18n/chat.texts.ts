@@ -23,6 +23,7 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     loadMessages: t(CHAT_KEYS.errors.loadMessages)
   },
   you: t(CHAT_KEYS.you),
+  you_lower: t(CHAT_KEYS.you_lower),
   user: t(CHAT_KEYS.user),
   type: {
     image: t(CHAT_KEYS.type.image),
@@ -56,9 +57,13 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
       single_self: (actor: string) => t(CHAT_KEYS.system.add_members.single_self, { actor }),
       many_self: (firstTarget: string, count: number, actor: string) =>
         t(CHAT_KEYS.system.add_members.many_self, { firstTarget, count, actor }),
+      many_self_count: (firstTarget: string, count: number, actor: string) =>
+        t(CHAT_KEYS.system.add_members.many_self_count, { firstTarget, count, actor }),
       single_other: (target: string, actor: string) => t(CHAT_KEYS.system.add_members.single_other, { target, actor }),
       many_other: (firstTarget: string, count: number, actor: string) =>
         t(CHAT_KEYS.system.add_members.many_other, { firstTarget, count, actor }),
+      many_other_count: (firstTarget: string, count: number, actor: string) =>
+        t(CHAT_KEYS.system.add_members.many_other_count, { firstTarget, count, actor }),
       update_name_simple: t(CHAT_KEYS.system.add_members.update_name_simple),
       update_avatar_simple: t(CHAT_KEYS.system.add_members.update_avatar_simple)
     }

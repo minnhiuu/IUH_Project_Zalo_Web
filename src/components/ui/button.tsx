@@ -22,7 +22,9 @@ const buttonVariants = cva(
         link: 'text-primary underline-offset-4 hover:underline',
         'icon-circle': 'bg-icon-muted hover:bg-primary rounded-full',
         'secondary-blue':
-          'bg-brand-blue-light text-brand-blue-text hover:bg-brand-blue-hover dark:bg-brand-blue dark:hover:bg-brand-blue-dark'
+          'bg-brand-blue-light text-brand-blue-text hover:bg-brand-blue-hover dark:bg-brand-blue dark:hover:bg-brand-blue-dark',
+        disabled:
+          'bg-dialog-selection-btn-disabled-bg text-dialog-selection-btn-disabled-text opacity-100! cursor-not-allowed!'
       },
       size: {
         default:

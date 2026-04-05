@@ -207,15 +207,9 @@ export const formatMessageHour = (date: string | Date | number | null | undefine
   if (!date) return ''
   let d: Date
   if (typeof date === 'string') {
-    d = parseISO(date)
-    // TEMPORARY FIX: Subtract 7 hours to compensate for BE's offset error if needed
-    // d = new Date(d.getTime() - 7 * 60 * 60 * 1000)
-    // Actually, if stripping 'Z' makes it 08:00 and it should be 01:00, 
-    // it means the BE is sending a string that is already +7.
+    // BE is now sending explicitly formatted strings; parseISO will handle the local conversion.
     const cleaned = date.endsWith('Z') ? date.slice(0, -1) : date
     d = parseISO(cleaned)
-    // Force subtract 7 hours to align with true local time
-    d = new Date(d.getTime() - 7 * 60 * 60 * 1000)
   } else {
     d = new Date(date)
   }

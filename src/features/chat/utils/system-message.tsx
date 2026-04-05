@@ -12,14 +12,14 @@ export type SystemActionType = 'ADD_MEMBERS' | 'REMOVE_MEMBER' | 'LEAVE_GROUP' |
 
 export interface SystemMetadata {
   action: SystemActionType
-  actorId: string
-  actorName?: string
   targetIds?: string[]
   payload?: Record<string, string | number>
 }
 
 export function getSystemMessageLabel(
   metadataRaw: unknown,
+  senderId: string | undefined, // Added
+  senderName: string | undefined, // Added
   currentUserId: string | undefined,
   members: ConversationMemberResponse[],
   translate: TFunction<'chat'>,
@@ -28,19 +28,19 @@ export function getSystemMessageLabel(
   const metadata = metadataRaw as SystemMetadata | null | undefined
   if (!metadata) return ''
 
-  const { action, actorId, actorName: actorNameMeta, targetIds, payload } = metadata
-  const actor = members.find((m) => String(m.userId) === String(actorId))
-  const isActorMe = currentUserId && String(actorId) === String(currentUserId)
+  const { action, targetIds, payload } = metadata
+  const actor = members.find((m) => String(m.userId) === String(senderId))
+  const isActorMe = currentUserId && String(senderId) === String(currentUserId)
 
-  const actorNameLower = isActorMe ? String(translate('chat.you_lower')) : actor?.fullName || actorNameMeta || 'User'
-  const actorNameCapital = isActorMe ? String(translate('chat.you')) : actor?.fullName || actorNameMeta || 'User'
+  const actorNameLower = isActorMe ? String(translate('chat.you_lower')) : actor?.fullName || senderName || 'User'
+  const actorNameCapital = isActorMe ? String(translate('chat.you')) : actor?.fullName || senderName || 'User'
 
   let i18nKey = ''
   const values: Record<string, string | number> = { actor: actorNameLower }
 
   if (action === 'ADD_MEMBERS') {
     if (!targetIds || targetIds.length === 0) {
-      if (actorId === currentUserId) return translate('chat.system.add_members.group_created')
+      if (String(senderId) === String(currentUserId)) return translate('chat.system.add_members.group_created')
       return translate('chat.system.add_members.joined_group')
     }
 
@@ -96,7 +96,7 @@ export function getSystemMessageLabel(
       return (
         <span className='inline text-left'>
           {action === 'UPDATE_NAME' && (
-            <Pencil className='inline-block w-3 h-3 mb-0.5 mr-1 text-brand-teal cursor-pointer' />
+            <Pencil className='inline-block w-3 h-3 mb-0.5 mr-1 text-green-500 cursor-pointer' />
           )}
           <Trans
             ns='chat'
@@ -104,7 +104,7 @@ export function getSystemMessageLabel(
             values={values}
             components={{
               bold: <strong className='font-semibold' />,
-              actorBold: actorId === currentUserId ? <span /> : <strong className='font-semibold' />
+              actorBold: senderId === currentUserId ? <span /> : <strong className='font-semibold' />
             }}
           />
         </span>
@@ -129,7 +129,7 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
 
   const { systemLabel, targetAvatars } = useMemo(() => {
     const metadata = message.metadata as unknown as SystemMetadata | null | undefined
-    const label = getSystemMessageLabel(message.metadata, user?.id, conversation?.members || [], t, true)
+    const label = getSystemMessageLabel(message.metadata, message.senderId, message.senderName, user?.id, conversation?.members || [], t, true)
 
     let avatars: { id: string; avatar?: string | null; name: string }[] = []
     if (metadata?.action === 'ADD_MEMBERS' && metadata.targetIds) {
@@ -140,7 +140,7 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
     }
 
     return { systemLabel: label, targetAvatars: avatars }
-  }, [message.metadata, user?.id, conversation?.members, t])
+  }, [message.metadata, message.senderId, message.senderName, user?.id, conversation?.members, t])
 
   if (!systemLabel) return null
 
@@ -156,9 +156,7 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
             className='shrink-0'
           />
         )}
-        <div className='flex-1 text-[12.5px] leading-relaxed text-left'>
-          {systemLabel}
-        </div>
+        <div className='flex-1 text-[12.5px] leading-relaxed text-left'>{systemLabel}</div>
       </div>
     </div>
   )

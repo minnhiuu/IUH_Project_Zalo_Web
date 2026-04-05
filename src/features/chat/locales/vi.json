@@ -6,6 +6,7 @@
     "inputPlaceholder": "Nhập tin nhắn...",
     "send": "Gửi",
     "you": "Bạn",
+    "you_lower": "bạn",
     "user": "Người dùng",
     "type": {
       "image": "[Hình ảnh]",
@@ -14,14 +15,14 @@
     },
     "system": {
       "add_members": {
-        "single_self": "bạn đã được <actorBold>{{actor}}</actorBold> thêm vào nhóm",
-        "many_self": "bạn, <bold>{{targets}}</bold> đã được <actorBold>{{actor}}</actorBold> thêm vào nhóm",
-        "many_self_count": "bạn, <bold>{{targets}}</bold> và {{count}} người khác đã được <actorBold>{{actor}}</actorBold> thêm vào nhóm",
+        "single_self": "Bạn đã được <actorBold>{{actor}}</actorBold> thêm vào nhóm",
+        "many_self": "Bạn, <bold>{{targets}}</bold> đã được <actorBold>{{actor}}</actorBold> thêm vào nhóm",
+        "many_self_count": "Bạn, <bold>{{targets}}</bold> và {{count}} người khác đã được <actorBold>{{actor}}</actorBold> thêm vào nhóm",
         "single_other": "<bold>{{target}}</bold> đã được <actorBold>{{actor}}</actorBold> thêm vào nhóm",
         "many_other": "<bold>{{targets}}</bold> đã được <actorBold>{{actor}}</actorBold> thêm vào nhóm",
         "many_other_count": "<bold>{{targets}}</bold> và {{count}} người khác đã được <actorBold>{{actor}}</actorBold> thêm vào nhóm",
-        "group_created": "Bạn đã tạo nhóm",
-        "joined_group": "Bạn đã tham gia nhóm",
+        "group_created": "Bạn vừa tạo nhóm",
+        "joined_group": "Bạn trở thành thành viên của nhóm",
         "update_name": "<actorBold>{{actor}}</actorBold> đã đổi tên nhóm từ <bold>{{oldName}}</bold> thành <bold>{{newName}}</bold>",
         "update_avatar": "<actorBold>{{actor}}</actorBold> đã thay đổi ảnh đại diện nhóm",
         "update_name_simple": "Tên nhóm đổi thành {{newName}}",
@@ -82,6 +83,14 @@
       "noMedia": "Chưa có ảnh/video nào được chia sẻ trong nhóm này",
       "sendMessage": "Nhắn tin",
       "groupLink": "Link tham gia nhóm"
+    },
+    "toasts": {
+      "updating": "Đang cập nhật...",
+      "updateAvatarSuccess": "Cập nhật ảnh đại diện thành công",
+      "updateNameSuccess": "Cập nhật tên nhóm thành công",
+      "updateError": "Cập nhật thất bại",
+      "leaveGroupSuccess": "Rời nhóm thành công",
+      "leaveGroupError": "Rời nhóm thất bại"
     }
   }
 }

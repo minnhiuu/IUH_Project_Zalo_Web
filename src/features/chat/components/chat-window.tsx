@@ -18,12 +18,11 @@ import { CloudInfoSidebar } from './cloud-info-sidebar'
 import { AiChatWindow } from './ai-chat-window'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { GroupAvatar } from './group-avatar'
-import { BaseDialog } from '@/components/common/base-dialog'
-import { Input } from '@/components/ui/input'
 import { ImageCropperDialog } from '@/components/common/image-cropper-dialog'
 import { getCroppedImg } from '@/utils/image-crop'
 import { cn } from '@/lib/utils'
 import { GroupInfoDialog } from './group-info-dialog'
+import { RenameGroupDialog } from './rename-group-dialog'
 import { showLoadingToast, showSuccessToast, showErrorToast } from '@/utils/toast'
 import { toast } from 'sonner'
 
@@ -41,7 +40,6 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   const [forwardingMessage, setForwardingMessage] = useState<MessageResponse | null>(null)
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false)
   const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false)
-  const [newGroupName, setNewGroupName] = useState('')
   const { mutate: updateGroupName, isPending: isUpdatingName } = useUpdateGroupNameMutation()
   const { mutate: updateGroupAvatar } = useUpdateGroupAvatarMutation()
 
@@ -94,14 +92,10 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
     }
   }
  
-  const handleRename = () => {
-    if (!newGroupName.trim() || newGroupName === conversation.name) {
-      setIsRenameDialogOpen(false)
-      return
-    }
+  const handleRename = (newName: string) => {
     const toastId = showLoadingToast(text.toasts.updating)
     updateGroupName(
-      { id: conversation.id, name: newGroupName.trim() },
+      { id: conversation.id, name: newName },
       {
         onSuccess: () => {
           toast.dismiss(toastId)
@@ -195,7 +189,6 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
               <button
                 disabled={!conversation.isGroup || isCloudConversation}
                 onClick={() => {
-                  setNewGroupName(conversation.name || '')
                   setIsRenameDialogOpen(true)
                 }}
                 className='flex items-center gap-1.5 max-w-full group/btn'
@@ -276,42 +269,14 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
         <ChatInput conversationId={conversation.id} replyTo={replyTo} onCancelReply={() => setReplyTo(null)} />
         {forwardingMessage && <ForwardModal message={forwardingMessage} onClose={() => setForwardingMessage(null)} />}
 
-        <BaseDialog
+        <RenameGroupDialog
+          key={`${conversation.id}-${isRenameDialogOpen}`}
           open={isRenameDialogOpen}
           onOpenChange={setIsRenameDialogOpen}
-          title={text['rename-group-dialog'].title}
-          confirmText={text['rename-group-dialog'].confirm}
-          cancelText={text['rename-group-dialog'].cancel}
+          conversation={conversation}
           onConfirm={handleRename}
           isPending={isUpdatingName}
-        >
-          <div className='space-y-4'>
-            <div className='flex justify-center'>
-              <div className='relative'>
-                <GroupAvatar
-                  avatars={conversation.members?.map((m) => m.avatar) || []}
-                  names={conversation.members?.map((m) => m.fullName) || []}
-                  count={conversation.members?.length || 0}
-                  size='lg'
-                />
-              </div>
-            </div>
-            <p className='text-[14.5px] text-center text-foreground px-4 leading-normal'>
-              {text['rename-group-dialog'].description}
-            </p>
-            <div className='px-1'>
-              <Input
-                autoFocus
-                onFocus={(e) => e.target.select()}
-                value={newGroupName}
-                onChange={(e) => setNewGroupName(e.target.value)}
-                placeholder={text['rename-group-dialog'].placeholder}
-                className='h-10 text-[15px]'
-                onKeyDown={(e) => e.key === 'Enter' && handleRename()}
-              />
-            </div>
-          </div>
-        </BaseDialog>
+        />
       </div>
 
       {isCloudConversation && <CloudInfoSidebar />}

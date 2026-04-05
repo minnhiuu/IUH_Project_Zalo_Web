@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
 import { X, Camera, Search, Check } from 'lucide-react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -14,12 +14,7 @@ import { useChatText } from '../i18n/use-chat-text'
 import { formatDefaultGroupName } from '../utils/group-name'
 import { ImageCropperDialog } from '@/components/common/image-cropper-dialog'
 import { getCroppedImg } from '@/utils/image-crop'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 
 interface CreateGroupDialogProps {
   isOpen: boolean
@@ -203,26 +198,34 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent
-          className='p-0 gap-0 overflow-hidden rounded-lg sm:max-w-lg w-full shrink-0 outline-none'
-          showCloseButton={true}
+          className='p-0 gap-0 rounded-[8px] sm:max-w-[525px] w-full shrink-0 outline-none border-none shadow-xl overflow-hidden'
+          showCloseButton={false}
         >
-          <DialogHeader className='px-4 py-2.5 border-b bg-background'>
-            <DialogTitle className='text-[16px] font-semibold'>{tg.title}</DialogTitle>
+          <DialogHeader className='px-4 h-[48px] flex flex-row items-center justify-between border-b bg-background shrink-0 space-y-0'>
+            <DialogTitle className='text-[16px] font-bold'>{tg.title}</DialogTitle>
+            <DialogClose asChild>
+              <button className='p-1.5 hover:bg-muted rounded-full transition-colors cursor-pointer outline-none'>
+                <X className='w-5 h-5 text-muted-foreground/80' />
+              </button>
+            </DialogClose>
           </DialogHeader>
 
           {/* Top Section - Inputs */}
-          <div className='p-4 space-y-4 bg-background'>
+          <div className='p-4 space-y-3 bg-background'>
             <div className='flex items-center gap-3'>
               {previewUrl ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>{AvatarButton}</DropdownMenuTrigger>
                   <DropdownMenuContent align='start' className='w-48'>
-                    <DropdownMenuItem onClick={triggerFileInput} className='cursor-pointer py-2 text-[14px]'>
+                    <DropdownMenuItem
+                      onClick={triggerFileInput}
+                      className='cursor-pointer py-2 text-[14px] whitespace-nowrap overflow-hidden shrink-0'
+                    >
                       {tg.changeAvatar}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={handleRemoveAvatar}
-                      className='cursor-pointer py-2 text-[14px] text-destructive focus:text-destructive focus:bg-destructive/10'
+                      className='cursor-pointer py-2 text-[14px] text-destructive focus:text-destructive focus:bg-destructive/10 whitespace-nowrap overflow-hidden shrink-0'
                     >
                       {tg.removeAvatar}
                     </DropdownMenuItem>
@@ -232,18 +235,18 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
                 AvatarButton
               )}
 
-              <div className='flex-1 relative'>
+              <div className='flex-1 relative overflow-hidden'>
                 <Input
                   placeholder={tg.namePlaceholder}
                   value={groupName}
                   onChange={(e) => setGroupName(e.target.value)}
-                  className='border-0 border-b rounded-none px-0 h-10 focus-visible:ring-0 focus-visible:border-primary shadow-none text-[15px] bg-transparent dark:bg-transparent placeholder:text-muted-foreground/50'
+                  className='border-0 border-b rounded-none px-0 h-12 py-2 focus-visible:ring-0 focus-visible:border-primary shadow-none text-[15.5px] bg-transparent dark:bg-transparent placeholder:text-muted-foreground/40 w-full'
                 />
               </div>
             </div>
 
             <div className='relative'>
-              <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground' />
+              <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60' />
               <Input
                 placeholder={tg.searchPlaceholder}
                 value={search}
@@ -257,8 +260,7 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
           <div className='flex h-[420px] border-t bg-background overflow-hidden relative'>
             <div
               className={cn(
-                'flex flex-col border-r transition-all duration-300 ease-in-out h-full',
-                showSidebar ? 'w-[60%]' : 'w-full'
+                'flex flex-col transition-all duration-300 ease-in-out h-full bg-background overflow-hidden flex-1 min-w-0'
               )}
             >
               <ScrollArea
@@ -287,11 +289,11 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
                       >
                         <div
                           className={cn(
-                            'w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all shrink-0',
-                            isSelected ? 'bg-primary border-primary' : 'border-muted-foreground/30 border-2'
+                            'w-4.5 h-4.5 rounded-full border flex items-center justify-center transition-all shrink-0',
+                            isSelected ? 'bg-primary border-primary' : 'border-muted-foreground/30'
                           )}
                         >
-                          {isSelected && <Check className='w-3.5 h-3.5 text-white stroke-3' />}
+                          {isSelected && <Check className='w-3 h-3 text-white stroke-3' />}
                         </div>
 
                         <UserAvatar name={friend.userName} src={friend.userAvatar} className='w-9 h-9 shrink-0' />
@@ -306,55 +308,58 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
               </ScrollArea>
             </div>
 
-            {/* Selection Sidebar - 40% */}
-            <div
-              className={cn(
-                'flex flex-col bg-background transition-all duration-300 ease-in-out h-full overflow-hidden',
-                showSidebar ? 'w-[40%] border-l' : 'w-0 border-l-0'
-              )}
-            >
-              <div className='p-4 py-2 border-b flex items-center justify-between whitespace-nowrap overflow-hidden'>
-                <span className='text-[12.5px] font-semibold'>{tg.selected}</span>
-                <span className='text-[11px] font-bold px-2 py-0.5 rounded-md bg-(--dialog-selection-badge-bg) text-(--dialog-selection-badge-text)'>
-                  {selectedFriendIds.length}/100
-                </span>
-              </div>
+            {showSidebar && (
+              <div
+                className={cn(
+                  'flex flex-col bg-background transition-all duration-300 ease-in-out h-full overflow-hidden shrink-0 w-[210px] p-2.5 pb-2 pl-1'
+                )}
+              >
+                <div className='flex flex-col border rounded-[8px] h-full overflow-hidden bg-background'>
+                  <div className='p-2.5 py-1.5 flex items-center gap-1.5 whitespace-nowrap overflow-hidden shrink-0'>
+                    <span className='text-[11.5px] font-bold'>{tg.selected}</span>
+                    <span className='text-[10.5px] px-1.5 py-0.25 rounded-md bg-dialog-selection-badge-bg text-dialog-selection-badge-text'>
+                      {selectedFriendIds.length}/100
+                    </span>
+                  </div>
 
-              <ScrollArea className='flex-1'>
-                <div className='p-2 px-3 space-y-1.5'>
-                  {selectedFriends.map((friend: FriendResponse) => (
-                    <div
-                      key={friend.userId}
-                      className='flex items-center gap-2.5 p-1.5 px-3 rounded-full bg-(--dialog-selection-bg) text-(--dialog-selection-text) group'
-                    >
-                      <UserAvatar name={friend.userName} src={friend.userAvatar} className='w-6 h-6 shrink-0' />
-                      <span className='flex-1 text-[12.5px] truncate font-medium'>{friend.userName}</span>
-                      <button
-                        onClick={() => handleRemoveSelected(friend.userId)}
-                        className='p-0 hover:bg-transparent rounded-full flex items-center justify-center shrink-0 ml-1 cursor-pointer'
-                      >
-                        <X className='w-4 h-4 text-white dark:text-brand-blue-dark bg-(--icon-x-bg) rounded-full p-0.5' />
-                      </button>
+                  <ScrollArea className='flex-1'>
+                    <div className='p-1.5 space-y-1'>
+                      {selectedFriends.map((friend: FriendResponse) => (
+                        <div
+                          key={friend.userId}
+                          className='flex items-center gap-2 p-1 px-2 rounded-full bg-dialog-selection-bg text-dialog-selection-text group transition-colors w-full overflow-hidden'
+                        >
+                          <UserAvatar
+                            name={friend.userName}
+                            src={friend.userAvatar}
+                            className='w-6 h-6 shrink-0 shadow-sm'
+                          />
+                          <span className='flex-1 text-[12px] truncate font-medium'>{friend.userName}</span>
+                          <button
+                            onClick={() => handleRemoveSelected(friend.userId)}
+                            className='p-0 hover:bg-transparent rounded-full flex items-center justify-center shrink-0 ml-0.5 cursor-pointer transition-transform hover:scale-110 active:scale-95'
+                          >
+                            <div className='w-4.5 h-4.5 bg-icon-x-bg rounded-full flex items-center justify-center shadow-sm transition-colors'>
+                              <X className='w-3 h-3 text-icon-x-text stroke-[3.5]' />
+                            </div>
+                          </button>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  </ScrollArea>
                 </div>
-              </ScrollArea>
-            </div>
+              </div>
+            )}
           </div>
 
-          <div className='p-4 border-t flex items-center justify-end gap-3 bg-muted/5'>
-            <Button variant='secondary' onClick={handleCancelClick} className='px-6 h-9 text-[13px]'>
+          <div className='p-3 px-4 border-t flex items-center justify-end gap-2.5 bg-background'>
+            <Button variant='secondary' onClick={handleCancelClick}>
               {tg.cancel}
             </Button>
             <Button
               onClick={handleCreateGroup}
               disabled={isCreateDisabled}
-              className={cn(
-                'px-6 h-9 text-[13px] font-bold transition-all',
-                isCreateDisabled
-                  ? 'bg-(--dialog-selection-btn-disabled-bg) text-(--dialog-selection-btn-disabled-text) opacity-100 cursor-not-allowed'
-                  : 'bg-primary text-white hover:bg-primary-hover shadow-md capitalize'
-              )}
+              variant={isCreateDisabled ? 'disabled' : 'default'}
             >
               {createGroupMutation.isPending ? '...' : tg.create}
             </Button>
