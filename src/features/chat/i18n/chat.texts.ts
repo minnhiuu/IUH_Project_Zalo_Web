@@ -7,6 +7,8 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
   emptyState: t(CHAT_KEYS.emptyState),
   inputPlaceholder: t(CHAT_KEYS.inputPlaceholder),
   send: t(CHAT_KEYS.send),
+  loading: t(CHAT_KEYS.loading),
+  replyingTo: (name: string) => t(CHAT_KEYS.replyingTo, { name }),
   status: {
     online: t(CHAT_KEYS.status.online),
     justNow: t(CHAT_KEYS.status.justNow),
@@ -139,7 +141,9 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     reminderBoard: t(CHAT_KEYS.sidebarInfo.reminderBoard),
     notesPinsPolls: t(CHAT_KEYS.sidebarInfo.notesPinsPolls),
     commonGroups: t(CHAT_KEYS.sidebarInfo.commonGroups),
+    commonGroupsCount: (count: number) => t(CHAT_KEYS.sidebarInfo.commonGroupsCount, { count }),
     noCommonGroups: t(CHAT_KEYS.sidebarInfo.noCommonGroups),
+    viewAll: t(CHAT_KEYS.sidebarInfo.viewAll),
     photosVideos: t(CHAT_KEYS.sidebarInfo.photosVideos),
     noPhotosVideos: t(CHAT_KEYS.sidebarInfo.noPhotosVideos),
     files: t(CHAT_KEYS.sidebarInfo.files),

@@ -90,3 +90,7 @@ export const updateGroupAvatarApi = async (conversationId: string, file: File): 
 export const disbandGroupApi = async (conversationId: string): Promise<void> => {
   await http.delete(`/messages/conversations/${conversationId}/groups`)
 }
+
+export const deleteConversationApi = async (conversationId: string): Promise<void> => {
+  await http.delete(`/messages/conversations/${conversationId}`)
+}

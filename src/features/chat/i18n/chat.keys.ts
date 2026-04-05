@@ -4,6 +4,8 @@ export const CHAT_KEYS = {
   emptyState: 'chat.emptyState',
   inputPlaceholder: 'chat.inputPlaceholder',
   send: 'chat.send',
+  loading: 'chat.loading',
+  replyingTo: 'chat.replyingTo',
   status: {
     online: 'chat.status.online',
     justNow: 'chat.status.justNow',
@@ -138,7 +140,9 @@ export const CHAT_KEYS = {
     reminderBoard: 'chat.sidebarInfo.reminderBoard',
     notesPinsPolls: 'chat.sidebarInfo.notesPinsPolls',
     commonGroups: 'chat.sidebarInfo.commonGroups',
+    commonGroupsCount: 'chat.sidebarInfo.commonGroupsCount',
     noCommonGroups: 'chat.sidebarInfo.noCommonGroups',
+    viewAll: 'chat.sidebarInfo.viewAll',
     photosVideos: 'chat.sidebarInfo.photosVideos',
     noPhotosVideos: 'chat.sidebarInfo.noPhotosVideos',
     files: 'chat.sidebarInfo.files',

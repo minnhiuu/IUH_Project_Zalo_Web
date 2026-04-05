@@ -43,7 +43,24 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false)
   const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false)
   const [infoDialogStep, setInfoDialogStep] = useState<'info' | 'management'>('info')
-  const [isInfoSidebarOpen, setIsInfoSidebarOpen] = useState(true)
+  const [isInfoSidebarOpen, setIsInfoSidebarOpen] = useState(window.innerWidth >= 1150)
+
+  useEffect(() => {
+    const handleResize = () => {
+      // Tự động đóng sidebar nếu màn hình nhỏ (dưới 1150px)
+      // Tự động mở lại khi màn hình đủ lớn
+      if (window.innerWidth < 1150) {
+        setIsInfoSidebarOpen(false)
+      } else {
+        setIsInfoSidebarOpen(true)
+      }
+    }
+
+    // Không cần lắng nghe resize liên tục nếu k muốn override manual toggle,
+    // nhưng yêu cầu là "nào ở to thì mới mở" nên ta lắng nghe resize.
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
   const { mutate: updateGroupName, isPending: isUpdatingName } = useUpdateGroupNameMutation()
   const { mutate: updateGroupAvatar } = useUpdateGroupAvatarMutation()
 
@@ -168,10 +185,14 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             <div className='relative shrink-0 hidden sm:block'>
               <input type='file' ref={fileInputRef} onChange={handleAvatarChange} accept='image/*' className='hidden' />
               <div
-                onClick={conversation.isGroup && !isAiConversation ? () => {
-                  setInfoDialogStep('info')
-                  setIsInfoDialogOpen(true)
-                } : undefined}
+                onClick={
+                  conversation.isGroup && !isAiConversation
+                    ? () => {
+                        setInfoDialogStep('info')
+                        setIsInfoDialogOpen(true)
+                      }
+                    : undefined
+                }
                 className={cn(
                   'relative rounded-full transition-all shrink-0',
                   conversation.isGroup && !isAiConversation && 'cursor-pointer hover:ring-2 hover:ring-primary/20'
@@ -254,7 +275,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
           className='flex-1 overflow-y-auto px-4 py-4 flex flex-col-reverse custom-scrollbar'
         >
           {isLoading && (
-            <div className='flex items-center justify-center flex-1 text-sm text-primary py-8'>Đang tải...</div>
+            <div className='flex items-center justify-center flex-1 text-sm text-primary py-8'>{text.loading}</div>
           )}
           {allMessages.map((msg, index) => {
             const prevMsg = allMessages[index + 1]
@@ -276,7 +297,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
               </div>
             )
           })}
-          {isFetchingNextPage && <div className='py-4 text-center text-sm text-muted-foreground'>Đang tải thêm...</div>}
+          {isFetchingNextPage && <div className='py-4 text-center text-sm text-muted-foreground'>{text.loading}</div>}
         </div>
 
         {conversation.isDisbanded ? (
@@ -307,6 +328,13 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
           isPending={isUpdatingName}
         />
       </div>
+
+      {isInfoSidebarOpen && (
+        <div
+          className='absolute inset-0 bg-black/20 z-90 min-[1150px]:hidden animate-in fade-in duration-200 cursor-pointer'
+          onClick={() => setIsInfoSidebarOpen(false)}
+        />
+      )}
 
       {isCloudConversation ? (
         <CloudInfoSidebar />

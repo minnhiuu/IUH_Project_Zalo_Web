@@ -6,7 +6,8 @@ import {
   deleteMessageForMeApi,
   createGroupConversation,
   updateGroupNameApi,
-  updateGroupAvatarApi
+  updateGroupAvatarApi,
+  deleteConversationApi
 } from '../api/chat.api'
 import { chatKeys } from './keys'
 import type { ConversationResponse, ChatMessageRequest } from '../schemas/chat.schema'
@@ -154,6 +155,24 @@ export const useUpdateGroupAvatarMutation = () => {
     },
     onError: (error) => {
       console.error('Failed to update group avatar', error)
+    }
+  })
+}
+
+export const useDeleteConversationMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (conversationId: string) => deleteConversationApi(conversationId),
+    onSuccess: (_, conversationId) => {
+      queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
+        if (!oldData) return []
+        return oldData.filter((conv) => conv.id !== conversationId)
+      })
+      queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+    },
+    onError: (error) => {
+      console.error('Failed to delete conversation', error)
     }
   })
 }

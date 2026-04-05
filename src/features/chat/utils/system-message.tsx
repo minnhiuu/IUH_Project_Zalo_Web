@@ -6,6 +6,7 @@ import { useAuth } from '../../auth/hooks/use-auth'
 import { useChatText } from '../i18n/use-chat-text'
 import type { ConversationMemberResponse, MessageResponse, ConversationResponse } from '../schemas/chat.schema'
 import { GroupAvatar } from '../components/group/group-avatar'
+import { useDeleteConversationMutation } from '../queries/use-mutations'
 import { Pencil } from 'lucide-react'
 
 export type SystemActionType = 'ADD_MEMBERS' | 'REMOVE_MEMBER' | 'LEAVE_GROUP' | 'UPDATE_NAME' | 'UPDATE_AVATAR' | 'DISBAND_GROUP'
@@ -128,6 +129,7 @@ export interface SystemMessageProps {
 export function SystemMessage({ message, conversation }: SystemMessageProps) {
   const { user } = useAuth()
   const { t } = useChatText()
+  const { mutate: deleteConversation } = useDeleteConversationMutation()
 
   const { systemLabel, targetAvatars } = useMemo(() => {
     const metadata = message.metadata as unknown as SystemMetadata | null | undefined
@@ -164,7 +166,9 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
           {isDisbanded && (
             <button
               onClick={() => {
-                // toast.info('Tính năng xoá cuộc trò chuyện đang được phát triển')
+                if (conversation?.id) {
+                  deleteConversation(conversation.id)
+                }
               }}
               className='text-blue-500 hover:text-blue-600 font-medium whitespace-nowrap'
             >

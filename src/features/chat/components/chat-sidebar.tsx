@@ -92,7 +92,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
       </div>
 
       <div className='flex-1 overflow-y-auto custom-scrollbar shadow-none border-none'>
-        {isLoading && <div className='p-4 text-center text-muted-foreground'>Đang tải...</div>}
+        {isLoading && <div className='p-4 text-center text-muted-foreground'>{text.loading}</div>}
         {isError && <div className='p-4 text-center text-destructive'>{text.errors.loadConversations}</div>}
 
         {conversations?.map((chat: ConversationResponse) => {

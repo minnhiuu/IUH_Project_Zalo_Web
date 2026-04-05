@@ -35,6 +35,7 @@ import { DisappearingMessagesDialog } from '@/components/common/disappearing-mes
 import { CreateGroupDialog } from './group/create-group-dialog'
 import { GroupManagementStep } from './group/group-management-step'
 import { cn } from '@/lib/utils'
+import { useDeleteConversationMutation } from '../queries/use-mutations'
 
 interface SidebarSectionProps {
   title: string
@@ -81,6 +82,7 @@ export function ChatInfoSidebar({ conversation, onRenameClick, onAvatarClick }: 
   const isGroup = conversation.isGroup
   const { text: tg } = useChatText()
   const { user } = useAuth()
+  const { mutate: deleteConversation } = useDeleteConversationMutation()
   const [step, setStep] = useState<'info' | 'management'>('info')
   const [isDisappearingDialogOpen, setIsDisappearingDialogOpen] = useState(false)
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false)
@@ -92,7 +94,7 @@ export function ChatInfoSidebar({ conversation, onRenameClick, onAvatarClick }: 
 
   if (step === 'management') {
     return (
-      <div className='w-[350px] border-l border-border bg-background flex flex-col h-full overflow-hidden shrink-0 z-20'>
+      <div className='w-[350px] border-l border-border bg-background flex flex-col h-full overflow-hidden shrink-0 z-[100] shadow-xl min-[1150px]:shadow-none min-[1150px]:relative absolute right-0 top-0'>
         {/* Header */}
         <div className='h-[68px] flex items-center border-b border-border shrink-0 px-4'>
           <button
@@ -119,7 +121,7 @@ export function ChatInfoSidebar({ conversation, onRenameClick, onAvatarClick }: 
   }
 
   return (
-    <div className='w-[350px] border-l border-border bg-background flex flex-col h-full overflow-hidden shrink-0 z-20'>
+    <div className='w-[350px] border-l border-border bg-background flex flex-col h-full overflow-hidden shrink-0 z-[100] shadow-xl min-[1150px]:shadow-none min-[1150px]:relative absolute right-0 top-0'>
       {/* Header */}
       <div className='h-[68px] flex items-center justify-center border-b border-border shrink-0 px-4'>
         <h2 className='font-bold text-[16px] text-foreground'>
@@ -163,7 +165,7 @@ export function ChatInfoSidebar({ conversation, onRenameClick, onAvatarClick }: 
                 label={tg.disbanded.deleteAction}
                 variant='destructive'
                 onClick={() => {
-                  // toast.info('Tính năng xoá cuộc trò chuyện đang được phát triển')
+                  deleteConversation(conversation.id)
                 }}
               />
             </div>
@@ -269,7 +271,7 @@ export function ChatInfoSidebar({ conversation, onRenameClick, onAvatarClick }: 
                 <>
                   <div className='bg-background py-1'>
                     <ActionMenuItem icon={<Clock />} label={tg.sidebarInfo.reminderBoard} />
-                    <ActionMenuItem icon={<Users />} label='14 nhóm chung' />
+                    <ActionMenuItem icon={<Users />} label={tg.sidebarInfo.commonGroupsCount(14)} />
                   </div>
                   <div className='h-[8px] bg-secondary' />
                 </>
@@ -292,7 +294,7 @@ export function ChatInfoSidebar({ conversation, onRenameClick, onAvatarClick }: 
                 </div>
                 <div className='px-4 pb-4'>
                   <Button variant='secondary' className='w-full font-semibold text-[0.875rem] h-9'>
-                    Xem tất cả
+                    {tg.sidebarInfo.viewAll}
                   </Button>
                 </div>
               </SidebarSection>
@@ -326,7 +328,7 @@ export function ChatInfoSidebar({ conversation, onRenameClick, onAvatarClick }: 
                 </div>
                 <div className='px-4 pb-4 mt-2'>
                   <Button variant='secondary' className='w-full font-semibold text-[0.875rem] h-9'>
-                    Xem tất cả
+                    {tg.sidebarInfo.viewAll}
                   </Button>
                 </div>
               </SidebarSection>
@@ -356,7 +358,7 @@ export function ChatInfoSidebar({ conversation, onRenameClick, onAvatarClick }: 
                 </div>
                 <div className='px-4 pb-4 mt-2'>
                   <Button variant='secondary' className='w-full font-semibold text-[0.875rem] h-9'>
-                    Xem tất cả
+                    {tg.sidebarInfo.viewAll}
                   </Button>
                 </div>
               </SidebarSection>

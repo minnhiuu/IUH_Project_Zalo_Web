@@ -153,8 +153,8 @@
 
   --destructive: #9a1313;
   --destructive-foreground: #dfe2e7;
-  --destructive-subtle: #9a1313;
-  --destructive-subtle-text: #dfe2e7;
+  --destructive-subtle: rgba(154, 19, 19, 0.2);
+  --destructive-subtle-text: #ff5c5c;
   --destructive-hover: #c31818;
   --destructive-hover-foreground: #dfe2e7;
 
