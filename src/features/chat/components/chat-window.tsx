@@ -16,13 +16,15 @@ import { ForwardModal } from './forward-modal'
 import { formatLastSeen } from '@/utils/date'
 import { CloudInfoSidebar } from './cloud-info-sidebar'
 import { AiChatWindow } from './ai-chat-window'
+import { ChatInfoSidebar } from './chat-info-sidebar'
 import { UserAvatar } from '@/components/common/user-avatar'
-import { GroupAvatar } from './group-avatar'
+import { ActionButton } from '@/components/common/action-button'
+import { GroupAvatar } from './group/group-avatar'
 import { ImageCropperDialog } from '@/components/common/image-cropper-dialog'
 import { getCroppedImg } from '@/utils/image-crop'
 import { cn } from '@/lib/utils'
-import { GroupInfoDialog } from './group-info-dialog'
-import { RenameGroupDialog } from './rename-group-dialog'
+import { GroupInfoDialog } from './group/group-info-dialog'
+import { RenameGroupDialog } from './group/rename-group-dialog'
 import { showLoadingToast, showSuccessToast, showErrorToast } from '@/utils/toast'
 import { toast } from 'sonner'
 
@@ -40,6 +42,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   const [forwardingMessage, setForwardingMessage] = useState<MessageResponse | null>(null)
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false)
   const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false)
+  const [isInfoSidebarOpen, setIsInfoSidebarOpen] = useState(true)
   const { mutate: updateGroupName, isPending: isUpdatingName } = useUpdateGroupNameMutation()
   const { mutate: updateGroupAvatar } = useUpdateGroupAvatarMutation()
 
@@ -57,12 +60,12 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   }
 
   const triggerFileInput = () => fileInputRef.current?.click()
- 
+
   const handleCropConfirm = async (data: { pixels: { x: number; y: number; width: number; height: number } }) => {
     if (!selectedImage) return
- 
+
     const toastId = showLoadingToast(text.toasts.updating)
- 
+
     try {
       const croppedBlob = await getCroppedImg(selectedImage.url, data.pixels)
       if (croppedBlob) {
@@ -91,7 +94,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
       setSelectedImage(null)
     }
   }
- 
+
   const handleRename = (newName: string) => {
     const toastId = showLoadingToast(text.toasts.updating)
     updateGroupName(
@@ -197,8 +200,8 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
                   {isCloudConversation ? 'My Documents' : conversation.name}
                 </h2>
                 {conversation.isGroup && !isCloudConversation && (
-                  <div className='p-1 hover:bg-muted rounded-full opacity-0 group-hover/header:opacity-100 transition-all shrink-0 cursor-pointer'>
-                    <Pencil className='w-3.5 h-3.5 text-muted-foreground' />
+                  <div className='opacity-0 group-hover/header:opacity-100 transition-all shrink-0 ml-1'>
+                    <ActionButton icon={<Pencil />} size='sm' iconSize='sm' />
                   </div>
                 )}
               </button>
@@ -229,7 +232,13 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             <button className='p-2 hover:bg-muted rounded-full transition-colors'>
               <Search className='w-[18px] h-[18px]' />
             </button>
-            <button className='p-2 hover:bg-muted rounded-full transition-colors hidden md:block'>
+            <button
+              onClick={() => setIsInfoSidebarOpen(!isInfoSidebarOpen)}
+              className={cn(
+                'p-2 rounded-full transition-colors hidden md:block',
+                isInfoSidebarOpen ? 'bg-blue-50 text-primary hover:bg-blue-100' : 'hover:bg-muted'
+              )}
+            >
               <PanelsTopLeft className='w-[18px] h-[18px]' />
             </button>
           </div>
@@ -279,7 +288,17 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
         />
       </div>
 
-      {isCloudConversation && <CloudInfoSidebar />}
+      {isCloudConversation ? (
+        <CloudInfoSidebar />
+      ) : (
+        isInfoSidebarOpen && (
+          <ChatInfoSidebar
+            conversation={conversation}
+            onRenameClick={() => setIsRenameDialogOpen(true)}
+            onAvatarClick={triggerFileInput}
+          />
+        )
+      )}
 
       <GroupInfoDialog
         conversation={conversation}

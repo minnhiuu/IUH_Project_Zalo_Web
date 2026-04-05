@@ -2,8 +2,11 @@ import { Camera, Copy, Forward, LogOut, Pencil, Settings } from 'lucide-react'
 import { BaseDialog } from '@/components/common/base-dialog'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { Button } from '@/components/ui/button'
-import { useChatText } from '../i18n/use-chat-text'
-import type { ConversationResponse } from '../schemas/chat.schema'
+import { ActionButton } from '@/components/common/action-button'
+import { ActionMenuItem } from '@/components/common/action-menu-item'
+import { useChatText } from '../../i18n/use-chat-text'
+import type { ConversationResponse } from '../../schemas/chat.schema'
+import { CustomTooltip } from '@/components/common/custom-tooltip'
 
 interface GroupInfoDialogProps {
   conversation: ConversationResponse
@@ -60,12 +63,12 @@ export function GroupInfoDialog({
               <h3 className='text-[18px] font-bold text-foreground truncate whitespace-nowrap overflow-hidden max-w-[220px]'>
                 {conversation.name}
               </h3>
-              <button
+              <ActionButton 
+                icon={<Pencil />} 
                 onClick={onRenameClick}
-                className='p-1 hover:bg-muted rounded-full transition-colors shrink-0 cursor-pointer'
-              >
-                <Pencil className='h-4 w-4 text-icon-secondary' />
-              </button>
+                size='sm'
+                iconSize='sm'
+              />
             </div>
           </div>
           <Button
@@ -87,18 +90,13 @@ export function GroupInfoDialog({
           <div className='flex items-center p-1 overflow-visible'>
             <div className='flex -space-x-3 items-center overflow-visible'>
               {conversation.members?.slice(0, 4).map((m) => (
-                <div key={m.userId} className='relative group/member cursor-pointer z-10 hover:z-20'>
+                <CustomTooltip key={m.userId} content={m.fullName} position='bottom'>
                   <UserAvatar
                     src={m.avatar}
                     name={m.fullName}
                     className='w-10 h-10 border-2 border-background ring-0 shadow-sm transition-transform'
                   />
-                  {/* Custom Zalo-style Tooltip - Shown Below */}
-                  <div className='absolute top-full left-1/2 -translate-x-1/2 mt-2 px-4 py-2 bg-brand-blue-dark text-white text-[13px] font-medium rounded-md whitespace-nowrap opacity-0 group-hover/member:opacity-100 transition-all pointer-events-none z-[100] shadow-xl scale-95 group-hover/member:scale-100'>
-                    {m.fullName}
-                    <div className='absolute bottom-full left-1/2 -translate-x-1/2 border-[6px] border-transparent border-b-brand-blue-dark' />
-                  </div>
-                </div>
+                </CustomTooltip>
               ))}
             </div>
             <button
@@ -173,31 +171,23 @@ export function GroupInfoDialog({
               </p>
             </div>
             <div className='flex items-center gap-2 shrink-0 ml-2'>
-              <button className='w-9 h-9 flex items-center justify-center rounded-full transition-all bg-bg-icon-link text-text-icon-link hover:opacity-80 cursor-pointer border-none shadow-none'>
-                <Copy size={18} />
-              </button>
-              <button className='w-9 h-9 flex items-center justify-center rounded-full transition-all bg-bg-icon-link text-text-icon-link hover:opacity-80 cursor-pointer border-none shadow-none'>
-                <Forward size={18} />
-              </button>
+              <ActionButton icon={<Copy />} />
+              <ActionButton icon={<Forward />} />
             </div>
           </div>
 
-          <div className='ml-12 mr-4 h-px bg-border/40' />
+          <ActionMenuItem 
+            icon={<Settings />} 
+            label={text['group-info-dialog'].management} 
+            showDivider={true} 
+          />
 
-          <button className='flex w-full items-center gap-3 px-4 py-3.5 text-[15px] hover:bg-muted transition-colors text-foreground group cursor-pointer text-left'>
-            <Settings
-              className='h-5 w-5 text-icon-secondary group-hover:opacity-80 transition-opacity'
-              strokeWidth={1.5}
-            />
-            <span className='font-medium'>{text['group-info-dialog'].management}</span>
-          </button>
-
-          <div className='ml-12 mr-4 h-px bg-border/40' />
-
-          <button className='flex w-full items-center gap-3 px-4 py-3.5 text-[15px] hover:bg-muted transition-colors text-destructive group cursor-pointer text-left'>
-            <LogOut className='h-5 w-5 group-hover:opacity-80 transition-opacity' strokeWidth={1.5} />
-            <span className='font-medium'>{text['group-info-dialog'].leaveGroup}</span>
-          </button>
+          <ActionMenuItem 
+            icon={<LogOut />} 
+            label={text['group-info-dialog'].leaveGroup} 
+            variant='destructive' 
+            showDivider={true} 
+          />
         </div>
       </div>
     </BaseDialog>

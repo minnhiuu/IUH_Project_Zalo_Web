@@ -91,6 +91,37 @@
       "updateError": "Cập nhật thất bại",
       "leaveGroupSuccess": "Rời nhóm thành công",
       "leaveGroupError": "Rời nhóm thất bại"
+    },
+    "sidebarInfo": {
+      "title": "Thông tin hội thoại",
+      "groupTitle": "Thông tin nhóm",
+      "members": "Thành viên nhóm",
+      "groupBoard": "Bảng tin nhóm",
+      "reminderBoard": "Danh sách nhắc hẹn",
+      "notesPinsPolls": "Ghi chú, ghim, bình chọn",
+      "commonGroups": "Nhóm chung",
+      "noCommonGroups": "Chưa có nhóm chung",
+      "photosVideos": "Ảnh/Video",
+      "noPhotosVideos": "Chưa có Ảnh/Video được chia sẻ trong hội thoại này",
+      "files": "File",
+      "noFiles": "Chưa có File được chia sẻ trong hội thoại này",
+      "links": "Link",
+      "noLinks": "Chưa có Link được chia sẻ trong hội thoại này",
+      "privacySettings": "Thiết lập bảo mật",
+      "disappearingMessages": "Tin nhắn tự xóa",
+      "disappearingMessagesTooltip": "Tin nhắn sẽ tự xóa sau khoảng thời gian bạn cài đặt",
+      "disappearingMessagesWarning": "Chỉ dành cho trưởng hoặc phó nhóm",
+      "never": "Không bao giờ",
+      "hideConversation": "Ẩn trò chuyện",
+      "reportAction": "Báo xấu",
+      "deleteHistory": "Xoá lịch sử trò chuyện",
+      "leaveGroup": "Rời nhóm",
+      "viewAllMembers": "Xem tất cả thành viên",
+      "muteNotifications": "Tắt thông báo",
+      "pin": "Ghim hội thoại",
+      "addMember": "Thêm thành viên",
+      "settings": "Quản lý nhóm",
+      "createGroup": "Tạo nhóm trò chuyện"
     }
   }
 }

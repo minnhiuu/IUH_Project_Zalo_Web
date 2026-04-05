@@ -8,10 +8,10 @@ import { UserAvatar } from '@/components/common/user-avatar'
 import { BaseDialog } from '@/components/common/base-dialog'
 import { cn } from '@/lib/utils'
 import { useMyFriendsInfinite } from '@/features/friend/queries/use-queries'
-import { useCreateGroupMutation } from '../queries/use-mutations'
+import { useCreateGroupMutation } from '../../queries/use-mutations'
 import type { FriendResponse } from '@/features/friend/schemas/friend.schema'
-import { useChatText } from '../i18n/use-chat-text'
-import { formatDefaultGroupName } from '../utils/group-name'
+import { useChatText } from '../../i18n/use-chat-text'
+import { formatDefaultGroupName } from '../../utils/group-name'
 import { ImageCropperDialog } from '@/components/common/image-cropper-dialog'
 import { getCroppedImg } from '@/utils/image-crop'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -19,9 +19,10 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 interface CreateGroupDialogProps {
   isOpen: boolean
   onClose: () => void
+  initialSelectedFriendIds?: string[]
 }
 
-export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
+export function CreateGroupDialog({ isOpen, onClose, initialSelectedFriendIds }: CreateGroupDialogProps) {
   const { text } = useChatText()
   const tg = text['create-group-dialog']
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -72,11 +73,15 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
 
   // Cleanup preview URL to prevent memory leaks and reset state when closing
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen) {
+      if (initialSelectedFriendIds && initialSelectedFriendIds.length > 0) {
+        setSelectedFriendIds(initialSelectedFriendIds)
+      }
+    } else {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       resetState()
     }
-  }, [isOpen])
+  }, [isOpen, initialSelectedFriendIds])
 
   const handleToggleFriend = (friendId: string) => {
     setSelectedFriendIds((prev) =>

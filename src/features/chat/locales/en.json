@@ -91,6 +91,37 @@
       "updateError": "Update failed",
       "leaveGroupSuccess": "Left group successfully",
       "leaveGroupError": "Failed to leave group"
+    },
+    "sidebarInfo": {
+      "title": "Chat Information",
+      "groupTitle": "Group Information",
+      "members": "Group Members",
+      "groupBoard": "Group Board",
+      "reminderBoard": "Reminder list",
+      "notesPinsPolls": "Notes, pins, polls",
+      "commonGroups": "Common groups",
+      "noCommonGroups": "No common groups",
+      "photosVideos": "Photos/Videos",
+      "noPhotosVideos": "No photos/videos shared in this conversation",
+      "files": "Files",
+      "noFiles": "No files shared in this conversation",
+      "links": "Links",
+      "noLinks": "No links shared in this conversation",
+      "privacySettings": "Privacy settings",
+      "disappearingMessages": "Disappearing messages",
+      "disappearingMessagesTooltip": "Messages will auto-disappear after your setting times",
+      "disappearingMessagesWarning": "Only available for group owner or admins",
+      "never": "Never",
+      "hideConversation": "Hide conversation",
+      "reportAction": "Report",
+      "deleteHistory": "Delete chat history",
+      "leaveGroup": "Leave group",
+      "viewAllMembers": "View all members",
+      "muteNotifications": "Mute",
+      "pin": "Pin",
+      "addMember": "Add member",
+      "settings": "Manage group",
+      "createGroup": "Create group"
     }
   }
 }

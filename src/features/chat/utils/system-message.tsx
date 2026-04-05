@@ -5,7 +5,7 @@ import type { TFunction } from 'i18next'
 import { useAuth } from '../../auth/hooks/use-auth'
 import { useChatText } from '../i18n/use-chat-text'
 import type { ConversationMemberResponse, MessageResponse, ConversationResponse } from '../schemas/chat.schema'
-import { GroupAvatar } from '../components/group-avatar'
+import { GroupAvatar } from '../components/group/group-avatar'
 import { Pencil } from 'lucide-react'
 
 export type SystemActionType = 'ADD_MEMBERS' | 'REMOVE_MEMBER' | 'LEAVE_GROUP' | 'UPDATE_NAME' | 'UPDATE_AVATAR'
@@ -129,7 +129,7 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
 
   const { systemLabel, targetAvatars } = useMemo(() => {
     const metadata = message.metadata as unknown as SystemMetadata | null | undefined
-    const label = getSystemMessageLabel(message.metadata, message.senderId, message.senderName, user?.id, conversation?.members || [], t, true)
+    const label = getSystemMessageLabel(message.metadata, message.senderId === null ? undefined : message.senderId, message.senderName === null ? undefined : message.senderName, user?.id, conversation?.members || [], t, true)
 
     let avatars: { id: string; avatar?: string | null; name: string }[] = []
     if (metadata?.action === 'ADD_MEMBERS' && metadata.targetIds) {

@@ -102,6 +102,7 @@
   --dialog-selection-badge-text: #0045ad;
   --icon-x-bg: #0045ad;
   --icon-x-text: #ffffff;
+  --icon-menu: #081b3a;
 }
 
 @layer utilities {
@@ -188,6 +189,7 @@
   --dialog-selection-badge-text: #66a6ff;
   --icon-x-bg: #8fbfff;
   --icon-x-text: #00378a;
+  --icon-menu: #dfe2e7;
 }
 
 @theme inline {
@@ -280,6 +282,7 @@
   --color-dialog-selection-badge-text: var(--dialog-selection-badge-text);
   --color-icon-x-bg: var(--icon-x-bg);
   --color-icon-x-text: var(--icon-x-text);
+  --color-icon-menu: var(--icon-menu);
 
   @keyframes pulse-subtle {
     0%,
@@ -372,6 +375,32 @@ input[type='radio']:checked {
 
   .date-divider {
     @apply bg-zinc-300 dark:bg-zinc-700/50 text-white dark:text-zinc-400 text-[11px] font-semibold px-4 py-0.5 rounded-full select-none shadow-sm uppercase tracking-wider;
+  }
+
+  .btn-action-icon {
+    @apply flex items-center justify-center rounded-full transition-colors cursor-pointer shrink-0;
+    width: 2rem; /* Circle size */
+    height: 2rem;
+    background-color: #e5e7eb;
+    color: #081b3a;
+  }
+
+  .btn-action-icon:hover {
+    background-color: #afb5c1;
+  }
+
+  .btn-action-icon svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .dark .btn-action-icon {
+    background-color: #2c323a;
+    color: #dfe2e7;
+  }
+
+  .dark .btn-action-icon:hover {
+    background-color: #1d2025;
   }
 }
 
