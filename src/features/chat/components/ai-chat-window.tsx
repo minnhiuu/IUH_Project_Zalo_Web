@@ -2,17 +2,40 @@ import { useEffect, useRef, useState, type KeyboardEvent, type FormEvent } from 
 import { SendHorizonal, Sparkles, RotateCcw, HelpCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Textarea } from '@/components/ui/textarea'
-import { useAiChat, type AiMessage } from '../hooks/use-ai-chat'
+import { useAiChat } from '../hooks/use-ai-chat'
+import type { AiMessage } from '../hooks/use-ai-chat'
+import type { AiProcessingStatus } from '@/constants/enum'
+import { useChatText } from '../i18n/use-chat-text'
 import type { ConversationResponse } from '../schemas/chat.schema'
 
 interface AiChatWindowProps {
   conversation: ConversationResponse
 }
 
-// ── Typing dots indicator ──────────────────────────────────────────────────────
+// ── Compact status bar (phía trên input, không avatar) ────────────────────────
+function AiStatusBar({ statusEnum }: { statusEnum?: AiProcessingStatus }) {
+  const { text } = useChatText()
+  const label = text.aiStatusLabel(statusEnum)
+  return (
+    <div className='flex items-center gap-1.5 px-4 py-1 text-[11px] text-violet-500 dark:text-violet-400 italic select-none'>
+      <span className='flex items-center gap-[3px]'>
+        {[0, 1, 2].map((i) => (
+          <span
+            key={i}
+            className='w-[5px] h-[5px] rounded-full bg-violet-400 animate-bounce'
+            style={{ animationDelay: `${i * 120}ms` }}
+          />
+        ))}
+      </span>
+      <span>{label}</span>
+    </div>
+  )
+}
+
+// ── Dots bubble (chờ AI reply lần đầu, trước khi có tin nhắn AI) ──────────────
 function TypingIndicator({ avatarUrl }: { avatarUrl?: string }) {
   return (
-    <div className='flex items-end gap-2 px-2 mt-4'>
+    <div className='flex items-end gap-2 px-2 mt-3'>
       <div className='w-8 h-8 shrink-0'>
         <img
           src={avatarUrl || `https://api.dicebear.com/7.x/identicon/svg?seed=ai-assistant-001`}
@@ -34,6 +57,7 @@ function TypingIndicator({ avatarUrl }: { avatarUrl?: string }) {
     </div>
   )
 }
+
 
 // ── Single message bubble ──────────────────────────────────────────────────────
 function AiMessageBubble({ msg, avatarUrl }: { msg: AiMessage; avatarUrl?: string }) {
@@ -69,7 +93,7 @@ function AiMessageBubble({ msg, avatarUrl }: { msg: AiMessage; avatarUrl?: strin
             </div>
           )}
           <span className='whitespace-pre-wrap'>{msg.content}</span>
-          {msg.isStreaming && (
+          {msg.isStreaming && !msg.processingStatus && (
             <span className='inline-block w-0.5 h-4 ml-0.5 bg-violet-500 animate-pulse align-middle' />
           )}
         </div>
@@ -189,6 +213,7 @@ export function AiChatWindow({ conversation }: AiChatWindowProps) {
             {messages.map((msg) => (
               <AiMessageBubble key={msg.id} msg={msg} avatarUrl={conversation.avatar || undefined} />
             ))}
+            {/* Dots bubble chỉ hiện khi chưa có tin nhắn AI nào */}
             {isLoading && messages[messages.length - 1]?.role !== 'ai' && (
               <TypingIndicator avatarUrl={conversation.avatar || undefined} />
             )}
@@ -196,13 +221,19 @@ export function AiChatWindow({ conversation }: AiChatWindowProps) {
         )}
       </div>
 
-      {/* Input */}
+      {/* Input + AI Status bar */}
       <div className='bg-background border-t border-border flex flex-col p-0 gap-0'>
-        <div className='flex items-center px-4 py-2 border-b border-border bg-violet-50 dark:bg-violet-950/20 gap-2 text-[13px] text-violet-600 dark:text-violet-400'>
-          <Sparkles size={14} />
-          <span>Powered by Bondhub AI • CRAG Pipeline</span>
-        </div>
+        {/* Status bar nhỏ gọn — hiện khi AI đang xử lý */}
+        {(() => {
+          const lastMsg = messages[messages.length - 1]
+          const isStreamingWithStatus = isLoading && lastMsg?.role === 'ai' && lastMsg?.isStreaming && lastMsg?.processingStatus
+          return isStreamingWithStatus ? (
+            <AiStatusBar statusEnum={lastMsg?.processingStatus} />
+          ) : null
+        })()}
         <form onSubmit={handleSend} className='flex items-center p-2 gap-2 pr-4'>
+
+
           <div className='flex-1 min-w-0'>
             <Textarea
               ref={inputRef}

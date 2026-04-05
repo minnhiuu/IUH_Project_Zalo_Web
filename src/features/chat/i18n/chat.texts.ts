@@ -1,5 +1,6 @@
 import type { TFunction } from 'i18next'
 import { CHAT_KEYS } from './chat.keys'
+import type { AiProcessingStatus } from '@/constants/enum'
 
 export const createChatTexts = (t: TFunction<'chat'>) => ({
   title: t(CHAT_KEYS.title),
@@ -26,5 +27,11 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
   type: {
     image: t(CHAT_KEYS.type.image),
     file: t(CHAT_KEYS.type.file)
+  },
+  /** Trả về label dịch cho trạng thái pipeline AI theo ngôn ngữ hiện tại */
+  aiStatusLabel: (status?: AiProcessingStatus): string => {
+    if (!status) return t(CHAT_KEYS.aiStatus.DEFAULT)
+    const key = CHAT_KEYS.aiStatus[status as keyof typeof CHAT_KEYS.aiStatus]
+    return key ? t(key) : t(CHAT_KEYS.aiStatus.DEFAULT)
   }
 })

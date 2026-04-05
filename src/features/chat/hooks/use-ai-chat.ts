@@ -3,6 +3,10 @@ import { useMutation } from '@tanstack/react-query'
 import { getAccessToken } from '@/lib/axios-client'
 import { getMessages } from '../api/chat.api'
 import type { MessageResponse } from '../schemas/chat.schema'
+import type { AiProcessingStatus } from '@/constants/enum'
+
+// Re-export cho các consumer khác giữ import path cũ
+export type { AiProcessingStatus } from '@/constants/enum'
 
 export type AiMessageRole = 'user' | 'ai'
 
@@ -12,6 +16,7 @@ export interface AiMessage {
   content: string
   isStreaming?: boolean
   isClarification?: boolean
+  processingStatus?: AiProcessingStatus
   timestamp: Date
 }
 
@@ -22,8 +27,7 @@ const AI_ASSISTANT_ID = 'ai-assistant-001'
  * Hook xử lý nghiệp vụ AI Chat:
  * 1. Fetch lịch sử tin nhắn từ message-service (MongoDB) để duy trì khi F5.
  * 2. Gửi tin nhắn mới đến ai-service và nhận Streaming (SSE).
- *
- * @param conversationId - MongoDB ObjectId của room AI chat
+ * 3. Xử lý STATUS events để hiển thị trạng thái pipeline real-time.
  */
 export function useAiChat(conversationId: string) {
   const [messages, setMessages] = useState<AiMessage[]>([])
@@ -88,7 +92,7 @@ export function useAiChat(conversationId: string) {
           },
           body: JSON.stringify({
             content: userText,
-            conversationId,        // ← đổi từ recipientId sang conversationId
+            conversationId,
             clientMessageId: userMsgId,
             isForwarded: false
           }),
@@ -122,35 +126,53 @@ export function useAiChat(conversationId: string) {
             try {
               const event = JSON.parse(rawJson) as { type: string; content: string }
 
-              if (event.type === 'CLARIFICATION') {
+              if (event.type === 'STATUS') {
+                // Cập nhật trạng thái pipeline real-time
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === aiMsgId
+                      ? { ...m, processingStatus: event.content as AiProcessingStatus }
+                      : m
+                  )
+                )
+              } else if (event.type === 'CLARIFICATION') {
                 isClarification = true
                 setMessages((prev) =>
                   prev.map((m) =>
-                    m.id === aiMsgId ? { ...m, content: event.content, isClarification: true, isStreaming: false } : m
+                    m.id === aiMsgId
+                      ? { ...m, content: event.content, isClarification: true, isStreaming: false, processingStatus: undefined }
+                      : m
                   )
                 )
               } else if (event.type === 'ANSWER_CHUNK') {
                 setMessages((prev) =>
-                  prev.map((m) => (m.id === aiMsgId ? { ...m, content: m.content + event.content } : m))
+                  prev.map((m) =>
+                    m.id === aiMsgId
+                      ? { ...m, content: m.content + event.content, processingStatus: undefined }
+                      : m
+                  )
                 )
               }
             } catch {
-              // ignore
+              // ignore malformed JSON
             }
           }
         }
 
-        setMessages((prev) => prev.map((m) => (m.id === aiMsgId ? { ...m, isStreaming: false, isClarification } : m)))
+        // Khi stream kết thúc: xóa status, đánh dấu hết streaming
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === aiMsgId
+              ? { ...m, isStreaming: false, isClarification, processingStatus: undefined }
+              : m
+          )
+        )
       } catch (err: unknown) {
         if (err instanceof Error && err.name === 'AbortError') return
         setMessages((prev) =>
           prev.map((m) =>
             m.id === aiMsgId
-              ? {
-                  ...m,
-                  content: 'Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại.',
-                  isStreaming: false
-                }
+              ? { ...m, content: 'Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại.', isStreaming: false, processingStatus: undefined }
               : m
           )
         )
