@@ -1,5 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
+import { useEffect, useState } from 'react'
 
 interface UserAvatarProps {
   name: string
@@ -33,11 +34,33 @@ export const getNameColor = (name: string) => {
 
 export const UserAvatar = ({ name, src, className, fallbackClassName }: UserAvatarProps) => {
   const bgColor = getNameColor(name)
-  
+  const [loadedSrc, setLoadedSrc] = useState<string | undefined>(src ?? undefined)
+
+  useEffect(() => {
+    if (!src || src === loadedSrc) return
+
+    let active = true
+    const img = new Image()
+
+    // Keep showing the current avatar until the new one is fully loaded.
+    img.onload = () => {
+      if (active) setLoadedSrc(src)
+    }
+
+    img.src = src
+
+    return () => {
+      active = false
+    }
+  }, [src, loadedSrc])
+
+  const displaySrc = src ? (loadedSrc ?? src) : undefined
+
   return (
     <Avatar className={cn('h-8 w-8', className)}>
-      {src && <AvatarImage src={src} alt={name} className="object-cover" />}
-      <AvatarFallback 
+      {displaySrc && <AvatarImage src={displaySrc} alt={name} className='object-cover' />}
+      <AvatarFallback
+        delayMs={300}
         className={cn('text-white font-bold text-[11px]', fallbackClassName)}
         style={{ backgroundColor: bgColor }}
       >

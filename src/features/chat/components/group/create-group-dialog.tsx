@@ -8,7 +8,7 @@ import { UserAvatar } from '@/components/common/user-avatar'
 import { BaseDialog } from '@/components/common/base-dialog'
 import { cn } from '@/lib/utils'
 import { useMyFriendsInfinite } from '@/features/friend/queries/use-queries'
-import { useCreateGroupMutation } from '../../queries/use-mutations'
+import { useCreateGroupMutation, useUpdateGroupAvatarMutation } from '../../queries/use-mutations'
 import type { FriendResponse } from '@/features/friend/schemas/friend.schema'
 import { useChatText } from '../../i18n/use-chat-text'
 import { formatDefaultGroupName } from '../../utils/group-name'
@@ -30,6 +30,7 @@ export function CreateGroupDialog({ isOpen, onClose, initialSelectedFriendIds }:
   const { data: infiniteData, fetchNextPage, hasNextPage, isFetchingNextPage } = useMyFriendsInfinite(50, isOpen)
 
   const createGroupMutation = useCreateGroupMutation()
+  const updateAvatarMutation = useUpdateGroupAvatarMutation()
 
   const [groupName, setGroupName] = useState('')
   const [search, setSearch] = useState('')
@@ -71,13 +72,22 @@ export function CreateGroupDialog({ isOpen, onClose, initialSelectedFriendIds }:
     })
   }
 
-  // Cleanup preview URL to prevent memory leaks and reset state when closing
+  // Track previous open state to detect open/close transitions
+  const prevIsOpenRef = useRef(false)
+
+  // Sync initial selected friends when dialog opens, cleanup when it closes
   useEffect(() => {
-    if (isOpen) {
+    const wasOpen = prevIsOpenRef.current
+    prevIsOpenRef.current = isOpen
+
+    if (isOpen && !wasOpen) {
+      // Dialog just opened - set initial selections if provided
       if (initialSelectedFriendIds && initialSelectedFriendIds.length > 0) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setSelectedFriendIds(initialSelectedFriendIds)
       }
-    } else {
+    } else if (!isOpen && wasOpen) {
+      // Dialog just closed - cleanup
       // eslint-disable-next-line react-hooks/set-state-in-effect
       resetState()
     }
@@ -104,20 +114,26 @@ export function CreateGroupDialog({ isOpen, onClose, initialSelectedFriendIds }:
         tg.andOthers
       )
 
+    // Keep a reference to the file before resetting state
+    const pendingAvatarFile = selectedFile
+
+    // Step 1: Create group WITHOUT avatar for instant response
     createGroupMutation.mutate(
       {
-        request: {
-          name: finalName,
-          isGroup: true,
-          memberIds: selectedFriendIds,
-          avatar: null
-        },
-        file: selectedFile
+        name: finalName,
+        isGroup: true,
+        memberIds: selectedFriendIds,
+        avatar: null
       },
       {
-        onSuccess: () => {
+        onSuccess: (newConversation) => {
           onClose()
           resetState()
+
+          // Step 2: Upload avatar in background (fire-and-forget)
+          if (pendingAvatarFile && newConversation.id) {
+            updateAvatarMutation.mutate({ id: newConversation.id, file: pendingAvatarFile })
+          }
         }
       }
     )

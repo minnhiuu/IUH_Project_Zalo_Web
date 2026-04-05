@@ -24,23 +24,9 @@ export const getOrCreateConversation = async (partnerId: string): Promise<Conver
 }
 
 export const createGroupConversation = async (
-  data: { request: GroupConversationCreateRequest; file?: File | null }
+  request: GroupConversationCreateRequest
 ): Promise<ConversationResponse> => {
-  const formData = new FormData()
-  
-  // Important: Send the JSON object as a Blob with application/json type
-  // so that Spring's @RequestPart can deserialize it correctly.
-  formData.append('request', new Blob([JSON.stringify(data.request)], { type: 'application/json' }))
-  
-  if (data.file) {
-    formData.append('file', data.file)
-  }
-
-  const response = await http.post<ApiResponse<ConversationResponse>>('/messages/conversations/groups', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    }
-  })
+  const response = await http.post<ApiResponse<ConversationResponse>>('/messages/conversations/groups', request)
   return response.data.data
 }
 
