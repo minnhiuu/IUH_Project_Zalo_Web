@@ -139,6 +139,26 @@ export const useChatWebSocket = () => {
               return oldData
             }
           })
+
+          // 3. Special handling for DISBAND_GROUP: Clear messages cache
+          const metadata = msg.metadata as Record<string, unknown> | null | undefined
+          if (metadata?.action === 'DISBAND_GROUP') {
+            queryClient.setQueryData(
+              chatKeys.messages(conversationId),
+              (oldData: InfiniteData<PageResponse<MessageResponse>> | undefined) => {
+                if (!oldData) return oldData
+                return {
+                  ...oldData,
+                  pages: [
+                    {
+                      ...oldData.pages[0],
+                      data: [msg] // Only keep the disband system message
+                    }
+                  ]
+                }
+              }
+            )
+          }
         })
 
         // ────────── /queue/presence ──────────

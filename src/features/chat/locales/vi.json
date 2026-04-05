@@ -26,8 +26,14 @@
         "update_name": "<actorBold>{{actor}}</actorBold> đã đổi tên nhóm từ <bold>{{oldName}}</bold> thành <bold>{{newName}}</bold>",
         "update_avatar": "<actorBold>{{actor}}</actorBold> đã thay đổi ảnh đại diện nhóm",
         "update_name_simple": "Tên nhóm đổi thành {{newName}}",
-        "update_avatar_simple": "Ảnh đại diện nhóm đã thay đổi"
+        "update_avatar_simple": "Ảnh đại diện nhóm đã thay đổi",
+        "disband_group": "Trưởng nhóm đã giải tán nhóm"
       }
+    },
+    "disbanded": {
+      "message": "Trưởng nhóm đã giải tán nhóm.",
+      "cannotSendMessage": "Bạn không thể gửi tin nhắn vào nhóm được nữa",
+      "deleteAction": "Xóa cuộc trò chuyện"
     },
     "status": {
       "online": "Vừa mới truy cập",
@@ -75,6 +81,8 @@
     },
     "group-info-dialog": {
       "title": "Thông tin nhóm",
+      "managementTitle": "Quản lý nhóm",
+      "backToInfo": "Quay lại thông tin nhóm",
       "members": "Thành viên ({{count}})",
       "management": "Quản lý nhóm",
       "leaveGroup": "Rời nhóm",
@@ -82,7 +90,38 @@
       "media": "Ảnh/Video",
       "noMedia": "Chưa có ảnh/video nào được chia sẻ trong nhóm này",
       "sendMessage": "Nhắn tin",
-      "groupLink": "Link tham gia nhóm"
+      "groupLink": "Link tham gia nhóm",
+      "memberPermissionsTitle": "Cho phép các thành viên trong nhóm:",
+      "permissions": {
+        "updateNameAvatar": "Thay đổi tên và ảnh đại diện của nhóm",
+        "pinNotePoll": "Ghim tin nhắn, ghi chú, bình chọn lên đầu hội thoại",
+        "createReminder": "Tạo mới ghi chú, nhắc hẹn",
+        "createPoll": "Tạo mới bình chọn",
+        "sendMessage": "Gửi tin nhắn"
+      },
+      "toggles": {
+        "reviewNewMembers": "Chế độ phê duyệt thành viên mới",
+        "highlightAdminMessages": "Đánh dấu tin nhắn từ trưởng/phó nhóm",
+        "allowNewMembersReadRecent": "Cho phép thành viên mới đọc tin nhắn gần nhất",
+        "allowJoinByLink": "Cho phép dùng link tham gia nhóm"
+      },
+      "toggleTooltips": {
+        "reviewNewMembers": "Khi bật, thành viên mới phải được Trưởng/ phó nhóm duyệt mới có thể tham gia nhóm.",
+        "highlightAdminMessages": "Khi bật, tin nhắn từ Trưởng/ phó nhóm sẽ có ký hiệu chìa khóa.",
+        "allowNewMembersReadRecent": "Khi bật, thành viên mới sẽ xem được các tin nhắn trong nhóm trước khi họ tham gia.",
+        "allowJoinByLink": "Khi bật, tất cả thành viên trong nhóm đều có thể chia sẻ Link tham gia với người khác."
+      },
+      "actions": {
+        "removeMembers": "Chặn khỏi nhóm",
+        "ownerAndDeputy": "Trưởng & phó nhóm",
+        "disbandGroup": "Giải tán nhóm",
+        "disbandDialog": {
+          "title": "Giải tán nhóm",
+          "description": "Mời tất cả mọi người rời nhóm và xóa tin nhắn? Nhóm đã giải tán sẽ KHÔNG THỂ khôi phục.",
+          "confirm": "Giải tán nhóm",
+          "cancel": "Không"
+        }
+      }
     },
     "toasts": {
       "updating": "Đang cập nhật...",

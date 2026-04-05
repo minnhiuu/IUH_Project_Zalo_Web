@@ -86,3 +86,7 @@ export const updateGroupAvatarApi = async (conversationId: string, file: File): 
   )
   return response.data.data
 }
+
+export const disbandGroupApi = async (conversationId: string): Promise<void> => {
+  await http.delete(`/messages/conversations/${conversationId}/groups`)
+}

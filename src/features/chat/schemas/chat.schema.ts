@@ -46,6 +46,7 @@ export const ConversationResponseSchema = z.object({
   status: z.nativeEnum(Status).nullable().optional(), // partner online status (1-1 only)
   lastSeenAt: z.string().datetime().nullable().optional(),
   isGroup: z.boolean().default(false),
+  isDisbanded: z.boolean().default(false),
   unreadCount: z.number().nullable().optional(),
   lastMessage: LastMessageResponseSchema.nullable().optional(),
   members: z.array(ConversationMemberResponseSchema).nullable().optional()

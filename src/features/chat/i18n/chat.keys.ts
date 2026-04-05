@@ -49,7 +49,7 @@ export const CHAT_KEYS = {
     changeAvatar: 'chat.create-group-dialog.changeAvatar',
     removeAvatar: 'chat.create-group-dialog.removeAvatar'
   },
-      system: {
+  system: {
     add_members: {
       single_self: 'chat.system.add_members.single_self',
       many_self: 'chat.system.add_members.many_self',
@@ -62,8 +62,14 @@ export const CHAT_KEYS = {
       update_name: 'chat.system.add_members.update_name',
       update_name_simple: 'chat.system.add_members.update_name_simple',
       update_avatar: 'chat.system.add_members.update_avatar',
-      update_avatar_simple: 'chat.system.add_members.update_avatar_simple'
+      update_avatar_simple: 'chat.system.add_members.update_avatar_simple',
+      disband_group: 'chat.system.add_members.disband_group'
     }
+  },
+  disbanded: {
+    message: 'chat.disbanded.message',
+    cannotSendMessage: 'chat.disbanded.cannotSendMessage',
+    deleteAction: 'chat.disbanded.deleteAction'
   },
   'rename-group-dialog': {
     title: 'chat.rename-group-dialog.title',
@@ -74,6 +80,8 @@ export const CHAT_KEYS = {
   },
   'group-info-dialog': {
     title: 'chat.group-info-dialog.title',
+    managementTitle: 'chat.group-info-dialog.managementTitle',
+    backToInfo: 'chat.group-info-dialog.backToInfo',
     members: 'chat.group-info-dialog.members',
     management: 'chat.group-info-dialog.management',
     leaveGroup: 'chat.group-info-dialog.leaveGroup',
@@ -81,7 +89,38 @@ export const CHAT_KEYS = {
     media: 'chat.group-info-dialog.media',
     noMedia: 'chat.group-info-dialog.noMedia',
     sendMessage: 'chat.group-info-dialog.sendMessage',
-    groupLink: 'chat.group-info-dialog.groupLink'
+    groupLink: 'chat.group-info-dialog.groupLink',
+    memberPermissionsTitle: 'chat.group-info-dialog.memberPermissionsTitle',
+    permissions: {
+      updateNameAvatar: 'chat.group-info-dialog.permissions.updateNameAvatar',
+      pinNotePoll: 'chat.group-info-dialog.permissions.pinNotePoll',
+      createReminder: 'chat.group-info-dialog.permissions.createReminder',
+      createPoll: 'chat.group-info-dialog.permissions.createPoll',
+      sendMessage: 'chat.group-info-dialog.permissions.sendMessage'
+    },
+    toggles: {
+      reviewNewMembers: 'chat.group-info-dialog.toggles.reviewNewMembers',
+      highlightAdminMessages: 'chat.group-info-dialog.toggles.highlightAdminMessages',
+      allowNewMembersReadRecent: 'chat.group-info-dialog.toggles.allowNewMembersReadRecent',
+      allowJoinByLink: 'chat.group-info-dialog.toggles.allowJoinByLink'
+    },
+    toggleTooltips: {
+      reviewNewMembers: 'chat.group-info-dialog.toggleTooltips.reviewNewMembers',
+      highlightAdminMessages: 'chat.group-info-dialog.toggleTooltips.highlightAdminMessages',
+      allowNewMembersReadRecent: 'chat.group-info-dialog.toggleTooltips.allowNewMembersReadRecent',
+      allowJoinByLink: 'chat.group-info-dialog.toggleTooltips.allowJoinByLink'
+    },
+    actions: {
+      removeMembers: 'chat.group-info-dialog.actions.removeMembers',
+      ownerAndDeputy: 'chat.group-info-dialog.actions.ownerAndDeputy',
+      disbandGroup: 'chat.group-info-dialog.actions.disbandGroup',
+      disbandDialog: {
+        title: 'chat.group-info-dialog.actions.disbandDialog.title',
+        description: 'chat.group-info-dialog.actions.disbandDialog.description',
+        confirm: 'chat.group-info-dialog.actions.disbandDialog.confirm',
+        cancel: 'chat.group-info-dialog.actions.disbandDialog.cancel'
+      }
+    }
   },
   toasts: {
     updating: 'chat.toasts.updating',

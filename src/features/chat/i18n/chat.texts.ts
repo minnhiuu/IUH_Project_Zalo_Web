@@ -65,8 +65,14 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
       many_other_count: (firstTarget: string, count: number, actor: string) =>
         t(CHAT_KEYS.system.add_members.many_other_count, { firstTarget, count, actor }),
       update_name_simple: t(CHAT_KEYS.system.add_members.update_name_simple),
-      update_avatar_simple: t(CHAT_KEYS.system.add_members.update_avatar_simple)
+      update_avatar_simple: t(CHAT_KEYS.system.add_members.update_avatar_simple),
+      disband_group: t(CHAT_KEYS.system.add_members.disband_group)
     }
+  },
+  disbanded: {
+    message: t(CHAT_KEYS.disbanded.message),
+    cannotSendMessage: t(CHAT_KEYS.disbanded.cannotSendMessage),
+    deleteAction: t(CHAT_KEYS.disbanded.deleteAction)
   },
   'rename-group-dialog': {
     title: t(CHAT_KEYS['rename-group-dialog'].title),
@@ -77,6 +83,8 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
   },
   'group-info-dialog': {
     title: t(CHAT_KEYS['group-info-dialog'].title),
+    managementTitle: t(CHAT_KEYS['group-info-dialog'].managementTitle),
+    backToInfo: t(CHAT_KEYS['group-info-dialog'].backToInfo),
     membersCount: (count: number) => t(CHAT_KEYS['group-info-dialog'].members, { count }),
     management: t(CHAT_KEYS['group-info-dialog'].management),
     leaveGroup: t(CHAT_KEYS['group-info-dialog'].leaveGroup),
@@ -84,7 +92,38 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     media: t(CHAT_KEYS['group-info-dialog'].media),
     noMedia: t(CHAT_KEYS['group-info-dialog'].noMedia),
     sendMessage: t(CHAT_KEYS['group-info-dialog'].sendMessage),
-    groupLink: t(CHAT_KEYS['group-info-dialog'].groupLink)
+    groupLink: t(CHAT_KEYS['group-info-dialog'].groupLink),
+    memberPermissionsTitle: t(CHAT_KEYS['group-info-dialog'].memberPermissionsTitle),
+    permissions: {
+      updateNameAvatar: t(CHAT_KEYS['group-info-dialog'].permissions.updateNameAvatar),
+      pinNotePoll: t(CHAT_KEYS['group-info-dialog'].permissions.pinNotePoll),
+      createReminder: t(CHAT_KEYS['group-info-dialog'].permissions.createReminder),
+      createPoll: t(CHAT_KEYS['group-info-dialog'].permissions.createPoll),
+      sendMessage: t(CHAT_KEYS['group-info-dialog'].permissions.sendMessage)
+    },
+    toggles: {
+      reviewNewMembers: t(CHAT_KEYS['group-info-dialog'].toggles.reviewNewMembers),
+      highlightAdminMessages: t(CHAT_KEYS['group-info-dialog'].toggles.highlightAdminMessages),
+      allowNewMembersReadRecent: t(CHAT_KEYS['group-info-dialog'].toggles.allowNewMembersReadRecent),
+      allowJoinByLink: t(CHAT_KEYS['group-info-dialog'].toggles.allowJoinByLink)
+    },
+    toggleTooltips: {
+      reviewNewMembers: t(CHAT_KEYS['group-info-dialog'].toggleTooltips.reviewNewMembers),
+      highlightAdminMessages: t(CHAT_KEYS['group-info-dialog'].toggleTooltips.highlightAdminMessages),
+      allowNewMembersReadRecent: t(CHAT_KEYS['group-info-dialog'].toggleTooltips.allowNewMembersReadRecent),
+      allowJoinByLink: t(CHAT_KEYS['group-info-dialog'].toggleTooltips.allowJoinByLink)
+    },
+    actions: {
+      removeMembers: t(CHAT_KEYS['group-info-dialog'].actions.removeMembers),
+      ownerAndDeputy: t(CHAT_KEYS['group-info-dialog'].actions.ownerAndDeputy),
+      disbandGroup: t(CHAT_KEYS['group-info-dialog'].actions.disbandGroup),
+      disbandDialog: {
+        title: t(CHAT_KEYS['group-info-dialog'].actions.disbandDialog.title),
+        description: t(CHAT_KEYS['group-info-dialog'].actions.disbandDialog.description),
+        confirm: t(CHAT_KEYS['group-info-dialog'].actions.disbandDialog.confirm),
+        cancel: t(CHAT_KEYS['group-info-dialog'].actions.disbandDialog.cancel)
+      }
+    }
   },
   toasts: {
     updating: t(CHAT_KEYS.toasts.updating),

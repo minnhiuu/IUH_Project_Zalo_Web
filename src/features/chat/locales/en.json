@@ -26,8 +26,14 @@
         "update_name": "<actorBold>{{actor}}</actorBold> changed group name from <bold>{{oldName}}</bold> to <bold>{{newName}}</bold>",
         "update_avatar": "<actorBold>{{actor}}</actorBold> changed group profile picture",
         "update_name_simple": "Group name changed to {{newName}}",
-        "update_avatar_simple": "Group avatar has been changed"
+        "update_avatar_simple": "Group avatar has been changed",
+        "disband_group": "The group has been disbanded by the owner"
       }
+    },
+    "disbanded": {
+      "message": "The group has been disbanded by the owner.",
+      "cannotSendMessage": "You can no longer send messages to this group",
+      "deleteAction": "Delete conversation"
     },
     "status": {
       "online": "Active now",
@@ -75,6 +81,8 @@
     },
     "group-info-dialog": {
       "title": "Group Info",
+      "managementTitle": "Manage group",
+      "backToInfo": "Back to group info",
       "members": "Members ({{count}})",
       "management": "Manage group",
       "leaveGroup": "Leave group",
@@ -82,7 +90,38 @@
       "media": "Photos/Videos",
       "noMedia": "No shared image in this group",
       "sendMessage": "Chat",
-      "groupLink": "Group link"
+      "groupLink": "Group link",
+      "memberPermissionsTitle": "Allow group members to",
+      "permissions": {
+        "updateNameAvatar": "Change the group name & avatar",
+        "pinNotePoll": "Pin messages, notes, and polls to the top of a conversation",
+        "createReminder": "Create new notes & reminders",
+        "createPoll": "Create new polls",
+        "sendMessage": "Send messages"
+      },
+      "toggles": {
+        "reviewNewMembers": "Membership approval",
+        "highlightAdminMessages": "Highlight messages from owner/admins",
+        "allowNewMembersReadRecent": "Allow new members to read most recent messages",
+        "allowJoinByLink": "Allow joining group via link"
+      },
+      "toggleTooltips": {
+        "reviewNewMembers": "When enabled, new members must be approved by owner or admins to join the group.",
+        "highlightAdminMessages": "When enabled, messages from owner or admin will have a key symbol.",
+        "allowNewMembersReadRecent": "New members can see the entire message history when they join.",
+        "allowJoinByLink": "All members can invite people to join the group by sharing a link with them."
+      },
+      "actions": {
+        "removeMembers": "Blocked members",
+        "ownerAndDeputy": "Owner & admin",
+        "disbandGroup": "Delete group",
+        "disbandDialog": {
+          "title": "Disband group",
+          "description": "Remove all members and delete the group? This CANNOT be undone.",
+          "confirm": "Disband group",
+          "cancel": "No"
+        }
+      }
     },
     "toasts": {
       "updating": "Updating...",

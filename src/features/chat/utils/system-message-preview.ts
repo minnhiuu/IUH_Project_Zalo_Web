@@ -50,6 +50,10 @@ export function getSystemMessagePreview(
     }
   }
 
+  if (action === 'DISBAND_GROUP') {
+    return translate('chat.system.add_members.disband_group') as string
+  }
+
   if (action === 'UPDATE_NAME') {
     return translate('chat.system.add_members.update_name_simple', { newName: payload?.newName }) as string
   }
@@ -59,6 +63,6 @@ export function getSystemMessagePreview(
   }
 
   // Fallback to standard labels for other cases
-  const label = getSystemMessageLabel(metadataRaw, currentUserId, members, translate, false)
+  const label = getSystemMessageLabel(metadataRaw, senderId, undefined, currentUserId, members, translate, false)
   return typeof label === 'string' ? label : ''
 }

@@ -8,7 +8,7 @@ import type { ConversationMemberResponse, MessageResponse, ConversationResponse 
 import { GroupAvatar } from '../components/group/group-avatar'
 import { Pencil } from 'lucide-react'
 
-export type SystemActionType = 'ADD_MEMBERS' | 'REMOVE_MEMBER' | 'LEAVE_GROUP' | 'UPDATE_NAME' | 'UPDATE_AVATAR'
+export type SystemActionType = 'ADD_MEMBERS' | 'REMOVE_MEMBER' | 'LEAVE_GROUP' | 'UPDATE_NAME' | 'UPDATE_AVATAR' | 'DISBAND_GROUP'
 
 export interface SystemMetadata {
   action: SystemActionType
@@ -89,6 +89,8 @@ export function getSystemMessageLabel(
   } else if (action === 'UPDATE_AVATAR') {
     i18nKey = 'chat.system.add_members.update_avatar'
     values.actor = actorNameCapital // Viết hoa vì đứng đầu câu
+  } else if (action === 'DISBAND_GROUP') {
+    i18nKey = 'chat.system.add_members.disband_group'
   }
 
   if (i18nKey) {
@@ -142,7 +144,8 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
     return { systemLabel: label, targetAvatars: avatars }
   }, [message.metadata, message.senderId, message.senderName, user?.id, conversation?.members, t])
 
-  if (!systemLabel) return null
+  if (!systemLabel) return null;
+  const isDisbanded = (message.metadata as unknown as SystemMetadata)?.action === 'DISBAND_GROUP';
 
   return (
     <div className='flex justify-center w-full my-2.5 px-4'>
@@ -156,8 +159,20 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
             className='shrink-0'
           />
         )}
-        <div className='flex-1 text-[12.5px] leading-relaxed text-left'>{systemLabel}</div>
+        <div className='flex-1 text-[12.5px] leading-relaxed text-left flex items-center gap-1.5'>
+          {systemLabel}
+          {isDisbanded && (
+            <button
+              onClick={() => {
+                // toast.info('Tính năng xoá cuộc trò chuyện đang được phát triển')
+              }}
+              className='text-blue-500 hover:text-blue-600 font-medium whitespace-nowrap'
+            >
+              {t('chat.disbanded.deleteAction')}
+            </button>
+          )}
+        </div>
       </div>
     </div>
-  )
+  );
 }

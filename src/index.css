@@ -42,8 +42,12 @@
 
   --section-divider: #f1f2f4;
 
-  --destructive: #e53838;
+  --destructive: #c31818;
   --destructive-foreground: #ffffff;
+  --destructive-subtle: #fbe4e4;
+  --destructive-subtle-text: #c31818;
+  --destructive-hover: #f9cdcd;
+  --destructive-hover-foreground: #c31818;
 
   --border: #dbdbdb;
   --input: #dbdbdb;
@@ -74,10 +78,7 @@
   --warning-text: #b45309;
   --warning-border: #fde68a;
 
-  --destructive-subtle: #fff1f2;
-  --destructive-text: #be123c;
-  --destructive-border: #fecdd3;
-  --destructive-solid: #e11d48;
+  --destructive-solid: #c31818;
 
   --bg-icon-link: #ebecf0;
   --text-icon-link: #081b3a;
@@ -150,8 +151,12 @@
 
   --section-divider: #121416;
 
-  --destructive: #e94949;
-  --destructive-foreground: #ffffff;
+  --destructive: #9a1313;
+  --destructive-foreground: #dfe2e7;
+  --destructive-subtle: #9a1313;
+  --destructive-subtle-text: #dfe2e7;
+  --destructive-hover: #c31818;
+  --destructive-hover-foreground: #dfe2e7;
 
   --border: hsla(0, 0%, 100%, 0.1);
   --input: #1a1d21;
@@ -270,8 +275,9 @@
   --color-warning-border: var(--warning-border);
 
   --color-destructive-subtle: var(--destructive-subtle);
-  --color-destructive-text: var(--destructive-text);
-  --color-destructive-border: var(--destructive-border);
+  --color-destructive-subtle-text: var(--destructive-subtle-text);
+  --color-destructive-hover: var(--destructive-hover);
+  --color-destructive-hover-foreground: var(--destructive-hover-foreground);
   --color-destructive-solid: var(--destructive-solid);
 
   --color-dialog-selection-btn-disabled-bg: var(--dialog-selection-btn-disabled-bg);

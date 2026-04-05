@@ -42,6 +42,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   const [forwardingMessage, setForwardingMessage] = useState<MessageResponse | null>(null)
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false)
   const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false)
+  const [infoDialogStep, setInfoDialogStep] = useState<'info' | 'management'>('info')
   const [isInfoSidebarOpen, setIsInfoSidebarOpen] = useState(true)
   const { mutate: updateGroupName, isPending: isUpdatingName } = useUpdateGroupNameMutation()
   const { mutate: updateGroupAvatar } = useUpdateGroupAvatarMutation()
@@ -167,7 +168,10 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             <div className='relative shrink-0 hidden sm:block'>
               <input type='file' ref={fileInputRef} onChange={handleAvatarChange} accept='image/*' className='hidden' />
               <div
-                onClick={conversation.isGroup && !isAiConversation ? () => setIsInfoDialogOpen(true) : undefined}
+                onClick={conversation.isGroup && !isAiConversation ? () => {
+                  setInfoDialogStep('info')
+                  setIsInfoDialogOpen(true)
+                } : undefined}
                 className={cn(
                   'relative rounded-full transition-all shrink-0',
                   conversation.isGroup && !isAiConversation && 'cursor-pointer hover:ring-2 hover:ring-primary/20'
@@ -275,7 +279,23 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
           {isFetchingNextPage && <div className='py-4 text-center text-sm text-muted-foreground'>Đang tải thêm...</div>}
         </div>
 
-        <ChatInput conversationId={conversation.id} replyTo={replyTo} onCancelReply={() => setReplyTo(null)} />
+        {conversation.isDisbanded ? (
+          <div className='relative shrink-0 flex flex-col items-center pb-[env(safe-area-inset-bottom,0)] bg-background h-[104px] justify-between border-t border-border'>
+            {/* Bottom Info Bar - Empty header like toolbar space if needed, but here we just center the info */}
+            <div className='flex-1 w-full flex items-center justify-center'>
+              <div className='flex items-center gap-2.5'>
+                <div className='w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center shrink-0'>
+                  <span className='text-[12px] text-white font-bold'>i</span>
+                </div>
+                <span className='text-[14.5px] text-muted-foreground font-medium'>
+                  {text.disbanded.cannotSendMessage}
+                </span>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <ChatInput conversationId={conversation.id} replyTo={replyTo} onCancelReply={() => setReplyTo(null)} />
+        )}
         {forwardingMessage && <ForwardModal message={forwardingMessage} onClose={() => setForwardingMessage(null)} />}
 
         <RenameGroupDialog
@@ -304,6 +324,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
         conversation={conversation}
         open={isInfoDialogOpen}
         onOpenChange={setIsInfoDialogOpen}
+        initialStep={infoDialogStep}
         onRenameClick={() => {
           setIsInfoDialogOpen(false)
           setIsRenameDialogOpen(true)

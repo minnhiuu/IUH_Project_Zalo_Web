@@ -15,6 +15,7 @@ interface BaseDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   title: string
+  headerLeft?: React.ReactNode
   description?: string
   children?: React.ReactNode
   confirmText?: string
@@ -31,6 +32,7 @@ export function BaseDialog({
   open,
   onOpenChange,
   title,
+  headerLeft,
   description,
   children,
   confirmText,
@@ -50,13 +52,16 @@ export function BaseDialog({
           showCloseButton={false}
           className={cn(
             'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50',
-            'w-[400px] max-w-[95vw] p-0 gap-0 rounded-md overflow-hidden border border-border shadow-2xl bg-background outline-none',
+            'w-100 max-w-[95vw] p-0 gap-0 rounded-md overflow-hidden border border-border shadow-2xl bg-background outline-none',
             'animate-in zoom-in-95 duration-200',
             className
           )}
         >
           <div className='flex items-center justify-between px-4 h-11 border-b border-border'>
-            <DialogTitle className='text-[15px] font-bold text-foreground truncate mr-2'>{title}</DialogTitle>
+            <div className='flex items-center min-w-0 gap-1'>
+              {headerLeft}
+              <DialogTitle className='text-[15px] font-bold text-foreground truncate mr-2'>{title}</DialogTitle>
+            </div>
             <button
               onClick={() => onOpenChange(false)}
               className='p-1 hover:bg-muted rounded-full transition-colors outline-none cursor-pointer'
@@ -77,7 +82,17 @@ export function BaseDialog({
           {(confirmText || cancelText) && (
             <DialogFooter className='flex flex-row justify-end gap-3 px-4 pb-4'>
               {cancelText && (
-                <Button variant='secondary' onClick={() => { if (onCancel) { onCancel() } else { onOpenChange(false) } }} className='px-6 h-9 min-w-[80px]'>
+                <Button
+                  variant='secondary'
+                  onClick={() => {
+                    if (onCancel) {
+                      onCancel()
+                    } else {
+                      onOpenChange(false)
+                    }
+                  }}
+                  className='px-6 h-9 min-w-20'
+                >
                   {cancelText}
                 </Button>
               )}
@@ -86,7 +101,7 @@ export function BaseDialog({
                   variant={variant === 'danger' ? 'destructive' : 'default'}
                   onClick={onConfirm}
                   disabled={isPending}
-                  className='px-6 h-9 min-w-[80px]'
+                  className='px-6 h-9 min-w-20'
                 >
                   {isPending ? '...' : confirmText}
                 </Button>
