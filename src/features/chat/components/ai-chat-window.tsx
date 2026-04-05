@@ -12,17 +12,17 @@ interface AiChatWindowProps {
   conversation: ConversationResponse
 }
 
-// ── Compact status bar (phía trên input, không avatar) ────────────────────────
+// ── Compact status bar ─────────────────────────────────────────────────────────
 function AiStatusBar({ statusEnum }: { statusEnum?: AiProcessingStatus }) {
   const { text } = useChatText()
   const label = text.aiStatusLabel(statusEnum)
   return (
-    <div className='flex items-center gap-1.5 px-4 py-1 text-[11px] text-violet-500 dark:text-violet-400 italic select-none'>
+    <div className='flex items-center gap-1.5 px-4 py-1 text-[11px] text-blue-500 dark:text-blue-400 italic select-none'>
       <span className='flex items-center gap-[3px]'>
         {[0, 1, 2].map((i) => (
           <span
             key={i}
-            className='w-[5px] h-[5px] rounded-full bg-violet-400 animate-bounce'
+            className='w-[5px] h-[5px] rounded-full bg-blue-400 animate-bounce'
             style={{ animationDelay: `${i * 120}ms` }}
           />
         ))}
@@ -32,7 +32,7 @@ function AiStatusBar({ statusEnum }: { statusEnum?: AiProcessingStatus }) {
   )
 }
 
-// ── Dots bubble (chờ AI reply lần đầu, trước khi có tin nhắn AI) ──────────────
+// ── Typing indicator ───────────────────────────────────────────────────────────
 function TypingIndicator({ avatarUrl }: { avatarUrl?: string }) {
   return (
     <div className='flex items-end gap-2 px-2 mt-3'>
@@ -48,7 +48,7 @@ function TypingIndicator({ avatarUrl }: { avatarUrl?: string }) {
           {[0, 1, 2].map((i) => (
             <span
               key={i}
-              className='w-2 h-2 bg-violet-400 rounded-full animate-bounce'
+              className='w-2 h-2 bg-blue-400 rounded-full animate-bounce'
               style={{ animationDelay: `${i * 150}ms` }}
             />
           ))}
@@ -58,60 +58,124 @@ function TypingIndicator({ avatarUrl }: { avatarUrl?: string }) {
   )
 }
 
-
-// ── Single message bubble ──────────────────────────────────────────────────────
-function AiMessageBubble({ msg, avatarUrl }: { msg: AiMessage; avatarUrl?: string }) {
-  const isUser = msg.role === 'user'
-
+// ── Follow-up suggestion chips ─────────────────────────────────────────────────
+function SuggestionChips({
+  suggestions,
+  onSelect,
+  disabled,
+}: {
+  suggestions: string[]
+  onSelect: (text: string) => void
+  disabled: boolean
+}) {
+  if (!suggestions.length) return null
   return (
-    <div className={cn('flex w-full px-2 gap-2 mt-3', isUser ? 'justify-end' : 'justify-start')}>
-      {!isUser && (
-        <div className='w-8 h-8 shrink-0'>
-          <img
-            src={avatarUrl || `https://api.dicebear.com/7.x/identicon/svg?seed=ai-assistant-001`}
-            alt='Bondhub AI'
-            className='w-full h-full rounded-full object-cover border border-black/5 shadow-md'
-          />
-        </div>
-      )}
-
-      <div className='flex flex-col max-w-[75%]'>
-        <div
+    <div className='flex flex-wrap gap-1.5 mt-2 px-1'>
+      {suggestions.map((s) => (
+        <button
+          key={s}
+          disabled={disabled}
+          onClick={() => onSelect(s)}
           className={cn(
-            'px-4 py-2.5 rounded-2xl text-[15px] leading-relaxed shadow-sm break-words',
-            isUser
-              ? 'bg-[#e5efff] text-black dark:bg-primary dark:text-primary-foreground rounded-tr-md'
-              : msg.isClarification
-                ? 'bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-100 rounded-bl-md'
-                : 'bg-white dark:bg-zinc-900 text-foreground rounded-bl-md'
+            'flex items-center gap-1 px-3 py-1.5 rounded-full text-[12px] font-medium border transition-all',
+            'bg-blue-50 border-blue-200 text-blue-700',
+            'dark:bg-blue-950 dark:border-blue-700 dark:text-blue-300',
+            'hover:bg-blue-100 dark:hover:bg-blue-900 hover:border-blue-400 hover:shadow-sm',
+            'cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed',
+            'active:scale-95'
           )}
         >
-          {msg.isClarification && (
-            <div className='flex items-center gap-1.5 text-amber-600 dark:text-amber-400 text-[13px] font-semibold mb-1.5'>
-              <HelpCircle size={14} />
-              <span>Cần thêm thông tin</span>
-            </div>
-          )}
-          <span className='whitespace-pre-wrap'>{msg.content}</span>
-          {msg.isStreaming && !msg.processingStatus && (
-            <span className='inline-block w-0.5 h-4 ml-0.5 bg-violet-500 animate-pulse align-middle' />
-          )}
-        </div>
-        <span className='text-[11px] text-muted-foreground mt-1 px-1'>
-          {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-        </span>
-      </div>
+          <Sparkles size={11} className='shrink-0' />
+          {s}
+        </button>
+      ))}
     </div>
   )
 }
 
-// ── Welcome screen (empty state) ───────────────────────────────────────────────
-function WelcomeScreen({ avatarUrl }: { avatarUrl?: string }) {
-  const suggestedQueries = [
-    'Tóm tắt các cuộc trò chuyện gần đây',
-    'Ai trong nhóm của tôi nói về điều gì?',
-    'Tìm kiếm thông tin liên quan đến dự án'
-  ]
+// ── Single message bubble ──────────────────────────────────────────────────────
+function AiMessageBubble({
+  msg,
+  avatarUrl,
+  onSuggestionClick,
+  isLoading,
+}: {
+  msg: AiMessage
+  avatarUrl?: string
+  onSuggestionClick: (text: string) => void
+  isLoading: boolean
+}) {
+  const isUser = msg.role === 'user'
+
+  return (
+    <div className={cn('flex flex-col w-full px-2 mt-3', isUser ? 'items-end' : 'items-start')}>
+      <div className={cn('flex gap-2 w-full', isUser ? 'justify-end' : 'justify-start')}>
+        {!isUser && (
+          <div className='w-8 h-8 shrink-0'>
+            <img
+              src={avatarUrl || `https://api.dicebear.com/7.x/identicon/svg?seed=ai-assistant-001`}
+              alt='Bondhub AI'
+              className='w-full h-full rounded-full object-cover border border-black/5 shadow-md'
+            />
+          </div>
+        )}
+
+        <div className='flex flex-col max-w-[75%]'>
+          <div
+            className={cn(
+              'px-4 py-2.5 rounded-2xl text-[15px] leading-relaxed shadow-sm break-words',
+              isUser
+                ? 'bg-[#e5efff] text-black dark:bg-primary dark:text-primary-foreground rounded-tr-md'
+                : msg.isClarification
+                  ? 'bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-100 rounded-bl-md'
+                  : 'bg-white dark:bg-zinc-900 text-foreground rounded-bl-md'
+            )}
+          >
+            {msg.isClarification && (
+              <div className='flex items-center gap-1.5 text-amber-600 dark:text-amber-400 text-[13px] font-semibold mb-1.5'>
+                <HelpCircle size={14} />
+                <span>Cần thêm thông tin</span>
+              </div>
+            )}
+            <span className='whitespace-pre-wrap'>{msg.content}</span>
+            {msg.isStreaming && !msg.processingStatus && (
+              <span className='inline-block w-0.5 h-4 ml-0.5 bg-blue-500 animate-pulse align-middle' />
+            )}
+          </div>
+          <span className='text-[11px] text-muted-foreground mt-1 px-1'>
+            {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </span>
+        </div>
+      </div>
+
+      {/* Follow-up chips */}
+      {!isUser && !msg.isStreaming && !!msg.suggestions?.length && (
+        <div className='ml-10'>
+          <SuggestionChips
+            suggestions={msg.suggestions}
+            onSelect={onSuggestionClick}
+            disabled={isLoading}
+          />
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Welcome screen ─────────────────────────────────────────────────────────────
+const WELCOME_SUGGESTIONS = [
+  { emoji: '👤', text: 'Hồ sơ của tôi là gì?' },
+  { emoji: '👥', text: 'Danh sách bạn bè của tôi' },
+  { emoji: '🌐', text: 'Tìm kiếm thông tin trên Internet' },
+]
+
+function WelcomeScreen({
+  avatarUrl,
+  onSelect,
+}: {
+  avatarUrl?: string
+  onSelect: (text: string) => void
+}) {
   return (
     <div className='flex flex-col items-center justify-center flex-1 px-6 py-10 text-center'>
       <div className='w-16 h-16 mb-4'>
@@ -126,12 +190,21 @@ function WelcomeScreen({ avatarUrl }: { avatarUrl?: string }) {
         Trợ lý AI thông minh tích hợp dữ liệu hội thoại của bạn. Hỏi bất cứ điều gì!
       </p>
       <div className='flex flex-col gap-2 w-full max-w-sm'>
-        {suggestedQueries.map((q) => (
+        {WELCOME_SUGGESTIONS.map(({ emoji, text }) => (
           <button
-            key={q}
-            className='text-left px-4 py-2.5 rounded-xl border border-border hover:bg-muted/60 text-sm text-foreground/80 transition-colors'
+            key={text}
+            onClick={() => onSelect(text)}
+            className={cn(
+              'flex items-center gap-2.5 text-left px-4 py-2.5 rounded-xl border transition-all',
+              'border-blue-200 dark:border-blue-800',
+              'bg-blue-50/60 dark:bg-blue-950/40',
+              'text-blue-800 dark:text-blue-200 text-sm font-medium',
+              'hover:bg-blue-100 dark:hover:bg-blue-900 hover:border-blue-400 hover:shadow-sm',
+              'cursor-pointer active:scale-[0.98]'
+            )}
           >
-            {q}
+            <span className='text-base'>{emoji}</span>
+            {text}
           </button>
         ))}
       </div>
@@ -146,14 +219,12 @@ export function AiChatWindow({ conversation }: AiChatWindowProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
-  // Auto-focus input when conversation changes or loading finishes
   useEffect(() => {
     if (!isLoading) {
       setTimeout(() => inputRef.current?.focus(), 0)
     }
   }, [conversation.id, isLoading])
 
-  // Auto-scroll to bottom on new messages
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight
@@ -166,6 +237,11 @@ export function AiChatWindow({ conversation }: AiChatWindowProps) {
     if (!trimmed || isLoading) return
     sendMessage(trimmed)
     setContent('')
+  }
+
+  const handleSuggestionClick = (text: string) => {
+    if (isLoading) return
+    sendMessage(text)
   }
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -189,16 +265,17 @@ export function AiChatWindow({ conversation }: AiChatWindowProps) {
           </div>
           <div>
             <h2 className='text-[16px] font-semibold text-foreground/90 leading-tight'>Bondhub AI</h2>
-            <p className='text-[12px] text-violet-500 dark:text-violet-400 mt-0.5 leading-tight flex items-center gap-1'>
-              <span className='inline-block w-1.5 h-1.5 rounded-full bg-violet-500 animate-pulse' />
-              Trợ lý AI thông minh
+            <p className='text-[12px] text-blue-500 dark:text-blue-400 mt-0.5 leading-tight flex items-center gap-1'>
+
+              <span className='inline-block w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse' />
+              Trợ lý AI
             </p>
           </div>
         </div>
         <button
           onClick={clearHistory}
           title='Cuộc hội thoại mới'
-          className='p-2 hover:bg-muted rounded-full transition-colors text-muted-foreground'
+          className='p-2 hover:bg-muted rounded-full transition-colors text-muted-foreground cursor-pointer'
         >
           <RotateCcw size={18} />
         </button>
@@ -207,13 +284,21 @@ export function AiChatWindow({ conversation }: AiChatWindowProps) {
       {/* Messages area */}
       <div ref={scrollRef} className='flex-1 overflow-y-auto px-2 py-4 flex flex-col custom-scrollbar'>
         {messages.length === 0 ? (
-          <WelcomeScreen avatarUrl={conversation.avatar || undefined} />
+          <WelcomeScreen
+            avatarUrl={conversation.avatar || undefined}
+            onSelect={handleSuggestionClick}
+          />
         ) : (
           <>
             {messages.map((msg) => (
-              <AiMessageBubble key={msg.id} msg={msg} avatarUrl={conversation.avatar || undefined} />
+              <AiMessageBubble
+                key={msg.id}
+                msg={msg}
+                avatarUrl={conversation.avatar || undefined}
+                onSuggestionClick={handleSuggestionClick}
+                isLoading={isLoading}
+              />
             ))}
-            {/* Dots bubble chỉ hiện khi chưa có tin nhắn AI nào */}
             {isLoading && messages[messages.length - 1]?.role !== 'ai' && (
               <TypingIndicator avatarUrl={conversation.avatar || undefined} />
             )}
@@ -223,17 +308,13 @@ export function AiChatWindow({ conversation }: AiChatWindowProps) {
 
       {/* Input + AI Status bar */}
       <div className='bg-background border-t border-border flex flex-col p-0 gap-0'>
-        {/* Status bar nhỏ gọn — hiện khi AI đang xử lý */}
         {(() => {
           const lastMsg = messages[messages.length - 1]
-          const isStreamingWithStatus = isLoading && lastMsg?.role === 'ai' && lastMsg?.isStreaming && lastMsg?.processingStatus
-          return isStreamingWithStatus ? (
-            <AiStatusBar statusEnum={lastMsg?.processingStatus} />
-          ) : null
+          const isStreamingWithStatus =
+            isLoading && lastMsg?.role === 'ai' && lastMsg?.isStreaming && lastMsg?.processingStatus
+          return isStreamingWithStatus ? <AiStatusBar statusEnum={lastMsg?.processingStatus} /> : null
         })()}
         <form onSubmit={handleSend} className='flex items-center p-2 gap-2 pr-4'>
-
-
           <div className='flex-1 min-w-0'>
             <Textarea
               ref={inputRef}
@@ -252,7 +333,7 @@ export function AiChatWindow({ conversation }: AiChatWindowProps) {
             className={cn(
               'p-2.5 rounded-full flex items-center justify-center transition-all',
               content.trim() && !isLoading
-                ? 'text-violet-600 hover:bg-violet-100 dark:hover:bg-violet-900'
+                ? 'text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900 cursor-pointer'
                 : 'text-muted-foreground opacity-40 cursor-not-allowed'
             )}
           >

@@ -14,10 +14,23 @@ export interface AiMessage {
   id: string
   role: AiMessageRole
   content: string
+  suggestions?: string[]       // follow-up questions extracted from <suggestions>...</suggestions>
   isStreaming?: boolean
   isClarification?: boolean
   processingStatus?: AiProcessingStatus
   timestamp: Date
+}
+
+/** Tách <suggestions>Q1|Q2</suggestions> ra khỏi content. Returns { cleanContent, suggestions } */
+function parseSuggestions(raw: string): { cleanContent: string; suggestions: string[] } {
+  const match = raw.match(/<suggestions>(.*?)<\/suggestions>/s)
+  if (!match) return { cleanContent: raw.trim(), suggestions: [] }
+  const suggestions = match[1]
+    .split('|')
+    .map((s) => s.trim())
+    .filter(Boolean)
+  const cleanContent = raw.replace(/<suggestions>.*?<\/suggestions>/s, '').trim()
+  return { cleanContent, suggestions }
 }
 
 const AI_BASE_URL = import.meta.env.VITE_API_BASE_URL
@@ -159,13 +172,13 @@ export function useAiChat(conversationId: string) {
           }
         }
 
-        // Khi stream kết thúc: xóa status, đánh dấu hết streaming
+        // Khi stream kết thúc: parse suggestions, xóa tag khỏi content hiển thị
         setMessages((prev) =>
-          prev.map((m) =>
-            m.id === aiMsgId
-              ? { ...m, isStreaming: false, isClarification, processingStatus: undefined }
-              : m
-          )
+          prev.map((m) => {
+            if (m.id !== aiMsgId) return m
+            const { cleanContent, suggestions } = parseSuggestions(m.content)
+            return { ...m, content: cleanContent, suggestions, isStreaming: false, isClarification, processingStatus: undefined }
+          })
         )
       } catch (err: unknown) {
         if (err instanceof Error && err.name === 'AbortError') return
