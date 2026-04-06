@@ -86,6 +86,7 @@ export function ChatInfoSidebar({ conversation, onRenameClick, onAvatarClick }: 
   const [step, setStep] = useState<'info' | 'management'>('info')
   const [isDisappearingDialogOpen, setIsDisappearingDialogOpen] = useState(false)
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false)
+  const [isAddMemberOpen, setIsAddMemberOpen] = useState(false)
 
   const currentMember = conversation.members?.find((m) => m.userId === user?.id)
   const isMemberOnly = isGroup && currentMember?.role?.toUpperCase() === 'MEMBER'
@@ -94,7 +95,7 @@ export function ChatInfoSidebar({ conversation, onRenameClick, onAvatarClick }: 
 
   if (step === 'management') {
     return (
-      <div className='w-[350px] border-l border-border bg-background flex flex-col h-full overflow-hidden shrink-0 z-[100] shadow-xl min-[1150px]:shadow-none min-[1150px]:relative absolute right-0 top-0'>
+      <div className='w-[350px] border-l border-border bg-background flex flex-col h-full overflow-hidden shrink-0 z-100 shadow-xl min-[1150px]:shadow-none min-[1150px]:relative absolute right-0 top-0'>
         {/* Header */}
         <div className='h-[68px] flex items-center border-b border-border shrink-0 px-4'>
           <button
@@ -121,7 +122,7 @@ export function ChatInfoSidebar({ conversation, onRenameClick, onAvatarClick }: 
   }
 
   return (
-    <div className='w-[350px] border-l border-border bg-background flex flex-col h-full overflow-hidden shrink-0 z-[100] shadow-xl min-[1150px]:shadow-none min-[1150px]:relative absolute right-0 top-0'>
+    <div className='w-[350px] border-l border-border bg-background flex flex-col h-full overflow-hidden shrink-0 z-100 shadow-xl min-[1150px]:shadow-none min-[1150px]:relative absolute right-0 top-0'>
       {/* Header */}
       <div className='h-[68px] flex items-center justify-center border-b border-border shrink-0 px-4'>
         <h2 className='font-bold text-[16px] text-foreground'>
@@ -222,7 +223,12 @@ export function ChatInfoSidebar({ conversation, onRenameClick, onAvatarClick }: 
                 {isGroup ? (
                   <>
                     <div className='flex flex-col items-center space-y-1.5 w-[72px]'>
-                      <ActionButton icon={<UserPlus />} size='lg' iconSize='lg' />
+                      <ActionButton
+                        icon={<UserPlus />}
+                        size='lg'
+                        iconSize='lg'
+                        onClick={() => setIsAddMemberOpen(true)}
+                      />
                       <span className='text-[12px] text-foreground font-medium text-center leading-tight'>
                         {tg.sidebarInfo.addMember}
                       </span>
@@ -422,6 +428,14 @@ export function ChatInfoSidebar({ conversation, onRenameClick, onAvatarClick }: 
           isOpen={isCreateGroupOpen}
           onClose={() => setIsCreateGroupOpen(false)}
           initialSelectedFriendIds={initialSelectedFriendIds}
+        />
+      )}
+
+      {isAddMemberOpen && (
+        <CreateGroupDialog
+          isOpen={isAddMemberOpen}
+          onClose={() => setIsAddMemberOpen(false)}
+          conversationId={conversation.id}
         />
       )}
     </div>

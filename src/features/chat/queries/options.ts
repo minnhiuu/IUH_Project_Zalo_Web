@@ -1,5 +1,5 @@
 import { infiniteQueryOptions, queryOptions } from '@tanstack/react-query'
-import { getConversations, getMessages } from '../api/chat.api'
+import { getConversations, getMessages, getFriendsDirectory, searchMembersToAdd } from '../api/chat.api'
 import type { PageResponse } from '@/shared/api'
 import { chatKeys } from './keys'
 import { QUERY_POLICIES } from '@/constants/query-policies'
@@ -31,5 +31,20 @@ export const chatOptions = {
         }
         return undefined
       }
+    }),
+  friendsDirectory: (conversationId?: string | null) =>
+    queryOptions({
+      ...QUERY_POLICIES.LIST,
+      queryKey: chatKeys.friendsDirectory(conversationId),
+      queryFn: () => getFriendsDirectory(conversationId)
+    }),
+  searchMembers: (query: string, conversationId?: string | null, size = 20) =>
+    infiniteQueryOptions({
+      ...QUERY_POLICIES.LIST,
+      queryKey: chatKeys.searchMembers(query, conversationId),
+      queryFn: ({ pageParam = 0 }) => searchMembersToAdd(query, pageParam as number, size, conversationId),
+      initialPageParam: 0,
+      getNextPageParam: (lastPage) => (lastPage.page + 1 < lastPage.totalPages ? lastPage.page + 1 : undefined),
+      enabled: !!query
     })
 }

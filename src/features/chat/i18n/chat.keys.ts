@@ -2,6 +2,7 @@ export const CHAT_KEYS = {
   title: 'chat.title',
   searchPlaceholder: 'chat.searchPlaceholder',
   emptyState: 'chat.emptyState',
+  emptyStateSearch: 'chat.emptyStateSearch',
   inputPlaceholder: 'chat.inputPlaceholder',
   send: 'chat.send',
   loading: 'chat.loading',
@@ -49,7 +50,9 @@ export const CHAT_KEYS = {
     confirm: 'chat.create-group-dialog.confirm',
     dragToMove: 'chat.create-group-dialog.dragToMove',
     changeAvatar: 'chat.create-group-dialog.changeAvatar',
-    removeAvatar: 'chat.create-group-dialog.removeAvatar'
+    removeAvatar: 'chat.create-group-dialog.removeAvatar',
+    addMembersTitle: 'chat.create-group-dialog.addMembersTitle',
+    alreadyJoined: 'chat.create-group-dialog.alreadyJoined'
   },
   system: {
     add_members: {

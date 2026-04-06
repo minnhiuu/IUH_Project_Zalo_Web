@@ -3,6 +3,7 @@
     "title": "Tin nhắn",
     "searchPlaceholder": "Tìm kiếm",
     "emptyState": "Hãy chọn một cuộc hội thoại để bắt đầu nhắn tin",
+    "emptyStateSearch": "Không tìm thấy kết quả",
     "inputPlaceholder": "Nhập tin nhắn...",
     "send": "Gửi",
     "loading": "Đang tải...",
@@ -72,7 +73,9 @@
       "confirm": "Xác nhận",
       "dragToMove": "Di chuyển để điều chỉnh",
       "changeAvatar": "Đổi Ảnh",
-      "removeAvatar": "Xoá Ảnh"
+      "removeAvatar": "Xoá Ảnh",
+      "addMembersTitle": "Thêm thành viên",
+      "alreadyJoined": "Đã tham gia"
     },
     "rename-group-dialog": {
       "title": "Đặt tên nhóm",

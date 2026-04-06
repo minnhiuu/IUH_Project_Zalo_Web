@@ -1,40 +1,53 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
-import { X, Camera, Search, Check } from 'lucide-react'
+import { Camera, Search, X } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { UserAvatar } from '@/components/common/user-avatar'
 import { BaseDialog } from '@/components/common/base-dialog'
 import { cn } from '@/lib/utils'
-import { useMyFriendsInfinite } from '@/features/friend/queries/use-queries'
-import { useCreateGroupMutation, useUpdateGroupAvatarMutation } from '../../queries/use-mutations'
-import type { FriendResponse } from '@/features/friend/schemas/friend.schema'
+import { useCreateGroupMutation, useUpdateGroupAvatarMutation, useAddMembersMutation } from '../../queries/use-mutations'
+import { useFriendsDirectory, useSearchMembersInfinite } from '../../queries/use-queries'
+import type { SearchMemberResponse } from '../../schemas/chat.schema'
 import { useChatText } from '../../i18n/use-chat-text'
 import { formatDefaultGroupName } from '../../utils/group-name'
 import { ImageCropperDialog } from '@/components/common/image-cropper-dialog'
 import { getCroppedImg } from '@/utils/image-crop'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { MemberItem } from './member-item'
+import { SelectedMemberSidebar } from './selected-member-sidebar'
 
 interface CreateGroupDialogProps {
   isOpen: boolean
   onClose: () => void
   initialSelectedFriendIds?: string[]
+  conversationId?: string
 }
 
-export function CreateGroupDialog({ isOpen, onClose, initialSelectedFriendIds }: CreateGroupDialogProps) {
+export function CreateGroupDialog({ isOpen, onClose, initialSelectedFriendIds, conversationId }: CreateGroupDialogProps) {
   const { text } = useChatText()
   const tg = text['create-group-dialog']
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const { data: infiniteData, fetchNextPage, hasNextPage, isFetchingNextPage } = useMyFriendsInfinite(50, isOpen)
-
-  const createGroupMutation = useCreateGroupMutation()
-  const updateAvatarMutation = useUpdateGroupAvatarMutation()
-
   const [groupName, setGroupName] = useState('')
   const [search, setSearch] = useState('')
   const [selectedFriendIds, setSelectedFriendIds] = useState<string[]>([])
+
+  // Directory Mode: When search is empty
+  const { data: directoryData } = useFriendsDirectory(conversationId || null, isOpen && !search)
+
+  // Search Mode: When search has value
+  const normalizedSearch = search.trim().replace(/^\+/, '')
+  const {
+    data: searchData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useSearchMembersInfinite(normalizedSearch, conversationId || null, isOpen && !!search)
+
+  const createGroupMutation = useCreateGroupMutation()
+  const updateAvatarMutation = useUpdateGroupAvatarMutation()
+  const addMembersMutation = useAddMembersMutation()
   const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false)
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -44,25 +57,34 @@ export function CreateGroupDialog({ isOpen, onClose, initialSelectedFriendIds }:
     file: File
   } | null>(null)
 
-  const friends = useMemo(() => {
-    return infiniteData?.pages.flatMap((page) => page.data) || []
-  }, [infiniteData])
-
-  const filteredFriends = useMemo(() => {
-    if (!search) return friends
-    return friends.filter(
-      (f: FriendResponse) => f.userName.toLowerCase().includes(search.toLowerCase()) || f.userPhone.includes(search)
-    )
-  }, [friends, search])
+  const allPossibleMembers = useMemo(() => {
+    const list: SearchMemberResponse[] = []
+    if (directoryData) {
+      Object.values(directoryData).forEach((members: SearchMemberResponse[]) => {
+        list.push(...members)
+      })
+    }
+    if (searchData) {
+      searchData.pages.forEach((page) => {
+        if (page && Array.isArray(page.data)) {
+          list.push(...page.data)
+        }
+      })
+    }
+    return list
+  }, [directoryData, searchData])
 
   const selectedFriends = useMemo(() => {
-    return selectedFriendIds
-      .map((id) => friends.find((f: FriendResponse) => f.userId === id))
-      .filter((f): f is FriendResponse => !!f)
-  }, [friends, selectedFriendIds])
+    // Collect from all sources to ensure we find the object for the ID
+    const uniqueMap = new Map<string, SearchMemberResponse>()
+    allPossibleMembers.forEach((m: SearchMemberResponse) => uniqueMap.set(m.userId, m))
+
+    return selectedFriendIds.map((id) => uniqueMap.get(id)).filter((f): f is SearchMemberResponse => !!f)
+  }, [allPossibleMembers, selectedFriendIds])
 
   const resetState = () => {
     setGroupName('')
+    setSearch('')
     setSelectedFriendIds([])
     setSelectedFile(null)
     setSelectedImage(null)
@@ -104,13 +126,29 @@ export function CreateGroupDialog({ isOpen, onClose, initialSelectedFriendIds }:
   }
 
   const handleCreateGroup = () => {
+    if (selectedFriendIds.length === 0) return
+
+    if (conversationId) {
+      // Add members mode
+      addMembersMutation.mutate(
+        { conversationId, memberIds: selectedFriendIds },
+        {
+          onSuccess: () => {
+            onClose()
+            resetState()
+          }
+        }
+      )
+      return
+    }
+
     if (selectedFriendIds.length < 2) return
 
     // Calculate fallback name only at the moment of creation
     const finalName =
       groupName.trim() ||
       formatDefaultGroupName(
-        selectedFriends.map((f) => f.userName),
+        selectedFriends.map((f) => f.fullName),
         tg.andOthers
       )
 
@@ -191,7 +229,9 @@ export function CreateGroupDialog({ isOpen, onClose, initialSelectedFriendIds }:
     fileInputRef.current?.click()
   }
 
-  const isCreateDisabled = selectedFriendIds.length < 2 || createGroupMutation.isPending
+  const isCreateDisabled = conversationId 
+    ? selectedFriendIds.length === 0 || addMembersMutation.isPending
+    : selectedFriendIds.length < 2 || createGroupMutation.isPending
   const showSidebar = selectedFriendIds.length > 0
 
   const AvatarButton = (
@@ -219,11 +259,11 @@ export function CreateGroupDialog({ isOpen, onClose, initialSelectedFriendIds }:
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent
-          className='p-0 gap-0 rounded-[8px] sm:max-w-[525px] w-full shrink-0 outline-none border-none shadow-xl overflow-hidden'
+          className='p-0 gap-0 rounded-[8px] sm:max-w-[550px] w-full shrink-0 outline-none border-none shadow-xl overflow-hidden h-[620px] flex flex-col'
           showCloseButton={false}
         >
-          <DialogHeader className='px-4 h-[48px] flex flex-row items-center justify-between border-b bg-background shrink-0 space-y-0'>
-            <DialogTitle className='text-[16px] font-bold'>{tg.title}</DialogTitle>
+          <DialogHeader className='px-4 h-[56px] flex flex-row items-center justify-between border-b bg-background shrink-0 space-y-0'>
+            <DialogTitle className='text-[17px] font-semibold'>{conversationId ? tg.addMembersTitle : tg.title}</DialogTitle>
             <DialogClose asChild>
               <button className='p-1.5 hover:bg-muted rounded-full transition-colors cursor-pointer outline-none'>
                 <X className='w-5 h-5 text-muted-foreground/80' />
@@ -232,40 +272,44 @@ export function CreateGroupDialog({ isOpen, onClose, initialSelectedFriendIds }:
           </DialogHeader>
 
           {/* Top Section - Inputs */}
-          <div className='p-4 space-y-3 bg-background'>
-            <div className='flex items-center gap-3'>
-              {previewUrl ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>{AvatarButton}</DropdownMenuTrigger>
-                  <DropdownMenuContent align='start' className='w-48'>
-                    <DropdownMenuItem
-                      onClick={triggerFileInput}
-                      className='cursor-pointer py-2 text-[14px] whitespace-nowrap overflow-hidden shrink-0'
-                    >
-                      {tg.changeAvatar}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={handleRemoveAvatar}
-                      className='cursor-pointer py-2 text-[14px] text-destructive focus:text-destructive focus:bg-destructive/10 whitespace-nowrap overflow-hidden shrink-0'
-                    >
-                      {tg.removeAvatar}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                AvatarButton
-              )}
+          {!conversationId && (
+            <div className='p-4 space-y-3 bg-background shrink-0'>
+              <div className='flex items-center gap-3'>
+                {previewUrl ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>{AvatarButton}</DropdownMenuTrigger>
+                    <DropdownMenuContent align='start' className='w-48'>
+                      <DropdownMenuItem
+                        onClick={triggerFileInput}
+                        className='cursor-pointer py-2 text-[14px] whitespace-nowrap overflow-hidden shrink-0'
+                      >
+                        {tg.changeAvatar}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={handleRemoveAvatar}
+                        className='cursor-pointer py-2 text-[14px] text-destructive focus:text-destructive focus:bg-destructive/10 whitespace-nowrap overflow-hidden shrink-0'
+                      >
+                        {tg.removeAvatar}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  AvatarButton
+                )}
 
-              <div className='flex-1 relative overflow-hidden'>
-                <Input
-                  placeholder={tg.namePlaceholder}
-                  value={groupName}
-                  onChange={(e) => setGroupName(e.target.value)}
-                  className='border-0 border-b rounded-none px-0 h-12 py-2 focus-visible:ring-0 focus-visible:border-primary shadow-none text-[15.5px] bg-transparent dark:bg-transparent placeholder:text-muted-foreground/40 w-full'
-                />
+                <div className='flex-1 relative overflow-hidden'>
+                  <Input
+                    placeholder={tg.namePlaceholder}
+                    value={groupName}
+                    onChange={(e) => setGroupName(e.target.value)}
+                    className='border-0 border-b rounded-none px-0 h-12 py-2 focus-visible:ring-0 focus-visible:border-primary shadow-none text-[15.5px] bg-transparent dark:bg-transparent placeholder:text-muted-foreground/40 w-full'
+                  />
+                </div>
               </div>
             </div>
+          )}
 
+          <div className='p-4 pt-2 space-y-3 bg-background shrink-0'>
             <div className='relative'>
               <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60' />
               <Input
@@ -278,102 +322,105 @@ export function CreateGroupDialog({ isOpen, onClose, initialSelectedFriendIds }:
           </div>
 
           {/* User List Section */}
-          <div className='flex h-[420px] border-t bg-background overflow-hidden relative'>
-            <div
-              className={cn(
-                'flex flex-col transition-all duration-300 ease-in-out h-full bg-background overflow-hidden flex-1 min-w-0'
-              )}
-            >
-              <ScrollArea
-                className='flex-1'
-                viewportProps={{
-                  onScroll: (e) => {
-                    const target = e.currentTarget
-                    if (
-                      target.scrollHeight - target.scrollTop <= target.clientHeight + 10 &&
-                      hasNextPage &&
-                      !isFetchingNextPage
-                    ) {
-                      fetchNextPage()
-                    }
-                  }
-                }}
-              >
-                <div className='p-0'>
-                  {filteredFriends.map((friend: FriendResponse) => {
-                    const isSelected = selectedFriendIds.includes(friend.userId)
-                    return (
-                      <div
-                        key={friend.userId}
-                        onClick={() => handleToggleFriend(friend.userId)}
-                        className='px-4 py-2 flex items-center gap-3 hover:bg-muted/50 cursor-pointer transition-colors group'
-                      >
-                        <div
-                          className={cn(
-                            'w-4.5 h-4.5 rounded-full border flex items-center justify-center transition-all shrink-0',
-                            isSelected ? 'bg-primary border-primary' : 'border-muted-foreground/30'
-                          )}
-                        >
-                          {isSelected && <Check className='w-3 h-3 text-white stroke-3' />}
-                        </div>
-
-                        <UserAvatar name={friend.userName} src={friend.userAvatar} className='w-9 h-9 shrink-0' />
-                        <span className='text-[14px] font-medium truncate'>{friend.userName}</span>
-                      </div>
-                    )
-                  })}
-                  {isFetchingNextPage && (
-                    <div className='p-4 text-center text-[11px] text-muted-foreground'>Đang tải...</div>
-                  )}
-                </div>
-              </ScrollArea>
-            </div>
-
-            {showSidebar && (
+          <div className='flex-1 min-h-0 border-t bg-background overflow-hidden'>
+            <div className='flex h-full min-h-0'>
               <div
                 className={cn(
-                  'flex flex-col bg-background transition-all duration-300 ease-in-out h-full overflow-hidden shrink-0 w-[210px] p-2.5 pb-2 pl-1'
+                  'flex flex-col flex-1 min-h-0 border-r bg-background transition-all duration-300 relative overflow-hidden'
                 )}
               >
-                <div className='flex flex-col border rounded-[8px] h-full overflow-hidden bg-background'>
-                  <div className='p-2.5 py-1.5 flex items-center gap-1.5 whitespace-nowrap overflow-hidden shrink-0'>
-                    <span className='text-[11.5px] font-bold'>{tg.selected}</span>
-                    <span className='text-[10.5px] px-1.5 py-0.25 rounded-md bg-dialog-selection-badge-bg text-dialog-selection-badge-text'>
-                      {selectedFriendIds.length}/100
-                    </span>
-                  </div>
-
-                  <ScrollArea className='flex-1'>
-                    <div className='p-1.5 space-y-1'>
-                      {selectedFriends.map((friend: FriendResponse) => (
-                        <div
-                          key={friend.userId}
-                          className='flex items-center gap-2 p-1 px-2 rounded-full bg-dialog-selection-bg text-dialog-selection-text group transition-colors w-full overflow-hidden'
-                        >
-                          <UserAvatar
-                            name={friend.userName}
-                            src={friend.userAvatar}
-                            className='w-6 h-6 shrink-0 shadow-sm'
-                          />
-                          <span className='flex-1 text-[12px] truncate font-medium'>{friend.userName}</span>
-                          <button
-                            onClick={() => handleRemoveSelected(friend.userId)}
-                            className='p-0 hover:bg-transparent rounded-full flex items-center justify-center shrink-0 ml-0.5 cursor-pointer transition-transform hover:scale-110 active:scale-95'
-                          >
-                            <div className='w-4.5 h-4.5 bg-icon-x-bg rounded-full flex items-center justify-center shadow-sm transition-colors'>
-                              <X className='w-3 h-3 text-icon-x-text stroke-[3.5]' />
+                <ScrollArea
+                  className='h-full'
+                  viewportProps={{
+                    onScroll: (e) => {
+                      const target = e.currentTarget
+                      if (
+                        target.scrollHeight - target.scrollTop <= target.clientHeight + 10 &&
+                        hasNextPage &&
+                        !isFetchingNextPage
+                      ) {
+                        fetchNextPage()
+                      }
+                    }
+                  }}
+                >
+                  <div className='p-0'>
+                    {!search ? (
+                      // Directory Mode Rendering
+                      directoryData &&
+                      Object.entries(directoryData)
+                        .filter(([letter]) => letter !== 'Recently' && letter !== 'Trò chuyện gần đây')
+                        .map(([letter, members]) => (
+                          <div key={letter}>
+                            <div className='px-4 pt-2 text-[13px] font-bold text-primary bg-background sticky top-0 z-10'>
+                              {letter}
                             </div>
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </ScrollArea>
-                </div>
+                            {members.map((member) => (
+                              <MemberItem
+                                key={member.userId}
+                                member={member}
+                                isSelected={selectedFriendIds.includes(member.userId)}
+                                onToggle={() => handleToggleFriend(member.userId)}
+                              />
+                            ))}
+                          </div>
+                        ))
+                    ) : (
+                      // Search Mode Rendering
+                      <>
+                        {searchData?.pages[0].data.length === 0 && !isFetchingNextPage ? (
+                          <div className='flex flex-col items-center justify-center p-12 text-center'>
+                            <div className='w-16 h-16 bg-muted/30 rounded-full flex items-center justify-center mb-3'>
+                              <Search className='w-8 h-8 text-muted-foreground/40' />
+                            </div>
+                            <p className='text-[14px] text-muted-foreground/60 font-medium'>
+                              {text.emptyStateSearch}
+                            </p>
+                            <p className='text-[12px] text-muted-foreground/40 mt-1 pl-4 pr-4'>
+                              Thử tìm kiếm theo tên hoặc số điện thoại khác
+                            </p>
+                          </div>
+                        ) : (
+                          <>
+                            {searchData?.pages.map((page, i) => (
+                              <div key={i}>
+                                {page.data.map((member) => (
+                                  <MemberItem
+                                    key={member.userId}
+                                    member={member}
+                                    isSelected={selectedFriendIds.includes(member.userId)}
+                                    onToggle={() => handleToggleFriend(member.userId)}
+                                  />
+                                ))}
+                              </div>
+                            ))}
+                            {isFetchingNextPage && (
+                              <div className='p-4 text-center text-[11px] text-muted-foreground'>
+                                {text.loading}
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </ScrollArea>
               </div>
-            )}
+
+              {showSidebar && (
+                <div className='w-[210px] h-full shrink-0 p-2.5 pb-2 pl-1 bg-background'>
+                  <SelectedMemberSidebar
+                    selectedFriends={selectedFriends}
+                    onRemove={handleRemoveSelected}
+                    selectedCount={selectedFriendIds.length}
+                    title={tg.selected}
+                  />
+                </div>
+              )}
+            </div>
           </div>
 
-          <div className='p-3 px-4 border-t flex items-center justify-end gap-2.5 bg-background'>
+          <div className='p-3 px-4 border-t flex items-center justify-end gap-3 bg-background shrink-0'>
             <Button variant='secondary' onClick={handleCancelClick}>
               {tg.cancel}
             </Button>
@@ -382,7 +429,7 @@ export function CreateGroupDialog({ isOpen, onClose, initialSelectedFriendIds }:
               disabled={isCreateDisabled}
               variant={isCreateDisabled ? 'disabled' : 'default'}
             >
-              {createGroupMutation.isPending ? '...' : tg.create}
+              {createGroupMutation.isPending || addMembersMutation.isPending ? '...' : conversationId ? tg.confirm : tg.create}
             </Button>
           </div>
         </DialogContent>

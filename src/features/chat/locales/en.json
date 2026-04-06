@@ -3,6 +3,7 @@
     "title": "Messages",
     "searchPlaceholder": "Search conversations...",
     "emptyState": "Select a conversation to start chatting",
+    "emptyStateSearch": "No results found",
     "inputPlaceholder": "Type a message...",
     "send": "Send",
     "loading": "Loading...",
@@ -72,7 +73,9 @@
       "confirm": "Confirm",
       "dragToMove": "Drag to move",
       "changeAvatar": "Change Avatar",
-      "removeAvatar": "Remove Avatar"
+      "removeAvatar": "Remove Avatar",
+      "addMembersTitle": "Add Members",
+      "alreadyJoined": "Joined group"
     },
     "rename-group-dialog": {
       "title": "Set group name",

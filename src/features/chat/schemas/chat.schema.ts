@@ -113,3 +113,13 @@ export const GroupConversationCreateRequestSchema = z.object({
 })
 
 export type GroupConversationCreateRequest = z.infer<typeof GroupConversationCreateRequestSchema>
+ 
+ export const SearchMemberResponseSchema = z.object({
+   userId: z.string(),
+   fullName: z.string(),
+   avatar: z.string().nullable().optional(),
+   phoneNumber: z.string().nullable().optional(),
+   isAlreadyMember: z.boolean().default(false)
+ })
+ 
+ export type SearchMemberResponse = z.infer<typeof SearchMemberResponseSchema>

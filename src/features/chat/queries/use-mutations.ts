@@ -7,7 +7,8 @@ import {
   createGroupConversation,
   updateGroupNameApi,
   updateGroupAvatarApi,
-  deleteConversationApi
+  deleteConversationApi,
+  addMembersToGroupApi
 } from '../api/chat.api'
 import { chatKeys } from './keys'
 import type { ConversationResponse, ChatMessageRequest } from '../schemas/chat.schema'
@@ -173,6 +174,35 @@ export const useDeleteConversationMutation = () => {
     },
     onError: (error) => {
       console.error('Failed to delete conversation', error)
+    }
+  })
+}
+
+export const useAddMembersMutation = () => {
+  const queryClient = useQueryClient()
+
+  const updateConversationInList = (updatedConv: ConversationResponse) => {
+    queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
+      if (!oldData) return [updatedConv]
+      const newData = oldData.map((conv) => (conv.id === updatedConv.id ? updatedConv : conv))
+      if (!newData.some((c) => c.id === updatedConv.id)) newData.unshift(updatedConv)
+      return newData.sort(
+        (a, b) =>
+          new Date(b.lastMessage?.timestamp || 0).getTime() -
+          new Date(a.lastMessage?.timestamp || 0).getTime()
+      )
+    })
+    queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+  }
+
+  return useMutation({
+    mutationFn: ({ conversationId, memberIds }: { conversationId: string; memberIds: string[] }) =>
+      addMembersToGroupApi(conversationId, memberIds),
+    onSuccess: (updatedConv) => {
+      updateConversationInList(updatedConv)
+    },
+    onError: (error) => {
+      console.error('Failed to add members to group', error)
     }
   })
 }

@@ -5,6 +5,7 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
   title: t(CHAT_KEYS.title),
   searchPlaceholder: t(CHAT_KEYS.searchPlaceholder),
   emptyState: t(CHAT_KEYS.emptyState),
+  emptyStateSearch: t(CHAT_KEYS.emptyStateSearch),
   inputPlaceholder: t(CHAT_KEYS.inputPlaceholder),
   send: t(CHAT_KEYS.send),
   loading: t(CHAT_KEYS.loading),
@@ -52,7 +53,9 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     confirm: t(CHAT_KEYS['create-group-dialog'].confirm),
     dragToMove: t(CHAT_KEYS['create-group-dialog'].dragToMove),
     changeAvatar: t(CHAT_KEYS['create-group-dialog'].changeAvatar),
-    removeAvatar: t(CHAT_KEYS['create-group-dialog'].removeAvatar)
+    removeAvatar: t(CHAT_KEYS['create-group-dialog'].removeAvatar),
+    addMembersTitle: t(CHAT_KEYS['create-group-dialog'].addMembersTitle),
+    alreadyJoined: t(CHAT_KEYS['create-group-dialog'].alreadyJoined)
   },
   system: {
     add_members: {
