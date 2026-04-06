@@ -3,6 +3,10 @@ import { useMutation } from '@tanstack/react-query'
 import { getAccessToken } from '@/lib/axios-client'
 import { getMessages } from '../api/chat.api'
 import type { MessageResponse } from '../schemas/chat.schema'
+import type { AiProcessingStatus } from '@/constants/enum'
+
+// Re-export cho các consumer khác giữ import path cũ
+export type { AiProcessingStatus } from '@/constants/enum'
 
 export type AiMessageRole = 'user' | 'ai'
 
@@ -10,9 +14,48 @@ export interface AiMessage {
   id: string
   role: AiMessageRole
   content: string
+  suggestions?: string[]       // follow-up questions extracted from <suggestions>...</suggestions>
   isStreaming?: boolean
   isClarification?: boolean
+  processingStatus?: AiProcessingStatus
   timestamp: Date
+}
+
+/** Tách <suggestions>Q1|Q2</suggestions> ra khỏi content. */
+function parseSuggestions(raw: string): { cleanContent: string; suggestions: string[] } {
+  const match = raw.match(/<suggestions>(.*?)<\/suggestions>/s)
+  if (!match) return { cleanContent: raw.trim(), suggestions: [] }
+  const suggestions = match[1]
+    .split('|')
+    .map((s) => s.trim())
+    .filter(Boolean)
+  const cleanContent = raw.replace(/<suggestions>.*?<\/suggestions>/s, '').trim()
+  return { cleanContent, suggestions }
+}
+
+/**
+ * Tách <question>...</question> — dùng để nhận dạng CLARIFICATION khi load từ DB.
+ * Returns { questionText, isClarification }.
+ */
+function parseQuestion(raw: string): { cleanContent: string; isClarification: boolean } {
+  const match = raw.match(/<question>([\s\S]*?)<\/question>/)
+  if (!match) return { cleanContent: raw.trim(), isClarification: false }
+  return { cleanContent: match[1].trim(), isClarification: true }
+}
+
+/**
+ * Parse toàn bộ tags cho một tin nhắn AI từ DB:
+ * 1. Tách <question> → isClarification
+ * 2. Tách <suggestions> → suggestions[]
+ */
+function parseAiMessageFromDb(raw: string): {
+  cleanContent: string
+  suggestions: string[]
+  isClarification: boolean
+} {
+  const { cleanContent: afterQuestion, isClarification } = parseQuestion(raw)
+  const { cleanContent, suggestions } = parseSuggestions(afterQuestion)
+  return { cleanContent, suggestions, isClarification }
 }
 
 const AI_BASE_URL = import.meta.env.VITE_API_BASE_URL
@@ -22,8 +65,7 @@ const AI_ASSISTANT_ID = 'ai-assistant-001'
  * Hook xử lý nghiệp vụ AI Chat:
  * 1. Fetch lịch sử tin nhắn từ message-service (MongoDB) để duy trì khi F5.
  * 2. Gửi tin nhắn mới đến ai-service và nhận Streaming (SSE).
- *
- * @param conversationId - MongoDB ObjectId của room AI chat
+ * 3. Xử lý STATUS events để hiển thị trạng thái pipeline real-time.
  */
 export function useAiChat(conversationId: string) {
   const [messages, setMessages] = useState<AiMessage[]>([])
@@ -40,15 +82,34 @@ export function useAiChat(conversationId: string) {
         const response = await getMessages(conversationId, 0)
 
         // Map từ MessageResponse (DB) sang AiMessage (UI)
+        // Quan trọng: parse <suggestions> và <question> tags khỏi content được lưu raw trong DB
         const history: AiMessage[] = response.data
-          .map((msg: MessageResponse) => ({
-            id: msg.id,
-            role: (msg.senderId === AI_ASSISTANT_ID ? 'ai' : 'user') as AiMessageRole,
-            content: msg.content || '',
-            timestamp: new Date(msg.createdAt || Date.now()),
-            isStreaming: false,
-            isClarification: msg.content?.includes('Cần thêm thông tin') || false
-          }))
+          .map((msg: MessageResponse) => {
+            const isAi = msg.senderId === AI_ASSISTANT_ID
+            const rawContent = msg.content || ''
+
+            if (!isAi) {
+              return {
+                id: msg.id,
+                role: 'user' as AiMessageRole,
+                content: rawContent,
+                timestamp: new Date(msg.createdAt || Date.now()),
+                isStreaming: false,
+              }
+            }
+
+            // AI message: parse tất cả tags
+            const { cleanContent, suggestions, isClarification } = parseAiMessageFromDb(rawContent)
+            return {
+              id: msg.id,
+              role: 'ai' as AiMessageRole,
+              content: cleanContent,
+              suggestions,
+              isClarification,
+              timestamp: new Date(msg.createdAt || Date.now()),
+              isStreaming: false,
+            }
+          })
           .reverse() // API trả về tin mới nhất trước (DESC)
 
         setMessages(history)
@@ -88,7 +149,7 @@ export function useAiChat(conversationId: string) {
           },
           body: JSON.stringify({
             content: userText,
-            conversationId,        // ← đổi từ recipientId sang conversationId
+            conversationId,
             clientMessageId: userMsgId,
             isForwarded: false
           }),
@@ -122,35 +183,53 @@ export function useAiChat(conversationId: string) {
             try {
               const event = JSON.parse(rawJson) as { type: string; content: string }
 
-              if (event.type === 'CLARIFICATION') {
+              if (event.type === 'STATUS') {
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === aiMsgId
+                      ? { ...m, processingStatus: event.content as AiProcessingStatus }
+                      : m
+                  )
+                )
+              } else if (event.type === 'CLARIFICATION') {
+                // BE đã tách text sạch trước khi emit — chỉ cần set isClarification
                 isClarification = true
                 setMessages((prev) =>
                   prev.map((m) =>
-                    m.id === aiMsgId ? { ...m, content: event.content, isClarification: true, isStreaming: false } : m
+                    m.id === aiMsgId
+                      ? { ...m, content: event.content, isClarification: true, isStreaming: false, processingStatus: undefined }
+                      : m
                   )
                 )
               } else if (event.type === 'ANSWER_CHUNK') {
                 setMessages((prev) =>
-                  prev.map((m) => (m.id === aiMsgId ? { ...m, content: m.content + event.content } : m))
+                  prev.map((m) =>
+                    m.id === aiMsgId
+                      ? { ...m, content: m.content + event.content, processingStatus: undefined }
+                      : m
+                  )
                 )
               }
             } catch {
-              // ignore
+              // ignore malformed JSON
             }
           }
         }
 
-        setMessages((prev) => prev.map((m) => (m.id === aiMsgId ? { ...m, isStreaming: false, isClarification } : m)))
+        // Khi stream kết thúc: parse <suggestions> khỏi content hiển thị
+        setMessages((prev) =>
+          prev.map((m) => {
+            if (m.id !== aiMsgId) return m
+            const { cleanContent, suggestions } = parseSuggestions(m.content)
+            return { ...m, content: cleanContent, suggestions, isStreaming: false, isClarification, processingStatus: undefined }
+          })
+        )
       } catch (err: unknown) {
         if (err instanceof Error && err.name === 'AbortError') return
         setMessages((prev) =>
           prev.map((m) =>
             m.id === aiMsgId
-              ? {
-                  ...m,
-                  content: 'Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại.',
-                  isStreaming: false
-                }
+              ? { ...m, content: 'Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại.', isStreaming: false, processingStatus: undefined }
               : m
           )
         )

@@ -133,3 +133,15 @@ export const NotificationType = {
 } as const
 
 export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]
+
+// ── AI Processing Status ────────────────────────────────────────────────────────
+// Các trạng thái pipeline của AI Service, khớp với enum AiProcessingStatus.java (BE)
+export const AiProcessingStatus = {
+  AnalyzingIntent:  'ANALYZING_INTENT',
+  RetrievingVector: 'RETRIEVING_VECTOR',
+  GradingData:      'GRADING_DATA',
+  WebSearching:     'WEB_SEARCHING',
+  GeneratingAnswer: 'GENERATING_ANSWER'
+} as const
+
+export type AiProcessingStatus = (typeof AiProcessingStatus)[keyof typeof AiProcessingStatus]
