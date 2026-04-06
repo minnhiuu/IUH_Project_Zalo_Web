@@ -21,7 +21,7 @@ export interface AiMessage {
   timestamp: Date
 }
 
-/** Tách <suggestions>Q1|Q2</suggestions> ra khỏi content. Returns { cleanContent, suggestions } */
+/** Tách <suggestions>Q1|Q2</suggestions> ra khỏi content. */
 function parseSuggestions(raw: string): { cleanContent: string; suggestions: string[] } {
   const match = raw.match(/<suggestions>(.*?)<\/suggestions>/s)
   if (!match) return { cleanContent: raw.trim(), suggestions: [] }
@@ -31,6 +31,31 @@ function parseSuggestions(raw: string): { cleanContent: string; suggestions: str
     .filter(Boolean)
   const cleanContent = raw.replace(/<suggestions>.*?<\/suggestions>/s, '').trim()
   return { cleanContent, suggestions }
+}
+
+/**
+ * Tách <question>...</question> — dùng để nhận dạng CLARIFICATION khi load từ DB.
+ * Returns { questionText, isClarification }.
+ */
+function parseQuestion(raw: string): { cleanContent: string; isClarification: boolean } {
+  const match = raw.match(/<question>([\s\S]*?)<\/question>/)
+  if (!match) return { cleanContent: raw.trim(), isClarification: false }
+  return { cleanContent: match[1].trim(), isClarification: true }
+}
+
+/**
+ * Parse toàn bộ tags cho một tin nhắn AI từ DB:
+ * 1. Tách <question> → isClarification
+ * 2. Tách <suggestions> → suggestions[]
+ */
+function parseAiMessageFromDb(raw: string): {
+  cleanContent: string
+  suggestions: string[]
+  isClarification: boolean
+} {
+  const { cleanContent: afterQuestion, isClarification } = parseQuestion(raw)
+  const { cleanContent, suggestions } = parseSuggestions(afterQuestion)
+  return { cleanContent, suggestions, isClarification }
 }
 
 const AI_BASE_URL = import.meta.env.VITE_API_BASE_URL
@@ -57,15 +82,34 @@ export function useAiChat(conversationId: string) {
         const response = await getMessages(conversationId, 0)
 
         // Map từ MessageResponse (DB) sang AiMessage (UI)
+        // Quan trọng: parse <suggestions> và <question> tags khỏi content được lưu raw trong DB
         const history: AiMessage[] = response.data
-          .map((msg: MessageResponse) => ({
-            id: msg.id,
-            role: (msg.senderId === AI_ASSISTANT_ID ? 'ai' : 'user') as AiMessageRole,
-            content: msg.content || '',
-            timestamp: new Date(msg.createdAt || Date.now()),
-            isStreaming: false,
-            isClarification: msg.content?.includes('Cần thêm thông tin') || false
-          }))
+          .map((msg: MessageResponse) => {
+            const isAi = msg.senderId === AI_ASSISTANT_ID
+            const rawContent = msg.content || ''
+
+            if (!isAi) {
+              return {
+                id: msg.id,
+                role: 'user' as AiMessageRole,
+                content: rawContent,
+                timestamp: new Date(msg.createdAt || Date.now()),
+                isStreaming: false,
+              }
+            }
+
+            // AI message: parse tất cả tags
+            const { cleanContent, suggestions, isClarification } = parseAiMessageFromDb(rawContent)
+            return {
+              id: msg.id,
+              role: 'ai' as AiMessageRole,
+              content: cleanContent,
+              suggestions,
+              isClarification,
+              timestamp: new Date(msg.createdAt || Date.now()),
+              isStreaming: false,
+            }
+          })
           .reverse() // API trả về tin mới nhất trước (DESC)
 
         setMessages(history)
@@ -140,7 +184,6 @@ export function useAiChat(conversationId: string) {
               const event = JSON.parse(rawJson) as { type: string; content: string }
 
               if (event.type === 'STATUS') {
-                // Cập nhật trạng thái pipeline real-time
                 setMessages((prev) =>
                   prev.map((m) =>
                     m.id === aiMsgId
@@ -149,6 +192,7 @@ export function useAiChat(conversationId: string) {
                   )
                 )
               } else if (event.type === 'CLARIFICATION') {
+                // BE đã tách text sạch trước khi emit — chỉ cần set isClarification
                 isClarification = true
                 setMessages((prev) =>
                   prev.map((m) =>
@@ -172,7 +216,7 @@ export function useAiChat(conversationId: string) {
           }
         }
 
-        // Khi stream kết thúc: parse suggestions, xóa tag khỏi content hiển thị
+        // Khi stream kết thúc: parse <suggestions> khỏi content hiển thị
         setMessages((prev) =>
           prev.map((m) => {
             if (m.id !== aiMsgId) return m
