@@ -85,9 +85,7 @@ export function ChatInput({ conversationId, replyTo, onCancelReply }: ChatInputP
             <div className='flex items-start gap-2 truncate'>
               <Quote size={14} className='text-muted-foreground mt-1 shrink-0' />
               <div className='flex flex-col truncate'>
-                <span className='text-[13px]'>
-                  {text.replyingTo(replyTo.senderName || '')}
-                </span>
+                <span className='text-[13px]'>{text.replyingTo(replyTo.senderName || '')}</span>
                 <span className='truncate text-[13px] text-muted-foreground max-w-[600px]'>{replyTo.content}</span>
               </div>
             </div>

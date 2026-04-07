@@ -20,19 +20,25 @@ export function CustomTooltip({
 }: CustomTooltipProps) {
   const getAlignClasses = () => {
     switch (align) {
-      case 'left': return 'left-0'
-      case 'right': return 'right-0'
+      case 'left':
+        return 'left-0'
+      case 'right':
+        return 'right-0'
       case 'center':
-      default: return 'left-1/2 -translate-x-1/2'
+      default:
+        return 'left-1/2 -translate-x-1/2'
     }
   }
 
   const getArrowClasses = () => {
     switch (align) {
-      case 'left': return 'left-1'
-      case 'right': return 'right-1'
+      case 'left':
+        return 'left-1'
+      case 'right':
+        return 'right-1'
       case 'center':
-      default: return 'left-1/2 -translate-x-1/2'
+      default:
+        return 'left-1/2 -translate-x-1/2'
     }
   }
 
@@ -52,9 +58,7 @@ export function CustomTooltip({
           className={cn(
             'absolute border-[6px] border-transparent',
             getArrowClasses(),
-            position === 'top' 
-              ? 'top-full border-t-brand-blue-dark' 
-              : 'bottom-full border-b-brand-blue-dark'
+            position === 'top' ? 'top-full border-t-brand-blue-dark' : 'bottom-full border-b-brand-blue-dark'
           )}
         />
       </div>

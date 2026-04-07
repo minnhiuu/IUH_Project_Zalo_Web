@@ -48,12 +48,7 @@ export function ImageCropperDialog({
       noContentPadding
     >
       <div className='h-[480px] flex flex-col bg-muted relative'>
-        <ImageCropper
-          image={image}
-          aspect={1}
-          dragToMoveText={dragToMoveText}
-          onCropComplete={setCropData}
-        />
+        <ImageCropper image={image} aspect={1} dragToMoveText={dragToMoveText} onCropComplete={setCropData} />
       </div>
     </BaseDialog>
   )

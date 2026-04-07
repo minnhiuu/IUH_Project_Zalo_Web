@@ -135,7 +135,8 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   const latestMessageId = allMessages[0]?.id
   const latestMessageSenderId = allMessages[0]?.senderId
 
-  const isCloudConversation = conversation.members?.length === 1 && conversation.members[0]?.userId === user?.id
+  const isCloudConversation =
+    !conversation.isGroup && (conversation.name === 'My Documents' || (conversation.avatar ?? '').includes('cloud.png'))
   const isAiConversation = conversation.members?.some((m) => m.userId === 'ai-assistant-001') ?? false
   const isCurrentUserRemovedBySystemMessage = useMemo(() => {
     if (!conversation.isGroup || !user?.id) return false

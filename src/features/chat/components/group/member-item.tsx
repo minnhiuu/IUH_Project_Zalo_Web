@@ -28,7 +28,11 @@ export const MemberItem = ({ member, isSelected, onToggle }: MemberItemProps) =>
             <Check className='w-3 h-3 text-white' />
           </div>
         ) : (
-          <Checkbox checked={isSelected} onCheckedChange={onToggle} className='rounded-full w-4.5 h-4.5 border-muted-foreground/30' />
+          <Checkbox
+            checked={isSelected}
+            onCheckedChange={onToggle}
+            className='rounded-full w-4.5 h-4.5 border-muted-foreground/30'
+          />
         )}
       </div>
       <UserAvatar name={member.fullName} src={member.avatar} className='w-10 h-10 shadow-sm border border-border/10' />

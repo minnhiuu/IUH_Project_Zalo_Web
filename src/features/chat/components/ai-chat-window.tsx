@@ -68,7 +68,6 @@ export function AiChatWindow({ conversation }: AiChatWindowProps) {
           <div>
             <h2 className='text-[16px] font-semibold text-foreground/90 leading-tight'>Bondhub AI</h2>
             <p className='text-[12px] text-blue-500 dark:text-blue-400 mt-0.5 leading-tight flex items-center gap-1'>
-
               <span className='inline-block w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse' />
               Trợ lý AI
             </p>
@@ -86,10 +85,7 @@ export function AiChatWindow({ conversation }: AiChatWindowProps) {
       {/* Messages area */}
       <div ref={scrollRef} className='flex-1 overflow-y-auto px-2 py-4 flex flex-col custom-scrollbar'>
         {messages.length === 0 ? (
-          <AiWelcomeScreen
-            avatarUrl={conversation.avatar || undefined}
-            onSelect={handleSuggestionClick}
-          />
+          <AiWelcomeScreen avatarUrl={conversation.avatar || undefined} onSelect={handleSuggestionClick} />
         ) : (
           <>
             {messages.map((msg) => (

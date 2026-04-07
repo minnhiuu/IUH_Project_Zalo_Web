@@ -34,7 +34,9 @@ export const friendOptions = {
       queryKey: friendKeys.myFriends(page, size),
       queryFn: async () => {
         const response = await friendApi.getMyFriends(page, size)
-        return response.data.data
+        const pageResponse = response.data.data
+        if (Array.isArray(pageResponse)) return pageResponse
+        return pageResponse?.data || []
       },
       enabled
     }),
@@ -47,8 +49,7 @@ export const friendOptions = {
         const response = await friendApi.getMyFriends(pageParam as number, size)
         return response.data.data
       },
-      getNextPageParam: (lastPage) => 
-        (lastPage.page + 1 < lastPage.totalPages ? lastPage.page + 1 : undefined),
+      getNextPageParam: (lastPage) => (lastPage.page + 1 < lastPage.totalPages ? lastPage.page + 1 : undefined),
       initialPageParam: 0,
       enabled
     }),

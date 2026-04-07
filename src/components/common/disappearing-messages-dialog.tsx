@@ -36,10 +36,7 @@ export function DisappearingMessagesDialog({
     >
       <div className='flex flex-col gap-4 py-4 px-6'>
         {OPTIONS.map((option) => (
-          <label
-            key={option.value}
-            className='flex items-center gap-3 cursor-pointer group'
-          >
+          <label key={option.value} className='flex items-center gap-3 cursor-pointer group'>
             <div className='relative flex items-center justify-center'>
               <input
                 type='radio'
@@ -51,10 +48,12 @@ export function DisappearingMessagesDialog({
               />
               <div className='w-4 h-4 border border-muted-foreground/50 rounded-full transition-colors peer-checked:border-primary peer-checked:border-[5px]' />
             </div>
-            <span className={cn(
-              'text-[15px] transition-colors',
-              selected === option.value ? 'text-foreground font-medium' : 'text-muted-foreground'
-            )}>
+            <span
+              className={cn(
+                'text-[15px] transition-colors',
+                selected === option.value ? 'text-foreground font-medium' : 'text-muted-foreground'
+              )}
+            >
               {option.label}
             </span>
           </label>

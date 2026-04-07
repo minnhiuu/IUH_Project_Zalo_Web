@@ -36,7 +36,12 @@ export function GroupAvatar({ avatars, names, count, size = 'md', className }: G
     if (count <= 1) {
       return (
         <div className='relative w-full h-full'>
-          <UserAvatar src={avatars[0]} name={names[0] || '?'} className='w-full h-full border border-background' />
+          <div className='absolute top-0 right-0 w-[60%] h-[60%] rounded-full bg-slate-200 text-slate-500 border border-background shadow-sm flex items-center justify-center'>
+            <span className='font-semibold leading-none text-[10px]'>1</span>
+          </div>
+          <div className='absolute bottom-0 left-0 w-[60%] h-[60%]'>
+            <UserAvatar src={avatars[0]} name={names[0] || '?'} className='w-full h-full border border-background' />
+          </div>
         </div>
       )
     }

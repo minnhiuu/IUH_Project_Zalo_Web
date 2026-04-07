@@ -3,10 +3,7 @@
  * Shows the first 4 names and adds "and X others" if more exist.
  * Supports i18n by providing a translation function for the "and others" suffix.
  */
-export const formatDefaultGroupName = (
-  names: string[],
-  andOthersText?: (count: number) => string
-): string => {
+export const formatDefaultGroupName = (names: string[], andOthersText?: (count: number) => string): string => {
   if (!names || names.length === 0) return ''
 
   if (names.length <= 4) {
