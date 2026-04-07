@@ -1,4 +1,4 @@
-import { Phone, Video, Search, PanelsTopLeft } from 'lucide-react'
+import { Phone, Video, Search, PanelsTopLeft, Users } from 'lucide-react'
 import { useMessagesInfiniteQuery } from '../queries/use-queries'
 import { useAuth } from '@/features/auth'
 import { MessageBubble } from './message-bubble'
@@ -12,6 +12,8 @@ import { ForwardModal } from './forward-modal'
 import { formatLastSeen } from '@/utils/date'
 import { CloudInfoSidebar } from './cloud-info-sidebar'
 import { AiChatWindow } from './ai-chat-window'
+import { StrangerBanner } from './stranger-banner'
+import { OthersProfileDialog } from '@/features/user/components/profile-dialog/others/others-profile-dialog'
 
 export function ChatWindow({ conversation }: { conversation: ConversationResponse }) {
   const { user } = useAuth()
@@ -27,6 +29,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
 
   const [replyTo, setReplyTo] = useState<MessageResponse | null>(null)
   const [forwardingMessage, setForwardingMessage] = useState<MessageResponse | null>(null)
+  const [isProfileOpen, setIsProfileOpen] = useState(false)
 
   const allMessages = useMemo(() => data?.pages.flatMap((page) => page.data) || [], [data])
   const latestMessageId = allMessages[0]?.id
@@ -35,6 +38,8 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   // Cloud = phòng chỉ có 1 member (chính mình), AI = có member ai-assistant-001
   const isCloudConversation = conversation.members?.length === 1 && conversation.members[0]?.userId === user?.id
   const isAiConversation = conversation.members?.some((m) => m.userId === 'ai-assistant-001') ?? false
+  const isGroup = conversation.isGroup || false
+  const partnerId = conversation.recipientId || conversation.members?.find((m) => m.userId !== user?.id)?.userId
 
   useEffect(() => {
     if (!latestMessageId || !conversation.id || conversation.unreadCount === 0) return
@@ -88,7 +93,14 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
       <div className='flex-1 flex flex-col bg-[#eef0f1] dark:bg-zinc-950 relative overflow-hidden h-full'>
         {/* Header */}
         <div className='h-[68px] border-b border-border bg-background flex items-center justify-between px-4 shrink-0 shadow-sm z-10'>
-          <div className='flex items-center space-x-3'>
+          <div 
+             className={`flex items-center space-x-3 group ${!isGroup && !isCloudConversation ? 'cursor-pointer hover:bg-black/5 p-1.5 -ml-1.5 rounded-lg transition-colors' : ''}`}
+             onClick={() => {
+                if (!isGroup && !isCloudConversation) {
+                  setIsProfileOpen(true)
+                }
+             }}
+          >
             <div className='relative shrink-0 hidden sm:block'>
               <img
                 src={
@@ -106,13 +118,26 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
               <h2 className='text-[16px] font-semibold text-foreground/90 leading-tight'>
                 {isCloudConversation ? 'My Documents' : conversation.name}
               </h2>
-              <p className='text-[12px] text-muted-foreground mt-0.5 leading-tight'>
-                {isCloudConversation
-                  ? 'Lưu và đồng bộ dữ liệu giữa các thiết bị'
-                  : conversation.status === 'ONLINE'
-                    ? text.status.online
-                    : formatLastSeen(conversation.lastSeenAt, text.status)}
-              </p>
+              <div className='flex items-center gap-2 mt-0.5 leading-tight'>
+                {isCloudConversation ? (
+                  <p className='text-[12px] text-muted-foreground'>Lưu và đồng bộ dữ liệu giữa các thiết bị</p>
+                ) : !isGroup && (!conversation.friendshipStatus || conversation.friendshipStatus !== 'ACCEPTED') ? (
+                  <div className='flex items-center space-x-2'>
+                    <span className='bg-[#A6AAB1] text-white text-[10px] font-semibold px-1.5 py-[1px] rounded-[3px] uppercase tracking-wide'>
+                      Người lạ
+                    </span>
+                    <span className='text-muted-foreground'>|</span>
+                    <div className='flex items-center text-[12px] text-muted-foreground gap-1 font-medium'>
+                      <Users className='w-3.5 h-3.5' />
+                      <span>Nhóm chung (0)</span>
+                    </div>
+                  </div>
+                ) : conversation.status === 'ONLINE' ? (
+                  <p className='text-[12px] text-muted-foreground'>{text.status.online}</p>
+                ) : (
+                  <p className='text-[12px] text-muted-foreground'>{formatLastSeen(conversation.lastSeenAt, text.status)}</p>
+                )}
+              </div>
             </div>
           </div>
 
@@ -132,6 +157,11 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             </button>
           </div>
         </div>
+
+        {/* Stranger Banner */}
+        {!isGroup && !isCloudConversation && !isAiConversation && partnerId && (
+          <StrangerBanner partnerId={partnerId} partnerName={conversation.name || 'Thành viên Zalo'} />
+        )}
 
         {/* Messages */}
         <div
@@ -176,6 +206,9 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
 
       {/* Right Sidebar for Cloud / Info */}
       {isCloudConversation && <CloudInfoSidebar />}
+
+      {/* Others Profile Dialog */}
+      <OthersProfileDialog open={isProfileOpen} onOpenChange={setIsProfileOpen} userId={partnerId} />
     </div>
   )
 }

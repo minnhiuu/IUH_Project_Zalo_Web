@@ -4,6 +4,7 @@ import SockJS from 'sockjs-client'
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query'
 import type { PageResponse } from '@/shared/api'
 import { chatKeys } from '../queries/keys'
+import { friendKeys } from '@/features/friend/queries/keys'
 import type { MessageResponse, ConversationResponse, ChatMessageRequest, ReplyMetadata } from '../schemas/chat.schema'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { getAccessToken } from '@/lib/axios-client'
@@ -194,17 +195,50 @@ export const useChatWebSocket = () => {
           }
         })
 
+        // ────────── /queue/friendship-updates ──────────
+        client.subscribe('/user/queue/friendship-updates', (payload) => {
+          const update = JSON.parse(payload.body)
+          if (update.type === 'FRIENDSHIP_UPDATED') {
+            const { partnerId, status, friendshipId, requestedBy, receivedBy } = update.payload
+            
+            // 1. Update the StrangerBanner's friend status via React Query Cache
+            queryClient.setQueryData(friendKeys.status(partnerId), {
+              status,
+              friendshipId: friendshipId || undefined,
+              requestedBy,
+              receivedBy
+            })
+
+            // 2. Update the Chat Layout proxy/real conversation status
+            queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
+              if (!oldData) return oldData
+              return oldData.map((conv: ConversationResponse) => {
+                if (conv.isGroup) return conv
+                const hasMember = conv.members?.some((m) => m.userId === partnerId) || conv.recipientId === partnerId
+                if (hasMember) {
+                  return { ...conv, friendshipStatus: status }
+                }
+                return conv
+              })
+            })
+          }
+        })
+
         // ────────── /queue/conversations ──────────
         client.subscribe('/user/queue/conversations', (payload) => {
           try {
             const newConv = JSON.parse(payload.body)
             if (newConv.id) {
               queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
-                if (!oldData) return oldData
-                if (oldData.find((u: ConversationResponse) => u.id === newConv.id))
-                  return oldData
+                if (!oldData) return [newConv]
+                const index = oldData.findIndex((u: ConversationResponse) => u.id === newConv.id)
+                if (index !== -1) {
+                  const updated = [...oldData]
+                  updated[index] = { ...updated[index], ...newConv }
+                  return updated.sort((a, b) => new Date(b.lastMessageTime || 0).getTime() - new Date(a.lastMessageTime || 0).getTime())
+                }
                 return [newConv, ...oldData].sort(
-                  (a, b) => new Date(b.lastMessageTime).getTime() - new Date(a.lastMessageTime).getTime()
+                  (a, b) => new Date(b.lastMessageTime || 0).getTime() - new Date(a.lastMessageTime || 0).getTime()
                 )
               })
             } else if (newConv.type === 'REFRESH') {
@@ -256,8 +290,10 @@ export const useChatWebSocket = () => {
       if (!stompClientRef.current?.connected || (!content.trim() && !isForwarded)) return
 
       const clientMessageId = `temp-${Date.now()}`
+      const isFake = conversationId.startsWith('fake_')
       const chatMessage: ChatMessageRequest = {
-        conversationId,
+        conversationId: isFake ? null : conversationId,
+        recipientId: isFake ? conversationId.replace('fake_', '') : null,
         content: content.trim(),
         clientMessageId,
         replyTo,

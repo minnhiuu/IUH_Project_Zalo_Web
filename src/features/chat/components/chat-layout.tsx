@@ -9,8 +9,12 @@ import { useMarkAsReadMutation } from '../queries/use-mutations'
 import { getOrCreateConversation } from '../api/chat.api'
 import { chatKeys } from '../queries/keys'
 import type { ConversationResponse } from '../schemas/chat.schema'
+import { useNavigate } from 'react-router'
+import { Status } from '@/constants/enum'
+import { useUserById } from '@/features/user/queries/use-queries'
 
-export function ChatLayout({ defaultPartnerId }: { defaultPartnerId?: string }) {
+export function ChatLayout({ defaultPartnerId, defaultConversationId }: { defaultPartnerId?: string; defaultConversationId?: string }) {
+  const navigate = useNavigate()
   const { text } = useChatText()
   const queryClient = useQueryClient()
 
@@ -27,48 +31,54 @@ export function ChatLayout({ defaultPartnerId }: { defaultPartnerId?: string }) 
     if (!conversations || !defaultPartnerId) return null
     return (
       conversations.find((c: ConversationResponse) =>
-        c.members?.some((m) => m.userId === defaultPartnerId)
+        c.members?.some((m) => m.userId === defaultPartnerId) || c.recipientId === defaultPartnerId || (!c.isGroup && c.name === defaultPartnerId)
       ) || null
     )
   }, [conversations, defaultPartnerId])
 
-  // ── Khi có defaultPartnerId nhưng chưa có trong cache → gọi API getOrCreate ──
+  const { data: partnerUser, isLoading: isLoadingPartner } = useUserById(defaultPartnerId || '')
+
   useEffect(() => {
-    if (!defaultPartnerId) return
-    // Nếu đã có trong cache thì không cần gọi API
-    if (cachedConvForPartner) {
-      setResolvedConversation(cachedConvForPartner)
+    if (!defaultPartnerId) {
+      setIsResolving(false)
       return
     }
 
-    let cancelled = false
-    setIsResolving(true)
-    getOrCreateConversation(defaultPartnerId)
-      .then((conv) => {
-        if (cancelled) return
-        setResolvedConversation(conv)
-        // Inject vào conversations cache nếu chưa có
-        queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
-          if (!oldData) return [conv]
-          const exists = oldData.find((c) => c.id === conv.id)
-          return exists ? oldData : [conv, ...oldData]
-        })
-      })
-      .catch((err) => {
-        console.error('[ChatLayout] Failed to get/create conversation:', err)
-      })
-      .finally(() => {
-        if (!cancelled) setIsResolving(false)
-      })
-
-    return () => {
-      cancelled = true
+    if (cachedConvForPartner) {
+      setResolvedConversation(cachedConvForPartner)
+      setIsResolving(false)
+      if (defaultPartnerId) {
+        navigate(`/chat/c/${cachedConvForPartner.id}`, { replace: true })
+      }
+      return
     }
-  }, [defaultPartnerId, cachedConvForPartner, queryClient])
+
+    if (isLoadingPartner) {
+      setIsResolving(true)
+      return
+    }
+
+    if (partnerUser) {
+      const fakeConv: ConversationResponse = {
+        id: `fake_${partnerUser.id}`,
+        recipientId: partnerUser.id,
+        name: partnerUser.fullName,
+        avatar: partnerUser.avatar,
+        status: partnerUser.status || Status.OFFLINE,
+        friendshipStatus: null,
+        isGroup: false,
+        members: []
+      }
+      setResolvedConversation(fakeConv)
+      setIsResolving(false)
+    } else {
+      setIsResolving(false)
+    }
+  }, [defaultPartnerId, cachedConvForPartner, partnerUser, isLoadingPartner])
 
   // ── Tính selectedChatId theo thứ tự ưu tiên ──
   const defaultChatId = cachedConvForPartner?.id || resolvedConversation?.id || null
-  const selectedChatId = userSelectedChatId || defaultChatId
+  const selectedChatId = userSelectedChatId || defaultConversationId || defaultChatId
 
   const selectedChat = React.useMemo(() => {
     if (!selectedChatId) return null
@@ -115,6 +125,7 @@ export function ChatLayout({ defaultPartnerId }: { defaultPartnerId?: string }) 
         onSelectChat={(chat: ConversationResponse) => {
           setUserSelectedChatId(chat.id)
           setResolvedConversation(null) // clear resolved khi user chủ động chọn
+          navigate(`/chat/c/${chat.id}`)
         }}
       />
 
