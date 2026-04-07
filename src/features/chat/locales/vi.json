@@ -31,6 +31,16 @@
         "update_name_simple": "Tên nhóm đổi thành {{newName}}",
         "update_avatar_simple": "Ảnh đại diện nhóm đã thay đổi",
         "disband_group": "Trưởng nhóm đã giải tán nhóm"
+      },
+      "group_tips": {
+        "invite_cta": "Mời thêm bạn",
+        "invite_suffix": "vào nhóm {{groupName}}",
+        "mention_prefix": "Gõ @ để",
+        "mention_highlight": "Nhắc đến và thu hút sự chú ý",
+        "mention_suffix": "của bạn bè trong nhóm",
+        "reply_prefix": "Chọn",
+        "reply_action": "Trả lời",
+        "reply_suffix": "để trích dẫn nội dung tin nhắn"
       }
     },
     "disbanded": {

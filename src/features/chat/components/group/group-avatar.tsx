@@ -32,6 +32,15 @@ export function GroupAvatar({ avatars, names, count, size = 'md', className }: G
   // 4+ members: 2x2 Grid (3 avatars + count/4th avatar)
 
   const renderAvatars = () => {
+    // ────────── 1 Member ──────────
+    if (count <= 1) {
+      return (
+        <div className='relative w-full h-full'>
+          <UserAvatar src={avatars[0]} name={names[0] || '?'} className='w-full h-full border border-background' />
+        </div>
+      )
+    }
+
     // ────────── 2 Members ──────────
     if (count === 2) {
       return (

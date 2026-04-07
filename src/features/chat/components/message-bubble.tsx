@@ -12,6 +12,7 @@ import {
 import { useChatContext } from '../context/chat-context'
 import { MessageStatus, MessageType } from '@/constants/enum'
 import { SystemMessage } from '../utils/system-message'
+import { UserAvatar } from '@/components/common/user-avatar'
 
 export function MessageBubble({
   message,
@@ -45,10 +46,10 @@ export function MessageBubble({
       {!isOwn && (
         <div className='w-8 shrink-0 flex items-end'>
           {isLast ? (
-            <img
-              src={message.senderAvatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${message.senderId}`}
-              alt={message.senderName || 'User'}
-              className='w-8 h-8 rounded-full border border-black/5'
+            <UserAvatar
+              src={message.senderAvatar}
+              name={message.senderName || 'User'}
+              className='w-8 h-8 border border-black/5'
             />
           ) : (
             <div className='w-8 h-8' />
@@ -211,13 +212,12 @@ export function MessageBubble({
                         return (
                           <>
                             {visibleReaders.map((reader: ConversationMemberResponse) => (
-                              <img
+                              <UserAvatar
                                 key={reader.userId}
-                                src={
-                                  reader.avatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${reader.userId}`
-                                }
-                                className='w-3 h-3 rounded-full border border-background shadow-sm'
-                                alt={reader.fullName}
+                                src={reader.avatar}
+                                name={reader.fullName || 'User'}
+                                className='w-3 h-3 border border-background shadow-sm'
+                                fallbackClassName='text-[6px]'
                                 title={`Đã xem bởi ${reader.fullName}`}
                               />
                             ))}

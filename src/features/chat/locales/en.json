@@ -31,6 +31,16 @@
         "update_name_simple": "Group name changed to {{newName}}",
         "update_avatar_simple": "Group avatar has been changed",
         "disband_group": "The group has been disbanded by the owner"
+      },
+      "group_tips": {
+        "invite_cta": "Invite more friends",
+        "invite_suffix": "to group {{groupName}}",
+        "mention_prefix": "Type @ to",
+        "mention_highlight": "mention and attract attention",
+        "mention_suffix": "from other group members",
+        "reply_prefix": "Press",
+        "reply_action": "Reply",
+        "reply_suffix": "to quote message content"
       }
     },
     "disbanded": {

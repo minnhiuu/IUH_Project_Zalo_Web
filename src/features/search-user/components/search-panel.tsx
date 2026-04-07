@@ -68,8 +68,8 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
     <>
       <div
         className={cn(
-          'fixed inset-y-0 z-50 w-[344px] bg-background border-r border-border flex flex-col transition-transform duration-300 ease-in-out shadow-[2px_0_5px_rgba(0,0,0,0.05)]',
-          open ? 'translate-x-0' : '-translate-x-full'
+          'fixed inset-y-0 z-50 w-90 bg-background border-r border-border flex flex-col transition-transform duration-300 ease-in-out shadow-[2px_0_5px_rgba(0,0,0,0.05)]',
+          open ? 'translate-x-0' : '-translate-x-[calc(100%+64px)]'
         )}
         style={{ left: '64px' }}
       >
@@ -102,7 +102,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
                 onClick={() => setSearchValue('')}
                 className='absolute right-1 top-1/2 -translate-y-1/2 w-6 h-6 p-0 hover:bg-transparent text-muted-foreground'
               >
-                <X className='size-4 bg-(--icon-x-bg) text-muted-foreground dark:text-brand-blue-dark rounded-full p-0.5' />
+                <X className='size-4 bg-icon-x-bg text-muted-foreground dark:text-brand-blue-dark rounded-full p-0.5' />
               </Button>
             )}
           </div>
@@ -112,7 +112,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
               onOpenChange(false)
               setSearchValue('')
             }}
-            className='text-[15px] font-semibold whitespace-nowrap h-9 hover:bg-transparent rounded-[4px] px-1'
+            className='text-[15px] font-semibold whitespace-nowrap h-9 hover:bg-transparent rounded-lg px-1'
           >
             {text.close}
           </Button>
@@ -198,7 +198,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
                             }}
                             className='w-8 h-8 opacity-0 group-hover:opacity-100 transition-opacity'
                           >
-                            <X className='w-4 h-4 bg-(--icon-x-bg) text-muted-foreground dark:text-brand-blue-dark rounded-full p-0.5' />
+                            <X className='w-4 h-4 bg-icon-x-bg text-muted-foreground dark:text-brand-blue-dark rounded-full p-0.5' />
                           </Button>
                         </div>
                       ))}

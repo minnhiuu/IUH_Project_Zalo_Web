@@ -14,36 +14,51 @@ export function getSystemMessagePreview(
 
   const { action, targetIds, payload } = metadata
 
-  if (action === 'ADD_MEMBERS') {
-    const isSelfAdded = targetIds?.includes(String(currentUserId) || '')
+  if (action === 'CREATE_GROUP') {
+    const isSelfInTargets = targetIds?.includes(String(currentUserId) || '')
 
     if (String(senderId) === String(currentUserId)) {
       return translate('chat.system.add_members.group_created') as string
     }
 
+    if (isSelfInTargets) {
+      return translate('chat.system.add_members.joined_group') as string
+    }
+
+    return ''
+  }
+
+  if (action === 'ADD_MEMBERS') {
+    const normalizedTargetIds = (targetIds || []).map((id) => String(id))
+    const normalizedCurrentUserId = String(currentUserId || '')
+    const isSelfAdded = normalizedTargetIds.includes(normalizedCurrentUserId)
+
     const actorName = members.find((m) => String(m.userId) === String(senderId))?.fullName || 'User'
-    
+
     if (isSelfAdded) {
       return translate('chat.system.add_members.joined_group') as string
     }
 
-    const firstTargetName = members.find((m) => String(m.userId) === String(targetIds?.[0]))?.fullName || 'User'
-    if (targetIds && targetIds.length > 2) {
+    const targetNames = normalizedTargetIds.map(
+      (id) => members.find((m) => String(m.userId) === String(id))?.fullName || 'User'
+    )
+
+    if (normalizedTargetIds.length > 4) {
       const preview = translate('chat.system.add_members.many_other_count', {
-        targets: firstTargetName,
-        count: targetIds.length - 1,
+        targets: targetNames.slice(0, 4).join(', '),
+        count: normalizedTargetIds.length - 4,
         actor: actorName
       }) as string
       return preview.replace(/<[^>]*>/g, '')
-    } else if (targetIds && targetIds.length === 2) {
-       const preview = translate('chat.system.add_members.many_other', {
-        targets: targetIds.map((id) => members.find((m) => String(m.userId) === String(id))?.fullName || 'User').join(', '),
+    } else if (normalizedTargetIds.length >= 2) {
+      const preview = translate('chat.system.add_members.many_other', {
+        targets: targetNames.join(', '),
         actor: actorName
       }) as string
       return preview.replace(/<[^>]*>/g, '')
-    } else if (targetIds && targetIds.length === 1) {
-       const preview = translate('chat.system.add_members.single_other', {
-        target: firstTargetName,
+    } else if (normalizedTargetIds.length === 1) {
+      const preview = translate('chat.system.add_members.single_other', {
+        target: targetNames[0] || 'User',
         actor: actorName
       }) as string
       return preview.replace(/<[^>]*>/g, '')

@@ -162,6 +162,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
 
   const isSameGroup = (msg1: MessageResponse, msg2: MessageResponse) => {
     if (!msg1 || !msg2) return false
+    if (msg1.type === 'SYSTEM' || msg2.type === 'SYSTEM') return false
     if (msg1.senderId !== msg2.senderId) return false
     const time1 = new Date(msg1.createdAt || '').getTime()
     const time2 = new Date(msg2.createdAt || '').getTime()
@@ -331,7 +332,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
 
       {isInfoSidebarOpen && (
         <div
-          className='absolute inset-0 bg-black/20 z-90 min-[1150px]:hidden animate-in fade-in duration-200 cursor-pointer'
+          className='absolute inset-0 bg-transparent z-90 min-[1150px]:hidden animate-in fade-in duration-200 cursor-pointer'
           onClick={() => setIsInfoSidebarOpen(false)}
         />
       )}

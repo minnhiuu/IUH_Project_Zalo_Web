@@ -34,7 +34,7 @@ export const useMarkAsReadMutation = () => {
                 unreadCount: 0,
                 // Cập nhật optimistic lastReadMessageId cho tất cả members (hoặc ít nhất là chính mình)
                 // Phía FE detect unread dựa trên lastReadMessageId của chính mình
-                members: conv.members?.map(m => ({
+                members: conv.members?.map((m) => ({
                   ...m,
                   lastReadMessageId: conv.lastMessage?.id || m.lastReadMessageId
                 }))
@@ -113,9 +113,7 @@ export const useUpdateGroupNameMutation = () => {
       const newData = oldData.map((conv) => (conv.id === updatedConv.id ? updatedConv : conv))
       if (!newData.some((c) => c.id === updatedConv.id)) newData.unshift(updatedConv)
       return newData.sort(
-        (a, b) =>
-          new Date(b.lastMessage?.timestamp || 0).getTime() -
-          new Date(a.lastMessage?.timestamp || 0).getTime()
+        (a, b) => new Date(b.lastMessage?.timestamp || 0).getTime() - new Date(a.lastMessage?.timestamp || 0).getTime()
       )
     })
     queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
@@ -141,9 +139,7 @@ export const useUpdateGroupAvatarMutation = () => {
       const newData = oldData.map((conv) => (conv.id === updatedConv.id ? updatedConv : conv))
       if (!newData.some((c) => c.id === updatedConv.id)) newData.unshift(updatedConv)
       return newData.sort(
-        (a, b) =>
-          new Date(b.lastMessage?.timestamp || 0).getTime() -
-          new Date(a.lastMessage?.timestamp || 0).getTime()
+        (a, b) => new Date(b.lastMessage?.timestamp || 0).getTime() - new Date(a.lastMessage?.timestamp || 0).getTime()
       )
     })
     queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
@@ -187,9 +183,7 @@ export const useAddMembersMutation = () => {
       const newData = oldData.map((conv) => (conv.id === updatedConv.id ? updatedConv : conv))
       if (!newData.some((c) => c.id === updatedConv.id)) newData.unshift(updatedConv)
       return newData.sort(
-        (a, b) =>
-          new Date(b.lastMessage?.timestamp || 0).getTime() -
-          new Date(a.lastMessage?.timestamp || 0).getTime()
+        (a, b) => new Date(b.lastMessage?.timestamp || 0).getTime() - new Date(a.lastMessage?.timestamp || 0).getTime()
       )
     })
     queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
@@ -198,8 +192,11 @@ export const useAddMembersMutation = () => {
   return useMutation({
     mutationFn: ({ conversationId, memberIds }: { conversationId: string; memberIds: string[] }) =>
       addMembersToGroupApi(conversationId, memberIds),
-    onSuccess: (updatedConv) => {
+    onSuccess: (updatedConv, variables) => {
       updateConversationInList(updatedConv)
+      queryClient.invalidateQueries({ queryKey: chatKeys.messages(variables.conversationId) })
+      queryClient.invalidateQueries({ queryKey: chatKeys.friendsDirectory(variables.conversationId) })
+      queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'search-members'] })
     },
     onError: (error) => {
       console.error('Failed to add members to group', error)

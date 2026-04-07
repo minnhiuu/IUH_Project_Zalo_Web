@@ -6,7 +6,11 @@ import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { BaseDialog } from '@/components/common/base-dialog'
 import { cn } from '@/lib/utils'
-import { useCreateGroupMutation, useUpdateGroupAvatarMutation, useAddMembersMutation } from '../../queries/use-mutations'
+import {
+  useCreateGroupMutation,
+  useUpdateGroupAvatarMutation,
+  useAddMembersMutation
+} from '../../queries/use-mutations'
 import { useFriendsDirectory, useSearchMembersInfinite } from '../../queries/use-queries'
 import type { SearchMemberResponse } from '../../schemas/chat.schema'
 import { useChatText } from '../../i18n/use-chat-text'
@@ -24,7 +28,12 @@ interface CreateGroupDialogProps {
   conversationId?: string
 }
 
-export function CreateGroupDialog({ isOpen, onClose, initialSelectedFriendIds, conversationId }: CreateGroupDialogProps) {
+export function CreateGroupDialog({
+  isOpen,
+  onClose,
+  initialSelectedFriendIds,
+  conversationId
+}: CreateGroupDialogProps) {
   const { text } = useChatText()
   const tg = text['create-group-dialog']
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -110,7 +119,7 @@ export function CreateGroupDialog({ isOpen, onClose, initialSelectedFriendIds, c
       }
     } else if (!isOpen && wasOpen) {
       // Dialog just closed - cleanup
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+
       resetState()
     }
   }, [isOpen, initialSelectedFriendIds])
@@ -125,20 +134,18 @@ export function CreateGroupDialog({ isOpen, onClose, initialSelectedFriendIds, c
     setSelectedFriendIds((prev) => prev.filter((id) => id !== friendId))
   }
 
-  const handleCreateGroup = () => {
+  const handleCreateGroup = async () => {
     if (selectedFriendIds.length === 0) return
 
     if (conversationId) {
       // Add members mode
-      addMembersMutation.mutate(
-        { conversationId, memberIds: selectedFriendIds },
-        {
-          onSuccess: () => {
-            onClose()
-            resetState()
-          }
-        }
-      )
+      try {
+        await addMembersMutation.mutateAsync({ conversationId, memberIds: selectedFriendIds })
+        onClose()
+        resetState()
+      } catch (error) {
+        console.error('Add members failed', error)
+      }
       return
     }
 
@@ -229,7 +236,7 @@ export function CreateGroupDialog({ isOpen, onClose, initialSelectedFriendIds, c
     fileInputRef.current?.click()
   }
 
-  const isCreateDisabled = conversationId 
+  const isCreateDisabled = conversationId
     ? selectedFriendIds.length === 0 || addMembersMutation.isPending
     : selectedFriendIds.length < 2 || createGroupMutation.isPending
   const showSidebar = selectedFriendIds.length > 0
@@ -263,7 +270,9 @@ export function CreateGroupDialog({ isOpen, onClose, initialSelectedFriendIds, c
           showCloseButton={false}
         >
           <DialogHeader className='px-4 h-[56px] flex flex-row items-center justify-between border-b bg-background shrink-0 space-y-0'>
-            <DialogTitle className='text-[17px] font-semibold'>{conversationId ? tg.addMembersTitle : tg.title}</DialogTitle>
+            <DialogTitle className='text-[17px] font-semibold'>
+              {conversationId ? tg.addMembersTitle : tg.title}
+            </DialogTitle>
             <DialogClose asChild>
               <button className='p-1.5 hover:bg-muted rounded-full transition-colors cursor-pointer outline-none'>
                 <X className='w-5 h-5 text-muted-foreground/80' />
@@ -373,9 +382,7 @@ export function CreateGroupDialog({ isOpen, onClose, initialSelectedFriendIds, c
                             <div className='w-16 h-16 bg-muted/30 rounded-full flex items-center justify-center mb-3'>
                               <Search className='w-8 h-8 text-muted-foreground/40' />
                             </div>
-                            <p className='text-[14px] text-muted-foreground/60 font-medium'>
-                              {text.emptyStateSearch}
-                            </p>
+                            <p className='text-[14px] text-muted-foreground/60 font-medium'>{text.emptyStateSearch}</p>
                             <p className='text-[12px] text-muted-foreground/40 mt-1 pl-4 pr-4'>
                               Thử tìm kiếm theo tên hoặc số điện thoại khác
                             </p>
@@ -395,9 +402,7 @@ export function CreateGroupDialog({ isOpen, onClose, initialSelectedFriendIds, c
                               </div>
                             ))}
                             {isFetchingNextPage && (
-                              <div className='p-4 text-center text-[11px] text-muted-foreground'>
-                                {text.loading}
-                              </div>
+                              <div className='p-4 text-center text-[11px] text-muted-foreground'>{text.loading}</div>
                             )}
                           </>
                         )}
@@ -429,7 +434,11 @@ export function CreateGroupDialog({ isOpen, onClose, initialSelectedFriendIds, c
               disabled={isCreateDisabled}
               variant={isCreateDisabled ? 'disabled' : 'default'}
             >
-              {createGroupMutation.isPending || addMembersMutation.isPending ? '...' : conversationId ? tg.confirm : tg.create}
+              {createGroupMutation.isPending || addMembersMutation.isPending
+                ? '...'
+                : conversationId
+                  ? tg.confirm
+                  : tg.create}
             </Button>
           </div>
         </DialogContent>

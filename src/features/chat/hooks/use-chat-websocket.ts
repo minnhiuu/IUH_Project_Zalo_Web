@@ -63,6 +63,8 @@ export const useChatWebSocket = () => {
               (oldData: InfiniteData<PageResponse<MessageResponse>> | undefined) => {
                 if (!oldData) return oldData
                 const firstPage = oldData.pages[0]
+                const existsById = firstPage.data.some((m: MessageResponse) => m.id === msg.id)
+                if (existsById) return oldData
                 const hasOptimistic =
                   msg.clientMessageId &&
                   firstPage.data.some((m: MessageResponse) => m.clientMessageId === msg.clientMessageId)
@@ -97,6 +99,8 @@ export const useChatWebSocket = () => {
               (oldData: InfiniteData<PageResponse<MessageResponse>> | undefined) => {
                 if (!oldData) return oldData
                 const firstPage = oldData.pages[0]
+                const existsById = firstPage.data.some((m: MessageResponse) => m.id === msg.id)
+                if (existsById) return oldData
                 return {
                   ...oldData,
                   pages: [{ ...firstPage, data: [msg, ...firstPage.data] }, ...oldData.pages.slice(1)]
@@ -122,7 +126,8 @@ export const useChatWebSocket = () => {
                   type: msg.type,
                   status: msg.status,
                   senderName: msg.senderName,
-                  senderId: msg.senderId
+                  senderId: msg.senderId,
+                  metadata: msg.metadata
                 },
                 unreadCount:
                   msg.unreadCount !== undefined
@@ -313,7 +318,7 @@ export const useChatWebSocket = () => {
         lastModifiedAt: now,
         conversationId,
         senderName: user?.fullName,
-        senderAvatar: undefined,
+        senderAvatar: user?.avatar || undefined,
         replyTo,
         isForwarded
       }
