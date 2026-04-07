@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils'
 export function AiSuggestionChips({
   suggestions,
   onSelect,
-  disabled,
+  disabled
 }: {
   suggestions: string[]
   onSelect: (text: string) => void

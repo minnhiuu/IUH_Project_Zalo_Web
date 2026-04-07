@@ -17,7 +17,7 @@ interface StrangerBannerProps {
 export function StrangerBanner({ partnerId, partnerName }: StrangerBannerProps) {
   const { user: currentUser } = useAuthContext()
   const { data: friendshipStatus, isLoading } = useFriendshipStatus(partnerId)
-  
+
   const sendRequestMutation = useSendFriendRequest()
   const acceptRequestMutation = useAcceptFriendRequest()
   const cancelRequestMutation = useCancelFriendRequest()
@@ -33,9 +33,7 @@ export function StrangerBanner({ partnerId, partnerName }: StrangerBannerProps) 
         <UserPlus className='w-[16px] h-[16px] text-muted-foreground' />
         {(!friendshipStatus?.status ||
           friendshipStatus.status === FriendStatus.Declined ||
-          friendshipStatus.status === FriendStatus.Cancelled) && (
-          <span>Gửi yêu cầu kết bạn tới người này</span>
-        )}
+          friendshipStatus.status === FriendStatus.Cancelled) && <span>Gửi yêu cầu kết bạn tới người này</span>}
         {friendshipStatus?.status === FriendStatus.Pending && friendshipStatus.requestedBy === currentUser.id && (
           <span>Đã gửi yêu cầu kết bạn tới {partnerName}</span>
         )}
@@ -82,7 +80,7 @@ export function StrangerBanner({ partnerId, partnerName }: StrangerBannerProps) 
             <Check className='w-[14px] h-[14px] mr-1.5' /> Chấp nhận
           </Button>
         )}
-        
+
         <button className='w-[28px] h-[28px] flex items-center justify-center bg-[#EAE8E8] hover:bg-[#DEDFE0] rounded-[4px] text-muted-foreground'>
           <MoreHorizontal className='w-4 h-4 text-foreground/80' />
         </button>

@@ -18,9 +18,7 @@ import { OthersProfileDialog } from '@/features/user/components/profile-dialog/o
 export function ChatWindow({ conversation }: { conversation: ConversationResponse }) {
   const { user } = useAuth()
   const { text } = useChatText()
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useMessagesInfiniteQuery(
-    conversation.id
-  )
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useMessagesInfiniteQuery(conversation.id)
 
   const { scrollRef, handleScroll } = useChatScroll({ fetchNextPage, hasNextPage, isFetchingNextPage })
   const { mutate: markAsRead } = useMarkAsReadMutation()
@@ -30,6 +28,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   const [replyTo, setReplyTo] = useState<MessageResponse | null>(null)
   const [forwardingMessage, setForwardingMessage] = useState<MessageResponse | null>(null)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
+  const [profileTargetUserId, setProfileTargetUserId] = useState<string | undefined>(undefined)
 
   const allMessages = useMemo(() => data?.pages.flatMap((page) => page.data) || [], [data])
   const latestMessageId = allMessages[0]?.id
@@ -61,14 +60,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
     return () => {
       if (currentRef) observer.unobserve(currentRef)
     }
-  }, [
-    latestMessageId,
-    latestMessageSenderId,
-    conversation.id,
-    conversation.unreadCount,
-    markAsRead,
-    user?.id
-  ])
+  }, [latestMessageId, latestMessageSenderId, conversation.id, conversation.unreadCount, markAsRead, user?.id])
 
   const isSameGroup = (msg1: MessageResponse, msg2: MessageResponse) => {
     if (!msg1 || !msg2) return false
@@ -93,20 +85,18 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
       <div className='flex-1 flex flex-col bg-[#eef0f1] dark:bg-zinc-950 relative overflow-hidden h-full'>
         {/* Header */}
         <div className='h-[68px] border-b border-border bg-background flex items-center justify-between px-4 shrink-0 shadow-sm z-10'>
-          <div 
-             className={`flex items-center space-x-3 group ${!isGroup && !isCloudConversation ? 'cursor-pointer hover:bg-black/5 p-1.5 -ml-1.5 rounded-lg transition-colors' : ''}`}
-             onClick={() => {
-                if (!isGroup && !isCloudConversation) {
-                  setIsProfileOpen(true)
-                }
-             }}
+          <div
+            className={`flex items-center space-x-3 group ${!isGroup && !isCloudConversation ? 'cursor-pointer hover:bg-black/5 p-1.5 -ml-1.5 rounded-lg transition-colors' : ''}`}
+            onClick={() => {
+              if (!isGroup && !isCloudConversation) {
+                setProfileTargetUserId(partnerId)
+                setIsProfileOpen(true)
+              }
+            }}
           >
             <div className='relative shrink-0 hidden sm:block'>
               <img
-                src={
-                  conversation.avatar ||
-                  `https://api.dicebear.com/7.x/identicon/svg?seed=${conversation.id}`
-                }
+                src={conversation.avatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${conversation.id}`}
                 alt={conversation.name || 'User'}
                 className='w-10 h-10 rounded-full object-cover border border-black/5'
               />
@@ -135,7 +125,9 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
                 ) : conversation.status === 'ONLINE' ? (
                   <p className='text-[12px] text-muted-foreground'>{text.status.online}</p>
                 ) : (
-                  <p className='text-[12px] text-muted-foreground'>{formatLastSeen(conversation.lastSeenAt, text.status)}</p>
+                  <p className='text-[12px] text-muted-foreground'>
+                    {formatLastSeen(conversation.lastSeenAt, text.status)}
+                  </p>
                 )}
               </div>
             </div>
@@ -190,6 +182,10 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
                   conversation={conversation}
                   onReply={() => setReplyTo(msg)}
                   onForward={() => setForwardingMessage(msg)}
+                  onOpenProfile={(id) => {
+                    setProfileTargetUserId(id)
+                    setIsProfileOpen(true)
+                  }}
                 />
               </div>
             )
@@ -208,7 +204,11 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
       {isCloudConversation && <CloudInfoSidebar />}
 
       {/* Others Profile Dialog */}
-      <OthersProfileDialog open={isProfileOpen} onOpenChange={setIsProfileOpen} userId={partnerId} />
+      <OthersProfileDialog
+        open={isProfileOpen}
+        onOpenChange={setIsProfileOpen}
+        userId={profileTargetUserId || partnerId}
+      />
     </div>
   )
 }

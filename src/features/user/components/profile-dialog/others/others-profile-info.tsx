@@ -178,12 +178,15 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
             variant='secondary-blue'
             className='flex-1 font-bold h-9 rounded-md border-none shadow-none transition-all active:scale-95'
             onClick={() => {
-               if (friendshipStatus?.status === FriendStatus.Accepted || (friendshipStatus?.friendshipId && friendshipStatus?.status)) {
-                    // It doesn't mean they have a chat, but maybe they do. We just route to /chat/u/ user.id
-                    // ChatLayout will fallback to cached chat if it exists.
-               }
-               window.location.href = `/chat/u/${user.id}`
-               // Using window.location to ensure ChatLayout remounts or just navigate
+              if (
+                friendshipStatus?.status === FriendStatus.Accepted ||
+                (friendshipStatus?.friendshipId && friendshipStatus?.status)
+              ) {
+                // It doesn't mean they have a chat, but maybe they do. We just route to /chat/u/ user.id
+                // ChatLayout will fallback to cached chat if it exists.
+              }
+              window.location.href = `/chat/u/${user.id}`
+              // Using window.location to ensure ChatLayout remounts or just navigate
             }}
           >
             {userText.profile.message}

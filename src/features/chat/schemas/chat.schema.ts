@@ -26,12 +26,12 @@ export type ReplyMetadata = z.infer<typeof ReplyMetadataSchema>
 // Breaking change: conversationId → id, partner* → name/avatar/status/isGroup
 // ────────────────────────────────────────────────────────────────
 export const ConversationResponseSchema = z.object({
-  id: z.string(),                                               // MongoDB ObjectId của room
-  recipientId: z.string().nullable().optional(),                // recipientId cho lazy creation (1-1)
-  name: z.string().nullable().optional(),                       // partnerName (1-1) | group name
-  avatar: z.string().nullable().optional(),                     // partnerAvatar (1-1) | group avatar
-  status: z.nativeEnum(Status).nullable().optional(),           // partner online status (1-1 only)
-  friendshipStatus: z.string().nullable().optional(),           // status from friend-service
+  id: z.string(), // MongoDB ObjectId của room
+  recipientId: z.string().nullable().optional(), // recipientId cho lazy creation (1-1)
+  name: z.string().nullable().optional(), // partnerName (1-1) | group name
+  avatar: z.string().nullable().optional(), // partnerAvatar (1-1) | group avatar
+  status: z.nativeEnum(Status).nullable().optional(), // partner online status (1-1 only)
+  friendshipStatus: z.string().nullable().optional(), // status from friend-service
   lastSeenAt: z.string().datetime().nullable().optional(),
   isGroup: z.boolean().default(false),
   lastMessage: z.string().nullable().optional(),

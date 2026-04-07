@@ -7,7 +7,7 @@ export function AiMessageBubble({
   msg,
   avatarUrl,
   onSuggestionClick,
-  isLoading,
+  isLoading
 }: {
   msg: AiMessage
   avatarUrl?: string
@@ -49,9 +49,13 @@ export function AiMessageBubble({
             <span className='whitespace-pre-wrap'>
               {msg.content.split(/(\*\*.*?\*\*)/g).map((part, i) => {
                 if (part.startsWith('**') && part.endsWith('**') && part.length >= 4) {
-                  return <strong key={i} className='font-bold'>{part.slice(2, -2)}</strong>;
+                  return (
+                    <strong key={i} className='font-bold'>
+                      {part.slice(2, -2)}
+                    </strong>
+                  )
                 }
-                return <span key={i}>{part}</span>;
+                return <span key={i}>{part}</span>
               })}
             </span>
             {msg.isStreaming && !msg.processingStatus && (
@@ -67,11 +71,7 @@ export function AiMessageBubble({
       {/* Follow-up chips */}
       {!isUser && !msg.isStreaming && !!msg.suggestions?.length && (
         <div className='ml-10'>
-          <AiSuggestionChips
-            suggestions={msg.suggestions}
-            onSelect={onSuggestionClick}
-            disabled={isLoading}
-          />
+          <AiSuggestionChips suggestions={msg.suggestions} onSelect={onSuggestionClick} disabled={isLoading} />
         </div>
       )}
     </div>

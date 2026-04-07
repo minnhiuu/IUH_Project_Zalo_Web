@@ -1,86 +1,73 @@
-import { useState, useEffect } from 'react'
-import * as React from 'react'
-import { useQueryClient } from '@tanstack/react-query'
+import { useEffect, useMemo, useState } from 'react'
 import { ChatSidebar } from './chat-sidebar'
 import { ChatWindow } from './chat-window'
 import { useChatText } from '../i18n/use-chat-text'
 import { useConversationsQuery } from '../queries/use-queries'
 import { useMarkAsReadMutation } from '../queries/use-mutations'
-import { getOrCreateConversation } from '../api/chat.api'
-import { chatKeys } from '../queries/keys'
 import type { ConversationResponse } from '../schemas/chat.schema'
 import { useNavigate } from 'react-router'
 import { Status } from '@/constants/enum'
 import { useUserById } from '@/features/user/queries/use-queries'
 
-export function ChatLayout({ defaultPartnerId, defaultConversationId }: { defaultPartnerId?: string; defaultConversationId?: string }) {
+export function ChatLayout({
+  defaultPartnerId,
+  defaultConversationId
+}: {
+  defaultPartnerId?: string
+  defaultConversationId?: string
+}) {
   const navigate = useNavigate()
   const { text } = useChatText()
-  const queryClient = useQueryClient()
 
   const [userSelectedChatId, setUserSelectedChatId] = useState<string | null>(null)
-  // Conversation được resolve từ getOrCreateConversation khi defaultPartnerId không có trong cache
-  const [resolvedConversation, setResolvedConversation] = useState<ConversationResponse | null>(null)
-  const [isResolving, setIsResolving] = useState(false)
 
   const { data: conversations } = useConversationsQuery()
   const { mutate: markAsRead } = useMarkAsReadMutation()
 
   // ── Tìm conversation trong cache theo partnerId (member matching) ──
-  const cachedConvForPartner = React.useMemo(() => {
+  const cachedConvForPartner = useMemo(() => {
     if (!conversations || !defaultPartnerId) return null
     return (
-      conversations.find((c: ConversationResponse) =>
-        c.members?.some((m) => m.userId === defaultPartnerId) || c.recipientId === defaultPartnerId || (!c.isGroup && c.name === defaultPartnerId)
+      conversations.find(
+        (c: ConversationResponse) =>
+          c.members?.some((m) => m.userId === defaultPartnerId) ||
+          c.recipientId === defaultPartnerId ||
+          (!c.isGroup && c.name === defaultPartnerId)
       ) || null
     )
   }, [conversations, defaultPartnerId])
 
   const { data: partnerUser, isLoading: isLoadingPartner } = useUserById(defaultPartnerId || '')
 
+  const resolvedConversation = useMemo<ConversationResponse | null>(() => {
+    if (!defaultPartnerId || cachedConvForPartner || isLoadingPartner || !partnerUser) {
+      return null
+    }
+
+    return {
+      id: `fake_${partnerUser.id}`,
+      recipientId: partnerUser.id,
+      name: partnerUser.fullName,
+      avatar: partnerUser.avatar,
+      status: Status.Offline,
+      friendshipStatus: null,
+      isGroup: false,
+      members: []
+    }
+  }, [defaultPartnerId, cachedConvForPartner, isLoadingPartner, partnerUser])
+
+  const isResolving = !!defaultPartnerId && !cachedConvForPartner && isLoadingPartner
+
   useEffect(() => {
-    if (!defaultPartnerId) {
-      setIsResolving(false)
-      return
-    }
-
-    if (cachedConvForPartner) {
-      setResolvedConversation(cachedConvForPartner)
-      setIsResolving(false)
-      if (defaultPartnerId) {
-        navigate(`/chat/c/${cachedConvForPartner.id}`, { replace: true })
-      }
-      return
-    }
-
-    if (isLoadingPartner) {
-      setIsResolving(true)
-      return
-    }
-
-    if (partnerUser) {
-      const fakeConv: ConversationResponse = {
-        id: `fake_${partnerUser.id}`,
-        recipientId: partnerUser.id,
-        name: partnerUser.fullName,
-        avatar: partnerUser.avatar,
-        status: partnerUser.status || Status.OFFLINE,
-        friendshipStatus: null,
-        isGroup: false,
-        members: []
-      }
-      setResolvedConversation(fakeConv)
-      setIsResolving(false)
-    } else {
-      setIsResolving(false)
-    }
-  }, [defaultPartnerId, cachedConvForPartner, partnerUser, isLoadingPartner])
+    if (!defaultPartnerId || !cachedConvForPartner) return
+    navigate(`/chat/c/${cachedConvForPartner.id}`, { replace: true })
+  }, [defaultPartnerId, cachedConvForPartner, navigate])
 
   // ── Tính selectedChatId theo thứ tự ưu tiên ──
   const defaultChatId = cachedConvForPartner?.id || resolvedConversation?.id || null
   const selectedChatId = userSelectedChatId || defaultConversationId || defaultChatId
 
-  const selectedChat = React.useMemo(() => {
+  const selectedChat = useMemo(() => {
     if (!selectedChatId) return null
     // Tìm trong cache trước
     const fromCache = conversations?.find((c: ConversationResponse) => c.id === selectedChatId)
@@ -91,14 +78,13 @@ export function ChatLayout({ defaultPartnerId, defaultConversationId }: { defaul
   }, [selectedChatId, conversations, resolvedConversation])
 
   // ── Document title theo unread count ──
-  const totalUnread = React.useMemo(() => {
+  const totalUnread = useMemo(() => {
     if (!conversations) return 0
     return conversations.reduce((sum: number, c: ConversationResponse) => sum + (c.unreadCount || 0), 0)
   }, [conversations])
 
   useEffect(() => {
-    document.title =
-      totalUnread > 0 ? `(${totalUnread}) Tin nhắn mới | Zalo Web` : 'Zalo Web - PC'
+    document.title = totalUnread > 0 ? `(${totalUnread}) Tin nhắn mới | Zalo Web` : 'Zalo Web - PC'
   }, [totalUnread])
 
   // ── Auto mark-as-read khi mở / tab visible ──
@@ -124,7 +110,6 @@ export function ChatLayout({ defaultPartnerId, defaultConversationId }: { defaul
         selectedChatId={selectedChatId || undefined}
         onSelectChat={(chat: ConversationResponse) => {
           setUserSelectedChatId(chat.id)
-          setResolvedConversation(null) // clear resolved khi user chủ động chọn
           navigate(`/chat/c/${chat.id}`)
         }}
       />
