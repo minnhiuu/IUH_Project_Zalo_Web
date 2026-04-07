@@ -191,5 +191,15 @@
       "membersLoading": "Loading members...",
       "noMatchingMembers": "No matching members"
     }
+  },
+  "ai": {
+    "status": {
+      "ANALYZING_INTENT": "Analyzing your intent...",
+      "RETRIEVING_VECTOR": "Searching internal memory...",
+      "GRADING_DATA": "Verifying data accuracy...",
+      "WEB_SEARCHING": "Searching the Internet...",
+      "GENERATING_ANSWER": "Composing the answer...",
+      "DEFAULT": "Bondhub AI is processing..."
+    }
   }
 }

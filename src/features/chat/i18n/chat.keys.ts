@@ -29,6 +29,14 @@ export const CHAT_KEYS = {
     image: 'chat.type.image',
     file: 'chat.type.file'
   },
+  aiStatus: {
+    ANALYZING_INTENT: 'ai.status.ANALYZING_INTENT',
+    RETRIEVING_VECTOR: 'ai.status.RETRIEVING_VECTOR',
+    GRADING_DATA: 'ai.status.GRADING_DATA',
+    WEB_SEARCHING: 'ai.status.WEB_SEARCHING',
+    GENERATING_ANSWER: 'ai.status.GENERATING_ANSWER',
+    DEFAULT: 'ai.status.DEFAULT'
+  },
   sidebar: {
     all: 'chat.sidebar.all',
     unread: 'chat.sidebar.unread',

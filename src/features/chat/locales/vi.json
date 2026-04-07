@@ -191,5 +191,15 @@
       "membersLoading": "Đang tải thành viên...",
       "noMatchingMembers": "Không có thành viên phù hợp"
     }
+  },
+  "ai": {
+    "status": {
+      "ANALYZING_INTENT": "Đang phân tích ý định của bạn...",
+      "RETRIEVING_VECTOR": "Đang lục tìm trong bộ nhớ nội bộ...",
+      "GRADING_DATA": "Đang thẩm định độ chính xác dữ liệu...",
+      "WEB_SEARCHING": "Đang tìm kiếm trên Internet...",
+      "GENERATING_ANSWER": "Đang soạn câu trả lời...",
+      "DEFAULT": "Bondhub AI đang xử lý..."
+    }
   }
 }

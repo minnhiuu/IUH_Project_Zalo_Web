@@ -250,6 +250,9 @@ export const useChatWebSocket = () => {
                     new Date(a.lastMessage?.timestamp || 0).getTime()
                 )
               })
+
+              // Keep opened members sidebar in sync without a dedicated topic.
+              queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'group-members', newConv.id] })
             } else if (newConv.type === 'REFRESH') {
               queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
             }
