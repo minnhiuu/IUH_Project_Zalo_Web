@@ -4,6 +4,7 @@ import SockJS from 'sockjs-client'
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query'
 import type { PageResponse } from '@/shared/api'
 import { chatKeys } from '../queries/keys'
+import { friendKeys } from '@/features/friend/queries/keys'
 import type { MessageResponse, ConversationResponse, ChatMessageRequest, ReplyMetadata } from '../schemas/chat.schema'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { getAccessToken } from '@/lib/axios-client'
@@ -17,6 +18,21 @@ import {
 const WS_URL = import.meta.env.VITE_WS_URL || 'http://localhost:8080/ws'
 
 import { normalizeDateTime } from '../utils/date-utils'
+
+const isSystemFriendshipType = (type?: string | null) => {
+  return type === MessageType.SystemFriendshipBadge || type === MessageType.SystemFriendshipCard
+}
+
+const normalizeSystemFriendshipPreview = (
+  incoming: ConversationResponse,
+  previous: ConversationResponse | undefined
+) => {
+  if (!isSystemFriendshipType(incoming.lastMessageType)) return incoming.lastMessage
+
+  const raw = incoming.lastMessage?.trim()
+  if (!raw) return previous?.lastMessage || incoming.lastMessage
+  return incoming.lastMessage
+}
 
 export const useChatWebSocket = () => {
   const { user } = useAuth()
@@ -194,20 +210,91 @@ export const useChatWebSocket = () => {
           }
         })
 
-        // ────────── /queue/conversations ──────────
+        // ────────── /queue/friendship-updates ──────────
+        client.subscribe('/user/queue/friendship-updates', (payload) => {
+          const update = JSON.parse(payload.body)
+          if (update.type === 'FRIENDSHIP_UPDATED') {
+            const { partnerId, status, friendshipId, requestedBy, receivedBy } = update.payload
+
+            // 1. Update the StrangerBanner's friend status via React Query Cache
+            queryClient.setQueryData(friendKeys.status(partnerId), {
+              status,
+              friendshipId: friendshipId || undefined,
+              requestedBy,
+              receivedBy
+            })
+
+            // 2. Update the Chat Layout proxy/real conversation status
+            queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
+              if (!oldData) return oldData
+              return oldData.map((conv: ConversationResponse) => {
+                if (conv.isGroup) return conv
+                const hasMember = conv.members?.some((m) => m.userId === partnerId) || conv.recipientId === partnerId
+                if (hasMember) {
+                  return { ...conv, friendshipStatus: status }
+                }
+                return conv
+              })
+            })
+          }
+        })
+
         client.subscribe('/user/queue/conversations', (payload) => {
           try {
-            const newConv = JSON.parse(payload.body)
+            const newConv = JSON.parse(payload.body) as ConversationResponse
+            const refreshType = (newConv as { type?: string }).type
+
+            // Normalize lastMessageTime if it's an array (Jackson format)
+            if (Array.isArray(newConv.lastMessageTime)) {
+              const [y, m, d, h, min, s, ns] = newConv.lastMessageTime
+              newConv.lastMessageTime = new Date(
+                y,
+                m - 1,
+                d,
+                h || 0,
+                min || 0,
+                s || 0,
+                ns ? ns / 1000000 : 0
+              ).toISOString()
+            }
+
             if (newConv.id) {
               queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
-                if (!oldData) return oldData
-                if (oldData.find((u: ConversationResponse) => u.id === newConv.id))
-                  return oldData
-                return [newConv, ...oldData].sort(
-                  (a, b) => new Date(b.lastMessageTime).getTime() - new Date(a.lastMessageTime).getTime()
+                if (!oldData) {
+                  return [
+                    {
+                      ...newConv,
+                      lastMessage: normalizeSystemFriendshipPreview(newConv, undefined)
+                    }
+                  ]
+                }
+                const index = oldData.findIndex((u: ConversationResponse) => u.id === newConv.id)
+                if (index !== -1) {
+                  const updated = [...oldData]
+                  const previous = updated[index]
+                  updated[index] = {
+                    ...previous,
+                    ...newConv,
+                    name: newConv.name ?? previous.name,
+                    avatar: newConv.avatar ?? previous.avatar,
+                    recipientId: newConv.recipientId ?? previous.recipientId,
+                    lastMessage: normalizeSystemFriendshipPreview(newConv, previous) ?? previous.lastMessage
+                  }
+                  return updated.sort(
+                    (a, b) => new Date(b.lastMessageTime || 0).getTime() - new Date(a.lastMessageTime || 0).getTime()
+                  )
+                }
+                return [
+                  {
+                    ...newConv,
+                    lastMessage: normalizeSystemFriendshipPreview(newConv, undefined)
+                  },
+                  ...oldData
+                ].sort(
+                  (a, b) => new Date(b.lastMessageTime || 0).getTime() - new Date(a.lastMessageTime || 0).getTime()
                 )
               })
-            } else if (newConv.type === 'REFRESH') {
+            } else if (refreshType === 'REFRESH') {
               queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
             }
           } catch {
@@ -256,8 +343,10 @@ export const useChatWebSocket = () => {
       if (!stompClientRef.current?.connected || (!content.trim() && !isForwarded)) return
 
       const clientMessageId = `temp-${Date.now()}`
+      const isFake = conversationId.startsWith('fake_')
       const chatMessage: ChatMessageRequest = {
-        conversationId,
+        conversationId: isFake ? null : conversationId,
+        recipientId: isFake ? conversationId.replace('fake_', '') : null,
         content: content.trim(),
         clientMessageId,
         replyTo,

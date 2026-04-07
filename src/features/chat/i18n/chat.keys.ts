@@ -24,12 +24,23 @@ export const CHAT_KEYS = {
     image: 'chat.type.image',
     file: 'chat.type.file'
   },
+  systemFriendship: {
+    defaultPartnerName: 'chat.systemFriendship.defaultPartnerName',
+    acceptedBy: 'chat.systemFriendship.acceptedBy',
+    acceptedSuffix: 'chat.systemFriendship.acceptedSuffix',
+    becameFriendsWith: 'chat.systemFriendship.becameFriendsWith',
+    becameFriendsPrefix: 'chat.systemFriendship.becameFriendsPrefix',
+    cardTitle: 'chat.systemFriendship.cardTitle',
+    cardDescription: 'chat.systemFriendship.cardDescription',
+    sendGreeting: 'chat.systemFriendship.sendGreeting',
+    greetingMessage: 'chat.systemFriendship.greetingMessage'
+  },
   aiStatus: {
-    ANALYZING_INTENT:  'ai.status.ANALYZING_INTENT',
+    ANALYZING_INTENT: 'ai.status.ANALYZING_INTENT',
     RETRIEVING_VECTOR: 'ai.status.RETRIEVING_VECTOR',
-    GRADING_DATA:      'ai.status.GRADING_DATA',
-    WEB_SEARCHING:     'ai.status.WEB_SEARCHING',
+    GRADING_DATA: 'ai.status.GRADING_DATA',
+    WEB_SEARCHING: 'ai.status.WEB_SEARCHING',
     GENERATING_ANSWER: 'ai.status.GENERATING_ANSWER',
-    DEFAULT:           'ai.status.DEFAULT'
+    DEFAULT: 'ai.status.DEFAULT'
   }
 } as const

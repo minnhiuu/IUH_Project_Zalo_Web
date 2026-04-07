@@ -3,16 +3,10 @@ import { cn } from '@/lib/utils'
 const WELCOME_SUGGESTIONS = [
   { emoji: '👤', text: 'Hồ sơ của tôi là gì?' },
   { emoji: '👥', text: 'Danh sách bạn bè của tôi' },
-  { emoji: '🌐', text: 'Tìm kiếm thông tin trên Internet' },
+  { emoji: '🌐', text: 'Tìm kiếm thông tin trên Internet' }
 ]
 
-export function AiWelcomeScreen({
-  avatarUrl,
-  onSelect,
-}: {
-  avatarUrl?: string
-  onSelect: (text: string) => void
-}) {
+export function AiWelcomeScreen({ avatarUrl, onSelect }: { avatarUrl?: string; onSelect: (text: string) => void }) {
   return (
     <div className='flex flex-col items-center justify-center flex-1 px-6 py-10 text-center'>
       <div className='w-16 h-16 mb-4'>

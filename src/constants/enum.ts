@@ -96,7 +96,9 @@ export const MessageType = {
   Join: 'JOIN',
   Leave: 'LEAVE',
   Image: 'IMAGE',
-  File: 'FILE'
+  File: 'FILE',
+  SystemFriendshipCard: 'SYSTEM_FRIENDSHIP_CARD',
+  SystemFriendshipBadge: 'SYSTEM_FRIENDSHIP_BADGE'
 } as const
 
 export type MessageType = (typeof MessageType)[keyof typeof MessageType]
@@ -137,10 +139,10 @@ export type NotificationType = (typeof NotificationType)[keyof typeof Notificati
 // ── AI Processing Status ────────────────────────────────────────────────────────
 // Các trạng thái pipeline của AI Service, khớp với enum AiProcessingStatus.java (BE)
 export const AiProcessingStatus = {
-  AnalyzingIntent:  'ANALYZING_INTENT',
+  AnalyzingIntent: 'ANALYZING_INTENT',
   RetrievingVector: 'RETRIEVING_VECTOR',
-  GradingData:      'GRADING_DATA',
-  WebSearching:     'WEB_SEARCHING',
+  GradingData: 'GRADING_DATA',
+  WebSearching: 'WEB_SEARCHING',
   GeneratingAnswer: 'GENERATING_ANSWER'
 } as const
 

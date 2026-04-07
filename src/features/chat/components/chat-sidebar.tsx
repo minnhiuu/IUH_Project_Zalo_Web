@@ -3,6 +3,8 @@ import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { useConversationsQuery } from '../queries/use-queries'
 import { useMarkAsReadMutation } from '../queries/use-mutations'
+import { useAuth } from '@/features/auth'
+import { MessageType } from '@/constants/enum'
 
 import { useChatText } from '../i18n/use-chat-text'
 import type { ConversationResponse } from '../schemas/chat.schema'
@@ -15,6 +17,7 @@ interface ChatSidebarProps {
 
 export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) {
   const { text } = useChatText()
+  const { user } = useAuth()
   const { data: conversations, isLoading, isError } = useConversationsQuery()
   const { mutate: markAsRead } = useMarkAsReadMutation()
 
@@ -26,9 +29,22 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
   }
 
   const getPreviewText = (chat: ConversationResponse) => {
+    const isSystemFriendship =
+      chat.lastMessageType === MessageType.SystemFriendshipBadge ||
+      chat.lastMessageType === MessageType.SystemFriendshipCard
+    const isRawRequesterId = !!chat.lastMessage && /^[0-9a-fA-F]{24}$/.test(chat.lastMessage)
+    const partnerDisplayName = chat.name || text.systemFriendship.defaultPartnerName
+
+    const normalizedLastMessage =
+      isSystemFriendship && isRawRequesterId
+        ? chat.lastMessage === user?.id
+          ? text.systemFriendship.acceptedBy(partnerDisplayName)
+          : text.systemFriendship.becameFriendsWith(partnerDisplayName)
+        : chat.lastMessage
+
     return formatPreview(
       {
-        content: chat.lastMessage,
+        content: normalizedLastMessage,
         isFromMe: chat.isLastMessageFromMe,
         senderName: chat.name,
         type: chat.lastMessageType,
@@ -112,7 +128,10 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
                       'text-[13px] truncate',
                       chat.unreadCount && chat.unreadCount > 0
                         ? 'text-foreground font-semibold'
-                        : 'text-muted-foreground font-normal'
+                        : chat.lastMessageType === 'SYSTEM_FRIENDSHIP_BADGE' ||
+                            chat.lastMessageType === 'SYSTEM_FRIENDSHIP_CARD'
+                          ? 'text-vibrant-blue font-medium'
+                          : 'text-muted-foreground font-normal'
                     )}
                   >
                     {getPreviewText(chat)}

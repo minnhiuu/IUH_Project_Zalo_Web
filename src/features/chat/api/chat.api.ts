@@ -14,9 +14,7 @@ export const getConversations = async (page = 0, size = 20): Promise<PageRespons
  * Gọi trước khi mở chat để có được conversationId (ObjectId).
  */
 export const getOrCreateConversation = async (partnerId: string): Promise<ConversationResponse> => {
-  const response = await http.get<ApiResponse<ConversationResponse>>(
-    `/messages/conversations/partner/${partnerId}`
-  )
+  const response = await http.get<ApiResponse<ConversationResponse>>(`/messages/conversations/partner/${partnerId}`)
   return response.data.data
 }
 

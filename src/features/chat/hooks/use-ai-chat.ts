@@ -14,7 +14,7 @@ export interface AiMessage {
   id: string
   role: AiMessageRole
   content: string
-  suggestions?: string[]       // follow-up questions extracted from <suggestions>...</suggestions>
+  suggestions?: string[] // follow-up questions extracted from <suggestions>...</suggestions>
   isStreaming?: boolean
   isClarification?: boolean
   processingStatus?: AiProcessingStatus
@@ -94,7 +94,7 @@ export function useAiChat(conversationId: string) {
                 role: 'user' as AiMessageRole,
                 content: rawContent,
                 timestamp: new Date(msg.createdAt || Date.now()),
-                isStreaming: false,
+                isStreaming: false
               }
             }
 
@@ -107,7 +107,7 @@ export function useAiChat(conversationId: string) {
               suggestions,
               isClarification,
               timestamp: new Date(msg.createdAt || Date.now()),
-              isStreaming: false,
+              isStreaming: false
             }
           })
           .reverse() // API trả về tin mới nhất trước (DESC)
@@ -186,9 +186,7 @@ export function useAiChat(conversationId: string) {
               if (event.type === 'STATUS') {
                 setMessages((prev) =>
                   prev.map((m) =>
-                    m.id === aiMsgId
-                      ? { ...m, processingStatus: event.content as AiProcessingStatus }
-                      : m
+                    m.id === aiMsgId ? { ...m, processingStatus: event.content as AiProcessingStatus } : m
                   )
                 )
               } else if (event.type === 'CLARIFICATION') {
@@ -197,16 +195,20 @@ export function useAiChat(conversationId: string) {
                 setMessages((prev) =>
                   prev.map((m) =>
                     m.id === aiMsgId
-                      ? { ...m, content: event.content, isClarification: true, isStreaming: false, processingStatus: undefined }
+                      ? {
+                          ...m,
+                          content: event.content,
+                          isClarification: true,
+                          isStreaming: false,
+                          processingStatus: undefined
+                        }
                       : m
                   )
                 )
               } else if (event.type === 'ANSWER_CHUNK') {
                 setMessages((prev) =>
                   prev.map((m) =>
-                    m.id === aiMsgId
-                      ? { ...m, content: m.content + event.content, processingStatus: undefined }
-                      : m
+                    m.id === aiMsgId ? { ...m, content: m.content + event.content, processingStatus: undefined } : m
                   )
                 )
               }
@@ -221,7 +223,14 @@ export function useAiChat(conversationId: string) {
           prev.map((m) => {
             if (m.id !== aiMsgId) return m
             const { cleanContent, suggestions } = parseSuggestions(m.content)
-            return { ...m, content: cleanContent, suggestions, isStreaming: false, isClarification, processingStatus: undefined }
+            return {
+              ...m,
+              content: cleanContent,
+              suggestions,
+              isStreaming: false,
+              isClarification,
+              processingStatus: undefined
+            }
           })
         )
       } catch (err: unknown) {
@@ -229,7 +238,12 @@ export function useAiChat(conversationId: string) {
         setMessages((prev) =>
           prev.map((m) =>
             m.id === aiMsgId
-              ? { ...m, content: 'Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại.', isStreaming: false, processingStatus: undefined }
+              ? {
+                  ...m,
+                  content: 'Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại.',
+                  isStreaming: false,
+                  processingStatus: undefined
+                }
               : m
           )
         )
