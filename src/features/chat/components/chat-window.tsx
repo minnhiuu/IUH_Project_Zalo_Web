@@ -137,8 +137,29 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
 
   const isCloudConversation = conversation.members?.length === 1 && conversation.members[0]?.userId === user?.id
   const isAiConversation = conversation.members?.some((m) => m.userId === 'ai-assistant-001') ?? false
+  const isCurrentUserRemovedBySystemMessage = useMemo(() => {
+    if (!conversation.isGroup || !user?.id) return false
+
+    for (const msg of allMessages) {
+      if (msg.type !== 'SYSTEM' || !msg.metadata) continue
+
+      const metadata = msg.metadata as { action?: string; targetIds?: string[] }
+      const targetIds = Array.isArray(metadata.targetIds) ? metadata.targetIds.map(String) : []
+      const includesMe = targetIds.includes(String(user.id))
+
+      if (metadata.action === 'REMOVE_MEMBER' && includesMe) return true
+      if ((metadata.action === 'ADD_MEMBERS' || metadata.action === 'CREATE_GROUP') && includesMe) return false
+    }
+
+    return false
+  }, [allMessages, conversation.isGroup, user?.id])
+  const isCurrentUserRemovedFromGroup =
+    conversation.isGroup &&
+    !conversation.isDisbanded &&
+    (!(conversation.members || []).some((m) => m.userId === user?.id) || isCurrentUserRemovedBySystemMessage)
 
   useEffect(() => {
+    if (isCurrentUserRemovedFromGroup) return
     if (!latestMessageId || !conversation.id || conversation.unreadCount === 0) return
     if (latestMessageSenderId === user?.id) return
 
@@ -158,7 +179,15 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
     return () => {
       if (currentRef) observer.unobserve(currentRef)
     }
-  }, [latestMessageId, latestMessageSenderId, conversation.id, conversation.unreadCount, markAsRead, user?.id])
+  }, [
+    isCurrentUserRemovedFromGroup,
+    latestMessageId,
+    latestMessageSenderId,
+    conversation.id,
+    conversation.unreadCount,
+    markAsRead,
+    user?.id
+  ])
 
   const isSameGroup = (msg1: MessageResponse, msg2: MessageResponse) => {
     if (!msg1 || !msg2) return false
@@ -301,7 +330,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
           {isFetchingNextPage && <div className='py-4 text-center text-sm text-muted-foreground'>{text.loading}</div>}
         </div>
 
-        {conversation.isDisbanded ? (
+        {conversation.isDisbanded || isCurrentUserRemovedFromGroup ? (
           <div className='relative shrink-0 flex flex-col items-center pb-[env(safe-area-inset-bottom,0)] bg-background h-[104px] justify-between border-t border-border'>
             {/* Bottom Info Bar - Empty header like toolbar space if needed, but here we just center the info */}
             <div className='flex-1 w-full flex items-center justify-center'>

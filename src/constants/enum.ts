@@ -132,3 +132,11 @@ export const NotificationType = {
 } as const
 
 export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]
+
+export const GroupMemberRole = {
+  Owner: 'OWNER',
+  Admin: 'ADMIN',
+  Member: 'MEMBER'
+} as const
+
+export type GroupMemberRole = (typeof GroupMemberRole)[keyof typeof GroupMemberRole]

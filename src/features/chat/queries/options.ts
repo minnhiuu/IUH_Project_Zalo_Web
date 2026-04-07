@@ -1,5 +1,11 @@
 import { infiniteQueryOptions, queryOptions } from '@tanstack/react-query'
-import { getConversations, getMessages, getFriendsDirectory, searchMembersToAdd } from '../api/chat.api'
+import {
+  getConversations,
+  getMessages,
+  getFriendsDirectory,
+  getGroupMembersApi,
+  searchMembersToAdd
+} from '../api/chat.api'
 import type { PageResponse } from '@/shared/api'
 import { chatKeys } from './keys'
 import { QUERY_POLICIES } from '@/constants/query-policies'
@@ -46,5 +52,14 @@ export const chatOptions = {
       initialPageParam: 0,
       getNextPageParam: (lastPage) => (lastPage.page + 1 < lastPage.totalPages ? lastPage.page + 1 : undefined),
       enabled: !!query
+    }),
+  groupMembers: (conversationId: string, query: string, size = 20) =>
+    infiniteQueryOptions({
+      ...QUERY_POLICIES.LIST,
+      queryKey: chatKeys.groupMembers(conversationId, query),
+      queryFn: ({ pageParam = 0 }) => getGroupMembersApi(conversationId, { query, page: pageParam as number, size }),
+      initialPageParam: 0,
+      getNextPageParam: (lastPage) => (lastPage.page + 1 < lastPage.totalPages ? lastPage.page + 1 : undefined),
+      enabled: !!conversationId
     })
 }

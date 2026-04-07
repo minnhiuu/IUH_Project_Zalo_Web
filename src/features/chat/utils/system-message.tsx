@@ -25,8 +25,9 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
 
   const handleOpenProfile = useCallback(
     (userId: string) => {
-      if (!userId || String(userId) === String(user?.id)) return
-      setProfileUserId(userId)
+      const normalizedUserId = String(userId || '').trim()
+      if (!normalizedUserId || normalizedUserId === String(user?.id)) return
+      setProfileUserId(normalizedUserId)
       setIsProfileOpen(true)
     },
     [user?.id]
@@ -69,7 +70,7 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
           ? (conversation?.members || []).map((member) => ({
               id: member.userId,
               avatar: member.avatar,
-              name: member.fullName || 'User'
+              name: member.fullName || t('chat.user')
             }))
           : []
 
@@ -77,7 +78,7 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
       if ((metadata?.action === 'ADD_MEMBERS' || metadata?.action === 'CREATE_GROUP') && metadata.targetIds) {
         avatars = metadata.targetIds.map((id) => {
           const member = conversation?.members?.find((m) => m.userId === id)
-          return { id, avatar: member?.avatar, name: member?.fullName || 'User' }
+          return { id, avatar: member?.avatar, name: member?.fullName || t('chat.user') }
         })
       }
 
@@ -101,7 +102,11 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
     ])
 
   if (!systemLabel) return null
-  const isDisbanded = (message.metadata as unknown as SystemMetadata)?.action === 'DISBAND_GROUP'
+  const metadata = message.metadata as unknown as SystemMetadata | undefined
+  const isDisbanded = metadata?.action === 'DISBAND_GROUP'
+  const isCurrentUserRemoved =
+    metadata?.action === 'REMOVE_MEMBER' && (metadata.targetIds || []).map(String).includes(String(user?.id || ''))
+  const showDeleteConversationAction = isDisbanded || isCurrentUserRemoved
 
   if (isCreateGroupEvent) {
     const secondaryLabel = createGroupAddLabel || systemLabel
@@ -133,7 +138,7 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
           )}
           <div className='flex-1 text-[12.5px] leading-relaxed text-left flex items-center gap-1.5'>
             {systemLabel}
-            {isDisbanded && (
+            {showDeleteConversationAction && (
               <button
                 onClick={() => {
                   if (conversation?.id) {

@@ -110,6 +110,9 @@
   --group-tips-icon-invite: #3384ff;
   --group-tips-icon-mention: #e05a00;
   --group-tips-icon-reply: #8b64d8;
+  --member-role-key-badge-bg: rgba(0, 0, 0, 0.6);
+  --member-role-key-owner: #ffd95c;
+  --member-role-key-admin: #ffffff;
 }
 
 @layer utilities {
@@ -207,6 +210,9 @@
   --group-tips-icon-invite: #005ae0;
   --group-tips-icon-mention: #ff7e29;
   --group-tips-icon-reply: #5a2db4;
+  --member-role-key-badge-bg: rgba(0, 0, 0, 0.6);
+  --member-role-key-owner: #ffd95c;
+  --member-role-key-admin: #ffffff;
 }
 
 @theme inline {
@@ -306,6 +312,9 @@
   --color-group-tips-icon-invite: var(--group-tips-icon-invite);
   --color-group-tips-icon-mention: var(--group-tips-icon-mention);
   --color-group-tips-icon-reply: var(--group-tips-icon-reply);
+  --color-member-role-key-badge-bg: var(--member-role-key-badge-bg);
+  --color-member-role-key-owner: var(--member-role-key-owner);
+  --color-member-role-key-admin: var(--member-role-key-admin);
 
   @keyframes pulse-subtle {
     0%,
@@ -328,6 +337,20 @@
   }
   --animate-pulse-subtle: pulse-subtle 2s ease-in-out infinite;
   --animate-spin-slow: spin-slow 3s linear infinite;
+}
+
+@layer components {
+  .member-role-key-badge {
+    background-color: var(--member-role-key-badge-bg);
+  }
+
+  .member-role-key-icon-owner {
+    color: var(--member-role-key-owner);
+  }
+
+  .member-role-key-icon-admin {
+    color: var(--member-role-key-admin);
+  }
 }
 
 @layer base {

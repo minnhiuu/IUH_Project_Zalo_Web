@@ -72,6 +72,11 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
       update_name_simple: t(CHAT_KEYS.system.add_members.update_name_simple),
       update_avatar_simple: t(CHAT_KEYS.system.add_members.update_avatar_simple),
       disband_group: t(CHAT_KEYS.system.add_members.disband_group)
+    },
+    remove_member: {
+      by_you: t(CHAT_KEYS.system.remove_member.by_you),
+      self_removed: t(CHAT_KEYS.system.remove_member.self_removed),
+      by_actor: t(CHAT_KEYS.system.remove_member.by_actor)
     }
   },
   disbanded: {

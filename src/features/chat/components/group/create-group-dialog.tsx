@@ -20,6 +20,7 @@ import { getCroppedImg } from '@/utils/image-crop'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { MemberItem } from './member-item'
 import { SelectedMemberSidebar } from './selected-member-sidebar'
+import { useDebounce } from '@/hooks/use-debounce'
 
 interface CreateGroupDialogProps {
   isOpen: boolean
@@ -41,18 +42,20 @@ export function CreateGroupDialog({
   const [groupName, setGroupName] = useState('')
   const [search, setSearch] = useState('')
   const [selectedFriendIds, setSelectedFriendIds] = useState<string[]>([])
+  const debouncedSearch = useDebounce(search, 300)
+  const normalizedSearch = debouncedSearch.trim().replace(/^\+/, '')
+  const hasSearch = !!normalizedSearch
 
   // Directory Mode: When search is empty
-  const { data: directoryData } = useFriendsDirectory(conversationId || null, isOpen && !search)
+  const { data: directoryData } = useFriendsDirectory(conversationId || null, isOpen && !hasSearch)
 
   // Search Mode: When search has value
-  const normalizedSearch = search.trim().replace(/^\+/, '')
   const {
     data: searchData,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage
-  } = useSearchMembersInfinite(normalizedSearch, conversationId || null, isOpen && !!search)
+  } = useSearchMembersInfinite(normalizedSearch, conversationId || null, isOpen && hasSearch)
 
   const createGroupMutation = useCreateGroupMutation()
   const updateAvatarMutation = useUpdateGroupAvatarMutation()

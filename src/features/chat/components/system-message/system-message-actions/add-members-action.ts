@@ -3,6 +3,13 @@ import type { ActionContext, ActionResolveResult } from './types'
 export function resolveAddMembersAction(context: ActionContext): ActionResolveResult {
   const { normalizedTargetIds, normalizedCurrentUserId, senderId, currentUserId, members, actorNameLower, translate } =
     context
+  const fallbackUserLabel = String(translate('chat.user'))
+  const memberNameById = new Map(members.map((m) => [String(m.userId), m.fullName]))
+  const payloadTargetNames = Array.isArray(context.metadata?.payload?.targetNames)
+    ? context.metadata.payload.targetNames.map(String)
+    : []
+  const resolveTargetName = (id: string, index: number) =>
+    memberNameById.get(String(id)) || payloadTargetNames[index] || fallbackUserLabel
 
   if (!normalizedTargetIds.length) {
     if (String(senderId) === String(currentUserId)) return { directLabel: '' }
@@ -18,16 +25,18 @@ export function resolveAddMembersAction(context: ActionContext): ActionResolveRe
     }
 
     const otherTargets = normalizedTargetIds.filter((id) => id !== normalizedCurrentUserId)
-    const otherTargetNames = otherTargets.map(
-      (id) => members.find((m) => String(m.userId) === String(id))?.fullName || 'User'
-    )
+    const otherTargetNames = otherTargets.map((id) => {
+      const idx = normalizedTargetIds.findIndex((targetId) => targetId === id)
+      return resolveTargetName(id, idx)
+    })
+    const clickableOtherTargets = otherTargets
 
     if (otherTargets.length <= 3) {
       values.targets = otherTargetNames.join(', ')
       return {
         i18nKey: 'chat.system.add_members.many_self',
         values,
-        clickableTargetIds: otherTargets
+        clickableTargetIds: clickableOtherTargets
       }
     }
 
@@ -36,20 +45,19 @@ export function resolveAddMembersAction(context: ActionContext): ActionResolveRe
     return {
       i18nKey: 'chat.system.add_members.many_self_count',
       values,
-      clickableTargetIds: otherTargets
+      clickableTargetIds: clickableOtherTargets
     }
   }
 
-  const targetNames = normalizedTargetIds.map(
-    (id) => members.find((m) => String(m.userId) === String(id))?.fullName || 'User'
-  )
+  const targetNames = normalizedTargetIds.map((id, index) => resolveTargetName(id, index))
+  const clickableTargetIds = normalizedTargetIds
 
   if (normalizedTargetIds.length === 1) {
-    values.target = targetNames[0] || 'User'
+    values.target = targetNames[0] || fallbackUserLabel
     return {
       i18nKey: 'chat.system.add_members.single_other',
       values,
-      clickableTargetIds: normalizedTargetIds
+      clickableTargetIds
     }
   }
 
@@ -58,7 +66,7 @@ export function resolveAddMembersAction(context: ActionContext): ActionResolveRe
     return {
       i18nKey: 'chat.system.add_members.many_other',
       values,
-      clickableTargetIds: normalizedTargetIds
+      clickableTargetIds
     }
   }
 
@@ -68,6 +76,6 @@ export function resolveAddMembersAction(context: ActionContext): ActionResolveRe
   return {
     i18nKey: 'chat.system.add_members.many_other_count',
     values,
-    clickableTargetIds: normalizedTargetIds
+    clickableTargetIds
   }
 }

@@ -113,13 +113,26 @@ export const GroupConversationCreateRequestSchema = z.object({
 })
 
 export type GroupConversationCreateRequest = z.infer<typeof GroupConversationCreateRequestSchema>
- 
- export const SearchMemberResponseSchema = z.object({
-   userId: z.string(),
-   fullName: z.string(),
-   avatar: z.string().nullable().optional(),
-   phoneNumber: z.string().nullable().optional(),
-   isAlreadyMember: z.boolean().default(false)
- })
- 
- export type SearchMemberResponse = z.infer<typeof SearchMemberResponseSchema>
+
+export const GroupMemberListItemResponseSchema = z.object({
+  userId: z.string(),
+  fullName: z.string(),
+  avatar: z.string().nullable().optional(),
+  phoneNumber: z.string().nullable().optional(),
+  role: z.string().nullable().optional(),
+  joinedAt: z.string().datetime().nullable().optional(),
+  isFriend: z.boolean().default(false),
+  isCurrentUser: z.boolean().default(false)
+})
+
+export type GroupMemberListItemResponse = z.infer<typeof GroupMemberListItemResponseSchema>
+
+export const SearchMemberResponseSchema = z.object({
+  userId: z.string(),
+  fullName: z.string(),
+  avatar: z.string().nullable().optional(),
+  phoneNumber: z.string().nullable().optional(),
+  isAlreadyMember: z.boolean().default(false)
+})
+
+export type SearchMemberResponse = z.infer<typeof SearchMemberResponseSchema>

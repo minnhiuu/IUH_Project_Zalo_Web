@@ -32,6 +32,11 @@
         "update_avatar_simple": "Group avatar has been changed",
         "disband_group": "The group has been disbanded by the owner"
       },
+      "remove_member": {
+        "by_you": "<bold>{{target}}</bold> has been removed from the group by you",
+        "self_removed": "You have been removed from the group",
+        "by_actor": "<bold>{{target}}</bold> was removed from the group by <actorBold>{{actor}}</actorBold>"
+      },
       "group_tips": {
         "invite_cta": "Invite more friends",
         "invite_suffix": "to group {{groupName}}",
@@ -177,7 +182,14 @@
       "pin": "Pin",
       "addMember": "Add member",
       "settings": "Manage group",
-      "createGroup": "Create group"
+      "createGroup": "Create group",
+      "ownerRole": "Owner",
+      "adminRole": "Admin",
+      "addDeputy": "Add admin",
+      "removeFromGroup": "Remove from group",
+      "searchMemberPlaceholder": "Search members",
+      "membersLoading": "Loading members...",
+      "noMatchingMembers": "No matching members"
     }
   }
 }

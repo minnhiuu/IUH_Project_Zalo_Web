@@ -8,7 +8,8 @@ import {
   updateGroupNameApi,
   updateGroupAvatarApi,
   deleteConversationApi,
-  addMembersToGroupApi
+  addMembersToGroupApi,
+  removeMemberFromGroupApi
 } from '../api/chat.api'
 import { chatKeys } from './keys'
 import type { ConversationResponse, ChatMessageRequest } from '../schemas/chat.schema'
@@ -200,6 +201,35 @@ export const useAddMembersMutation = () => {
     },
     onError: (error) => {
       console.error('Failed to add members to group', error)
+    }
+  })
+}
+
+export const useRemoveMemberFromGroupMutation = () => {
+  const queryClient = useQueryClient()
+
+  const updateConversationInList = (updatedConv: ConversationResponse) => {
+    queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
+      if (!oldData) return [updatedConv]
+      const newData = oldData.map((conv) => (conv.id === updatedConv.id ? updatedConv : conv))
+      if (!newData.some((c) => c.id === updatedConv.id)) newData.unshift(updatedConv)
+      return newData.sort(
+        (a, b) => new Date(b.lastMessage?.timestamp || 0).getTime() - new Date(a.lastMessage?.timestamp || 0).getTime()
+      )
+    })
+    queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+  }
+
+  return useMutation({
+    mutationFn: ({ conversationId, targetUserId }: { conversationId: string; targetUserId: string }) =>
+      removeMemberFromGroupApi(conversationId, targetUserId),
+    onSuccess: (updatedConv, variables) => {
+      updateConversationInList(updatedConv)
+      queryClient.invalidateQueries({ queryKey: chatKeys.messages(variables.conversationId) })
+      queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'group-members', variables.conversationId] })
+    },
+    onError: (error) => {
+      console.error('Failed to remove member from group', error)
     }
   })
 }

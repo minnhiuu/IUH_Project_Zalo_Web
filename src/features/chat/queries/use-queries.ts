@@ -25,3 +25,10 @@ export const useSearchMembersInfinite = (query: string, conversationId?: string 
     enabled: enabled && !!query
   })
 }
+
+export const useGroupMembersInfinite = (conversationId: string, query: string, enabled: boolean = true) => {
+  return useInfiniteQuery({
+    ...chatOptions.groupMembers(conversationId, query),
+    enabled: enabled && !!conversationId
+  })
+}

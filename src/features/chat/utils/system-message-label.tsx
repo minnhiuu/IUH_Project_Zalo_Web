@@ -17,7 +17,7 @@ export type SystemActionType =
 export interface SystemMetadata {
   action: SystemActionType
   targetIds?: string[]
-  payload?: Record<string, string | number>
+  payload?: Record<string, unknown>
 }
 
 export function getSystemMessageLabel(
@@ -35,12 +35,33 @@ export function getSystemMessageLabel(
 
   const { action, targetIds } = metadata
   const normalizedTargetIds = (targetIds || []).map((id) => String(id))
+  const memberNameById = new Map(members.map((m) => [String(m.userId), m.fullName]))
+  const payloadTargetNames = Array.isArray(metadata.payload?.targetNames)
+    ? metadata.payload.targetNames.map(String)
+    : []
+  const payloadSingleTargetName =
+    typeof metadata.payload?.targetName === 'string' ? String(metadata.payload.targetName) : undefined
+  const targetNameById = new Map<string, string>()
+  normalizedTargetIds.forEach((id, index) => {
+    const payloadName = payloadTargetNames[index]
+    if (payloadName) {
+      targetNameById.set(id, payloadName)
+    }
+  })
+  if (payloadSingleTargetName && normalizedTargetIds[0] && !targetNameById.has(normalizedTargetIds[0])) {
+    targetNameById.set(normalizedTargetIds[0], payloadSingleTargetName)
+  }
   const normalizedCurrentUserId = String(currentUserId || '')
-  const actor = members.find((m) => String(m.userId) === String(senderId))
+  const actorNameFromMembers = memberNameById.get(String(senderId))
   const isActorMe = currentUserId && String(senderId) === String(currentUserId)
 
-  const actorNameLower = isActorMe ? String(translate('chat.you_lower')) : actor?.fullName || senderName || 'User'
-  const actorNameCapital = isActorMe ? String(translate('chat.you')) : actor?.fullName || senderName || 'User'
+  const fallbackUserLabel = String(translate('chat.user'))
+  const actorNameLower = isActorMe
+    ? String(translate('chat.you_lower'))
+    : actorNameFromMembers || senderName || fallbackUserLabel
+  const actorNameCapital = isActorMe
+    ? String(translate('chat.you'))
+    : actorNameFromMembers || senderName || fallbackUserLabel
 
   const resolved = resolveSystemAction({
     metadata,
@@ -73,7 +94,10 @@ export function getSystemMessageLabel(
         }
 
         const targetUsers = clickableTargetIds
-          .map((id) => ({ id, name: members.find((m) => String(m.userId) === String(id))?.fullName || 'User' }))
+          .map((id) => ({
+            id,
+            name: memberNameById.get(String(id)) || targetNameById.get(id) || fallbackUserLabel
+          }))
           .filter((u) => u.id !== currentUserId)
 
         if (!targetUsers.length) {
@@ -86,7 +110,8 @@ export function getSystemMessageLabel(
               <span key={u.id}>
                 <button
                   type='button'
-                  className='cursor-pointer transition-colors hover:text-foreground'
+                  className='cursor-pointer pointer-events-auto transition-colors hover:text-foreground'
+                  onMouseDown={(e) => e.stopPropagation()}
                   onClick={() => onUserClick(u.id)}
                 >
                   {u.name}
@@ -107,7 +132,8 @@ export function getSystemMessageLabel(
           <strong className='font-semibold'>
             <button
               type='button'
-              className='cursor-pointer transition-colors hover:text-foreground'
+              className='cursor-pointer pointer-events-auto transition-colors hover:text-foreground'
+              onMouseDown={(e) => e.stopPropagation()}
               onClick={() => onUserClick(senderId)}
             >
               {children}

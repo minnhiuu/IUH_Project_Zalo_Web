@@ -6,5 +6,7 @@ export const chatKeys = {
   friendsDirectory: (conversationId?: string | null) =>
     [...chatKeys.all(), 'friends-directory', conversationId || 'none'] as const,
   searchMembers: (query: string, conversationId?: string | null) =>
-    [...chatKeys.all(), 'search-members', query, conversationId || 'none'] as const
+    [...chatKeys.all(), 'search-members', query, conversationId || 'none'] as const,
+  groupMembers: (conversationId: string, query: string) =>
+    [...chatKeys.all(), 'group-members', conversationId, query] as const
 }

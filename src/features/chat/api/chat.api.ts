@@ -5,7 +5,8 @@ import type {
   MessageResponse,
   ChatMessageRequest,
   GroupConversationCreateRequest,
-  SearchMemberResponse
+  SearchMemberResponse,
+  GroupMemberListItemResponse
 } from '../schemas/chat.schema'
 
 export const getConversations = async (page = 0, size = 20): Promise<PageResponse<ConversationResponse>> => {
@@ -126,6 +127,37 @@ export const addMembersToGroupApi = async (
   const response = await http.post<ApiResponse<ConversationResponse>>(
     `/messages/conversations/${conversationId}/members`,
     { memberIds }
+  )
+  return response.data.data
+}
+
+export const getGroupMembersApi = async (
+  conversationId: string,
+  params?: {
+    query?: string
+    page?: number
+    size?: number
+  }
+): Promise<PageResponse<GroupMemberListItemResponse>> => {
+  const response = await http.get<ApiResponse<PageResponse<GroupMemberListItemResponse>>>(
+    `/messages/conversations/${conversationId}/group-members`,
+    {
+      params: {
+        query: params?.query,
+        page: params?.page ?? 0,
+        size: params?.size ?? 20
+      }
+    }
+  )
+  return response.data.data
+}
+
+export const removeMemberFromGroupApi = async (
+  conversationId: string,
+  targetUserId: string
+): Promise<ConversationResponse> => {
+  const response = await http.delete<ApiResponse<ConversationResponse>>(
+    `/messages/conversations/${conversationId}/members/${targetUserId}`
   )
   return response.data.data
 }

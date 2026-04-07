@@ -32,6 +32,11 @@
         "update_avatar_simple": "Ảnh đại diện nhóm đã thay đổi",
         "disband_group": "Trưởng nhóm đã giải tán nhóm"
       },
+      "remove_member": {
+        "by_you": "<bold>{{target}}</bold> đã được bạn xóa khỏi nhóm",
+        "self_removed": "Bạn đã bị xóa khỏi nhóm",
+        "by_actor": "<bold>{{target}}</bold> được <actorBold>{{actor}}</actorBold> xóa khỏi nhóm"
+      },
       "group_tips": {
         "invite_cta": "Mời thêm bạn",
         "invite_suffix": "vào nhóm {{groupName}}",
@@ -177,7 +182,14 @@
       "pin": "Ghim hội thoại",
       "addMember": "Thêm thành viên",
       "settings": "Quản lý nhóm",
-      "createGroup": "Tạo nhóm trò chuyện"
+      "createGroup": "Tạo nhóm trò chuyện",
+      "ownerRole": "Trưởng nhóm",
+      "adminRole": "Phó nhóm",
+      "addDeputy": "Thêm phó nhóm",
+      "removeFromGroup": "Xóa khỏi nhóm",
+      "searchMemberPlaceholder": "Tìm kiếm thành viên",
+      "membersLoading": "Đang tải thành viên...",
+      "noMatchingMembers": "Không có thành viên phù hợp"
     }
   }
 }

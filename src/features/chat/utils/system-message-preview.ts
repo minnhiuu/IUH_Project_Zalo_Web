@@ -5,12 +5,15 @@ import { getSystemMessageLabel, type SystemMetadata } from './system-message'
 export function getSystemMessagePreview(
   metadataRaw: unknown,
   senderId: string | undefined, // Added
+  senderName: string | undefined,
   currentUserId: string | undefined,
   members: ConversationMemberResponse[],
   translate: TFunction<'chat'>
 ): string {
   const metadata = metadataRaw as SystemMetadata | null | undefined
   if (!metadata) return ''
+  const fallbackUserLabel = String(translate('chat.user'))
+  const memberNameById = new Map(members.map((m) => [String(m.userId), m.fullName]))
 
   const { action, targetIds, payload } = metadata
 
@@ -32,15 +35,16 @@ export function getSystemMessagePreview(
     const normalizedTargetIds = (targetIds || []).map((id) => String(id))
     const normalizedCurrentUserId = String(currentUserId || '')
     const isSelfAdded = normalizedTargetIds.includes(normalizedCurrentUserId)
+    const payloadTargetNames = Array.isArray(payload?.targetNames) ? payload.targetNames.map(String) : []
 
-    const actorName = members.find((m) => String(m.userId) === String(senderId))?.fullName || 'User'
+    const actorName = memberNameById.get(String(senderId)) || senderName || fallbackUserLabel
 
     if (isSelfAdded) {
       return translate('chat.system.add_members.joined_group') as string
     }
 
     const targetNames = normalizedTargetIds.map(
-      (id) => members.find((m) => String(m.userId) === String(id))?.fullName || 'User'
+      (id, index) => memberNameById.get(String(id)) || payloadTargetNames[index] || fallbackUserLabel
     )
 
     if (normalizedTargetIds.length > 4) {
@@ -58,7 +62,7 @@ export function getSystemMessagePreview(
       return preview.replace(/<[^>]*>/g, '')
     } else if (normalizedTargetIds.length === 1) {
       const preview = translate('chat.system.add_members.single_other', {
-        target: targetNames[0] || 'User',
+        target: targetNames[0] || fallbackUserLabel,
         actor: actorName
       }) as string
       return preview.replace(/<[^>]*>/g, '')
@@ -67,6 +71,33 @@ export function getSystemMessagePreview(
 
   if (action === 'DISBAND_GROUP') {
     return translate('chat.system.add_members.disband_group') as string
+  }
+
+  if (action === 'REMOVE_MEMBER') {
+    const normalizedTargetIds = (targetIds || []).map((id) => String(id))
+    const normalizedCurrentUserId = String(currentUserId || '')
+    const targetId = normalizedTargetIds[0]
+    const payloadTargetName = typeof payload?.targetName === 'string' ? String(payload.targetName) : undefined
+    const targetName =
+      targetId === normalizedCurrentUserId
+        ? String(translate('chat.you'))
+        : (memberNameById.get(String(targetId)) ?? payloadTargetName ?? fallbackUserLabel)
+    const actorName = memberNameById.get(String(senderId)) || senderName || fallbackUserLabel
+
+    if (targetId && targetId === normalizedCurrentUserId) {
+      return translate('chat.system.remove_member.self_removed') as string
+    }
+
+    if (String(senderId) === String(currentUserId)) {
+      const preview = translate('chat.system.remove_member.by_you', { target: targetName }) as string
+      return preview.replace(/<[^>]*>/g, '')
+    }
+
+    const preview = translate('chat.system.remove_member.by_actor', {
+      target: targetName,
+      actor: actorName
+    }) as string
+    return preview.replace(/<[^>]*>/g, '')
   }
 
   if (action === 'UPDATE_NAME') {

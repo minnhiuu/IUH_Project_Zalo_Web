@@ -145,9 +145,13 @@ export const useChatWebSocket = () => {
             }
           })
 
-          // 3. Special handling for DISBAND_GROUP: Clear messages cache
+          // 3. Special handling for DISBAND_GROUP / REMOVE_MEMBER(target me): Clear messages cache
           const metadata = msg.metadata as Record<string, unknown> | null | undefined
-          if (metadata?.action === 'DISBAND_GROUP') {
+          const isDisbandAction = metadata?.action === 'DISBAND_GROUP'
+          const removeTargetIds = Array.isArray(metadata?.targetIds) ? metadata.targetIds.map(String) : []
+          const isCurrentUserRemoved = metadata?.action === 'REMOVE_MEMBER' && removeTargetIds.includes(String(user.id))
+
+          if (isDisbandAction || isCurrentUserRemoved) {
             queryClient.setQueryData(
               chatKeys.messages(conversationId),
               (oldData: InfiniteData<PageResponse<MessageResponse>> | undefined) => {

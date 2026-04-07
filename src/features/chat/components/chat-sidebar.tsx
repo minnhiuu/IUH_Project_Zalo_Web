@@ -38,7 +38,14 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
   const getPreviewText = (chat: ConversationResponse) => {
     if (!chat.lastMessage) return ''
     if (chat.lastMessage.type === MessageType.System) {
-      return getSystemMessagePreview(chat.lastMessage.metadata, chat.lastMessage.senderId || undefined, user?.id, chat.members || [], t)
+      return getSystemMessagePreview(
+        chat.lastMessage.metadata,
+        chat.lastMessage.senderId || undefined,
+        chat.lastMessage.senderName || undefined,
+        user?.id,
+        chat.members || [],
+        t
+      )
     }
     return formatPreview(
       {

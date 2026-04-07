@@ -69,6 +69,11 @@ export const CHAT_KEYS = {
       update_avatar: 'chat.system.add_members.update_avatar',
       update_avatar_simple: 'chat.system.add_members.update_avatar_simple',
       disband_group: 'chat.system.add_members.disband_group'
+    },
+    remove_member: {
+      by_you: 'chat.system.remove_member.by_you',
+      self_removed: 'chat.system.remove_member.self_removed',
+      by_actor: 'chat.system.remove_member.by_actor'
     }
   },
   disbanded: {
@@ -166,6 +171,13 @@ export const CHAT_KEYS = {
     pin: 'chat.sidebarInfo.pin',
     addMember: 'chat.sidebarInfo.addMember',
     settings: 'chat.sidebarInfo.settings',
-    createGroup: 'chat.sidebarInfo.createGroup'
+    createGroup: 'chat.sidebarInfo.createGroup',
+    ownerRole: 'chat.sidebarInfo.ownerRole',
+    adminRole: 'chat.sidebarInfo.adminRole',
+    addDeputy: 'chat.sidebarInfo.addDeputy',
+    removeFromGroup: 'chat.sidebarInfo.removeFromGroup',
+    searchMemberPlaceholder: 'chat.sidebarInfo.searchMemberPlaceholder',
+    membersLoading: 'chat.sidebarInfo.membersLoading',
+    noMatchingMembers: 'chat.sidebarInfo.noMatchingMembers'
   }
 } as const
