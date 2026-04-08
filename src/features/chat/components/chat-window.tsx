@@ -23,17 +23,20 @@ import { GroupAvatar } from './group/group-avatar'
 import { ImageCropperDialog } from '@/components/common/image-cropper-dialog'
 import { getCroppedImg } from '@/utils/image-crop'
 import { cn } from '@/lib/utils'
+import { GroupIntroCard } from './group/group-intro-card'
 import { getConversationDisplayName } from '../utils/group-name'
 import { GroupInfoDialog } from './group/group-info-dialog'
 import { RenameGroupDialog } from './group/rename-group-dialog'
 import { showLoadingToast, showSuccessToast, showErrorToast } from '@/utils/toast'
 import { toast } from 'sonner'
+import { StrangerBanner } from './stranger-banner'
+import { OthersProfileDialog } from '@/features/user/components/profile-dialog/others/others-profile-dialog'
 
 const OPEN_GROUP_MANAGEMENT_EVENT = 'chat:open-group-management'
 
 export function ChatWindow({ conversation }: { conversation: ConversationResponse }) {
   const { user } = useAuth()
-  const { text } = useChatText()
+  const { t, text } = useChatText()
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useMessagesInfiniteQuery(conversation.id)
 
   const { scrollRef, handleScroll } = useChatScroll({ fetchNextPage, hasNextPage, isFetchingNextPage })
@@ -48,11 +51,11 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   const [infoDialogStep, setInfoDialogStep] = useState<'info' | 'management'>('info')
   const [isInfoSidebarOpen, setIsInfoSidebarOpen] = useState(window.innerWidth >= 1150)
   const [managementOpenSignal, setManagementOpenSignal] = useState(0)
+  const [isProfileOpen, setIsProfileOpen] = useState(false)
+  const [profileTargetUserId, setProfileTargetUserId] = useState<string | undefined>(undefined)
 
   useEffect(() => {
     const handleResize = () => {
-      // Tự động đóng sidebar nếu màn hình nhỏ (dưới 1150px)
-      // Tự động mở lại khi màn hình đủ lớn
       if (window.innerWidth < 1150) {
         setIsInfoSidebarOpen(false)
       } else {
@@ -60,8 +63,6 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
       }
     }
 
-    // Không cần lắng nghe resize liên tục nếu k muốn override manual toggle,
-    // nhưng yêu cầu là "nào ở to thì mới mở" nên ta lắng nghe resize.
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [])
@@ -149,21 +150,6 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
 
   const allMessages = useMemo(() => data?.pages.flatMap((page) => page.data) || [], [data])
 
-  // Find the group intro message (CREATE_GROUP or ADD_MEMBERS targeting current user)
-  // to always render it at the visual top of the chat
-  const groupIntroMessageId = useMemo(() => {
-    if (!conversation.isGroup || !user?.id) return null
-    const userId = String(user.id)
-    for (const msg of allMessages) {
-      if (msg.type !== 'SYSTEM' || !msg.metadata) continue
-      const meta = msg.metadata as { action?: string; targetIds?: string[] }
-      const targetIds = (meta.targetIds || []).map(String)
-      if (meta.action === 'CREATE_GROUP' && targetIds.includes(userId)) return msg.id
-      if (meta.action === 'ADD_MEMBERS' && targetIds.includes(userId)) return msg.id
-    }
-    return null
-  }, [allMessages, conversation.isGroup, user])
-
   const latestMessageId = allMessages[0]?.id
   const latestMessageSenderId = allMessages[0]?.senderId
 
@@ -191,6 +177,8 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
     conversation.isGroup &&
     !conversation.isDisbanded &&
     (!(conversation.members || []).some((m) => m.userId === user?.id) || isCurrentUserRemovedBySystemMessage)
+  const isGroup = conversation.isGroup || false
+  const partnerId = conversation.recipientId || conversation.members?.find((m) => m.userId !== user?.id)?.userId
 
   useEffect(() => {
     if (isCurrentUserRemovedFromGroup) return
@@ -245,13 +233,27 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
     <div className='flex-1 flex h-full overflow-hidden'>
       <div className='flex-1 flex flex-col bg-[#eef0f1] dark:bg-zinc-950 relative overflow-hidden h-full'>
         <div className='h-[68px] border-b border-border bg-background flex items-center justify-between px-4 shrink-0 shadow-sm z-10'>
-          <div className='flex items-center space-x-3 min-w-0 flex-1'>
+          <div
+            className={cn(
+              'flex items-center space-x-3 min-w-0 flex-1',
+              !isGroup &&
+                !isCloudConversation &&
+                'cursor-pointer hover:bg-black/5 p-1.5 -ml-1.5 rounded-lg transition-colors'
+            )}
+            onClick={() => {
+              if (!isGroup && !isCloudConversation) {
+                setProfileTargetUserId(partnerId)
+                setIsProfileOpen(true)
+              }
+            }}
+          >
             <div className='relative shrink-0 hidden sm:block'>
               <input type='file' ref={fileInputRef} onChange={handleAvatarChange} accept='image/*' className='hidden' />
               <div
                 onClick={
                   conversation.isGroup && !isAiConversation
-                    ? () => {
+                    ? (e: React.MouseEvent) => {
+                        e.stopPropagation()
                         setInfoDialogStep('info')
                         setIsInfoDialogOpen(true)
                       }
@@ -284,7 +286,8 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             <div className='min-w-0 flex-1 group/header'>
               <button
                 disabled={!conversation.isGroup || isCloudConversation}
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation()
                   setIsRenameDialogOpen(true)
                 }}
                 className='flex items-center gap-1.5 max-w-full group/btn'
@@ -307,6 +310,17 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
                   <span className='flex items-center gap-1 cursor-pointer hover:text-foreground transition-colors'>
                     <Users className='w-4 h-4' />
                     {text.status.membersCount(conversation.members?.length || 0)}
+                  </span>
+                ) : !isGroup && (!conversation.friendshipStatus || conversation.friendshipStatus !== 'ACCEPTED') ? (
+                  <span className='flex items-center space-x-2'>
+                    <span className='bg-[#A6AAB1] text-white text-[10px] font-semibold px-1.5 py-[1px] rounded-[3px] uppercase tracking-wide'>
+                      Người lạ
+                    </span>
+                    <span className='text-muted-foreground'>|</span>
+                    <span className='flex items-center text-[12px] text-muted-foreground gap-1 font-medium'>
+                      <Users className='w-3.5 h-3.5' />
+                      <span>Nhóm chung (0)</span>
+                    </span>
                   </span>
                 ) : conversation.status === 'ONLINE' ? (
                   text.status.online
@@ -339,6 +353,11 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
           </div>
         </div>
 
+        {/* Stranger Banner */}
+        {!isGroup && !isCloudConversation && !isAiConversation && partnerId && (
+          <StrangerBanner partnerId={partnerId} partnerName={conversation.name || 'Thành viên Zalo'} />
+        )}
+
         <div
           ref={scrollRef}
           onScroll={handleScroll}
@@ -348,12 +367,11 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             <div className='flex items-center justify-center flex-1 text-sm text-primary py-8'>{text.loading}</div>
           )}
           {allMessages.map((msg, index) => {
-            if (msg.id === groupIntroMessageId) return null
             const prevMsg = allMessages[index + 1]
             const nextMsg = allMessages[index - 1]
             const isFirst = !isSameGroup(msg, prevMsg)
             const isLast = !isSameGroup(msg, nextMsg)
-            const isNewestVisible = index === 0 || (index === 1 && allMessages[0]?.id === groupIntroMessageId)
+            const isNewestVisible = index === 0
             return (
               <div key={msg.id} ref={isNewestVisible ? lastMessageRef : null}>
                 <MessageBubble
@@ -365,30 +383,33 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
                   conversation={conversation}
                   onReply={() => setReplyTo(msg)}
                   onForward={() => setForwardingMessage(msg)}
+                  onOpenProfile={(id) => {
+                    setProfileTargetUserId(id)
+                    setIsProfileOpen(true)
+                  }}
                 />
               </div>
             )
           })}
           {isFetchingNextPage && <div className='py-4 text-center text-sm text-muted-foreground'>{text.loading}</div>}
-          {groupIntroMessageId &&
+          {conversation.isGroup &&
+            !conversation.isDisbanded &&
+            !isCurrentUserRemovedFromGroup &&
             !hasNextPage &&
-            !isFetchingNextPage &&
-            (() => {
-              const introMsg = allMessages.find((m) => m.id === groupIntroMessageId)
-              if (!introMsg) return null
-              return (
-                <MessageBubble
-                  message={introMsg}
-                  isOwn={false}
-                  isFirst={true}
-                  isLast={true}
-                  isNewest={false}
-                  conversation={conversation}
-                  onReply={() => {}}
-                  onForward={() => {}}
-                />
-              )
-            })()}
+            !isFetchingNextPage && (
+              <GroupIntroCard
+                conversationId={conversation.id}
+                groupTitle={getConversationDisplayName(conversation, 'Nhóm', undefined, user?.id)}
+                groupMembers={(conversation.members || []).map((m) => ({
+                  id: m.userId,
+                  avatar: m.avatar,
+                  name: m.fullName
+                }))}
+                targetAvatars={[]}
+                secondaryLabel={null}
+                t={t}
+              />
+            )}
         </div>
 
         {conversation.isDisbanded || isCurrentUserRemovedFromGroup ? (
@@ -466,6 +487,13 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
           onConfirm={handleCropConfirm}
         />
       )}
+
+      {/* Others Profile Dialog */}
+      <OthersProfileDialog
+        open={isProfileOpen}
+        onOpenChange={setIsProfileOpen}
+        userId={profileTargetUserId || partnerId}
+      />
     </div>
   )
 }

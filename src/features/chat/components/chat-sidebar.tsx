@@ -4,15 +4,14 @@ import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { useConversationsQuery } from '../queries/use-queries'
 import { useMarkAsReadMutation } from '../queries/use-mutations'
-
+import { useAuth } from '@/features/auth'
+import { MessageType, MessageStatus } from '@/constants/enum'
 import { useChatText } from '../i18n/use-chat-text'
 import { CreateGroupDialog } from './group/create-group-dialog'
 import { GroupAvatar } from './group/group-avatar'
 import { UserAvatar } from '@/components/common/user-avatar'
-import { MessageType, MessageStatus } from '@/constants/enum'
 import type { ConversationResponse } from '../schemas/chat.schema'
 import { formatPreview } from '../utils/chat-preview'
-import { useAuth } from '@/features/auth'
 import { getSystemMessagePreviewDisplay } from '../utils/system-message-preview'
 import { formatMessageTime } from '@/utils/date'
 import { getConversationDisplayName } from '../utils/group-name'
@@ -159,7 +158,10 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
                       'text-[13px] flex items-center gap-1 min-w-0',
                       chat.unreadCount && chat.unreadCount > 0
                         ? 'text-foreground font-semibold'
-                        : 'text-muted-foreground font-normal'
+                        : chat.lastMessage?.type === 'SYSTEM_FRIENDSHIP_BADGE' ||
+                            chat.lastMessage?.type === 'SYSTEM_FRIENDSHIP_CARD'
+                          ? 'text-vibrant-blue font-medium'
+                          : 'text-muted-foreground font-normal'
                     )}
                   >
                     {previewDisplay.showPromoteTargetIcon && <Megaphone className='w-3.5 h-3.5 shrink-0' />}

@@ -14,6 +14,8 @@ export const userRoutes: RouteObject = {
       element: <UserLayout />,
       children: [
         { path: PATHS.HOME, element: <ChatPage /> },
+        { path: PATHS.CHAT.CONVERSATION, element: <ChatPage /> },
+        { path: PATHS.CHAT.USER, element: <ChatPage /> },
         { path: PATHS.CLOUD, element: <CloudPage /> },
         { path: PATHS.CONTACTS, element: <ContactPage /> },
         { path: PATHS.USER.SETTINGS, element: <SettingsPage /> }

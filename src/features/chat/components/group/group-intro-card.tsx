@@ -30,8 +30,9 @@ export function GroupIntroCard({
   t
 }: GroupIntroCardProps) {
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false)
-  const visibleMembers = groupMembers.slice(0, 7)
-  const remainingCount = groupMembers.length - visibleMembers.length
+  const hasOverflow = groupMembers.length > 8
+  const visibleMembers = hasOverflow ? groupMembers.slice(0, 7) : groupMembers.slice(0, 8)
+  const remainingCount = hasOverflow ? groupMembers.length - 7 : 0
 
   return (
     <>
@@ -41,13 +42,13 @@ export function GroupIntroCard({
 
           <div className='w-full max-w-105 mx-auto px-2 py-1'>
             {groupMembers.length > 0 && (
-              <div className='mt-3 flex items-center justify-center flex-wrap gap-2.5'>
+              <div className='mt-3 grid grid-cols-4 gap-2.5 justify-items-center w-fit mx-auto'>
                 {visibleMembers.map((member) => (
                   <UserAvatar key={member.id} src={member.avatar} name={member.name} className='w-12 h-12' />
                 ))}
 
                 {remainingCount > 0 && (
-                  <div className='w-12 h-12 rounded-full bg-muted text-foreground/80 flex items-center justify-center text-[10px] font-semibold'>
+                  <div className='w-12 h-12 rounded-full border border-border bg-muted text-foreground/70 flex items-center justify-center text-sm font-medium'>
                     +{remainingCount}
                   </div>
                 )}

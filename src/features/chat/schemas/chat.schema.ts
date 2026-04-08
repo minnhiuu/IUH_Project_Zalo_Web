@@ -41,9 +41,11 @@ export type LastMessageResponse = z.infer<typeof LastMessageResponseSchema>
 // ────────────────────────────────────────────────────────────────
 export const ConversationResponseSchema = z.object({
   id: z.string(), // MongoDB ObjectId của room
+  recipientId: z.string().nullable().optional(), // recipientId cho lazy creation (1-1)
   name: z.string().nullable().optional(), // partnerName (1-1) | group name
   avatar: z.string().nullable().optional(), // partnerAvatar (1-1) | group avatar
   status: z.nativeEnum(Status).nullable().optional(), // partner online status (1-1 only)
+  friendshipStatus: z.string().nullable().optional(), // status from friend-service
   lastSeenAt: z.string().datetime().nullable().optional(),
   isGroup: z.boolean().default(false),
   isDisbanded: z.boolean().default(false),
@@ -93,10 +95,11 @@ export const ChatUserSchema = z.object({
 export type ChatUser = z.infer<typeof ChatUserSchema>
 
 // ────────────────────────────────────────────────────────────────
-// ChatMessageRequest — recipientId → conversationId
+// ChatMessageRequest
 // ────────────────────────────────────────────────────────────────
 export const ChatMessageRequestSchema = z.object({
-  conversationId: z.string(), // MongoDB ObjectId của room (thay recipientId)
+  conversationId: z.string().nullable().optional(),
+  recipientId: z.string().nullable().optional(),
   content: z.string(),
   clientMessageId: z.string().optional(),
   replyTo: ReplyMetadataSchema.nullable().optional(),

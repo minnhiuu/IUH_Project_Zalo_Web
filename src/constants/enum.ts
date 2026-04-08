@@ -95,7 +95,9 @@ export const MessageType = {
   Chat: 'CHAT',
   Image: 'IMAGE',
   File: 'FILE',
-  System: 'SYSTEM'
+  System: 'SYSTEM',
+  SystemFriendshipCard: 'SYSTEM_FRIENDSHIP_CARD',
+  SystemFriendshipBadge: 'SYSTEM_FRIENDSHIP_BADGE'
 } as const
 
 export type MessageType = (typeof MessageType)[keyof typeof MessageType]
