@@ -6,6 +6,8 @@ import { MemberAvatar } from '../components/group/member-avatar'
 import { useDeleteConversationMutation } from '../queries/use-mutations'
 import { OthersProfileDialog } from '@/features/user'
 import { getSystemMessageLabel, type SystemMetadata } from './system-message-label'
+import { GroupIntroCard } from '../components/group/group-intro-card'
+import { getConversationDisplayName } from './group-name'
 
 export { getSystemMessageLabel } from './system-message-label'
 export type { SystemActionType, SystemMetadata } from './system-message-label'
@@ -67,6 +69,62 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
 
   if (!systemLabel) return null
   const metadata = message.metadata as unknown as SystemMetadata | undefined
+
+  if (metadata?.action === 'CREATE_GROUP') {
+    const groupTitle = conversation
+      ? getConversationDisplayName(conversation, t('chat.user'), undefined, user?.id)
+      : t('chat.user')
+    const groupMembers = (conversation?.members || []).map((m) => ({
+      id: m.userId,
+      avatar: m.avatar,
+      name: m.fullName || t('chat.user')
+    }))
+    return (
+      <>
+        <GroupIntroCard
+          conversationId={conversation?.id}
+          groupTitle={groupTitle}
+          groupMembers={groupMembers}
+          targetAvatars={[]}
+          secondaryLabel={systemLabel}
+          t={t}
+        />
+        <OthersProfileDialog open={isProfileOpen} onOpenChange={setIsProfileOpen} userId={profileUserId} />
+      </>
+    )
+  }
+
+  if (metadata?.action === 'ADD_MEMBERS') {
+    const isActor = String(message.senderId || '') === String(user?.id || '')
+    if (isActor) return null
+
+    const isTarget = (metadata.targetIds || []).map(String).includes(String(user?.id || ''))
+    if (isTarget) {
+      const groupTitle = conversation
+        ? getConversationDisplayName(conversation, t('chat.user'), undefined, user?.id)
+        : t('chat.user')
+      const groupMembers = (conversation?.members || []).map((m) => ({
+        id: m.userId,
+        avatar: m.avatar,
+        name: m.fullName || t('chat.user')
+      }))
+      return (
+        <>
+          <GroupIntroCard
+            conversationId={conversation?.id}
+            groupTitle={groupTitle}
+            groupMembers={groupMembers}
+            targetAvatars={targetAvatars}
+            secondaryLabel={systemLabel}
+            t={t}
+          />
+          <OthersProfileDialog open={isProfileOpen} onOpenChange={setIsProfileOpen} userId={profileUserId} />
+        </>
+      )
+    }
+    // Existing members: fall through to normal pill render
+  }
+
   const isDisbanded = metadata?.action === 'DISBAND_GROUP'
   const isCurrentUserRemoved =
     metadata?.action === 'REMOVE_MEMBER' && (metadata.targetIds || []).map(String).includes(String(user?.id || ''))

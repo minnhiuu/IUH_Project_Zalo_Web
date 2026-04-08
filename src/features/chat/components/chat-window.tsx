@@ -28,7 +28,6 @@ import { GroupInfoDialog } from './group/group-info-dialog'
 import { RenameGroupDialog } from './group/rename-group-dialog'
 import { showLoadingToast, showSuccessToast, showErrorToast } from '@/utils/toast'
 import { toast } from 'sonner'
-import { GroupIntroCard } from './group/group-intro-card'
 
 export function ChatWindow({ conversation }: { conversation: ConversationResponse }) {
   const { user } = useAuth()
@@ -338,20 +337,6 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             )
           })}
           {isFetchingNextPage && <div className='py-4 text-center text-sm text-muted-foreground'>{text.loading}</div>}
-          {conversation.isGroup && !conversation.isDisbanded && !isCurrentUserRemovedFromGroup && (
-            <GroupIntroCard
-              conversationId={conversation.id}
-              groupTitle={getConversationDisplayName(conversation, text.user, undefined, user?.id)}
-              groupMembers={(conversation.members || []).map((m) => ({
-                id: m.userId,
-                avatar: m.avatar,
-                name: m.fullName || text.user
-              }))}
-              targetAvatars={[]}
-              secondaryLabel=''
-              t={t}
-            />
-          )}
         </div>
 
         {conversation.isDisbanded || isCurrentUserRemovedFromGroup ? (
