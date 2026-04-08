@@ -1,0 +1,108 @@
+import { useState } from 'react'
+import { DisappearingMessagesDialog } from '@/components/common/disappearing-messages-dialog'
+import { CreateGroupDialog } from './group/create-group-dialog'
+import { ChatInfoTopSection } from './chat-info-top-section'
+import { ChatInfoSections } from './chat-info-sections'
+import { cn } from '@/lib/utils'
+import type { ConversationResponse } from '../schemas/chat.schema'
+import { useChatText } from '../i18n/use-chat-text'
+import { useAuth } from '@/features/auth'
+
+interface ChatInfoDirectSidebarProps {
+  conversation: ConversationResponse
+  onRenameClick?: () => void
+  onAvatarClick?: () => void
+}
+
+export function ChatInfoDirectSidebar({ conversation, onRenameClick, onAvatarClick }: ChatInfoDirectSidebarProps) {
+  const { text: tg } = useChatText()
+  const { user } = useAuth()
+  const [isDisappearingDialogOpen, setIsDisappearingDialogOpen] = useState(false)
+  const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false)
+  const isOverlayDialogOpen = isCreateGroupOpen
+
+  const otherMembers = conversation.members?.filter((m) => m.userId !== user?.id) || []
+  const initialSelectedFriendIds = otherMembers.map((m) => m.userId)
+
+  return (
+    <div
+      className={cn(
+        'w-[350px] border-l border-border bg-background flex flex-col h-full overflow-hidden shrink-0 shadow-xl min-[1150px]:shadow-none min-[1150px]:relative absolute right-0 top-0',
+        isOverlayDialogOpen ? 'z-40' : 'z-100',
+        isOverlayDialogOpen && 'blur-[2px] pointer-events-none select-none transition-[filter] duration-150'
+      )}
+    >
+      <div className='h-[68px] flex items-center justify-center border-b border-border shrink-0 px-4'>
+        <h2 className='font-bold text-[16px] text-foreground'>{tg.sidebarInfo.title}</h2>
+      </div>
+
+      <div className='flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar bg-background'>
+        <ChatInfoTopSection
+          conversation={conversation}
+          isGroup={false}
+          currentUserId={user?.id}
+          text={{
+            muteNotifications: tg.sidebarInfo.muteNotifications,
+            pin: tg.sidebarInfo.pin,
+            addMember: tg.sidebarInfo.addMember,
+            settings: tg.sidebarInfo.settings,
+            createGroup: tg.sidebarInfo.createGroup,
+            user: tg.user
+          }}
+          onAvatarClick={onAvatarClick}
+          onRenameClick={onRenameClick}
+          onOpenAddMember={() => {}}
+          onOpenCreateGroup={() => setIsCreateGroupOpen(true)}
+          onOpenManagement={() => {}}
+        />
+
+        <div className='h-[8px] bg-secondary' />
+        <ChatInfoSections
+          isGroup={false}
+          isMemberOnly={false}
+          text={{
+            members: tg.sidebarInfo.members,
+            groupBoard: tg.sidebarInfo.groupBoard,
+            reminderBoard: tg.sidebarInfo.reminderBoard,
+            notesPinsPolls: tg.sidebarInfo.notesPinsPolls,
+            commonGroupsCount: tg.sidebarInfo.commonGroupsCount,
+            photosVideos: tg.sidebarInfo.photosVideos,
+            files: tg.sidebarInfo.files,
+            links: tg.sidebarInfo.links,
+            privacySettings: tg.sidebarInfo.privacySettings,
+            disappearingMessages: tg.sidebarInfo.disappearingMessages,
+            disappearingMessagesTooltip: tg.sidebarInfo.disappearingMessagesTooltip,
+            disappearingMessagesWarning: tg.sidebarInfo.disappearingMessagesWarning,
+            never: tg.sidebarInfo.never,
+            hideConversation: tg.sidebarInfo.hideConversation,
+            reportAction: tg.sidebarInfo.reportAction,
+            deleteHistory: tg.sidebarInfo.deleteHistory,
+            leaveGroup: tg.sidebarInfo.leaveGroup,
+            viewAll: tg.sidebarInfo.viewAll
+          }}
+          membersCountLabel={tg.status.membersCount(conversation.members?.length || 0)}
+          onOpenMembers={() => {}}
+          onOpenDisappearingDialog={() => setIsDisappearingDialogOpen(true)}
+          onLeaveGroup={() => {}}
+        />
+      </div>
+
+      <DisappearingMessagesDialog
+        open={isDisappearingDialogOpen}
+        onOpenChange={setIsDisappearingDialogOpen}
+        onConfirm={(duration) => {
+          console.log('Set duration:', duration)
+          setIsDisappearingDialogOpen(false)
+        }}
+      />
+
+      {isCreateGroupOpen && (
+        <CreateGroupDialog
+          isOpen={isCreateGroupOpen}
+          onClose={() => setIsCreateGroupOpen(false)}
+          initialSelectedFriendIds={initialSelectedFriendIds}
+        />
+      )}
+    </div>
+  )
+}

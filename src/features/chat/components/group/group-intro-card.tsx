@@ -12,7 +12,7 @@ interface GroupMember {
   name: string
 }
 
-interface CreateGroupSystemContentProps {
+interface GroupIntroCardProps {
   conversationId?: string
   groupTitle: string
   groupMembers: GroupMember[]
@@ -21,14 +21,14 @@ interface CreateGroupSystemContentProps {
   t: TFunction<'chat'>
 }
 
-export function CreateGroupSystemContent({
+export function GroupIntroCard({
   conversationId,
   groupTitle,
   groupMembers,
   targetAvatars,
   secondaryLabel,
   t
-}: CreateGroupSystemContentProps) {
+}: GroupIntroCardProps) {
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false)
   const visibleMembers = groupMembers.slice(0, 7)
   const remainingCount = groupMembers.length - visibleMembers.length
@@ -107,7 +107,6 @@ export function CreateGroupSystemContent({
           </div>
         </div>
       )}
-
       {conversationId && (
         <CreateGroupDialog
           isOpen={isInviteDialogOpen}
