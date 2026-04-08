@@ -100,6 +100,15 @@ export function getSystemMessagePreview(
     return preview.replace(/<[^>]*>/g, '')
   }
 
+  if (action === 'LEAVE_GROUP') {
+    if (String(senderId) === String(currentUserId)) {
+      return translate('chat.system.leave_group.self') as string
+    }
+    const actorName = memberNameById.get(String(senderId)) || senderName || fallbackUserLabel
+    const preview = translate('chat.system.leave_group.by_actor', { actor: actorName }) as string
+    return preview.replace(/<[^>]*>/g, '')
+  }
+
   if (action === 'UPDATE_NAME') {
     return translate('chat.system.add_members.update_name_simple', { newName: payload?.newName }) as string
   }

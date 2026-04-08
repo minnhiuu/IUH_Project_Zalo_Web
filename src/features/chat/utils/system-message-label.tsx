@@ -3,7 +3,7 @@ import { Trans } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { Pencil } from 'lucide-react'
 import type { ConversationMemberResponse } from '../schemas/chat.schema'
-import { resolveSystemAction } from '../components/system-message/system-message-actions/resolve-system-action'
+import { resolveSystemAction } from '../components/system-message/resolve-system-action'
 
 export type SystemActionType =
   | 'CREATE_GROUP'

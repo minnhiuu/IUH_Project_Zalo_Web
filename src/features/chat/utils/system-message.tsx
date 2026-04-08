@@ -2,10 +2,11 @@ import { useCallback, useMemo, useState } from 'react'
 import { useAuth } from '../../auth/hooks/use-auth'
 import { useChatText } from '../i18n/use-chat-text'
 import type { MessageResponse, ConversationResponse } from '../schemas/chat.schema'
-import { GroupAvatar } from '../components/group/group-avatar'
+import { MemberAvatar } from '../components/group/member-avatar'
 import { useDeleteConversationMutation } from '../queries/use-mutations'
+import { getConversationDisplayName } from './group-name'
 import { OthersProfileDialog } from '@/features/user'
-import { CreateGroupSystemContent } from '../components/system-message/system-message-actions/create-group-system-content'
+import { CreateGroupSystemContent } from '../components/system-message/create-group-system-content'
 import { getSystemMessageLabel, type SystemMetadata } from './system-message-label'
 
 export { getSystemMessageLabel } from './system-message-label'
@@ -87,7 +88,9 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
         createGroupAddLabel: createGroupSecondaryLabel,
         targetAvatars: avatars,
         isCreateGroupEvent: metadata?.action === 'CREATE_GROUP',
-        groupTitle: conversation?.name || t('chat.user'),
+        groupTitle: conversation
+          ? getConversationDisplayName(conversation, t('chat.user'), undefined, user?.id)
+          : t('chat.user'),
         groupMembers: groupMembersData
       }
     }, [
@@ -96,6 +99,7 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
       message.senderName,
       user?.id,
       conversation?.name,
+      conversation?.members,
       conversation?.members,
       t,
       handleOpenProfile
@@ -106,20 +110,25 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
   const isDisbanded = metadata?.action === 'DISBAND_GROUP'
   const isCurrentUserRemoved =
     metadata?.action === 'REMOVE_MEMBER' && (metadata.targetIds || []).map(String).includes(String(user?.id || ''))
-  const showDeleteConversationAction = isDisbanded || isCurrentUserRemoved
+  const isCurrentUserLeftGroup =
+    metadata?.action === 'LEAVE_GROUP' && String(message.senderId || '') === String(user?.id || '')
+  const showDeleteConversationAction = isDisbanded || isCurrentUserRemoved || isCurrentUserLeftGroup
 
   if (isCreateGroupEvent) {
     const secondaryLabel = createGroupAddLabel || systemLabel
 
     return (
-      <CreateGroupSystemContent
-        conversationId={conversation?.id}
-        groupTitle={groupTitle}
-        groupMembers={groupMembers}
-        targetAvatars={targetAvatars}
-        secondaryLabel={secondaryLabel}
-        t={t}
-      />
+      <>
+        <CreateGroupSystemContent
+          conversationId={conversation?.id}
+          groupTitle={groupTitle}
+          groupMembers={groupMembers}
+          targetAvatars={targetAvatars}
+          secondaryLabel={secondaryLabel}
+          t={t}
+        />
+        <OthersProfileDialog open={isProfileOpen} onOpenChange={setIsProfileOpen} userId={profileUserId} />
+      </>
     )
   }
 
@@ -127,15 +136,7 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
     <>
       <div className='flex justify-center w-full my-2.5 px-4'>
         <div className='system-msg flex items-center gap-2.5 py-1.5 px-3.5 max-w-[95%]'>
-          {targetAvatars.length > 0 && (
-            <GroupAvatar
-              avatars={targetAvatars.map((a) => a.avatar)}
-              names={targetAvatars.map((a) => a.name)}
-              count={targetAvatars.length}
-              size='xs'
-              className='shrink-0'
-            />
-          )}
+          {targetAvatars.length > 0 && <MemberAvatar members={targetAvatars} size='xs' className='shrink-0' />}
           <div className='flex-1 text-[12.5px] leading-relaxed text-left flex items-center gap-1.5'>
             {systemLabel}
             {showDeleteConversationAction && (

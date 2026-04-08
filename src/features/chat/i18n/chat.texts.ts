@@ -78,6 +78,10 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
       by_you: t(CHAT_KEYS.system.remove_member.by_you),
       self_removed: t(CHAT_KEYS.system.remove_member.self_removed),
       by_actor: t(CHAT_KEYS.system.remove_member.by_actor)
+    },
+    leave_group: {
+      self: t(CHAT_KEYS.system.leave_group.self),
+      by_actor: t(CHAT_KEYS.system.leave_group.by_actor)
     }
   },
   disbanded: {
@@ -133,6 +137,14 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
         description: t(CHAT_KEYS['group-info-dialog'].actions.disbandDialog.description),
         confirm: t(CHAT_KEYS['group-info-dialog'].actions.disbandDialog.confirm),
         cancel: t(CHAT_KEYS['group-info-dialog'].actions.disbandDialog.cancel)
+      },
+      leaveDialog: {
+        title: t(CHAT_KEYS['group-info-dialog'].actions.leaveDialog.title),
+        description: t(CHAT_KEYS['group-info-dialog'].actions.leaveDialog.description),
+        silentTitle: t(CHAT_KEYS['group-info-dialog'].actions.leaveDialog.silentTitle),
+        silentDescription: t(CHAT_KEYS['group-info-dialog'].actions.leaveDialog.silentDescription),
+        confirm: t(CHAT_KEYS['group-info-dialog'].actions.leaveDialog.confirm),
+        cancel: t(CHAT_KEYS['group-info-dialog'].actions.leaveDialog.cancel)
       }
     }
   },

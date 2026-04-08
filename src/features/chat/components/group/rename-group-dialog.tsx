@@ -5,22 +5,32 @@ import { UserAvatar } from '@/components/common/user-avatar'
 import { GroupAvatar } from './group-avatar'
 import { useChatText } from '../../i18n/use-chat-text'
 import type { ConversationResponse } from '../../schemas/chat.schema'
+import { getConversationDisplayName } from '../../utils/group-name'
 
 interface RenameGroupDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   conversation: ConversationResponse
+  currentUserId?: string
   onConfirm: (newName: string) => void
   isPending?: boolean
 }
 
-export function RenameGroupDialog({ open, onOpenChange, conversation, onConfirm, isPending }: RenameGroupDialogProps) {
+export function RenameGroupDialog({
+  open,
+  onOpenChange,
+  conversation,
+  currentUserId,
+  onConfirm,
+  isPending
+}: RenameGroupDialogProps) {
   const { text } = useChatText()
   const tg = text['rename-group-dialog']
-  const [newGroupName, setNewGroupName] = useState(conversation.name || '')
+  const currentDisplayName = getConversationDisplayName(conversation, 'Group', undefined, currentUserId)
+  const [newGroupName, setNewGroupName] = useState(currentDisplayName)
 
   const handleConfirm = () => {
-    if (!newGroupName.trim() || newGroupName === conversation.name) {
+    if (!newGroupName.trim() || newGroupName === currentDisplayName) {
       onOpenChange(false)
       return
     }
@@ -43,7 +53,7 @@ export function RenameGroupDialog({ open, onOpenChange, conversation, onConfirm,
             {conversation.avatar ? (
               <UserAvatar
                 src={conversation.avatar}
-                name={conversation.name || 'Group'}
+                name={getConversationDisplayName(conversation, 'Group', undefined, currentUserId)}
                 className='w-16 h-16 shadow-md'
               />
             ) : (

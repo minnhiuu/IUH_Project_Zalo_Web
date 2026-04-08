@@ -19,6 +19,7 @@ interface GroupMembersSectionProps {
   membersCount: number
   addFriendLabel: string
   currentUserRole: GroupMemberRole
+  onLeaveGroup: () => void
 }
 
 export function GroupMembersSection({
@@ -26,7 +27,8 @@ export function GroupMembersSection({
   title,
   membersCount,
   addFriendLabel,
-  currentUserRole
+  currentUserRole,
+  onLeaveGroup
 }: GroupMembersSectionProps) {
   const { t } = useChatText()
   const [query, setQuery] = useState('')
@@ -47,12 +49,13 @@ export function GroupMembersSection({
       return
     }
 
+    if (action === 'leave') {
+      onLeaveGroup()
+      return
+    }
+
     const message =
-      action === 'leave'
-        ? String(t('chat.sidebarInfo.leaveGroup'))
-        : action === 'add-deputy'
-          ? String(t('chat.sidebarInfo.addDeputy'))
-          : String(t('chat.sidebarInfo.removeFromGroup'))
+      action === 'add-deputy' ? String(t('chat.sidebarInfo.addDeputy')) : String(t('chat.sidebarInfo.removeFromGroup'))
     toast.info(`${message} - Coming soon`)
   }
 

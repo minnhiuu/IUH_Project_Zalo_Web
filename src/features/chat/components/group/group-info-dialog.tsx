@@ -6,9 +6,11 @@ import { useState } from 'react'
 import { GroupManagementStep } from './group-management-step'
 import { GroupInfoOverviewStep } from './group-info-overview-step'
 import { AnimatePresence, motion } from 'framer-motion'
+import { LeaveGroupDialog } from './leave-group-dialog'
 
 interface GroupInfoDialogProps {
   conversation: ConversationResponse
+  currentUserId?: string
   open: boolean
   onOpenChange: (open: boolean) => void
   onRenameClick: () => void
@@ -18,6 +20,7 @@ interface GroupInfoDialogProps {
 
 export function GroupInfoDialog({
   conversation,
+  currentUserId,
   open,
   onOpenChange,
   onRenameClick,
@@ -27,6 +30,7 @@ export function GroupInfoDialog({
   const { text } = useChatText()
   const tg = text['group-info-dialog']
   const [step, setStep] = useState<'info' | 'management'>(initialStep)
+  const [isLeaveGroupDialogOpen, setIsLeaveGroupDialogOpen] = useState(false)
 
   // Track previous open state to detect when the dialog is opened
   const [prevOpen, setPrevOpen] = useState(open)
@@ -81,6 +85,7 @@ export function GroupInfoDialog({
             >
               <GroupInfoOverviewStep
                 conversation={conversation}
+                currentUserId={currentUserId}
                 text={tg}
                 onAvatarClick={onAvatarClick}
                 onRenameClick={onRenameClick}
@@ -88,6 +93,7 @@ export function GroupInfoDialog({
                 onOpenManagement={() => {
                   setStep('management')
                 }}
+                onLeaveGroup={() => setIsLeaveGroupDialogOpen(true)}
               />
             </motion.div>
           ) : (
@@ -108,6 +114,12 @@ export function GroupInfoDialog({
           )}
         </AnimatePresence>
       </div>
+
+      <LeaveGroupDialog
+        open={isLeaveGroupDialogOpen}
+        onOpenChange={setIsLeaveGroupDialogOpen}
+        conversationId={conversation.id}
+      />
     </BaseDialog>
   )
 }

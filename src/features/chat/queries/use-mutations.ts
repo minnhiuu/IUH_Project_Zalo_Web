@@ -8,6 +8,7 @@ import {
   updateGroupNameApi,
   updateGroupAvatarApi,
   deleteConversationApi,
+  leaveGroupApi,
   addMembersToGroupApi,
   removeMemberFromGroupApi
 } from '../api/chat.api'
@@ -171,6 +172,30 @@ export const useDeleteConversationMutation = () => {
     },
     onError: (error) => {
       console.error('Failed to delete conversation', error)
+    }
+  })
+}
+
+export const useLeaveGroupMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ conversationId, silent }: { conversationId: string; silent?: boolean; navigateDelayMs?: number }) =>
+      leaveGroupApi(conversationId, Boolean(silent)),
+    onSuccess: (_, { conversationId, navigateDelayMs }) => {
+      const delay = Math.max(0, Number(navigateDelayMs ?? 0))
+
+      window.setTimeout(() => {
+        queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
+          if (!oldData) return []
+          return oldData.filter((conv) => conv.id !== conversationId)
+        })
+        queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+        queryClient.removeQueries({ queryKey: chatKeys.messages(conversationId) })
+      }, delay)
+    },
+    onError: (error) => {
+      console.error('Failed to leave group', error)
     }
   })
 }

@@ -37,6 +37,10 @@
         "self_removed": "Bạn đã bị xóa khỏi nhóm",
         "by_actor": "<bold>{{target}}</bold> được <actorBold>{{actor}}</actorBold> xóa khỏi nhóm"
       },
+      "leave_group": {
+        "self": "Bạn đã rời nhóm",
+        "by_actor": "<actorBold>{{actor}}</actorBold> đã rời nhóm"
+      },
       "group_tips": {
         "invite_cta": "Mời thêm bạn",
         "invite_suffix": "vào nhóm {{groupName}}",
@@ -140,6 +144,14 @@
           "description": "Mời tất cả mọi người rời nhóm và xóa tin nhắn? Nhóm đã giải tán sẽ KHÔNG THỂ khôi phục.",
           "confirm": "Giải tán nhóm",
           "cancel": "Không"
+        },
+        "leaveDialog": {
+          "title": "Rời nhóm và xóa trò chuyện",
+          "description": "Bạn sẽ không thể xem lại tin nhắn trong nhóm này sau khi rời nhóm.",
+          "silentTitle": "Rời nhóm trong im lặng",
+          "silentDescription": "Chỉ trưởng/phó nhóm biết bạn rời nhóm.",
+          "confirm": "Rời nhóm",
+          "cancel": "Hủy"
         }
       }
     },

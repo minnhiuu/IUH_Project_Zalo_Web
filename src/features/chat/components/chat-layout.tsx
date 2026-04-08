@@ -67,7 +67,13 @@ export function ChatLayout({ defaultPartnerId }: { defaultPartnerId?: string }) 
 
   // ── Tính selectedChatId theo thứ tự ưu tiên ──
   const defaultChatId = cachedConvForPartner?.id || resolvedConversation?.id || null
-  const selectedChatId = userSelectedChatId || defaultChatId
+  const validUserSelectedChatId = React.useMemo(() => {
+    if (!userSelectedChatId) return null
+    if (!conversations) return userSelectedChatId
+    return conversations.some((c: ConversationResponse) => c.id === userSelectedChatId) ? userSelectedChatId : null
+  }, [userSelectedChatId, conversations])
+
+  const selectedChatId = validUserSelectedChatId || defaultChatId
 
   const selectedChat = React.useMemo(() => {
     if (!selectedChatId) return null

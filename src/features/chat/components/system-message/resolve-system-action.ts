@@ -2,6 +2,7 @@ import type { ActionContext, ActionResolveResult } from './types'
 import { resolveAddMembersAction } from './add-members-action'
 import { resolveCreateGroupAction } from './create-group-action'
 import { resolveDisbandGroupAction } from './disband-group-action'
+import { resolveLeaveGroupAction } from './leave-group-action'
 import { resolveRemoveMemberAction } from './remove-member-action'
 import { resolveUpdateAvatarAction } from './update-avatar-action'
 import { resolveUpdateNameAction } from './update-name-action'
@@ -16,6 +17,8 @@ export function resolveSystemAction(context: ActionContext): ActionResolveResult
       return resolveAddMembersAction(context)
     case 'REMOVE_MEMBER':
       return resolveRemoveMemberAction(context)
+    case 'LEAVE_GROUP':
+      return resolveLeaveGroupAction(context)
     case 'UPDATE_NAME':
       return resolveUpdateNameAction(context)
     case 'UPDATE_AVATAR':

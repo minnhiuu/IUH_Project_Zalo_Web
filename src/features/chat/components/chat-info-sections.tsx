@@ -82,6 +82,7 @@ interface ChatInfoSectionsProps {
   membersCountLabel: string
   onOpenMembers: () => void
   onOpenDisappearingDialog: () => void
+  onLeaveGroup: () => void
 }
 
 export function ChatInfoSections({
@@ -90,7 +91,8 @@ export function ChatInfoSections({
   text,
   membersCountLabel,
   onOpenMembers,
-  onOpenDisappearingDialog
+  onOpenDisappearingDialog,
+  onLeaveGroup
 }: ChatInfoSectionsProps) {
   return (
     <>
@@ -230,7 +232,13 @@ export function ChatInfoSections({
         <ActionMenuItem icon={<AlertTriangle />} label={text.reportAction} />
         <ActionMenuItem icon={<Trash2 />} label={text.deleteHistory} variant='destructive' showDivider={true} />
         {isGroup && (
-          <ActionMenuItem icon={<LogOut />} label={text.leaveGroup} variant='destructive' showDivider={true} />
+          <ActionMenuItem
+            icon={<LogOut />}
+            label={text.leaveGroup}
+            variant='destructive'
+            showDivider={true}
+            onClick={onLeaveGroup}
+          />
         )}
       </div>
     </>

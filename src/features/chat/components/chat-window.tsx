@@ -23,6 +23,7 @@ import { GroupAvatar } from './group/group-avatar'
 import { ImageCropperDialog } from '@/components/common/image-cropper-dialog'
 import { getCroppedImg } from '@/utils/image-crop'
 import { cn } from '@/lib/utils'
+import { getConversationDisplayName } from '../utils/group-name'
 import { GroupInfoDialog } from './group/group-info-dialog'
 import { RenameGroupDialog } from './group/rename-group-dialog'
 import { showLoadingToast, showSuccessToast, showErrorToast } from '@/utils/toast'
@@ -149,6 +150,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
       const includesMe = targetIds.includes(String(user.id))
 
       if (metadata.action === 'REMOVE_MEMBER' && includesMe) return true
+      if (metadata.action === 'LEAVE_GROUP' && String(msg.senderId || '') === String(user.id)) return true
       if ((metadata.action === 'ADD_MEMBERS' || metadata.action === 'CREATE_GROUP') && includesMe) return false
     }
 
@@ -237,7 +239,11 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
                     size='lg'
                   />
                 ) : (
-                  <UserAvatar src={conversation.avatar} name={conversation.name || 'User'} className='w-10 h-10' />
+                  <UserAvatar
+                    src={conversation.avatar}
+                    name={getConversationDisplayName(conversation, 'User', undefined, user?.id)}
+                    className='w-10 h-10'
+                  />
                 )}
               </div>
               {conversation.status === 'ONLINE' && !conversation.isGroup && (
@@ -253,7 +259,9 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
                 className='flex items-center gap-1.5 max-w-full group/btn'
               >
                 <h2 className='text-[16px] font-semibold text-foreground/90 leading-tight overflow-hidden whitespace-nowrap truncate'>
-                  {isCloudConversation ? 'My Documents' : conversation.name}
+                  {isCloudConversation
+                    ? 'My Documents'
+                    : getConversationDisplayName(conversation, 'Group', undefined, user?.id)}
                 </h2>
                 {conversation.isGroup && !isCloudConversation && (
                   <div className='opacity-0 group-hover/header:opacity-100 transition-all shrink-0 ml-1'>
@@ -355,6 +363,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
           open={isRenameDialogOpen}
           onOpenChange={setIsRenameDialogOpen}
           conversation={conversation}
+          currentUserId={user?.id}
           onConfirm={handleRename}
           isPending={isUpdatingName}
         />
@@ -381,6 +390,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
 
       <GroupInfoDialog
         conversation={conversation}
+        currentUserId={user?.id}
         open={isInfoDialogOpen}
         onOpenChange={setIsInfoDialogOpen}
         initialStep={infoDialogStep}

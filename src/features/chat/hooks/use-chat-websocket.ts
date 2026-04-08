@@ -109,15 +109,58 @@ export const useChatWebSocket = () => {
             )
           }
 
-          // 2. Update Conversations Cache (move to top)
+          // 2. Update Conversations Cache
+          // Negative system actions (leave/remove) should NOT move conversation to top
+          const msgMetadata = msg.metadata as Record<string, unknown> | null | undefined
+          const isNegativeSystemAction =
+            msg.type === MessageType.System &&
+            (msgMetadata?.action === 'LEAVE_GROUP' || msgMetadata?.action === 'REMOVE_MEMBER')
+
           queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
             if (!oldData) return oldData
             const conversations: ConversationResponse[] = oldData
             const existingConvIndex = conversations.findIndex((c) => c.id === conversationId)
 
             if (existingConvIndex >= 0) {
+              const existingConv = conversations[existingConvIndex]
+              const existingUnread = existingConv.unreadCount || 0
+              const computedUnread = isOwnMessage ? existingUnread : existingUnread + 1
+
+              if (isNegativeSystemAction) {
+                // Compute which user IDs to remove from members list
+                const removedIds: string[] =
+                  msgMetadata?.action === 'LEAVE_GROUP'
+                    ? [String(msg.senderId)]
+                    : Array.isArray(msgMetadata?.targetIds)
+                      ? (msgMetadata.targetIds as unknown[]).map(String)
+                      : []
+
+                const updatedMembers = removedIds.length
+                  ? (existingConv.members ?? []).filter((m) => !removedIds.includes(String(m.userId)))
+                  : existingConv.members
+
+                const updated = [...conversations]
+                updated[existingConvIndex] = {
+                  ...existingConv,
+                  members: updatedMembers,
+                  lastMessage: {
+                    id: msg.id,
+                    content: msg.content,
+                    timestamp: existingConv.lastMessage?.timestamp || msg.createdAt || new Date().toISOString(),
+                    isFromMe: isOwnMessage,
+                    type: msg.type,
+                    status: msg.status,
+                    senderName: msg.senderName,
+                    senderId: msg.senderId,
+                    metadata: msg.metadata
+                  },
+                  unreadCount: existingConv.unreadCount || 0
+                }
+                return updated
+              }
+
               const updatedConv: ConversationResponse = {
-                ...conversations[existingConvIndex],
+                ...existingConv,
                 lastMessage: {
                   id: msg.id,
                   content: msg.content,
@@ -129,10 +172,7 @@ export const useChatWebSocket = () => {
                   senderId: msg.senderId,
                   metadata: msg.metadata
                 },
-                unreadCount:
-                  msg.unreadCount !== undefined
-                    ? msg.unreadCount
-                    : (conversations[existingConvIndex].unreadCount || 0) + (isOwnMessage ? 0 : 1)
+                unreadCount: computedUnread
               }
               return [
                 updatedConv,
@@ -150,8 +190,10 @@ export const useChatWebSocket = () => {
           const isDisbandAction = metadata?.action === 'DISBAND_GROUP'
           const removeTargetIds = Array.isArray(metadata?.targetIds) ? metadata.targetIds.map(String) : []
           const isCurrentUserRemoved = metadata?.action === 'REMOVE_MEMBER' && removeTargetIds.includes(String(user.id))
+          const isCurrentUserLeftGroup =
+            metadata?.action === 'LEAVE_GROUP' && String(msg.senderId || '') === String(user.id)
 
-          if (isDisbandAction || isCurrentUserRemoved) {
+          if (isDisbandAction || isCurrentUserRemoved || isCurrentUserLeftGroup) {
             queryClient.setQueryData(
               chatKeys.messages(conversationId),
               (oldData: InfiniteData<PageResponse<MessageResponse>> | undefined) => {
@@ -239,7 +281,18 @@ export const useChatWebSocket = () => {
 
                 let nextData
                 if (exists) {
-                  nextData = currentData.map((c) => (c.id === newConv.id ? { ...c, ...newConv } : c))
+                  nextData = currentData.map((c) => {
+                    if (c.id !== newConv.id) return c
+                    // If /queue/messages already set a newer lastMessage (different ID),
+                    // preserve it — don't let /queue/conversations overwrite with stale data
+                    const keepCachedLastMessage =
+                      c.lastMessage?.id && newConv.lastMessage?.id && c.lastMessage.id !== newConv.lastMessage.id
+                    return {
+                      ...c,
+                      ...newConv,
+                      ...(keepCachedLastMessage ? { lastMessage: c.lastMessage } : {})
+                    }
+                  })
                 } else {
                   nextData = [newConv, ...currentData]
                 }
@@ -253,6 +306,8 @@ export const useChatWebSocket = () => {
 
               // Keep opened members sidebar in sync without a dedicated topic.
               queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'group-members', newConv.id] })
+              // Invalidate friends directory so "Add Members" dialog reflects current membership
+              queryClient.invalidateQueries({ queryKey: chatKeys.friendsDirectory(newConv.id) })
             } else if (newConv.type === 'REFRESH') {
               queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
             }

@@ -11,6 +11,7 @@ interface GroupMembersStepProps {
   addFriendLabel: string
   currentUserRole: GroupMemberRole
   onOpenAddMember: () => void
+  onLeaveGroup: () => void
 }
 
 export function GroupMembersStep({
@@ -20,7 +21,8 @@ export function GroupMembersStep({
   addMemberLabel,
   addFriendLabel,
   currentUserRole,
-  onOpenAddMember
+  onOpenAddMember,
+  onLeaveGroup
 }: GroupMembersStepProps) {
   return (
     <div className='flex flex-col h-full bg-background'>
@@ -38,6 +40,7 @@ export function GroupMembersStep({
           membersCount={membersCount}
           addFriendLabel={addFriendLabel}
           currentUserRole={currentUserRole}
+          onLeaveGroup={onLeaveGroup}
         />
       </div>
     </div>

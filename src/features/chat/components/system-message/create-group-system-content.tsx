@@ -2,9 +2,9 @@ import { useState } from 'react'
 import type { ReactNode } from 'react'
 import type { TFunction } from 'i18next'
 import { AtSign, Quote, UserRoundPlus } from 'lucide-react'
-import { GroupAvatar } from '../../group/group-avatar'
+import { MemberAvatar } from '@/features/chat/components/group/member-avatar'
 import { UserAvatar } from '@/components/common/user-avatar'
-import { CreateGroupDialog } from '../../group/create-group-dialog'
+import { CreateGroupDialog } from '@/features/chat/components/group/create-group-dialog'
 
 interface GroupMember {
   id: string
@@ -100,15 +100,7 @@ export function CreateGroupSystemContent({
       {secondaryLabel && (
         <div className='flex justify-center w-full my-2.5 px-4'>
           <div className='system-msg flex items-center gap-2.5 py-1.5 px-3.5 max-w-[95%]'>
-            {targetAvatars.length > 0 && (
-              <GroupAvatar
-                avatars={targetAvatars.map((a) => a.avatar)}
-                names={targetAvatars.map((a) => a.name)}
-                count={targetAvatars.length}
-                size='xs'
-                className='shrink-0'
-              />
-            )}
+            {targetAvatars.length > 0 && <MemberAvatar members={targetAvatars} size='xs' className='shrink-0' />}
             <div className='flex-1 text-[12.5px] leading-relaxed text-left flex items-center gap-1.5'>
               {secondaryLabel}
             </div>

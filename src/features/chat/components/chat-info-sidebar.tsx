@@ -15,6 +15,8 @@ import { ChatInfoSections } from './chat-info-sections'
 import { cn } from '@/lib/utils'
 import { useDeleteConversationMutation } from '../queries/use-mutations'
 import { GroupMemberRole } from '@/constants/enum'
+import { LeaveGroupDialog } from './group/leave-group-dialog'
+import { getConversationDisplayName } from '../utils/group-name'
 
 interface ChatInfoSidebarProps {
   conversation: ConversationResponse
@@ -32,7 +34,8 @@ export function ChatInfoSidebar({ conversation, onRenameClick, onAvatarClick }: 
   const [isDisappearingDialogOpen, setIsDisappearingDialogOpen] = useState(false)
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false)
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false)
-  const isOverlayDialogOpen = isCreateGroupOpen || isAddMemberOpen
+  const [isLeaveGroupDialogOpen, setIsLeaveGroupDialogOpen] = useState(false)
+  const isOverlayDialogOpen = isCreateGroupOpen || isAddMemberOpen || isLeaveGroupDialogOpen
 
   const currentMember = conversation.members?.find((m) => m.userId === user?.id)
   const isMemberOnly = isGroup && currentMember?.role?.toUpperCase() === 'MEMBER'
@@ -78,9 +81,16 @@ export function ChatInfoSidebar({ conversation, onRenameClick, onAvatarClick }: 
               addFriendLabel={tg.sidebar.addFriend}
               currentUserRole={currentUserRole}
               onOpenAddMember={() => setIsAddMemberOpen(true)}
+              onLeaveGroup={() => setIsLeaveGroupDialogOpen(true)}
             />
           )}
         </div>
+
+        <LeaveGroupDialog
+          open={isLeaveGroupDialogOpen}
+          onOpenChange={setIsLeaveGroupDialogOpen}
+          conversationId={conversation.id}
+        />
       </div>
     )
   }
@@ -89,7 +99,8 @@ export function ChatInfoSidebar({ conversation, onRenameClick, onAvatarClick }: 
     <div
       className={cn(
         'w-[350px] border-l border-border bg-background flex flex-col h-full overflow-hidden shrink-0 shadow-xl min-[1150px]:shadow-none min-[1150px]:relative absolute right-0 top-0',
-        isOverlayDialogOpen ? 'z-40' : 'z-100'
+        isOverlayDialogOpen ? 'z-40' : 'z-100',
+        isOverlayDialogOpen && 'blur-[2px] pointer-events-none select-none transition-[filter] duration-150'
       )}
     >
       {/* Header */}
@@ -116,12 +127,14 @@ export function ChatInfoSidebar({ conversation, onRenameClick, onAvatarClick }: 
                 ) : (
                   <UserAvatar
                     src={conversation.avatar}
-                    name={conversation.name || tg.user}
+                    name={getConversationDisplayName(conversation, tg.user, undefined, user?.id)}
                     className='w-24 h-24 shadow-md'
                   />
                 )}
               </div>
-              <h3 className='font-bold text-[20px] text-foreground text-center mb-1'>{conversation.name}</h3>
+              <h3 className='font-bold text-[20px] text-foreground text-center mb-1'>
+                {getConversationDisplayName(conversation, 'Group', undefined, user?.id)}
+              </h3>
               <p className='text-muted-foreground text-[14px] text-center px-4 mb-2'>{tg.disbanded.message}</p>
             </div>
 
@@ -145,6 +158,7 @@ export function ChatInfoSidebar({ conversation, onRenameClick, onAvatarClick }: 
             <ChatInfoTopSection
               conversation={conversation}
               isGroup={isGroup}
+              currentUserId={user?.id}
               text={{
                 muteNotifications: tg.sidebarInfo.muteNotifications,
                 pin: tg.sidebarInfo.pin,
@@ -187,6 +201,7 @@ export function ChatInfoSidebar({ conversation, onRenameClick, onAvatarClick }: 
               membersCountLabel={tg.status.membersCount(conversation.members?.length || 0)}
               onOpenMembers={() => setStep('members')}
               onOpenDisappearingDialog={() => setIsDisappearingDialogOpen(true)}
+              onLeaveGroup={() => setIsLeaveGroupDialogOpen(true)}
             />
           </>
         )}
@@ -216,6 +231,12 @@ export function ChatInfoSidebar({ conversation, onRenameClick, onAvatarClick }: 
           conversationId={conversation.id}
         />
       )}
+
+      <LeaveGroupDialog
+        open={isLeaveGroupDialogOpen}
+        onOpenChange={setIsLeaveGroupDialogOpen}
+        conversationId={conversation.id}
+      />
     </div>
   )
 }

@@ -14,7 +14,6 @@ import {
 import { useFriendsDirectory, useSearchMembersInfinite } from '../../queries/use-queries'
 import type { SearchMemberResponse } from '../../schemas/chat.schema'
 import { useChatText } from '../../i18n/use-chat-text'
-import { formatDefaultGroupName } from '../../utils/group-name'
 import { ImageCropperDialog } from '@/components/common/image-cropper-dialog'
 import { getCroppedImg } from '@/utils/image-crop'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -154,21 +153,14 @@ export function CreateGroupDialog({
 
     if (selectedFriendIds.length < 2) return
 
-    // Calculate fallback name only at the moment of creation
-    const finalName =
-      groupName.trim() ||
-      formatDefaultGroupName(
-        selectedFriends.map((f) => f.fullName),
-        tg.andOthers
-      )
-
     // Keep a reference to the file before resetting state
     const pendingAvatarFile = selectedFile
 
     // Step 1: Create group WITHOUT avatar for instant response
+    // Don't send auto-generated name — FE derives it from members dynamically
     createGroupMutation.mutate(
       {
-        name: finalName,
+        name: groupName.trim() || ' ',
         isGroup: true,
         memberIds: selectedFriendIds,
         avatar: null

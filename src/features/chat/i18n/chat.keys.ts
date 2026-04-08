@@ -82,6 +82,10 @@ export const CHAT_KEYS = {
       by_you: 'chat.system.remove_member.by_you',
       self_removed: 'chat.system.remove_member.self_removed',
       by_actor: 'chat.system.remove_member.by_actor'
+    },
+    leave_group: {
+      self: 'chat.system.leave_group.self',
+      by_actor: 'chat.system.leave_group.by_actor'
     }
   },
   disbanded: {
@@ -137,6 +141,14 @@ export const CHAT_KEYS = {
         description: 'chat.group-info-dialog.actions.disbandDialog.description',
         confirm: 'chat.group-info-dialog.actions.disbandDialog.confirm',
         cancel: 'chat.group-info-dialog.actions.disbandDialog.cancel'
+      },
+      leaveDialog: {
+        title: 'chat.group-info-dialog.actions.leaveDialog.title',
+        description: 'chat.group-info-dialog.actions.leaveDialog.description',
+        silentTitle: 'chat.group-info-dialog.actions.leaveDialog.silentTitle',
+        silentDescription: 'chat.group-info-dialog.actions.leaveDialog.silentDescription',
+        confirm: 'chat.group-info-dialog.actions.leaveDialog.confirm',
+        cancel: 'chat.group-info-dialog.actions.leaveDialog.cancel'
       }
     }
   },

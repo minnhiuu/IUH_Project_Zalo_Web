@@ -15,6 +15,7 @@ import { formatPreview } from '../utils/chat-preview'
 import { useAuth } from '@/features/auth'
 import { getSystemMessagePreview } from '../utils/system-message-preview'
 import { formatMessageTime } from '@/utils/date'
+import { getConversationDisplayName } from '../utils/group-name'
 
 interface ChatSidebarProps {
   selectedChatId?: string
@@ -121,7 +122,11 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
                     size='lg'
                   />
                 ) : (
-                  <UserAvatar src={chat.avatar} name={chat.name || 'User'} className='w-12 h-12' />
+                  <UserAvatar
+                    src={chat.avatar}
+                    name={getConversationDisplayName(chat, 'User', undefined, user?.id)}
+                    className='w-12 h-12'
+                  />
                 )}
                 {chat.status === 'ONLINE' && (
                   <div className='absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-background rounded-full' />
@@ -135,7 +140,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
                       chat.unreadCount && chat.unreadCount > 0 ? 'font-bold' : 'font-medium'
                     )}
                   >
-                    {chat.name}
+                    {getConversationDisplayName(chat, 'Group', undefined, user?.id)}
                   </h3>
                   <span className='text-[11px] text-muted-foreground whitespace-nowrap'>
                     {chat.lastMessage?.timestamp ? formatMessageTime(chat.lastMessage.timestamp, i18n.language) : ''}
@@ -153,9 +158,13 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
                     {getPreviewText(chat)}
                   </p>
                   {chat.unreadCount && chat.unreadCount > 0 ? (
-                    <div className='bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full flex items-center justify-center min-w-[18px] h-[18px] ml-2 shrink-0'>
-                      {chat.unreadCount > 5 ? '5+' : chat.unreadCount}
-                    </div>
+                    (chat.lastMessage?.metadata as Record<string, unknown> | null)?.action === 'CREATE_GROUP' ? (
+                      <div className='bg-red-500 rounded-full w-2.5 h-2.5 ml-2 shrink-0' />
+                    ) : chat.lastMessage?.type !== MessageType.System ? (
+                      <div className='bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full flex items-center justify-center min-w-[18px] h-[18px] ml-2 shrink-0'>
+                        {chat.unreadCount > 5 ? '5+' : chat.unreadCount}
+                      </div>
+                    ) : null
                   ) : null}
                 </div>
               </div>

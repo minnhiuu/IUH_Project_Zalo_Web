@@ -4,6 +4,7 @@ import { GroupAvatar } from './group/group-avatar'
 import { ActionButton } from '@/components/common/action-button'
 import type { ConversationResponse } from '../schemas/chat.schema'
 import { cn } from '@/lib/utils'
+import { getConversationDisplayName } from '../utils/group-name'
 
 interface SidebarInfoText {
   muteNotifications: string
@@ -17,6 +18,7 @@ interface SidebarInfoText {
 interface ChatInfoTopSectionProps {
   conversation: ConversationResponse
   isGroup: boolean
+  currentUserId?: string
   text: SidebarInfoText
   onAvatarClick?: () => void
   onRenameClick?: () => void
@@ -28,6 +30,7 @@ interface ChatInfoTopSectionProps {
 export function ChatInfoTopSection({
   conversation,
   isGroup,
+  currentUserId,
   text,
   onAvatarClick,
   onRenameClick,
@@ -57,7 +60,7 @@ export function ChatInfoTopSection({
           >
             <UserAvatar
               src={conversation.avatar}
-              name={conversation.name || text.user}
+              name={getConversationDisplayName(conversation, text.user, undefined, currentUserId)}
               className='w-20 h-20 shadow-md'
             />
           </div>
@@ -65,7 +68,9 @@ export function ChatInfoTopSection({
       </div>
 
       <div className='mt-4 flex items-center space-x-2 overflow-hidden w-full justify-center'>
-        <h3 className='font-bold text-[18px] text-foreground truncate'>{conversation.name}</h3>
+        <h3 className='font-bold text-[18px] text-foreground truncate'>
+          {getConversationDisplayName(conversation, 'Group', undefined, currentUserId)}
+        </h3>
         <ActionButton icon={<Pencil />} onClick={onRenameClick} size='sm' iconSize='sm' />
       </div>
 

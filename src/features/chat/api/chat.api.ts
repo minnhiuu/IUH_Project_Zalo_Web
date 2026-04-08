@@ -97,6 +97,12 @@ export const deleteConversationApi = async (conversationId: string): Promise<voi
   await http.delete(`/messages/conversations/${conversationId}`)
 }
 
+export const leaveGroupApi = async (conversationId: string, silent = false): Promise<void> => {
+  await http.delete(`/messages/conversations/${conversationId}/leave`, {
+    params: { silent }
+  })
+}
+
 export const getFriendsDirectory = async (
   conversationId?: string | null
 ): Promise<Record<string, SearchMemberResponse[]>> => {

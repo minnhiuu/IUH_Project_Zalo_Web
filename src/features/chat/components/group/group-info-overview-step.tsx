@@ -1,6 +1,7 @@
 import { Camera, Copy, Forward, LogOut, Pencil, Settings } from 'lucide-react'
 import type { ConversationResponse } from '../../schemas/chat.schema'
 import { UserAvatar } from '@/components/common/user-avatar'
+import { getConversationDisplayName } from '../../utils/group-name'
 import { Button } from '@/components/ui/button'
 import { ActionButton } from '@/components/common/action-button'
 import { ActionMenuItem } from '@/components/common/action-menu-item'
@@ -17,20 +18,24 @@ interface GroupInfoOverviewText {
 
 interface GroupInfoOverviewStepProps {
   conversation: ConversationResponse
+  currentUserId?: string
   text: GroupInfoOverviewText
   onAvatarClick: () => void
   onRenameClick: () => void
   onCloseDialog: () => void
   onOpenManagement: () => void
+  onLeaveGroup: () => void
 }
 
 export function GroupInfoOverviewStep({
   conversation,
+  currentUserId,
   text,
   onAvatarClick,
   onRenameClick,
   onCloseDialog,
-  onOpenManagement
+  onOpenManagement,
+  onLeaveGroup
 }: GroupInfoOverviewStepProps) {
   return (
     <div className='flex flex-col bg-bg-dialog-secondary w-full text-left'>
@@ -47,7 +52,7 @@ export function GroupInfoOverviewStep({
               {conversation.avatar ? (
                 <img
                   src={conversation.avatar}
-                  alt={conversation.name ?? 'Group'}
+                  alt={getConversationDisplayName(conversation, 'Group', undefined, currentUserId)}
                   className='w-full h-full object-cover'
                 />
               ) : (
@@ -66,7 +71,7 @@ export function GroupInfoOverviewStep({
 
           <div className='flex-1 min-w-0 min-h-18 flex items-center gap-2 overflow-hidden'>
             <h3 className='text-[18px] leading-tight font-bold text-foreground truncate whitespace-nowrap overflow-hidden max-w-55'>
-              {conversation.name}
+              {getConversationDisplayName(conversation, 'Group', undefined, currentUserId)}
             </h3>
             <ActionButton className='self-center' icon={<Pencil />} onClick={onRenameClick} size='sm' iconSize='sm' />
           </div>
@@ -174,7 +179,13 @@ export function GroupInfoOverviewStep({
         />
 
         <ActionMenuItem icon={<Settings />} label={text.management} onClick={onOpenManagement} showDivider={true} />
-        <ActionMenuItem icon={<LogOut />} label={text.leaveGroup} variant='destructive' showDivider={true} />
+        <ActionMenuItem
+          icon={<LogOut />}
+          label={text.leaveGroup}
+          variant='destructive'
+          showDivider={true}
+          onClick={onLeaveGroup}
+        />
       </div>
     </div>
   )

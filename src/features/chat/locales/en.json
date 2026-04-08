@@ -37,6 +37,10 @@
         "self_removed": "You have been removed from the group",
         "by_actor": "<bold>{{target}}</bold> was removed from the group by <actorBold>{{actor}}</actorBold>"
       },
+      "leave_group": {
+        "self": "You left the group",
+        "by_actor": "<actorBold>{{actor}}</actorBold> left the group"
+      },
       "group_tips": {
         "invite_cta": "Invite more friends",
         "invite_suffix": "to group {{groupName}}",
@@ -140,6 +144,14 @@
           "description": "Remove all members and delete the group? This CANNOT be undone.",
           "confirm": "Disband group",
           "cancel": "No"
+        },
+        "leaveDialog": {
+          "title": "Leave group and delete chat",
+          "description": "You will no longer be able to view messages in this group after leaving.",
+          "silentTitle": "Leave silently",
+          "silentDescription": "Only owner/admins will know that you left.",
+          "confirm": "Leave group",
+          "cancel": "Cancel"
         }
       }
     },
