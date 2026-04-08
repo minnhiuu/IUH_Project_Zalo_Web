@@ -210,6 +210,12 @@ export const useChatWebSocket = () => {
               }
             )
           }
+
+          // 4. Re-added to group: refetch messages so BE applies joinedAt filter correctly
+          const isCurrentUserReAdded = metadata?.action === 'ADD_MEMBERS' && removeTargetIds.includes(String(user.id))
+          if (isCurrentUserReAdded) {
+            queryClient.invalidateQueries({ queryKey: chatKeys.messages(conversationId) })
+          }
         })
 
         // ────────── /queue/presence ──────────

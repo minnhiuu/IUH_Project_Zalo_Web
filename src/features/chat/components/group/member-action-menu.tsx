@@ -4,7 +4,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { GroupMemberRole } from '@/constants/enum'
 import type { GroupMemberListItemResponse } from '../../schemas/chat.schema'
 
-type MemberMenuAction = 'leave' | 'add-deputy' | 'remove-member'
+type MemberMenuAction = 'leave' | 'add-deputy' | 'remove-deputy' | 'remove-member'
 
 interface MemberActionMenuProps {
   member: GroupMemberListItemResponse
@@ -12,6 +12,7 @@ interface MemberActionMenuProps {
   labels: {
     leaveGroup: string
     addDeputy: string
+    removeDeputy: string
     removeFromGroup: string
   }
   onAction: (action: MemberMenuAction, member: GroupMemberListItemResponse) => void
@@ -26,6 +27,8 @@ function canShowActionMenu(member: GroupMemberListItemResponse, currentUserRole:
 
 export function MemberActionMenu({ member, currentUserRole, labels, onAction }: MemberActionMenuProps) {
   if (!canShowActionMenu(member, currentUserRole)) return null
+
+  const isTargetAdmin = member.role?.toUpperCase() === GroupMemberRole.Admin
 
   return (
     <DropdownMenu>
@@ -49,12 +52,21 @@ export function MemberActionMenu({ member, currentUserRole, labels, onAction }: 
           </DropdownMenuItem>
         ) : currentUserRole === GroupMemberRole.Owner ? (
           <>
-            <DropdownMenuItem
-              className='cursor-pointer min-h-10 px-3 py-2 text-sm'
-              onSelect={() => onAction('add-deputy', member)}
-            >
-              {labels.addDeputy}
-            </DropdownMenuItem>
+            {isTargetAdmin ? (
+              <DropdownMenuItem
+                className='cursor-pointer min-h-10 px-3 py-2 text-sm'
+                onSelect={() => onAction('remove-deputy', member)}
+              >
+                {labels.removeDeputy}
+              </DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem
+                className='cursor-pointer min-h-10 px-3 py-2 text-sm'
+                onSelect={() => onAction('add-deputy', member)}
+              >
+                {labels.addDeputy}
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem
               className='cursor-pointer min-h-10 px-3 py-2 text-sm'
               onSelect={() => onAction('remove-member', member)}

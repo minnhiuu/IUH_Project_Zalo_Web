@@ -6,13 +6,23 @@ interface ChatInfoSidebarProps {
   conversation: ConversationResponse
   onRenameClick?: () => void
   onAvatarClick?: () => void
-  onManagementClick?: () => void
+  managementOpenSignal?: number
 }
 
-export function ChatInfoSidebar({ conversation, onRenameClick, onAvatarClick }: ChatInfoSidebarProps) {
+export function ChatInfoSidebar({
+  conversation,
+  onRenameClick,
+  onAvatarClick,
+  managementOpenSignal
+}: ChatInfoSidebarProps) {
   if (conversation.isGroup) {
     return (
-      <ChatInfoGroupSidebar conversation={conversation} onRenameClick={onRenameClick} onAvatarClick={onAvatarClick} />
+      <ChatInfoGroupSidebar
+        conversation={conversation}
+        onRenameClick={onRenameClick}
+        onAvatarClick={onAvatarClick}
+        managementOpenSignal={managementOpenSignal}
+      />
     )
   }
 

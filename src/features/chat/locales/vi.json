@@ -37,6 +37,21 @@
         "self_removed": "Bạn đã bị xóa khỏi nhóm",
         "by_actor": "<bold>{{target}}</bold> được <actorBold>{{actor}}</actorBold> xóa khỏi nhóm"
       },
+      "promote_admin": {
+        "by_you": "<bold>{{target}}</bold> đã được bổ nhiệm thành phó nhóm",
+        "self_promoted": "Bạn đã được bổ nhiệm thành phó nhóm",
+        "by_actor": "<bold>{{target}}</bold> đã được bổ nhiệm thành phó nhóm",
+        "card_title": "Bạn đã trở thành phó nhóm",
+        "card_desc": "Là phó nhóm, bạn có quyền quản lý thành viên trong mục Quản lý nhóm",
+        "manage_group": "Quản lý nhóm",
+        "send_greeting": "Gửi lời chào",
+        "greeting_message": "Xin chào mọi người! Mình vừa trở thành phó nhóm 👋"
+      },
+      "demote_admin": {
+        "by_you": "Bạn đã thu hồi quyền phó nhóm của <bold>{{target}}</bold>",
+        "self_demoted": "Quyền phó nhóm của bạn đã bị thu hồi",
+        "by_actor": "Quyền phó nhóm của <bold>{{target}}</bold> đã bị thu hồi"
+      },
       "leave_group": {
         "self": "Bạn đã rời nhóm",
         "by_actor": "<actorBold>{{actor}}</actorBold> đã rời nhóm"
@@ -198,6 +213,7 @@
       "ownerRole": "Trưởng nhóm",
       "adminRole": "Phó nhóm",
       "addDeputy": "Thêm phó nhóm",
+      "removeDeputy": "Thu hồi phó nhóm",
       "removeFromGroup": "Xóa khỏi nhóm",
       "searchMemberPlaceholder": "Tìm kiếm thành viên",
       "membersLoading": "Đang tải thành viên...",

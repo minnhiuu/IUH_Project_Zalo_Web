@@ -152,3 +152,17 @@ export const GroupMemberRole = {
 } as const
 
 export type GroupMemberRole = (typeof GroupMemberRole)[keyof typeof GroupMemberRole]
+
+export const SystemActionType = {
+  CreateGroup: 'CREATE_GROUP',
+  AddMembers: 'ADD_MEMBERS',
+  RemoveMember: 'REMOVE_MEMBER',
+  LeaveGroup: 'LEAVE_GROUP',
+  UpdateName: 'UPDATE_NAME',
+  UpdateAvatar: 'UPDATE_AVATAR',
+  DisbandGroup: 'DISBAND_GROUP',
+  PromoteAdmin: 'PROMOTE_ADMIN',
+  DemoteAdmin: 'DEMOTE_ADMIN'
+} as const
+
+export type SystemActionType = (typeof SystemActionType)[keyof typeof SystemActionType]

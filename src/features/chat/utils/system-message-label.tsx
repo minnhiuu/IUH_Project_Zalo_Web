@@ -2,20 +2,13 @@ import type { ReactNode } from 'react'
 import { Trans } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { Pencil } from 'lucide-react'
+import type { SystemActionType as ChatSystemActionType } from '@/constants/enum'
+export type { SystemActionType } from '@/constants/enum'
 import type { ConversationMemberResponse } from '../schemas/chat.schema'
 import { resolveSystemAction } from '../components/system-message/resolve-system-action'
 
-export type SystemActionType =
-  | 'CREATE_GROUP'
-  | 'ADD_MEMBERS'
-  | 'REMOVE_MEMBER'
-  | 'LEAVE_GROUP'
-  | 'UPDATE_NAME'
-  | 'UPDATE_AVATAR'
-  | 'DISBAND_GROUP'
-
 export interface SystemMetadata {
-  action: SystemActionType
+  action: ChatSystemActionType
   targetIds?: string[]
   payload?: Record<string, unknown>
 }

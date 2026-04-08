@@ -5,11 +5,14 @@ import { Button } from '@/components/ui/button'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { useGroupMembersInfinite } from '../../queries/use-queries'
 import { useSendFriendRequest } from '@/features/friend/queries/use-mutations'
-import { useRemoveMemberFromGroupMutation } from '../../queries/use-mutations'
+import {
+  useRemoveMemberFromGroupMutation,
+  usePromoteToAdminMutation,
+  useDemoteFromAdminMutation
+} from '../../queries/use-mutations'
 import { useChatText } from '../../i18n/use-chat-text'
 import { GroupMemberRole } from '@/constants/enum'
 import { useDebounce } from '@/hooks/use-debounce'
-import { toast } from 'sonner'
 import { MemberActionMenu } from './member-action-menu'
 import type { GroupMemberListItemResponse } from '../../schemas/chat.schema'
 
@@ -40,10 +43,15 @@ export function GroupMembersSection({
   )
   const sendFriendRequest = useSendFriendRequest()
   const removeMemberMutation = useRemoveMemberFromGroupMutation()
+  const promoteMutation = usePromoteToAdminMutation()
+  const demoteMutation = useDemoteFromAdminMutation()
 
   const members = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data])
 
-  const handleMenuAction = (action: 'leave' | 'add-deputy' | 'remove-member', member: GroupMemberListItemResponse) => {
+  const handleMenuAction = (
+    action: 'leave' | 'add-deputy' | 'remove-deputy' | 'remove-member',
+    member: GroupMemberListItemResponse
+  ) => {
     if (action === 'remove-member') {
       removeMemberMutation.mutate({ conversationId, targetUserId: member.userId })
       return
@@ -54,9 +62,15 @@ export function GroupMembersSection({
       return
     }
 
-    const message =
-      action === 'add-deputy' ? String(t('chat.sidebarInfo.addDeputy')) : String(t('chat.sidebarInfo.removeFromGroup'))
-    toast.info(`${message} - Coming soon`)
+    if (action === 'add-deputy') {
+      promoteMutation.mutate({ conversationId, targetUserId: member.userId })
+      return
+    }
+
+    if (action === 'remove-deputy') {
+      demoteMutation.mutate({ conversationId, targetUserId: member.userId })
+      return
+    }
   }
 
   const renderMemberItem = (member: (typeof members)[number]) => {
@@ -99,6 +113,7 @@ export function GroupMembersSection({
           labels={{
             leaveGroup: String(t('chat.sidebarInfo.leaveGroup')),
             addDeputy: String(t('chat.sidebarInfo.addDeputy')),
+            removeDeputy: String(t('chat.sidebarInfo.removeDeputy')),
             removeFromGroup: String(t('chat.sidebarInfo.removeFromGroup'))
           }}
           onAction={(action, selectedMember) => handleMenuAction(action, selectedMember)}

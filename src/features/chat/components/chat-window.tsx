@@ -29,9 +29,11 @@ import { RenameGroupDialog } from './group/rename-group-dialog'
 import { showLoadingToast, showSuccessToast, showErrorToast } from '@/utils/toast'
 import { toast } from 'sonner'
 
+const OPEN_GROUP_MANAGEMENT_EVENT = 'chat:open-group-management'
+
 export function ChatWindow({ conversation }: { conversation: ConversationResponse }) {
   const { user } = useAuth()
-  const { text, t } = useChatText()
+  const { text } = useChatText()
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useMessagesInfiniteQuery(conversation.id)
 
   const { scrollRef, handleScroll } = useChatScroll({ fetchNextPage, hasNextPage, isFetchingNextPage })
@@ -45,6 +47,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false)
   const [infoDialogStep, setInfoDialogStep] = useState<'info' | 'management'>('info')
   const [isInfoSidebarOpen, setIsInfoSidebarOpen] = useState(window.innerWidth >= 1150)
+  const [managementOpenSignal, setManagementOpenSignal] = useState(0)
 
   useEffect(() => {
     const handleResize = () => {
@@ -62,6 +65,18 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [])
+
+  useEffect(() => {
+    const handleOpenManagement = (event: Event) => {
+      const customEvent = event as CustomEvent<{ conversationId?: string }>
+      if (customEvent.detail?.conversationId !== conversation.id) return
+      setIsInfoSidebarOpen(true)
+      setManagementOpenSignal((v) => v + 1)
+    }
+
+    window.addEventListener(OPEN_GROUP_MANAGEMENT_EVENT, handleOpenManagement as EventListener)
+    return () => window.removeEventListener(OPEN_GROUP_MANAGEMENT_EVENT, handleOpenManagement as EventListener)
+  }, [conversation.id])
   const { mutate: updateGroupName, isPending: isUpdatingName } = useUpdateGroupNameMutation()
   const { mutate: updateGroupAvatar } = useUpdateGroupAvatarMutation()
 
@@ -133,6 +148,22 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   }
 
   const allMessages = useMemo(() => data?.pages.flatMap((page) => page.data) || [], [data])
+
+  // Find the group intro message (CREATE_GROUP or ADD_MEMBERS targeting current user)
+  // to always render it at the visual top of the chat
+  const groupIntroMessageId = useMemo(() => {
+    if (!conversation.isGroup || !user?.id) return null
+    const userId = String(user.id)
+    for (const msg of allMessages) {
+      if (msg.type !== 'SYSTEM' || !msg.metadata) continue
+      const meta = msg.metadata as { action?: string; targetIds?: string[] }
+      const targetIds = (meta.targetIds || []).map(String)
+      if (meta.action === 'CREATE_GROUP' && targetIds.includes(userId)) return msg.id
+      if (meta.action === 'ADD_MEMBERS' && targetIds.includes(userId)) return msg.id
+    }
+    return null
+  }, [allMessages, conversation.isGroup, user])
+
   const latestMessageId = allMessages[0]?.id
   const latestMessageSenderId = allMessages[0]?.senderId
 
@@ -317,18 +348,20 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             <div className='flex items-center justify-center flex-1 text-sm text-primary py-8'>{text.loading}</div>
           )}
           {allMessages.map((msg, index) => {
+            if (msg.id === groupIntroMessageId) return null
             const prevMsg = allMessages[index + 1]
             const nextMsg = allMessages[index - 1]
             const isFirst = !isSameGroup(msg, prevMsg)
             const isLast = !isSameGroup(msg, nextMsg)
+            const isNewestVisible = index === 0 || (index === 1 && allMessages[0]?.id === groupIntroMessageId)
             return (
-              <div key={msg.id} ref={index === 0 ? lastMessageRef : null}>
+              <div key={msg.id} ref={isNewestVisible ? lastMessageRef : null}>
                 <MessageBubble
                   message={msg}
                   isOwn={msg.senderId === user?.id}
                   isFirst={isFirst}
                   isLast={isLast}
-                  isNewest={index === 0}
+                  isNewest={isNewestVisible}
                   conversation={conversation}
                   onReply={() => setReplyTo(msg)}
                   onForward={() => setForwardingMessage(msg)}
@@ -337,6 +370,25 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             )
           })}
           {isFetchingNextPage && <div className='py-4 text-center text-sm text-muted-foreground'>{text.loading}</div>}
+          {groupIntroMessageId &&
+            !hasNextPage &&
+            !isFetchingNextPage &&
+            (() => {
+              const introMsg = allMessages.find((m) => m.id === groupIntroMessageId)
+              if (!introMsg) return null
+              return (
+                <MessageBubble
+                  message={introMsg}
+                  isOwn={false}
+                  isFirst={true}
+                  isLast={true}
+                  isNewest={false}
+                  conversation={conversation}
+                  onReply={() => {}}
+                  onForward={() => {}}
+                />
+              )
+            })()}
         </div>
 
         {conversation.isDisbanded || isCurrentUserRemovedFromGroup ? (
@@ -384,6 +436,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             conversation={conversation}
             onRenameClick={() => setIsRenameDialogOpen(true)}
             onAvatarClick={triggerFileInput}
+            managementOpenSignal={managementOpenSignal}
           />
         )
       )}

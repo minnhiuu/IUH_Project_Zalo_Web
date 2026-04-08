@@ -483,6 +483,14 @@ input[type='radio']:checked {
   .group-tips-icon-reply {
     @apply bg-group-tips-icon-reply;
   }
+
+  .system-msg-manage-link {
+    @apply text-blue-500 hover:text-blue-600 font-medium whitespace-nowrap cursor-pointer transition-colors;
+  }
+
+  .system-msg-promote-icon {
+    @apply w-3.5 h-3.5 text-green-500 shrink-0;
+  }
 }
 
 @layer utilities {

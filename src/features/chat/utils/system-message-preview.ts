@@ -2,6 +2,33 @@ import type { TFunction } from 'i18next'
 import type { ConversationMemberResponse } from '../schemas/chat.schema'
 import { getSystemMessageLabel, type SystemMetadata } from './system-message'
 
+export interface SystemMessagePreviewDisplay {
+  text: string
+  showPromoteTargetIcon: boolean
+}
+
+export function getSystemMessagePreviewDisplay(
+  metadataRaw: unknown,
+  senderId: string | undefined,
+  senderName: string | undefined,
+  currentUserId: string | undefined,
+  members: ConversationMemberResponse[],
+  translate: TFunction<'chat'>
+): SystemMessagePreviewDisplay {
+  const metadata = metadataRaw as SystemMetadata | null | undefined
+  if (!metadata) {
+    return { text: '', showPromoteTargetIcon: false }
+  }
+
+  const showPromoteTargetIcon =
+    metadata.action === 'PROMOTE_ADMIN' && (metadata.targetIds || []).map(String).includes(String(currentUserId || ''))
+
+  return {
+    text: getSystemMessagePreview(metadataRaw, senderId, senderName, currentUserId, members, translate),
+    showPromoteTargetIcon
+  }
+}
+
 export function getSystemMessagePreview(
   metadataRaw: unknown,
   senderId: string | undefined, // Added
@@ -115,6 +142,36 @@ export function getSystemMessagePreview(
 
   if (action === 'UPDATE_AVATAR') {
     return translate('chat.system.add_members.update_avatar_simple') as string
+  }
+
+  if (action === 'PROMOTE_ADMIN') {
+    const normalizedCurrentUserId = String(currentUserId || '')
+    const targetId = String((targetIds || [])[0] || '')
+    const payloadTargetName = typeof payload?.targetName === 'string' ? String(payload.targetName) : undefined
+    const targetName = memberNameById.get(targetId) ?? payloadTargetName ?? fallbackUserLabel
+
+    if (targetId === normalizedCurrentUserId) {
+      return translate('chat.system.promote_admin.self_promoted') as string
+    }
+    const preview = translate('chat.system.promote_admin.by_actor', { target: targetName }) as string
+    return preview.replace(/<[^>]*>/g, '')
+  }
+
+  if (action === 'DEMOTE_ADMIN') {
+    const normalizedCurrentUserId = String(currentUserId || '')
+    const targetId = String((targetIds || [])[0] || '')
+    const payloadTargetName = typeof payload?.targetName === 'string' ? String(payload.targetName) : undefined
+    const targetName = memberNameById.get(targetId) ?? payloadTargetName ?? fallbackUserLabel
+
+    if (targetId === normalizedCurrentUserId) {
+      return translate('chat.system.demote_admin.self_demoted') as string
+    }
+    if (String(senderId) === String(currentUserId)) {
+      const preview = translate('chat.system.demote_admin.by_you', { target: targetName }) as string
+      return preview.replace(/<[^>]*>/g, '')
+    }
+    const preview = translate('chat.system.demote_admin.by_actor', { target: targetName }) as string
+    return preview.replace(/<[^>]*>/g, '')
   }
 
   // Fallback to standard labels for other cases

@@ -37,6 +37,21 @@
         "self_removed": "You have been removed from the group",
         "by_actor": "<bold>{{target}}</bold> was removed from the group by <actorBold>{{actor}}</actorBold>"
       },
+      "promote_admin": {
+        "by_you": "<bold>{{target}}</bold> has become admin of this group",
+        "self_promoted": "You have become admin of this group",
+        "by_actor": "<bold>{{target}}</bold> has become admin of this group",
+        "card_title": "You have become admin of this group",
+        "card_desc": "As an admin, you can manage members in the Group Management section",
+        "manage_group": "Manage group",
+        "send_greeting": "Send greeting",
+        "greeting_message": "Hi everyone! I just became admin 👋"
+      },
+      "demote_admin": {
+        "by_you": "You removed <bold>{{target}}</bold>'s deputy role",
+        "self_demoted": "Your deputy role has been revoked",
+        "by_actor": "<bold>{{target}}</bold>'s deputy role has been revoked"
+      },
       "leave_group": {
         "self": "You left the group",
         "by_actor": "<actorBold>{{actor}}</actorBold> left the group"
@@ -198,6 +213,7 @@
       "ownerRole": "Owner",
       "adminRole": "Admin",
       "addDeputy": "Add admin",
+      "removeDeputy": "Remove admin",
       "removeFromGroup": "Remove from group",
       "searchMemberPlaceholder": "Search members",
       "membersLoading": "Loading members...",

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Search, UserPlus, Users, Filter, MoreHorizontal } from 'lucide-react'
+import { Search, UserPlus, Users, Filter, MoreHorizontal, Megaphone } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { useConversationsQuery } from '../queries/use-queries'
@@ -13,7 +13,7 @@ import { MessageType, MessageStatus } from '@/constants/enum'
 import type { ConversationResponse } from '../schemas/chat.schema'
 import { formatPreview } from '../utils/chat-preview'
 import { useAuth } from '@/features/auth'
-import { getSystemMessagePreview } from '../utils/system-message-preview'
+import { getSystemMessagePreviewDisplay } from '../utils/system-message-preview'
 import { formatMessageTime } from '@/utils/date'
 import { getConversationDisplayName } from '../utils/group-name'
 
@@ -36,10 +36,11 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
     }
   }
 
-  const getPreviewText = (chat: ConversationResponse) => {
-    if (!chat.lastMessage) return ''
+  const getPreviewDisplay = (chat: ConversationResponse) => {
+    if (!chat.lastMessage) return { text: '', showPromoteTargetIcon: false }
+
     if (chat.lastMessage.type === MessageType.System) {
-      return getSystemMessagePreview(
+      return getSystemMessagePreviewDisplay(
         chat.lastMessage.metadata,
         chat.lastMessage.senderId || undefined,
         chat.lastMessage.senderName || undefined,
@@ -48,16 +49,20 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
         t
       )
     }
-    return formatPreview(
-      {
-        content: chat.lastMessage.content || '',
-        isFromMe: !!chat.lastMessage.isFromMe,
-        senderName: chat.lastMessage.senderName || '',
-        type: chat.lastMessage.type as MessageType,
-        status: chat.lastMessage.status as MessageStatus
-      },
-      text
-    )
+
+    return {
+      text: formatPreview(
+        {
+          content: chat.lastMessage.content || '',
+          isFromMe: !!chat.lastMessage.isFromMe,
+          senderName: chat.lastMessage.senderName || '',
+          type: chat.lastMessage.type as MessageType,
+          status: chat.lastMessage.status as MessageStatus
+        },
+        text
+      ),
+      showPromoteTargetIcon: false
+    }
   }
 
   return (
@@ -104,6 +109,8 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
         {isError && <div className='p-4 text-center text-destructive'>{text.errors.loadConversations}</div>}
 
         {conversations?.map((chat: ConversationResponse) => {
+          const previewDisplay = getPreviewDisplay(chat)
+
           return (
             <div
               key={chat.id}
@@ -149,13 +156,14 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
                 <div className='flex items-center justify-between'>
                   <p
                     className={cn(
-                      'text-[13px] truncate',
+                      'text-[13px] flex items-center gap-1 min-w-0',
                       chat.unreadCount && chat.unreadCount > 0
                         ? 'text-foreground font-semibold'
                         : 'text-muted-foreground font-normal'
                     )}
                   >
-                    {getPreviewText(chat)}
+                    {previewDisplay.showPromoteTargetIcon && <Megaphone className='w-3.5 h-3.5 shrink-0' />}
+                    <span className='truncate'>{previewDisplay.text}</span>
                   </p>
                   {chat.unreadCount && chat.unreadCount > 0 ? (
                     (chat.lastMessage?.metadata as Record<string, unknown> | null)?.action === 'CREATE_GROUP' ? (

@@ -167,3 +167,23 @@ export const removeMemberFromGroupApi = async (
   )
   return response.data.data
 }
+
+export const promoteToAdminApi = async (
+  conversationId: string,
+  targetUserId: string
+): Promise<ConversationResponse> => {
+  const response = await http.patch<ApiResponse<ConversationResponse>>(
+    `/messages/conversations/${conversationId}/members/${targetUserId}/promote`
+  )
+  return response.data.data
+}
+
+export const demoteFromAdminApi = async (
+  conversationId: string,
+  targetUserId: string
+): Promise<ConversationResponse> => {
+  const response = await http.patch<ApiResponse<ConversationResponse>>(
+    `/messages/conversations/${conversationId}/members/${targetUserId}/demote`
+  )
+  return response.data.data
+}

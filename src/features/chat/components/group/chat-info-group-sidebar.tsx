@@ -22,13 +22,20 @@ interface ChatInfoGroupSidebarProps {
   conversation: ConversationResponse
   onRenameClick?: () => void
   onAvatarClick?: () => void
+  managementOpenSignal?: number
 }
 
-export function ChatInfoGroupSidebar({ conversation, onRenameClick, onAvatarClick }: ChatInfoGroupSidebarProps) {
+export function ChatInfoGroupSidebar({
+  conversation,
+  onRenameClick,
+  onAvatarClick,
+  managementOpenSignal
+}: ChatInfoGroupSidebarProps) {
   const { text: tg } = useChatText()
   const { user } = useAuth()
   const { mutate: deleteConversation } = useDeleteConversationMutation()
   const [step, setStep] = useState<'info' | 'management' | 'members'>('info')
+  const [lastManagementOpenSignal, setLastManagementOpenSignal] = useState<number>(managementOpenSignal ?? 0)
   const [isDisappearingDialogOpen, setIsDisappearingDialogOpen] = useState(false)
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false)
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false)
@@ -38,6 +45,11 @@ export function ChatInfoGroupSidebar({ conversation, onRenameClick, onAvatarClic
   const currentMember = conversation.members?.find((m) => m.userId === user?.id)
   const isMemberOnly = currentMember?.role?.toUpperCase() === 'MEMBER'
   const currentUserRole = (currentMember?.role?.toUpperCase() as GroupMemberRole) || GroupMemberRole.Member
+
+  if ((managementOpenSignal ?? 0) !== lastManagementOpenSignal) {
+    setLastManagementOpenSignal(managementOpenSignal ?? 0)
+    setStep('management')
+  }
 
   if (step === 'management' || step === 'members') {
     return (

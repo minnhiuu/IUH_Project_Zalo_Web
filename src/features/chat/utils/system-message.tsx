@@ -7,6 +7,7 @@ import { useDeleteConversationMutation } from '../queries/use-mutations'
 import { OthersProfileDialog } from '@/features/user'
 import { getSystemMessageLabel, type SystemMetadata } from './system-message-label'
 import { GroupIntroCard } from '../components/group/group-intro-card'
+import { PromoteAdminCard } from '../components/group/promote-admin-card'
 import { getConversationDisplayName } from './group-name'
 
 export { getSystemMessageLabel } from './system-message-label'
@@ -123,6 +124,19 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
       )
     }
     // Existing members: fall through to normal pill render
+  }
+
+  if (metadata?.action === 'PROMOTE_ADMIN') {
+    const isTarget = (metadata.targetIds || []).map(String).includes(String(user?.id || ''))
+    if (isTarget) {
+      return (
+        <>
+          <PromoteAdminCard conversation={conversation} secondaryLabel={systemLabel} t={t} />
+          <OthersProfileDialog open={isProfileOpen} onOpenChange={setIsProfileOpen} userId={profileUserId} />
+        </>
+      )
+    }
+    // Actor and others: fall through to normal pill render
   }
 
   const isDisbanded = metadata?.action === 'DISBAND_GROUP'

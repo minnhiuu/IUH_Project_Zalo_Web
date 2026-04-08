@@ -10,7 +10,9 @@ import {
   deleteConversationApi,
   leaveGroupApi,
   addMembersToGroupApi,
-  removeMemberFromGroupApi
+  removeMemberFromGroupApi,
+  promoteToAdminApi,
+  demoteFromAdminApi
 } from '../api/chat.api'
 import { chatKeys } from './keys'
 import type { ConversationResponse, ChatMessageRequest } from '../schemas/chat.schema'
@@ -255,6 +257,46 @@ export const useRemoveMemberFromGroupMutation = () => {
     },
     onError: (error) => {
       console.error('Failed to remove member from group', error)
+    }
+  })
+}
+
+export const usePromoteToAdminMutation = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ conversationId, targetUserId }: { conversationId: string; targetUserId: string }) =>
+      promoteToAdminApi(conversationId, targetUserId),
+    onSuccess: (updatedConv, variables) => {
+      queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
+        if (!oldData) return [updatedConv]
+        return oldData.map((conv) => (conv.id === updatedConv.id ? updatedConv : conv))
+      })
+      queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+      queryClient.invalidateQueries({ queryKey: chatKeys.messages(variables.conversationId) })
+      queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'group-members', variables.conversationId] })
+    },
+    onError: (error) => {
+      console.error('Failed to promote member to admin', error)
+    }
+  })
+}
+
+export const useDemoteFromAdminMutation = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ conversationId, targetUserId }: { conversationId: string; targetUserId: string }) =>
+      demoteFromAdminApi(conversationId, targetUserId),
+    onSuccess: (updatedConv, variables) => {
+      queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
+        if (!oldData) return [updatedConv]
+        return oldData.map((conv) => (conv.id === updatedConv.id ? updatedConv : conv))
+      })
+      queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+      queryClient.invalidateQueries({ queryKey: chatKeys.messages(variables.conversationId) })
+      queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'group-members', variables.conversationId] })
+    },
+    onError: (error) => {
+      console.error('Failed to demote admin', error)
     }
   })
 }
