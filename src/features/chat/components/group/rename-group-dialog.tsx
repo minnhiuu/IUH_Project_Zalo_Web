@@ -30,11 +30,18 @@ export function RenameGroupDialog({
   const [newGroupName, setNewGroupName] = useState(currentDisplayName)
 
   const handleConfirm = () => {
-    if (!newGroupName.trim() || newGroupName === currentDisplayName) {
+    const trimmed = newGroupName.trim()
+    // If nothing changed from what's currently displayed, just close
+    if (trimmed === currentDisplayName) {
       onOpenChange(false)
       return
     }
-    onConfirm(newGroupName.trim())
+    // If name is already dynamic (null) and input is cleared, just close
+    if (!trimmed && !conversation.name) {
+      onOpenChange(false)
+      return
+    }
+    onConfirm(trimmed)
   }
 
   return (

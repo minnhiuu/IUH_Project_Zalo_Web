@@ -107,6 +107,7 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     media: t(CHAT_KEYS['group-info-dialog'].media),
     noMedia: t(CHAT_KEYS['group-info-dialog'].noMedia),
     sendMessage: t(CHAT_KEYS['group-info-dialog'].sendMessage),
+    membersCount: (count: number) => t(CHAT_KEYS.status.membersCount, { count }),
     groupLink: t(CHAT_KEYS['group-info-dialog'].groupLink),
     memberPermissionsTitle: t(CHAT_KEYS['group-info-dialog'].memberPermissionsTitle),
     permissions: {
