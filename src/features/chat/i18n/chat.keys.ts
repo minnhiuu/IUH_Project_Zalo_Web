@@ -24,17 +24,6 @@ export const CHAT_KEYS = {
     image: 'chat.type.image',
     file: 'chat.type.file'
   },
-  systemFriendship: {
-    defaultPartnerName: 'chat.systemFriendship.defaultPartnerName',
-    acceptedBy: 'chat.systemFriendship.acceptedBy',
-    acceptedSuffix: 'chat.systemFriendship.acceptedSuffix',
-    becameFriendsWith: 'chat.systemFriendship.becameFriendsWith',
-    becameFriendsPrefix: 'chat.systemFriendship.becameFriendsPrefix',
-    cardTitle: 'chat.systemFriendship.cardTitle',
-    cardDescription: 'chat.systemFriendship.cardDescription',
-    sendGreeting: 'chat.systemFriendship.sendGreeting',
-    greetingMessage: 'chat.systemFriendship.greetingMessage'
-  },
   aiStatus: {
     ANALYZING_INTENT: 'ai.status.ANALYZING_INTENT',
     RETRIEVING_VECTOR: 'ai.status.RETRIEVING_VECTOR',
