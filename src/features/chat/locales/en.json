@@ -11,6 +11,17 @@
       "image": "[Image]",
       "file": "[File]"
     },
+    "systemFriendship": {
+      "defaultPartnerName": "User",
+      "acceptedBy": "{{name}} accepted your friend request",
+      "acceptedSuffix": "accepted your friend request",
+      "becameFriendsWith": "You became friends with {{name}}",
+      "becameFriendsPrefix": "You became friends with",
+      "cardTitle": "You are now friends",
+      "cardDescription": "You and {{name}} are now friends on BondHub.",
+      "sendGreeting": "Send greeting",
+      "greetingMessage": "Hi, nice to meet you! 👋"
+    },
     "status": {
       "online": "Active now",
       "justNow": "Just now",

@@ -18,9 +18,7 @@ export function ForwardModal({ message, onClose }: ForwardModalProps) {
   const [search, setSearch] = useState('')
   const [selectedConvIds, setSelectedConvIds] = useState<string[]>([])
 
-  const filteredConversations = conversations?.filter((c) =>
-    c.name?.toLowerCase().includes(search.toLowerCase())
-  )
+  const filteredConversations = conversations?.filter((c) => c.name?.toLowerCase().includes(search.toLowerCase()))
 
   const handleToggle = (convId: string) => {
     setSelectedConvIds((prev) =>
@@ -75,9 +73,7 @@ export function ForwardModal({ message, onClose }: ForwardModalProps) {
               <div
                 className={cn(
                   'w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all',
-                  selectedConvIds.includes(conv.id)
-                    ? 'bg-primary border-primary'
-                    : 'border-muted-foreground/30'
+                  selectedConvIds.includes(conv.id) ? 'bg-primary border-primary' : 'border-muted-foreground/30'
                 )}
               >
                 {selectedConvIds.includes(conv.id) && <Check size={12} className='text-white' />}
