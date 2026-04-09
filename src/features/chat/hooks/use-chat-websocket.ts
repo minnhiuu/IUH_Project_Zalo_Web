@@ -8,7 +8,7 @@ import { friendKeys } from '@/features/friend/queries/keys'
 import type { MessageResponse, ConversationResponse, ChatMessageRequest, ReplyMetadata } from '../schemas/chat.schema'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { getAccessToken } from '@/lib/axios-client'
-import { MessageStatus, MessageType } from '@/constants/enum'
+import { MessageStatus } from '@/constants/enum'
 import {
   useSendMessageMutation,
   useRevokeMessageMutation,
@@ -18,21 +18,6 @@ import {
 const WS_URL = import.meta.env.VITE_WS_URL || 'http://localhost:8080/ws'
 
 import { normalizeDateTime } from '../utils/date-utils'
-
-const isSystemFriendshipType = (type?: string | null) => {
-  return type === MessageType.SystemFriendshipBadge || type === MessageType.SystemFriendshipCard
-}
-
-const normalizeSystemFriendshipPreview = (
-  incoming: ConversationResponse,
-  previous: ConversationResponse | undefined
-) => {
-  if (!isSystemFriendshipType(incoming.lastMessageType)) return incoming.lastMessage
-
-  const raw = incoming.lastMessage?.trim()
-  if (!raw) return previous?.lastMessage || incoming.lastMessage
-  return incoming.lastMessage
-}
 
 export const useChatWebSocket = () => {
   const { user } = useAuth()
@@ -261,12 +246,7 @@ export const useChatWebSocket = () => {
             if (newConv.id) {
               queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
                 if (!oldData) {
-                  return [
-                    {
-                      ...newConv,
-                      lastMessage: normalizeSystemFriendshipPreview(newConv, undefined)
-                    }
-                  ]
+                  return [newConv]
                 }
                 const index = oldData.findIndex((u: ConversationResponse) => u.id === newConv.id)
                 if (index !== -1) {
@@ -278,19 +258,13 @@ export const useChatWebSocket = () => {
                     name: newConv.name ?? previous.name,
                     avatar: newConv.avatar ?? previous.avatar,
                     recipientId: newConv.recipientId ?? previous.recipientId,
-                    lastMessage: normalizeSystemFriendshipPreview(newConv, previous) ?? previous.lastMessage
+                    lastMessage: newConv.lastMessage ?? previous.lastMessage
                   }
                   return updated.sort(
                     (a, b) => new Date(b.lastMessageTime || 0).getTime() - new Date(a.lastMessageTime || 0).getTime()
                   )
                 }
-                return [
-                  {
-                    ...newConv,
-                    lastMessage: normalizeSystemFriendshipPreview(newConv, undefined)
-                  },
-                  ...oldData
-                ].sort(
+                return [newConv, ...oldData].sort(
                   (a, b) => new Date(b.lastMessageTime || 0).getTime() - new Date(a.lastMessageTime || 0).getTime()
                 )
               })

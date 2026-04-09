@@ -11,9 +11,6 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useChatContext } from '../context/chat-context'
 import { MessageStatus } from '@/constants/enum'
-import { useAuth } from '@/features/auth'
-import { SystemFriendshipCard } from './system-friendship-card'
-import { SystemFriendshipBadge } from './system-friendship-badge'
 
 export function MessageBubble({
   message,
@@ -23,8 +20,7 @@ export function MessageBubble({
   isNewest = false,
   conversation,
   onReply,
-  onForward,
-  onOpenProfile
+  onForward
 }: {
   message: MessageResponse
   isOwn: boolean
@@ -34,45 +30,9 @@ export function MessageBubble({
   conversation?: ConversationResponse
   onReply?: () => void
   onForward?: () => void
-  onOpenProfile?: (id: string) => void
 }) {
   const { text } = useChatText()
-  const { revokeMessage, deleteMessageForMe, sendMessage } = useChatContext()
-  const { user } = useAuth()
-  const partnerDisplayName = conversation?.name || text.systemFriendship.defaultPartnerName
-  const requesterId = typeof message.content === 'string' ? message.content : null
-  const otherUserId =
-    conversation?.recipientId || conversation?.members?.find((m) => m.userId !== user?.id)?.userId || null
-
-  if (message.type === 'SYSTEM_FRIENDSHIP_CARD') {
-    return (
-      <SystemFriendshipCard
-        partnerName={partnerDisplayName}
-        partnerAvatar={conversation?.avatar}
-        ownerAvatar={user?.avatar}
-        onSendGreeting={() => {
-          if (conversation?.id) {
-            sendMessage(conversation.id, text.systemFriendship.greetingMessage, null, false)
-          }
-        }}
-      />
-    )
-  }
-
-  if (message.type === 'SYSTEM_FRIENDSHIP_BADGE') {
-    return (
-      <SystemFriendshipBadge
-        message={message}
-        partnerName={partnerDisplayName}
-        otherUserId={otherUserId}
-        currentUserId={user?.id}
-        requesterId={requesterId}
-        onOpenProfile={(id: string) => {
-          onOpenProfile?.(id)
-        }}
-      />
-    )
-  }
+  const { revokeMessage, deleteMessageForMe } = useChatContext()
 
   const isRevoked = message.status === MessageStatus.REVOKED
   const conversationId = message.conversationId

@@ -28,7 +28,6 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   const [replyTo, setReplyTo] = useState<MessageResponse | null>(null)
   const [forwardingMessage, setForwardingMessage] = useState<MessageResponse | null>(null)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
-  const [profileTargetUserId, setProfileTargetUserId] = useState<string | undefined>(undefined)
 
   const allMessages = useMemo(() => data?.pages.flatMap((page) => page.data) || [], [data])
   const latestMessageId = allMessages[0]?.id
@@ -89,7 +88,6 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             className={`flex items-center space-x-3 group ${!isGroup && !isCloudConversation ? 'cursor-pointer hover:bg-black/5 p-1.5 -ml-1.5 rounded-lg transition-colors' : ''}`}
             onClick={() => {
               if (!isGroup && !isCloudConversation) {
-                setProfileTargetUserId(partnerId)
                 setIsProfileOpen(true)
               }
             }}
@@ -182,10 +180,6 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
                   conversation={conversation}
                   onReply={() => setReplyTo(msg)}
                   onForward={() => setForwardingMessage(msg)}
-                  onOpenProfile={(id) => {
-                    setProfileTargetUserId(id)
-                    setIsProfileOpen(true)
-                  }}
                 />
               </div>
             )
@@ -204,11 +198,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
       {isCloudConversation && <CloudInfoSidebar />}
 
       {/* Others Profile Dialog */}
-      <OthersProfileDialog
-        open={isProfileOpen}
-        onOpenChange={setIsProfileOpen}
-        userId={profileTargetUserId || partnerId}
-      />
+      <OthersProfileDialog open={isProfileOpen} onOpenChange={setIsProfileOpen} userId={partnerId} />
     </div>
   )
 }

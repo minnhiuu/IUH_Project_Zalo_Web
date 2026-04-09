@@ -26,10 +26,5 @@ export const formatPreview = (
     displayContent = text.type.file
   }
 
-  // 3. Skip prefix if it's a System Friendship message
-  if (data.type === MessageType.SystemFriendshipBadge || data.type === MessageType.SystemFriendshipCard) {
-    return displayContent
-  }
-
   return isRevoked ? displayContent : `${prefix}: ${displayContent}`
 }

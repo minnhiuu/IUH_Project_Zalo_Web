@@ -11,17 +11,6 @@
       "image": "[Hình ảnh]",
       "file": "[Tệp tin]"
     },
-    "systemFriendship": {
-      "defaultPartnerName": "Người dùng",
-      "acceptedBy": "{{name}} đã đồng ý kết bạn",
-      "acceptedSuffix": "đã đồng ý kết bạn",
-      "becameFriendsWith": "Bạn đã kết bạn với {{name}}",
-      "becameFriendsPrefix": "Bạn đã kết bạn với",
-      "cardTitle": "Các bạn đã trở thành bạn bè",
-      "cardDescription": "Bạn và {{name}} đã trở thành bạn bè trên BondHub.",
-      "sendGreeting": "Gửi lời chào",
-      "greetingMessage": "Chào bạn, rất vui được làm quen nhé! 👋"
-    },
     "status": {
       "online": "Đang hoạt động",
       "justNow": "Vừa mới truy cập",
