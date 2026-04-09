@@ -8,7 +8,7 @@ import { friendKeys } from '@/features/friend/queries/keys'
 import type { MessageResponse, ConversationResponse, ChatMessageRequest, ReplyMetadata } from '../schemas/chat.schema'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { getAccessToken } from '@/lib/axios-client'
-import { MessageStatus } from '@/constants/enum'
+import { MessageStatus, MessageType } from '@/constants/enum'
 import {
   useSendMessageMutation,
   useRevokeMessageMutation,

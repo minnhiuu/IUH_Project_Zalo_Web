@@ -13,9 +13,6 @@ import { useChatContext } from '../context/chat-context'
 import { MessageStatus, MessageType } from '@/constants/enum'
 import { SystemMessage } from '../utils/system-message'
 import { UserAvatar } from '@/components/common/user-avatar'
-import { useAuth } from '@/features/auth'
-import { SystemFriendshipCard } from './system-friendship-card'
-import { SystemFriendshipBadge } from './system-friendship-badge'
 
 export function MessageBubble({
   message,
@@ -222,7 +219,7 @@ export function MessageBubble({
                                 name={reader.fullName || 'User'}
                                 className='w-3 h-3 border border-background shadow-sm'
                                 fallbackClassName='text-[6px]'
-                                title={`Đã xem bởi ${reader.fullName}`}
+                                // title={`Đã xem bởi ${reader.fullName}`}
                               />
                             ))}
                             {extraCount > 0 && (
