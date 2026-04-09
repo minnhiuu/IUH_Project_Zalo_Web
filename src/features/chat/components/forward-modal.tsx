@@ -4,6 +4,8 @@ import { useConversationsQuery } from '../queries/use-queries'
 import { useChatContext } from '../context/chat-context'
 import type { MessageResponse } from '../schemas/chat.schema'
 import { cn } from '@/lib/utils'
+import { getConversationDisplayName } from '../utils/group-name'
+import { useAuth } from '@/features/auth'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 
@@ -15,6 +17,7 @@ interface ForwardModalProps {
 export function ForwardModal({ message, onClose }: ForwardModalProps) {
   const { data: conversations } = useConversationsQuery()
   const { sendMessage } = useChatContext()
+  const { user } = useAuth()
   const [search, setSearch] = useState('')
   const [selectedConvIds, setSelectedConvIds] = useState<string[]>([])
 
@@ -68,7 +71,9 @@ export function ForwardModal({ message, onClose }: ForwardModalProps) {
                 className='w-10 h-10 rounded-full object-cover border'
               />
               <div className='ml-3 flex-1'>
-                <p className='text-[14px] font-medium'>{conv.name}</p>
+                <p className='text-[14px] font-medium'>
+                  {getConversationDisplayName(conv, 'Group', undefined, user?.id)}
+                </p>
               </div>
               <div
                 className={cn(

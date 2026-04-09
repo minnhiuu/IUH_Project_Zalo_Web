@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils'
-import type { ConversationResponse, MessageResponse, ConversationMemberResponse } from '../schemas/chat.schema'
+import type { ConversationResponse, ConversationMemberResponse, MessageResponse } from '../schemas/chat.schema'
 import { useChatText } from '../i18n/use-chat-text'
 import { Reply, Forward, MoreHorizontal, Trash2, History, Share2, Copy } from 'lucide-react'
 import {
@@ -10,7 +10,12 @@ import {
   DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu'
 import { useChatContext } from '../context/chat-context'
-import { MessageStatus } from '@/constants/enum'
+import { MessageStatus, MessageType } from '@/constants/enum'
+import { SystemMessage } from '../utils/system-message'
+import { UserAvatar } from '@/components/common/user-avatar'
+import { useAuth } from '@/features/auth'
+import { SystemFriendshipCard } from './system-friendship-card'
+import { SystemFriendshipBadge } from './system-friendship-badge'
 
 export function MessageBubble({
   message,
@@ -36,15 +41,19 @@ export function MessageBubble({
 
   const isRevoked = message.status === MessageStatus.REVOKED
   const conversationId = message.conversationId
+
+  if (message.type === MessageType.System) {
+    return <SystemMessage message={message} conversation={conversation} />
+  }
   return (
     <div className={cn('flex w-full px-2 gap-2', isOwn ? 'justify-end' : 'justify-start', isFirst ? 'mt-4' : 'mt-1')}>
       {!isOwn && (
         <div className='w-8 shrink-0 flex items-end'>
           {isLast ? (
-            <img
-              src={message.senderAvatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${message.senderId}`}
-              alt={message.senderName || 'User'}
-              className='w-8 h-8 rounded-full border border-black/5'
+            <UserAvatar
+              src={message.senderAvatar}
+              name={message.senderName || 'User'}
+              className='w-8 h-8 border border-black/5'
             />
           ) : (
             <div className='w-8 h-8' />
@@ -55,7 +64,7 @@ export function MessageBubble({
       <div className={cn('flex flex-col items-end', isOwn ? 'items-end' : 'items-start')}>
         <div
           className={cn(
-            'px-4 py-2 max-w-[28rem] break-words text-[15px] shadow-sm flex flex-col relative group',
+            'px-4 py-2 max-w-md wrap-break-word text-[15px] shadow-sm flex flex-col relative group',
             isOwn
               ? 'bg-[#e5efff] text-black dark:bg-primary dark:text-primary-foreground'
               : 'bg-white dark:bg-zinc-900 text-foreground',
@@ -207,13 +216,12 @@ export function MessageBubble({
                         return (
                           <>
                             {visibleReaders.map((reader: ConversationMemberResponse) => (
-                              <img
+                              <UserAvatar
                                 key={reader.userId}
-                                src={
-                                  reader.avatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${reader.userId}`
-                                }
-                                className='w-3 h-3 rounded-full border border-background shadow-sm'
-                                alt={reader.fullName}
+                                src={reader.avatar}
+                                name={reader.fullName || 'User'}
+                                className='w-3 h-3 border border-background shadow-sm'
+                                fallbackClassName='text-[6px]'
                                 title={`Đã xem bởi ${reader.fullName}`}
                               />
                             ))}
