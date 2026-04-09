@@ -3,18 +3,18 @@ import { KeyRound, Search, Users } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { UserAvatar } from '@/components/common/user-avatar'
-import { useGroupMembersInfinite } from '../../queries/use-queries'
+import { useGroupMembersInfinite } from '../../../queries/use-queries'
 import { useSendFriendRequest } from '@/features/friend/queries/use-mutations'
 import {
   useRemoveMemberFromGroupMutation,
   usePromoteToAdminMutation,
   useDemoteFromAdminMutation
-} from '../../queries/use-mutations'
-import { useChatText } from '../../i18n/use-chat-text'
+} from '../../../queries/use-mutations'
+import { useChatText } from '../../../i18n/use-chat-text'
 import { GroupMemberRole } from '@/constants/enum'
 import { useDebounce } from '@/hooks/use-debounce'
 import { MemberActionMenu } from './member-action-menu'
-import type { GroupMemberListItemResponse } from '../../schemas/chat.schema'
+import type { GroupMemberListItemResponse } from '../../../schemas/chat.schema'
 
 interface GroupMembersSectionProps {
   conversationId: string

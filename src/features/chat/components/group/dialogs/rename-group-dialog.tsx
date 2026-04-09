@@ -2,10 +2,10 @@ import { useState } from 'react'
 import { BaseDialog } from '@/components/common/base-dialog'
 import { Input } from '@/components/ui/input'
 import { UserAvatar } from '@/components/common/user-avatar'
-import { GroupAvatar } from './group-avatar'
-import { useChatText } from '../../i18n/use-chat-text'
-import type { ConversationResponse } from '../../schemas/chat.schema'
-import { getConversationDisplayName } from '../../utils/group-name'
+import { GroupAvatar } from '../group-avatar'
+import { useChatText } from '../../../i18n/use-chat-text'
+import type { ConversationResponse } from '../../../schemas/chat.schema'
+import { getConversationDisplayName } from '../../../utils/group-name'
 
 interface RenameGroupDialogProps {
   open: boolean

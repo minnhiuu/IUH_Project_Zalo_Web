@@ -48,9 +48,20 @@
         "greeting_message": "Xin chào mọi người! Mình vừa trở thành phó nhóm 👋"
       },
       "demote_admin": {
-        "by_you": "Bạn đã thu hồi quyền phó nhóm của <bold>{{target}}</bold>",
-        "self_demoted": "Quyền phó nhóm của bạn đã bị thu hồi",
-        "by_actor": "Quyền phó nhóm của <bold>{{target}}</bold> đã bị thu hồi"
+        "by_you": "<bold>{{target}}</bold> đã không còn là phó nhóm",
+        "self_demoted": "Bạn đã không còn là phó nhóm",
+        "by_actor": "<bold>{{target}}</bold> đã không còn là phó nhóm"
+      },
+      "transfer_owner": {
+        "by_you": "Bạn đã chuyển quyền trưởng nhóm cho <bold>{{target}}</bold>",
+        "self_promoted": "Bạn đã được bổ nhiệm thành trưởng nhóm",
+        "by_actor": "<bold>{{target}}</bold> đã trở thành trưởng nhóm",
+        "card_title": "Bạn đã được trưởng nhóm bổ nhiệm làm trưởng nhóm mới",
+        "card_desc": "Từ nay, bạn có thể thay đổi cài đặt và quản lý nội dung của nhóm",
+        "manage_group": "Quản lý nhóm",
+        "group_info": "Thông tin nhóm",
+        "send_greeting": "Gửi lời chào",
+        "greeting_message": "Xin chào mọi người! Mình vừa trở thành trưởng nhóm 👋"
       },
       "leave_group": {
         "self": "Bạn đã rời nhóm",
@@ -178,6 +189,13 @@
           "silentDescription": "Chỉ trưởng/phó nhóm biết bạn rời nhóm.",
           "confirm": "Rời nhóm",
           "cancel": "Hủy"
+        },
+        "transferOwnerDialog": {
+          "title": "Chọn trưởng nhóm mới trước khi rời",
+          "description": "Bạn cần chuyển quyền trưởng nhóm cho thành viên khác trước khi rời nhóm.",
+          "confirm": "Chọn và tiếp tục",
+          "cancel": "Hủy",
+          "searchPlaceholder": "Tìm thành viên"
         }
       }
     },

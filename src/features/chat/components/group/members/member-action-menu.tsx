@@ -2,7 +2,7 @@ import { Ellipsis } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { GroupMemberRole } from '@/constants/enum'
-import type { GroupMemberListItemResponse } from '../../schemas/chat.schema'
+import type { GroupMemberListItemResponse } from '../../../schemas/chat.schema'
 
 type MemberMenuAction = 'leave' | 'add-deputy' | 'remove-deputy' | 'remove-member'
 
@@ -42,7 +42,7 @@ export function MemberActionMenu({ member, currentUserRole, labels, onAction }: 
           <Ellipsis className='w-4 h-4' />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align='end' sideOffset={6} className='w-44 z-140'>
+      <DropdownMenuContent align='end' sideOffset={6} className='w-52 z-140'>
         {member.isCurrentUser ? (
           <DropdownMenuItem
             className='cursor-pointer min-h-10 px-3 py-2 text-sm'

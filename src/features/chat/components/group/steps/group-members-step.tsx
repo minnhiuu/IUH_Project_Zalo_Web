@@ -1,6 +1,6 @@
 import { UserPlus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { GroupMembersSection } from './group-members-section'
+import { GroupMembersSection } from '../members/group-members-section'
 import type { GroupMemberRole } from '@/constants/enum'
 
 interface GroupMembersStepProps {

@@ -146,6 +146,13 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
         silentDescription: t(CHAT_KEYS['group-info-dialog'].actions.leaveDialog.silentDescription),
         confirm: t(CHAT_KEYS['group-info-dialog'].actions.leaveDialog.confirm),
         cancel: t(CHAT_KEYS['group-info-dialog'].actions.leaveDialog.cancel)
+      },
+      transferOwnerDialog: {
+        title: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerDialog.title),
+        description: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerDialog.description),
+        confirm: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerDialog.confirm),
+        cancel: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerDialog.cancel),
+        searchPlaceholder: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerDialog.searchPlaceholder)
       }
     }
   },

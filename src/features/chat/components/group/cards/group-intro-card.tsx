@@ -2,9 +2,9 @@ import { useState } from 'react'
 import type { ReactNode } from 'react'
 import type { TFunction } from 'i18next'
 import { AtSign, Quote, UserRoundPlus } from 'lucide-react'
-import { MemberAvatar } from '@/features/chat/components/group/member-avatar'
+import { MemberAvatar } from '@/features/chat/components/group/members/member-avatar'
 import { UserAvatar } from '@/components/common/user-avatar'
-import { CreateGroupDialog } from '@/features/chat/components/group/create-group-dialog'
+import { CreateGroupDialog } from '@/features/chat/components/group/dialogs/create-group-dialog'
 
 interface GroupMember {
   id: string
@@ -37,10 +37,10 @@ export function GroupIntroCard({
   return (
     <>
       <div className='flex justify-center w-full my-4 px-4'>
-        <div className='w-full'>
-          <p className='text-center text-[28px] font-bold truncate max-w-120 mx-auto px-2'>{groupTitle}</p>
+        <div className='w-full max-w-sm mx-auto'>
+          <p className='text-center text-[28px] font-bold truncate px-2'>{groupTitle}</p>
 
-          <div className='w-full max-w-105 mx-auto px-2 py-1'>
+          <div className='w-full px-2 py-1'>
             {groupMembers.length > 0 && (
               <div className='mt-3 grid grid-cols-4 gap-2.5 justify-items-center w-fit mx-auto'>
                 {visibleMembers.map((member) => (

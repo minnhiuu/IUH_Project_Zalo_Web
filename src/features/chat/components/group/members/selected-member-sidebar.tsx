@@ -1,7 +1,7 @@
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { X } from 'lucide-react'
-import type { SearchMemberResponse } from '../../schemas/chat.schema'
+import type { SearchMemberResponse } from '../../../schemas/chat.schema'
 
 interface SelectedMemberSidebarProps {
   selectedFriends: SearchMemberResponse[]

@@ -23,9 +23,12 @@ export function getSystemMessagePreviewDisplay(
   const showPromoteTargetIcon =
     metadata.action === 'PROMOTE_ADMIN' && (metadata.targetIds || []).map(String).includes(String(currentUserId || ''))
 
+  const showTransferOwnerIcon =
+    metadata.action === 'TRANSFER_OWNER' && (metadata.targetIds || []).map(String).includes(String(currentUserId || ''))
+
   return {
     text: getSystemMessagePreview(metadataRaw, senderId, senderName, currentUserId, members, translate),
-    showPromoteTargetIcon
+    showPromoteTargetIcon: showPromoteTargetIcon || showTransferOwnerIcon
   }
 }
 
@@ -171,6 +174,23 @@ export function getSystemMessagePreview(
       return preview.replace(/<[^>]*>/g, '')
     }
     const preview = translate('chat.system.demote_admin.by_actor', { target: targetName }) as string
+    return preview.replace(/<[^>]*>/g, '')
+  }
+
+  if (action === 'TRANSFER_OWNER') {
+    const normalizedCurrentUserId = String(currentUserId || '')
+    const targetId = String((targetIds || [])[0] || '')
+    const payloadTargetName = typeof payload?.targetName === 'string' ? String(payload.targetName) : undefined
+    const targetName = memberNameById.get(targetId) ?? payloadTargetName ?? fallbackUserLabel
+
+    if (targetId === normalizedCurrentUserId) {
+      return translate('chat.system.transfer_owner.self_promoted') as string
+    }
+    if (String(senderId) === String(currentUserId)) {
+      const preview = translate('chat.system.transfer_owner.by_you', { target: targetName }) as string
+      return preview.replace(/<[^>]*>/g, '')
+    }
+    const preview = translate('chat.system.transfer_owner.by_actor', { target: targetName }) as string
     return preview.replace(/<[^>]*>/g, '')
   }
 

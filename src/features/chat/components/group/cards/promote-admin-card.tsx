@@ -32,7 +32,7 @@ export function PromoteAdminCard({ conversation, secondaryLabel, t }: PromoteAdm
   return (
     <>
       <div className='flex justify-center w-full my-4 px-4'>
-        <div className='w-full max-w-105 mx-auto rounded-xl overflow-hidden border border-border shadow-sm'>
+        <div className='w-full max-w-sm mx-auto rounded-xl overflow-hidden border border-border shadow-sm'>
           <div className='relative h-36 w-full bg-brand-blue'>
             <img src='/images/admin-card.jpg' alt='Admin promotion' className='h-full w-full object-cover' />
             <div className='absolute inset-0 flex items-center justify-center'>

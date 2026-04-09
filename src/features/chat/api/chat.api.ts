@@ -97,9 +97,9 @@ export const deleteConversationApi = async (conversationId: string): Promise<voi
   await http.delete(`/messages/conversations/${conversationId}`)
 }
 
-export const leaveGroupApi = async (conversationId: string, silent = false): Promise<void> => {
+export const leaveGroupApi = async (conversationId: string, silent = false, transferTo?: string): Promise<void> => {
   await http.delete(`/messages/conversations/${conversationId}/leave`, {
-    params: { silent }
+    params: { silent, ...(transferTo ? { transferTo } : {}) }
   })
 }
 

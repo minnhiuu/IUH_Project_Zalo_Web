@@ -23,16 +23,17 @@ import { GroupAvatar } from './group/group-avatar'
 import { ImageCropperDialog } from '@/components/common/image-cropper-dialog'
 import { getCroppedImg } from '@/utils/image-crop'
 import { cn } from '@/lib/utils'
-import { GroupIntroCard } from './group/group-intro-card'
+import { GroupIntroCard } from './group/cards/group-intro-card'
 import { getConversationDisplayName } from '../utils/group-name'
-import { GroupInfoDialog } from './group/group-info-dialog'
-import { RenameGroupDialog } from './group/rename-group-dialog'
+import { GroupInfoDialog } from './group/dialogs/group-info-dialog'
+import { RenameGroupDialog } from './group/dialogs/rename-group-dialog'
 import { showLoadingToast, showSuccessToast, showErrorToast } from '@/utils/toast'
 import { toast } from 'sonner'
 import { StrangerBanner } from './stranger-banner'
 import { OthersProfileDialog } from '@/features/user/components/profile-dialog/others/others-profile-dialog'
 
 const OPEN_GROUP_MANAGEMENT_EVENT = 'chat:open-group-management'
+const OPEN_GROUP_INFO_EVENT = 'chat:open-group-info'
 
 export function ChatWindow({ conversation }: { conversation: ConversationResponse }) {
   const { user } = useAuth()
@@ -77,6 +78,17 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
 
     window.addEventListener(OPEN_GROUP_MANAGEMENT_EVENT, handleOpenManagement as EventListener)
     return () => window.removeEventListener(OPEN_GROUP_MANAGEMENT_EVENT, handleOpenManagement as EventListener)
+  }, [conversation.id])
+
+  useEffect(() => {
+    const handleOpenInfo = (event: Event) => {
+      const customEvent = event as CustomEvent<{ conversationId?: string }>
+      if (customEvent.detail?.conversationId !== conversation.id) return
+      setIsInfoSidebarOpen(true)
+    }
+
+    window.addEventListener(OPEN_GROUP_INFO_EVENT, handleOpenInfo as EventListener)
+    return () => window.removeEventListener(OPEN_GROUP_INFO_EVENT, handleOpenInfo as EventListener)
   }, [conversation.id])
   const { mutate: updateGroupName, isPending: isUpdatingName } = useUpdateGroupNameMutation()
   const { mutate: updateGroupAvatar } = useUpdateGroupAvatarMutation()

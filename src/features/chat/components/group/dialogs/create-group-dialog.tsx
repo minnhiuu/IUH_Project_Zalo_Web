@@ -11,16 +11,16 @@ import {
   useCreateGroupMutation,
   useUpdateGroupAvatarMutation,
   useAddMembersMutation
-} from '../../queries/use-mutations'
-import { useFriendsDirectory, useSearchMembersInfinite } from '../../queries/use-queries'
-import type { SearchMemberResponse } from '../../schemas/chat.schema'
-import { useChatText } from '../../i18n/use-chat-text'
+} from '../../../queries/use-mutations'
+import { useFriendsDirectory, useSearchMembersInfinite } from '../../../queries/use-queries'
+import type { SearchMemberResponse } from '../../../schemas/chat.schema'
+import { useChatText } from '../../../i18n/use-chat-text'
 import { ImageCropperDialog } from '@/components/common/image-cropper-dialog'
 import { getCroppedImg } from '@/utils/image-crop'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { MemberItem } from '../members/member-item'
+import { SelectedMemberSidebar } from '../members/selected-member-sidebar'
 import { useDebounce } from '@/hooks/use-debounce'
-import { MemberItem } from '@/features/chat/components/group/members/member-item'
-import { SelectedMemberSidebar } from '@/features/chat/components/group/members/selected-member-sidebar'
 
 interface CreateGroupDialogProps {
   isOpen: boolean

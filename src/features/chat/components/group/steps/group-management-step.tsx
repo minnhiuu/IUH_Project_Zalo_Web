@@ -4,7 +4,10 @@ import { HelpTooltipIcon } from '@/components/common/help-tooltip-icon'
 import { ActionMenuItem } from '@/components/common/action-menu-item'
 import { UserRoundPlus, UserRoundX } from 'lucide-react'
 import { BaseDialog } from '@/components/common/base-dialog'
-
+import { Button } from '@/components/ui/button'
+import { disbandGroupApi } from '../../../api/chat.api'
+import { GroupMemberRole } from '@/constants/enum'
+import { Ban } from 'lucide-react'
 interface GroupManagementStepText {
   memberPermissionsTitle: string
   permissions: {
@@ -45,10 +48,12 @@ interface GroupManagementStepProps {
   onDisbandSuccess?: () => void
 }
 
-import { Button } from '@/components/ui/button'
-import { disbandGroupApi } from '../../api/chat.api'
-
-export function GroupManagementStep({ text, conversationId, onDisbandSuccess }: GroupManagementStepProps) {
+export function GroupManagementStep({
+  text,
+  conversationId,
+  currentUserRole,
+  onDisbandSuccess
+}: GroupManagementStepProps & { currentUserRole?: GroupMemberRole }) {
   // ... rest of the component stays the same, just finding the button ...
   const [allowUpdateNameAvatar, setAllowUpdateNameAvatar] = useState(true)
   const [allowPinNotePoll, setAllowPinNotePoll] = useState(true)
@@ -77,8 +82,39 @@ export function GroupManagementStep({ text, conversationId, onDisbandSuccess }: 
     }
   }
 
+  const isOwner = !currentUserRole || currentUserRole === GroupMemberRole.Owner
+  const isAdmin = currentUserRole === GroupMemberRole.Admin
+  const isMember = currentUserRole === GroupMemberRole.Member
+
+  if (isMember) {
+    return (
+      <div className='flex flex-col h-full bg-bg-dialog-secondary'>
+        <div className='bg-background border-b border-border/50 px-4 py-3 flex items-center gap-2 text-[13px] text-muted-foreground'>
+          <Ban className='w-4 h-4 shrink-0' />
+          <span>Tính năng chỉ dành cho quản trị viên</span>
+        </div>
+        <div className='flex-1 group relative overflow-hidden'>
+          <div className='absolute inset-0 opacity-30 pointer-events-none overflow-y-auto'>
+            <div className='bg-background px-5 py-3'>
+              <p className='text-[14px] font-bold text-foreground mb-3'>{text.memberPermissionsTitle}</p>
+            </div>
+          </div>
+          <div className='absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity'>
+            <Ban className='w-16 h-16 text-muted-foreground/40' />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className='flex flex-col h-full overflow-y-auto overflow-x-hidden bg-bg-dialog-secondary w-full text-left'>
+      {isAdmin && (
+        <div className='bg-background border-b border-border/50 px-4 py-3 flex items-center gap-2 text-[13px] text-muted-foreground'>
+          <Ban className='w-4 h-4 shrink-0' />
+          <span>Tính năng chỉ dành cho quản trị viên</span>
+        </div>
+      )}
       <div className='bg-background px-5 py-3 border-b border-border/50'>
         <p className='text-[14px] font-bold text-foreground mb-3'>{text.memberPermissionsTitle}</p>
         <div className='space-y-1.5'>
@@ -168,14 +204,16 @@ export function GroupManagementStep({ text, conversationId, onDisbandSuccess }: 
 
       <div className='mt-2 bg-background border-y border-border/50'>
         <ActionMenuItem icon={<UserRoundX />} label={text.actions.removeMembers} showDivider={true} />
-        <ActionMenuItem icon={<UserRoundPlus />} label={text.actions.ownerAndDeputy} showDivider={true} />
+        {isOwner && <ActionMenuItem icon={<UserRoundPlus />} label={text.actions.ownerAndDeputy} showDivider={true} />}
       </div>
 
-      <div className='mt-2 bg-background border-y border-border/50 p-4'>
-        <Button variant='destructive' onClick={() => setIsDisbandDialogOpen(true)} className='w-full cursor-pointer'>
-          {text.actions.disbandGroup}
-        </Button>
-      </div>
+      {isOwner && (
+        <div className='mt-2 bg-background border-y border-border/50 p-4'>
+          <Button variant='destructive' onClick={() => setIsDisbandDialogOpen(true)} className='w-full cursor-pointer'>
+            {text.actions.disbandGroup}
+          </Button>
+        </div>
+      )}
       <div className='flex-1 bg-background' />
 
       <BaseDialog

@@ -8,6 +8,7 @@ import { resolveUpdateAvatarAction } from './update-avatar-action'
 import { resolveUpdateNameAction } from './update-name-action'
 import { resolvePromoteAdminAction } from './promote-admin-action'
 import { resolveDemoteAdminAction } from './demote-admin-action'
+import { resolveTransferOwnerAction } from './transfer-owner-action'
 
 export function resolveSystemAction(context: ActionContext): ActionResolveResult {
   const { metadata } = context
@@ -31,6 +32,8 @@ export function resolveSystemAction(context: ActionContext): ActionResolveResult
       return resolvePromoteAdminAction(context)
     case 'DEMOTE_ADMIN':
       return resolveDemoteAdminAction(context)
+    case 'TRANSFER_OWNER':
+      return resolveTransferOwnerAction(context)
     default:
       return {}
   }

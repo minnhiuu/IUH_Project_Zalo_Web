@@ -1,8 +1,8 @@
 import { Checkbox } from '@/components/ui/checkbox'
 import { UserAvatar } from '@/components/common/user-avatar'
-import type { SearchMemberResponse } from '../../schemas/chat.schema'
+import type { SearchMemberResponse } from '../../../schemas/chat.schema'
 import { Check } from 'lucide-react'
-import { useChatText } from '../../i18n/use-chat-text'
+import { useChatText } from '../../../i18n/use-chat-text'
 
 interface MemberItemProps {
   member: SearchMemberResponse

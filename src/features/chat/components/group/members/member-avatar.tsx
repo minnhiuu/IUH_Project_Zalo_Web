@@ -1,5 +1,5 @@
 import { UserAvatar } from '@/components/common/user-avatar'
-import { GroupAvatar } from './group-avatar'
+import { GroupAvatar } from '../group-avatar'
 
 interface MemberAvatarItem {
   avatar?: string | null

@@ -160,6 +160,13 @@ export const CHAT_KEYS = {
         silentDescription: 'chat.group-info-dialog.actions.leaveDialog.silentDescription',
         confirm: 'chat.group-info-dialog.actions.leaveDialog.confirm',
         cancel: 'chat.group-info-dialog.actions.leaveDialog.cancel'
+      },
+      transferOwnerDialog: {
+        title: 'chat.group-info-dialog.actions.transferOwnerDialog.title',
+        description: 'chat.group-info-dialog.actions.transferOwnerDialog.description',
+        confirm: 'chat.group-info-dialog.actions.transferOwnerDialog.confirm',
+        cancel: 'chat.group-info-dialog.actions.transferOwnerDialog.cancel',
+        searchPlaceholder: 'chat.group-info-dialog.actions.transferOwnerDialog.searchPlaceholder'
       }
     }
   },

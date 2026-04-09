@@ -1,17 +1,18 @@
 import { useState } from 'react'
 import { BaseDialog } from '@/components/common/base-dialog'
 import { Switch } from '@/components/ui/switch'
-import { useChatText } from '../../i18n/use-chat-text'
-import { useLeaveGroupMutation } from '../../queries/use-mutations'
+import { useChatText } from '../../../i18n/use-chat-text'
+import { useLeaveGroupMutation } from '../../../queries/use-mutations'
 import { showErrorToast, showSuccessToast } from '@/utils/toast'
 
 interface LeaveGroupDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   conversationId: string
+  transferTargetUserId?: string | null
 }
 
-export function LeaveGroupDialog({ open, onOpenChange, conversationId }: LeaveGroupDialogProps) {
+export function LeaveGroupDialog({ open, onOpenChange, conversationId, transferTargetUserId }: LeaveGroupDialogProps) {
   const { text } = useChatText()
   const leaveDialogText = text['group-info-dialog'].actions.leaveDialog
   const { mutate: leaveGroup, isPending } = useLeaveGroupMutation()
@@ -20,7 +21,12 @@ export function LeaveGroupDialog({ open, onOpenChange, conversationId }: LeaveGr
 
   const handleConfirm = () => {
     leaveGroup(
-      { conversationId, silent, navigateDelayMs: NAVIGATE_DELAY_MS },
+      {
+        conversationId,
+        silent,
+        navigateDelayMs: NAVIGATE_DELAY_MS,
+        ...(transferTargetUserId ? { transferTo: transferTargetUserId } : {})
+      },
       {
         onSuccess: () => {
           showSuccessToast(text.toasts.leaveGroupSuccess, NAVIGATE_DELAY_MS)

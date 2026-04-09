@@ -48,9 +48,20 @@
         "greeting_message": "Hi everyone! I just became admin 👋"
       },
       "demote_admin": {
-        "by_you": "You removed <bold>{{target}}</bold>'s deputy role",
-        "self_demoted": "Your deputy role has been revoked",
-        "by_actor": "<bold>{{target}}</bold>'s deputy role has been revoked"
+        "by_you": "<bold>{{target}}</bold> is no longer an admin of a group",
+        "self_demoted": "You are no longer an admin of a group",
+        "by_actor": "<bold>{{target}}</bold> is no longer an admin of a group"
+      },
+      "transfer_owner": {
+        "by_you": "You transferred ownership to <bold>{{target}}</bold>",
+        "self_promoted": "You are now the group owner",
+        "by_actor": "<bold>{{target}}</bold> is now the group owner",
+        "card_title": "You have been appointed as the new group owner",
+        "card_desc": "From now on, you can change settings and manage the group's content",
+        "manage_group": "Manage group",
+        "group_info": "Group info",
+        "send_greeting": "Send greeting",
+        "greeting_message": "Hi everyone! I just became the group owner 👋"
       },
       "leave_group": {
         "self": "You left the group",
@@ -178,6 +189,13 @@
           "silentDescription": "Only owner/admins will know that you left.",
           "confirm": "Leave group",
           "cancel": "Cancel"
+        },
+        "transferOwnerDialog": {
+          "title": "Select a new group owner before leaving",
+          "description": "You need to transfer ownership to another member before leaving the group.",
+          "confirm": "Select and continue",
+          "cancel": "Cancel",
+          "searchPlaceholder": "Search members"
         }
       }
     },
@@ -224,7 +242,7 @@
       "ownerRole": "Owner",
       "adminRole": "Admin",
       "addDeputy": "Add admin",
-      "removeDeputy": "Remove admin",
+      "removeDeputy": "Revoke admin privilege",
       "removeFromGroup": "Remove from group",
       "searchMemberPlaceholder": "Search members",
       "membersLoading": "Loading members...",

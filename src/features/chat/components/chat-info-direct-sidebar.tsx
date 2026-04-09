@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { DisappearingMessagesDialog } from '@/components/common/disappearing-messages-dialog'
-import { CreateGroupDialog } from './group/create-group-dialog'
+import { CreateGroupDialog } from './group/dialogs/create-group-dialog'
 import { ChatInfoTopSection } from './chat-info-top-section'
 import { ChatInfoSections } from './chat-info-sections'
 import { cn } from '@/lib/utils'

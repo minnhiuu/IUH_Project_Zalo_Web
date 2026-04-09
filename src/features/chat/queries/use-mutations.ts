@@ -182,10 +182,24 @@ export const useLeaveGroupMutation = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ conversationId, silent }: { conversationId: string; silent?: boolean; navigateDelayMs?: number }) =>
-      leaveGroupApi(conversationId, Boolean(silent)),
-    onSuccess: (_, { conversationId, navigateDelayMs }) => {
+    mutationFn: ({
+      conversationId,
+      silent,
+      transferTo
+    }: {
+      conversationId: string
+      silent?: boolean
+      transferTo?: string
+      navigateDelayMs?: number
+    }) => leaveGroupApi(conversationId, Boolean(silent), transferTo),
+    onSuccess: (_, { conversationId, navigateDelayMs, transferTo }) => {
       const delay = Math.max(0, Number(navigateDelayMs ?? 0))
+
+      if (transferTo) {
+        queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+        queryClient.invalidateQueries({ queryKey: chatKeys.messages(conversationId) })
+        queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'group-members', conversationId] })
+      }
 
       window.setTimeout(() => {
         queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {

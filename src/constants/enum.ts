@@ -164,7 +164,8 @@ export const SystemActionType = {
   UpdateAvatar: 'UPDATE_AVATAR',
   DisbandGroup: 'DISBAND_GROUP',
   PromoteAdmin: 'PROMOTE_ADMIN',
-  DemoteAdmin: 'DEMOTE_ADMIN'
+  DemoteAdmin: 'DEMOTE_ADMIN',
+  TransferOwner: 'TRANSFER_OWNER'
 } as const
 
 export type SystemActionType = (typeof SystemActionType)[keyof typeof SystemActionType]
