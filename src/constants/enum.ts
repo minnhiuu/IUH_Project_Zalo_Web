@@ -93,10 +93,9 @@ export type Status = (typeof Status)[keyof typeof Status]
 
 export const MessageType = {
   Chat: 'CHAT',
-  Join: 'JOIN',
-  Leave: 'LEAVE',
   Image: 'IMAGE',
   File: 'FILE',
+  System: 'SYSTEM',
   SystemFriendshipCard: 'SYSTEM_FRIENDSHIP_CARD',
   SystemFriendshipBadge: 'SYSTEM_FRIENDSHIP_BADGE'
 } as const
@@ -147,3 +146,26 @@ export const AiProcessingStatus = {
 } as const
 
 export type AiProcessingStatus = (typeof AiProcessingStatus)[keyof typeof AiProcessingStatus]
+
+export const GroupMemberRole = {
+  Owner: 'OWNER',
+  Admin: 'ADMIN',
+  Member: 'MEMBER'
+} as const
+
+export type GroupMemberRole = (typeof GroupMemberRole)[keyof typeof GroupMemberRole]
+
+export const SystemActionType = {
+  CreateGroup: 'CREATE_GROUP',
+  AddMembers: 'ADD_MEMBERS',
+  RemoveMember: 'REMOVE_MEMBER',
+  LeaveGroup: 'LEAVE_GROUP',
+  UpdateName: 'UPDATE_NAME',
+  UpdateAvatar: 'UPDATE_AVATAR',
+  DisbandGroup: 'DISBAND_GROUP',
+  PromoteAdmin: 'PROMOTE_ADMIN',
+  DemoteAdmin: 'DEMOTE_ADMIN',
+  TransferOwner: 'TRANSFER_OWNER'
+} as const
+
+export type SystemActionType = (typeof SystemActionType)[keyof typeof SystemActionType]

@@ -21,6 +21,20 @@ export const ReplyMetadataSchema = z.object({
 
 export type ReplyMetadata = z.infer<typeof ReplyMetadataSchema>
 
+export const LastMessageResponseSchema = z.object({
+  id: z.string().nullable().optional(),
+  senderId: z.string().nullable().optional(),
+  senderName: z.string().nullable().optional(),
+  content: z.string().nullable().optional(),
+  timestamp: z.string().datetime().nullable().optional(),
+  type: z.nativeEnum(MessageType).nullable().optional(),
+  status: z.nativeEnum(MessageStatus).nullable().optional(),
+  isFromMe: z.boolean().nullable().optional(),
+  metadata: z.record(z.string(), z.any()).nullable().optional()
+})
+
+export type LastMessageResponse = z.infer<typeof LastMessageResponseSchema>
+
 // ────────────────────────────────────────────────────────────────
 // ConversationResponse — Room-centric (ObjectId-based)
 // Breaking change: conversationId → id, partner* → name/avatar/status/isGroup
@@ -34,13 +48,9 @@ export const ConversationResponseSchema = z.object({
   friendshipStatus: z.string().nullable().optional(), // status from friend-service
   lastSeenAt: z.string().datetime().nullable().optional(),
   isGroup: z.boolean().default(false),
-  lastMessage: z.string().nullable().optional(),
-  lastMessageId: z.string().nullable().optional(),
-  lastMessageTime: z.string().datetime().nullable().optional(),
-  isLastMessageFromMe: z.boolean().nullable().optional(),
-  lastMessageType: z.nativeEnum(MessageType).nullable().optional(),
+  isDisbanded: z.boolean().default(false),
   unreadCount: z.number().nullable().optional(),
-  lastMessageStatus: z.nativeEnum(MessageStatus).nullable().optional(),
+  lastMessage: LastMessageResponseSchema.nullable().optional(),
   members: z.array(ConversationMemberResponseSchema).nullable().optional()
 })
 
@@ -64,7 +74,8 @@ export const MessageResponseSchema = z.object({
   replyTo: ReplyMetadataSchema.nullable().optional(),
   isForwarded: z.boolean().nullable().optional(),
   unreadCount: z.number().nullable().optional(),
-  isFromMe: z.boolean().nullable().optional()
+  isFromMe: z.boolean().nullable().optional(),
+  metadata: z.record(z.string(), z.any()).nullable().optional()
 })
 
 export type MessageResponse = z.infer<typeof MessageResponseSchema>
@@ -96,3 +107,35 @@ export const ChatMessageRequestSchema = z.object({
 })
 
 export type ChatMessageRequest = z.infer<typeof ChatMessageRequestSchema>
+
+export const GroupConversationCreateRequestSchema = z.object({
+  name: z.string().min(1),
+  avatar: z.string().nullable().optional(),
+  isGroup: z.literal(true),
+  memberIds: z.array(z.string()).min(1)
+})
+
+export type GroupConversationCreateRequest = z.infer<typeof GroupConversationCreateRequestSchema>
+
+export const GroupMemberListItemResponseSchema = z.object({
+  userId: z.string(),
+  fullName: z.string(),
+  avatar: z.string().nullable().optional(),
+  phoneNumber: z.string().nullable().optional(),
+  role: z.string().nullable().optional(),
+  joinedAt: z.string().datetime().nullable().optional(),
+  isFriend: z.boolean().default(false),
+  isCurrentUser: z.boolean().default(false)
+})
+
+export type GroupMemberListItemResponse = z.infer<typeof GroupMemberListItemResponseSchema>
+
+export const SearchMemberResponseSchema = z.object({
+  userId: z.string(),
+  fullName: z.string(),
+  avatar: z.string().nullable().optional(),
+  phoneNumber: z.string().nullable().optional(),
+  isAlreadyMember: z.boolean().default(false)
+})
+
+export type SearchMemberResponse = z.infer<typeof SearchMemberResponseSchema>

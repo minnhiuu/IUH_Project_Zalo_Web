@@ -81,13 +81,11 @@ export function ChatInput({ conversationId, replyTo, onCancelReply }: ChatInputP
       {/* 2. Trả lời (Reply Preview) */}
       {replyTo && (
         <div className='px-4 py-2 bg-background animate-in slide-in-from-bottom-1 duration-200'>
-          <div className='flex items-center justify-between bg-[#F1F2F4] px-4 py-2.5 rounded-md border-l-2 border-[#1972F5]'>
+          <div className='flex items-center justify-between bg-muted px-4 py-2.5 rounded-md border-l-2 border-primary'>
             <div className='flex items-start gap-2 truncate'>
               <Quote size={14} className='text-muted-foreground mt-1 shrink-0' />
               <div className='flex flex-col truncate'>
-                <span className='text-[13px]'>
-                  Trả lời <span className='font-bold'>{replyTo.senderName}</span>
-                </span>
+                <span className='text-[13px]'>{text.replyingTo(replyTo.senderName || '')}</span>
                 <span className='truncate text-[13px] text-muted-foreground max-w-[600px]'>{replyTo.content}</span>
               </div>
             </div>

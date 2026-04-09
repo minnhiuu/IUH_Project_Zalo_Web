@@ -34,6 +34,7 @@ export function AddFriendConfirmDialog({ open, onOpenChange, user, onBack, onSuc
 
   useEffect(() => {
     if (open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setMessage(defaultMessage)
       setBlockDiary(false)
     }
