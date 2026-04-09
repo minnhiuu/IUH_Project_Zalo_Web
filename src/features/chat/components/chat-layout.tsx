@@ -52,7 +52,6 @@ export function ChatLayout({
       status: Status.Offline,
       friendshipStatus: null,
       isGroup: false,
-      isDisbanded: false,
       members: []
     }
   }, [defaultPartnerId, cachedConvForPartner, isLoadingPartner, partnerUser])
@@ -65,9 +64,8 @@ export function ChatLayout({
   }, [defaultPartnerId, cachedConvForPartner, navigate])
 
   // ── Tính selectedChatId theo thứ tự ưu tiên ──
-  // defaultConversationId (từ URL) được ưu tiên cao nhất để navigate từ bên ngoài (vd: tạo nhóm) hoạt động
   const defaultChatId = cachedConvForPartner?.id || resolvedConversation?.id || null
-  const selectedChatId = defaultConversationId || userSelectedChatId || defaultChatId
+  const selectedChatId = userSelectedChatId || defaultConversationId || defaultChatId
 
   const selectedChat = useMemo(() => {
     if (!selectedChatId) return null

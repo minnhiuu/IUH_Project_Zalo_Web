@@ -11,24 +11,3 @@ export const useMessagesInfiniteQuery = (conversationId: string) => {
     enabled: !!conversationId
   })
 }
-
-export const useFriendsDirectory = (conversationId?: string | null, enabled: boolean = true) => {
-  return useQuery({
-    ...chatOptions.friendsDirectory(conversationId),
-    enabled
-  })
-}
-
-export const useSearchMembersInfinite = (query: string, conversationId?: string | null, enabled: boolean = true) => {
-  return useInfiniteQuery({
-    ...chatOptions.searchMembers(query, conversationId),
-    enabled: enabled && !!query
-  })
-}
-
-export const useGroupMembersInfinite = (conversationId: string, query: string, enabled: boolean = true) => {
-  return useInfiniteQuery({
-    ...chatOptions.groupMembers(conversationId, query),
-    enabled: enabled && !!conversationId
-  })
-}

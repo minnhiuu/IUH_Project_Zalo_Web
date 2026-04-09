@@ -3,85 +3,13 @@
     "title": "Messages",
     "searchPlaceholder": "Search conversations...",
     "emptyState": "Select a conversation to start chatting",
-    "emptyStateSearch": "No results found",
     "inputPlaceholder": "Type a message...",
     "send": "Send",
-    "loading": "Loading...",
-    "replyingTo": "Replying to {{name}}",
     "you": "You",
-    "you_lower": "you",
     "user": "User",
     "type": {
       "image": "[Image]",
-      "file": "[File]",
-      "confirm": "Confirm"
-    },
-    "system": {
-      "add_members": {
-        "single_self": "You were added to the group by <actorBold>{{actor}}</actorBold>",
-        "many_self": "You, <bold>{{targets}}</bold> were added to the group by <actorBold>{{actor}}</actorBold>",
-        "many_self_count": "You, <bold>{{targets}}</bold> and {{count}} others were added to the group by <actorBold>{{actor}}</actorBold>",
-        "single_other": "<bold>{{target}}</bold> was added to the group by <actorBold>{{actor}}</actorBold>",
-        "many_other": "<bold>{{targets}}</bold> were added to the group by <actorBold>{{actor}}</actorBold>",
-        "many_other_count": "<bold>{{targets}}</bold> and {{count}} others were added to the group by <actorBold>{{actor}}</actorBold>",
-        "group_created": "You created the group",
-        "joined_group": "You joined the group",
-        "update_name": "<actorBold>{{actor}}</actorBold> changed group name from <bold>{{oldName}}</bold> to <bold>{{newName}}</bold>",
-        "update_avatar": "<actorBold>{{actor}}</actorBold> changed group profile picture",
-        "update_name_simple": "Group name changed to {{newName}}",
-        "update_avatar_simple": "Group avatar has been changed",
-        "disband_group": "The group has been disbanded by the owner"
-      },
-      "remove_member": {
-        "by_you": "<bold>{{target}}</bold> has been removed from the group by you",
-        "self_removed": "You have been removed from the group",
-        "by_actor": "<bold>{{target}}</bold> was removed from the group by <actorBold>{{actor}}</actorBold>"
-      },
-      "promote_admin": {
-        "by_you": "<bold>{{target}}</bold> has become admin of this group",
-        "self_promoted": "You have become admin of this group",
-        "by_actor": "<bold>{{target}}</bold> has become admin of this group",
-        "card_title": "You have become admin of this group",
-        "card_desc": "As an admin, you can manage members in the Group Management section",
-        "manage_group": "Manage group",
-        "send_greeting": "Send greeting",
-        "greeting_message": "Hi everyone! I just became admin 👋"
-      },
-      "demote_admin": {
-        "by_you": "<bold>{{target}}</bold> is no longer an admin of a group",
-        "self_demoted": "You are no longer an admin of a group",
-        "by_actor": "<bold>{{target}}</bold> is no longer an admin of a group"
-      },
-      "transfer_owner": {
-        "by_you": "You transferred ownership to <bold>{{target}}</bold>",
-        "self_promoted": "You are now the group owner",
-        "by_actor": "<bold>{{target}}</bold> is now the group owner",
-        "card_title": "You have been appointed as the new group owner",
-        "card_desc": "From now on, you can change settings and manage the group's content",
-        "manage_group": "Manage group",
-        "group_info": "Group info",
-        "send_greeting": "Send greeting",
-        "greeting_message": "Hi everyone! I just became the group owner 👋"
-      },
-      "leave_group": {
-        "self": "You left the group",
-        "by_actor": "<actorBold>{{actor}}</actorBold> left the group"
-      },
-      "group_tips": {
-        "invite_cta": "Invite more friends",
-        "invite_suffix": "to group {{groupName}}",
-        "mention_prefix": "Type @ to",
-        "mention_highlight": "mention and attract attention",
-        "mention_suffix": "from other group members",
-        "reply_prefix": "Press",
-        "reply_action": "Reply",
-        "reply_suffix": "to quote message content"
-      }
-    },
-    "disbanded": {
-      "message": "The group has been disbanded by the owner.",
-      "cannotSendMessage": "You can no longer send messages to this group",
-      "deleteAction": "Delete conversation"
+      "file": "[File]"
     },
     "status": {
       "online": "Active now",
@@ -91,151 +19,11 @@
       "daysAgo": "{{count}} days ago",
       "onDate": "Accessed on {{date}}",
       "sending": "Sending...",
-      "sent": "Sent",
-      "membersCount": "{{count}} members"
-    },
-    "sidebar": {
-      "all": "All",
-      "unread": "Unread",
-      "category": "Filters",
-      "createGroup": "Create Group",
-      "addFriend": "Add Friend"
+      "sent": "Sent"
     },
     "errors": {
       "loadConversations": "Failed to load conversations.",
       "loadMessages": "Failed to load messages."
-    },
-    "create-group-dialog": {
-      "title": "Create Group",
-      "namePlaceholder": "Enter group name...",
-      "searchPlaceholder": "Search by name, phone number, etc.",
-      "recentChats": "Recent chats",
-      "selected": "Selected",
-      "cancel": "Cancel",
-      "create": "Create group",
-      "andOthers": "and {{count}} others",
-      "updateAvatarTitle": "Update Group Avatar",
-      "confirm": "Confirm",
-      "dragToMove": "Drag to move",
-      "changeAvatar": "Change Avatar",
-      "removeAvatar": "Remove Avatar",
-      "addMembersTitle": "Add Members",
-      "alreadyJoined": "Joined group"
-    },
-    "rename-group-dialog": {
-      "title": "Set group name",
-      "description": "Are you sure you want to rename this group? A new group name will be visible to all members.",
-      "placeholder": "Enter new group name...",
-      "cancel": "Cancel",
-      "confirm": "Confirm"
-    },
-    "group-info-dialog": {
-      "title": "Group Info",
-      "managementTitle": "Manage group",
-      "backToInfo": "Back to group info",
-      "members": "Members ({{count}})",
-      "management": "Manage group",
-      "leaveGroup": "Leave group",
-      "viewAll": "View all",
-      "media": "Photos/Videos",
-      "noMedia": "No shared image in this group",
-      "sendMessage": "Chat",
-      "groupLink": "Group link",
-      "memberPermissionsTitle": "Allow group members to",
-      "permissions": {
-        "updateNameAvatar": "Change the group name & avatar",
-        "pinNotePoll": "Pin messages, notes, and polls to the top of a conversation",
-        "createReminder": "Create new notes & reminders",
-        "createPoll": "Create new polls",
-        "sendMessage": "Send messages"
-      },
-      "toggles": {
-        "reviewNewMembers": "Membership approval",
-        "highlightAdminMessages": "Highlight messages from owner/admins",
-        "allowNewMembersReadRecent": "Allow new members to read most recent messages",
-        "allowJoinByLink": "Allow joining group via link"
-      },
-      "toggleTooltips": {
-        "reviewNewMembers": "When enabled, new members must be approved by owner or admins to join the group.",
-        "highlightAdminMessages": "When enabled, messages from owner or admin will have a key symbol.",
-        "allowNewMembersReadRecent": "New members can see the entire message history when they join.",
-        "allowJoinByLink": "All members can invite people to join the group by sharing a link with them."
-      },
-      "actions": {
-        "removeMembers": "Blocked members",
-        "ownerAndDeputy": "Owner & admin",
-        "disbandGroup": "Delete group",
-        "disbandDialog": {
-          "title": "Disband group",
-          "description": "Remove all members and delete the group? This CANNOT be undone.",
-          "confirm": "Disband group",
-          "cancel": "No"
-        },
-        "leaveDialog": {
-          "title": "Leave group and delete chat",
-          "description": "You will no longer be able to view messages in this group after leaving.",
-          "silentTitle": "Leave silently",
-          "silentDescription": "Only owner/admins will know that you left.",
-          "confirm": "Leave group",
-          "cancel": "Cancel"
-        },
-        "transferOwnerDialog": {
-          "title": "Select a new group owner before leaving",
-          "description": "You need to transfer ownership to another member before leaving the group.",
-          "confirm": "Select and continue",
-          "cancel": "Cancel",
-          "searchPlaceholder": "Search members"
-        }
-      }
-    },
-    "toasts": {
-      "updating": "Updating...",
-      "updateAvatarSuccess": "Profile picture updated",
-      "updateNameSuccess": "Group name updated",
-      "updateError": "Update failed",
-      "leaveGroupSuccess": "Left group successfully",
-      "leaveGroupError": "Failed to leave group"
-    },
-    "sidebarInfo": {
-      "title": "Chat Information",
-      "groupTitle": "Group Information",
-      "members": "Group Members",
-      "groupBoard": "Group Board",
-      "reminderBoard": "Reminder list",
-      "notesPinsPolls": "Notes, pins, polls",
-      "commonGroups": "Common groups",
-      "commonGroupsCount": "{{count}} common groups",
-      "noCommonGroups": "No common groups",
-      "viewAll": "View all",
-      "photosVideos": "Photos/Videos",
-      "noPhotosVideos": "No photos/videos shared in this conversation",
-      "files": "Files",
-      "noFiles": "No files shared in this conversation",
-      "links": "Links",
-      "noLinks": "No links shared in this conversation",
-      "privacySettings": "Privacy settings",
-      "disappearingMessages": "Disappearing messages",
-      "disappearingMessagesTooltip": "Messages will auto-disappear after your setting times",
-      "disappearingMessagesWarning": "Only available for group owner or admins",
-      "never": "Never",
-      "hideConversation": "Hide conversation",
-      "reportAction": "Report",
-      "deleteHistory": "Delete chat history",
-      "leaveGroup": "Leave group",
-      "viewAllMembers": "View all members",
-      "muteNotifications": "Mute",
-      "pin": "Pin",
-      "addMember": "Add member",
-      "settings": "Manage group",
-      "createGroup": "Create group",
-      "ownerRole": "Owner",
-      "adminRole": "Admin",
-      "addDeputy": "Add admin",
-      "removeDeputy": "Revoke admin privilege",
-      "removeFromGroup": "Remove from group",
-      "searchMemberPlaceholder": "Search members",
-      "membersLoading": "Loading members...",
-      "noMatchingMembers": "No matching members"
     }
   },
   "ai": {
