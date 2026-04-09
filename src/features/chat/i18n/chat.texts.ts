@@ -204,6 +204,20 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     membersLoading: t(CHAT_KEYS.sidebarInfo.membersLoading),
     noMatchingMembers: t(CHAT_KEYS.sidebarInfo.noMatchingMembers)
   },
+<<<<<<< HEAD
+=======
+  systemFriendship: {
+    defaultPartnerName: t(CHAT_KEYS.systemFriendship.defaultPartnerName),
+    acceptedBy: (name: string) => t(CHAT_KEYS.systemFriendship.acceptedBy, { name }),
+    acceptedSuffix: t(CHAT_KEYS.systemFriendship.acceptedSuffix),
+    becameFriendsWith: (name: string) => t(CHAT_KEYS.systemFriendship.becameFriendsWith, { name }),
+    becameFriendsPrefix: t(CHAT_KEYS.systemFriendship.becameFriendsPrefix),
+    cardTitle: t(CHAT_KEYS.systemFriendship.cardTitle),
+    cardDescription: (name: string) => t(CHAT_KEYS.systemFriendship.cardDescription, { name }),
+    sendGreeting: t(CHAT_KEYS.systemFriendship.sendGreeting),
+    greetingMessage: t(CHAT_KEYS.systemFriendship.greetingMessage)
+  },
+>>>>>>> 91cb2e7ffd782ddeb3d1e077e2dd2b60fa7bcba2
   /** Trả về label dịch cho trạng thái pipeline AI theo ngôn ngữ hiện tại */
   aiStatusLabel: (status?: AiProcessingStatus): string => {
     if (!status) return t(CHAT_KEYS.aiStatus.DEFAULT)

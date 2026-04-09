@@ -13,6 +13,12 @@ import { useChatContext } from '../context/chat-context'
 import { MessageStatus, MessageType } from '@/constants/enum'
 import { SystemMessage } from '../utils/system-message'
 import { UserAvatar } from '@/components/common/user-avatar'
+<<<<<<< HEAD
+=======
+import { useAuth } from '@/features/auth'
+import { SystemFriendshipCard } from './system-friendship-card'
+import { SystemFriendshipBadge } from './system-friendship-badge'
+>>>>>>> 91cb2e7ffd782ddeb3d1e077e2dd2b60fa7bcba2
 
 export function MessageBubble({
   message,
