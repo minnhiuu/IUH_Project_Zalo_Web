@@ -36,6 +36,23 @@ export const LastMessageResponseSchema = z.object({
 export type LastMessageResponse = z.infer<typeof LastMessageResponseSchema>
 
 // ────────────────────────────────────────────────────────────────
+// GroupSettings — group permission toggles
+// ────────────────────────────────────────────────────────────────
+export const GroupSettingsSchema = z.object({
+  memberCanChangeInfo: z.boolean().default(true),
+  memberCanPinMessages: z.boolean().default(true),
+  memberCanCreateNotes: z.boolean().default(true),
+  memberCanCreatePolls: z.boolean().default(true),
+  memberCanSendMessages: z.boolean().default(true),
+  membershipApprovalEnabled: z.boolean().default(false),
+  highlightAdminMessages: z.boolean().default(true),
+  newMembersCanReadRecent: z.boolean().default(true),
+  joinByLinkEnabled: z.boolean().default(false)
+})
+
+export type GroupSettings = z.infer<typeof GroupSettingsSchema>
+
+// ────────────────────────────────────────────────────────────────
 // ConversationResponse — Room-centric (ObjectId-based)
 // Breaking change: conversationId → id, partner* → name/avatar/status/isGroup
 // ────────────────────────────────────────────────────────────────
@@ -51,7 +68,8 @@ export const ConversationResponseSchema = z.object({
   isDisbanded: z.boolean().default(false),
   unreadCount: z.number().nullable().optional(),
   lastMessage: LastMessageResponseSchema.nullable().optional(),
-  members: z.array(ConversationMemberResponseSchema).nullable().optional()
+  members: z.array(ConversationMemberResponseSchema).nullable().optional(),
+  settings: GroupSettingsSchema.nullable().optional()
 })
 
 export type ConversationResponse = z.infer<typeof ConversationResponseSchema>

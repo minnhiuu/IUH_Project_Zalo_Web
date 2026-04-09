@@ -10,6 +10,8 @@ import type { ConversationResponse } from '../../../schemas/chat.schema'
 import { useChatText } from '../../../i18n/use-chat-text'
 import { useAuth } from '@/features/auth'
 import { GroupMemberRole } from '@/constants/enum'
+import { OwnerProfileDialog } from '@/features/user/components/profile-dialog/owner/owner-profile-dialog'
+import { OthersProfileDialog } from '@/features/user/components/profile-dialog/others/others-profile-dialog'
 
 interface GroupSubStepProps {
   conversation: ConversationResponse
@@ -28,6 +30,9 @@ export function GroupSubStep({ conversation, currentUserRole, step, onBack }: Gr
   const [isLeaveGroupDialogOpen, setIsLeaveGroupDialogOpen] = useState(false)
   const [isTransferOwnerDialogOpen, setIsTransferOwnerDialogOpen] = useState(false)
   const [pendingTransferTargetId, setPendingTransferTargetId] = useState<string | null>(null)
+  const [isOwnerProfileOpen, setIsOwnerProfileOpen] = useState(false)
+  const [isOthersProfileOpen, setIsOthersProfileOpen] = useState(false)
+  const [selectedProfileUserId, setSelectedProfileUserId] = useState<string | undefined>(undefined)
 
   const isOverlayDialogOpen = isAddMemberOpen || isLeaveGroupDialogOpen || isTransferOwnerDialogOpen
 
@@ -64,6 +69,7 @@ export function GroupSubStep({ conversation, currentUserRole, step, onBack }: Gr
             text={tg['group-info-dialog']}
             conversationId={conversation.id}
             currentUserRole={currentUserRole}
+            settings={conversation.settings}
             onDisbandSuccess={onBack}
           />
         ) : (
@@ -76,6 +82,14 @@ export function GroupSubStep({ conversation, currentUserRole, step, onBack }: Gr
             currentUserRole={currentUserRole}
             onOpenAddMember={() => setIsAddMemberOpen(true)}
             onLeaveGroup={handleLeaveGroup}
+            onMemberClick={(member) => {
+              if (member.isCurrentUser || member.userId === user?.id) {
+                setIsOwnerProfileOpen(true)
+                return
+              }
+              setSelectedProfileUserId(member.userId)
+              setIsOthersProfileOpen(true)
+            }}
           />
         )}
       </div>
@@ -108,6 +122,13 @@ export function GroupSubStep({ conversation, currentUserRole, step, onBack }: Gr
           conversationId={conversation.id}
         />
       )}
+
+      <OwnerProfileDialog open={isOwnerProfileOpen} onOpenChange={setIsOwnerProfileOpen} />
+      <OthersProfileDialog
+        open={isOthersProfileOpen}
+        onOpenChange={setIsOthersProfileOpen}
+        userId={selectedProfileUserId}
+      />
     </div>
   )
 }

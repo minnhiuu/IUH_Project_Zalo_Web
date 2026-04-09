@@ -9,6 +9,7 @@ import { resolveUpdateNameAction } from './update-name-action'
 import { resolvePromoteAdminAction } from './promote-admin-action'
 import { resolveDemoteAdminAction } from './demote-admin-action'
 import { resolveTransferOwnerAction } from './transfer-owner-action'
+import { resolveUpdateSettingsAction } from './update-settings-action'
 
 export function resolveSystemAction(context: ActionContext): ActionResolveResult {
   const { metadata } = context
@@ -34,6 +35,8 @@ export function resolveSystemAction(context: ActionContext): ActionResolveResult
       return resolveDemoteAdminAction(context)
     case 'TRANSFER_OWNER':
       return resolveTransferOwnerAction(context)
+    case 'UPDATE_SETTINGS':
+      return resolveUpdateSettingsAction(context)
     default:
       return {}
   }

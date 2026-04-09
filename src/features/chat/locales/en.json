@@ -16,6 +16,28 @@
       "file": "[File]",
       "confirm": "Confirm"
     },
+    "messageBubble": {
+      "reply": "Reply",
+      "forward": "Forward",
+      "like": "Like",
+      "share": "Share",
+      "copy": "Copy text",
+      "pinMessage": "Pin message",
+      "starMessage": "Star this message",
+      "selectMessages": "Select messages",
+      "viewDetails": "View details",
+      "otherOptions": "Other options",
+      "saveToMyDocuments": "Save to My Documents",
+      "createReminder": "Create reminder",
+      "delete": "Delete",
+      "more": "More",
+      "revoke": "Revoke",
+      "deleteForMe": "Delete only for me",
+      "forwarded": "Forwarded",
+      "revoked": "This message was revoked",
+      "image": "📷 Image",
+      "file": "📁 File"
+    },
     "system": {
       "add_members": {
         "single_self": "You were added to the group by <actorBold>{{actor}}</actorBold>",
@@ -63,6 +85,15 @@
         "send_greeting": "Send greeting",
         "greeting_message": "Hi everyone! I just became the group owner 👋"
       },
+      "update_settings": {
+        "send_messages_restricted_self": "You only allowed group owner/admin to send messages in this group.",
+        "send_messages_restricted_other": "<actorBold>{{actor}}</actorBold> only allowed group owner/admin to send messages in this group.",
+        "send_messages_allowed_self": "You allowed everyone to send messages in this group.",
+        "send_messages_allowed_other": "<actorBold>{{actor}}</actorBold> allowed everyone to send messages in this group.",
+        "membership_approval_required": "Membership approval setting was changed to \"Required\".",
+        "membership_approval_none": "Membership approval setting was changed to \"None\".",
+        "join_by_link_enabled": "Join group via link has been enabled."
+      },
       "leave_group": {
         "self": "You left the group",
         "by_actor": "<actorBold>{{actor}}</actorBold> left the group"
@@ -82,6 +113,11 @@
       "message": "The group has been disbanded by the owner.",
       "cannotSendMessage": "You can no longer send messages to this group",
       "deleteAction": "Delete conversation"
+    },
+    "restricted": {
+      "onlyAdminCanSend": "Only <highlight>owner/admins</highlight> can send messages to this group.",
+      "cannotRename": "Only owner/admins can rename this group",
+      "cannotChangeAvatar": "Only owner/admins can change the group avatar"
     },
     "status": {
       "online": "Active now",

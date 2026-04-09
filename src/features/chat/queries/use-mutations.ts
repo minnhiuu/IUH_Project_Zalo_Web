@@ -7,6 +7,7 @@ import {
   createGroupConversation,
   updateGroupNameApi,
   updateGroupAvatarApi,
+  updateGroupSettingsApi,
   deleteConversationApi,
   leaveGroupApi,
   addMembersToGroupApi,
@@ -15,7 +16,7 @@ import {
   demoteFromAdminApi
 } from '../api/chat.api'
 import { chatKeys } from './keys'
-import type { ConversationResponse, ChatMessageRequest } from '../schemas/chat.schema'
+import type { ConversationResponse, ChatMessageRequest, GroupSettings } from '../schemas/chat.schema'
 
 export const useMarkAsReadMutation = () => {
   const queryClient = useQueryClient()
@@ -311,6 +312,24 @@ export const useDemoteFromAdminMutation = () => {
     },
     onError: (error) => {
       console.error('Failed to demote admin', error)
+    }
+  })
+}
+
+export const useUpdateGroupSettingsMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ conversationId, settings }: { conversationId: string; settings: Partial<GroupSettings> }) =>
+      updateGroupSettingsApi(conversationId, settings),
+    onSuccess: (updatedConv) => {
+      queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
+        if (!oldData) return [updatedConv]
+        return oldData.map((conv) => (conv.id === updatedConv.id ? { ...conv, ...updatedConv } : conv))
+      })
+    },
+    onError: (error) => {
+      console.error('Failed to update group settings', error)
     }
   })
 }

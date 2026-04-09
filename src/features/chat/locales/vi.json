@@ -16,6 +16,28 @@
       "file": "[Tệp]",
       "confirm": "Xác nhận"
     },
+    "messageBubble": {
+      "reply": "Trả lời",
+      "forward": "Chuyển tiếp",
+      "like": "Thích",
+      "share": "Chia sẻ",
+      "copy": "Sao chép",
+      "pinMessage": "Ghim tin nhắn",
+      "starMessage": "Đánh dấu tin nhắn",
+      "selectMessages": "Chọn tin nhắn",
+      "viewDetails": "Xem chi tiết",
+      "otherOptions": "Tùy chọn khác",
+      "saveToMyDocuments": "Lưu vào Cloud của tôi",
+      "createReminder": "Tạo nhắc hẹn",
+      "delete": "Xóa",
+      "more": "Thêm",
+      "revoke": "Thu hồi",
+      "deleteForMe": "Xóa chỉ ở phía tôi",
+      "forwarded": "Đã chuyển tiếp",
+      "revoked": "Tin nhắn đã được thu hồi",
+      "image": "📷 Hình ảnh",
+      "file": "📁 Tệp tin"
+    },
     "system": {
       "add_members": {
         "single_self": "Bạn đã được <actorBold>{{actor}}</actorBold> thêm vào nhóm",
@@ -63,6 +85,15 @@
         "send_greeting": "Gửi lời chào",
         "greeting_message": "Xin chào mọi người! Mình vừa trở thành trưởng nhóm 👋"
       },
+      "update_settings": {
+        "send_messages_restricted_self": "Bạn chỉ cho phép trưởng/phó nhóm gửi tin nhắn trong nhóm.",
+        "send_messages_restricted_other": "<actorBold>{{actor}}</actorBold> chỉ cho phép trưởng/phó nhóm gửi tin nhắn trong nhóm.",
+        "send_messages_allowed_self": "Bạn cho phép tất cả thành viên được gửi tin nhắn trong nhóm.",
+        "send_messages_allowed_other": "<actorBold>{{actor}}</actorBold> cho phép tất cả thành viên được gửi tin nhắn trong nhóm.",
+        "membership_approval_required": "Hình thức tham gia nhóm được thay đổi thành \"Cần phê duyệt\".",
+        "membership_approval_none": "Hình thức tham gia nhóm được thay đổi thành \"Không cần phê duyệt\".",
+        "join_by_link_enabled": "Đã bật liên kết tham gia nhóm."
+      },
       "leave_group": {
         "self": "Bạn đã rời nhóm",
         "by_actor": "<actorBold>{{actor}}</actorBold> đã rời nhóm"
@@ -82,6 +113,11 @@
       "message": "Trưởng nhóm đã giải tán nhóm.",
       "cannotSendMessage": "Bạn không thể gửi tin nhắn vào nhóm được nữa",
       "deleteAction": "Xóa cuộc trò chuyện"
+    },
+    "restricted": {
+      "onlyAdminCanSend": "Chỉ <highlight>trưởng/phó nhóm</highlight> mới có thể gửi tin nhắn trong nhóm này.",
+      "cannotRename": "Chỉ trưởng/phó nhóm được phép đổi tên nhóm",
+      "cannotChangeAvatar": "Chỉ trưởng/phó nhóm được phép đổi ảnh đại diện nhóm"
     },
     "status": {
       "online": "Vừa mới truy cập",

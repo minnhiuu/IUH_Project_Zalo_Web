@@ -194,6 +194,34 @@ export function getSystemMessagePreview(
     return preview.replace(/<[^>]*>/g, '')
   }
 
+  if (action === 'UPDATE_SETTINGS') {
+    const setting = payload?.setting as string | undefined
+    const value = payload?.value as boolean | undefined
+    const isActorMe = String(senderId) === String(currentUserId)
+    const actorName = memberNameById.get(String(senderId)) || senderName || fallbackUserLabel
+
+    if (setting === 'memberCanSendMessages') {
+      if (value === false) {
+        if (isActorMe) return translate('chat.system.update_settings.send_messages_restricted_self') as string
+        const p = translate('chat.system.update_settings.send_messages_restricted_other', {
+          actor: actorName
+        }) as string
+        return p.replace(/<[^>]*>/g, '')
+      }
+      if (isActorMe) return translate('chat.system.update_settings.send_messages_allowed_self') as string
+      const p = translate('chat.system.update_settings.send_messages_allowed_other', { actor: actorName }) as string
+      return p.replace(/<[^>]*>/g, '')
+    }
+    if (setting === 'membershipApprovalEnabled') {
+      return value === true
+        ? (translate('chat.system.update_settings.membership_approval_required') as string)
+        : (translate('chat.system.update_settings.membership_approval_none') as string)
+    }
+    if (setting === 'joinByLinkEnabled') {
+      return translate('chat.system.update_settings.join_by_link_enabled') as string
+    }
+  }
+
   // Fallback to standard labels for other cases
   const label = getSystemMessageLabel(metadataRaw, senderId, undefined, currentUserId, members, translate, false)
   return typeof label === 'string' ? label : ''

@@ -3,6 +3,7 @@ import { useMessagesInfiniteQuery } from '../queries/use-queries'
 import { useAuth } from '@/features/auth'
 import { MessageBubble } from './message-bubble'
 import { ChatInput } from './chat-input'
+import { ChatInputRestricted } from './chat-input-restricted'
 import { useChatScroll } from '../hooks/use-chat-scroll'
 import { useChatText } from '../i18n/use-chat-text'
 import {
@@ -31,6 +32,8 @@ import { showLoadingToast, showSuccessToast, showErrorToast } from '@/utils/toas
 import { toast } from 'sonner'
 import { StrangerBanner } from './stranger-banner'
 import { OthersProfileDialog } from '@/features/user/components/profile-dialog/others/others-profile-dialog'
+import { OwnerProfileDialog } from '@/features/user/components/profile-dialog/owner/owner-profile-dialog'
+import { canSendMessages, canChangeGroupInfo } from '../utils/group-permissions'
 
 const OPEN_GROUP_MANAGEMENT_EVENT = 'chat:open-group-management'
 const OPEN_GROUP_INFO_EVENT = 'chat:open-group-info'
@@ -53,6 +56,8 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   const [isInfoSidebarOpen, setIsInfoSidebarOpen] = useState(window.innerWidth >= 1150)
   const [managementOpenSignal, setManagementOpenSignal] = useState(0)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
+  const [isOwnerProfileOpen, setIsOwnerProfileOpen] = useState(false)
+  const [profileUserId, setProfileUserId] = useState<string | undefined>(undefined)
 
   useEffect(() => {
     const handleResize = () => {
@@ -295,7 +300,9 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             </div>
             <div className='min-w-0 flex-1 group/header'>
               <button
-                disabled={!conversation.isGroup || isCloudConversation}
+                disabled={
+                  !conversation.isGroup || isCloudConversation || !canChangeGroupInfo(conversation, user?.id || '')
+                }
                 onClick={(e) => {
                   e.stopPropagation()
                   setIsRenameDialogOpen(true)
@@ -307,7 +314,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
                     ? 'My Documents'
                     : getConversationDisplayName(conversation, 'Group', undefined, user?.id)}
                 </h2>
-                {conversation.isGroup && !isCloudConversation && (
+                {conversation.isGroup && !isCloudConversation && canChangeGroupInfo(conversation, user?.id || '') && (
                   <div className='opacity-0 group-hover/header:opacity-100 transition-all shrink-0 ml-1'>
                     <ActionButton icon={<Pencil />} size='sm' iconSize='sm' />
                   </div>
@@ -393,6 +400,14 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
                   conversation={conversation}
                   onReply={() => setReplyTo(msg)}
                   onForward={() => setForwardingMessage(msg)}
+                  onAvatarClick={(userId) => {
+                    if (userId === user?.id) {
+                      setIsOwnerProfileOpen(true)
+                    } else {
+                      setProfileUserId(userId)
+                      setIsProfileOpen(true)
+                    }
+                  }}
                 />
               </div>
             )
@@ -419,19 +434,9 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
         </div>
 
         {conversation.isDisbanded || isCurrentUserRemovedFromGroup ? (
-          <div className='relative shrink-0 flex flex-col items-center pb-[env(safe-area-inset-bottom,0)] bg-background h-[104px] justify-between border-t border-border'>
-            {/* Bottom Info Bar - Empty header like toolbar space if needed, but here we just center the info */}
-            <div className='flex-1 w-full flex items-center justify-center'>
-              <div className='flex items-center gap-2.5'>
-                <div className='w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center shrink-0'>
-                  <span className='text-[12px] text-white font-bold'>i</span>
-                </div>
-                <span className='text-[14.5px] text-muted-foreground font-medium'>
-                  {text.disbanded.cannotSendMessage}
-                </span>
-              </div>
-            </div>
-          </div>
+          <ChatInputRestricted message={text.disbanded.cannotSendMessage} />
+        ) : !canSendMessages(conversation, user?.id || '') ? (
+          <ChatInputRestricted message={text.restricted.onlyAdminCanSend} highlightTags />
         ) : (
           <ChatInput conversationId={conversation.id} replyTo={replyTo} onCancelReply={() => setReplyTo(null)} />
         )}
@@ -448,7 +453,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
         />
       </div>
 
-      {isInfoSidebarOpen && (
+      {isInfoSidebarOpen && !isInfoDialogOpen && (
         <div
           className='absolute inset-0 bg-transparent z-90 min-[1150px]:hidden animate-in fade-in duration-200 cursor-pointer'
           onClick={() => setIsInfoSidebarOpen(false)}
@@ -457,6 +462,19 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
 
       {isCloudConversation ? (
         <CloudInfoSidebar />
+      ) : isInfoDialogOpen ? (
+        <GroupInfoDialog
+          conversation={conversation}
+          currentUserId={user?.id}
+          open={isInfoDialogOpen}
+          onOpenChange={setIsInfoDialogOpen}
+          initialStep={infoDialogStep}
+          onRenameClick={() => {
+            setIsInfoDialogOpen(false)
+            setIsRenameDialogOpen(true)
+          }}
+          onAvatarClick={triggerFileInput}
+        />
       ) : (
         isInfoSidebarOpen && (
           <ChatInfoSidebar
@@ -467,19 +485,6 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
           />
         )
       )}
-
-      <GroupInfoDialog
-        conversation={conversation}
-        currentUserId={user?.id}
-        open={isInfoDialogOpen}
-        onOpenChange={setIsInfoDialogOpen}
-        initialStep={infoDialogStep}
-        onRenameClick={() => {
-          setIsInfoDialogOpen(false)
-          setIsRenameDialogOpen(true)
-        }}
-        onAvatarClick={triggerFileInput}
-      />
 
       {selectedImage && (
         <ImageCropperDialog
@@ -495,7 +500,8 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
       )}
 
       {/* Others Profile Dialog */}
-      <OthersProfileDialog open={isProfileOpen} onOpenChange={setIsProfileOpen} userId={partnerId} />
+      <OthersProfileDialog open={isProfileOpen} onOpenChange={setIsProfileOpen} userId={profileUserId || partnerId} />
+      <OwnerProfileDialog open={isOwnerProfileOpen} onOpenChange={setIsOwnerProfileOpen} />
     </div>
   )
 }

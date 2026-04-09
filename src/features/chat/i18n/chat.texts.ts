@@ -33,6 +33,28 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     image: t(CHAT_KEYS.type.image),
     file: t(CHAT_KEYS.type.file)
   },
+  messageBubble: {
+    reply: t(CHAT_KEYS.messageBubble.reply),
+    forward: t(CHAT_KEYS.messageBubble.forward),
+    like: t(CHAT_KEYS.messageBubble.like),
+    share: t(CHAT_KEYS.messageBubble.share),
+    copy: t(CHAT_KEYS.messageBubble.copy),
+    pinMessage: t(CHAT_KEYS.messageBubble.pinMessage),
+    starMessage: t(CHAT_KEYS.messageBubble.starMessage),
+    selectMessages: t(CHAT_KEYS.messageBubble.selectMessages),
+    viewDetails: t(CHAT_KEYS.messageBubble.viewDetails),
+    otherOptions: t(CHAT_KEYS.messageBubble.otherOptions),
+    saveToMyDocuments: t(CHAT_KEYS.messageBubble.saveToMyDocuments),
+    createReminder: t(CHAT_KEYS.messageBubble.createReminder),
+    delete: t(CHAT_KEYS.messageBubble.delete),
+    more: t(CHAT_KEYS.messageBubble.more),
+    revoke: t(CHAT_KEYS.messageBubble.revoke),
+    deleteForMe: t(CHAT_KEYS.messageBubble.deleteForMe),
+    forwarded: t(CHAT_KEYS.messageBubble.forwarded),
+    revoked: t(CHAT_KEYS.messageBubble.revoked),
+    image: t(CHAT_KEYS.messageBubble.image),
+    file: t(CHAT_KEYS.messageBubble.file)
+  },
   sidebar: {
     all: t(CHAT_KEYS.sidebar.all),
     unread: t(CHAT_KEYS.sidebar.unread),
@@ -88,6 +110,9 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     message: t(CHAT_KEYS.disbanded.message),
     cannotSendMessage: t(CHAT_KEYS.disbanded.cannotSendMessage),
     deleteAction: t(CHAT_KEYS.disbanded.deleteAction)
+  },
+  restricted: {
+    onlyAdminCanSend: t(CHAT_KEYS.restricted.onlyAdminCanSend)
   },
   'rename-group-dialog': {
     title: t(CHAT_KEYS['rename-group-dialog'].title),

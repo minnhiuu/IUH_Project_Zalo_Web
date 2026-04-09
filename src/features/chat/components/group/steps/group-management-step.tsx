@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Switch } from '@/components/ui/switch'
 import { HelpTooltipIcon } from '@/components/common/help-tooltip-icon'
 import { ActionMenuItem } from '@/components/common/action-menu-item'
@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button'
 import { disbandGroupApi } from '../../../api/chat.api'
 import { GroupMemberRole } from '@/constants/enum'
 import { Ban } from 'lucide-react'
+import { useUpdateGroupSettingsMutation } from '../../../queries/use-mutations'
+import type { GroupSettings } from '../../../schemas/chat.schema'
 interface GroupManagementStepText {
   memberPermissionsTitle: string
   permissions: {
@@ -45,6 +47,7 @@ interface GroupManagementStepText {
 interface GroupManagementStepProps {
   text: GroupManagementStepText
   conversationId: string
+  settings?: GroupSettings | null
   onDisbandSuccess?: () => void
 }
 
@@ -52,19 +55,17 @@ export function GroupManagementStep({
   text,
   conversationId,
   currentUserRole,
+  settings,
   onDisbandSuccess
 }: GroupManagementStepProps & { currentUserRole?: GroupMemberRole }) {
-  // ... rest of the component stays the same, just finding the button ...
-  const [allowUpdateNameAvatar, setAllowUpdateNameAvatar] = useState(true)
-  const [allowPinNotePoll, setAllowPinNotePoll] = useState(true)
-  const [allowCreateReminder, setAllowCreateReminder] = useState(true)
-  const [allowCreatePoll, setAllowCreatePoll] = useState(true)
-  const [allowSendMessage, setAllowSendMessage] = useState(true)
+  const { mutate: updateSettings } = useUpdateGroupSettingsMutation()
 
-  const [reviewNewMembers, setReviewNewMembers] = useState(false)
-  const [highlightAdminMessages, setHighlightAdminMessages] = useState(true)
-  const [allowNewMembersReadRecent, setAllowNewMembersReadRecent] = useState(true)
-  const [allowJoinByLink, setAllowJoinByLink] = useState(false)
+  const handleSettingChange = useCallback(
+    (key: keyof GroupSettings, value: boolean) => {
+      updateSettings({ conversationId, settings: { [key]: value } })
+    },
+    [conversationId, updateSettings]
+  )
 
   const [isDisbandDialogOpen, setIsDisbandDialogOpen] = useState(false)
   const [isDisbanding, setIsDisbanding] = useState(false)
@@ -122,8 +123,8 @@ export function GroupManagementStep({
             <span className='text-[14px] text-foreground'>{text.permissions.updateNameAvatar}</span>
             <input
               type='checkbox'
-              checked={allowUpdateNameAvatar}
-              onChange={(e) => setAllowUpdateNameAvatar(e.target.checked)}
+              checked={settings?.memberCanChangeInfo ?? true}
+              onChange={(e) => handleSettingChange('memberCanChangeInfo', e.target.checked)}
               className='h-4 w-4 accent-primary cursor-pointer'
             />
           </label>
@@ -131,8 +132,8 @@ export function GroupManagementStep({
             <span className='text-[14px] text-foreground'>{text.permissions.pinNotePoll}</span>
             <input
               type='checkbox'
-              checked={allowPinNotePoll}
-              onChange={(e) => setAllowPinNotePoll(e.target.checked)}
+              checked={settings?.memberCanPinMessages ?? true}
+              onChange={(e) => handleSettingChange('memberCanPinMessages', e.target.checked)}
               className='h-4 w-4 accent-primary cursor-pointer'
             />
           </label>
@@ -140,8 +141,8 @@ export function GroupManagementStep({
             <span className='text-[14px] text-foreground'>{text.permissions.createReminder}</span>
             <input
               type='checkbox'
-              checked={allowCreateReminder}
-              onChange={(e) => setAllowCreateReminder(e.target.checked)}
+              checked={settings?.memberCanCreateNotes ?? true}
+              onChange={(e) => handleSettingChange('memberCanCreateNotes', e.target.checked)}
               className='h-4 w-4 accent-primary cursor-pointer'
             />
           </label>
@@ -149,8 +150,8 @@ export function GroupManagementStep({
             <span className='text-[14px] text-foreground'>{text.permissions.createPoll}</span>
             <input
               type='checkbox'
-              checked={allowCreatePoll}
-              onChange={(e) => setAllowCreatePoll(e.target.checked)}
+              checked={settings?.memberCanCreatePolls ?? true}
+              onChange={(e) => handleSettingChange('memberCanCreatePolls', e.target.checked)}
               className='h-4 w-4 accent-primary cursor-pointer'
             />
           </label>
@@ -158,8 +159,8 @@ export function GroupManagementStep({
             <span className='text-[14px] text-foreground'>{text.permissions.sendMessage}</span>
             <input
               type='checkbox'
-              checked={allowSendMessage}
-              onChange={(e) => setAllowSendMessage(e.target.checked)}
+              checked={settings?.memberCanSendMessages ?? true}
+              onChange={(e) => handleSettingChange('memberCanSendMessages', e.target.checked)}
               className='h-4 w-4 accent-primary cursor-pointer'
             />
           </label>
@@ -173,7 +174,10 @@ export function GroupManagementStep({
               <span className='min-w-0 wrap-break-word'>{text.toggles.reviewNewMembers}</span>
               <HelpTooltipIcon content={text.toggleTooltips.reviewNewMembers} />
             </div>
-            <Switch checked={reviewNewMembers} onCheckedChange={setReviewNewMembers} />
+            <Switch
+              checked={settings?.membershipApprovalEnabled ?? false}
+              onCheckedChange={(v) => handleSettingChange('membershipApprovalEnabled', v)}
+            />
           </div>
 
           <div className='flex items-center justify-between gap-3 py-3 border-b border-border/60'>
@@ -181,7 +185,10 @@ export function GroupManagementStep({
               <span className='min-w-0 wrap-break-word'>{text.toggles.highlightAdminMessages}</span>
               <HelpTooltipIcon content={text.toggleTooltips.highlightAdminMessages} />
             </div>
-            <Switch checked={highlightAdminMessages} onCheckedChange={setHighlightAdminMessages} />
+            <Switch
+              checked={settings?.highlightAdminMessages ?? true}
+              onCheckedChange={(v) => handleSettingChange('highlightAdminMessages', v)}
+            />
           </div>
 
           <div className='flex items-center justify-between gap-3 py-3 border-b border-border/60'>
@@ -189,7 +196,10 @@ export function GroupManagementStep({
               <span className='min-w-0 wrap-break-word'>{text.toggles.allowNewMembersReadRecent}</span>
               <HelpTooltipIcon content={text.toggleTooltips.allowNewMembersReadRecent} />
             </div>
-            <Switch checked={allowNewMembersReadRecent} onCheckedChange={setAllowNewMembersReadRecent} />
+            <Switch
+              checked={settings?.newMembersCanReadRecent ?? true}
+              onCheckedChange={(v) => handleSettingChange('newMembersCanReadRecent', v)}
+            />
           </div>
 
           <div className='flex items-center justify-between gap-3 py-3'>
@@ -197,7 +207,10 @@ export function GroupManagementStep({
               <span className='min-w-0 wrap-break-word'>{text.toggles.allowJoinByLink}</span>
               <HelpTooltipIcon content={text.toggleTooltips.allowJoinByLink} />
             </div>
-            <Switch checked={allowJoinByLink} onCheckedChange={setAllowJoinByLink} />
+            <Switch
+              checked={settings?.joinByLinkEnabled ?? false}
+              onCheckedChange={(v) => handleSettingChange('joinByLinkEnabled', v)}
+            />
           </div>
         </div>
       </div>

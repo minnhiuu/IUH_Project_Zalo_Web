@@ -1,18 +1,16 @@
 import { cn } from '@/lib/utils'
 import type { ConversationResponse, ConversationMemberResponse, MessageResponse } from '../schemas/chat.schema'
 import { useChatText } from '../i18n/use-chat-text'
-import { Reply, Forward, MoreHorizontal, Trash2, History, Share2, Copy } from 'lucide-react'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator
-} from '@/components/ui/dropdown-menu'
+import { Quote, Forward, MoreHorizontal, ThumbsUp } from 'lucide-react'
+import { useState } from 'react'
+import { DropdownMenu, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useChatContext } from '../context/chat-context'
 import { MessageStatus, MessageType } from '@/constants/enum'
 import { SystemMessage } from '../utils/system-message'
 import { UserAvatar } from '@/components/common/user-avatar'
+import { MessageSenderAvatar } from './message-sender-avatar'
+import { MessageIconButton } from './message-icon-button'
+import { MessageMoreMenu } from './message-more-menu'
 
 export function MessageBubble({
   message,
@@ -22,7 +20,8 @@ export function MessageBubble({
   isNewest = false,
   conversation,
   onReply,
-  onForward
+  onForward,
+  onAvatarClick
 }: {
   message: MessageResponse
   isOwn: boolean
@@ -32,156 +31,175 @@ export function MessageBubble({
   conversation?: ConversationResponse
   onReply?: () => void
   onForward?: () => void
+  onAvatarClick?: (userId: string) => void
 }) {
   const { text } = useChatText()
-  const { revokeMessage, deleteMessageForMe } = useChatContext()
+  const { deleteMessageForMe } = useChatContext()
+  const mb = text.messageBubble
 
   const isRevoked = message.status === MessageStatus.REVOKED
   const conversationId = message.conversationId
+
+  const senderMember = conversation?.members?.find((m) => m.userId === message.senderId)
+  const senderRole = senderMember?.role?.toUpperCase()
+  const isAdminOrOwner = senderRole === 'ADMIN' || senderRole === 'OWNER'
+  const isOwner = senderRole === 'OWNER'
+  const highlightEnabled = conversation?.isGroup && conversation?.settings?.highlightAdminMessages && isAdminOrOwner
+  const isGroup = conversation?.isGroup
+  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false)
 
   if (message.type === MessageType.System) {
     return <SystemMessage message={message} conversation={conversation} />
   }
   return (
-    <div className={cn('flex w-full px-2 gap-2', isOwn ? 'justify-end' : 'justify-start', isFirst ? 'mt-4' : 'mt-1')}>
+    <div
+      className={cn(
+        'group/message-row flex w-full px-2 gap-2',
+        isOwn ? 'justify-end' : 'justify-start',
+        isFirst ? 'mt-4' : 'mt-1'
+      )}
+    >
       {!isOwn && (
-        <div className='w-8 shrink-0 flex items-end'>
+        <div className='w-10 shrink-0 flex items-end'>
           {isLast ? (
-            <UserAvatar
+            <MessageSenderAvatar
               src={message.senderAvatar}
-              name={message.senderName || 'User'}
-              className='w-8 h-8 border border-black/5'
+              name={message.senderName || text.user}
+              isGroup={isGroup}
+              isAdminOrOwner={isAdminOrOwner}
+              isOwner={isOwner}
+              onClick={() => message.senderId && onAvatarClick?.(message.senderId)}
             />
           ) : (
-            <div className='w-8 h-8' />
+            <div className='w-10 h-10' />
           )}
         </div>
       )}
 
       <div className={cn('flex flex-col items-end', isOwn ? 'items-end' : 'items-start')}>
-        <div
-          className={cn(
-            'px-4 py-2 max-w-md wrap-break-word text-[15px] shadow-sm flex flex-col relative group',
-            isOwn
-              ? 'bg-[#e5efff] text-black dark:bg-primary dark:text-primary-foreground'
-              : 'bg-white dark:bg-zinc-900 text-foreground',
-            // Logic bo góc Zalo
-            isOwn
-              ? cn('rounded-2xl', !isFirst && 'rounded-tr-md', !isLast && 'rounded-br-md')
-              : cn('rounded-2xl', !isFirst && 'rounded-tl-md', !isLast && 'rounded-bl-md'),
-            isRevoked && 'pointer-events-none select-none opacity-80'
-          )}
-        >
+        <div className={cn('flex items-end gap-1', isOwn ? 'flex-row-reverse' : 'flex-row')}>
+          <div
+            className={cn(
+              'p-3 max-w-md wrap-break-word text-[15px] shadow-sm flex flex-col relative rounded-lg',
+              isOwn ? 'bg-blue-message text-black dark:text-primary-foreground' : 'bg-white-message text-foreground',
+              isRevoked && 'pointer-events-none select-none opacity-80',
+              highlightEnabled && 'border border-border-highlight'
+            )}
+          >
+            {isGroup && !isOwn && isFirst && (
+              <span className='text-[11px] font-medium text-text-secondary mb-1 truncate max-w-md'>
+                {message.senderName || text.user}
+              </span>
+            )}
+            {message.isForwarded && (
+              <div className='flex items-center space-x-1 text-[11px] text-muted-foreground mb-1 font-medium opacity-70'>
+                <Forward size={12} />
+                <span>{mb.forwarded}</span>
+              </div>
+            )}
+
+            {message.replyTo && (
+              <div className='mb-1.5 px-3 py-1.5 border-l-2 border-[#1972F5] bg-[#CDE2FF]/50 rounded-sm select-none'>
+                <div className='font-semibold text-[#0068FF] text-[13px]'>{message.replyTo.senderName}</div>
+                <div className='text-[13px] text-black/70 truncate'>
+                  {message.replyTo.type === 'IMAGE'
+                    ? mb.image
+                    : message.replyTo.type === 'FILE'
+                      ? mb.file
+                      : message.replyTo.content}
+                </div>
+              </div>
+            )}
+
+            <span>
+              {isRevoked ? <span className='italic text-muted-foreground/60'>{mb.revoked}</span> : message.content}
+            </span>
+
+            {isLast && (
+              <div
+                className={cn(
+                  'flex items-center mt-1 font-medium self-start',
+                  isOwn ? 'text-black/50 dark:text-primary-foreground/70' : 'text-muted-foreground'
+                )}
+              >
+                <span className='text-[11px]'>
+                  {message.createdAt
+                    ? new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    : ''}
+                </span>
+              </div>
+            )}
+
+            {!isRevoked && (
+              <div
+                className={cn(
+                  'absolute -bottom-2 right-0.5 z-10 group/like',
+                  isOwn && 'hidden group-hover/message-row:flex'
+                )}
+              >
+                <div className='absolute bottom-full mb-1 right-0 bg-background border border-border rounded-full shadow-md px-2 py-1 hidden group-hover/like:flex items-center gap-2'>
+                  <button className='text-[20px] leading-none hover:scale-110 transition-transform cursor-pointer'>
+                    👍
+                  </button>
+                  <button className='text-[20px] leading-none hover:scale-110 transition-transform cursor-pointer'>
+                    ❤️
+                  </button>
+                  <button className='text-[20px] leading-none hover:scale-110 transition-transform cursor-pointer'>
+                    🤣
+                  </button>
+                  <button className='text-[20px] leading-none hover:scale-110 transition-transform cursor-pointer'>
+                    😮
+                  </button>
+                  <button className='text-[20px] leading-none hover:scale-110 transition-transform cursor-pointer'>
+                    😢
+                  </button>
+                  <button className='text-[20px] leading-none hover:scale-110 transition-transform cursor-pointer'>
+                    😡
+                  </button>
+                </div>
+
+                <MessageIconButton
+                  className='h-6 w-6 bg-background border-border/80 text-icon-secondary hover:text-icon-secondary hover:bg-background'
+                  aria-label={mb.like}
+                  icon={<ThumbsUp />}
+                  iconSize='sm'
+                />
+              </div>
+            )}
+          </div>
+
           {!isRevoked && (
             <div
-              className={cn(
-                'absolute bottom-0 opacity-0 group-hover:opacity-100 transition-all flex items-center gap-1 z-20 pointer-events-none group-hover:pointer-events-auto',
-                isOwn ? 'right-full pr-2' : 'left-full pl-2'
-              )}
+              className={cn('items-center gap-1 mb-2', isMoreMenuOpen ? 'flex' : 'hidden group-hover/message-row:flex')}
             >
-              <button
+              <MessageIconButton
                 onClick={onReply}
-                className='p-1.5 hover:bg-white/80 dark:hover:bg-zinc-800 rounded-full text-muted-foreground shadow-sm border bg-background/50 backdrop-blur-sm transition-all hover:scale-110'
-                title='Trả lời'
-              >
-                <Reply size={16} />
-              </button>
-              <button
+                title={mb.reply}
+                icon={<Quote />}
+                className='text-icon-secondary hover:text-primary'
+              />
+              <MessageIconButton
                 onClick={onForward}
-                className='p-1.5 hover:bg-white/80 dark:hover:bg-zinc-800 rounded-full text-muted-foreground shadow-sm border bg-background/50 backdrop-blur-sm transition-all hover:scale-110'
-                title='Chuyển tiếp'
-              >
-                <Forward size={16} />
-              </button>
+                title={mb.forward}
+                icon={<Forward />}
+                className='text-icon-secondary hover:text-primary'
+              />
 
-              <DropdownMenu>
+              <DropdownMenu open={isMoreMenuOpen} onOpenChange={setIsMoreMenuOpen}>
                 <DropdownMenuTrigger asChild>
-                  <button
-                    className='p-1.5 hover:bg-white/80 dark:hover:bg-zinc-800 rounded-full text-muted-foreground shadow-sm border bg-background/50 backdrop-blur-sm transition-all hover:scale-110'
-                    title='Thêm'
-                  >
-                    <MoreHorizontal size={16} />
-                  </button>
+                  <MessageIconButton
+                    title={mb.more}
+                    icon={<MoreHorizontal />}
+                    className='text-icon-secondary hover:text-primary'
+                  />
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align={isOwn ? 'end' : 'start'} className='w-48'>
-                  <DropdownMenuItem onClick={onReply} className='gap-2'>
-                    <Reply size={14} className='text-muted-foreground' />
-                    <span>Trả lời</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={onForward} className='gap-2'>
-                    <Share2 size={14} className='text-muted-foreground' />
-                    <span>Chia sẻ</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => navigator.clipboard.writeText(message.content || '')}
-                    className='gap-2'
-                  >
-                    <Copy size={14} className='text-muted-foreground' />
-                    <span>Sao chép</span>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuSeparator />
-
-                  {isOwn && (
-                    <DropdownMenuItem
-                      onClick={() => conversationId && revokeMessage(message.id, conversationId)}
-                      className='gap-2 text-orange-500 focus:text-orange-500 focus:bg-orange-50'
-                    >
-                      <History size={14} />
-                      <span>Thu hồi</span>
-                    </DropdownMenuItem>
-                  )}
-                  <DropdownMenuItem
-                    onClick={() => conversationId && deleteMessageForMe(message.id, conversationId)}
-                    className='gap-2 text-destructive focus:text-destructive focus:bg-destructive/10'
-                  >
-                    <Trash2 size={14} />
-                    <span>Xóa chỉ ở phía tôi</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
+                <MessageMoreMenu
+                  side={isOwn ? 'left' : 'right'}
+                  text={mb}
+                  messageContent={message.content || ''}
+                  onDeleteForMe={() => conversationId && deleteMessageForMe(message.id, conversationId)}
+                />
               </DropdownMenu>
-            </div>
-          )}
-          {message.isForwarded && (
-            <div className='flex items-center space-x-1 text-[11px] text-muted-foreground mb-1 font-medium opacity-70'>
-              <Forward size={12} />
-              <span>Đã chuyển tiếp</span>
-            </div>
-          )}
-
-          {message.replyTo && (
-            <div className='mb-1.5 px-3 py-1.5 border-l-2 border-[#1972F5] bg-[#CDE2FF]/50 rounded-sm select-none'>
-              <div className='font-semibold text-[#0068FF] text-[13px]'>{message.replyTo.senderName}</div>
-              <div className='text-[13px] text-black/70 truncate'>
-                {message.replyTo.type === 'IMAGE'
-                  ? '📷 Hình ảnh'
-                  : message.replyTo.type === 'FILE'
-                    ? '📁 Tệp tin'
-                    : message.replyTo.content}
-              </div>
-            </div>
-          )}
-
-          <span>
-            {isRevoked ? (
-              <span className='italic text-muted-foreground/60'>Tin nhắn đã được thu hồi</span>
-            ) : (
-              message.content
-            )}
-          </span>
-
-          {isLast && (
-            <div
-              className={cn(
-                'flex items-center mt-1 font-medium self-start',
-                isOwn ? 'text-black/50 dark:text-primary-foreground/70' : 'text-muted-foreground'
-              )}
-            >
-              <span className='text-[11px]'>
-                {message.createdAt
-                  ? new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                  : ''}
-              </span>
             </div>
           )}
         </div>

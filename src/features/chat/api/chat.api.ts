@@ -6,7 +6,8 @@ import type {
   ChatMessageRequest,
   GroupConversationCreateRequest,
   SearchMemberResponse,
-  GroupMemberListItemResponse
+  GroupMemberListItemResponse,
+  GroupSettings
 } from '../schemas/chat.schema'
 
 export const getConversations = async (page = 0, size = 20): Promise<PageResponse<ConversationResponse>> => {
@@ -184,6 +185,17 @@ export const demoteFromAdminApi = async (
 ): Promise<ConversationResponse> => {
   const response = await http.patch<ApiResponse<ConversationResponse>>(
     `/messages/conversations/${conversationId}/members/${targetUserId}/demote`
+  )
+  return response.data.data
+}
+
+export const updateGroupSettingsApi = async (
+  conversationId: string,
+  settings: Partial<GroupSettings>
+): Promise<ConversationResponse> => {
+  const response = await http.patch<ApiResponse<ConversationResponse>>(
+    `/messages/conversations/${conversationId}/settings`,
+    settings
   )
   return response.data.data
 }

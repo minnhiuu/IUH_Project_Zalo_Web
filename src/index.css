@@ -113,6 +113,11 @@
   --member-role-key-badge-bg: rgba(0, 0, 0, 0.6);
   --member-role-key-owner: #ffd95c;
   --member-role-key-admin: #ffffff;
+
+  --border-highlight: #66a6ff;
+  --blue-message: #e5f1ff;
+  --white-message: #ffffff;
+  --text-secondary: #5a6981;
 }
 
 @layer utilities {
@@ -213,6 +218,11 @@
   --member-role-key-badge-bg: rgba(0, 0, 0, 0.6);
   --member-role-key-owner: #ffd95c;
   --member-role-key-admin: #ffffff;
+
+  --border-highlight: #426d9e;
+  --blue-message: #1f344d;
+  --white-message: #282d33;
+  --text-secondary: #9facbc;
 }
 
 @theme inline {
@@ -315,6 +325,10 @@
   --color-member-role-key-badge-bg: var(--member-role-key-badge-bg);
   --color-member-role-key-owner: var(--member-role-key-owner);
   --color-member-role-key-admin: var(--member-role-key-admin);
+  --color-border-highlight: var(--border-highlight);
+  --color-blue-message: var(--blue-message);
+  --color-white-message: var(--white-message);
+  --color-text-secondary: var(--text-secondary);
 
   @keyframes pulse-subtle {
     0%,
@@ -490,6 +504,10 @@ input[type='radio']:checked {
 
   .system-msg-promote-icon {
     @apply w-3.5 h-3.5 text-green-500 shrink-0;
+  }
+
+  .system-msg-owner-icon {
+    @apply w-3.5 h-3.5 text-yellow-500 shrink-0;
   }
 
   /* Blur the info sidebar whenever any Radix dialog/sheet is open anywhere in the app */

@@ -29,6 +29,28 @@ export const CHAT_KEYS = {
     image: 'chat.type.image',
     file: 'chat.type.file'
   },
+  messageBubble: {
+    reply: 'chat.messageBubble.reply',
+    forward: 'chat.messageBubble.forward',
+    like: 'chat.messageBubble.like',
+    share: 'chat.messageBubble.share',
+    copy: 'chat.messageBubble.copy',
+    pinMessage: 'chat.messageBubble.pinMessage',
+    starMessage: 'chat.messageBubble.starMessage',
+    selectMessages: 'chat.messageBubble.selectMessages',
+    viewDetails: 'chat.messageBubble.viewDetails',
+    otherOptions: 'chat.messageBubble.otherOptions',
+    saveToMyDocuments: 'chat.messageBubble.saveToMyDocuments',
+    createReminder: 'chat.messageBubble.createReminder',
+    delete: 'chat.messageBubble.delete',
+    more: 'chat.messageBubble.more',
+    revoke: 'chat.messageBubble.revoke',
+    deleteForMe: 'chat.messageBubble.deleteForMe',
+    forwarded: 'chat.messageBubble.forwarded',
+    revoked: 'chat.messageBubble.revoked',
+    image: 'chat.messageBubble.image',
+    file: 'chat.messageBubble.file'
+  },
   aiStatus: {
     ANALYZING_INTENT: 'ai.status.ANALYZING_INTENT',
     RETRIEVING_VECTOR: 'ai.status.RETRIEVING_VECTOR',
@@ -92,6 +114,9 @@ export const CHAT_KEYS = {
     message: 'chat.disbanded.message',
     cannotSendMessage: 'chat.disbanded.cannotSendMessage',
     deleteAction: 'chat.disbanded.deleteAction'
+  },
+  restricted: {
+    onlyAdminCanSend: 'chat.restricted.onlyAdminCanSend'
   },
   'rename-group-dialog': {
     title: 'chat.rename-group-dialog.title',

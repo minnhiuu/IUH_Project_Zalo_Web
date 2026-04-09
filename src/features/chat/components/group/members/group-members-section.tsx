@@ -23,6 +23,7 @@ interface GroupMembersSectionProps {
   addFriendLabel: string
   currentUserRole: GroupMemberRole
   onLeaveGroup: () => void
+  onMemberClick?: (member: GroupMemberListItemResponse) => void
 }
 
 export function GroupMembersSection({
@@ -31,7 +32,8 @@ export function GroupMembersSection({
   membersCount,
   addFriendLabel,
   currentUserRole,
-  onLeaveGroup
+  onLeaveGroup,
+  onMemberClick
 }: GroupMembersSectionProps) {
   const { t } = useChatText()
   const [query, setQuery] = useState('')
@@ -86,48 +88,57 @@ export function GroupMembersSection({
         key={member.userId}
         className='group px-4 py-2.5 flex items-center gap-3 hover:bg-muted/30 transition-colors'
       >
-        <div className='relative shrink-0'>
-          <UserAvatar src={member.avatar} name={member.fullName} className='w-10 h-10 shrink-0' />
-          {(member.role === GroupMemberRole.Owner || member.role === GroupMemberRole.Admin) && (
-            <span className='member-role-key-badge absolute -right-0.5 -bottom-0.5 w-4 h-4 rounded-full flex items-center justify-center border border-background'>
-              <KeyRound
-                strokeWidth={2.75}
-                className={
-                  member.role === GroupMemberRole.Owner
-                    ? 'member-role-key-icon-owner w-2.5 h-2.5'
-                    : 'member-role-key-icon-admin w-2.5 h-2.5'
-                }
-              />
-            </span>
+        <button
+          type='button'
+          onClick={() => onMemberClick?.(member)}
+          className='flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer'
+        >
+          <div className='relative shrink-0'>
+            <UserAvatar src={member.avatar} name={member.fullName} className='w-10 h-10 shrink-0' />
+            {(member.role === GroupMemberRole.Owner || member.role === GroupMemberRole.Admin) && (
+              <span className='member-role-key-badge absolute -right-0.5 -bottom-0.5 w-4 h-4 rounded-full flex items-center justify-center border border-background'>
+                <KeyRound
+                  strokeWidth={2.75}
+                  className={
+                    member.role === GroupMemberRole.Owner
+                      ? 'member-role-key-icon-owner w-2.5 h-2.5'
+                      : 'member-role-key-icon-admin w-2.5 h-2.5'
+                  }
+                />
+              </span>
+            )}
+          </div>
+          <div className='min-w-0 flex-1'>
+            <p className='text-[15px] font-semibold text-foreground truncate'>
+              {member.isCurrentUser ? String(t('chat.you')) : member.fullName}
+            </p>
+            {roleLabel && <p className='text-[12px] text-muted-foreground truncate'>{roleLabel}</p>}
+          </div>
+        </button>
+
+        <div className='flex items-center gap-2 shrink-0'>
+          <MemberActionMenu
+            member={member}
+            currentUserRole={currentUserRole}
+            labels={{
+              leaveGroup: String(t('chat.sidebarInfo.leaveGroup')),
+              addDeputy: String(t('chat.sidebarInfo.addDeputy')),
+              removeDeputy: String(t('chat.sidebarInfo.removeDeputy')),
+              removeFromGroup: String(t('chat.sidebarInfo.removeFromGroup'))
+            }}
+            onAction={(action, selectedMember) => handleMenuAction(action, selectedMember)}
+          />
+          {!member.isCurrentUser && !member.isFriend && (
+            <Button
+              size={'lg'}
+              variant={'secondary-blue'}
+              disabled={sendFriendRequest.isPending}
+              onClick={() => sendFriendRequest.mutate({ receiverId: member.userId })}
+            >
+              {addFriendLabel}
+            </Button>
           )}
         </div>
-        <div className='min-w-0 flex-1'>
-          <p className='text-[15px] font-semibold text-foreground truncate'>
-            {member.isCurrentUser ? String(t('chat.you')) : member.fullName}
-          </p>
-          {roleLabel && <p className='text-[12px] text-muted-foreground truncate'>{roleLabel}</p>}
-        </div>
-        <MemberActionMenu
-          member={member}
-          currentUserRole={currentUserRole}
-          labels={{
-            leaveGroup: String(t('chat.sidebarInfo.leaveGroup')),
-            addDeputy: String(t('chat.sidebarInfo.addDeputy')),
-            removeDeputy: String(t('chat.sidebarInfo.removeDeputy')),
-            removeFromGroup: String(t('chat.sidebarInfo.removeFromGroup'))
-          }}
-          onAction={(action, selectedMember) => handleMenuAction(action, selectedMember)}
-        />
-        {!member.isCurrentUser && !member.isFriend && (
-          <Button
-            size={'lg'}
-            variant={'secondary-blue'}
-            disabled={sendFriendRequest.isPending}
-            onClick={() => sendFriendRequest.mutate({ receiverId: member.userId })}
-          >
-            {addFriendLabel}
-          </Button>
-        )}
       </div>
     )
   }

@@ -6,6 +6,9 @@ import { Button } from '@/components/ui/button'
 import { ActionButton } from '@/components/common/action-button'
 import { ActionMenuItem } from '@/components/common/action-menu-item'
 import { CustomTooltip } from '@/components/common/custom-tooltip'
+import { canChangeGroupInfo } from '../../../utils/group-permissions'
+import { showWarningToast } from '@/utils/toast'
+import { useTranslation } from 'react-i18next'
 
 interface GroupInfoOverviewText {
   membersCount: (count: number) => string
@@ -37,12 +40,30 @@ export function GroupInfoOverviewStep({
   onOpenManagement,
   onLeaveGroup
 }: GroupInfoOverviewStepProps) {
+  const { t } = useTranslation('chat')
+
+  const handleRenameClick = () => {
+    if (!canChangeGroupInfo(conversation, currentUserId || '')) {
+      showWarningToast(t('chat.restricted.cannotRename'))
+      return
+    }
+    onRenameClick()
+  }
+
+  const handleAvatarClick = () => {
+    if (!canChangeGroupInfo(conversation, currentUserId || '')) {
+      showWarningToast(t('chat.restricted.cannotChangeAvatar'))
+      return
+    }
+    onAvatarClick()
+  }
+
   return (
     <div className='flex flex-col bg-bg-dialog-secondary w-full text-left'>
       <div className='bg-background px-6 py-4 flex flex-col items-stretch gap-3 border-b border-border/50 w-full overflow-visible'>
         <div className='flex items-center gap-3.5 w-full min-w-0 min-h-18'>
           <div
-            onClick={onAvatarClick}
+            onClick={handleAvatarClick}
             className='relative self-center group/avatar cursor-pointer hover:ring-4 hover:ring-primary/10 rounded-full transition-all shrink-0'
           >
             <div
@@ -63,7 +84,7 @@ export function GroupInfoOverviewStep({
               icon={<Camera />}
               size='sm'
               iconSize='sm'
-              onClick={onAvatarClick}
+              onClick={handleAvatarClick}
               className='absolute bottom-0 right-0.5 w-6.5 h-6.5 bg-background border border-border shadow-sm text-icon-secondary group-hover/avatar:bg-muted'
               aria-label='Change group avatar'
             />
@@ -73,7 +94,13 @@ export function GroupInfoOverviewStep({
             <h3 className='text-[18px] leading-tight font-bold text-foreground truncate whitespace-nowrap overflow-hidden max-w-55'>
               {getConversationDisplayName(conversation, 'Group', undefined, currentUserId)}
             </h3>
-            <ActionButton className='self-center' icon={<Pencil />} onClick={onRenameClick} size='sm' iconSize='sm' />
+            <ActionButton
+              className='self-center'
+              icon={<Pencil />}
+              onClick={handleRenameClick}
+              size='sm'
+              iconSize='sm'
+            />
           </div>
         </div>
         <Button

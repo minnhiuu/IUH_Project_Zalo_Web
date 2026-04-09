@@ -70,6 +70,8 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
         avatar: targetAvatar,
         name: targetName
       }))
+    } else if (metadata?.action === 'UPDATE_SETTINGS' && message.senderId) {
+      avatars = [{ id: message.senderId, avatar: message.senderAvatar, name: message.senderName || t('chat.user') }]
     }
 
     return { systemLabel: label, targetAvatars: avatars }
@@ -91,35 +93,34 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
 
   return (
     <>
-      {!isTransferredOwner && metadata?.action !== 'TRANSFER_OWNER' && (
-        <div className='flex justify-center w-full my-2.5 px-4'>
-          <div className='system-msg flex items-center gap-2.5 py-1.5 px-3.5 max-w-[95%]'>
-            {targetAvatars.length > 0 && <MemberAvatar members={targetAvatars} size='xs' className='shrink-0' />}
-            <div className='flex-1 text-[12.5px] leading-relaxed text-left flex items-center gap-1.5'>
-              {metadata?.action === 'PROMOTE_ADMIN' && <Key className='system-msg-promote-icon shrink-0' />}
-              {metadata?.action === 'DEMOTE_ADMIN' && (
-                <div className='relative shrink-0'>
-                  <Key className='system-msg-promote-icon' />
-                  <X className='absolute -bottom-1 -right-1.5 w-2 h-2 system-msg-promote-icon stroke-3 mr-2' />
-                </div>
-              )}
-              {systemLabel}
-              {showDeleteConversationAction && (
-                <button
-                  onClick={() => {
-                    if (conversation?.id) {
-                      deleteConversation(conversation.id)
-                    }
-                  }}
-                  className='text-blue-500 hover:text-blue-600 font-medium whitespace-nowrap'
-                >
-                  {t('chat.disbanded.deleteAction')}
-                </button>
-              )}
-            </div>
+      <div className='flex justify-center w-full my-2.5 px-4'>
+        <div className='system-msg flex items-center gap-2.5 py-1.5 px-3.5 max-w-[95%]'>
+          {targetAvatars.length > 0 && <MemberAvatar members={targetAvatars} size='xs' className='shrink-0' />}
+          <div className='flex-1 text-[12.5px] leading-relaxed text-left flex items-center gap-1.5'>
+            {metadata?.action === 'TRANSFER_OWNER' && <Key className='system-msg-owner-icon shrink-0' />}
+            {metadata?.action === 'PROMOTE_ADMIN' && <Key className='system-msg-promote-icon shrink-0' />}
+            {metadata?.action === 'DEMOTE_ADMIN' && (
+              <div className='relative shrink-0'>
+                <Key className='system-msg-promote-icon' />
+                <X className='absolute -bottom-1 -right-1.5 w-2 h-2 system-msg-promote-icon stroke-3 mr-2' />
+              </div>
+            )}
+            {systemLabel}
+            {showDeleteConversationAction && (
+              <button
+                onClick={() => {
+                  if (conversation?.id) {
+                    deleteConversation(conversation.id)
+                  }
+                }}
+                className='text-blue-500 hover:text-blue-600 font-medium whitespace-nowrap'
+              >
+                {t('chat.disbanded.deleteAction')}
+              </button>
+            )}
           </div>
         </div>
-      )}
+      </div>
 
       {isPromotedToAdmin && <PromoteAdminCard conversation={conversation} secondaryLabel={null} t={t} />}
 
