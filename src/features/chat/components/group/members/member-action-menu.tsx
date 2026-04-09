@@ -16,6 +16,7 @@ interface MemberActionMenuProps {
     removeFromGroup: string
   }
   onAction: (action: MemberMenuAction, member: GroupMemberListItemResponse) => void
+  onOpenChange?: (open: boolean) => void
 }
 
 function canShowActionMenu(member: GroupMemberListItemResponse, currentUserRole: GroupMemberRole) {
@@ -25,13 +26,13 @@ function canShowActionMenu(member: GroupMemberListItemResponse, currentUserRole:
   return true
 }
 
-export function MemberActionMenu({ member, currentUserRole, labels, onAction }: MemberActionMenuProps) {
+export function MemberActionMenu({ member, currentUserRole, labels, onAction, onOpenChange }: MemberActionMenuProps) {
   if (!canShowActionMenu(member, currentUserRole)) return null
 
   const isTargetAdmin = member.role?.toUpperCase() === GroupMemberRole.Admin
 
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false} onOpenChange={onOpenChange}>
       <DropdownMenuTrigger asChild>
         <Button
           size='icon'

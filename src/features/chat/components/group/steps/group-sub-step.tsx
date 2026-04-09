@@ -42,7 +42,7 @@ export function GroupSubStep({ conversation, currentUserRole, step, onBack }: Gr
   return (
     <div
       className={cn(
-        'w-87.5 border-l border-border bg-background flex flex-col h-full overflow-hidden shrink-0 shadow-xl min-[1150px]:shadow-none min-[1150px]:relative absolute right-0 top-0',
+        'chat-info-sidebar w-87.5 border-l border-border bg-background flex flex-col h-full overflow-hidden shrink-0 shadow-xl min-[1150px]:shadow-none min-[1150px]:relative absolute right-0 top-0',
         isOverlayDialogOpen ? 'z-40' : 'z-100'
       )}
     >

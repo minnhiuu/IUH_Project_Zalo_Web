@@ -62,9 +62,8 @@ export function GroupInfoStep({
   return (
     <div
       className={cn(
-        'w-87.5 border-l border-border bg-background flex flex-col h-full overflow-hidden shrink-0 shadow-xl min-[1150px]:shadow-none min-[1150px]:relative absolute right-0 top-0',
-        isOverlayDialogOpen ? 'z-40' : 'z-100',
-        isOverlayDialogOpen && 'blur-[2px] pointer-events-none select-none transition-[filter] duration-150'
+        'chat-info-sidebar w-87.5 border-l border-border bg-background flex flex-col h-full overflow-hidden shrink-0 shadow-xl min-[1150px]:shadow-none min-[1150px]:relative absolute right-0 top-0',
+        isOverlayDialogOpen ? 'z-40' : 'z-100'
       )}
     >
       <div className='h-17 flex items-center justify-center border-b border-border shrink-0 px-4'>

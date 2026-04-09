@@ -491,6 +491,14 @@ input[type='radio']:checked {
   .system-msg-promote-icon {
     @apply w-3.5 h-3.5 text-green-500 shrink-0;
   }
+
+  /* Blur the info sidebar whenever any Radix dialog/sheet is open anywhere in the app */
+  body[data-scroll-locked] .chat-info-sidebar {
+    filter: blur(2px);
+    pointer-events: none;
+    user-select: none;
+    transition: filter 150ms ease;
+  }
 }
 
 @layer utilities {
