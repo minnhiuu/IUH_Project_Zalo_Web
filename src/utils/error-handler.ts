@@ -1,7 +1,7 @@
 import type { UseFormSetError, FieldValues, Path } from 'react-hook-form'
-import { toast } from 'sonner'
 import axios, { AxiosError } from 'axios'
 import i18n from '@/lib/i18n'
+import { showErrorToast } from '@/utils/toast'
 
 type EntityErrorPayload = {
   message: string
@@ -14,6 +14,37 @@ type EntityErrorPayload = {
 type BaseErrorResponse = {
   code?: string | number
   message?: string
+  error?: {
+    message?: string
+  }
+  data?: Record<string, string> | { message?: string } | null
+  errors?: Array<{
+    message?: string
+  }>
+}
+
+const pickFirstMessage = (...values: Array<unknown>): string | undefined => {
+  for (const value of values) {
+    if (typeof value === 'string' && value.trim()) return value.trim()
+  }
+  return undefined
+}
+
+const getValidationFieldErrors = (error: AxiosError<BaseErrorResponse>): Array<{ field: string; message: string }> => {
+  const payload = error.response?.data
+  const data = payload?.data
+
+  if (!data || Array.isArray(data) || typeof data !== 'object') {
+    return []
+  }
+
+  if ('message' in data) {
+    return []
+  }
+
+  return Object.entries(data)
+    .filter(([field, message]) => Boolean(field) && typeof message === 'string' && message.trim().length > 0)
+    .map(([field, message]) => ({ field, message: message.trim() }))
 }
 
 export class EntityError extends Error {
@@ -30,7 +61,15 @@ export class EntityError extends Error {
 export const getErrorMessage = (error: unknown): string => {
   if (axios.isAxiosError(error)) {
     const data = error.response?.data as BaseErrorResponse | undefined
-    return data?.message || i18n.t('common:errorDefault')
+    const backendMessage = pickFirstMessage(
+      data?.message,
+      data?.error?.message,
+      data?.data?.message,
+      data?.errors?.[0]?.message,
+      error.message
+    )
+
+    return backendMessage || i18n.t('common:errorDefault')
   }
   return i18n.t('common:errorDefault')
 }
@@ -52,17 +91,23 @@ export const handleErrorApi = <T extends FieldValues>({
       })
     })
   } else if (axios.isAxiosError(error)) {
-    const message = getErrorMessage(error)
+    if (setError) {
+      const fieldErrors = getValidationFieldErrors(error)
+      if (fieldErrors.length > 0) {
+        fieldErrors.forEach((err) => {
+          setError(err.field as Path<T>, {
+            type: 'server',
+            message: err.message
+          })
+        })
+        return
+      }
+    }
 
-    toast.error(i18n.t('common:error_toast_title', { defaultValue: 'Thất bại' }), {
-      description: message,
-      duration: duration ?? 4000
-    })
+    const message = getErrorMessage(error)
+    showErrorToast(message, duration ?? 4000)
   } else {
-    toast.error(i18n.t('common:error_toast_title', { defaultValue: 'Thất bại' }), {
-      description: i18n.t('common:errorContactAdmin'),
-      duration: duration ?? 4000
-    })
+    showErrorToast(i18n.t('common:errorContactAdmin'), duration ?? 4000)
   }
 }
 
