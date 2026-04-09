@@ -124,6 +124,7 @@ export function GroupInfoDialog({
                   text={tg}
                   conversationId={conversation.id}
                   settings={conversation.settings}
+                  joinLinkToken={conversation.joinLinkToken}
                   onDisbandSuccess={handleClose}
                 />
               </motion.div>

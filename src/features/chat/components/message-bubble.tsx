@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils'
 import type { ConversationResponse, ConversationMemberResponse, MessageResponse } from '../schemas/chat.schema'
 import { useChatText } from '../i18n/use-chat-text'
 import { Quote, Forward, MoreHorizontal, ThumbsUp } from 'lucide-react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { DropdownMenu, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useChatContext } from '../context/chat-context'
 import { MessageStatus, MessageType } from '@/constants/enum'
@@ -11,6 +11,9 @@ import { UserAvatar } from '@/components/common/user-avatar'
 import { MessageSenderAvatar } from './message-sender-avatar'
 import { MessageIconButton } from './message-icon-button'
 import { MessageMoreMenu } from './message-more-menu'
+import { JoinLinkCard } from './join-link-card'
+
+const JOIN_LINK_REGEX = /^(https?:\/\/[^/]+)\/g\/([a-zA-Z0-9_-]+)$/
 
 export function MessageBubble({
   message,
@@ -39,6 +42,13 @@ export function MessageBubble({
 
   const isRevoked = message.status === MessageStatus.REVOKED
   const conversationId = message.conversationId
+
+  const joinLinkMatch = useMemo(() => {
+    if (isRevoked || !message.content) return null
+    const match = message.content.trim().match(JOIN_LINK_REGEX)
+    if (!match) return null
+    return { url: match[0], token: match[2] }
+  }, [message.content, isRevoked])
 
   const senderMember = conversation?.members?.find((m) => m.userId === message.senderId)
   const senderRole = senderMember?.role?.toUpperCase()
@@ -112,7 +122,13 @@ export function MessageBubble({
             )}
 
             <span>
-              {isRevoked ? <span className='italic text-muted-foreground/60'>{mb.revoked}</span> : message.content}
+              {isRevoked ? (
+                <span className='italic text-muted-foreground/60'>{mb.revoked}</span>
+              ) : joinLinkMatch ? (
+                <JoinLinkCard token={joinLinkMatch.token} url={joinLinkMatch.url} />
+              ) : (
+                message.content
+              )}
             </span>
 
             {isLast && (

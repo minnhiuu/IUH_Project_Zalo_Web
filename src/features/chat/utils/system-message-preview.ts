@@ -147,6 +147,13 @@ export function getSystemMessagePreview(
     return translate('chat.system.add_members.update_avatar_simple') as string
   }
 
+  if (action === 'GENERATE_JOIN_LINK' || action === 'REFRESH_JOIN_LINK') {
+    const token = typeof payload?.token === 'string' ? payload.token : undefined
+    const linkUrl = token ? `${window.location.origin}/g/${token}` : ''
+    const label = translate('chat.system.join_link.label') as string
+    return linkUrl ? `${label}: ${linkUrl}` : label
+  }
+
   if (action === 'PROMOTE_ADMIN') {
     const normalizedCurrentUserId = String(currentUserId || '')
     const targetId = String((targetIds || [])[0] || '')

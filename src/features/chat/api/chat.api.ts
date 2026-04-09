@@ -7,7 +7,8 @@ import type {
   GroupConversationCreateRequest,
   SearchMemberResponse,
   GroupMemberListItemResponse,
-  GroupSettings
+  GroupSettings,
+  JoinGroupPreviewResponse
 } from '../schemas/chat.schema'
 
 export const getConversations = async (page = 0, size = 20): Promise<PageResponse<ConversationResponse>> => {
@@ -189,6 +190,16 @@ export const demoteFromAdminApi = async (
   return response.data.data
 }
 
+export const transferOwnerApi = async (
+  conversationId: string,
+  targetUserId: string
+): Promise<ConversationResponse> => {
+  const response = await http.patch<ApiResponse<ConversationResponse>>(
+    `/messages/conversations/${conversationId}/members/${targetUserId}/transfer-owner`
+  )
+  return response.data.data
+}
+
 export const updateGroupSettingsApi = async (
   conversationId: string,
   settings: Partial<GroupSettings>
@@ -196,6 +207,39 @@ export const updateGroupSettingsApi = async (
   const response = await http.patch<ApiResponse<ConversationResponse>>(
     `/messages/conversations/${conversationId}/settings`,
     settings
+  )
+  return response.data.data
+}
+
+export const refreshJoinLinkApi = async (conversationId: string): Promise<string> => {
+  const response = await http.post<ApiResponse<string>>(`/messages/conversations/${conversationId}/join-link/refresh`)
+  return response.data.data
+}
+
+export const generateJoinLinkApi = async (conversationId: string): Promise<string> => {
+  const response = await http.post<ApiResponse<string>>(`/messages/conversations/${conversationId}/join-link`)
+  return response.data.data
+}
+
+export const joinByLinkApi = async (token: string): Promise<ConversationResponse> => {
+  const response = await http.post<ApiResponse<ConversationResponse>>(`/messages/conversations/join/${token}`)
+  return response.data.data
+}
+
+export const getJoinPreviewApi = async (token: string): Promise<JoinGroupPreviewResponse> => {
+  const response = await http.get<ApiResponse<JoinGroupPreviewResponse>>(
+    `/messages/conversations/join/${token}/preview`
+  )
+  return response.data.data
+}
+
+export const blockMembersApi = async (
+  conversationId: string,
+  memberIds: string[]
+): Promise<ConversationResponse> => {
+  const response = await http.post<ApiResponse<ConversationResponse>>(
+    `/messages/conversations/${conversationId}/members/block`,
+    { memberIds }
   )
   return response.data.data
 }

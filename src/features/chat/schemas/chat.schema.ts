@@ -69,7 +69,8 @@ export const ConversationResponseSchema = z.object({
   unreadCount: z.number().nullable().optional(),
   lastMessage: LastMessageResponseSchema.nullable().optional(),
   members: z.array(ConversationMemberResponseSchema).nullable().optional(),
-  settings: GroupSettingsSchema.nullable().optional()
+  settings: GroupSettingsSchema.nullable().optional(),
+  joinLinkToken: z.string().nullable().optional()
 })
 
 export type ConversationResponse = z.infer<typeof ConversationResponseSchema>
@@ -157,3 +158,13 @@ export const SearchMemberResponseSchema = z.object({
 })
 
 export type SearchMemberResponse = z.infer<typeof SearchMemberResponseSchema>
+
+export interface JoinGroupPreviewResponse {
+  conversationId: string
+  groupName: string | null
+  groupAvatar: string | null
+  memberCount: number
+  createdByName: string | null
+  memberPreviews: { name: string; avatar: string | null }[]
+  isAlreadyMember: boolean
+}

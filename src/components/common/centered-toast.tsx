@@ -3,10 +3,18 @@ import { cn } from '@/lib/utils'
 
 interface CenteredToastProps {
   message: string
-  type?: 'success' | 'error' | 'loading' | 'warning'
+  type?: 'success' | 'error' | 'loading' | 'warning' | 'none'
 }
 
 export function CenteredToast({ message, type = 'success' }: CenteredToastProps) {
+  if (type === 'none') {
+    return (
+      <div className='centered-toast-content centered-toast-content--plain'>
+        <p className='centered-toast-text'>{message}</p>
+      </div>
+    )
+  }
+
   const isLoader = type === 'loading'
   const Icon = type === 'success' ? Check : type === 'error' ? X : type === 'warning' ? CircleAlert : Loader2
 

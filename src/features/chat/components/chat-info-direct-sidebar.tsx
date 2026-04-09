@@ -19,7 +19,6 @@ export function ChatInfoDirectSidebar({ conversation, onRenameClick, onAvatarCli
   const { user } = useAuth()
   const [isDisappearingDialogOpen, setIsDisappearingDialogOpen] = useState(false)
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false)
-  const isOverlayDialogOpen = isCreateGroupOpen
 
   const otherMembers = conversation.members?.filter((m) => m.userId !== user?.id) || []
   const initialSelectedFriendIds = otherMembers.map((m) => m.userId)
@@ -27,9 +26,7 @@ export function ChatInfoDirectSidebar({ conversation, onRenameClick, onAvatarCli
   return (
     <div
       className={cn(
-        'w-[350px] border-l border-border bg-background flex flex-col h-full overflow-hidden shrink-0 shadow-xl min-[1150px]:shadow-none min-[1150px]:relative absolute right-0 top-0',
-        isOverlayDialogOpen ? 'z-40' : 'z-100',
-        isOverlayDialogOpen && 'blur-[2px] pointer-events-none select-none transition-[filter] duration-150'
+        'w-[350px] border-l border-border bg-background flex flex-col h-full overflow-hidden shrink-0 shadow-xl min-[1150px]:shadow-none'
       )}
     >
       <div className='h-[68px] flex items-center justify-center border-b border-border shrink-0 px-4'>

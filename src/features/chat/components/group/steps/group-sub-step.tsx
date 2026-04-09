@@ -13,14 +13,18 @@ import { GroupMemberRole } from '@/constants/enum'
 import { OwnerProfileDialog } from '@/features/user/components/profile-dialog/owner/owner-profile-dialog'
 import { OthersProfileDialog } from '@/features/user/components/profile-dialog/others/others-profile-dialog'
 
+import { GroupAdminsStep } from './group-admins-step'
+import { GroupBlockedStep } from './group-blocked-step'
+
 interface GroupSubStepProps {
   conversation: ConversationResponse
   currentUserRole: GroupMemberRole
-  step: 'management' | 'members'
+  step: 'management' | 'members' | 'admins' | 'blocked'
   onBack: () => void
+  onStepChange: (step: 'management' | 'members' | 'admins' | 'blocked') => void
 }
 
-export function GroupSubStep({ conversation, currentUserRole, step, onBack }: GroupSubStepProps) {
+export function GroupSubStep({ conversation, currentUserRole, step, onBack, onStepChange }: GroupSubStepProps) {
   const { text: tg } = useChatText()
   const { user } = useAuth()
 
@@ -34,8 +38,6 @@ export function GroupSubStep({ conversation, currentUserRole, step, onBack }: Gr
   const [isOthersProfileOpen, setIsOthersProfileOpen] = useState(false)
   const [selectedProfileUserId, setSelectedProfileUserId] = useState<string | undefined>(undefined)
 
-  const isOverlayDialogOpen = isAddMemberOpen || isLeaveGroupDialogOpen || isTransferOwnerDialogOpen
-
   const handleLeaveGroup = () => {
     if (isOwner) {
       setIsTransferOwnerDialogOpen(true)
@@ -44,11 +46,17 @@ export function GroupSubStep({ conversation, currentUserRole, step, onBack }: Gr
     }
   }
 
+  const getTitle = () => {
+    if (step === 'management') return tg['group-info-dialog'].managementTitle
+    if (step === 'admins') return tg['group-info-dialog'].actions.ownerAndDeputy
+    if (step === 'blocked') return tg['group-info-dialog'].actions.removeMembers
+    return tg.sidebarInfo.members
+  }
+
   return (
     <div
       className={cn(
-        'chat-info-sidebar w-87.5 border-l border-border bg-background flex flex-col h-full overflow-hidden shrink-0 shadow-xl min-[1150px]:shadow-none min-[1150px]:relative absolute right-0 top-0',
-        isOverlayDialogOpen ? 'z-40' : 'z-100'
+        'chat-info-sidebar w-87.5 border-l border-border bg-background flex flex-col h-full overflow-hidden shrink-0 shadow-xl min-[1150px]:shadow-none'
       )}
     >
       <div className='h-17 flex items-center border-b border-border shrink-0 px-4'>
@@ -58,9 +66,7 @@ export function GroupSubStep({ conversation, currentUserRole, step, onBack }: Gr
         >
           <ArrowLeft className='w-5 h-5 text-foreground' />
         </button>
-        <h2 className='font-bold text-[16px] text-foreground flex-1 text-center pr-6'>
-          {step === 'management' ? tg['group-info-dialog'].managementTitle : tg.sidebarInfo.members}
-        </h2>
+        <h2 className='font-bold text-[16px] text-foreground flex-1 text-center pr-6 truncate'>{getTitle()}</h2>
       </div>
 
       <div className='flex-1 overflow-hidden'>
@@ -70,8 +76,15 @@ export function GroupSubStep({ conversation, currentUserRole, step, onBack }: Gr
             conversationId={conversation.id}
             currentUserRole={currentUserRole}
             settings={conversation.settings}
+            joinLinkToken={conversation.joinLinkToken}
             onDisbandSuccess={onBack}
+            onGoToAdmins={() => onStepChange('admins')}
+            onGoToBlocked={() => onStepChange('blocked')}
           />
+        ) : step === 'admins' ? (
+          <GroupAdminsStep conversation={conversation} currentUserRole={currentUserRole} />
+        ) : step === 'blocked' ? (
+          <GroupBlockedStep currentUserRole={currentUserRole} conversationId={conversation.id} />
         ) : (
           <GroupMembersStep
             conversationId={conversation.id}

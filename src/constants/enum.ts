@@ -166,7 +166,10 @@ export const SystemActionType = {
   PromoteAdmin: 'PROMOTE_ADMIN',
   DemoteAdmin: 'DEMOTE_ADMIN',
   TransferOwner: 'TRANSFER_OWNER',
-  UpdateSettings: 'UPDATE_SETTINGS'
+  UpdateSettings: 'UPDATE_SETTINGS',
+  JoinByLink: 'JOIN_BY_LINK',
+  GenerateJoinLink: 'GENERATE_JOIN_LINK',
+  RefreshJoinLink: 'REFRESH_JOIN_LINK'
 } as const
 
 export type SystemActionType = (typeof SystemActionType)[keyof typeof SystemActionType]

@@ -80,7 +80,7 @@ export function BaseDialog({
           </div>
 
           {(confirmText || cancelText) && (
-            <DialogFooter className='flex flex-row justify-end gap-3 px-4 pb-4'>
+            <DialogFooter className='flex flex-row justify-end gap-3 px-4 py-3.5 border-t border-border'>
               {cancelText && (
                 <Button
                   variant='secondary'
@@ -91,7 +91,6 @@ export function BaseDialog({
                       onOpenChange(false)
                     }
                   }}
-                  className='px-6 h-9 min-w-20'
                 >
                   {cancelText}
                 </Button>
@@ -101,7 +100,6 @@ export function BaseDialog({
                   variant={variant === 'danger' ? 'destructive' : 'default'}
                   onClick={onConfirm}
                   disabled={isPending}
-                  className='px-6 h-9 min-w-20'
                 >
                   {isPending ? '...' : confirmText}
                 </Button>

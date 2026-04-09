@@ -80,6 +80,39 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     addMembersTitle: t(CHAT_KEYS['create-group-dialog'].addMembersTitle),
     alreadyJoined: t(CHAT_KEYS['create-group-dialog'].alreadyJoined)
   },
+  'forward-dialog': {
+    title: t(CHAT_KEYS['forward-dialog'].title),
+    share_title: t(CHAT_KEYS['forward-dialog'].share_title),
+    searchPlaceholder: t(CHAT_KEYS['forward-dialog'].searchPlaceholder),
+    selected: t(CHAT_KEYS['forward-dialog'].selected),
+    empty: t(CHAT_KEYS['forward-dialog'].empty),
+    forward: t(CHAT_KEYS['forward-dialog'].forward),
+    share: t(CHAT_KEYS['forward-dialog'].share),
+    cancel: t(CHAT_KEYS['forward-dialog'].cancel),
+    delete: t(CHAT_KEYS['forward-dialog'].delete),
+    tabRecent: t(CHAT_KEYS['forward-dialog'].tabRecent),
+    tabGroups: t(CHAT_KEYS['forward-dialog'].tabGroups),
+    tabFriends: t(CHAT_KEYS['forward-dialog'].tabFriends),
+    labels: t(CHAT_KEYS['forward-dialog'].labels),
+    forwardMessage: t(CHAT_KEYS['forward-dialog'].forwardMessage),
+    addDescription: t(CHAT_KEYS['forward-dialog'].addDescription)
+  },
+  'join-group-dialog': {
+    title: t(CHAT_KEYS['join-group-dialog'].title),
+    members_and_creator: t(CHAT_KEYS['join-group-dialog'].members_and_creator),
+    members_only: t(CHAT_KEYS['join-group-dialog'].members_only),
+    waiting_room: t(CHAT_KEYS['join-group-dialog'].waiting_room),
+    join: t(CHAT_KEYS['join-group-dialog'].join),
+    joining: t(CHAT_KEYS['join-group-dialog'].joining),
+    close: t(CHAT_KEYS['join-group-dialog'].close),
+    go_to_chat: t(CHAT_KEYS['join-group-dialog'].go_to_chat),
+    link_invalid: t(CHAT_KEYS['join-group-dialog'].link_invalid),
+    link_invalid_desc: t(CHAT_KEYS['join-group-dialog'].link_invalid_desc),
+    link_disabled: t(CHAT_KEYS['join-group-dialog'].link_disabled),
+    link_disabled_desc: t(CHAT_KEYS['join-group-dialog'].link_disabled_desc),
+    error: t(CHAT_KEYS['join-group-dialog'].error),
+    error_desc: t(CHAT_KEYS['join-group-dialog'].error_desc)
+  },
   system: {
     add_members: {
       single_self: t(CHAT_KEYS.system.add_members.single_self),
@@ -178,6 +211,20 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
         confirm: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerDialog.confirm),
         cancel: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerDialog.cancel),
         searchPlaceholder: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerDialog.searchPlaceholder)
+      },
+      owner: t(CHAT_KEYS['group-info-dialog'].actions.owner),
+      admin: t(CHAT_KEYS['group-info-dialog'].actions.admin),
+      delete: t(CHAT_KEYS['group-info-dialog'].actions.delete),
+      addDeputy: t(CHAT_KEYS['group-info-dialog'].actions.addDeputy),
+      transferOwner: t(CHAT_KEYS['group-info-dialog'].actions.transferOwner),
+      noBlockedMembers: t(CHAT_KEYS['group-info-dialog'].actions.noBlockedMembers),
+      blockedMembersDesc: t(CHAT_KEYS['group-info-dialog'].actions.blockedMembersDesc),
+      blockMember: t(CHAT_KEYS['group-info-dialog'].actions.blockMember),
+      transferOwnerConfirm: {
+        title: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerConfirm.title),
+        description: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerConfirm.description),
+        confirm: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerConfirm.confirm),
+        cancel: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerConfirm.cancel)
       }
     }
   },

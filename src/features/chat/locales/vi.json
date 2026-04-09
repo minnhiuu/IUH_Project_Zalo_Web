@@ -98,6 +98,25 @@
         "self": "Bạn đã rời nhóm",
         "by_actor": "<actorBold>{{actor}}</actorBold> đã rời nhóm"
       },
+      "join_by_link": {
+        "self": "Bạn đã tham gia nhóm qua liên kết",
+        "by_actor": "<actorBold>{{actor}}</actorBold> đã tham gia nhóm qua liên kết"
+      },
+      "generate_join_link": {
+        "self": "Bạn đã tạo link mời tham gia nhóm",
+        "by_actor": "<actorBold>{{actor}}</actorBold> đã tạo link mời tham gia nhóm"
+      },
+      "refresh_join_link": {
+        "self": "Bạn đã làm mới link mời nhóm. Link cũ không còn hiệu lực.",
+        "by_actor": "<actorBold>{{actor}}</actorBold> đã làm mới link mời nhóm. Link cũ không còn hiệu lực."
+      },
+      "join_link": {
+        "label": "Link mời tham gia nhóm",
+        "copy": "Copy link",
+        "share": "Chia sẻ",
+        "copied": "Đã sao chép",
+        "expired": "Link nhóm đã được cập nhật. Xem link mới trong phần quản lý nhóm."
+      },
       "group_tips": {
         "invite_cta": "Mời thêm bạn",
         "invite_suffix": "vào nhóm {{groupName}}",
@@ -157,6 +176,46 @@
       "removeAvatar": "Xoá Ảnh",
       "addMembersTitle": "Thêm thành viên",
       "alreadyJoined": "Đã tham gia"
+    },
+    "forward-dialog": {
+      "title": "Chia sẻ",
+      "share_title": "Chia sẻ link mời",
+      "searchPlaceholder": "Tìm kiếm...",
+      "selected": "Đã chọn:",
+      "empty": "Không tìm thấy cuộc trò chuyện",
+      "forward": "Chuyển tiếp",
+      "share": "Chia sẻ",
+      "cancel": "Hủy",
+      "delete": "Xóa",
+      "tabRecent": "Gần đây",
+      "tabGroups": "Nhóm",
+      "tabFriends": "Bạn bè",
+      "labels": "Nhãn",
+      "forwardMessage": "Nội dung chuyển tiếp",
+      "addDescription": "Thêm lời nhắn..."
+    },
+    "join-group-dialog": {
+      "title": "Thông tin nhóm",
+      "members_and_creator": "{{count}} thành viên • Tạo bởi {{creator}}",
+      "members_only": "{{count}} thành viên",
+      "waiting_room": "Bạn đang ở phòng chờ. Tham gia để trò chuyện với mọi người trong nhóm.",
+      "join": "Tham gia",
+      "joining": "Đang tham gia...",
+      "close": "Đóng",
+      "go_to_chat": "Đi tới cuộc trò chuyện",
+      "link_invalid": "Link không hợp lệ",
+      "link_invalid_desc": "Link tham gia nhóm không tồn tại hoặc đã hết hạn.",
+      "link_disabled": "Link đã bị tắt",
+      "link_disabled_desc": "Quản trị viên đã tắt tính năng tham gia nhóm qua link.",
+      "error": "Đã xảy ra lỗi",
+      "error_desc": "Không thể tải thông tin nhóm."
+    },
+    "join-link-card": {
+      "group_label": "Nhóm",
+      "default_name": "Nhóm chat",
+      "member_count": "{{count}} thành viên",
+      "click_to_join": "Bấm để tham gia nhóm",
+      "unavailable": "Link nhóm không khả dụng"
     },
     "rename-group-dialog": {
       "title": "Đặt tên nhóm",
@@ -221,6 +280,20 @@
           "confirm": "Chọn và tiếp tục",
           "cancel": "Hủy",
           "searchPlaceholder": "Tìm thành viên"
+        },
+        "owner": "Trưởng nhóm",
+        "admin": "Phó nhóm",
+        "delete": "Xóa",
+        "addDeputy": "Thêm phó nhóm",
+        "transferOwner": "Chuyển quyền trưởng nhóm",
+        "noBlockedMembers": "Chưa có thành viên nào bị chặn",
+        "blockedMembersDesc": "Những người đã bị chặn không thể tham gia lại nhóm, trừ khi được trưởng, phó nhóm bỏ chặn hoặc thêm lại vào nhóm.",
+        "blockMember": "Thêm vào danh sách chặn",
+        "transferOwnerConfirm": {
+          "title": "Chuyển quyền trưởng nhóm",
+          "description": "Người được chọn sẽ trở thành trưởng nhóm và có mọi quyền quản lý nhóm. Bạn sẽ mất quyền quản lý nhưng vẫn là một thành viên của nhóm. Hành động này không thể phục hồi.",
+          "confirm": "Tiếp tục",
+          "cancel": "Hủy"
         }
       }
     },

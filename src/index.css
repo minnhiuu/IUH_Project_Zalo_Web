@@ -118,6 +118,15 @@
   --blue-message: #e5f1ff;
   --white-message: #ffffff;
   --text-secondary: #5a6981;
+
+  --B10: #f0f7ff;
+  --B70: #0045ad;
+  --NG15: #efefef;
+  --text-information: #005ae0;
+  --button-tertiary-primary-hover: #e5f1ff;
+  --text-disable: #738296;
+  --empty-state-icon: rgba(0, 0, 0, 0.08);
+  --empty-state-lock: rgba(0, 0, 0, 0.15);
 }
 
 @layer utilities {
@@ -133,9 +142,9 @@
 .dark {
   --brand-blue: #00378a;
   --brand-blue-dark: #002b6b;
-  --brand-blue-light: #8fbfff;
-  --brand-blue-hover: #002b6b;
-  --brand-blue-text: #8fbfff;
+  --brand-blue-light: #1f344d;
+  --brand-blue-hover: #162638;
+  --brand-blue-text: #66a6ff;
 
   --background: #22262b;
   --foreground: #dfe2e7;
@@ -223,6 +232,15 @@
   --blue-message: #1f344d;
   --white-message: #282d33;
   --text-secondary: #9facbc;
+
+  --B10: #001029;
+  --B70: #66a6ff;
+  --NG15: #081b3a;
+  --text-information: #66a6ff;
+  --button-tertiary-primary-hover: #002152;
+  --text-disable: #738296;
+  --empty-state-icon: hsla(0, 0%, 100%, 0.1);
+  --empty-state-lock: hsla(0, 0%, 100%, 0.15);
 }
 
 @theme inline {
@@ -329,6 +347,7 @@
   --color-blue-message: var(--blue-message);
   --color-white-message: var(--white-message);
   --color-text-secondary: var(--text-secondary);
+  --color-information: var(--text-information);
 
   @keyframes pulse-subtle {
     0%,
@@ -431,6 +450,14 @@ input[type='radio']:checked {
     @apply text-[14px] font-normal text-center leading-tight text-toast-text-muted px-2;
   }
 
+  .centered-toast-content--plain {
+    @apply flex-row gap-0 h-auto min-h-0 w-auto max-w-[80vw] px-6 py-3.5;
+  }
+
+  .centered-toast-content--plain .centered-toast-text {
+    @apply mt-0 px-0 leading-normal;
+  }
+
   .system-msg {
     @apply bg-[hsla(0,0%,100%,0.85)] dark:bg-[hsla(0,0%,100%,0.05)] text-[12.5px] text-icon-secondary dark:text-icon-muted px-4 py-2 rounded-2xl text-left max-w-[95%] leading-snug select-none shadow-none;
   }
@@ -502,20 +529,54 @@ input[type='radio']:checked {
     @apply text-blue-500 hover:text-blue-600 font-medium whitespace-nowrap cursor-pointer transition-colors;
   }
 
+  .join-link-section {
+    background-color: var(--B10);
+    border-radius: 0.5rem;
+    padding: 0.375rem 0.625rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .join-link-icon-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background-color 0.1s;
+    color: var(--B70);
+    flex-shrink: 0;
+    border: none;
+    background: transparent;
+  }
+
+  .join-link-icon-btn:hover {
+    background-color: var(--button-tertiary-primary-hover);
+  }
+
+  .join-link-icon-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .join-link-icon-btn svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+  }
+
   .system-msg-promote-icon {
     @apply w-3.5 h-3.5 text-green-500 shrink-0;
   }
 
   .system-msg-owner-icon {
     @apply w-3.5 h-3.5 text-yellow-500 shrink-0;
-  }
-
-  /* Blur the info sidebar whenever any Radix dialog/sheet is open anywhere in the app */
-  body[data-scroll-locked] .chat-info-sidebar {
-    filter: blur(2px);
-    pointer-events: none;
-    user-select: none;
-    transition: filter 150ms ease;
   }
 }
 
@@ -545,4 +606,13 @@ input[type='radio']:checked {
     transform: scale(1);
     opacity: 1;
   }
+}
+
+.readonly-management-text {
+  color: var(--text-disable) !important;
+}
+
+.readonly-management-checkbox:disabled:checked {
+  accent-color: var(--primary) !important;
+  opacity: 1 !important;
 }

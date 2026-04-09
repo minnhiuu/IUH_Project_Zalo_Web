@@ -1,6 +1,7 @@
 import { Phone, Video, Search, PanelsTopLeft, Users, Pencil } from 'lucide-react'
 import { useMessagesInfiniteQuery } from '../queries/use-queries'
 import { useAuth } from '@/features/auth'
+import { useChatContext } from '../context/chat-context'
 import { MessageBubble } from './message-bubble'
 import { ChatInput } from './chat-input'
 import { ChatInputRestricted } from './chat-input-restricted'
@@ -12,8 +13,9 @@ import {
   useUpdateGroupAvatarMutation
 } from '../queries/use-mutations'
 import { useEffect, useRef, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import type { ConversationResponse, MessageResponse } from '../schemas/chat.schema'
-import { ForwardModal } from './forward-modal'
+import { ForwardDialog } from './forward-dialog'
 import { formatLastSeen } from '@/utils/date'
 import { CloudInfoSidebar } from './cloud-info-sidebar'
 import { AiChatWindow } from './ai-chat-window'
@@ -40,6 +42,7 @@ const OPEN_GROUP_INFO_EVENT = 'chat:open-group-info'
 
 export function ChatWindow({ conversation }: { conversation: ConversationResponse }) {
   const { user } = useAuth()
+  const { sendMessage } = useChatContext()
   const { t, text } = useChatText()
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useMessagesInfiniteQuery(conversation.id)
 
@@ -440,7 +443,21 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
         ) : (
           <ChatInput conversationId={conversation.id} replyTo={replyTo} onCancelReply={() => setReplyTo(null)} />
         )}
-        {forwardingMessage && <ForwardModal message={forwardingMessage} onClose={() => setForwardingMessage(null)} />}
+        {forwardingMessage && (
+          <ForwardDialog
+            open
+            message={forwardingMessage}
+            onClose={() => setForwardingMessage(null)}
+            onConfirm={(selectedConvIds, description) => {
+              selectedConvIds.forEach((convId) => {
+                const finalContent = description
+                  ? `${forwardingMessage.content}\n---\n${description}`
+                  : forwardingMessage.content || ''
+                sendMessage(convId, finalContent, null, true)
+              })
+            }}
+          />
+        )}
 
         <RenameGroupDialog
           key={`${conversation.id}-${isRenameDialogOpen}`}
@@ -460,6 +477,11 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
         />
       )}
 
+      {/* Placeholder to reserve sidebar width in flex layout */}
+      {isInfoSidebarOpen && !isInfoDialogOpen && !isCloudConversation && (
+        <div className='w-87.5 shrink-0 hidden min-[1150px]:block' />
+      )}
+
       {isCloudConversation ? (
         <CloudInfoSidebar />
       ) : isInfoDialogOpen ? (
@@ -476,13 +498,17 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
           onAvatarClick={triggerFileInput}
         />
       ) : (
-        isInfoSidebarOpen && (
-          <ChatInfoSidebar
-            conversation={conversation}
-            onRenameClick={() => setIsRenameDialogOpen(true)}
-            onAvatarClick={triggerFileInput}
-            managementOpenSignal={managementOpenSignal}
-          />
+        isInfoSidebarOpen &&
+        createPortal(
+          <div className='fixed top-0 right-0 h-full pointer-events-auto'>
+            <ChatInfoSidebar
+              conversation={conversation}
+              onRenameClick={() => setIsRenameDialogOpen(true)}
+              onAvatarClick={triggerFileInput}
+              managementOpenSignal={managementOpenSignal}
+            />
+          </div>,
+          document.body
         )
       )}
 

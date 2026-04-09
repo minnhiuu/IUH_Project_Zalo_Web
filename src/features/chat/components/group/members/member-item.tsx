@@ -8,12 +8,20 @@ interface MemberItemProps {
   member: SearchMemberResponse
   isSelected: boolean
   onToggle: () => void
+  selectionMode?: 'checkbox' | 'radio' | 'none'
+  disabled?: boolean
 }
 
-export const MemberItem = ({ member, isSelected, onToggle }: MemberItemProps) => {
+export const MemberItem = ({
+  member,
+  isSelected,
+  onToggle,
+  selectionMode = 'checkbox',
+  disabled = false
+}: MemberItemProps) => {
   const { text } = useChatText()
   const tg = text['create-group-dialog']
-  const isAlreadyMember = member.isAlreadyMember
+  const isAlreadyMember = member.isAlreadyMember || disabled
 
   return (
     <div
@@ -23,22 +31,30 @@ export const MemberItem = ({ member, isSelected, onToggle }: MemberItemProps) =>
       onClick={isAlreadyMember ? undefined : onToggle}
     >
       <div className='flex items-center justify-center w-5 h-5'>
-        {isAlreadyMember ? (
+        {member.isAlreadyMember ? (
           <div className='w-4.5 h-4.5 rounded-full bg-dialog-selection-btn-disabled-bg flex items-center justify-center'>
             <Check className='w-3 h-3 text-white' />
           </div>
-        ) : (
+        ) : selectionMode === 'radio' ? (
+          <div
+            className={`w-4.5 h-4.5 rounded-full border border-muted-foreground/30 flex items-center justify-center transition-colors ${
+              isSelected ? 'border-primary bg-primary' : 'bg-transparent'
+            }`}
+          >
+            {isSelected && <div className='w-2 h-2 rounded-full bg-white shadow-sm' />}
+          </div>
+        ) : selectionMode === 'checkbox' ? (
           <Checkbox
             checked={isSelected}
             onCheckedChange={onToggle}
             className='rounded-full w-4.5 h-4.5 border-muted-foreground/30'
           />
-        )}
+        ) : null}
       </div>
       <UserAvatar name={member.fullName} src={member.avatar} className='w-10 h-10 shadow-sm border border-border/10' />
       <div className='flex flex-col min-w-0'>
         <span className='text-[14px] font-normal text-foreground truncate'>{member.fullName}</span>
-        {isAlreadyMember ? (
+        {member.isAlreadyMember ? (
           <span className='text-[12px] text-muted-foreground/70 truncate'>{tg.alreadyJoined}</span>
         ) : member.phoneNumber ? (
           <span className='text-[12px] text-muted-foreground/60 truncate'>{member.phoneNumber}</span>
