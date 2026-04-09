@@ -16,8 +16,8 @@ export function NotificationPanel({ open }: NotificationPanelProps) {
   return (
     <div
       className={cn(
-        'fixed inset-y-0 z-50 w-90 bg-background border-r border-border flex flex-col transition-transform duration-300 ease-in-out shadow-xl',
-        open ? 'translate-x-0' : '-translate-x-[calc(100%+64px)]'
+        'fixed inset-y-0 z-50 w-[360px] bg-background border-r border-border flex flex-col transition-transform duration-300 ease-in-out shadow-xl',
+        open ? 'translate-x-0' : '-translate-x-full'
       )}
       style={{ left: '64px' }}
     >

@@ -33,14 +33,13 @@ export function FriendList({ searchQuery = '' }: FriendListProps) {
   const { text } = useFriendText()
   const { data: friends, isLoading } = useMyFriends()
   const unfriendMutation = useUnfriend()
-  const safeFriends = useMemo(() => (Array.isArray(friends) ? friends : []), [friends])
 
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
 
   const processedFriends = useMemo(() => {
-    if (safeFriends.length === 0) return { newFriends: [], groupedFriends: {} }
+    if (!friends) return { newFriends: [], groupedFriends: {} }
 
-    let filtered = [...safeFriends]
+    let filtered = [...friends]
 
     // Apply search filter
     if (searchQuery.trim()) {
@@ -74,9 +73,9 @@ export function FriendList({ searchQuery = '' }: FriendListProps) {
     })
 
     return { newFriends, groupedFriends }
-  }, [safeFriends, searchQuery])
+  }, [friends, searchQuery])
 
-  const totalCount = safeFriends.length
+  const totalCount = friends?.length ?? 0
   const sortedLetters = Object.keys(processedFriends.groupedFriends).sort((a, b) =>
     a === '#' ? 1 : b === '#' ? -1 : a.localeCompare(b, 'vi')
   )
@@ -108,7 +107,7 @@ export function FriendList({ searchQuery = '' }: FriendListProps) {
                 </div>
               ))}
             </div>
-          ) : safeFriends.length === 0 ? (
+          ) : friends && friends.length === 0 ? (
             <div className='flex items-center justify-center h-full'>
               <SearchEmpty title={text.contactList.noFriendsMessage} />
             </div>

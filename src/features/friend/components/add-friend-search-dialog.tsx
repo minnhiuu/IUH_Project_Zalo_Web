@@ -34,7 +34,7 @@ function SearchResultItem({ user, onAddFriend }: SearchResultItemProps) {
 
   const getButtonState = () => {
     if (isLoadingStatus) {
-      return { disabled: true, label: '...', variant: 'outline' as const, action: null }
+      return { disabled: true, label: '...', variant: 'outline' as const, action: null as any }
     }
 
     if (!friendshipStatus || !friendshipStatus.status) {
@@ -44,7 +44,7 @@ function SearchResultItem({ user, onAddFriend }: SearchResultItemProps) {
     switch (friendshipStatus.status) {
       case FriendStatus.Accepted:
         return { disabled: true, label: `${text.status.accepted}`, variant: 'secondary' as const, action: null }
-      case FriendStatus.Pending: {
+      case FriendStatus.Pending:
         // Check if current user sent the request
         const sentByMe = friendshipStatus.requestedBy === currentUser?.id
         if (sentByMe) {
@@ -52,7 +52,6 @@ function SearchResultItem({ user, onAddFriend }: SearchResultItemProps) {
         } else {
           return { disabled: false, label: text.actions.accept, variant: 'default' as const, action: 'accept' }
         }
-      }
       case FriendStatus.Cancelled:
       case FriendStatus.Declined:
         return { disabled: false, label: text.actions.addFriend, variant: 'default' as const, action: 'add' }

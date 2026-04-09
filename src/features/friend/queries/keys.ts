@@ -8,7 +8,6 @@ export const friendKeys = {
 
   friends: () => [...friendKeys.all(), 'friends'] as const,
   myFriends: (page: number = 0, size: number = 10) => [...friendKeys.friends(), 'my', page, size] as const,
-  myFriendsInfinite: (size: number = 20) => [...friendKeys.friends(), 'my', 'infinite', size] as const,
 
   status: (userId: string) => [...friendKeys.all(), 'status', userId] as const,
 
