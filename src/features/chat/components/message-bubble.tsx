@@ -13,9 +13,6 @@ import { useChatContext } from '../context/chat-context'
 import { MessageStatus, MessageType } from '@/constants/enum'
 import { SystemMessage } from '../utils/system-message'
 import { UserAvatar } from '@/components/common/user-avatar'
-import { useAuth } from '@/features/auth'
-import { SystemFriendshipCard } from './system-friendship-card'
-import { SystemFriendshipBadge } from './system-friendship-badge'
 
 export function MessageBubble({
   message,
@@ -25,8 +22,7 @@ export function MessageBubble({
   isNewest = false,
   conversation,
   onReply,
-  onForward,
-  onOpenProfile
+  onForward
 }: {
   message: MessageResponse
   isOwn: boolean
@@ -36,45 +32,9 @@ export function MessageBubble({
   conversation?: ConversationResponse
   onReply?: () => void
   onForward?: () => void
-  onOpenProfile?: (id: string) => void
 }) {
   const { text } = useChatText()
-  const { revokeMessage, deleteMessageForMe, sendMessage } = useChatContext()
-  const { user } = useAuth()
-  const partnerDisplayName = conversation?.name || text.systemFriendship.defaultPartnerName
-  const requesterId = typeof message.content === 'string' ? message.content : null
-  const otherUserId =
-    conversation?.recipientId || conversation?.members?.find((m) => m.userId !== user?.id)?.userId || null
-
-  if (message.type === 'SYSTEM_FRIENDSHIP_CARD') {
-    return (
-      <SystemFriendshipCard
-        partnerName={partnerDisplayName}
-        partnerAvatar={conversation?.avatar}
-        ownerAvatar={user?.avatar}
-        onSendGreeting={() => {
-          if (conversation?.id) {
-            sendMessage(conversation.id, text.systemFriendship.greetingMessage, null, false)
-          }
-        }}
-      />
-    )
-  }
-
-  if (message.type === 'SYSTEM_FRIENDSHIP_BADGE') {
-    return (
-      <SystemFriendshipBadge
-        message={message}
-        partnerName={partnerDisplayName}
-        otherUserId={otherUserId}
-        currentUserId={user?.id}
-        requesterId={requesterId}
-        onOpenProfile={(id: string) => {
-          onOpenProfile?.(id)
-        }}
-      />
-    )
-  }
+  const { revokeMessage, deleteMessageForMe } = useChatContext()
 
   const isRevoked = message.status === MessageStatus.REVOKED
   const conversationId = message.conversationId
@@ -259,7 +219,7 @@ export function MessageBubble({
                                 name={reader.fullName || 'User'}
                                 className='w-3 h-3 border border-background shadow-sm'
                                 fallbackClassName='text-[6px]'
-                                title={`Đã xem bởi ${reader.fullName}`}
+                                // title={`Đã xem bởi ${reader.fullName}`}
                               />
                             ))}
                             {extraCount > 0 && (
