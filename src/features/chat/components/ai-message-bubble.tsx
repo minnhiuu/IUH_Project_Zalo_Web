@@ -1,6 +1,7 @@
 import { HelpCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { AiMessage } from '../hooks/use-ai-chat'
+import { useChatText } from '../i18n/use-chat-text'
 import { AiSuggestionChips } from './ai-suggestion-chips'
 
 export function AiMessageBubble({
@@ -15,6 +16,8 @@ export function AiMessageBubble({
   isLoading: boolean
 }) {
   const isUser = msg.role === 'user'
+  const { text } = useChatText()
+  const statusLabel = text.aiStatusLabel(msg.processingStatus)
 
   return (
     <div className={cn('flex flex-col w-full px-2 mt-3', isUser ? 'items-end' : 'items-start')}>
@@ -32,7 +35,7 @@ export function AiMessageBubble({
         <div className='flex flex-col max-w-[75%]'>
           <div
             className={cn(
-              'px-4 py-2.5 rounded-2xl text-[15px] leading-relaxed shadow-sm break-words',
+              'px-4 py-2.5 rounded-2xl text-[15px] leading-relaxed shadow-sm wrap-break-word',
               isUser
                 ? 'bg-[#e5efff] text-black dark:bg-primary dark:text-primary-foreground rounded-tr-md'
                 : msg.isClarification
@@ -44,6 +47,20 @@ export function AiMessageBubble({
               <div className='flex items-center gap-1.5 text-amber-600 dark:text-amber-400 text-[13px] font-semibold mb-1.5'>
                 <HelpCircle size={14} />
                 <span>Cần thêm thông tin</span>
+              </div>
+            )}
+            {!isUser && msg.isStreaming && !!msg.processingStatus && (
+              <div className='flex items-center gap-1.5 text-[11px] text-blue-500 dark:text-blue-400 italic mb-1 select-none'>
+                <span className='flex items-center gap-0.75'>
+                  {[0, 1, 2].map((i) => (
+                    <span
+                      key={i}
+                      className='w-1.25 h-1.25 rounded-full bg-blue-400 animate-bounce'
+                      style={{ animationDelay: `${i * 120}ms` }}
+                    />
+                  ))}
+                </span>
+                <span>{statusLabel}</span>
               </div>
             )}
             <span className='whitespace-pre-wrap'>

@@ -9,7 +9,6 @@ interface AiChatWindowProps {
   conversation: ConversationResponse
 }
 
-import { AiStatusBar } from './ai-status-bar'
 import { AiTypingIndicator } from './ai-typing-indicator'
 import { AiMessageBubble } from './ai-message-bubble'
 import { AiWelcomeScreen } from './ai-welcome-screen'
@@ -56,7 +55,7 @@ export function AiChatWindow({ conversation }: AiChatWindowProps) {
   return (
     <div className='flex-1 flex flex-col h-full overflow-hidden bg-[#eef0f1] dark:bg-zinc-950'>
       {/* Header */}
-      <div className='h-[68px] border-b border-border bg-background flex items-center justify-between px-4 shrink-0 shadow-sm z-10'>
+      <div className='h-17 border-b border-border bg-background flex items-center justify-between px-4 shrink-0 shadow-sm z-10'>
         <div className='flex items-center gap-3'>
           <div className='w-10 h-10'>
             <img
@@ -104,14 +103,8 @@ export function AiChatWindow({ conversation }: AiChatWindowProps) {
         )}
       </div>
 
-      {/* Input + AI Status bar */}
+      {/* Input */}
       <div className='bg-background border-t border-border flex flex-col p-0 gap-0'>
-        {(() => {
-          const lastMsg = messages[messages.length - 1]
-          const isStreamingWithStatus =
-            isLoading && lastMsg?.role === 'ai' && lastMsg?.isStreaming && lastMsg?.processingStatus
-          return isStreamingWithStatus ? <AiStatusBar statusEnum={lastMsg?.processingStatus} /> : null
-        })()}
         <form onSubmit={handleSend} className='flex items-center p-2 gap-2 pr-4'>
           <div className='flex-1 min-w-0'>
             <Textarea
@@ -121,7 +114,7 @@ export function AiChatWindow({ conversation }: AiChatWindowProps) {
               onKeyDown={handleKeyDown}
               placeholder='Hỏi Bondhub AI bất cứ điều gì...'
               disabled={isLoading}
-              className='min-h-[44px] max-h-[120px] bg-transparent border-none focus-visible:ring-0 shadow-none resize-none py-2.5 px-4 text-[16px] break-words disabled:opacity-50'
+              className='min-h-11 max-h-30 bg-transparent border-none focus-visible:ring-0 shadow-none resize-none py-2.5 px-4 text-[16px] wrap-break-word disabled:opacity-50'
               rows={1}
             />
           </div>
