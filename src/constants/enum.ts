@@ -84,6 +84,33 @@ export const SearchType = {
 
 export type SearchType = (typeof SearchType)[keyof typeof SearchType]
 
+export const Status = {
+  Online: 'ONLINE',
+  Offline: 'OFFLINE'
+} as const
+
+export type Status = (typeof Status)[keyof typeof Status]
+
+export const MessageType = {
+  Chat: 'CHAT',
+  Image: 'IMAGE',
+  File: 'FILE',
+  Link: 'LINK',
+  System: 'SYSTEM',
+  SystemFriendshipCard: 'SYSTEM_FRIENDSHIP_CARD',
+  SystemFriendshipBadge: 'SYSTEM_FRIENDSHIP_BADGE'
+} as const
+
+export type MessageType = (typeof MessageType)[keyof typeof MessageType]
+
+export const MessageStatus = {
+  NORMAL: 'NORMAL',
+  REVOKED: 'REVOKED',
+  DELETED_BY_ADMIN: 'DELETED_BY_ADMIN'
+} as const
+
+export type MessageStatus = (typeof MessageStatus)[keyof typeof MessageStatus]
+
 export const Platform = {
   Android: 'ANDROID',
   iOS: 'IOS',
@@ -108,3 +135,42 @@ export const NotificationType = {
 } as const
 
 export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]
+
+// ── AI Processing Status ────────────────────────────────────────────────────────
+// Các trạng thái pipeline của AI Service, khớp với enum AiProcessingStatus.java (BE)
+export const AiProcessingStatus = {
+  AnalyzingIntent: 'ANALYZING_INTENT',
+  RetrievingVector: 'RETRIEVING_VECTOR',
+  GradingData: 'GRADING_DATA',
+  WebSearching: 'WEB_SEARCHING',
+  GeneratingAnswer: 'GENERATING_ANSWER'
+} as const
+
+export type AiProcessingStatus = (typeof AiProcessingStatus)[keyof typeof AiProcessingStatus]
+
+export const GroupMemberRole = {
+  Owner: 'OWNER',
+  Admin: 'ADMIN',
+  Member: 'MEMBER'
+} as const
+
+export type GroupMemberRole = (typeof GroupMemberRole)[keyof typeof GroupMemberRole]
+
+export const SystemActionType = {
+  CreateGroup: 'CREATE_GROUP',
+  AddMembers: 'ADD_MEMBERS',
+  RemoveMember: 'REMOVE_MEMBER',
+  LeaveGroup: 'LEAVE_GROUP',
+  UpdateName: 'UPDATE_NAME',
+  UpdateAvatar: 'UPDATE_AVATAR',
+  DisbandGroup: 'DISBAND_GROUP',
+  PromoteAdmin: 'PROMOTE_ADMIN',
+  DemoteAdmin: 'DEMOTE_ADMIN',
+  TransferOwner: 'TRANSFER_OWNER',
+  UpdateSettings: 'UPDATE_SETTINGS',
+  JoinByLink: 'JOIN_BY_LINK',
+  GenerateJoinLink: 'GENERATE_JOIN_LINK',
+  RefreshJoinLink: 'REFRESH_JOIN_LINK'
+} as const
+
+export type SystemActionType = (typeof SystemActionType)[keyof typeof SystemActionType]

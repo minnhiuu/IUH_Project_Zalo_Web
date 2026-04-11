@@ -1,4 +1,4 @@
-import { format, formatDistanceToNow, type Locale } from 'date-fns'
+import { format, formatDistanceToNow, type Locale, parseISO } from 'date-fns'
 import { vi, enUS } from 'date-fns/locale'
 
 const locales: Record<string, Locale> = {
@@ -77,7 +77,7 @@ export const formatDateTimeShort = (d?: string): string =>
         day: '2-digit',
         hour: '2-digit',
         minute: '2-digit'
-      }).format(new Date(d))
+      }).format(new Date(d.replace(' ', 'T')))
     : '—'
 
 export const formatDateTimeLong = (d?: string): string =>
@@ -90,3 +90,131 @@ export const formatDateTimeLong = (d?: string): string =>
         minute: '2-digit'
       }).format(new Date(d))
     : '—'
+export const formatLastSeen = (
+  date: string | Date | number | null | undefined,
+  statusTexts?: {
+    justNow: string
+    minutesAgo: (count: number) => string
+    hoursAgo: (count: number) => string
+    daysAgo: (count: number) => string
+    onDate: (date: string) => string
+  }
+): string => {
+  if (!date) return '—'
+  const d = new Date(date)
+  if (isNaN(d.getTime())) return String(date)
+
+  if (!statusTexts) {
+    // Fallback if translations not provided
+    return format(d, 'dd/MM/yyyy')
+  }
+
+  const now = new Date()
+  const diffInSeconds = Math.floor((now.getTime() - d.getTime()) / 1000)
+
+  if (diffInSeconds < 60) return statusTexts.justNow
+
+  const diffInMinutes = Math.floor(diffInSeconds / 60)
+  if (diffInMinutes < 60) return statusTexts.minutesAgo(diffInMinutes)
+
+  const diffInHours = Math.floor(diffInMinutes / 60)
+  if (diffInHours < 24) return statusTexts.hoursAgo(diffInHours)
+
+  const diffInDays = Math.floor(diffInHours / 24)
+  if (diffInDays < 7) return statusTexts.daysAgo(diffInDays)
+
+  return statusTexts.onDate(format(d, 'dd/MM/yyyy'))
+}
+
+export const isSameDay = (d1: string | Date, d2: string | Date | null | undefined): boolean => {
+  if (!d2) return false
+  const date1 = new Date(d1)
+  const date2 = new Date(d2)
+  return (
+    date1.getFullYear() === date2.getFullYear() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getDate() === date2.getDate()
+  )
+}
+
+export const formatChatDivider = (date: string | Date, lang: string = 'vi'): string => {
+  const d = new Date(date)
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const yesterday = new Date(today)
+  yesterday.setDate(yesterday.getDate() - 1)
+
+  const checkDate = new Date(d.getFullYear(), d.getMonth(), d.getDate())
+
+  if (checkDate.getTime() === today.getTime()) {
+    return lang === 'vi' ? 'Hôm nay' : 'Today'
+  }
+  if (checkDate.getTime() === yesterday.getTime()) {
+    return lang === 'vi' ? 'Hôm qua' : 'Yesterday'
+  }
+
+  // Same year
+  if (d.getFullYear() === now.getFullYear()) {
+    return format(d, 'dd MMMM', { locale: getLocale(lang) })
+  }
+
+  return format(d, 'dd MMMM, yyyy', { locale: getLocale(lang) })
+}
+
+export const formatMessageTime = (date: string | Date | number | null | undefined, lang: string = 'vi'): string => {
+  if (!date) return ''
+  const d = typeof date === 'string' ? parseISO(date) : new Date(date)
+  if (isNaN(d.getTime())) return ''
+
+  const now = new Date()
+  const diffInSeconds = Math.floor((now.getTime() - d.getTime()) / 1000)
+
+  if (diffInSeconds < 60) {
+    return lang === 'vi' ? 'Vài giây' : 'Few sec'
+  }
+
+  // Dưới 1 giờ
+  const diffInMinutes = Math.floor(diffInSeconds / 60)
+  if (diffInMinutes < 60) {
+    return lang === 'vi' ? `${diffInMinutes} phút` : `${diffInMinutes} min${diffInMinutes > 1 ? 's' : ''}`
+  }
+
+  // Dưới 1 ngày
+  const diffInHours = Math.floor(diffInMinutes / 60)
+  if (diffInHours < 24) {
+    return lang === 'vi' ? `${diffInHours} giờ` : `${diffInHours} hour${diffInHours > 1 ? 's' : ''}`
+  }
+
+  // Dưới 7 ngày
+  const diffInDays = Math.floor(diffInHours / 24)
+  if (diffInDays < 7) {
+    return lang === 'vi' ? `${diffInDays} ngày` : `${diffInDays} day${diffInDays > 1 ? 's' : ''}`
+  }
+
+  // Cùng năm
+  if (d.getFullYear() === now.getFullYear()) {
+    return format(d, 'dd/MM')
+  }
+
+  // Khác năm
+  return format(d, 'dd/MM/yy')
+}
+
+/**
+ * Format clock time for message bubble (HH:mm)
+ */
+export const formatMessageHour = (date: string | Date | number | null | undefined): string => {
+  if (!date) return ''
+  let d: Date
+  if (typeof date === 'string') {
+    // BE is now sending explicitly formatted strings; parseISO will handle the local conversion.
+    const cleaned = date.endsWith('Z') ? date.slice(0, -1) : date
+    d = parseISO(cleaned)
+  } else {
+    d = new Date(date)
+  }
+
+  if (isNaN(d.getTime())) return ''
+
+  return format(d, 'HH:mm')
+}

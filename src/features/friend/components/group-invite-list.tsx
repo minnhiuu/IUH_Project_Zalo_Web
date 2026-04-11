@@ -3,7 +3,7 @@ import { useFriendText } from '../i18n/use-friend-text'
 
 export function GroupInviteList() {
   const { text } = useFriendText()
-  
+
   return (
     <div className='flex-1 flex flex-col h-full overflow-hidden bg-[#f0f2f5] dark:bg-background'>
       {/* Header */}
@@ -13,10 +13,7 @@ export function GroupInviteList() {
 
       {/* Content */}
       <div className='flex-1 flex items-center justify-center bg-background'>
-        <SearchEmpty 
-          title={text.comingSoon.title} 
-          description={text.comingSoon.description} 
-        />
+        <SearchEmpty title={text.comingSoon.title} description={text.comingSoon.description} />
       </div>
     </div>
   )

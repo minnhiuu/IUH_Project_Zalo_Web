@@ -4,6 +4,9 @@ import authEn from '@/features/auth/locales/en.json'
 import userVi from '@/features/user/locales/vi.json'
 import userEn from '@/features/user/locales/en.json'
 
+import chatVi from '@/features/chat/locales/vi.json'
+import chatEn from '@/features/chat/locales/en.json'
+
 import commonVi from '@/locales/vi/common.json'
 import commonEn from '@/locales/en/common.json'
 
@@ -25,6 +28,7 @@ export const resources = {
     common: commonVi,
     auth: authVi,
     user: userVi,
+    chat: chatVi,
     search: searchVi,
     'admin-elasticsearch': adminEsVi,
     admin: adminVi,
@@ -35,6 +39,7 @@ export const resources = {
     common: commonEn,
     auth: authEn,
     user: userEn,
+    chat: chatEn,
     search: searchEn,
     'admin-elasticsearch': adminEsEn,
     admin: adminEn,
