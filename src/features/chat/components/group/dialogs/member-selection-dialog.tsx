@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Search, X } from 'lucide-react'
+import { Search, X, Loader2 } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -10,6 +10,7 @@ import { SelectedMemberSidebar } from '../members/selected-member-sidebar'
 import type { SearchMemberResponse } from '../../../schemas/chat.schema'
 import { useChatText } from '../../../i18n/use-chat-text'
 import { cn } from '@/lib/utils'
+import type { PageResponse } from '@/shared/api'
 
 interface MemberSelectionDialogProps {
   isOpen: boolean
@@ -66,7 +67,7 @@ function MemberSelectionContent({
 
   const searchResults = useMemo(() => {
     if (!searchData) return []
-    return searchData.pages.flatMap((page: any) => page.data || [])
+    return searchData.pages.flatMap((page: PageResponse<SearchMemberResponse>) => page.data || [])
   }, [searchData])
 
   const filteredStaticMembers = useMemo(() => {
@@ -194,7 +195,8 @@ function MemberSelectionContent({
           variant={isConfirmDisabled ? 'disabled' : 'default'}
           className='min-w-[100px] h-10 font-bold px-6 rounded-[4px]'
         >
-          {isPending ? '...' : confirmText}
+          {confirmText}
+          {isPending && <Loader2 className='ml-2 h-4 w-4 animate-spin shrink-0' />}
         </Button>
       </div>
     </>

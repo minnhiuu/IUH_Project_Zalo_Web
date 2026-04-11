@@ -27,7 +27,8 @@ export const CHAT_KEYS = {
   user: 'chat.user',
   type: {
     image: 'chat.type.image',
-    file: 'chat.type.file'
+    file: 'chat.type.file',
+    link: 'chat.type.link'
   },
   messageBubble: {
     reply: 'chat.messageBubble.reply',
@@ -82,7 +83,9 @@ export const CHAT_KEYS = {
     changeAvatar: 'chat.create-group-dialog.changeAvatar',
     removeAvatar: 'chat.create-group-dialog.removeAvatar',
     addMembersTitle: 'chat.create-group-dialog.addMembersTitle',
-    alreadyJoined: 'chat.create-group-dialog.alreadyJoined'
+    alreadyJoined: 'chat.create-group-dialog.alreadyJoined',
+    noResultsFound: 'chat.create-group-dialog.noResultsFound',
+    noFriendsFound: 'chat.create-group-dialog.noFriendsFound'
   },
   system: {
     add_members: {

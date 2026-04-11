@@ -77,6 +77,7 @@ export function GroupSubStep({ conversation, currentUserRole, step, onBack, onSt
             currentUserRole={currentUserRole}
             settings={conversation.settings}
             joinLinkToken={conversation.joinLinkToken}
+            memberCount={conversation.members?.length || 0}
             onDisbandSuccess={onBack}
             onGoToAdmins={() => onStepChange('admins')}
             onGoToBlocked={() => onStepChange('blocked')}

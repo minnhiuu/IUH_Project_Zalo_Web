@@ -10,7 +10,7 @@ interface PreviewData {
 
 export const formatPreview = (
   data: PreviewData,
-  text: { you: string; user: string; type: { image: string; file: string } }
+  text: { you: string; user: string; type: { image: string; file: string; link: string } }
 ) => {
   if (!data.content && !data.type) return ''
 
@@ -24,6 +24,8 @@ export const formatPreview = (
     displayContent = text.type.image
   } else if (data.type === MessageType.File || data.content === '[FILE]') {
     displayContent = text.type.file
+  } else if (data.type === MessageType.Link || data.content === '[LINK]') {
+    displayContent = text.type.link
   }
 
   return isRevoked ? displayContent : `${prefix}: ${displayContent}`

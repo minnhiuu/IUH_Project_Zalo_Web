@@ -2,20 +2,17 @@ import { useCallback, useState } from 'react'
 import { Switch } from '@/components/ui/switch'
 import { HelpTooltipIcon } from '@/components/common/help-tooltip-icon'
 import { ActionMenuItem } from '@/components/common/action-menu-item'
-import { UserRoundPlus, UserRoundX, Copy, RefreshCw, Link, Forward, Lock } from 'lucide-react'
+import { UserRoundPlus, UserRoundX, Users, ChevronDown, Lock, Copy, Forward, RefreshCw } from 'lucide-react'
 import { BaseDialog } from '@/components/common/base-dialog'
 import { Button } from '@/components/ui/button'
 import { disbandGroupApi } from '../../../api/chat.api'
 import { GroupMemberRole } from '@/constants/enum'
-import {
-  useUpdateGroupSettingsMutation,
-  useRefreshJoinLinkMutation,
-  useGenerateJoinLinkMutation
-} from '../../../queries/use-mutations'
-import type { GroupSettings } from '../../../schemas/chat.schema'
+import { useUpdateGroupSettingsMutation, useRefreshJoinLinkMutation } from '../../../queries/use-mutations'
 import { showSimpleToast } from '@/utils/toast'
+import type { GroupSettings } from '../../../schemas/chat.schema'
 import { useChatContext } from '../../../context/chat-context'
 import { ForwardDialog } from '../../forward-dialog'
+import { cn } from '@/lib/utils'
 interface GroupManagementStepText {
   memberPermissionsTitle: string
   permissions: {
@@ -55,6 +52,7 @@ interface GroupManagementStepProps {
   conversationId: string
   settings?: GroupSettings | null
   joinLinkToken?: string | null
+  memberCount?: number
   onDisbandSuccess?: () => void
   onGoToAdmins?: () => void
   onGoToBlocked?: () => void
@@ -66,6 +64,7 @@ export function GroupManagementStep({
   currentUserRole,
   settings,
   joinLinkToken,
+  memberCount = 0,
   onDisbandSuccess,
   onGoToAdmins,
   onGoToBlocked
@@ -73,7 +72,6 @@ export function GroupManagementStep({
   const { sendMessage } = useChatContext()
   const { mutate: updateSettings } = useUpdateGroupSettingsMutation()
   const { mutate: refreshJoinLink, isPending: isRefreshing } = useRefreshJoinLinkMutation()
-  const { mutate: generateJoinLink, isPending: isGenerating } = useGenerateJoinLinkMutation()
 
   const handleSettingChange = useCallback(
     (key: keyof GroupSettings, value: boolean) => {
@@ -123,7 +121,9 @@ export function GroupManagementStep({
           {text.memberPermissionsTitle}
         </p>
         <div className='space-y-1.5'>
-          <label className={`flex items-center justify-between gap-3 py-1.5 ${isReadOnly ? 'cursor-default' : 'cursor-pointer'}`}>
+          <label
+            className={`flex items-center justify-between gap-3 py-1.5 ${isReadOnly ? 'cursor-default' : 'cursor-pointer'}`}
+          >
             <span className={`text-[14px] ${isReadOnly ? 'readonly-management-text' : 'text-foreground'}`}>
               {text.permissions.updateNameAvatar}
             </span>
@@ -135,7 +135,9 @@ export function GroupManagementStep({
               className={`h-4 w-4 accent-primary cursor-pointer disabled:cursor-default ${isReadOnly ? 'readonly-management-checkbox' : ''}`}
             />
           </label>
-          <label className={`flex items-center justify-between gap-3 py-1.5 ${isReadOnly ? 'cursor-default' : 'cursor-pointer'}`}>
+          <label
+            className={`flex items-center justify-between gap-3 py-1.5 ${isReadOnly ? 'cursor-default' : 'cursor-pointer'}`}
+          >
             <span className={`text-[14px] ${isReadOnly ? 'readonly-management-text' : 'text-foreground'}`}>
               {text.permissions.pinNotePoll}
             </span>
@@ -147,7 +149,9 @@ export function GroupManagementStep({
               className={`h-4 w-4 accent-primary cursor-pointer disabled:cursor-default ${isReadOnly ? 'readonly-management-checkbox' : ''}`}
             />
           </label>
-          <label className={`flex items-center justify-between gap-3 py-1.5 ${isReadOnly ? 'cursor-default' : 'cursor-pointer'}`}>
+          <label
+            className={`flex items-center justify-between gap-3 py-1.5 ${isReadOnly ? 'cursor-default' : 'cursor-pointer'}`}
+          >
             <span className={`text-[14px] ${isReadOnly ? 'readonly-management-text' : 'text-foreground'}`}>
               {text.permissions.createReminder}
             </span>
@@ -159,7 +163,9 @@ export function GroupManagementStep({
               className={`h-4 w-4 accent-primary cursor-pointer disabled:cursor-default ${isReadOnly ? 'readonly-management-checkbox' : ''}`}
             />
           </label>
-          <label className={`flex items-center justify-between gap-3 py-1.5 ${isReadOnly ? 'cursor-default' : 'cursor-pointer'}`}>
+          <label
+            className={`flex items-center justify-between gap-3 py-1.5 ${isReadOnly ? 'cursor-default' : 'cursor-pointer'}`}
+          >
             <span className={`text-[14px] ${isReadOnly ? 'readonly-management-text' : 'text-foreground'}`}>
               {text.permissions.createPoll}
             </span>
@@ -171,7 +177,9 @@ export function GroupManagementStep({
               className={`h-4 w-4 accent-primary cursor-pointer disabled:cursor-default ${isReadOnly ? 'readonly-management-checkbox' : ''}`}
             />
           </label>
-          <label className={`flex items-center justify-between gap-3 py-1.5 ${isReadOnly ? 'cursor-default' : 'cursor-pointer'}`}>
+          <label
+            className={`flex items-center justify-between gap-3 py-1.5 ${isReadOnly ? 'cursor-default' : 'cursor-pointer'}`}
+          >
             <span className={`text-[14px] ${isReadOnly ? 'readonly-management-text' : 'text-foreground'}`}>
               {text.permissions.sendMessage}
             </span>
@@ -186,10 +194,21 @@ export function GroupManagementStep({
         </div>
       </div>
 
+      <div className='mt-2 bg-background border-y border-border/50'>
+        <div className='px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-muted/30 transition-colors'>
+          <span className='text-[14px] font-bold'>Thành viên nhóm</span>
+          <ChevronDown className='w-4 h-4 text-muted-foreground' />
+        </div>
+
+        <ActionMenuItem icon={<Users />} label={`${memberCount} thành viên`} as='div' />
+      </div>
+
       <div className={`mt-2 bg-background border-y border-border/50 ${isReadOnly ? 'pointer-events-none' : ''}`}>
         <div className='px-5 py-3 space-y-0'>
           <div className='flex items-center justify-between gap-3 py-3 border-b border-border/60'>
-            <div className={`flex items-center gap-2 min-w-0 flex-1 pr-2 text-[14px] font-semibold ${isReadOnly ? 'readonly-management-text' : 'text-foreground'}`}>
+            <div
+              className={`flex items-center gap-2 min-w-0 flex-1 pr-2 text-[14px] font-semibold ${isReadOnly ? 'readonly-management-text' : 'text-foreground'}`}
+            >
               <span className='min-w-0 wrap-break-word'>{text.toggles.reviewNewMembers}</span>
               <HelpTooltipIcon content={text.toggleTooltips.reviewNewMembers} />
             </div>
@@ -201,7 +220,9 @@ export function GroupManagementStep({
           </div>
 
           <div className='flex items-center justify-between gap-3 py-3 border-b border-border/60'>
-            <div className={`flex items-center gap-2 min-w-0 flex-1 pr-2 text-[14px] font-semibold ${isReadOnly ? 'readonly-management-text' : 'text-foreground'}`}>
+            <div
+              className={`flex items-center gap-2 min-w-0 flex-1 pr-2 text-[14px] font-semibold ${isReadOnly ? 'readonly-management-text' : 'text-foreground'}`}
+            >
               <span className='min-w-0 wrap-break-word'>{text.toggles.highlightAdminMessages}</span>
               <HelpTooltipIcon content={text.toggleTooltips.highlightAdminMessages} />
             </div>
@@ -213,7 +234,9 @@ export function GroupManagementStep({
           </div>
 
           <div className='flex items-center justify-between gap-3 py-3 border-b border-border/60'>
-            <div className={`flex items-center gap-2 min-w-0 flex-1 pr-2 text-[14px] font-semibold ${isReadOnly ? 'readonly-management-text' : 'text-foreground'}`}>
+            <div
+              className={`flex items-center gap-2 min-w-0 flex-1 pr-2 text-[14px] font-semibold ${isReadOnly ? 'readonly-management-text' : 'text-foreground'}`}
+            >
               <span className='min-w-0 wrap-break-word'>{text.toggles.allowNewMembersReadRecent}</span>
               <HelpTooltipIcon content={text.toggleTooltips.allowNewMembersReadRecent} />
             </div>
@@ -238,53 +261,48 @@ export function GroupManagementStep({
                 />
               </div>
 
-              {settings?.joinByLinkEnabled && (
-                <div className='mt-2.5'>
-                  {joinLinkToken ? (
-                    <div className='join-link-section'>
-                      <span className='text-[12px] font-medium flex-1 truncate min-w-0' style={{ color: 'var(--B70)' }}>
-                        {`${window.location.origin}/g/${joinLinkToken}`}
-                      </span>
+              {/* Link section moved to main info sidebar per user request */}
+
+              {settings?.joinByLinkEnabled && joinLinkToken && (
+                <div
+                  className='mt-2 p-2 px-3 border border-border/20 bg-color-B10'
+                  style={{ backgroundColor: 'var(--B10)', borderRadius: '8px' }}
+                >
+                  <div className='flex items-center justify-between gap-2'>
+                    <span className='text-[13px] font-medium truncate flex-1 min-w-0' style={{ color: 'var(--B70)' }}>
+                      {`${window.location.origin}/g/${joinLinkToken}`}
+                    </span>
+                    <div className='flex items-center gap-1 shrink-0'>
                       <button
                         type='button'
-                        title='Sao chép link'
-                        className='join-link-icon-btn'
+                        className='z--btn--v2 btn-tertiary-primary icon-only medium'
+                        title='Sao chép'
                         onClick={() => {
                           navigator.clipboard.writeText(`${window.location.origin}/g/${joinLinkToken}`)
                           showSimpleToast('Đã sao chép')
                         }}
                       >
-                        <Copy />
+                        <Copy className='z--btn--icon-content' />
                       </button>
                       <button
                         type='button'
-                        title='Chia sẻ link'
-                        className='join-link-icon-btn'
+                        className='z--btn--v2 btn-tertiary-primary icon-only medium'
+                        title='Chia sẻ'
                         onClick={() => setIsShareLinkOpen(true)}
                       >
-                        <Forward />
+                        <Forward className='z--btn--icon-content' />
                       </button>
                       <button
                         type='button'
-                        title='Làm mới link (link cũ sẽ hết hạn)'
-                        disabled={isReadOnly || isRefreshing}
-                        className='join-link-icon-btn disabled:opacity-30'
+                        className='z--btn--v2 btn-tertiary-primary icon-only medium'
+                        title='Làm mới'
+                        disabled={isRefreshing}
                         onClick={() => refreshJoinLink(conversationId)}
                       >
-                        <RefreshCw className={isRefreshing ? 'animate-spin' : ''} />
+                        <RefreshCw className={cn('z--btn--icon-content', isRefreshing && 'animate-spin')} />
                       </button>
                     </div>
-                  ) : (
-                    <button
-                      type='button'
-                      disabled={isReadOnly || isGenerating}
-                      className='flex items-center gap-1.5 text-[13px] text-primary font-medium cursor-pointer disabled:opacity-30 hover:underline'
-                      onClick={() => generateJoinLink(conversationId)}
-                    >
-                      <Link className='w-3.5 h-3.5' />
-                      {isGenerating ? 'Đang tạo...' : 'Tạo link mời'}
-                    </button>
-                  )}
+                  </div>
                 </div>
               )}
             </div>

@@ -18,6 +18,7 @@ import {
 const WS_URL = import.meta.env.VITE_WS_URL || 'http://localhost:8080/ws'
 
 import { normalizeDateTime } from '../utils/date-utils'
+const JOIN_LINK_REGEX = /^https?:\/\/[^/]+\/g\/[a-zA-Z0-9_-]+$/
 
 export const useChatWebSocket = () => {
   const { user } = useAuth()
@@ -308,20 +309,25 @@ export const useChatWebSocket = () => {
 
         client.subscribe('/user/queue/conversations', (payload) => {
           try {
-            const newConv = JSON.parse(payload.body) as ConversationResponse
+            interface RawConversation extends Partial<ConversationResponse> {
+              lastMessageTime?: number[]
+              type?: string
+            }
+            const rawConv = JSON.parse(payload.body) as RawConversation
+            const newConv: ConversationResponse = {
+              ...(rawConv as ConversationResponse)
+            }
 
             // Normalize lastMessageTime if it's an array (Jackson format)
-            if (Array.isArray(newConv.lastMessageTime)) {
-              const [y, m, d, h, min, s, ns] = newConv.lastMessageTime
-              newConv.lastMessageTime = new Date(
-                y,
-                m - 1,
-                d,
-                h || 0,
-                min || 0,
-                s || 0,
-                ns ? ns / 1000000 : 0
-              ).toISOString()
+            const rawTime = rawConv.lastMessageTime
+            if (Array.isArray(rawTime)) {
+              const [y, m, d, h, min, s, ns] = rawTime
+              const date = new Date(y, m - 1, d, h || 0, min || 0, s || 0, ns ? ns / 1000000 : 0)
+
+              // If newConv has lastMessage, update its timestamp
+              if (newConv.lastMessage) {
+                newConv.lastMessage.timestamp = date.toISOString()
+              }
             }
 
             if (newConv.id) {
@@ -361,7 +367,7 @@ export const useChatWebSocket = () => {
               queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'group-members', newConv.id] })
               // Invalidate friends directory so "Add Members" dialog reflects current membership
               queryClient.invalidateQueries({ queryKey: chatKeys.friendsDirectory(newConv.id) })
-            } else if (newConv.type === 'REFRESH') {
+            } else if (rawConv.type === 'REFRESH') {
               queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
             }
           } catch (error) {
@@ -424,12 +430,13 @@ export const useChatWebSocket = () => {
       sendMsgMutate(chatMessage)
 
       const now = new Date().toISOString()
+      const isLink = JOIN_LINK_REGEX.test(content.trim())
       const optimisticMsg: MessageResponse = {
         id: clientMessageId,
         clientMessageId,
         senderId: user?.id || '',
         content,
-        type: MessageType.Chat,
+        type: isLink ? MessageType.Link : MessageType.Chat,
         status: MessageStatus.NORMAL,
         createdAt: now,
         lastModifiedAt: now,

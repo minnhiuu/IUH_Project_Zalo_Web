@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils'
 import type { ConversationResponse, ConversationMemberResponse, MessageResponse } from '../schemas/chat.schema'
 import { useChatText } from '../i18n/use-chat-text'
 import { Quote, Forward, MoreHorizontal, ThumbsUp } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { DropdownMenu, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useChatContext } from '../context/chat-context'
 import { MessageStatus, MessageType } from '@/constants/enum'
@@ -12,8 +12,6 @@ import { MessageSenderAvatar } from './message-sender-avatar'
 import { MessageIconButton } from './message-icon-button'
 import { MessageMoreMenu } from './message-more-menu'
 import { JoinLinkCard } from './join-link-card'
-
-const JOIN_LINK_REGEX = /^(https?:\/\/[^/]+)\/g\/([a-zA-Z0-9_-]+)$/
 
 export function MessageBubble({
   message,
@@ -43,12 +41,7 @@ export function MessageBubble({
   const isRevoked = message.status === MessageStatus.REVOKED
   const conversationId = message.conversationId
 
-  const joinLinkMatch = useMemo(() => {
-    if (isRevoked || !message.content) return null
-    const match = message.content.trim().match(JOIN_LINK_REGEX)
-    if (!match) return null
-    return { url: match[0], token: match[2] }
-  }, [message.content, isRevoked])
+  const isJoinLink = message.type === MessageType.Link && !!message.linkPreview
 
   const senderMember = conversation?.members?.find((m) => m.userId === message.senderId)
   const senderRole = senderMember?.role?.toUpperCase()
@@ -57,6 +50,7 @@ export function MessageBubble({
   const highlightEnabled = conversation?.isGroup && conversation?.settings?.highlightAdminMessages && isAdminOrOwner
   const isGroup = conversation?.isGroup
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false)
+  const [isLikeHovered, setIsLikeHovered] = useState(false)
 
   if (message.type === MessageType.System) {
     return <SystemMessage message={message} conversation={conversation} />
@@ -124,8 +118,12 @@ export function MessageBubble({
             <span>
               {isRevoked ? (
                 <span className='italic text-muted-foreground/60'>{mb.revoked}</span>
-              ) : joinLinkMatch ? (
-                <JoinLinkCard token={joinLinkMatch.token} url={joinLinkMatch.url} />
+              ) : isJoinLink ? (
+                <JoinLinkCard
+                  token={message.linkPreview!.token}
+                  url={message.linkPreview!.url}
+                  cachedPreview={message.linkPreview!}
+                />
               ) : (
                 message.content
               )}
@@ -149,36 +147,37 @@ export function MessageBubble({
             {!isRevoked && (
               <div
                 className={cn(
-                  'absolute -bottom-2 right-0.5 z-10 group/like',
+                  'absolute -bottom-2 right-0.5 z-10 group/like cursor-pointer',
                   isOwn && 'hidden group-hover/message-row:flex'
                 )}
+                onMouseEnter={() => setIsLikeHovered(true)}
+                onMouseLeave={() => setIsLikeHovered(false)}
               >
-                <div className='absolute bottom-full mb-1 right-0 bg-background border border-border rounded-full shadow-md px-2 py-1 hidden group-hover/like:flex items-center gap-2'>
-                  <button className='text-[20px] leading-none hover:scale-110 transition-transform cursor-pointer'>
-                    👍
-                  </button>
-                  <button className='text-[20px] leading-none hover:scale-110 transition-transform cursor-pointer'>
-                    ❤️
-                  </button>
-                  <button className='text-[20px] leading-none hover:scale-110 transition-transform cursor-pointer'>
-                    🤣
-                  </button>
-                  <button className='text-[20px] leading-none hover:scale-110 transition-transform cursor-pointer'>
-                    😮
-                  </button>
-                  <button className='text-[20px] leading-none hover:scale-110 transition-transform cursor-pointer'>
-                    😢
-                  </button>
-                  <button className='text-[20px] leading-none hover:scale-110 transition-transform cursor-pointer'>
-                    😡
-                  </button>
+                {/* Reaction Picker Popover */}
+                <div
+                  className={cn(
+                    'absolute bottom-full mb-1.5 bg-white/95 dark:bg-zinc-800/95 backdrop-blur-md border border-border rounded-full shadow-2xl px-3 py-2 opacity-0 pointer-events-none group-hover/like:opacity-100 group-hover/like:pointer-events-auto flex items-center gap-2 transition-all duration-200 animate-in fade-in zoom-in-95 after:content-[""] after:absolute after:top-full after:left-0 after:right-0 after:h-8',
+                    isOwn ? 'right-0' : 'left-0'
+                  )}
+                >
+                  {['👍', '❤️', '🤣', '😮', '😢', '😡'].map((emoji) => (
+                    <button
+                      key={emoji}
+                      type='button'
+                      className='leading-none hover:scale-125 transition-transform focus:outline-none'
+                      style={{ cursor: 'pointer', fontSize: '20px' }}
+                    >
+                      {emoji}
+                    </button>
+                  ))}
                 </div>
 
                 <MessageIconButton
-                  className='h-6 w-6 bg-background border-border/80 text-icon-secondary hover:text-icon-secondary hover:bg-background'
+                  className='h-7 w-7 bg-background border-border/80 text-icon-secondary hover:text-icon-secondary hover:bg-background cursor-pointer!'
                   aria-label={mb.like}
-                  icon={<ThumbsUp />}
-                  iconSize='sm'
+                  icon={<ThumbsUp className='cursor-pointer' />}
+                  iconSize='md'
+                  style={{ cursor: 'pointer' }}
                 />
               </div>
             )}
@@ -186,7 +185,10 @@ export function MessageBubble({
 
           {!isRevoked && (
             <div
-              className={cn('items-center gap-1 mb-2', isMoreMenuOpen ? 'flex' : 'hidden group-hover/message-row:flex')}
+              className={cn(
+                'items-center gap-1 mb-2',
+                isLikeHovered ? 'hidden' : isMoreMenuOpen ? 'flex' : 'hidden group-hover/message-row:flex'
+              )}
             >
               <MessageIconButton
                 onClick={onReply}

@@ -94,7 +94,18 @@ export const MessageResponseSchema = z.object({
   isForwarded: z.boolean().nullable().optional(),
   unreadCount: z.number().nullable().optional(),
   isFromMe: z.boolean().nullable().optional(),
-  metadata: z.record(z.string(), z.any()).nullable().optional()
+  metadata: z.record(z.string(), z.any()).nullable().optional(),
+  linkPreview: z
+    .object({
+      url: z.string(),
+      token: z.string(),
+      groupName: z.string().nullable().optional(),
+      groupAvatar: z.string().nullable().optional(),
+      memberCount: z.number(),
+      memberPreviews: z.array(z.object({ name: z.string(), avatar: z.string().nullable().optional() }))
+    })
+    .nullable()
+    .optional()
 })
 
 export type MessageResponse = z.infer<typeof MessageResponseSchema>

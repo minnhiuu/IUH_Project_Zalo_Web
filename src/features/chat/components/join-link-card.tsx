@@ -1,32 +1,34 @@
-import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router'
 import { getJoinPreviewApi } from '../api/chat.api'
-import { Users, Loader2 } from 'lucide-react'
+import { Users } from 'lucide-react'
 import { JoinGroupDialog } from './join-group-dialog'
 import { useChatText } from '../i18n/use-chat-text'
 import { GroupAvatar } from './group/group-avatar'
+import { showSimpleToast } from '@/utils/toast'
+
+interface LinkPreviewData {
+  url: string
+  token: string
+  groupName?: string | null
+  groupAvatar?: string | null
+  memberCount: number
+  memberPreviews: { name: string; avatar?: string | null }[]
+}
 
 interface JoinLinkCardProps {
   token: string
   url: string
+  cachedPreview?: LinkPreviewData
 }
 
-export function JoinLinkCard({ token, url }: JoinLinkCardProps) {
+export function JoinLinkCard({ token, url, cachedPreview }: JoinLinkCardProps) {
   const { t } = useChatText()
   const navigate = useNavigate()
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [isChecking, setIsChecking] = useState(false)
 
-  const {
-    data: preview,
-    isLoading,
-    isError
-  } = useQuery({
-    queryKey: ['join-preview', token],
-    queryFn: () => getJoinPreviewApi(token),
-    retry: false,
-    staleTime: 5 * 60 * 1000
-  })
+  const preview = cachedPreview ?? null
 
   const domain = (() => {
     try {
@@ -36,13 +38,22 @@ export function JoinLinkCard({ token, url }: JoinLinkCardProps) {
     }
   })()
 
-  const handleClick = () => {
-    if (preview?.isAlreadyMember && preview.conversationId) {
-      navigate(`/chat/c/${preview.conversationId}`)
-    } else {
-      setDialogOpen(true)
+  const handleClick = useCallback(async () => {
+    if (isChecking) return
+    setIsChecking(true)
+    try {
+      const freshPreview = await getJoinPreviewApi(token)
+      if (freshPreview.isAlreadyMember && freshPreview.conversationId) {
+        navigate(`/chat/c/${freshPreview.conversationId}`)
+      } else {
+        setDialogOpen(true)
+      }
+    } catch {
+      showSimpleToast(t('chat.join-link-card.link_not_exist'), 2000)
+    } finally {
+      setIsChecking(false)
     }
-  }
+  }, [token, navigate, t, isChecking])
 
   return (
     <>
@@ -52,22 +63,7 @@ export function JoinLinkCard({ token, url }: JoinLinkCardProps) {
 
         {/* Rich card */}
         <div className='rounded-xl border border-[var(--border)] overflow-hidden w-[330px] max-w-full shadow-sm bg-card'>
-          {isLoading ? (
-            <div className='flex items-center justify-center py-8 bg-[var(--card)]'>
-              <Loader2 className='h-6 w-6 animate-spin text-[var(--muted-foreground)]' />
-            </div>
-          ) : isError ? (
-            <div className='flex items-center gap-3 p-4 bg-[var(--card)]'>
-              <div className='flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-[var(--muted)]'>
-                <Users className='h-7 w-7 text-[var(--muted-foreground)]' />
-              </div>
-              <div className='min-w-0'>
-                <p className='text-sm font-medium text-[var(--muted-foreground)]'>
-                  {t('chat.join-link-card.unavailable')}
-                </p>
-              </div>
-            </div>
-          ) : preview ? (
+          {preview ? (
             <>
               {/* Main card body */}
               <div className='flex items-center gap-4 p-4 bg-[var(--brand-blue-light)]'>
@@ -98,7 +94,17 @@ export function JoinLinkCard({ token, url }: JoinLinkCardProps) {
                 {domain && <span className='text-[11px] text-[var(--text-secondary)]'>{domain}</span>}
               </div>
             </>
-          ) : null}
+          ) : (
+            <div className='flex items-center gap-3 p-4 bg-[var(--card)]'>
+              <div className='flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-[var(--muted)]'>
+                <Users className='h-7 w-7 text-[var(--muted-foreground)]' />
+              </div>
+              <div className='min-w-0'>
+                <p className='text-sm font-medium text-[var(--foreground)]'>{t('chat.join-link-card.group_label')}</p>
+                <p className='text-xs text-[var(--muted-foreground)]'>{t('chat.join-link-card.click_to_join')}</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

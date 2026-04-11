@@ -1,4 +1,4 @@
-import { X } from 'lucide-react'
+import { X, Loader2 } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -101,7 +101,8 @@ export function BaseDialog({
                   onClick={onConfirm}
                   disabled={isPending}
                 >
-                  {isPending ? '...' : confirmText}
+                  {confirmText}
+                  {isPending && <Loader2 className='ml-2 h-4 w-4 animate-spin shrink-0' />}
                 </Button>
               )}
             </DialogFooter>

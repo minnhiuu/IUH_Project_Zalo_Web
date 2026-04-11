@@ -177,33 +177,40 @@ export function GroupInfoOverviewStep({
       </div>
 
       <div className='bg-background mt-1.5 border-y border-border/50 flex flex-col w-full'>
-        <ActionMenuItem
-          as='div'
-          icon={
-            <svg
-              width='20'
-              height='20'
-              viewBox='0 0 24 24'
-              fill='none'
-              stroke='currentColor'
-              strokeWidth='1.5'
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              className='rotate-45'
-            >
-              <path d='m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.51a2 2 0 0 1-2.83-2.83l8.49-8.48' />
-            </svg>
-          }
-          label={text.groupLink}
-          subLabel={`https://zalo.me/g/zvime${conversation.id.slice(0, 5)}`}
-          rightElement={
-            <div className='flex items-center gap-2'>
-              <ActionButton icon={<Copy />} />
-              <ActionButton icon={<Forward />} />
-            </div>
-          }
-          className='hover:bg-transparent'
-        />
+        {conversation.settings?.joinByLinkEnabled && conversation.joinLinkToken && (
+          <ActionMenuItem
+            as='div'
+            icon={
+              <svg
+                width='20'
+                height='20'
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='currentColor'
+                strokeWidth='1.5'
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                className='rotate-45'
+              >
+                <path d='m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.51a2 2 0 0 1-2.83-2.83l8.49-8.48' />
+              </svg>
+            }
+            label={text.groupLink}
+            subLabel={`${window.location.origin}/g/${conversation.joinLinkToken}`}
+            rightElement={
+              <div className='flex items-center gap-2'>
+                <ActionButton
+                  icon={<Copy />}
+                  onClick={() => {
+                    navigator.clipboard.writeText(`${window.location.origin}/g/${conversation.joinLinkToken}`)
+                  }}
+                />
+                <ActionButton icon={<Forward />} />
+              </div>
+            }
+            className='hover:bg-transparent'
+          />
+        )}
 
         <ActionMenuItem icon={<Settings />} label={text.management} onClick={onOpenManagement} showDivider={true} />
         <ActionMenuItem

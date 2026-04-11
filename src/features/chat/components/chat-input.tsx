@@ -4,7 +4,6 @@ import { Textarea } from '@/components/ui/textarea'
 import type { MessageResponse } from '../schemas/chat.schema'
 import { useChatContext } from '../context/chat-context'
 import { useChatText } from '../i18n/use-chat-text'
-import { cn } from '@/lib/utils'
 
 interface ChatInputProps {
   conversationId: string
@@ -114,19 +113,38 @@ export function ChatInput({ conversationId, replyTo, onCancelReply }: ChatInputP
           />
         </div>
         <div className='flex items-center gap-1'>
-          <button
-            type='submit'
-            className={cn(
-              'p-2.5 rounded-full flex items-center justify-center transition-all',
-              content.trim() ? 'text-primary' : 'text-muted-foreground'
-            )}
-          >
-            {content.trim() ? (
+          {content.trim() ? (
+            <button
+              type='submit'
+              className='p-2.5 rounded-full flex items-center justify-center transition-all text-primary'
+            >
               <SendHorizonal className='w-6 h-6' />
-            ) : (
-              <ThumbsUp className='w-6 h-6 text-amber-500 hover:scale-110 active:scale-90 transition-transform' />
-            )}
-          </button>
+            </button>
+          ) : (
+            <div className='relative group/like flex items-center justify-center w-11 h-11 shrink-0'>
+              {/* Reaction Picker Popover */}
+              <div className='absolute bottom-[calc(100%+12px)] right-0 bg-white/95 dark:bg-zinc-800/95 backdrop-blur-md border border-border rounded-full shadow-2xl px-4 py-2.5 opacity-0 pointer-events-none group-hover/like:opacity-100 group-hover/like:pointer-events-auto flex items-center gap-3.5 transition-all duration-200 z-50 after:content-[""] after:absolute after:top-full after:left-0 after:right-0 after:h-4'>
+                {['👍', '❤️', '🤣', '😮', '😢', '😡'].map((emoji) => (
+                  <button
+                    key={emoji}
+                    type='button'
+                    onClick={() => sendMessage(conversationId, emoji)}
+                    className='text-3xl leading-none hover:scale-125 transition-transform cursor-pointer focus:outline-none'
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                type='button'
+                onClick={() => sendMessage(conversationId, '👍')}
+                className='w-10 h-10 rounded-full flex items-center justify-center transition-all hover:bg-muted/50'
+              >
+                <ThumbsUp className='w-6 h-6 text-amber-500 hover:scale-110 active:scale-90 transition-transform' />
+              </button>
+            </div>
+          )}
         </div>
       </form>
     </div>

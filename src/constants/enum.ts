@@ -95,6 +95,7 @@ export const MessageType = {
   Chat: 'CHAT',
   Image: 'IMAGE',
   File: 'FILE',
+  Link: 'LINK',
   System: 'SYSTEM',
   SystemFriendshipCard: 'SYSTEM_FRIENDSHIP_CARD',
   SystemFriendshipBadge: 'SYSTEM_FRIENDSHIP_BADGE'

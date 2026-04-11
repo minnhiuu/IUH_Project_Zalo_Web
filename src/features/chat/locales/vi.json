@@ -14,6 +14,7 @@
     "type": {
       "image": "[Hình ảnh]",
       "file": "[Tệp]",
+      "link": "[Liên kết]",
       "confirm": "Xác nhận"
     },
     "messageBubble": {
@@ -215,6 +216,8 @@
       "default_name": "Nhóm chat",
       "member_count": "{{count}} thành viên",
       "click_to_join": "Bấm để tham gia nhóm",
+      "checking": "Đang kiểm tra...",
+      "link_not_exist": "Link tham gia không tồn tại",
       "unavailable": "Link nhóm không khả dụng"
     },
     "rename-group-dialog": {

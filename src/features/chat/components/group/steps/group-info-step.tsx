@@ -16,6 +16,11 @@ import { useAuth } from '@/features/auth'
 import { useDeleteConversationMutation } from '../../../queries/use-mutations'
 import { GroupMemberRole } from '@/constants/enum'
 import { getConversationDisplayName } from '../../../utils/group-name'
+import {
+  useGenerateJoinLinkMutation
+} from '../../../queries/use-mutations'
+import { useChatContext } from '../../../context/chat-context'
+import { ForwardDialog } from '../../forward-dialog'
 
 interface GroupInfoStepProps {
   conversation: ConversationResponse
@@ -47,6 +52,10 @@ export function GroupInfoStep({
   const [isLeaveGroupDialogOpen, setIsLeaveGroupDialogOpen] = useState(false)
   const [isTransferOwnerDialogOpen, setIsTransferOwnerDialogOpen] = useState(false)
   const [pendingTransferTargetId, setPendingTransferTargetId] = useState<string | null>(null)
+  const [isShareLinkOpen, setIsShareLinkOpen] = useState(false)
+
+  const { sendMessage } = useChatContext()
+  const { mutate: generateJoinLink, isPending: isGenerating } = useGenerateJoinLinkMutation()
 
   const handleLeaveGroup = () => {
     if (isOwner) {
@@ -155,6 +164,12 @@ export function GroupInfoStep({
               onOpenMembers={onGoToMembers}
               onOpenDisappearingDialog={() => setIsDisappearingDialogOpen(true)}
               onLeaveGroup={handleLeaveGroup}
+              joinLinkToken={conversation.joinLinkToken}
+              joinByLinkEnabled={conversation.settings?.joinByLinkEnabled}
+              isReadOnly={isMemberOnly}
+              isGenerating={isGenerating}
+              onGenerateJoinLink={() => generateJoinLink(conversation.id)}
+              onShareLink={() => setIsShareLinkOpen(true)}
             />
           </>
         )}
@@ -168,6 +183,21 @@ export function GroupInfoStep({
           setIsDisappearingDialogOpen(false)
         }}
       />
+
+      {isShareLinkOpen && conversation.joinLinkToken && (
+        <ForwardDialog
+          open
+          onClose={() => setIsShareLinkOpen(false)}
+          title='Chia sẻ'
+          confirmText='Chia sẻ'
+          onConfirm={(selectedConvIds) => {
+            const linkUrl = `${window.location.origin}/g/${conversation.joinLinkToken}`
+            selectedConvIds.forEach((convId) => {
+              sendMessage(convId, linkUrl, null, false)
+            })
+          }}
+        />
+      )}
 
       {isCreateGroupOpen && (
         <CreateGroupDialog

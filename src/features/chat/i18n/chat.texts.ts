@@ -31,7 +31,8 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
   user: t(CHAT_KEYS.user),
   type: {
     image: t(CHAT_KEYS.type.image),
-    file: t(CHAT_KEYS.type.file)
+    file: t(CHAT_KEYS.type.file),
+    link: t(CHAT_KEYS.type.link)
   },
   messageBubble: {
     reply: t(CHAT_KEYS.messageBubble.reply),
@@ -78,7 +79,9 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     changeAvatar: t(CHAT_KEYS['create-group-dialog'].changeAvatar),
     removeAvatar: t(CHAT_KEYS['create-group-dialog'].removeAvatar),
     addMembersTitle: t(CHAT_KEYS['create-group-dialog'].addMembersTitle),
-    alreadyJoined: t(CHAT_KEYS['create-group-dialog'].alreadyJoined)
+    alreadyJoined: t(CHAT_KEYS['create-group-dialog'].alreadyJoined),
+    noResultsFound: t(CHAT_KEYS['create-group-dialog'].noResultsFound),
+    noFriendsFound: t(CHAT_KEYS['create-group-dialog'].noFriendsFound)
   },
   'forward-dialog': {
     title: t(CHAT_KEYS['forward-dialog'].title),
@@ -244,7 +247,7 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     reminderBoard: t(CHAT_KEYS.sidebarInfo.reminderBoard),
     notesPinsPolls: t(CHAT_KEYS.sidebarInfo.notesPinsPolls),
     commonGroups: t(CHAT_KEYS.sidebarInfo.commonGroups),
-    commonGroupsCount: t(CHAT_KEYS.sidebarInfo.commonGroupsCount),
+    commonGroupsCount: (count: number) => t(CHAT_KEYS.sidebarInfo.commonGroupsCount, { count }),
     noCommonGroups: t(CHAT_KEYS.sidebarInfo.noCommonGroups),
     viewAll: t(CHAT_KEYS.sidebarInfo.viewAll),
     photosVideos: t(CHAT_KEYS.sidebarInfo.photosVideos),

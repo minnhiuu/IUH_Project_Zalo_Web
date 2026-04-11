@@ -11,6 +11,7 @@
   --brand-blue-light: #e5f1ff;
   --brand-blue-hover: #c7e0ff;
   --brand-blue-text: #0045ad;
+  --cta-link: #0068ff;
 
   --vibrant-blue: #0068ff;
   --vibrant-blue-hover: #005ae0;
@@ -123,6 +124,8 @@
   --B70: #0045ad;
   --NG15: #efefef;
   --text-information: #005ae0;
+  --button-tertiary-primary-normal: transparent;
+  --button-tertiary-primary-text: #005ae0;
   --button-tertiary-primary-hover: #e5f1ff;
   --text-disable: #738296;
   --empty-state-icon: rgba(0, 0, 0, 0.08);
@@ -145,6 +148,7 @@
   --brand-blue-light: #1f344d;
   --brand-blue-hover: #162638;
   --brand-blue-text: #66a6ff;
+  --cta-link: #66a6ff;
 
   --background: #22262b;
   --foreground: #dfe2e7;
@@ -237,6 +241,8 @@
   --B70: #66a6ff;
   --NG15: #081b3a;
   --text-information: #66a6ff;
+  --button-tertiary-primary-normal: transparent;
+  --button-tertiary-primary-text: #8fbfff;
   --button-tertiary-primary-hover: #002152;
   --text-disable: #738296;
   --empty-state-icon: hsla(0, 0%, 100%, 0.1);
@@ -442,12 +448,30 @@ input[type='radio']:checked {
     transform-origin: center;
   }
 
+  .centered-toast-content--error {
+    @apply bg-destructive-solid/95;
+  }
+
+  .centered-toast-content--warning {
+    @apply bg-amber-600/95;
+  }
+
   .centered-toast-icon-circle {
     @apply flex items-center justify-center w-12 h-12 rounded-full border-2 border-toast-text mb-1;
   }
 
+  .centered-toast-content--error .centered-toast-icon-circle,
+  .centered-toast-content--warning .centered-toast-icon-circle {
+    @apply border-white;
+  }
+
   .centered-toast-text {
     @apply text-[14px] font-normal text-center leading-tight text-toast-text-muted px-2;
+  }
+
+  .centered-toast-content--error .centered-toast-text,
+  .centered-toast-content--warning .centered-toast-text {
+    @apply text-white;
   }
 
   .centered-toast-content--plain {
@@ -577,6 +601,38 @@ input[type='radio']:checked {
 
   .system-msg-owner-icon {
     @apply w-3.5 h-3.5 text-yellow-500 shrink-0;
+  }
+
+  .z--btn--v2 {
+    @apply inline-flex items-center justify-center rounded-md font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .z--btn--v2.icon-only {
+    @apply p-0 rounded-full;
+  }
+
+  .z--btn--v2.icon-only.medium {
+    @apply min-w-8 max-w-8 h-8;
+  }
+
+  .z--btn--v2.btn-tertiary-primary {
+    background-color: var(--button-tertiary-primary-normal);
+    color: var(--button-tertiary-primary-text);
+  }
+
+  .z--btn--v2.btn-tertiary-primary:hover:not(:disabled) {
+    background-color: var(--button-tertiary-primary-hover);
+  }
+
+  .z--btn--icon-content {
+    font-size: 1.25rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    line-height: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
   }
 }
 

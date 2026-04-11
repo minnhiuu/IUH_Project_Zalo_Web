@@ -12,13 +12,18 @@ import {
   FileArchive,
   FileText as FileIcon,
   LogOut,
-  Trash2
+  Trash2,
+  Copy,
+  Forward,
+  Link
 } from 'lucide-react'
 import { useState } from 'react'
 import { Switch } from '@/components/ui/switch'
 import { Button } from '@/components/ui/button'
 import { ActionMenuItem } from '@/components/common/action-menu-item'
+import { ActionButton } from '@/components/common/action-button'
 import { CustomTooltip } from '@/components/common/custom-tooltip'
+import { showSimpleToast } from '@/utils/toast'
 
 interface SidebarSectionProps {
   title: string
@@ -83,6 +88,12 @@ interface ChatInfoSectionsProps {
   onOpenMembers: () => void
   onOpenDisappearingDialog: () => void
   onLeaveGroup: () => void
+  joinLinkToken?: string | null
+  joinByLinkEnabled?: boolean
+  isReadOnly?: boolean
+  isGenerating?: boolean
+  onGenerateJoinLink?: () => void
+  onShareLink?: () => void
 }
 
 export function ChatInfoSections({
@@ -92,7 +103,13 @@ export function ChatInfoSections({
   membersCountLabel,
   onOpenMembers,
   onOpenDisappearingDialog,
-  onLeaveGroup
+  onLeaveGroup,
+  joinLinkToken,
+  joinByLinkEnabled,
+  isReadOnly,
+  isGenerating,
+  onShareLink,
+  onGenerateJoinLink
 }: ChatInfoSectionsProps) {
   return (
     <>
@@ -101,6 +118,46 @@ export function ChatInfoSections({
           <SidebarSection title={text.members} defaultOpen={true}>
             <div className='flex flex-col w-full'>
               <ActionMenuItem icon={<Users />} label={membersCountLabel} onClick={onOpenMembers} />
+              {joinLinkToken ? (
+                <ActionMenuItem
+                  icon={<Link />}
+                  label='Link tham gia nhóm'
+                  showDivider={true}
+                  as='div'
+                  subLabel={
+                    <span className='text-[13px] font-medium truncate' style={{ color: 'var(--cta-link)' }}>
+                      {`${window.location.origin}/g/${joinLinkToken}`}
+                    </span>
+                  }
+                  rightElement={
+                    <div className='flex items-center gap-2'>
+                      <ActionButton
+                        icon={<Copy />}
+                        onClick={() => {
+                          navigator.clipboard.writeText(`${window.location.origin}/g/${joinLinkToken}`)
+                          showSimpleToast('Đã sao chép')
+                        }}
+                      />
+                      <ActionButton
+                        icon={<Forward />}
+                        onClick={onShareLink}
+                      />
+                    </div>
+                  }
+                />
+              ) : (
+                joinByLinkEnabled && onGenerateJoinLink && (
+                  <button
+                    type='button'
+                    disabled={isReadOnly || isGenerating}
+                    className='px-4 py-2 flex items-center gap-2 text-[13px] text-primary font-medium cursor-pointer disabled:opacity-30 hover:bg-muted/30 transition-colors border-t border-border/40'
+                    onClick={onGenerateJoinLink}
+                  >
+                    <Link className='w-4 h-4' />
+                    {isGenerating ? 'Đang tạo...' : 'Tạo link mời'}
+                  </button>
+                )
+              )}
             </div>
           </SidebarSection>
         )}

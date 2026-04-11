@@ -14,6 +14,7 @@
     "type": {
       "image": "[Image]",
       "file": "[File]",
+      "link": "[Link]",
       "confirm": "Confirm"
     },
     "messageBubble": {
@@ -215,6 +216,8 @@
       "default_name": "Group chat",
       "member_count": "{{count}} members",
       "click_to_join": "Click to join group",
+      "checking": "Checking...",
+      "link_not_exist": "Join link does not exist",
       "unavailable": "Group link unavailable"
     },
     "rename-group-dialog": {

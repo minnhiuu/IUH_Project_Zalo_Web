@@ -500,7 +500,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
       ) : (
         isInfoSidebarOpen &&
         createPortal(
-          <div className='fixed top-0 right-0 h-full pointer-events-auto'>
+          <div className='fixed top-0 right-0 h-full pointer-events-auto z-[100]'>
             <ChatInfoSidebar
               conversation={conversation}
               onRenameClick={() => setIsRenameDialogOpen(true)}
