@@ -148,6 +148,12 @@ export const FRIEND_KEYS = {
       friendSuggestion: 'friend.dialogs.addFriendSearch.friendSuggestion',
       cancel: 'friend.dialogs.addFriendSearch.cancel',
       search: 'friend.dialogs.addFriendSearch.search'
+    },
+    unfriendConfirm: {
+      title: 'friend.dialogs.unfriendConfirm.title',
+      description: 'friend.dialogs.unfriendConfirm.description',
+      cancel: 'friend.dialogs.unfriendConfirm.cancel',
+      confirm: 'friend.dialogs.unfriendConfirm.confirm'
     }
   },
 
@@ -176,6 +182,17 @@ export const FRIEND_KEYS = {
   buttons: {
     cancel: 'friend.buttons.cancel',
     confirm: 'friend.buttons.confirm'
+  },
+
+  requestCard: {
+    accept: 'friend.requestCard.accept',
+    decline: 'friend.requestCard.decline',
+    sourcePhone: 'friend.requestCard.sourcePhone'
+  },
+
+  pagination: {
+    prev: 'friend.pagination.prev',
+    next: 'friend.pagination.next'
   },
 
   mutualFriends: 'friend.mutualFriends',

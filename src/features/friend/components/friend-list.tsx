@@ -6,6 +6,7 @@ import { useMyFriends, useUnfriend } from '../queries'
 import { SearchEmpty } from '@/components/common/search-empty'
 import type { FriendResponse } from '../schemas/friend.schema'
 import { OthersProfileDialog } from '@/features/user'
+import { UnfriendConfirmDialog } from './unfriend-confirm-dialog'
 
 interface FriendListProps {
   searchQuery?: string
@@ -22,13 +23,6 @@ function getDisplayLetter(name: string): string {
   return '#'
 }
 
-function isRecentFriend(friendsSince: string): boolean {
-  const friendDate = new Date(friendsSince)
-  const now = new Date()
-  const diffDays = Math.floor((now.getTime() - friendDate.getTime()) / (1000 * 60 * 60 * 24))
-  return diffDays <= 7
-}
-
 export function FriendList({ searchQuery = '' }: FriendListProps) {
   const { text } = useFriendText()
   const { data: friends, isLoading } = useMyFriends()
@@ -36,9 +30,10 @@ export function FriendList({ searchQuery = '' }: FriendListProps) {
   const safeFriends = useMemo(() => (Array.isArray(friends) ? friends : []), [friends])
 
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
+  const [confirmUnfriendTarget, setConfirmUnfriendTarget] = useState<FriendResponse | null>(null)
 
   const processedFriends = useMemo(() => {
-    if (safeFriends.length === 0) return { newFriends: [], groupedFriends: {} }
+    if (safeFriends.length === 0) return { groupedFriends: {} }
 
     let filtered = [...safeFriends]
 
@@ -47,25 +42,20 @@ export function FriendList({ searchQuery = '' }: FriendListProps) {
       const query = searchQuery.toLowerCase().trim()
       filtered = filtered.filter((f) => {
         const userName = f.userName?.toLowerCase() || ''
-        const phone = f.phone?.toLowerCase() || ''
-        const email = f.email?.toLowerCase() || ''
-        return userName.includes(query) || phone.includes(query) || email.includes(query)
+        const phone = f.userPhone?.toLowerCase() || ''
+        return userName.includes(query) || phone.includes(query)
       })
     }
-
-    const newFriends = filtered.filter((f) => isRecentFriend(f.friendsSince))
-    const otherFriends = filtered.filter((f) => !isRecentFriend(f.friendsSince))
 
     // Sort by name ascending by default
     const sortFn = (a: FriendResponse, b: FriendResponse) => {
       return a.userName.localeCompare(b.userName, 'vi')
     }
 
-    newFriends.sort(sortFn)
-    otherFriends.sort(sortFn)
+    filtered.sort(sortFn)
 
     const groupedFriends: Record<string, FriendResponse[]> = {}
-    otherFriends.forEach((friend) => {
+    filtered.forEach((friend) => {
       const letter = getDisplayLetter(friend.userName)
       if (!groupedFriends[letter]) {
         groupedFriends[letter] = []
@@ -73,7 +63,7 @@ export function FriendList({ searchQuery = '' }: FriendListProps) {
       groupedFriends[letter].push(friend)
     })
 
-    return { newFriends, groupedFriends }
+    return { groupedFriends }
   }, [safeFriends, searchQuery])
 
   const totalCount = safeFriends.length
@@ -82,11 +72,25 @@ export function FriendList({ searchQuery = '' }: FriendListProps) {
   )
 
   const handleUnfriend = (friend: FriendResponse) => {
-    unfriendMutation.mutate(friend.userId)
+    setConfirmUnfriendTarget(friend)
+  }
+
+  const handleConfirmUnfriend = () => {
+    if (!confirmUnfriendTarget) return
+
+    unfriendMutation.mutate(confirmUnfriendTarget.userId, {
+      onSuccess: () => {
+        setConfirmUnfriendTarget(null)
+      }
+    })
   }
 
   const handleViewProfile = (friend: FriendResponse) => {
     setSelectedUserId(friend.userId)
+  }
+
+  const handleMessage = (friend: FriendResponse) => {
+    window.location.href = `/chat/u/${friend.userId}`
   }
 
   return (
@@ -113,32 +117,12 @@ export function FriendList({ searchQuery = '' }: FriendListProps) {
               <SearchEmpty title={text.contactList.noFriendsMessage} />
             </div>
           ) : searchQuery &&
-            processedFriends.newFriends.length === 0 &&
             Object.keys(processedFriends.groupedFriends).length === 0 ? (
             <div className='flex items-center justify-center h-full'>
               <SearchEmpty title={text.search.noResult} />
             </div>
           ) : (
             <div className='px-4 py-2'>
-              {/* New Friends Section */}
-              {processedFriends.newFriends.length > 0 && (
-                <div className='mb-4'>
-                  <div className='text-xs font-semibold text-muted-foreground px-2 py-2'>
-                    {text.sections.newFriends}
-                  </div>
-                  <div className='space-y-0'>
-                    {processedFriends.newFriends.map((friend) => (
-                      <FriendListItem
-                        key={friend.userId}
-                        friend={friend}
-                        onViewProfile={() => handleViewProfile(friend)}
-                        onUnfriend={() => handleUnfriend(friend)}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-
               {/* Grouped Friends by Letter */}
               {sortedLetters.map((letter) => (
                 <div key={letter} className='mb-2'>
@@ -148,6 +132,7 @@ export function FriendList({ searchQuery = '' }: FriendListProps) {
                       <FriendListItem
                         key={friend.userId}
                         friend={friend}
+                        onMessage={() => handleMessage(friend)}
                         onViewProfile={() => handleViewProfile(friend)}
                         onUnfriend={() => handleUnfriend(friend)}
                       />
@@ -165,6 +150,14 @@ export function FriendList({ searchQuery = '' }: FriendListProps) {
         open={!!selectedUserId}
         onOpenChange={(open) => !open && setSelectedUserId(null)}
         userId={selectedUserId || undefined}
+      />
+
+      <UnfriendConfirmDialog
+        open={!!confirmUnfriendTarget}
+        onOpenChange={(open) => !open && setConfirmUnfriendTarget(null)}
+        userName={confirmUnfriendTarget?.userName || ''}
+        onConfirm={handleConfirmUnfriend}
+        isPending={unfriendMutation.isPending}
       />
     </>
   )

@@ -124,6 +124,12 @@
         "friendSuggestion": "Friend suggestion",
         "cancel": "Cancel",
         "search": "Search"
+      },
+      "unfriendConfirm": {
+        "title": "Confirm Unfriend",
+        "description": "Are you sure you want to unfriend {{userName}}?",
+        "cancel": "No",
+        "confirm": "Unfriend"
       }
     },
     "contacts": {
@@ -149,6 +155,15 @@
     "buttons": {
       "cancel": "Cancel",
       "confirm": "Confirm"
+    },
+    "requestCard": {
+      "accept": "Accept",
+      "decline": "Decline",
+      "sourcePhone": "From phone number"
+    },
+    "pagination": {
+      "prev": "Prev",
+      "next": "Next"
     },
     "mutualFriends": "{{count}} mutual friends",
     "viewMore": "View more",

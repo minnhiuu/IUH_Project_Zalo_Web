@@ -113,6 +113,19 @@
       "filterLabel": "Lọc",
       "noFriendsMessage": "Không có bạn"
     },
+    "requestCard": {
+      "accept": "Đồng ý",
+      "decline": "Từ chối",
+      "sourcePhone": "Từ số điện thoại"
+    },
+    "dialogs": {
+      "unfriendConfirm": {
+        "title": "Xác nhận hủy kết bạn",
+        "description": "Bạn có chắc muốn hủy kết bạn với {{userName}} không?",
+        "cancel": "Không",
+        "confirm": "Hủy kết bạn"
+      }
+    },
     "mutualFriends": "Bạn chung",
     "viewMore": "Xem thêm",
     "loading": "Đang tải...",

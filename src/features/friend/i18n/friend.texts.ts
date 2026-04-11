@@ -151,6 +151,12 @@ export const createFriendTexts = (t: TFunction<'friend'>) => ({
       friendSuggestion: t(FRIEND_KEYS.dialogs.addFriendSearch.friendSuggestion),
       cancel: t(FRIEND_KEYS.dialogs.addFriendSearch.cancel),
       search: t(FRIEND_KEYS.dialogs.addFriendSearch.search)
+    },
+    unfriendConfirm: {
+      title: t(FRIEND_KEYS.dialogs.unfriendConfirm.title),
+      description: (userName: string) => t(FRIEND_KEYS.dialogs.unfriendConfirm.description, { userName }),
+      cancel: t(FRIEND_KEYS.dialogs.unfriendConfirm.cancel),
+      confirm: t(FRIEND_KEYS.dialogs.unfriendConfirm.confirm)
     }
   },
 
@@ -179,6 +185,17 @@ export const createFriendTexts = (t: TFunction<'friend'>) => ({
   buttons: {
     cancel: t(FRIEND_KEYS.buttons.cancel),
     confirm: t(FRIEND_KEYS.buttons.confirm)
+  },
+
+  requestCard: {
+    accept: t(FRIEND_KEYS.requestCard.accept),
+    decline: t(FRIEND_KEYS.requestCard.decline),
+    sourcePhone: t(FRIEND_KEYS.requestCard.sourcePhone)
+  },
+
+  pagination: {
+    prev: t(FRIEND_KEYS.pagination.prev),
+    next: t(FRIEND_KEYS.pagination.next)
   },
 
   mutualFriends: (count: number) => t(FRIEND_KEYS.mutualFriends, { count }),

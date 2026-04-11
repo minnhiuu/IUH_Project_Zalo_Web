@@ -15,6 +15,16 @@ export const friendKeys = {
   mutual: (userId: string) => [...friendKeys.all(), 'mutual', userId] as const,
   mutualCount: (userId: string) => [...friendKeys.all(), 'mutual-count', userId] as const,
 
+  suggestions: () => [...friendKeys.all(), 'suggestions'] as const,
+  unifiedSuggestions: (page: number = 0, size: number = 20) =>
+    [...friendKeys.suggestions(), 'unified', page, size] as const,
+  graphSuggestions: (page: number = 0, size: number = 20) =>
+    [...friendKeys.suggestions(), 'graph', page, size] as const,
+  contactSuggestions: (page: number = 0, size: number = 20) =>
+    [...friendKeys.suggestions(), 'contacts', page, size] as const,
+  unifiedSuggestionsInfinite: (size: number = 20) =>
+    [...friendKeys.suggestions(), 'unified', 'infinite', size] as const,
+
   // Mutation keys
   sendRequest: () => [...friendKeys.all(), 'send-request'] as const,
   acceptRequest: () => [...friendKeys.all(), 'accept-request'] as const,

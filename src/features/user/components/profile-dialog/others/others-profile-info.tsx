@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Users, Ban, MessageSquareWarning, IdCard } from 'lucide-react'
+import { Users, Ban, MessageSquareWarning, IdCard, UserMinus } from 'lucide-react'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -13,11 +13,13 @@ import {
   useFriendshipStatus,
   useAcceptFriendRequest,
   useCancelFriendRequest,
-  useSendFriendRequest
+  useSendFriendRequest,
+  useUnfriend
 } from '@/features/friend/queries'
 import { FriendStatus } from '@/features/friend/schemas/friend.schema'
 import { useAuthContext } from '@/features/auth/context/auth-context'
 import { useFriendText } from '@/features/friend/i18n/use-friend-text'
+import { UnfriendConfirmDialog } from '@/features/friend/components/unfriend-confirm-dialog'
 
 interface OthersProfileInfoProps {
   user: UserResponse
@@ -35,6 +37,7 @@ interface FriendButtonState {
 export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
   const { text: userText } = useUserText()
   const [isBlockModalOpen, setIsBlockModalOpen] = useState(false)
+  const [isUnfriendConfirmOpen, setIsUnfriendConfirmOpen] = useState(false)
 
   const { data: blockDetails } = useBlockDetails(user.id)
   const { text: friendText } = useFriendText()
@@ -44,6 +47,7 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
   const sendRequestMutation = useSendFriendRequest()
   const acceptRequestMutation = useAcceptFriendRequest()
   const cancelRequestMutation = useCancelFriendRequest()
+  const unfriendMutation = useUnfriend()
 
   const getFriendButtonState = (): FriendButtonState => {
     if (isLoadingStatus) {
@@ -129,6 +133,15 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
   }
 
   const buttonState = getFriendButtonState()
+  const canUnfriend = friendshipStatus?.status === FriendStatus.Accepted && currentUser?.id !== user.id
+
+  const handleConfirmUnfriend = () => {
+    unfriendMutation.mutate(user.id, {
+      onSuccess: () => {
+        setIsUnfriendConfirmOpen(false)
+      }
+    })
+  }
 
   return (
     <ProfileInfoBase
@@ -160,37 +173,39 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
         </div>
       }
       contentBeforeInfo={
-        <div className='flex gap-3 w-full mb-4 mt-2'>
-          <Button
-            variant={buttonState.variant}
-            disabled={
-              buttonState.disabled ||
-              sendRequestMutation.isPending ||
-              acceptRequestMutation.isPending ||
-              cancelRequestMutation.isPending
-            }
-            onClick={handleFriendAction}
-            className='flex-1 font-bold h-9 rounded-md border-none shadow-none transition-all active:scale-95'
-          >
-            {buttonState.label}
-          </Button>
-          <Button
-            variant='secondary-blue'
-            className='flex-1 font-bold h-9 rounded-md border-none shadow-none transition-all active:scale-95'
-            onClick={() => {
-              if (
-                friendshipStatus?.status === FriendStatus.Accepted ||
-                (friendshipStatus?.friendshipId && friendshipStatus?.status)
-              ) {
-                // It doesn't mean they have a chat, but maybe they do. We just route to /chat/u/ user.id
-                // ChatLayout will fallback to cached chat if it exists.
+        <div className='w-full mb-4 mt-2'>
+          <div className='flex gap-3 w-full'>
+            <Button
+              variant={buttonState.variant}
+              disabled={
+                buttonState.disabled ||
+                sendRequestMutation.isPending ||
+                acceptRequestMutation.isPending ||
+                cancelRequestMutation.isPending
               }
-              window.location.href = `/chat/u/${user.id}`
-              // Using window.location to ensure ChatLayout remounts or just navigate
-            }}
-          >
-            {userText.profile.message}
-          </Button>
+              onClick={handleFriendAction}
+              className='flex-1 font-bold h-9 rounded-md border-none shadow-none transition-all active:scale-95'
+            >
+              {buttonState.label}
+            </Button>
+            <Button
+              variant='secondary-blue'
+              className='flex-1 font-bold h-9 rounded-md border-none shadow-none transition-all active:scale-95'
+              onClick={() => {
+                if (
+                  friendshipStatus?.status === FriendStatus.Accepted ||
+                  (friendshipStatus?.friendshipId && friendshipStatus?.status)
+                ) {
+                  // It doesn't mean they have a chat, but maybe they do. We just route to /chat/u/ user.id
+                  // ChatLayout will fallback to cached chat if it exists.
+                }
+                window.location.href = `/chat/u/${user.id}`
+                // Using window.location to ensure ChatLayout remounts or just navigate
+              }}
+            >
+              {userText.profile.message}
+            </Button>
+          </div>
         </div>
       }
       footer={
@@ -212,6 +227,13 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
                 label: userText.profile.report,
                 color: 'text-icon-secondary',
                 disabled: false
+              },
+              {
+                icon: UserMinus,
+                label: friendText.actions.unfriend,
+                color: 'text-destructive',
+                disabled: !canUnfriend,
+                onClick: () => setIsUnfriendConfirmOpen(true)
               }
             ].map((item, idx, arr) => (
               <div key={item.label}>
@@ -244,6 +266,14 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
             userName={user.fullName}
             isBlocked={!!blockDetails}
             currentPreference={blockDetails?.preference}
+          />
+
+          <UnfriendConfirmDialog
+            open={isUnfriendConfirmOpen}
+            onOpenChange={setIsUnfriendConfirmOpen}
+            userName={user.fullName}
+            onConfirm={handleConfirmUnfriend}
+            isPending={unfriendMutation.isPending}
           />
         </>
       }

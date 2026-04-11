@@ -49,10 +49,19 @@ export type FriendResponse = {
   userId: string
   userName: string
   userAvatar: string
-  userEmail: string
   userPhone: string
-  friendsSince: string
   mutualFriendsCount: number
+}
+
+export type FriendSuggestionResponse = {
+  userId: string
+  fullName: string
+  avatar: string
+  phoneNumber: string
+  mutualFriendsCount: number | null
+  sharedGroupsCount: number | null
+  contactScore: number | null
+  totalScore: number | null
 }
 
 export type FriendshipStatusResponse = {
