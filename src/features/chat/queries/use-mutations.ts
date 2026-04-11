@@ -18,7 +18,10 @@ import {
   refreshJoinLinkApi,
   generateJoinLinkApi,
   joinByLinkApi,
-  blockMembersApi
+  blockMembersApi,
+  approveJoinRequestApi,
+  rejectJoinRequestApi,
+  cancelMyJoinRequestApi
 } from '../api/chat.api'
 import { chatKeys } from './keys'
 import type { ConversationResponse, ChatMessageRequest, GroupSettings } from '../schemas/chat.schema'
@@ -435,6 +438,51 @@ export const useBlockMembersMutation = () => {
     },
     onError: (error) => {
       console.error('Failed to block members', error)
+    }
+  })
+}
+
+export const useApproveJoinRequestMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ conversationId, requestId }: { conversationId: string; requestId: string }) =>
+      approveJoinRequestApi(conversationId, requestId),
+    onSuccess: (updatedConv, variables) => {
+      queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
+        if (!oldData) return [updatedConv]
+        return oldData.map((conv) => (conv.id === updatedConv.id ? updatedConv : conv))
+      })
+      queryClient.invalidateQueries({ queryKey: chatKeys.joinRequests(variables.conversationId) })
+      queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+      queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'group-members', variables.conversationId] })
+    },
+    onError: (error) => {
+      console.error('Failed to approve join request', error)
+    }
+  })
+}
+
+export const useRejectJoinRequestMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ conversationId, requestId }: { conversationId: string; requestId: string }) =>
+      rejectJoinRequestApi(conversationId, requestId),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: chatKeys.joinRequests(variables.conversationId) })
+    },
+    onError: (error) => {
+      console.error('Failed to reject join request', error)
+    }
+  })
+}
+
+export const useCancelJoinRequestMutation = () => {
+  return useMutation({
+    mutationFn: (conversationId: string) => cancelMyJoinRequestApi(conversationId),
+    onError: (error) => {
+      console.error('Failed to cancel join request', error)
     }
   })
 }

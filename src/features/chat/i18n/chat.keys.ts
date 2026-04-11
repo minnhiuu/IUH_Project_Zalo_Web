@@ -139,6 +139,9 @@ export const CHAT_KEYS = {
     media: 'chat.group-info-dialog.media',
     noMedia: 'chat.group-info-dialog.noMedia',
     sendMessage: 'chat.group-info-dialog.sendMessage',
+    adminOnlyBanner: 'chat.group-info-dialog.adminOnlyBanner',
+    copied: 'chat.group-info-dialog.copied',
+    share: 'chat.group-info-dialog.share',
     groupLink: 'chat.group-info-dialog.groupLink',
     memberPermissionsTitle: 'chat.group-info-dialog.memberPermissionsTitle',
     permissions: {
@@ -193,6 +196,18 @@ export const CHAT_KEYS = {
       noBlockedMembers: 'chat.group-info-dialog.actions.noBlockedMembers',
       blockedMembersDesc: 'chat.group-info-dialog.actions.blockedMembersDesc',
       blockMember: 'chat.group-info-dialog.actions.blockMember',
+      refreshJoinLinkDialog: {
+        title: 'chat.group-info-dialog.actions.refreshJoinLinkDialog.title',
+        description: 'chat.group-info-dialog.actions.refreshJoinLinkDialog.description',
+        confirm: 'chat.group-info-dialog.actions.refreshJoinLinkDialog.confirm',
+        cancel: 'chat.group-info-dialog.actions.refreshJoinLinkDialog.cancel'
+      },
+      disableLinkDialog: {
+        title: 'chat.group-info-dialog.actions.disableLinkDialog.title',
+        description: 'chat.group-info-dialog.actions.disableLinkDialog.description',
+        confirm: 'chat.group-info-dialog.actions.disableLinkDialog.confirm',
+        cancel: 'chat.group-info-dialog.actions.disableLinkDialog.cancel'
+      },
       transferOwnerConfirm: {
         title: 'chat.group-info-dialog.actions.transferOwnerConfirm.title',
         description: 'chat.group-info-dialog.actions.transferOwnerConfirm.description',
@@ -247,7 +262,11 @@ export const CHAT_KEYS = {
     removeFromGroup: 'chat.sidebarInfo.removeFromGroup',
     searchMemberPlaceholder: 'chat.sidebarInfo.searchMemberPlaceholder',
     membersLoading: 'chat.sidebarInfo.membersLoading',
-    noMatchingMembers: 'chat.sidebarInfo.noMatchingMembers'
+    noMatchingMembers: 'chat.sidebarInfo.noMatchingMembers',
+    pendingJoinRequests: 'chat.sidebarInfo.pendingJoinRequests',
+    pendingJoinRequestsLabel: 'chat.sidebarInfo.pendingJoinRequestsLabel',
+    reject: 'chat.sidebarInfo.reject',
+    accept: 'chat.sidebarInfo.accept'
   },
   'forward-dialog': {
     title: 'chat.forward-dialog.title',
@@ -280,6 +299,15 @@ export const CHAT_KEYS = {
     link_disabled: 'chat.join-group-dialog.link_disabled',
     link_disabled_desc: 'chat.join-group-dialog.link_disabled_desc',
     error: 'chat.join-group-dialog.error',
-    error_desc: 'chat.join-group-dialog.error_desc'
+    error_desc: 'chat.join-group-dialog.error_desc',
+    approval_required: 'chat.join-group-dialog.approval_required',
+    request_pending_dialog: 'chat.join-group-dialog.request_pending_dialog',
+    request_pending_toast: 'chat.join-group-dialog.request_pending_toast',
+    request_pending_desc: 'chat.join-group-dialog.request_pending_desc',
+    sending_request: 'chat.join-group-dialog.sending_request',
+    send_request: 'chat.join-group-dialog.send_request',
+    cancel_request: 'chat.join-group-dialog.cancel_request',
+    canceling: 'chat.join-group-dialog.canceling',
+    default_name: 'chat.join-group-dialog.default_name'
   }
 } as const

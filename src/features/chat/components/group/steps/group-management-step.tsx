@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react'
 import { Switch } from '@/components/ui/switch'
 import { HelpTooltipIcon } from '@/components/common/help-tooltip-icon'
 import { ActionMenuItem } from '@/components/common/action-menu-item'
-import { UserRoundPlus, UserRoundX, Users, ChevronDown, Lock, Copy, Forward, RefreshCw } from 'lucide-react'
+import { UserRoundPlus, UserRoundX, Lock, Copy, Forward, RefreshCw } from 'lucide-react'
 import { BaseDialog } from '@/components/common/base-dialog'
 import { Button } from '@/components/ui/button'
 import { disbandGroupApi } from '../../../api/chat.api'
@@ -44,7 +44,22 @@ interface GroupManagementStepText {
       confirm: string
       cancel: string
     }
+    refreshJoinLinkDialog: {
+      title: string
+      description: string
+      confirm: string
+      cancel: string
+    }
+    disableLinkDialog: {
+      title: string
+      description: string
+      confirm: string
+      cancel: string
+    }
   }
+  adminOnlyBanner: string
+  copied: string
+  share: string
 }
 
 interface GroupManagementStepProps {
@@ -52,7 +67,6 @@ interface GroupManagementStepProps {
   conversationId: string
   settings?: GroupSettings | null
   joinLinkToken?: string | null
-  memberCount?: number
   onDisbandSuccess?: () => void
   onGoToAdmins?: () => void
   onGoToBlocked?: () => void
@@ -64,7 +78,6 @@ export function GroupManagementStep({
   currentUserRole,
   settings,
   joinLinkToken,
-  memberCount = 0,
   onDisbandSuccess,
   onGoToAdmins,
   onGoToBlocked
@@ -82,6 +95,8 @@ export function GroupManagementStep({
 
   const [isDisbandDialogOpen, setIsDisbandDialogOpen] = useState(false)
   const [isDisbanding, setIsDisbanding] = useState(false)
+  const [isRefreshDialogOpen, setIsRefreshDialogOpen] = useState(false)
+  const [isDisableLinkDialogOpen, setIsDisableLinkDialogOpen] = useState(false)
   const [isShareLinkOpen, setIsShareLinkOpen] = useState(false)
 
   const handleDisband = async () => {
@@ -97,6 +112,22 @@ export function GroupManagementStep({
     }
   }
 
+  const handleRefreshJoinLink = () => {
+    refreshJoinLink(conversationId, {
+      onSuccess: () => {
+        setIsRefreshDialogOpen(false)
+      }
+    })
+  }
+
+  const handleJoinByLinkToggle = (enabled: boolean) => {
+    if (!enabled) {
+      setIsDisableLinkDialogOpen(true)
+    } else {
+      handleSettingChange('joinByLinkEnabled', true)
+    }
+  }
+
   const isOwner = !currentUserRole || currentUserRole === GroupMemberRole.Owner
   const isMember = currentUserRole === GroupMemberRole.Member
   const isReadOnly = isMember
@@ -104,7 +135,7 @@ export function GroupManagementStep({
   const AdminOnlyBanner = () => (
     <div className='bg-[#ebecf0] dark:bg-[#1d2025] px-4 py-2.5 flex items-center justify-center gap-2 text-[13px] transition-colors'>
       <Lock className='w-3.5 h-3.5 shrink-0 text-muted-foreground' />
-      <span className='font-medium readonly-management-text'>Tính năng chỉ dành cho quản trị viên</span>
+      <span className='font-medium readonly-management-text'>{text.adminOnlyBanner}</span>
     </div>
   )
 
@@ -194,15 +225,6 @@ export function GroupManagementStep({
         </div>
       </div>
 
-      <div className='mt-2 bg-background border-y border-border/50'>
-        <div className='px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-muted/30 transition-colors'>
-          <span className='text-[14px] font-bold'>Thành viên nhóm</span>
-          <ChevronDown className='w-4 h-4 text-muted-foreground' />
-        </div>
-
-        <ActionMenuItem icon={<Users />} label={`${memberCount} thành viên`} as='div' />
-      </div>
-
       <div className={`mt-2 bg-background border-y border-border/50 ${isReadOnly ? 'pointer-events-none' : ''}`}>
         <div className='px-5 py-3 space-y-0'>
           <div className='flex items-center justify-between gap-3 py-3 border-b border-border/60'>
@@ -257,7 +279,7 @@ export function GroupManagementStep({
                 <Switch
                   disabled={isReadOnly}
                   checked={settings?.joinByLinkEnabled ?? false}
-                  onCheckedChange={(v) => handleSettingChange('joinByLinkEnabled', v)}
+                  onCheckedChange={handleJoinByLinkToggle}
                 />
               </div>
 
@@ -276,10 +298,10 @@ export function GroupManagementStep({
                       <button
                         type='button'
                         className='z--btn--v2 btn-tertiary-primary icon-only medium'
-                        title='Sao chép'
+                        title={text.copied}
                         onClick={() => {
                           navigator.clipboard.writeText(`${window.location.origin}/g/${joinLinkToken}`)
-                          showSimpleToast('Đã sao chép')
+                          showSimpleToast(text.copied)
                         }}
                       >
                         <Copy className='z--btn--icon-content' />
@@ -287,7 +309,7 @@ export function GroupManagementStep({
                       <button
                         type='button'
                         className='z--btn--v2 btn-tertiary-primary icon-only medium'
-                        title='Chia sẻ'
+                        title={text.share}
                         onClick={() => setIsShareLinkOpen(true)}
                       >
                         <Forward className='z--btn--icon-content' />
@@ -295,9 +317,9 @@ export function GroupManagementStep({
                       <button
                         type='button'
                         className='z--btn--v2 btn-tertiary-primary icon-only medium'
-                        title='Làm mới'
+                        title={text.actions.refreshJoinLinkDialog.confirm}
                         disabled={isRefreshing}
-                        onClick={() => refreshJoinLink(conversationId)}
+                        onClick={() => setIsRefreshDialogOpen(true)}
                       >
                         <RefreshCw className={cn('z--btn--icon-content', isRefreshing && 'animate-spin')} />
                       </button>
@@ -350,12 +372,38 @@ export function GroupManagementStep({
         variant='danger'
       />
 
+      <BaseDialog
+        open={isRefreshDialogOpen}
+        onOpenChange={setIsRefreshDialogOpen}
+        title={text.actions.refreshJoinLinkDialog.title}
+        description={text.actions.refreshJoinLinkDialog.description}
+        confirmText={text.actions.refreshJoinLinkDialog.confirm}
+        onConfirm={handleRefreshJoinLink}
+        isPending={isRefreshing}
+        hideFooterBorder
+      />
+
+      <BaseDialog
+        open={isDisableLinkDialogOpen}
+        onOpenChange={setIsDisableLinkDialogOpen}
+        title={text.actions.disableLinkDialog.title}
+        description={text.actions.disableLinkDialog.description}
+        confirmText={text.actions.disableLinkDialog.confirm}
+        cancelText={text.actions.disableLinkDialog.cancel}
+        onConfirm={() => {
+          handleSettingChange('joinByLinkEnabled', false)
+          setIsDisableLinkDialogOpen(false)
+        }}
+        variant='danger'
+        hideFooterBorder
+      />
+
       {isShareLinkOpen && joinLinkToken && (
         <ForwardDialog
           open
           onClose={() => setIsShareLinkOpen(false)}
-          title='Chia sẻ'
-          confirmText='Chia sẻ'
+          title={text.share}
+          confirmText={text.share}
           onConfirm={(selectedConvIds) => {
             const linkUrl = `${window.location.origin}/g/${joinLinkToken}`
             selectedConvIds.forEach((convId) => {

@@ -170,7 +170,10 @@ export const SystemActionType = {
   UpdateSettings: 'UPDATE_SETTINGS',
   JoinByLink: 'JOIN_BY_LINK',
   GenerateJoinLink: 'GENERATE_JOIN_LINK',
-  RefreshJoinLink: 'REFRESH_JOIN_LINK'
+  RefreshJoinLink: 'REFRESH_JOIN_LINK',
+  JoinRequestCreated: 'JOIN_REQUEST_CREATED',
+  JoinRequestApproved: 'JOIN_REQUEST_APPROVED',
+  JoinRequestRejected: 'JOIN_REQUEST_REJECTED'
 } as const
 
 export type SystemActionType = (typeof SystemActionType)[keyof typeof SystemActionType]

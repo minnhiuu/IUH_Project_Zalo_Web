@@ -13,6 +13,9 @@ import { resolveUpdateSettingsAction } from './update-settings-action'
 import { resolveJoinByLinkAction } from './join-by-link-action'
 import { resolveGenerateJoinLinkAction } from './generate-join-link-action'
 import { resolveRefreshJoinLinkAction } from './refresh-join-link-action'
+import { resolveJoinRequestCreatedAction } from './join-request-created-action'
+import { resolveJoinRequestApprovedAction } from './join-request-approved-action'
+import { resolveJoinRequestRejectedAction } from './join-request-rejected-action'
 
 export function resolveSystemAction(context: ActionContext): ActionResolveResult {
   const { metadata } = context
@@ -46,6 +49,12 @@ export function resolveSystemAction(context: ActionContext): ActionResolveResult
       return resolveGenerateJoinLinkAction(context)
     case 'REFRESH_JOIN_LINK':
       return resolveRefreshJoinLinkAction(context)
+    case 'JOIN_REQUEST_CREATED':
+      return resolveJoinRequestCreatedAction(context)
+    case 'JOIN_REQUEST_APPROVED':
+      return resolveJoinRequestApprovedAction(context)
+    case 'JOIN_REQUEST_REJECTED':
+      return resolveJoinRequestRejectedAction()
     default:
       return {}
   }

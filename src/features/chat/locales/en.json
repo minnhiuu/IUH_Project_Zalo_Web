@@ -111,6 +111,18 @@
         "self": "You refreshed the group invite link. The old link is no longer valid.",
         "by_actor": "<actorBold>{{actor}}</actorBold> refreshed the group invite link. The old link is no longer valid."
       },
+      "join_request_created": {
+        "self": "You requested to join the group",
+        "by_actor": "<actorBold>{{actor}}</actorBold> just requested to join group"
+      },
+      "join_request_approved": {
+        "self": "You were added to the group by <actorBold>{{actor}}</actorBold>",
+        "by_me": "<bold>{{target}}</bold> was added to the group by you",
+        "by_actor": "<bold>{{target}}</bold> was added to the group by <actorBold>{{actor}}</actorBold>"
+      },
+      "join_request_rejected": {
+        "self": "Your request to join the group was rejected"
+      },
       "join_link": {
         "label": "Join group link",
         "copy": "Copy link",
@@ -133,6 +145,13 @@
       "message": "The group has been disbanded by the owner.",
       "cannotSendMessage": "You can no longer send messages to this group",
       "deleteAction": "Delete conversation"
+    },
+    "joinRequestDialog": {
+      "title": "Requests pending approval",
+      "detail": "Detail",
+      "empty": "No pending requests",
+      "reject": "Reject",
+      "accept": "Accept"
     },
     "restricted": {
       "onlyAdminCanSend": "Only <highlight>owner/admins</highlight> can send messages to this group.",
@@ -238,6 +257,9 @@
       "media": "Photos/Videos",
       "noMedia": "No shared image in this group",
       "sendMessage": "Chat",
+      "adminOnlyBanner": "Feature for owner & admin only",
+      "copied": "Copied",
+      "share": "Forward",
       "groupLink": "Group link",
       "memberPermissionsTitle": "Allow group members to",
       "permissions": {
@@ -292,6 +314,18 @@
         "noBlockedMembers": "No blocked members",
         "blockedMembersDesc": "Blocked users cannot rejoin the group, unless they are unblocked or added by the group owner or admins.",
         "blockMember": "Add to block list",
+        "refreshJoinLinkDialog": {
+          "title": "Confirm",
+          "description": "The current link will become invalid. Change the link?",
+          "confirm": "Confirm",
+          "cancel": "Cancel"
+        },
+        "disableLinkDialog": {
+          "title": "Disable join link",
+          "description": "Once disabled, people will no longer be able to join the group via this link. Are you sure you want to disable it?",
+          "confirm": "Disable link",
+          "cancel": "Cancel"
+        },
         "transferOwnerConfirm": {
           "title": "Change group owner",
           "description": "The chosen person will become the group owner and have all management rights. You will lose your management rights but still be a group member. This action cannot be undone.",
@@ -299,6 +333,31 @@
           "cancel": "Cancel"
         }
       }
+    },
+    "join-group-dialog": {
+      "title": "Group Info",
+      "members_and_creator": "{{count}} members • Created by {{creator}}",
+      "members_only": "{{count}} members",
+      "waiting_room": "You're in the waiting room. Join to chat with everyone in the group.",
+      "join": "Join",
+      "joining": "Joining...",
+      "close": "Close",
+      "go_to_chat": "Go to chat",
+      "link_invalid": "Invalid link",
+      "link_invalid_desc": "This link does not exist or has been deleted.",
+      "link_disabled": "Link disabled",
+      "link_disabled_desc": "The group admin has disabled joining via link.",
+      "error": "An error occurred",
+      "error_desc": "Unable to load group info. Please try again later.",
+      "approval_required": "Admin approval required to join",
+      "request_pending_dialog": "Join request sent",
+      "request_pending_toast": "Your request has been sent to owner and admins for approval",
+      "request_pending_desc": "Your request to join the group is pending approval.",
+      "sending_request": "Sending request...",
+      "send_request": "Send join request",
+      "cancel_request": "Withdraw request",
+      "canceling": "Withdrawing...",
+      "default_name": "New group"
     },
     "toasts": {
       "updating": "Updating...",
@@ -347,7 +406,11 @@
       "removeFromGroup": "Remove from group",
       "searchMemberPlaceholder": "Search members",
       "membersLoading": "Loading members...",
-      "noMatchingMembers": "No matching members"
+      "noMatchingMembers": "No matching members",
+      "pendingJoinRequests": "Pending join group requests ({{count}})",
+      "pendingJoinRequestsLabel": "{{count}} pending join group request",
+      "reject": "Reject",
+      "accept": "Accept"
     }
   },
   "ai": {

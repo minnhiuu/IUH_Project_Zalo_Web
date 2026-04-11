@@ -12,6 +12,7 @@ import { MessageSenderAvatar } from './message-sender-avatar'
 import { MessageIconButton } from './message-icon-button'
 import { MessageMoreMenu } from './message-more-menu'
 import { JoinLinkCard } from './join-link-card'
+import { useRevokeMessageMutation } from '../queries/use-mutations'
 
 export function MessageBubble({
   message,
@@ -36,6 +37,7 @@ export function MessageBubble({
 }) {
   const { text } = useChatText()
   const { deleteMessageForMe } = useChatContext()
+  const { mutate: revokeMessage } = useRevokeMessageMutation()
   const mb = text.messageBubble
 
   const isRevoked = message.status === MessageStatus.REVOKED
@@ -215,7 +217,9 @@ export function MessageBubble({
                   side={isOwn ? 'left' : 'right'}
                   text={mb}
                   messageContent={message.content || ''}
+                  isOwn={isOwn}
                   onDeleteForMe={() => conversationId && deleteMessageForMe(message.id, conversationId)}
+                  onRevoke={() => revokeMessage(message.id)}
                 />
               </DropdownMenu>
             </div>

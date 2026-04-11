@@ -12,6 +12,7 @@ import { Key, X, Link2 } from 'lucide-react'
 import { showSimpleToast } from '@/utils/toast'
 import { ForwardDialog } from '../components/forward-dialog'
 import { useChatContext } from '../context/chat-context'
+import { JoinRequestApprovalDialog } from '../components/group/dialogs/join-request-approval-dialog'
 
 export { getSystemMessageLabel } from './system-message-label'
 export type { SystemActionType, SystemMetadata } from './system-message-label'
@@ -29,6 +30,7 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
   const [profileUserId, setProfileUserId] = useState<string | undefined>(undefined)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isJoinLinkShareOpen, setIsJoinLinkShareOpen] = useState(false)
+  const [isJoinRequestDialogOpen, setIsJoinRequestDialogOpen] = useState(false)
 
   const handleOpenProfile = useCallback(
     (userId: string) => {
@@ -68,6 +70,8 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
     } else if (metadata?.action === 'LEAVE_GROUP' && message.senderId) {
       avatars = [{ id: message.senderId, avatar: message.senderAvatar, name: message.senderName || t('chat.user') }]
     } else if (metadata?.action === 'JOIN_BY_LINK' && message.senderId) {
+      avatars = [{ id: message.senderId, avatar: message.senderAvatar, name: message.senderName || t('chat.user') }]
+    } else if (metadata?.action === 'JOIN_REQUEST_CREATED' && message.senderId) {
       avatars = [{ id: message.senderId, avatar: message.senderAvatar, name: message.senderName || t('chat.user') }]
     } else if (
       (metadata?.action === 'GENERATE_JOIN_LINK' || metadata?.action === 'REFRESH_JOIN_LINK') &&
@@ -167,6 +171,9 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
     metadata?.action === 'LEAVE_GROUP' && String(message.senderId || '') === String(user?.id || '')
   const showDeleteConversationAction = isDisbanded || isCurrentUserRemoved || isCurrentUserLeftGroup
 
+  const isJoinRequestCreated =
+    metadata?.action === 'JOIN_REQUEST_CREATED' && String(message.senderId || '') !== String(user?.id || '')
+
   const isPromotedToAdmin =
     metadata?.action === 'PROMOTE_ADMIN' && (metadata.targetIds || []).map(String).includes(String(user?.id || ''))
   const isTransferredOwner =
@@ -199,6 +206,14 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
                 {t('chat.disbanded.deleteAction')}
               </button>
             )}
+            {isJoinRequestCreated && (
+              <button
+                onClick={() => setIsJoinRequestDialogOpen(true)}
+                className='text-information hover:underline font-medium whitespace-nowrap'
+              >
+                {t('chat.joinRequestDialog.detail')}
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -208,6 +223,14 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
       {isTransferredOwner && <OwnerCard conversation={conversation} secondaryLabel={null} t={t} />}
 
       <OthersProfileDialog open={isProfileOpen} onOpenChange={setIsProfileOpen} userId={profileUserId} />
+
+      {isJoinRequestCreated && conversation?.id && (
+        <JoinRequestApprovalDialog
+          open={isJoinRequestDialogOpen}
+          onOpenChange={setIsJoinRequestDialogOpen}
+          conversationId={conversation.id}
+        />
+      )}
     </>
   )
 }

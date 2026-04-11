@@ -7,6 +7,7 @@ import { GroupInfoOverviewStep } from '../steps/group-info-overview-step'
 import { AnimatePresence, motion } from 'framer-motion'
 import { LeaveGroupDialog } from './leave-group-dialog'
 import { cn } from '@/lib/utils'
+import { GroupMemberRole } from '@/constants/enum'
 
 interface GroupInfoDialogProps {
   conversation: ConversationResponse
@@ -125,6 +126,10 @@ export function GroupInfoDialog({
                   conversationId={conversation.id}
                   settings={conversation.settings}
                   joinLinkToken={conversation.joinLinkToken}
+                  currentUserRole={
+                    (conversation.members?.find((m) => m.userId === currentUserId)?.role as GroupMemberRole) ||
+                    GroupMemberRole.Member
+                  }
                   onDisbandSuccess={handleClose}
                 />
               </motion.div>

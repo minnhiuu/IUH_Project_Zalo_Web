@@ -4,7 +4,8 @@ import {
   getMessages,
   getFriendsDirectory,
   getGroupMembersApi,
-  searchMembersToAdd
+  searchMembersToAdd,
+  getJoinPreviewApi
 } from '../api/chat.api'
 import type { PageResponse } from '@/shared/api'
 import { chatKeys } from './keys'
@@ -61,5 +62,12 @@ export const chatOptions = {
       initialPageParam: 0,
       getNextPageParam: (lastPage) => (lastPage.page + 1 < lastPage.totalPages ? lastPage.page + 1 : undefined),
       enabled: !!conversationId
+    }),
+  joinPreview: (token: string) =>
+    queryOptions({
+      queryKey: chatKeys.joinPreview(token),
+      queryFn: () => getJoinPreviewApi(token),
+      staleTime: 5000,
+      enabled: !!token
     })
 }

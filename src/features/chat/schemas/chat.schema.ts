@@ -70,7 +70,8 @@ export const ConversationResponseSchema = z.object({
   lastMessage: LastMessageResponseSchema.nullable().optional(),
   members: z.array(ConversationMemberResponseSchema).nullable().optional(),
   settings: GroupSettingsSchema.nullable().optional(),
-  joinLinkToken: z.string().nullable().optional()
+  joinLinkToken: z.string().nullable().optional(),
+  pendingJoinRequestCount: z.number().nullable().optional()
 })
 
 export type ConversationResponse = z.infer<typeof ConversationResponseSchema>
@@ -178,4 +179,18 @@ export interface JoinGroupPreviewResponse {
   createdByName: string | null
   memberPreviews: { name: string; avatar: string | null }[]
   isAlreadyMember: boolean
+  membershipApprovalEnabled: boolean
+  hasPendingRequest: boolean
+}
+
+export interface JoinRequestResponse {
+  id: string
+  conversationId: string
+  userId: string
+  fullName: string
+  avatar: string | null
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED'
+  requestedAt: string
+  processedAt: string | null
+  processedBy: string | null
 }

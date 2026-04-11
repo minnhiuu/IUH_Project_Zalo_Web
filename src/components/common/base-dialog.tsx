@@ -26,6 +26,7 @@ interface BaseDialogProps {
   variant?: 'danger' | 'primary'
   className?: string
   noContentPadding?: boolean
+  hideFooterBorder?: boolean
 }
 
 export function BaseDialog({
@@ -42,7 +43,8 @@ export function BaseDialog({
   isPending,
   variant = 'primary',
   className,
-  noContentPadding = false
+  noContentPadding = false,
+  hideFooterBorder = false
 }: BaseDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -80,7 +82,7 @@ export function BaseDialog({
           </div>
 
           {(confirmText || cancelText) && (
-            <DialogFooter className='flex flex-row justify-end gap-3 px-4 py-3.5 border-t border-border'>
+            <DialogFooter className={cn('flex flex-row justify-end gap-3 px-4 py-3.5', !hideFooterBorder && 'border-t border-border')}>
               {cancelText && (
                 <Button
                   variant='secondary'

@@ -142,6 +142,7 @@ export function GroupInfoStep({
               isMemberOnly={isMemberOnly}
               text={{
                 members: tg.sidebarInfo.members,
+                pendingJoinRequestsLabel: tg.sidebarInfo.pendingJoinRequestsLabel,
                 groupBoard: tg.sidebarInfo.groupBoard,
                 reminderBoard: tg.sidebarInfo.reminderBoard,
                 notesPinsPolls: tg.sidebarInfo.notesPinsPolls,
@@ -161,6 +162,7 @@ export function GroupInfoStep({
                 viewAll: tg.sidebarInfo.viewAll
               }}
               membersCountLabel={tg.status.membersCount(conversation.members?.length || 0)}
+              pendingRequestsCount={conversation.pendingJoinRequestCount ?? 0}
               onOpenMembers={onGoToMembers}
               onOpenDisappearingDialog={() => setIsDisappearingDialogOpen(true)}
               onLeaveGroup={handleLeaveGroup}

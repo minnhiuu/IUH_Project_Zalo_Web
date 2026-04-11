@@ -13,7 +13,6 @@ import {
   useUpdateGroupAvatarMutation
 } from '../queries/use-mutations'
 import { useEffect, useRef, useMemo, useState } from 'react'
-import { createPortal } from 'react-dom'
 import type { ConversationResponse, MessageResponse } from '../schemas/chat.schema'
 import { ForwardDialog } from './forward-dialog'
 import { formatLastSeen } from '@/utils/date'
@@ -302,15 +301,23 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
               )}
             </div>
             <div className='min-w-0 flex-1 group/header'>
-              <button
-                disabled={
+              <div
+                role='button'
+                aria-disabled={
                   !conversation.isGroup || isCloudConversation || !canChangeGroupInfo(conversation, user?.id || '')
                 }
                 onClick={(e) => {
-                  e.stopPropagation()
-                  setIsRenameDialogOpen(true)
+                  if (conversation.isGroup && !isCloudConversation && canChangeGroupInfo(conversation, user?.id || '')) {
+                    e.stopPropagation()
+                    setIsRenameDialogOpen(true)
+                  }
                 }}
-                className='flex items-center gap-1.5 max-w-full group/btn'
+                className={cn(
+                  'flex items-center gap-1.5 max-w-full group/btn text-left',
+                  conversation.isGroup && !isCloudConversation && canChangeGroupInfo(conversation, user?.id || '')
+                    ? 'cursor-pointer'
+                    : 'cursor-default'
+                )}
               >
                 <h2 className='text-[16px] font-semibold text-foreground/90 leading-tight overflow-hidden whitespace-nowrap truncate'>
                   {isCloudConversation
@@ -322,7 +329,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
                     <ActionButton icon={<Pencil />} size='sm' iconSize='sm' />
                   </div>
                 )}
-              </button>
+              </div>
               <p className='text-[12px] text-muted-foreground mt-0.5 leading-tight flex items-center gap-1 overflow-hidden whitespace-nowrap'>
                 {isCloudConversation ? (
                   'Lưu và đồng bộ dữ liệu giữa các thiết bị'
@@ -472,14 +479,9 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
 
       {isInfoSidebarOpen && !isInfoDialogOpen && (
         <div
-          className='absolute inset-0 bg-transparent z-90 min-[1150px]:hidden animate-in fade-in duration-200 cursor-pointer'
+          className='absolute inset-0 bg-transparent z-[35] min-[1150px]:hidden animate-in fade-in duration-200 cursor-pointer'
           onClick={() => setIsInfoSidebarOpen(false)}
         />
-      )}
-
-      {/* Placeholder to reserve sidebar width in flex layout */}
-      {isInfoSidebarOpen && !isInfoDialogOpen && !isCloudConversation && (
-        <div className='w-87.5 shrink-0 hidden min-[1150px]:block' />
       )}
 
       {isCloudConversation ? (
@@ -498,17 +500,20 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
           onAvatarClick={triggerFileInput}
         />
       ) : (
-        isInfoSidebarOpen &&
-        createPortal(
-          <div className='fixed top-0 right-0 h-full pointer-events-auto z-[100]'>
+        isInfoSidebarOpen && (
+          <div
+            className={cn(
+              'h-full pointer-events-auto z-[40] bg-background w-87.5 shrink-0 border-l border-border',
+              window.innerWidth < 1150 ? 'absolute top-0 right-0 shadow-2xl overflow-hidden' : 'relative'
+            )}
+          >
             <ChatInfoSidebar
               conversation={conversation}
               onRenameClick={() => setIsRenameDialogOpen(true)}
               onAvatarClick={triggerFileInput}
               managementOpenSignal={managementOpenSignal}
             />
-          </div>,
-          document.body
+          </div>
         )
       )}
 

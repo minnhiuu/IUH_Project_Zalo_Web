@@ -8,7 +8,8 @@ import type {
   SearchMemberResponse,
   GroupMemberListItemResponse,
   GroupSettings,
-  JoinGroupPreviewResponse
+  JoinGroupPreviewResponse,
+  JoinRequestResponse
 } from '../schemas/chat.schema'
 
 export const getConversations = async (page = 0, size = 20): Promise<PageResponse<ConversationResponse>> => {
@@ -190,10 +191,7 @@ export const demoteFromAdminApi = async (
   return response.data.data
 }
 
-export const transferOwnerApi = async (
-  conversationId: string,
-  targetUserId: string
-): Promise<ConversationResponse> => {
+export const transferOwnerApi = async (conversationId: string, targetUserId: string): Promise<ConversationResponse> => {
   const response = await http.patch<ApiResponse<ConversationResponse>>(
     `/messages/conversations/${conversationId}/members/${targetUserId}/transfer-owner`
   )
@@ -233,10 +231,37 @@ export const getJoinPreviewApi = async (token: string): Promise<JoinGroupPreview
   return response.data.data
 }
 
-export const blockMembersApi = async (
+export const getJoinRequestsApi = async (
   conversationId: string,
-  memberIds: string[]
+  page = 0,
+  size = 20
+): Promise<PageResponse<JoinRequestResponse>> => {
+  const response = await http.get<ApiResponse<PageResponse<JoinRequestResponse>>>(
+    `/messages/conversations/${conversationId}/join-requests`,
+    { params: { page, size } }
+  )
+  return response.data.data
+}
+
+export const approveJoinRequestApi = async (
+  conversationId: string,
+  requestId: string
 ): Promise<ConversationResponse> => {
+  const response = await http.post<ApiResponse<ConversationResponse>>(
+    `/messages/conversations/${conversationId}/join-requests/${requestId}/approve`
+  )
+  return response.data.data
+}
+
+export const rejectJoinRequestApi = async (conversationId: string, requestId: string): Promise<void> => {
+  await http.post(`/messages/conversations/${conversationId}/join-requests/${requestId}/reject`)
+}
+
+export const cancelMyJoinRequestApi = async (conversationId: string): Promise<void> => {
+  await http.delete(`/messages/conversations/${conversationId}/join-requests/me`)
+}
+
+export const blockMembersApi = async (conversationId: string, memberIds: string[]): Promise<ConversationResponse> => {
   const response = await http.post<ApiResponse<ConversationResponse>>(
     `/messages/conversations/${conversationId}/members/block`,
     { memberIds }

@@ -61,6 +61,7 @@ function SidebarSection({ title, icon, children, badge, defaultOpen = true }: Si
 
 interface ChatInfoSectionsText {
   members: string
+  pendingJoinRequestsLabel: (count: number) => string
   groupBoard: string
   reminderBoard: string
   notesPinsPolls: string
@@ -85,6 +86,7 @@ interface ChatInfoSectionsProps {
   isMemberOnly: boolean
   text: ChatInfoSectionsText
   membersCountLabel: string
+  pendingRequestsCount?: number
   onOpenMembers: () => void
   onOpenDisappearingDialog: () => void
   onLeaveGroup: () => void
@@ -101,6 +103,7 @@ export function ChatInfoSections({
   isMemberOnly,
   text,
   membersCountLabel,
+  pendingRequestsCount = 0,
   onOpenMembers,
   onOpenDisappearingDialog,
   onLeaveGroup,
@@ -117,7 +120,19 @@ export function ChatInfoSections({
         {isGroup && (
           <SidebarSection title={text.members} defaultOpen={true}>
             <div className='flex flex-col w-full'>
-              <ActionMenuItem icon={<Users />} label={membersCountLabel} onClick={onOpenMembers} />
+              <ActionMenuItem
+                icon={<Users />}
+                label={membersCountLabel}
+                onClick={onOpenMembers}
+                subLabel={
+                  !isMemberOnly && pendingRequestsCount > 0 ? (
+                    <div className='flex items-center gap-1 text-[13px] text-primary font-medium'>
+                      <span className='scale-150'>•</span>
+                      <span>{text.pendingJoinRequestsLabel(pendingRequestsCount)}</span>
+                    </div>
+                  ) : undefined
+                }
+              />
               {joinLinkToken ? (
                 <ActionMenuItem
                   icon={<Link />}
