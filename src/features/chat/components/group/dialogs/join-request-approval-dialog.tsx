@@ -78,7 +78,7 @@ export function JoinRequestApprovalDialog({ open, onOpenChange, conversationId }
                           className='flex-1 h-9 rounded-md font-bold text-[14px] transition-colors'
                         >
                           {t('chat.joinRequestDialog.accept')}
-                        </>
+                        </Button>
                       </div>
                     </div>
                   </div>

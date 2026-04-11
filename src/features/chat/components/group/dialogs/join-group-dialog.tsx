@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router'
 import { chatKeys } from '../../../queries/keys'
 import { useJoinPreviewQuery } from '../../../queries/use-queries'
 import { useJoinByLinkMutation, useCancelJoinRequestMutation } from '../../../queries/use-mutations'
-import type { ConversationResponse } from '../../../schemas/chat.schema'
 import { useChatText } from '../../../i18n/use-chat-text'
 import { BaseDialog } from '@/components/common/base-dialog'
 import { LinkIcon, AlertCircle, Loader2, Clock } from 'lucide-react'
@@ -22,11 +21,7 @@ export function JoinGroupDialog({ open, onOpenChange, token }: JoinGroupDialogPr
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
-  const {
-    data: preview,
-    isLoading,
-    error
-  } = useJoinPreviewQuery(token!, open && !!token)
+  const { data: preview, isLoading, error } = useJoinPreviewQuery(token!, open && !!token)
 
   const { mutate: joinGroup, isPending: isJoining } = useJoinByLinkMutation()
   const { mutate: cancelRequest, isPending: isCanceling } = useCancelJoinRequestMutation()
@@ -35,7 +30,7 @@ export function JoinGroupDialog({ open, onOpenChange, token }: JoinGroupDialogPr
     if (preview?.hasPendingRequest) {
       cancelRequest(preview.conversationId!, {
         onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: chatKeys.joinPreview(token) })
+          queryClient.invalidateQueries({ queryKey: chatKeys.joinPreview(token!) })
         }
       })
     } else if (token) {
@@ -47,7 +42,7 @@ export function JoinGroupDialog({ open, onOpenChange, token }: JoinGroupDialogPr
           } else {
             // Approval required — request was created
             showWarningToast(text.request_pending_toast)
-            queryClient.invalidateQueries({ queryKey: chatKeys.joinPreview(token) })
+            queryClient.invalidateQueries({ queryKey: chatKeys.joinPreview(token!) })
           }
         }
       })

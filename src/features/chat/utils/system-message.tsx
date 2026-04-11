@@ -78,6 +78,14 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
       message.senderId
     ) {
       avatars = [{ id: message.senderId, avatar: message.senderAvatar, name: message.senderName || t('chat.user') }]
+    } else if (metadata?.action === 'JOIN_REQUEST_APPROVED' && metadata.targetIds) {
+      const targetNames = (payload?.targetNames as string[]) || []
+      const targetAvatarList = (payload?.targetAvatars as string[]) || []
+      avatars = metadata.targetIds.map((id, index) => ({
+        id,
+        avatar: targetAvatarList[index] || null,
+        name: targetNames[index] || t('chat.user')
+      }))
     } else if (metadata?.action === 'REMOVE_MEMBER' && metadata.targetIds) {
       const targetAvatar = (payload?.targetAvatar as string) || null
       const targetName = (payload?.targetName as string) || t('chat.user')

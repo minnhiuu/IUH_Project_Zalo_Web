@@ -410,6 +410,7 @@ export const useJoinByLinkMutation = () => {
   return useMutation({
     mutationFn: (token: string) => joinByLinkApi(token),
     onSuccess: (newConv) => {
+      if (!newConv) return
       queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
         if (!oldData) return [newConv]
         const exists = oldData.some((conv) => conv.id === newConv.id)
