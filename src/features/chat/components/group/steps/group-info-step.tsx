@@ -16,6 +16,11 @@ import { useAuth } from '@/features/auth'
 import { useDeleteConversationMutation } from '../../../queries/use-mutations'
 import { GroupMemberRole } from '@/constants/enum'
 import { getConversationDisplayName } from '../../../utils/group-name'
+import {
+  useGenerateJoinLinkMutation
+} from '../../../queries/use-mutations'
+import { useChatContext } from '../../../context/chat-context'
+import { ForwardDialog } from '../../forward-dialog'
 
 interface GroupInfoStepProps {
   conversation: ConversationResponse
@@ -47,9 +52,10 @@ export function GroupInfoStep({
   const [isLeaveGroupDialogOpen, setIsLeaveGroupDialogOpen] = useState(false)
   const [isTransferOwnerDialogOpen, setIsTransferOwnerDialogOpen] = useState(false)
   const [pendingTransferTargetId, setPendingTransferTargetId] = useState<string | null>(null)
+  const [isShareLinkOpen, setIsShareLinkOpen] = useState(false)
 
-  const isOverlayDialogOpen =
-    isCreateGroupOpen || isAddMemberOpen || isLeaveGroupDialogOpen || isTransferOwnerDialogOpen
+  const { sendMessage } = useChatContext()
+  const { mutate: generateJoinLink, isPending: isGenerating } = useGenerateJoinLinkMutation()
 
   const handleLeaveGroup = () => {
     if (isOwner) {
@@ -62,8 +68,7 @@ export function GroupInfoStep({
   return (
     <div
       className={cn(
-        'chat-info-sidebar w-87.5 border-l border-border bg-background flex flex-col h-full overflow-hidden shrink-0 shadow-xl min-[1150px]:shadow-none min-[1150px]:relative absolute right-0 top-0',
-        isOverlayDialogOpen ? 'z-40' : 'z-100'
+        'chat-info-sidebar w-87.5 border-l border-border bg-background flex flex-col h-full overflow-hidden shrink-0 shadow-xl min-[1150px]:shadow-none'
       )}
     >
       <div className='h-17 flex items-center justify-center border-b border-border shrink-0 px-4'>
@@ -159,6 +164,12 @@ export function GroupInfoStep({
               onOpenMembers={onGoToMembers}
               onOpenDisappearingDialog={() => setIsDisappearingDialogOpen(true)}
               onLeaveGroup={handleLeaveGroup}
+              joinLinkToken={conversation.joinLinkToken}
+              joinByLinkEnabled={conversation.settings?.joinByLinkEnabled}
+              isReadOnly={isMemberOnly}
+              isGenerating={isGenerating}
+              onGenerateJoinLink={() => generateJoinLink(conversation.id)}
+              onShareLink={() => setIsShareLinkOpen(true)}
             />
           </>
         )}
@@ -172,6 +183,21 @@ export function GroupInfoStep({
           setIsDisappearingDialogOpen(false)
         }}
       />
+
+      {isShareLinkOpen && conversation.joinLinkToken && (
+        <ForwardDialog
+          open
+          onClose={() => setIsShareLinkOpen(false)}
+          title='Chia sẻ'
+          confirmText='Chia sẻ'
+          onConfirm={(selectedConvIds) => {
+            const linkUrl = `${window.location.origin}/g/${conversation.joinLinkToken}`
+            selectedConvIds.forEach((convId) => {
+              sendMessage(convId, linkUrl, null, false)
+            })
+          }}
+        />
+      )}
 
       {isCreateGroupOpen && (
         <CreateGroupDialog

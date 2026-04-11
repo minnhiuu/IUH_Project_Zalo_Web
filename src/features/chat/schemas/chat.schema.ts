@@ -36,6 +36,23 @@ export const LastMessageResponseSchema = z.object({
 export type LastMessageResponse = z.infer<typeof LastMessageResponseSchema>
 
 // ────────────────────────────────────────────────────────────────
+// GroupSettings — group permission toggles
+// ────────────────────────────────────────────────────────────────
+export const GroupSettingsSchema = z.object({
+  memberCanChangeInfo: z.boolean().default(true),
+  memberCanPinMessages: z.boolean().default(true),
+  memberCanCreateNotes: z.boolean().default(true),
+  memberCanCreatePolls: z.boolean().default(true),
+  memberCanSendMessages: z.boolean().default(true),
+  membershipApprovalEnabled: z.boolean().default(false),
+  highlightAdminMessages: z.boolean().default(true),
+  newMembersCanReadRecent: z.boolean().default(true),
+  joinByLinkEnabled: z.boolean().default(false)
+})
+
+export type GroupSettings = z.infer<typeof GroupSettingsSchema>
+
+// ────────────────────────────────────────────────────────────────
 // ConversationResponse — Room-centric (ObjectId-based)
 // Breaking change: conversationId → id, partner* → name/avatar/status/isGroup
 // ────────────────────────────────────────────────────────────────
@@ -51,7 +68,9 @@ export const ConversationResponseSchema = z.object({
   isDisbanded: z.boolean().default(false),
   unreadCount: z.number().nullable().optional(),
   lastMessage: LastMessageResponseSchema.nullable().optional(),
-  members: z.array(ConversationMemberResponseSchema).nullable().optional()
+  members: z.array(ConversationMemberResponseSchema).nullable().optional(),
+  settings: GroupSettingsSchema.nullable().optional(),
+  joinLinkToken: z.string().nullable().optional()
 })
 
 export type ConversationResponse = z.infer<typeof ConversationResponseSchema>
@@ -75,7 +94,18 @@ export const MessageResponseSchema = z.object({
   isForwarded: z.boolean().nullable().optional(),
   unreadCount: z.number().nullable().optional(),
   isFromMe: z.boolean().nullable().optional(),
-  metadata: z.record(z.string(), z.any()).nullable().optional()
+  metadata: z.record(z.string(), z.any()).nullable().optional(),
+  linkPreview: z
+    .object({
+      url: z.string(),
+      token: z.string(),
+      groupName: z.string().nullable().optional(),
+      groupAvatar: z.string().nullable().optional(),
+      memberCount: z.number(),
+      memberPreviews: z.array(z.object({ name: z.string(), avatar: z.string().nullable().optional() }))
+    })
+    .nullable()
+    .optional()
 })
 
 export type MessageResponse = z.infer<typeof MessageResponseSchema>
@@ -139,3 +169,13 @@ export const SearchMemberResponseSchema = z.object({
 })
 
 export type SearchMemberResponse = z.infer<typeof SearchMemberResponseSchema>
+
+export interface JoinGroupPreviewResponse {
+  conversationId: string
+  groupName: string | null
+  groupAvatar: string | null
+  memberCount: number
+  createdByName: string | null
+  memberPreviews: { name: string; avatar: string | null }[]
+  isAlreadyMember: boolean
+}

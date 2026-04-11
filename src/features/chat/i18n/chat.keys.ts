@@ -27,7 +27,30 @@ export const CHAT_KEYS = {
   user: 'chat.user',
   type: {
     image: 'chat.type.image',
-    file: 'chat.type.file'
+    file: 'chat.type.file',
+    link: 'chat.type.link'
+  },
+  messageBubble: {
+    reply: 'chat.messageBubble.reply',
+    forward: 'chat.messageBubble.forward',
+    like: 'chat.messageBubble.like',
+    share: 'chat.messageBubble.share',
+    copy: 'chat.messageBubble.copy',
+    pinMessage: 'chat.messageBubble.pinMessage',
+    starMessage: 'chat.messageBubble.starMessage',
+    selectMessages: 'chat.messageBubble.selectMessages',
+    viewDetails: 'chat.messageBubble.viewDetails',
+    otherOptions: 'chat.messageBubble.otherOptions',
+    saveToMyDocuments: 'chat.messageBubble.saveToMyDocuments',
+    createReminder: 'chat.messageBubble.createReminder',
+    delete: 'chat.messageBubble.delete',
+    more: 'chat.messageBubble.more',
+    revoke: 'chat.messageBubble.revoke',
+    deleteForMe: 'chat.messageBubble.deleteForMe',
+    forwarded: 'chat.messageBubble.forwarded',
+    revoked: 'chat.messageBubble.revoked',
+    image: 'chat.messageBubble.image',
+    file: 'chat.messageBubble.file'
   },
   aiStatus: {
     ANALYZING_INTENT: 'ai.status.ANALYZING_INTENT',
@@ -60,7 +83,9 @@ export const CHAT_KEYS = {
     changeAvatar: 'chat.create-group-dialog.changeAvatar',
     removeAvatar: 'chat.create-group-dialog.removeAvatar',
     addMembersTitle: 'chat.create-group-dialog.addMembersTitle',
-    alreadyJoined: 'chat.create-group-dialog.alreadyJoined'
+    alreadyJoined: 'chat.create-group-dialog.alreadyJoined',
+    noResultsFound: 'chat.create-group-dialog.noResultsFound',
+    noFriendsFound: 'chat.create-group-dialog.noFriendsFound'
   },
   system: {
     add_members: {
@@ -92,6 +117,9 @@ export const CHAT_KEYS = {
     message: 'chat.disbanded.message',
     cannotSendMessage: 'chat.disbanded.cannotSendMessage',
     deleteAction: 'chat.disbanded.deleteAction'
+  },
+  restricted: {
+    onlyAdminCanSend: 'chat.restricted.onlyAdminCanSend'
   },
   'rename-group-dialog': {
     title: 'chat.rename-group-dialog.title',
@@ -156,6 +184,20 @@ export const CHAT_KEYS = {
         confirm: 'chat.group-info-dialog.actions.transferOwnerDialog.confirm',
         cancel: 'chat.group-info-dialog.actions.transferOwnerDialog.cancel',
         searchPlaceholder: 'chat.group-info-dialog.actions.transferOwnerDialog.searchPlaceholder'
+      },
+      owner: 'chat.group-info-dialog.actions.owner',
+      admin: 'chat.group-info-dialog.actions.admin',
+      delete: 'chat.group-info-dialog.actions.delete',
+      addDeputy: 'chat.group-info-dialog.actions.addDeputy',
+      transferOwner: 'chat.group-info-dialog.actions.transferOwner',
+      noBlockedMembers: 'chat.group-info-dialog.actions.noBlockedMembers',
+      blockedMembersDesc: 'chat.group-info-dialog.actions.blockedMembersDesc',
+      blockMember: 'chat.group-info-dialog.actions.blockMember',
+      transferOwnerConfirm: {
+        title: 'chat.group-info-dialog.actions.transferOwnerConfirm.title',
+        description: 'chat.group-info-dialog.actions.transferOwnerConfirm.description',
+        confirm: 'chat.group-info-dialog.actions.transferOwnerConfirm.confirm',
+        cancel: 'chat.group-info-dialog.actions.transferOwnerConfirm.cancel'
       }
     }
   },
@@ -206,5 +248,38 @@ export const CHAT_KEYS = {
     searchMemberPlaceholder: 'chat.sidebarInfo.searchMemberPlaceholder',
     membersLoading: 'chat.sidebarInfo.membersLoading',
     noMatchingMembers: 'chat.sidebarInfo.noMatchingMembers'
+  },
+  'forward-dialog': {
+    title: 'chat.forward-dialog.title',
+    share_title: 'chat.forward-dialog.share_title',
+    searchPlaceholder: 'chat.forward-dialog.searchPlaceholder',
+    selected: 'chat.forward-dialog.selected',
+    empty: 'chat.forward-dialog.empty',
+    forward: 'chat.forward-dialog.forward',
+    share: 'chat.forward-dialog.share',
+    cancel: 'chat.forward-dialog.cancel',
+    delete: 'chat.forward-dialog.delete',
+    tabRecent: 'chat.forward-dialog.tabRecent',
+    tabGroups: 'chat.forward-dialog.tabGroups',
+    tabFriends: 'chat.forward-dialog.tabFriends',
+    labels: 'chat.forward-dialog.labels',
+    forwardMessage: 'chat.forward-dialog.forwardMessage',
+    addDescription: 'chat.forward-dialog.addDescription'
+  },
+  'join-group-dialog': {
+    title: 'chat.join-group-dialog.title',
+    members_and_creator: 'chat.join-group-dialog.members_and_creator',
+    members_only: 'chat.join-group-dialog.members_only',
+    waiting_room: 'chat.join-group-dialog.waiting_room',
+    join: 'chat.join-group-dialog.join',
+    joining: 'chat.join-group-dialog.joining',
+    close: 'chat.join-group-dialog.close',
+    go_to_chat: 'chat.join-group-dialog.go_to_chat',
+    link_invalid: 'chat.join-group-dialog.link_invalid',
+    link_invalid_desc: 'chat.join-group-dialog.link_invalid_desc',
+    link_disabled: 'chat.join-group-dialog.link_disabled',
+    link_disabled_desc: 'chat.join-group-dialog.link_disabled_desc',
+    error: 'chat.join-group-dialog.error',
+    error_desc: 'chat.join-group-dialog.error_desc'
   }
 } as const

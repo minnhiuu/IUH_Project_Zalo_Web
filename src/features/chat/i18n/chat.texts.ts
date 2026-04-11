@@ -31,7 +31,30 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
   user: t(CHAT_KEYS.user),
   type: {
     image: t(CHAT_KEYS.type.image),
-    file: t(CHAT_KEYS.type.file)
+    file: t(CHAT_KEYS.type.file),
+    link: t(CHAT_KEYS.type.link)
+  },
+  messageBubble: {
+    reply: t(CHAT_KEYS.messageBubble.reply),
+    forward: t(CHAT_KEYS.messageBubble.forward),
+    like: t(CHAT_KEYS.messageBubble.like),
+    share: t(CHAT_KEYS.messageBubble.share),
+    copy: t(CHAT_KEYS.messageBubble.copy),
+    pinMessage: t(CHAT_KEYS.messageBubble.pinMessage),
+    starMessage: t(CHAT_KEYS.messageBubble.starMessage),
+    selectMessages: t(CHAT_KEYS.messageBubble.selectMessages),
+    viewDetails: t(CHAT_KEYS.messageBubble.viewDetails),
+    otherOptions: t(CHAT_KEYS.messageBubble.otherOptions),
+    saveToMyDocuments: t(CHAT_KEYS.messageBubble.saveToMyDocuments),
+    createReminder: t(CHAT_KEYS.messageBubble.createReminder),
+    delete: t(CHAT_KEYS.messageBubble.delete),
+    more: t(CHAT_KEYS.messageBubble.more),
+    revoke: t(CHAT_KEYS.messageBubble.revoke),
+    deleteForMe: t(CHAT_KEYS.messageBubble.deleteForMe),
+    forwarded: t(CHAT_KEYS.messageBubble.forwarded),
+    revoked: t(CHAT_KEYS.messageBubble.revoked),
+    image: t(CHAT_KEYS.messageBubble.image),
+    file: t(CHAT_KEYS.messageBubble.file)
   },
   sidebar: {
     all: t(CHAT_KEYS.sidebar.all),
@@ -56,7 +79,42 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     changeAvatar: t(CHAT_KEYS['create-group-dialog'].changeAvatar),
     removeAvatar: t(CHAT_KEYS['create-group-dialog'].removeAvatar),
     addMembersTitle: t(CHAT_KEYS['create-group-dialog'].addMembersTitle),
-    alreadyJoined: t(CHAT_KEYS['create-group-dialog'].alreadyJoined)
+    alreadyJoined: t(CHAT_KEYS['create-group-dialog'].alreadyJoined),
+    noResultsFound: t(CHAT_KEYS['create-group-dialog'].noResultsFound),
+    noFriendsFound: t(CHAT_KEYS['create-group-dialog'].noFriendsFound)
+  },
+  'forward-dialog': {
+    title: t(CHAT_KEYS['forward-dialog'].title),
+    share_title: t(CHAT_KEYS['forward-dialog'].share_title),
+    searchPlaceholder: t(CHAT_KEYS['forward-dialog'].searchPlaceholder),
+    selected: t(CHAT_KEYS['forward-dialog'].selected),
+    empty: t(CHAT_KEYS['forward-dialog'].empty),
+    forward: t(CHAT_KEYS['forward-dialog'].forward),
+    share: t(CHAT_KEYS['forward-dialog'].share),
+    cancel: t(CHAT_KEYS['forward-dialog'].cancel),
+    delete: t(CHAT_KEYS['forward-dialog'].delete),
+    tabRecent: t(CHAT_KEYS['forward-dialog'].tabRecent),
+    tabGroups: t(CHAT_KEYS['forward-dialog'].tabGroups),
+    tabFriends: t(CHAT_KEYS['forward-dialog'].tabFriends),
+    labels: t(CHAT_KEYS['forward-dialog'].labels),
+    forwardMessage: t(CHAT_KEYS['forward-dialog'].forwardMessage),
+    addDescription: t(CHAT_KEYS['forward-dialog'].addDescription)
+  },
+  'join-group-dialog': {
+    title: t(CHAT_KEYS['join-group-dialog'].title),
+    members_and_creator: t(CHAT_KEYS['join-group-dialog'].members_and_creator),
+    members_only: t(CHAT_KEYS['join-group-dialog'].members_only),
+    waiting_room: t(CHAT_KEYS['join-group-dialog'].waiting_room),
+    join: t(CHAT_KEYS['join-group-dialog'].join),
+    joining: t(CHAT_KEYS['join-group-dialog'].joining),
+    close: t(CHAT_KEYS['join-group-dialog'].close),
+    go_to_chat: t(CHAT_KEYS['join-group-dialog'].go_to_chat),
+    link_invalid: t(CHAT_KEYS['join-group-dialog'].link_invalid),
+    link_invalid_desc: t(CHAT_KEYS['join-group-dialog'].link_invalid_desc),
+    link_disabled: t(CHAT_KEYS['join-group-dialog'].link_disabled),
+    link_disabled_desc: t(CHAT_KEYS['join-group-dialog'].link_disabled_desc),
+    error: t(CHAT_KEYS['join-group-dialog'].error),
+    error_desc: t(CHAT_KEYS['join-group-dialog'].error_desc)
   },
   system: {
     add_members: {
@@ -88,6 +146,9 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     message: t(CHAT_KEYS.disbanded.message),
     cannotSendMessage: t(CHAT_KEYS.disbanded.cannotSendMessage),
     deleteAction: t(CHAT_KEYS.disbanded.deleteAction)
+  },
+  restricted: {
+    onlyAdminCanSend: t(CHAT_KEYS.restricted.onlyAdminCanSend)
   },
   'rename-group-dialog': {
     title: t(CHAT_KEYS['rename-group-dialog'].title),
@@ -153,6 +214,20 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
         confirm: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerDialog.confirm),
         cancel: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerDialog.cancel),
         searchPlaceholder: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerDialog.searchPlaceholder)
+      },
+      owner: t(CHAT_KEYS['group-info-dialog'].actions.owner),
+      admin: t(CHAT_KEYS['group-info-dialog'].actions.admin),
+      delete: t(CHAT_KEYS['group-info-dialog'].actions.delete),
+      addDeputy: t(CHAT_KEYS['group-info-dialog'].actions.addDeputy),
+      transferOwner: t(CHAT_KEYS['group-info-dialog'].actions.transferOwner),
+      noBlockedMembers: t(CHAT_KEYS['group-info-dialog'].actions.noBlockedMembers),
+      blockedMembersDesc: t(CHAT_KEYS['group-info-dialog'].actions.blockedMembersDesc),
+      blockMember: t(CHAT_KEYS['group-info-dialog'].actions.blockMember),
+      transferOwnerConfirm: {
+        title: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerConfirm.title),
+        description: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerConfirm.description),
+        confirm: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerConfirm.confirm),
+        cancel: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerConfirm.cancel)
       }
     }
   },
@@ -172,7 +247,7 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     reminderBoard: t(CHAT_KEYS.sidebarInfo.reminderBoard),
     notesPinsPolls: t(CHAT_KEYS.sidebarInfo.notesPinsPolls),
     commonGroups: t(CHAT_KEYS.sidebarInfo.commonGroups),
-    commonGroupsCount: t(CHAT_KEYS.sidebarInfo.commonGroupsCount),
+    commonGroupsCount: (count: number) => t(CHAT_KEYS.sidebarInfo.commonGroupsCount, { count }),
     noCommonGroups: t(CHAT_KEYS.sidebarInfo.noCommonGroups),
     viewAll: t(CHAT_KEYS.sidebarInfo.viewAll),
     photosVideos: t(CHAT_KEYS.sidebarInfo.photosVideos),

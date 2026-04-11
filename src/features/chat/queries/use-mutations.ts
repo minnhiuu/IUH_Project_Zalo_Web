@@ -7,15 +7,21 @@ import {
   createGroupConversation,
   updateGroupNameApi,
   updateGroupAvatarApi,
+  updateGroupSettingsApi,
   deleteConversationApi,
   leaveGroupApi,
   addMembersToGroupApi,
   removeMemberFromGroupApi,
   promoteToAdminApi,
-  demoteFromAdminApi
+  demoteFromAdminApi,
+  transferOwnerApi,
+  refreshJoinLinkApi,
+  generateJoinLinkApi,
+  joinByLinkApi,
+  blockMembersApi
 } from '../api/chat.api'
 import { chatKeys } from './keys'
-import type { ConversationResponse, ChatMessageRequest } from '../schemas/chat.schema'
+import type { ConversationResponse, ChatMessageRequest, GroupSettings } from '../schemas/chat.schema'
 
 export const useMarkAsReadMutation = () => {
   const queryClient = useQueryClient()
@@ -311,6 +317,124 @@ export const useDemoteFromAdminMutation = () => {
     },
     onError: (error) => {
       console.error('Failed to demote admin', error)
+    }
+  })
+}
+
+export const useTransferOwnerMutation = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ conversationId, targetUserId }: { conversationId: string; targetUserId: string }) =>
+      transferOwnerApi(conversationId, targetUserId),
+    onSuccess: (updatedConv, variables) => {
+      queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
+        if (!oldData) return [updatedConv]
+        return oldData.map((conv) => (conv.id === updatedConv.id ? updatedConv : conv))
+      })
+      queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+      queryClient.invalidateQueries({ queryKey: chatKeys.messages(variables.conversationId) })
+      queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'group-members', variables.conversationId] })
+    },
+    onError: (error) => {
+      console.error('Failed to transfer group owner', error)
+    }
+  })
+}
+
+export const useUpdateGroupSettingsMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ conversationId, settings }: { conversationId: string; settings: Partial<GroupSettings> }) =>
+      updateGroupSettingsApi(conversationId, settings),
+    onSuccess: (updatedConv) => {
+      queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
+        if (!oldData) return [updatedConv]
+        return oldData.map((conv) => (conv.id === updatedConv.id ? { ...conv, ...updatedConv } : conv))
+      })
+    },
+    onError: (error) => {
+      console.error('Failed to update group settings', error)
+    }
+  })
+}
+
+export const useRefreshJoinLinkMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (conversationId: string) => refreshJoinLinkApi(conversationId),
+    onSuccess: (newToken, conversationId) => {
+      queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
+        if (!oldData) return oldData
+        return oldData.map((conv) => (conv.id === conversationId ? { ...conv, joinLinkToken: newToken } : conv))
+      })
+    },
+    onError: (error) => {
+      console.error('Failed to refresh join link', error)
+    }
+  })
+}
+
+export const useGenerateJoinLinkMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (conversationId: string) => generateJoinLinkApi(conversationId),
+    onSuccess: (token, conversationId) => {
+      queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
+        if (!oldData) return oldData
+        return oldData.map((conv) =>
+          conv.id === conversationId
+            ? {
+                ...conv,
+                joinLinkToken: token,
+                settings: conv.settings ? { ...conv.settings, joinByLinkEnabled: true } : conv.settings
+              }
+            : conv
+        )
+      })
+    },
+    onError: (error) => {
+      console.error('Failed to generate join link', error)
+    }
+  })
+}
+
+export const useJoinByLinkMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (token: string) => joinByLinkApi(token),
+    onSuccess: (newConv) => {
+      queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
+        if (!oldData) return [newConv]
+        const exists = oldData.some((conv) => conv.id === newConv.id)
+        return exists ? oldData.map((conv) => (conv.id === newConv.id ? newConv : conv)) : [newConv, ...oldData]
+      })
+    },
+    onError: (error) => {
+      console.error('Failed to join group by link', error)
+    }
+  })
+}
+
+export const useBlockMembersMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ conversationId, memberIds }: { conversationId: string; memberIds: string[] }) =>
+      blockMembersApi(conversationId, memberIds),
+    onSuccess: (updatedConv: ConversationResponse, variables) => {
+      queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
+        if (!oldData) return [updatedConv]
+        return oldData.map((conv) => (conv.id === updatedConv.id ? updatedConv : conv))
+      })
+      queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'group-members', variables.conversationId] })
+      queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'blocked-members', variables.conversationId] })
+    },
+    onError: (error) => {
+      console.error('Failed to block members', error)
     }
   })
 }

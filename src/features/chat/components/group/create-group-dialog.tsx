@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router'
-import { Camera, Search, X } from 'lucide-react'
+import { Camera, Search, X, Loader2 } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -432,11 +432,10 @@ export function CreateGroupDialog({
               disabled={isCreateDisabled}
               variant={isCreateDisabled ? 'disabled' : 'default'}
             >
-              {createGroupMutation.isPending || addMembersMutation.isPending
-                ? '...'
-                : conversationId
-                  ? tg.confirm
-                  : tg.create}
+              {conversationId ? tg.confirm : tg.create}
+              {(createGroupMutation.isPending || addMembersMutation.isPending) && (
+                <Loader2 className='ml-2 h-4 w-4 animate-spin shrink-0' />
+              )}
             </Button>
           </div>
         </DialogContent>

@@ -6,6 +6,9 @@ import { Button } from '@/components/ui/button'
 import { ActionButton } from '@/components/common/action-button'
 import { ActionMenuItem } from '@/components/common/action-menu-item'
 import { CustomTooltip } from '@/components/common/custom-tooltip'
+import { canChangeGroupInfo } from '../../../utils/group-permissions'
+import { showWarningToast } from '@/utils/toast'
+import { useTranslation } from 'react-i18next'
 
 interface GroupInfoOverviewText {
   membersCount: (count: number) => string
@@ -37,12 +40,30 @@ export function GroupInfoOverviewStep({
   onOpenManagement,
   onLeaveGroup
 }: GroupInfoOverviewStepProps) {
+  const { t } = useTranslation('chat')
+
+  const handleRenameClick = () => {
+    if (!canChangeGroupInfo(conversation, currentUserId || '')) {
+      showWarningToast(t('chat.restricted.cannotRename'))
+      return
+    }
+    onRenameClick()
+  }
+
+  const handleAvatarClick = () => {
+    if (!canChangeGroupInfo(conversation, currentUserId || '')) {
+      showWarningToast(t('chat.restricted.cannotChangeAvatar'))
+      return
+    }
+    onAvatarClick()
+  }
+
   return (
     <div className='flex flex-col bg-bg-dialog-secondary w-full text-left'>
       <div className='bg-background px-6 py-4 flex flex-col items-stretch gap-3 border-b border-border/50 w-full overflow-visible'>
         <div className='flex items-center gap-3.5 w-full min-w-0 min-h-18'>
           <div
-            onClick={onAvatarClick}
+            onClick={handleAvatarClick}
             className='relative self-center group/avatar cursor-pointer hover:ring-4 hover:ring-primary/10 rounded-full transition-all shrink-0'
           >
             <div
@@ -63,7 +84,7 @@ export function GroupInfoOverviewStep({
               icon={<Camera />}
               size='sm'
               iconSize='sm'
-              onClick={onAvatarClick}
+              onClick={handleAvatarClick}
               className='absolute bottom-0 right-0.5 w-6.5 h-6.5 bg-background border border-border shadow-sm text-icon-secondary group-hover/avatar:bg-muted'
               aria-label='Change group avatar'
             />
@@ -73,7 +94,13 @@ export function GroupInfoOverviewStep({
             <h3 className='text-[18px] leading-tight font-bold text-foreground truncate whitespace-nowrap overflow-hidden max-w-55'>
               {getConversationDisplayName(conversation, 'Group', undefined, currentUserId)}
             </h3>
-            <ActionButton className='self-center' icon={<Pencil />} onClick={onRenameClick} size='sm' iconSize='sm' />
+            <ActionButton
+              className='self-center'
+              icon={<Pencil />}
+              onClick={handleRenameClick}
+              size='sm'
+              iconSize='sm'
+            />
           </div>
         </div>
         <Button
@@ -150,33 +177,40 @@ export function GroupInfoOverviewStep({
       </div>
 
       <div className='bg-background mt-1.5 border-y border-border/50 flex flex-col w-full'>
-        <ActionMenuItem
-          as='div'
-          icon={
-            <svg
-              width='20'
-              height='20'
-              viewBox='0 0 24 24'
-              fill='none'
-              stroke='currentColor'
-              strokeWidth='1.5'
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              className='rotate-45'
-            >
-              <path d='m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.51a2 2 0 0 1-2.83-2.83l8.49-8.48' />
-            </svg>
-          }
-          label={text.groupLink}
-          subLabel={`https://zalo.me/g/zvime${conversation.id.slice(0, 5)}`}
-          rightElement={
-            <div className='flex items-center gap-2'>
-              <ActionButton icon={<Copy />} />
-              <ActionButton icon={<Forward />} />
-            </div>
-          }
-          className='hover:bg-transparent'
-        />
+        {conversation.settings?.joinByLinkEnabled && conversation.joinLinkToken && (
+          <ActionMenuItem
+            as='div'
+            icon={
+              <svg
+                width='20'
+                height='20'
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='currentColor'
+                strokeWidth='1.5'
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                className='rotate-45'
+              >
+                <path d='m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.51a2 2 0 0 1-2.83-2.83l8.49-8.48' />
+              </svg>
+            }
+            label={text.groupLink}
+            subLabel={`${window.location.origin}/g/${conversation.joinLinkToken}`}
+            rightElement={
+              <div className='flex items-center gap-2'>
+                <ActionButton
+                  icon={<Copy />}
+                  onClick={() => {
+                    navigator.clipboard.writeText(`${window.location.origin}/g/${conversation.joinLinkToken}`)
+                  }}
+                />
+                <ActionButton icon={<Forward />} />
+              </div>
+            }
+            className='hover:bg-transparent'
+          />
+        )}
 
         <ActionMenuItem icon={<Settings />} label={text.management} onClick={onOpenManagement} showDivider={true} />
         <ActionMenuItem

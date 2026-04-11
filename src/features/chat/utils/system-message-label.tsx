@@ -137,7 +137,7 @@ export function getSystemMessageLabel(
 
       return (
         <span className='inline text-left'>
-          {action === 'UPDATE_NAME' && (
+          {(action === 'UPDATE_NAME' || action === 'UPDATE_AVATAR' || action === 'UPDATE_SETTINGS') && (
             <Pencil className='inline-block w-3 h-3 mb-0.5 mr-1 text-green-500 cursor-pointer' />
           )}
           <Trans

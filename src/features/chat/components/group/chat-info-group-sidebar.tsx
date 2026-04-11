@@ -19,7 +19,7 @@ export function ChatInfoGroupSidebar({
   managementOpenSignal
 }: ChatInfoGroupSidebarProps) {
   const { user } = useAuth()
-  const [step, setStep] = useState<'info' | 'management' | 'members'>('info')
+  const [step, setStep] = useState<'info' | 'management' | 'members' | 'admins' | 'blocked'>('info')
   const [lastManagementOpenSignal, setLastManagementOpenSignal] = useState<number>(managementOpenSignal ?? 0)
 
   const currentMember = conversation.members?.find((m) => m.userId === user?.id)
@@ -30,13 +30,14 @@ export function ChatInfoGroupSidebar({
     setStep('management')
   }
 
-  if (step === 'management' || step === 'members') {
+  if (step === 'management' || step === 'members' || step === 'admins' || step === 'blocked') {
     return (
       <GroupSubStep
         conversation={conversation}
         currentUserRole={currentUserRole}
         step={step}
         onBack={() => setStep('info')}
+        onStepChange={setStep}
       />
     )
   }

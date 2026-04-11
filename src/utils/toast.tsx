@@ -21,3 +21,17 @@ export const showLoadingToast = (message: string) => {
     className: 'sonner-toast-center'
   })
 }
+
+export const showWarningToast = (message: string, duration: number = 2000) => {
+  toast.custom(() => <CenteredToast message={message} type='warning' />, {
+    duration,
+    className: 'sonner-toast-center'
+  })
+}
+
+export const showSimpleToast = (message: string, duration: number = 1500) => {
+  toast.custom(() => <CenteredToast message={message} type='none' />, {
+    duration,
+    className: 'sonner-toast-center'
+  })
+}

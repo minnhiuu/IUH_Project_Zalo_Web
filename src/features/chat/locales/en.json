@@ -14,7 +14,30 @@
     "type": {
       "image": "[Image]",
       "file": "[File]",
+      "link": "[Link]",
       "confirm": "Confirm"
+    },
+    "messageBubble": {
+      "reply": "Reply",
+      "forward": "Forward",
+      "like": "Like",
+      "share": "Share",
+      "copy": "Copy text",
+      "pinMessage": "Pin message",
+      "starMessage": "Star this message",
+      "selectMessages": "Select messages",
+      "viewDetails": "View details",
+      "otherOptions": "Other options",
+      "saveToMyDocuments": "Save to My Documents",
+      "createReminder": "Create reminder",
+      "delete": "Delete",
+      "more": "More",
+      "revoke": "Revoke",
+      "deleteForMe": "Delete only for me",
+      "forwarded": "Forwarded",
+      "revoked": "This message was revoked",
+      "image": "📷 Image",
+      "file": "📁 File"
     },
     "system": {
       "add_members": {
@@ -63,9 +86,37 @@
         "send_greeting": "Send greeting",
         "greeting_message": "Hi everyone! I just became the group owner 👋"
       },
+      "update_settings": {
+        "send_messages_restricted_self": "You only allowed group owner/admin to send messages in this group.",
+        "send_messages_restricted_other": "<actorBold>{{actor}}</actorBold> only allowed group owner/admin to send messages in this group.",
+        "send_messages_allowed_self": "You allowed everyone to send messages in this group.",
+        "send_messages_allowed_other": "<actorBold>{{actor}}</actorBold> allowed everyone to send messages in this group.",
+        "membership_approval_required": "Membership approval setting was changed to \"Required\".",
+        "membership_approval_none": "Membership approval setting was changed to \"None\".",
+        "join_by_link_enabled": "Join group via link has been enabled."
+      },
       "leave_group": {
         "self": "You left the group",
         "by_actor": "<actorBold>{{actor}}</actorBold> left the group"
+      },
+      "join_by_link": {
+        "self": "You joined the group via link",
+        "by_actor": "<actorBold>{{actor}}</actorBold> joined the group via link"
+      },
+      "generate_join_link": {
+        "self": "You created a group invite link",
+        "by_actor": "<actorBold>{{actor}}</actorBold> created a group invite link"
+      },
+      "refresh_join_link": {
+        "self": "You refreshed the group invite link. The old link is no longer valid.",
+        "by_actor": "<actorBold>{{actor}}</actorBold> refreshed the group invite link. The old link is no longer valid."
+      },
+      "join_link": {
+        "label": "Join group link",
+        "copy": "Copy link",
+        "share": "Forward",
+        "copied": "Copied",
+        "expired": "Group link updated. Review new link in group admin panel."
       },
       "group_tips": {
         "invite_cta": "Invite more friends",
@@ -82,6 +133,11 @@
       "message": "The group has been disbanded by the owner.",
       "cannotSendMessage": "You can no longer send messages to this group",
       "deleteAction": "Delete conversation"
+    },
+    "restricted": {
+      "onlyAdminCanSend": "Only <highlight>owner/admins</highlight> can send messages to this group.",
+      "cannotRename": "Only owner/admins can rename this group",
+      "cannotChangeAvatar": "Only owner/admins can change the group avatar"
     },
     "status": {
       "online": "Active now",
@@ -121,6 +177,48 @@
       "removeAvatar": "Remove Avatar",
       "addMembersTitle": "Add Members",
       "alreadyJoined": "Joined group"
+    },
+    "forward-dialog": {
+      "title": "Share",
+      "share_title": "Share Invite Link",
+      "searchPlaceholder": "Search...",
+      "selected": "Selected:",
+      "empty": "No conversations found",
+      "forward": "Forward",
+      "share": "Share",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "tabRecent": "Recent",
+      "tabGroups": "Groups",
+      "tabFriends": "Friends",
+      "labels": "Labels",
+      "forwardMessage": "Forward message",
+      "addDescription": "Add description..."
+    },
+    "join-group-dialog": {
+      "title": "Group Info",
+      "members_and_creator": "{{count}} members • Created by {{creator}}",
+      "members_only": "{{count}} members",
+      "waiting_room": "You're in the waiting room. Join to chat with everyone in the group.",
+      "join": "Join",
+      "joining": "Joining...",
+      "close": "Close",
+      "go_to_chat": "Go to conversation",
+      "link_invalid": "Invalid link",
+      "link_invalid_desc": "This group invite link does not exist or has expired.",
+      "link_disabled": "Link disabled",
+      "link_disabled_desc": "The admin has disabled joining via link.",
+      "error": "An error occurred",
+      "error_desc": "Unable to load group info."
+    },
+    "join-link-card": {
+      "group_label": "Group",
+      "default_name": "Group chat",
+      "member_count": "{{count}} members",
+      "click_to_join": "Click to join group",
+      "checking": "Checking...",
+      "link_not_exist": "Join link does not exist",
+      "unavailable": "Group link unavailable"
     },
     "rename-group-dialog": {
       "title": "Set group name",
@@ -185,6 +283,20 @@
           "confirm": "Select and continue",
           "cancel": "Cancel",
           "searchPlaceholder": "Search members"
+        },
+        "owner": "Owner",
+        "admin": "Admin",
+        "delete": "Delete",
+        "addDeputy": "Add admin",
+        "transferOwner": "Change group owner",
+        "noBlockedMembers": "No blocked members",
+        "blockedMembersDesc": "Blocked users cannot rejoin the group, unless they are unblocked or added by the group owner or admins.",
+        "blockMember": "Add to block list",
+        "transferOwnerConfirm": {
+          "title": "Change group owner",
+          "description": "The chosen person will become the group owner and have all management rights. You will lose your management rights but still be a group member. This action cannot be undone.",
+          "confirm": "Continue",
+          "cancel": "Cancel"
         }
       }
     },

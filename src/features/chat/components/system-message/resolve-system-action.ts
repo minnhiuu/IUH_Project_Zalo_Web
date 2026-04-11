@@ -9,6 +9,10 @@ import { resolveUpdateNameAction } from './update-name-action'
 import { resolvePromoteAdminAction } from './promote-admin-action'
 import { resolveDemoteAdminAction } from './demote-admin-action'
 import { resolveTransferOwnerAction } from './transfer-owner-action'
+import { resolveUpdateSettingsAction } from './update-settings-action'
+import { resolveJoinByLinkAction } from './join-by-link-action'
+import { resolveGenerateJoinLinkAction } from './generate-join-link-action'
+import { resolveRefreshJoinLinkAction } from './refresh-join-link-action'
 
 export function resolveSystemAction(context: ActionContext): ActionResolveResult {
   const { metadata } = context
@@ -34,6 +38,14 @@ export function resolveSystemAction(context: ActionContext): ActionResolveResult
       return resolveDemoteAdminAction(context)
     case 'TRANSFER_OWNER':
       return resolveTransferOwnerAction(context)
+    case 'UPDATE_SETTINGS':
+      return resolveUpdateSettingsAction(context)
+    case 'JOIN_BY_LINK':
+      return resolveJoinByLinkAction(context)
+    case 'GENERATE_JOIN_LINK':
+      return resolveGenerateJoinLinkAction(context)
+    case 'REFRESH_JOIN_LINK':
+      return resolveRefreshJoinLinkAction(context)
     default:
       return {}
   }

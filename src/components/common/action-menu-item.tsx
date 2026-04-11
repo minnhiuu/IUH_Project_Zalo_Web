@@ -5,7 +5,7 @@ interface ActionMenuItemProps extends React.ButtonHTMLAttributes<HTMLButtonEleme
   icon: React.ReactNode
   label: string
   labelRightElement?: React.ReactNode
-  subLabel?: string
+  subLabel?: React.ReactNode
   rightElement?: React.ReactNode
   as?: 'button' | 'div'
   variant?: 'default' | 'destructive'

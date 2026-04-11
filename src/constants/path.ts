@@ -12,6 +12,8 @@ export const PATHS = {
     USER: '/chat/u/:id'
   },
 
+  JOIN_GROUP: '/g/:token',
+
   AUTH: {
     LOGIN: '/login',
     REGISTER: '/register',

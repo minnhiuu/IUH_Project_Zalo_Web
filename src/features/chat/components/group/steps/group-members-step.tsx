@@ -2,6 +2,7 @@ import { UserPlus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { GroupMembersSection } from '../members/group-members-section'
 import type { GroupMemberRole } from '@/constants/enum'
+import type { GroupMemberListItemResponse } from '../../../schemas/chat.schema'
 
 interface GroupMembersStepProps {
   conversationId: string
@@ -12,6 +13,7 @@ interface GroupMembersStepProps {
   currentUserRole: GroupMemberRole
   onOpenAddMember: () => void
   onLeaveGroup: () => void
+  onMemberClick?: (member: GroupMemberListItemResponse) => void
 }
 
 export function GroupMembersStep({
@@ -22,7 +24,8 @@ export function GroupMembersStep({
   addFriendLabel,
   currentUserRole,
   onOpenAddMember,
-  onLeaveGroup
+  onLeaveGroup,
+  onMemberClick
 }: GroupMembersStepProps) {
   return (
     <div className='flex flex-col h-full bg-background'>
@@ -41,6 +44,7 @@ export function GroupMembersStep({
           addFriendLabel={addFriendLabel}
           currentUserRole={currentUserRole}
           onLeaveGroup={onLeaveGroup}
+          onMemberClick={onMemberClick}
         />
       </div>
     </div>
