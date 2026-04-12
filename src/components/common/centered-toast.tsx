@@ -19,12 +19,7 @@ export function CenteredToast({ message, type = 'success' }: CenteredToastProps)
   const Icon = type === 'success' ? Check : type === 'error' ? X : type === 'warning' ? CircleAlert : Loader2
 
   return (
-    <div
-      className={cn(
-        'centered-toast-content',
-        type === 'error' && 'centered-toast-content--error'
-      )}
-    >
+    <div className={cn('centered-toast-content', type === 'error' && 'centered-toast-content--error')}>
       <div
         className={cn(
           'centered-toast-icon-circle',

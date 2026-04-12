@@ -76,7 +76,7 @@
         "by_actor": "<bold>{{target}}</bold> is no longer an admin of a group"
       },
       "transfer_owner": {
-        "by_you": "You transferred ownership to <bold>{{target}}</bold>",
+        "by_you": "You appointed <bold>{{target}}</bold> as the new group owner",
         "self_promoted": "You are now the group owner",
         "by_actor": "<bold>{{target}}</bold> is now the group owner",
         "card_title": "You have been appointed as the new group owner",
@@ -195,7 +195,8 @@
       "changeAvatar": "Change Avatar",
       "removeAvatar": "Remove Avatar",
       "addMembersTitle": "Add Members",
-      "alreadyJoined": "Joined group"
+      "alreadyJoined": "Joined group",
+      "alreadyAdmin": "Already an admin"
     },
     "forward-dialog": {
       "title": "Share",
@@ -241,7 +242,7 @@
       "media": "Photos/Videos",
       "noMedia": "No shared image in this group",
       "sendMessage": "Chat",
-      "adminOnlyBanner": "Feature for owner & admin only",
+      "adminOnlyBanner": "Only Adminstrators can access these settings",
       "copied": "Copied",
       "share": "Forward",
       "groupLink": "Group link",
@@ -303,6 +304,7 @@
         "admin": "Admin",
         "delete": "Delete",
         "addDeputy": "Add admin",
+        "adjustDeputy": "Adjust deputies",
         "transferOwner": "Change group owner",
         "noBlockedMembers": "No blocked members",
         "blockedMembersDesc": "Blocked users cannot rejoin the group, unless they are unblocked or added by the group owner or admins.",
@@ -319,11 +321,17 @@
           "confirm": "Disable link",
           "cancel": "Cancel"
         },
-        "transferOwnerConfirm": {
-          "title": "Change group owner",
-          "description": "The chosen person will become the group owner and have all management rights. You will lose your management rights but still be a group member. This action cannot be undone.",
+        "transferOwnerWarning": {
+          "title": "Transfer group owner",
+          "description": "Selected person will become group owner and have all management rights. You will lose management rights but still be a group member. This action cannot be undone.",
           "confirm": "Continue",
           "cancel": "Cancel"
+        },
+        "transferOwnerFinal": {
+          "title": "Confirm new owner selection",
+          "description": "After change, {{name}} will become the new owner and you will become a normal member.",
+          "confirm": "Confirm",
+          "cancel": "No"
         }
       }
     },

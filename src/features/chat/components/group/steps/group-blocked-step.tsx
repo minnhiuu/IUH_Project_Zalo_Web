@@ -50,9 +50,7 @@ export function GroupBlockedStep({ currentUserRole, conversationId }: GroupBlock
     <div className='flex flex-col h-full bg-background'>
       <ScrollArea className='flex-1'>
         <div className='p-4 space-y-4'>
-          <p className='text-[14px] leading-relaxed text-muted-foreground/80 px-1'>
-            {labels.blockedMembersDesc}
-          </p>
+          <p className='text-[14px] leading-relaxed text-muted-foreground/80 px-1'>{labels.blockedMembersDesc}</p>
 
           {isOwnerOrAdmin && (
             <Button
@@ -66,9 +64,7 @@ export function GroupBlockedStep({ currentUserRole, conversationId }: GroupBlock
           {blockedMembers.length > 0 ? (
             <div className='flex flex-col space-y-4 pt-2'>
               <Separator className='opacity-50' />
-              <h3 className='text-[14.5px] font-bold px-1'>
-                Blocked members ({blockedMembers.length})
-              </h3>
+              <h3 className='text-[14.5px] font-bold px-1'>Blocked members ({blockedMembers.length})</h3>
               <div className='space-y-3'>
                 {blockedMembers.map((member) => (
                   <div key={member.userId} className='flex items-center justify-between group px-1'>

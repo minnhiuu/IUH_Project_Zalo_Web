@@ -59,9 +59,7 @@ export function UpdateJoinQuestionDialog({
       hideFooterBorder
     >
       <div className='py-2 space-y-4'>
-        <p className='text-[14.5px] text-foreground/80 leading-relaxed px-1'>
-          {text.joinQuestionDesc}
-        </p>
+        <p className='text-[14.5px] text-foreground/80 leading-relaxed px-1'>{text.joinQuestionDesc}</p>
 
         <div className='space-y-2'>
           <CharacterCounterTextarea

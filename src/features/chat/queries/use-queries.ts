@@ -36,6 +36,20 @@ export const useGroupMembersInfinite = (conversationId: string, query: string, e
   })
 }
 
+export const useGroupAdminsInfiniteQuery = (conversationId: string, enabled: boolean = true) => {
+  return useInfiniteQuery({
+    ...chatOptions.groupAdmins(conversationId),
+    enabled: enabled && !!conversationId
+  })
+}
+
+export const useAdminCandidatesInfiniteQuery = (conversationId: string, query: string, enabled: boolean = true) => {
+  return useInfiniteQuery({
+    ...chatOptions.adminCandidates(conversationId, query),
+    enabled: enabled && !!conversationId
+  })
+}
+
 export const useJoinRequestsQuery = (conversationId: string, enabled: boolean = true) => {
   return useQuery({
     queryKey: chatKeys.joinRequests(conversationId),

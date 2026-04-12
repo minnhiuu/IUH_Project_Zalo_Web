@@ -7,6 +7,7 @@ import type {
   GroupConversationCreateRequest,
   SearchMemberResponse,
   GroupMemberListItemResponse,
+  AdminMemberResponse,
   GroupSettings,
   JoinGroupPreviewResponse,
   JoinRequestResponse
@@ -193,7 +194,32 @@ export const demoteFromAdminApi = async (
 
 export const transferOwnerApi = async (conversationId: string, targetUserId: string): Promise<ConversationResponse> => {
   const response = await http.patch<ApiResponse<ConversationResponse>>(
-    `/messages/conversations/${conversationId}/members/${targetUserId}/transfer-owner`
+    `/messages/conversations/${conversationId}/transfer-owner/${targetUserId}`
+  )
+  return response.data.data
+}
+
+export const getGroupAdminsApi = async (
+  conversationId: string,
+  page = 0,
+  size = 20
+): Promise<PageResponse<AdminMemberResponse>> => {
+  const response = await http.get<ApiResponse<PageResponse<AdminMemberResponse>>>(
+    `/messages/conversations/${conversationId}/group-admins`,
+    { params: { page, size } }
+  )
+  return response.data.data
+}
+
+export const getAdminCandidatesApi = async (
+  conversationId: string,
+  query?: string,
+  page = 0,
+  size = 20
+): Promise<PageResponse<AdminMemberResponse>> => {
+  const response = await http.get<ApiResponse<PageResponse<AdminMemberResponse>>>(
+    `/messages/conversations/${conversationId}/admin-candidates`,
+    { params: { query, page, size } }
   )
   return response.data.data
 }

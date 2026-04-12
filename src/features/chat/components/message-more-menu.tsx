@@ -52,13 +52,7 @@ export function MessageMoreMenu({ side, text, messageContent, isOwn, onDeleteFor
       </DropdownMenuSub>
 
       {isOwn && onRevoke && (
-        <ActionMenuItem
-          icon={<RotateCcw />}
-          label={text.revoke}
-          variant='destructive'
-          showDivider
-          onClick={onRevoke}
-        />
+        <ActionMenuItem icon={<RotateCcw />} label={text.revoke} variant='destructive' showDivider onClick={onRevoke} />
       )}
 
       <ActionMenuItem

@@ -153,15 +153,13 @@ export function ChatInfoSections({
                           showSimpleToast('Đã sao chép')
                         }}
                       />
-                      <ActionButton
-                        icon={<Forward />}
-                        onClick={onShareLink}
-                      />
+                      <ActionButton icon={<Forward />} onClick={onShareLink} />
                     </div>
                   }
                 />
               ) : (
-                joinByLinkEnabled && onGenerateJoinLink && (
+                joinByLinkEnabled &&
+                onGenerateJoinLink && (
                   <button
                     type='button'
                     disabled={isReadOnly || isGenerating}

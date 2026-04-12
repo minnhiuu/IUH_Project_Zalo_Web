@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+// test
 import {
   markAsRead,
   sendMessageApi,
@@ -249,6 +250,8 @@ export const useAddMembersMutation = () => {
       queryClient.invalidateQueries({ queryKey: chatKeys.messages(variables.conversationId) })
       queryClient.invalidateQueries({ queryKey: chatKeys.friendsDirectory(variables.conversationId) })
       queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'search-members'] })
+      queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'group-members', variables.conversationId] })
+      queryClient.invalidateQueries({ queryKey: chatKeys.groupAdmins(variables.conversationId) })
     },
     onError: (error) => {
       console.error('Failed to add members to group', error)
@@ -278,6 +281,8 @@ export const useRemoveMemberFromGroupMutation = () => {
       updateConversationInList(updatedConv)
       queryClient.invalidateQueries({ queryKey: chatKeys.messages(variables.conversationId) })
       queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'group-members', variables.conversationId] })
+      queryClient.invalidateQueries({ queryKey: chatKeys.groupAdmins(variables.conversationId) })
+      queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'admin-candidates'] })
     },
     onError: (error) => {
       console.error('Failed to remove member from group', error)
@@ -298,6 +303,8 @@ export const usePromoteToAdminMutation = () => {
       queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
       queryClient.invalidateQueries({ queryKey: chatKeys.messages(variables.conversationId) })
       queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'group-members', variables.conversationId] })
+      queryClient.invalidateQueries({ queryKey: chatKeys.groupAdmins(variables.conversationId) })
+      queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'admin-candidates'] })
     },
     onError: (error) => {
       console.error('Failed to promote member to admin', error)
@@ -318,6 +325,8 @@ export const useDemoteFromAdminMutation = () => {
       queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
       queryClient.invalidateQueries({ queryKey: chatKeys.messages(variables.conversationId) })
       queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'group-members', variables.conversationId] })
+      queryClient.invalidateQueries({ queryKey: chatKeys.groupAdmins(variables.conversationId) })
+      queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'admin-candidates'] })
     },
     onError: (error) => {
       console.error('Failed to demote admin', error)
@@ -338,6 +347,8 @@ export const useTransferOwnerMutation = () => {
       queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
       queryClient.invalidateQueries({ queryKey: chatKeys.messages(variables.conversationId) })
       queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'group-members', variables.conversationId] })
+      queryClient.invalidateQueries({ queryKey: chatKeys.groupAdmins(variables.conversationId) })
+      queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'admin-candidates'] })
     },
     onError: (error) => {
       console.error('Failed to transfer group owner', error)
@@ -413,7 +424,7 @@ export const useJoinByLinkMutation = () => {
     onSuccess: (newConv, variables) => {
       queryClient.invalidateQueries({ queryKey: chatKeys.joinPreview(variables.token) })
       queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
-      
+
       if (!newConv) return
       queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
         if (!oldData) return [newConv]
@@ -431,13 +442,8 @@ export const useUpdateJoinQuestionMutation = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({
-      conversationId,
-      question
-    }: {
-      conversationId: string
-      question: string
-    }) => updateJoinQuestionApi(conversationId, question),
+    mutationFn: ({ conversationId, question }: { conversationId: string; question: string }) =>
+      updateJoinQuestionApi(conversationId, question),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
     },
@@ -459,6 +465,7 @@ export const useBlockMembersMutation = () => {
         return oldData.map((conv) => (conv.id === updatedConv.id ? updatedConv : conv))
       })
       queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'group-members', variables.conversationId] })
+      queryClient.invalidateQueries({ queryKey: chatKeys.groupAdmins(variables.conversationId) })
       queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'blocked-members', variables.conversationId] })
     },
     onError: (error) => {
@@ -481,6 +488,8 @@ export const useApproveJoinRequestMutation = () => {
       queryClient.invalidateQueries({ queryKey: chatKeys.joinRequests(variables.conversationId) })
       queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
       queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'group-members', variables.conversationId] })
+      queryClient.invalidateQueries({ queryKey: chatKeys.groupAdmins(variables.conversationId) })
+      queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'admin-candidates'] })
     },
     onError: (error) => {
       console.error('Failed to approve join request', error)

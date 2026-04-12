@@ -14,10 +14,7 @@ export interface CharacterCounterTextareaProps extends React.ComponentProps<type
 }
 
 const CharacterCounterTextarea = React.forwardRef<HTMLTextAreaElement, CharacterCounterTextareaProps>(
-  (
-    { maxLength, className, showCounter = true, counterClassName, charactersLabel, value, onChange, ...props },
-    ref
-  ) => {
+  ({ maxLength, className, showCounter = true, counterClassName, charactersLabel, value, onChange, ...props }, ref) => {
     const { t } = useTranslation('common')
     const [uncontrolledValue, setUncontrolledValue] = React.useState('')
     const displayValue = value !== undefined ? value : uncontrolledValue

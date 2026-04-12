@@ -64,9 +64,7 @@ export function JoinRequestApprovalDialog({ open, onOpenChange, conversationId }
                       <p className='text-[15px] font-bold text-foreground mb-1 leading-none'>{req.fullName}</p>
                       {req.joinAnswer && (
                         <div className='bg-muted/40 p-2.5 rounded-lg border border-border/40 mb-3'>
-                          <p className='text-[13px] text-foreground/80 leading-relaxed font-medium'>
-                            {req.joinAnswer}
-                          </p>
+                          <p className='text-[13px] text-foreground/80 leading-relaxed font-medium'>{req.joinAnswer}</p>
                         </div>
                       )}
                       <div className='flex items-center gap-2'>

@@ -77,14 +77,16 @@ export function GroupSubStep({ conversation, currentUserRole, step, onBack, onSt
             currentUserRole={currentUserRole}
             settings={conversation.settings}
             joinLinkToken={conversation.joinLinkToken}
-            memberCount={conversation.members?.length || 0}
-            pendingJoinRequestCount={conversation.pendingJoinRequestCount}
             onDisbandSuccess={onBack}
             onGoToAdmins={() => onStepChange('admins')}
             onGoToBlocked={() => onStepChange('blocked')}
           />
         ) : step === 'admins' ? (
-          <GroupAdminsStep conversation={conversation} currentUserRole={currentUserRole} />
+          <GroupAdminsStep
+            conversation={conversation}
+            currentUserRole={currentUserRole}
+            onSuccess={() => onStepChange('management')}
+          />
         ) : step === 'blocked' ? (
           <GroupBlockedStep currentUserRole={currentUserRole} conversationId={conversation.id} />
         ) : (

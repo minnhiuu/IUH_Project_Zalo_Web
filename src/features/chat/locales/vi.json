@@ -195,7 +195,8 @@
       "changeAvatar": "Đổi Ảnh",
       "removeAvatar": "Xoá Ảnh",
       "addMembersTitle": "Thêm thành viên",
-      "alreadyJoined": "Đã tham gia"
+      "alreadyJoined": "Đã tham gia",
+      "alreadyAdmin": "Đã là phó nhóm"
     },
     "forward-dialog": {
       "title": "Chia sẻ",
@@ -303,6 +304,7 @@
         "admin": "Phó nhóm",
         "delete": "Xóa",
         "addDeputy": "Thêm phó nhóm",
+        "adjustDeputy": "Điều chỉnh phó nhóm",
         "transferOwner": "Chuyển quyền trưởng nhóm",
         "noBlockedMembers": "Chưa có thành viên nào bị chặn",
         "blockedMembersDesc": "Những người đã bị chặn không thể tham gia lại nhóm, trừ khi được trưởng, phó nhóm bỏ chặn hoặc thêm lại vào nhóm.",
@@ -319,11 +321,17 @@
           "confirm": "Khóa link",
           "cancel": "Hủy"
         },
-        "transferOwnerConfirm": {
+        "transferOwnerWarning": {
           "title": "Chuyển quyền trưởng nhóm",
           "description": "Người được chọn sẽ trở thành trưởng nhóm và có mọi quyền quản lý nhóm. Bạn sẽ mất quyền quản lý nhưng vẫn là một thành viên của nhóm. Hành động này không thể phục hồi.",
           "confirm": "Tiếp tục",
           "cancel": "Hủy"
+        },
+        "transferOwnerFinal": {
+          "title": "Xác nhận chọn trưởng nhóm mới",
+          "description": "Sau khi thay đổi {{name}} sẽ trở thành trưởng nhóm mới và bạn sẽ trở thành một thành viên bình thường.",
+          "confirm": "Xác nhận",
+          "cancel": "Không"
         }
       }
     },

@@ -209,7 +209,7 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
                     deleteConversation(conversation.id)
                   }
                 }}
-                className='text-information hover:underline font-medium whitespace-nowrap'
+                className='text-information hover:underline font-medium whitespace-nowrap cursor-pointer'
               >
                 {t('chat.disbanded.deleteAction')}
               </button>
@@ -217,7 +217,7 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
             {isJoinRequestCreated && (
               <button
                 onClick={() => setIsJoinRequestDialogOpen(true)}
-                className='text-information hover:underline font-medium whitespace-nowrap'
+                className='text-information hover:underline font-medium whitespace-nowrap cursor-pointer'
               >
                 {t('chat.joinRequestDialog.detail')}
               </button>

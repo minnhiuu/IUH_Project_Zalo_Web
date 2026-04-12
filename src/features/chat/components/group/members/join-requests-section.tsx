@@ -37,9 +37,7 @@ export function JoinRequestsSection({ requests, onAccept, onReject }: JoinReques
                   <span className='text-[15px] font-bold text-foreground truncate'>{req.fullName}</span>
                   {req.joinAnswer && (
                     <div className='mt-2 bg-muted/30 border border-border/50 rounded-lg px-3 py-2'>
-                      <p className='text-[13.5px] text-foreground/80 leading-normal break-words'>
-                        {req.joinAnswer}
-                      </p>
+                      <p className='text-[13.5px] text-foreground/80 leading-normal break-words'>{req.joinAnswer}</p>
                     </div>
                   )}
                 </div>

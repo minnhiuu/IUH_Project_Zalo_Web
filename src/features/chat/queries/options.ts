@@ -4,6 +4,8 @@ import {
   getMessages,
   getFriendsDirectory,
   getGroupMembersApi,
+  getGroupAdminsApi,
+  getAdminCandidatesApi,
   searchMembersToAdd,
   getJoinPreviewApi
 } from '../api/chat.api'
@@ -59,6 +61,24 @@ export const chatOptions = {
       ...QUERY_POLICIES.LIST,
       queryKey: chatKeys.groupMembers(conversationId, query),
       queryFn: ({ pageParam = 0 }) => getGroupMembersApi(conversationId, { query, page: pageParam as number, size }),
+      initialPageParam: 0,
+      getNextPageParam: (lastPage) => (lastPage.page + 1 < lastPage.totalPages ? lastPage.page + 1 : undefined),
+      enabled: !!conversationId
+    }),
+  groupAdmins: (conversationId: string, size = 20) =>
+    infiniteQueryOptions({
+      ...QUERY_POLICIES.LIST,
+      queryKey: chatKeys.groupAdmins(conversationId),
+      queryFn: ({ pageParam = 0 }) => getGroupAdminsApi(conversationId, pageParam as number, size),
+      initialPageParam: 0,
+      getNextPageParam: (lastPage) => (lastPage.page + 1 < lastPage.totalPages ? lastPage.page + 1 : undefined),
+      enabled: !!conversationId
+    }),
+  adminCandidates: (conversationId: string, query: string, size = 20) =>
+    infiniteQueryOptions({
+      ...QUERY_POLICIES.LIST,
+      queryKey: chatKeys.adminCandidates(conversationId, query),
+      queryFn: ({ pageParam = 0 }) => getAdminCandidatesApi(conversationId, query, pageParam as number, size),
       initialPageParam: 0,
       getNextPageParam: (lastPage) => (lastPage.page + 1 < lastPage.totalPages ? lastPage.page + 1 : undefined),
       enabled: !!conversationId

@@ -4,10 +4,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { useFriendsDirectory, useSearchMembersInfinite } from '../../../queries/use-queries'
+import {
+  useFriendsDirectory,
+  useSearchMembersInfinite,
+  useAdminCandidatesInfiniteQuery
+} from '../../../queries/use-queries'
 import { MemberItem } from '../members/member-item'
 import { SelectedMemberSidebar } from '../members/selected-member-sidebar'
-import type { SearchMemberResponse } from '../../../schemas/chat.schema'
+import type { SearchMemberResponse, AdminMemberResponse } from '../../../schemas/chat.schema'
 import { useChatText } from '../../../i18n/use-chat-text'
 import { cn } from '@/lib/utils'
 import type { PageResponse } from '@/shared/api'
@@ -24,6 +28,7 @@ interface MemberSelectionDialogProps {
   initialSelectedIds?: string[]
   singleSelection?: boolean
   staticMembers?: SearchMemberResponse[]
+  type?: 'friends' | 'admin-candidates'
 }
 
 export function MemberSelectionDialog({ isOpen, onClose, ...props }: MemberSelectionDialogProps) {
@@ -49,7 +54,8 @@ function MemberSelectionContent({
   isPending = false,
   initialSelectedIds = [],
   singleSelection = false,
-  staticMembers
+  staticMembers,
+  type = 'friends'
 }: Omit<MemberSelectionDialogProps, 'isOpen'>) {
   const { text } = useChatText()
   const tg = text['create-group-dialog']
@@ -57,8 +63,17 @@ function MemberSelectionContent({
   const [search, setSearch] = useState('')
   const [selectedIds, setSelectedIds] = useState<string[]>(initialSelectedIds)
 
-  const { data: friendsData } = useFriendsDirectory(conversationId, !staticMembers)
-  const { data: searchData } = useSearchMembersInfinite(search, conversationId, !!search && !staticMembers)
+  const { data: friendsData } = useFriendsDirectory(conversationId, !staticMembers && type === 'friends')
+  const { data: searchData } = useSearchMembersInfinite(
+    search,
+    conversationId,
+    !!search && !staticMembers && type === 'friends'
+  )
+  const { data: adminCandidatesData } = useAdminCandidatesInfiniteQuery(
+    conversationId!,
+    search,
+    !staticMembers && type === 'admin-candidates'
+  )
 
   const friends = useMemo(() => {
     if (!friendsData) return []
@@ -77,18 +92,33 @@ function MemberSelectionContent({
     return staticMembers.filter((m) => m.fullName.toLowerCase().includes(s))
   }, [staticMembers, search])
 
+  const adminCandidates = useMemo(() => {
+    if (!adminCandidatesData) return []
+    return adminCandidatesData.pages.flatMap((page) =>
+      (page.data || []).map((m: AdminMemberResponse) => ({
+        userId: m.userId,
+        fullName: m.fullName,
+        avatar: m.avatar,
+        isAlreadyMember: m.role === 'ADMIN'
+      }))
+    ) as SearchMemberResponse[]
+  }, [adminCandidatesData])
+
   const displayMembers = useMemo(() => {
     if (staticMembers) return filteredStaticMembers
+    if (type === 'admin-candidates') return adminCandidates
     return search ? searchResults : friends
-  }, [staticMembers, filteredStaticMembers, search, searchResults, friends])
+  }, [staticMembers, filteredStaticMembers, search, searchResults, friends, type, adminCandidates])
 
   const selectedMembers = useMemo(() => {
-    const allAvailable = staticMembers ? staticMembers : [...friends, ...searchResults]
+    const allAvailable: SearchMemberResponse[] = staticMembers
+      ? staticMembers
+      : [...friends, ...searchResults, ...adminCandidates]
     return selectedIds
-      .map((id) => allAvailable.find((m) => m.userId === id))
-      .filter((m): m is SearchMemberResponse => !!m)
-      .filter((m, index, self) => self.findIndex((t) => t.userId === m.userId) === index)
-  }, [staticMembers, friends, searchResults, selectedIds])
+      .map((id) => allAvailable.find((member) => member.userId === id))
+      .filter((member): member is SearchMemberResponse => !!member)
+      .filter((member, index, self) => self.findIndex((target) => target.userId === member.userId) === index)
+  }, [staticMembers, friends, searchResults, adminCandidates, selectedIds])
 
   const handleToggle = (userId: string) => {
     if (singleSelection) {
@@ -152,6 +182,7 @@ function MemberSelectionContent({
                       isSelected={selectedIds.includes(member.userId)}
                       onToggle={() => handleToggle(member.userId)}
                       selectionMode={singleSelection ? 'radio' : 'checkbox'}
+                      showSubtitle={type !== 'admin-candidates'}
                     />
                   ))
                 ) : (

@@ -162,11 +162,20 @@ export const GroupMemberListItemResponseSchema = z.object({
 
 export type GroupMemberListItemResponse = z.infer<typeof GroupMemberListItemResponseSchema>
 
+export const AdminMemberResponseSchema = z.object({
+  userId: z.string(),
+  fullName: z.string(),
+  avatar: z.string().nullable().optional(),
+  role: z.string().nullable().optional()
+})
+
+export type AdminMemberResponse = z.infer<typeof AdminMemberResponseSchema>
+
 export const SearchMemberResponseSchema = z.object({
   userId: z.string(),
   fullName: z.string(),
   avatar: z.string().nullable().optional(),
-  phoneNumber: z.string().nullable().optional(),
+  role: z.string().nullable().optional(),
   isAlreadyMember: z.boolean().default(false)
 })
 

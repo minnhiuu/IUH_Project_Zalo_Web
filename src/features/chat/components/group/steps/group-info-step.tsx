@@ -16,9 +16,7 @@ import { useAuth } from '@/features/auth'
 import { useDeleteConversationMutation } from '../../../queries/use-mutations'
 import { GroupMemberRole } from '@/constants/enum'
 import { getConversationDisplayName } from '../../../utils/group-name'
-import {
-  useGenerateJoinLinkMutation
-} from '../../../queries/use-mutations'
+import { useGenerateJoinLinkMutation } from '../../../queries/use-mutations'
 import { useChatContext } from '../../../context/chat-context'
 import { ForwardDialog } from '../../forward-dialog'
 

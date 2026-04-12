@@ -80,6 +80,7 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     removeAvatar: t(CHAT_KEYS['create-group-dialog'].removeAvatar),
     addMembersTitle: t(CHAT_KEYS['create-group-dialog'].addMembersTitle),
     alreadyJoined: t(CHAT_KEYS['create-group-dialog'].alreadyJoined),
+    alreadyAdmin: t(CHAT_KEYS['create-group-dialog'].alreadyAdmin),
     noResultsFound: t(CHAT_KEYS['create-group-dialog'].noResultsFound),
     noFriendsFound: t(CHAT_KEYS['create-group-dialog'].noFriendsFound)
   },
@@ -215,6 +216,7 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
       admin: t(CHAT_KEYS['group-info-dialog'].actions.admin),
       delete: t(CHAT_KEYS['group-info-dialog'].actions.delete),
       addDeputy: t(CHAT_KEYS['group-info-dialog'].actions.addDeputy),
+      adjustDeputy: t(CHAT_KEYS['group-info-dialog'].actions.adjustDeputy),
       transferOwner: t(CHAT_KEYS['group-info-dialog'].actions.transferOwner),
       noBlockedMembers: t(CHAT_KEYS['group-info-dialog'].actions.noBlockedMembers),
       blockedMembersDesc: t(CHAT_KEYS['group-info-dialog'].actions.blockedMembersDesc),
@@ -231,11 +233,17 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
         confirm: t(CHAT_KEYS['group-info-dialog'].actions.disableLinkDialog.confirm),
         cancel: t(CHAT_KEYS['group-info-dialog'].actions.disableLinkDialog.cancel)
       },
-      transferOwnerConfirm: {
-        title: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerConfirm.title),
-        description: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerConfirm.description),
-        confirm: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerConfirm.confirm),
-        cancel: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerConfirm.cancel)
+      transferOwnerWarning: {
+        title: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerWarning.title),
+        description: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerWarning.description),
+        confirm: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerWarning.confirm),
+        cancel: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerWarning.cancel)
+      },
+      transferOwnerFinal: {
+        title: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerFinal.title),
+        description: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerFinal.description),
+        confirm: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerFinal.confirm),
+        cancel: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerFinal.cancel)
       }
     }
   },

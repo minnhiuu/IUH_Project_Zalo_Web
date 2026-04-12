@@ -84,6 +84,7 @@ export const CHAT_KEYS = {
     removeAvatar: 'chat.create-group-dialog.removeAvatar',
     addMembersTitle: 'chat.create-group-dialog.addMembersTitle',
     alreadyJoined: 'chat.create-group-dialog.alreadyJoined',
+    alreadyAdmin: 'chat.create-group-dialog.alreadyAdmin',
     noResultsFound: 'chat.create-group-dialog.noResultsFound',
     noFriendsFound: 'chat.create-group-dialog.noFriendsFound'
   },
@@ -201,6 +202,7 @@ export const CHAT_KEYS = {
       admin: 'chat.group-info-dialog.actions.admin',
       delete: 'chat.group-info-dialog.actions.delete',
       addDeputy: 'chat.group-info-dialog.actions.addDeputy',
+      adjustDeputy: 'chat.group-info-dialog.actions.adjustDeputy',
       transferOwner: 'chat.group-info-dialog.actions.transferOwner',
       noBlockedMembers: 'chat.group-info-dialog.actions.noBlockedMembers',
       blockedMembersDesc: 'chat.group-info-dialog.actions.blockedMembersDesc',
@@ -217,11 +219,17 @@ export const CHAT_KEYS = {
         confirm: 'chat.group-info-dialog.actions.disableLinkDialog.confirm',
         cancel: 'chat.group-info-dialog.actions.disableLinkDialog.cancel'
       },
-      transferOwnerConfirm: {
-        title: 'chat.group-info-dialog.actions.transferOwnerConfirm.title',
-        description: 'chat.group-info-dialog.actions.transferOwnerConfirm.description',
-        confirm: 'chat.group-info-dialog.actions.transferOwnerConfirm.confirm',
-        cancel: 'chat.group-info-dialog.actions.transferOwnerConfirm.cancel'
+      transferOwnerWarning: {
+        title: 'chat.group-info-dialog.actions.transferOwnerWarning.title',
+        description: 'chat.group-info-dialog.actions.transferOwnerWarning.description',
+        confirm: 'chat.group-info-dialog.actions.transferOwnerWarning.confirm',
+        cancel: 'chat.group-info-dialog.actions.transferOwnerWarning.cancel'
+      },
+      transferOwnerFinal: {
+        title: 'chat.group-info-dialog.actions.transferOwnerFinal.title',
+        description: 'chat.group-info-dialog.actions.transferOwnerFinal.description',
+        confirm: 'chat.group-info-dialog.actions.transferOwnerFinal.confirm',
+        cancel: 'chat.group-info-dialog.actions.transferOwnerFinal.cancel'
       }
     }
   },
