@@ -83,7 +83,8 @@ export function MessageBubble({
       className={cn(
         'group/message-row flex w-full px-2 gap-2',
         isOwn ? 'justify-end' : 'justify-start',
-        isFirst ? 'mt-4' : 'mt-1'
+        isFirst ? 'mt-4' : 'mt-1',
+        hasReactions && 'mb-2'
       )}
     >
       {!isOwn && (
@@ -176,7 +177,7 @@ export function MessageBubble({
               <div
                 className={cn(
                   'absolute -bottom-2 right-0.5 z-10 group/like cursor-pointer',
-                  isOwn && 'hidden group-hover/message-row:flex'
+                  'hidden group-hover/message-row:flex'
                 )}
                 onMouseEnter={() => setIsLikeHovered(true)}
                 onMouseLeave={() => setIsLikeHovered(false)}
@@ -388,14 +389,16 @@ export function MessageBubble({
           }
         />
 
-        {isOwn && (
+        {isOwn && (() => {
+          const readers =
+            conversation?.members?.filter((m: ConversationMemberResponse) => m.lastReadMessageId === message.id) ||
+            []
+          const hasReaders = readers.length > 0
+          const hasContent = hasReaders || isNewest
+          if (!hasContent) return null
+          return (
           <div className='flex flex-col items-end mt-1'>
             {(() => {
-              const readers =
-                conversation?.members?.filter((m: ConversationMemberResponse) => m.lastReadMessageId === message.id) ||
-                []
-              const hasReaders = readers.length > 0
-
               return (
                 <>
                   {!hasReaders && isNewest && (
@@ -438,7 +441,8 @@ export function MessageBubble({
               )
             })()}
           </div>
-        )}
+          )
+        })()}
       </div>
     </div>
   )
