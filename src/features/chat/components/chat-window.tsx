@@ -186,7 +186,14 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
 
       if (metadata.action === 'REMOVE_MEMBER' && includesMe) return true
       if (metadata.action === 'LEAVE_GROUP' && String(msg.senderId || '') === String(user.id)) return true
-      if ((metadata.action === 'ADD_MEMBERS' || metadata.action === 'CREATE_GROUP') && includesMe) return false
+      if (
+        (metadata.action === 'ADD_MEMBERS' ||
+          metadata.action === 'CREATE_GROUP' ||
+          metadata.action === 'JOIN_REQUEST_APPROVED') &&
+        includesMe
+      )
+        return false
+      if (metadata.action === 'JOIN_BY_LINK' && String(msg.senderId || '') === String(user.id)) return false
     }
 
     return false
@@ -307,7 +314,11 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
                   !conversation.isGroup || isCloudConversation || !canChangeGroupInfo(conversation, user?.id || '')
                 }
                 onClick={(e) => {
-                  if (conversation.isGroup && !isCloudConversation && canChangeGroupInfo(conversation, user?.id || '')) {
+                  if (
+                    conversation.isGroup &&
+                    !isCloudConversation &&
+                    canChangeGroupInfo(conversation, user?.id || '')
+                  ) {
                     e.stopPropagation()
                     setIsRenameDialogOpen(true)
                   }

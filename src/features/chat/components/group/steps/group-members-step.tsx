@@ -51,7 +51,8 @@ export function GroupMembersStep({
               id: r.id,
               userId: r.userId,
               fullName: r.fullName,
-              avatar: r.avatar ?? ''
+              avatar: r.avatar ?? '',
+              joinAnswer: r.joinAnswer
             }))}
             onAccept={(req) => approveRequest({ conversationId, requestId: req.id })}
             onReject={(req) => rejectRequest({ conversationId, requestId: req.id })}

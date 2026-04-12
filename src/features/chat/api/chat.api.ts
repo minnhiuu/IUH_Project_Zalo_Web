@@ -219,9 +219,15 @@ export const generateJoinLinkApi = async (conversationId: string): Promise<strin
   return response.data.data
 }
 
-export const joinByLinkApi = async (token: string): Promise<ConversationResponse> => {
-  const response = await http.post<ApiResponse<ConversationResponse>>(`/messages/conversations/join/${token}`)
+export const joinByLinkApi = async (token: string, joinAnswer?: string): Promise<ConversationResponse> => {
+  const response = await http.post<ApiResponse<ConversationResponse>>(`/messages/conversations/join/${token}`, {
+    joinAnswer
+  })
   return response.data.data
+}
+
+export const updateJoinQuestionApi = async (conversationId: string, question: string): Promise<void> => {
+  await http.put(`/messages/conversations/${conversationId}/join-question`, { question })
 }
 
 export const getJoinPreviewApi = async (token: string): Promise<JoinGroupPreviewResponse> => {

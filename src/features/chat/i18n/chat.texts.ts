@@ -157,6 +157,15 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     share: t(CHAT_KEYS['group-info-dialog'].share),
     membersCount: (count: number) => t(CHAT_KEYS.status.membersCount, { count }),
     groupLink: t(CHAT_KEYS['group-info-dialog'].groupLink),
+    joinQuestion: t(CHAT_KEYS['group-info-dialog'].joinQuestion),
+    joinQuestionDesc: t(CHAT_KEYS['group-info-dialog'].joinQuestionDesc),
+    joinQuestionPlaceholder: t(CHAT_KEYS['group-info-dialog'].joinQuestionPlaceholder),
+    joinQuestionRequired: t(CHAT_KEYS['group-info-dialog'].joinQuestionRequired),
+    joinQuestionRequiredDesc: t(CHAT_KEYS['group-info-dialog'].joinQuestionRequiredDesc),
+    joinQuestionSetup: t(CHAT_KEYS['group-info-dialog'].joinQuestionSetup),
+    joinQuestionEdit: t(CHAT_KEYS['group-info-dialog'].joinQuestionEdit),
+    joinQuestionEmpty: t(CHAT_KEYS['group-info-dialog'].joinQuestionEmpty),
+    joinQuestionUpdateSuccess: t(CHAT_KEYS['group-info-dialog'].joinQuestionUpdateSuccess),
     memberPermissionsTitle: t(CHAT_KEYS['group-info-dialog'].memberPermissionsTitle),
     permissions: {
       updateNameAvatar: t(CHAT_KEYS['group-info-dialog'].permissions.updateNameAvatar),
@@ -306,7 +315,13 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     send_request: t(CHAT_KEYS['join-group-dialog'].send_request),
     cancel_request: t(CHAT_KEYS['join-group-dialog'].cancel_request),
     canceling: t(CHAT_KEYS['join-group-dialog'].canceling),
-    default_name: t(CHAT_KEYS['join-group-dialog'].default_name)
+    default_name: t(CHAT_KEYS['join-group-dialog'].default_name),
+    admin_question: t(CHAT_KEYS['join-group-dialog'].admin_question),
+    answer_placeholder: t(CHAT_KEYS['join-group-dialog'].answer_placeholder),
+    answer_required_toast: t(CHAT_KEYS['join-group-dialog'].answer_required_toast),
+    already_member: t(CHAT_KEYS['join-group-dialog'].already_member),
+    request_title: t(CHAT_KEYS['join-group-dialog'].request_title),
+    approval_required_desc: t(CHAT_KEYS['join-group-dialog'].approval_required_desc)
   },
   /** Trả về label dịch cho trạng thái pipeline AI theo ngôn ngữ hiện tại */
   aiStatusLabel: (status?: AiProcessingStatus): string => {

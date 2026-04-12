@@ -143,6 +143,15 @@ export const CHAT_KEYS = {
     copied: 'chat.group-info-dialog.copied',
     share: 'chat.group-info-dialog.share',
     groupLink: 'chat.group-info-dialog.groupLink',
+    joinQuestion: 'chat.group-info-dialog.joinQuestion',
+    joinQuestionDesc: 'chat.group-info-dialog.joinQuestionDesc',
+    joinQuestionPlaceholder: 'chat.group-info-dialog.joinQuestionPlaceholder',
+    joinQuestionRequired: 'chat.group-info-dialog.joinQuestionRequired',
+    joinQuestionRequiredDesc: 'chat.group-info-dialog.joinQuestionRequiredDesc',
+    joinQuestionSetup: 'chat.group-info-dialog.joinQuestionSetup',
+    joinQuestionEdit: 'chat.group-info-dialog.joinQuestionEdit',
+    joinQuestionEmpty: 'chat.group-info-dialog.joinQuestionEmpty',
+    joinQuestionUpdateSuccess: 'chat.group-info-dialog.joinQuestionUpdateSuccess',
     memberPermissionsTitle: 'chat.group-info-dialog.memberPermissionsTitle',
     permissions: {
       updateNameAvatar: 'chat.group-info-dialog.permissions.updateNameAvatar',
@@ -308,6 +317,12 @@ export const CHAT_KEYS = {
     send_request: 'chat.join-group-dialog.send_request',
     cancel_request: 'chat.join-group-dialog.cancel_request',
     canceling: 'chat.join-group-dialog.canceling',
-    default_name: 'chat.join-group-dialog.default_name'
+    default_name: 'chat.join-group-dialog.default_name',
+    admin_question: 'chat.join-group-dialog.admin_question',
+    answer_placeholder: 'chat.join-group-dialog.answer_placeholder',
+    answer_required_toast: 'chat.join-group-dialog.answer_required_toast',
+    already_member: 'chat.join-group-dialog.already_member',
+    request_title: 'chat.join-group-dialog.request_title',
+    approval_required_desc: 'chat.join-group-dialog.approval_required_desc'
   }
 } as const

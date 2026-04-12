@@ -214,22 +214,6 @@
       "forwardMessage": "Nội dung chuyển tiếp",
       "addDescription": "Thêm lời nhắn..."
     },
-    "join-group-dialog": {
-      "title": "Thông tin nhóm",
-      "members_and_creator": "{{count}} thành viên • Tạo bởi {{creator}}",
-      "members_only": "{{count}} thành viên",
-      "waiting_room": "Bạn đang ở phòng chờ. Tham gia để trò chuyện với mọi người trong nhóm.",
-      "join": "Tham gia",
-      "joining": "Đang tham gia...",
-      "close": "Đóng",
-      "go_to_chat": "Đi tới cuộc trò chuyện",
-      "link_invalid": "Link không hợp lệ",
-      "link_invalid_desc": "Link tham gia nhóm không tồn tại hoặc đã hết hạn.",
-      "link_disabled": "Link đã bị tắt",
-      "link_disabled_desc": "Quản trị viên đã tắt tính năng tham gia nhóm qua link.",
-      "error": "Đã xảy ra lỗi",
-      "error_desc": "Không thể tải thông tin nhóm."
-    },
     "join-link-card": {
       "group_label": "Nhóm",
       "default_name": "Nhóm chat",
@@ -275,6 +259,15 @@
         "allowNewMembersReadRecent": "Cho phép thành viên mới đọc tin nhắn gần nhất",
         "allowJoinByLink": "Cho phép dùng link tham gia nhóm"
       },
+      "joinQuestion": "Câu hỏi tham gia",
+      "joinQuestionDesc": "Thành viên mới phải trả lời câu hỏi này để gửi yêu cầu tham gia nhóm.",
+      "joinQuestionPlaceholder": "Nhập câu hỏi tại đây...",
+      "joinQuestionRequired": "Bắt buộc trả lời",
+      "joinQuestionRequiredDesc": "Thành viên không thể gửi yêu cầu nếu để trống",
+      "joinQuestionSetup": "Thiết lập",
+      "joinQuestionEdit": "Chỉnh sửa",
+      "joinQuestionEmpty": "Chưa thiết lập câu hỏi cho thành viên mới",
+      "joinQuestionUpdateSuccess": "Cập nhật câu hỏi thành công",
       "toggleTooltips": {
         "reviewNewMembers": "Khi bật, thành viên mới phải được Trưởng/ phó nhóm duyệt mới có thể tham gia nhóm.",
         "highlightAdminMessages": "Khi bật, tin nhắn từ Trưởng/ phó nhóm sẽ có ký hiệu chìa khóa.",
@@ -357,7 +350,13 @@
       "send_request": "Gửi yêu cầu tham gia",
       "cancel_request": "Rút yêu cầu",
       "canceling": "Đang rút...",
-      "default_name": "Nhóm mới"
+      "default_name": "Nhóm mới",
+      "admin_question": "Câu hỏi từ quản trị viên:",
+      "answer_placeholder": "Nhập câu trả lời của bạn...",
+      "answer_required_toast": "Vui lòng trả lời câu hỏi bắt buộc",
+      "already_member": "Bạn đã là thành viên của nhóm",
+      "request_title": "Yêu cầu tham gia",
+      "approval_required_desc": "Nhóm này đang bật duyệt thành viên. Bạn cần trả lời câu hỏi xét duyệt để có thể gửi yêu cầu tham gia."
     },
     "toasts": {
       "updating": "Đang cập nhật...",

@@ -7,6 +7,7 @@ interface JoinRequest {
   userId: string
   fullName: string
   avatar: string
+  joinAnswer?: string | null
 }
 
 interface JoinRequestsSectionProps {
@@ -30,9 +31,18 @@ export function JoinRequestsSection({ requests, onAccept, onReject }: JoinReques
         <div className='space-y-4'>
           {requests.map((req) => (
             <div key={req.id} className='flex flex-col gap-3'>
-              <div className='flex items-center gap-3'>
-                <UserAvatar src={req.avatar} name={req.fullName} className='w-12 h-12' />
-                <span className='text-[15px] font-bold text-foreground'>{req.fullName}</span>
+              <div className='flex items-start gap-3'>
+                <UserAvatar src={req.avatar} name={req.fullName} className='w-12 h-12 shrink-0' />
+                <div className='flex flex-col min-w-0 flex-1 pt-0.5'>
+                  <span className='text-[15px] font-bold text-foreground truncate'>{req.fullName}</span>
+                  {req.joinAnswer && (
+                    <div className='mt-2 bg-muted/30 border border-border/50 rounded-lg px-3 py-2'>
+                      <p className='text-[13.5px] text-foreground/80 leading-normal break-words'>
+                        {req.joinAnswer}
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
               <div className='flex gap-2 pl-[60px]'>
                 <Button

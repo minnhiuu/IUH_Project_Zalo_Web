@@ -4,6 +4,7 @@ import { Camera, Search, X, Loader2 } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { CharacterCounterInput } from '@/components/ui/character-counter-input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { BaseDialog } from '@/components/common/base-dialog'
 import { cn } from '@/lib/utils'
@@ -305,7 +306,8 @@ export function CreateGroupDialog({
                 )}
 
                 <div className='flex-1 relative overflow-hidden'>
-                  <Input
+                  <CharacterCounterInput
+                    maxLength={50}
                     placeholder={tg.namePlaceholder}
                     value={groupName}
                     onChange={(e) => setGroupName(e.target.value)}

@@ -21,7 +21,8 @@ import {
   blockMembersApi,
   approveJoinRequestApi,
   rejectJoinRequestApi,
-  cancelMyJoinRequestApi
+  cancelMyJoinRequestApi,
+  updateJoinQuestionApi
 } from '../api/chat.api'
 import { chatKeys } from './keys'
 import type { ConversationResponse, ChatMessageRequest, GroupSettings } from '../schemas/chat.schema'
@@ -408,8 +409,11 @@ export const useJoinByLinkMutation = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (token: string) => joinByLinkApi(token),
-    onSuccess: (newConv) => {
+    mutationFn: ({ token, joinAnswer }: { token: string; joinAnswer?: string }) => joinByLinkApi(token, joinAnswer),
+    onSuccess: (newConv, variables) => {
+      queryClient.invalidateQueries({ queryKey: chatKeys.joinPreview(variables.token) })
+      queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+      
       if (!newConv) return
       queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
         if (!oldData) return [newConv]
@@ -419,6 +423,26 @@ export const useJoinByLinkMutation = () => {
     },
     onError: (error) => {
       console.error('Failed to join group by link', error)
+    }
+  })
+}
+
+export const useUpdateJoinQuestionMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      conversationId,
+      question
+    }: {
+      conversationId: string
+      question: string
+    }) => updateJoinQuestionApi(conversationId, question),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+    },
+    onError: (error) => {
+      console.error('Failed to update join question', error)
     }
   })
 }
@@ -480,8 +504,16 @@ export const useRejectJoinRequestMutation = () => {
 }
 
 export const useCancelJoinRequestMutation = () => {
+  const queryClient = useQueryClient()
+
   return useMutation({
     mutationFn: (conversationId: string) => cancelMyJoinRequestApi(conversationId),
+    onSuccess: (_, conversationId) => {
+      // Invalidate preview queries (can't know the token easily here, so we invalidate all previews)
+      queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'join-preview'] })
+      queryClient.invalidateQueries({ queryKey: chatKeys.joinRequests(conversationId) })
+      queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+    },
     onError: (error) => {
       console.error('Failed to cancel join request', error)
     }

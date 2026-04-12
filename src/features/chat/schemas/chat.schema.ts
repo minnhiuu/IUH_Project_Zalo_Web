@@ -47,7 +47,8 @@ export const GroupSettingsSchema = z.object({
   membershipApprovalEnabled: z.boolean().default(false),
   highlightAdminMessages: z.boolean().default(true),
   newMembersCanReadRecent: z.boolean().default(true),
-  joinByLinkEnabled: z.boolean().default(false)
+  joinByLinkEnabled: z.boolean().default(false),
+  joinQuestion: z.string().nullable().optional()
 })
 
 export type GroupSettings = z.infer<typeof GroupSettingsSchema>
@@ -181,6 +182,7 @@ export interface JoinGroupPreviewResponse {
   isAlreadyMember: boolean
   membershipApprovalEnabled: boolean
   hasPendingRequest: boolean
+  joinQuestion: string | null
 }
 
 export interface JoinRequestResponse {
@@ -193,4 +195,5 @@ export interface JoinRequestResponse {
   requestedAt: string
   processedAt: string | null
   processedBy: string | null
+  joinAnswer: string | null
 }

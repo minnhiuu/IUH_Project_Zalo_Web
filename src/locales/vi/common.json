@@ -11,9 +11,13 @@
   },
   "ok": "OK",
   "cancel": "Huỷ",
+  "confirm": "Xác nhận",
+  "save": "Lưu",
+  "close": "Đóng",
   "loading": "Đang tải...",
   "pleaseWait": "Vui lòng chờ trong giây lát...",
   "error_toast_title": "Thất bại",
   "errorDefault": "Đã có lỗi xảy ra",
-  "errorContactAdmin": "Đã có lỗi xảy ra, vui lòng liên hệ admin"
+  "errorContactAdmin": "Đã có lỗi xảy ra, vui lòng liên hệ admin",
+  "characters": "ký tự"
 }

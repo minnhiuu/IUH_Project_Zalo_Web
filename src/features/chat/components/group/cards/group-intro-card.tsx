@@ -42,13 +42,18 @@ export function GroupIntroCard({
 
           <div className='w-full px-2 py-1'>
             {groupMembers.length > 0 && (
-              <div className='mt-3 grid grid-cols-4 gap-2.5 justify-items-center w-fit mx-auto'>
+              <div className='mt-5 flex flex-wrap justify-center gap-3.5 max-w-[260px] mx-auto'>
                 {visibleMembers.map((member) => (
-                  <UserAvatar key={member.id} src={member.avatar} name={member.name} className='w-12 h-12' />
+                  <UserAvatar
+                    key={member.id}
+                    src={member.avatar}
+                    name={member.name}
+                    className='w-12 h-12 shadow-sm shrink-0 '
+                  />
                 ))}
 
                 {remainingCount > 0 && (
-                  <div className='w-12 h-12 rounded-full border border-border bg-muted text-foreground/70 flex items-center justify-center text-sm font-medium'>
+                  <div className='w-12 h-12 rounded-full  bg-muted text-foreground/70 flex items-center justify-center text-sm font-semibold shadow-sm shrink-0'>
                     +{remainingCount}
                   </div>
                 )}

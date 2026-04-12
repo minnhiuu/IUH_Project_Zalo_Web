@@ -8,12 +8,20 @@ import { Button } from '@/components/ui/button'
 import { disbandGroupApi } from '../../../api/chat.api'
 import { GroupMemberRole } from '@/constants/enum'
 import { useUpdateGroupSettingsMutation, useRefreshJoinLinkMutation } from '../../../queries/use-mutations'
+import { UpdateJoinQuestionDialog } from '../dialogs/update-join-question-dialog'
 import { showSimpleToast } from '@/utils/toast'
 import type { GroupSettings } from '../../../schemas/chat.schema'
 import { useChatContext } from '../../../context/chat-context'
 import { ForwardDialog } from '../../forward-dialog'
 import { cn } from '@/lib/utils'
 interface GroupManagementStepText {
+  joinQuestion: string
+  joinQuestionDesc: string
+  joinQuestionPlaceholder: string
+  joinQuestionSetup: string
+  joinQuestionEdit: string
+  joinQuestionEmpty: string
+  joinQuestionUpdateSuccess: string
   memberPermissionsTitle: string
   permissions: {
     updateNameAvatar: string
@@ -98,6 +106,7 @@ export function GroupManagementStep({
   const [isRefreshDialogOpen, setIsRefreshDialogOpen] = useState(false)
   const [isDisableLinkDialogOpen, setIsDisableLinkDialogOpen] = useState(false)
   const [isShareLinkOpen, setIsShareLinkOpen] = useState(false)
+  const [isJoinQuestionDialogOpen, setIsJoinQuestionDialogOpen] = useState(false)
 
   const handleDisband = async () => {
     try {
@@ -240,6 +249,32 @@ export function GroupManagementStep({
               onCheckedChange={(v) => handleSettingChange('membershipApprovalEnabled', v)}
             />
           </div>
+
+          {settings?.membershipApprovalEnabled && !isReadOnly && (
+            <div className='flex flex-col py-3 border-b border-border/60 gap-2'>
+              <div className='flex items-center justify-between'>
+                <span className='text-[14px] font-semibold text-foreground'>{text.joinQuestion}</span>
+                <Button
+                  variant='ghost'
+                  size='sm'
+                  className='h-7 text-[12px] font-medium text-primary hover:text-primary/80 px-2'
+                  onClick={() => setIsJoinQuestionDialogOpen(true)}
+                >
+                  {settings?.joinQuestion ? text.joinQuestionEdit : text.joinQuestionSetup}
+                </Button>
+              </div>
+              {settings?.joinQuestion ? (
+                <div className='flex items-baseline gap-1.5 px-1'>
+                  <p className='text-[13px] text-foreground/70 leading-relaxed line-clamp-3'>{settings.joinQuestion}</p>
+                  <span className='text-destructive text-[12px] font-bold shrink-0' title='Bắt buộc'>
+                    *
+                  </span>
+                </div>
+              ) : (
+                <p className='text-[12px] text-muted-foreground/40 px-1 italic'>{text.joinQuestionEmpty}</p>
+              )}
+            </div>
+          )}
 
           <div className='flex items-center justify-between gap-3 py-3 border-b border-border/60'>
             <div
@@ -412,6 +447,13 @@ export function GroupManagementStep({
           }}
         />
       )}
+
+      <UpdateJoinQuestionDialog
+        open={isJoinQuestionDialogOpen}
+        onOpenChange={setIsJoinQuestionDialogOpen}
+        conversationId={conversationId}
+        initialQuestion={settings?.joinQuestion}
+      />
     </div>
   )
 }

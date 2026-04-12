@@ -363,15 +363,27 @@ export const useChatWebSocket = () => {
                 )
               })
 
-              // Keep opened members sidebar in sync without a dedicated topic.
-              queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'group-members', newConv.id] })
-              // Invalidate friends directory so "Add Members" dialog reflects current membership
-              queryClient.invalidateQueries({ queryKey: chatKeys.friendsDirectory(newConv.id) })
+              // Real-time updates for group-related sidebars
+              if (newConv.id) {
+                queryClient.invalidateQueries({ queryKey: chatKeys.groupMembers(newConv.id, '') })
+                queryClient.invalidateQueries({ queryKey: chatKeys.joinRequests(newConv.id) })
+                queryClient.invalidateQueries({ queryKey: chatKeys.friendsDirectory(newConv.id) })
+              }
             } else if (rawConv.type === 'REFRESH') {
               queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+              queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'join-requests'] })
             }
           } catch (error) {
             console.error('[Socket] Error handling conversation update:', error)
+            queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+          }
+        })
+
+        // ────────── /queue/join-requests ──────────
+        client.subscribe('/user/queue/join-requests', (payload) => {
+          const update = JSON.parse(payload.body)
+          if (update.conversationId) {
+            queryClient.invalidateQueries({ queryKey: chatKeys.joinRequests(update.conversationId) })
             queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
           }
         })

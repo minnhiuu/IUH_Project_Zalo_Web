@@ -214,22 +214,6 @@
       "forwardMessage": "Forward message",
       "addDescription": "Add description..."
     },
-    "join-group-dialog": {
-      "title": "Group Info",
-      "members_and_creator": "{{count}} members • Created by {{creator}}",
-      "members_only": "{{count}} members",
-      "waiting_room": "You're in the waiting room. Join to chat with everyone in the group.",
-      "join": "Join",
-      "joining": "Joining...",
-      "close": "Close",
-      "go_to_chat": "Go to conversation",
-      "link_invalid": "Invalid link",
-      "link_invalid_desc": "This group invite link does not exist or has expired.",
-      "link_disabled": "Link disabled",
-      "link_disabled_desc": "The admin has disabled joining via link.",
-      "error": "An error occurred",
-      "error_desc": "Unable to load group info."
-    },
     "join-link-card": {
       "group_label": "Group",
       "default_name": "Group chat",
@@ -275,6 +259,15 @@
         "allowNewMembersReadRecent": "Allow new members to read most recent messages",
         "allowJoinByLink": "Allow joining group via link"
       },
+      "joinQuestion": "Join Question",
+      "joinQuestionDesc": "New members must answer this question to send a join request.",
+      "joinQuestionPlaceholder": "Type the question here...",
+      "joinQuestionRequired": "Required answer",
+      "joinQuestionRequiredDesc": "Members cannot send requests if left blank",
+      "joinQuestionSetup": "Setup",
+      "joinQuestionEdit": "Edit",
+      "joinQuestionEmpty": "No join question setup for new members",
+      "joinQuestionUpdateSuccess": "Join question updated successfully",
       "toggleTooltips": {
         "reviewNewMembers": "When enabled, new members must be approved by owner or admins to join the group.",
         "highlightAdminMessages": "When enabled, messages from owner or admin will have a key symbol.",
@@ -357,7 +350,13 @@
       "send_request": "Send join request",
       "cancel_request": "Withdraw request",
       "canceling": "Withdrawing...",
-      "default_name": "New group"
+      "default_name": "New group",
+      "admin_question": "Admin's question:",
+      "answer_placeholder": "Type your answer...",
+      "answer_required_toast": "Please answer the required question",
+      "already_member": "You are already a member of this group",
+      "request_title": "Join Request",
+      "approval_required_desc": "Membership approval is enabled for this group. You need to answer the following question to send a join request."
     },
     "toasts": {
       "updating": "Updating...",

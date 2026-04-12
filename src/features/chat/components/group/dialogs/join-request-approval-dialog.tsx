@@ -61,7 +61,14 @@ export function JoinRequestApprovalDialog({ open, onOpenChange, conversationId }
                   >
                     <UserAvatar src={req.avatar} name={req.fullName} className='w-12 h-12 shrink-0' />
                     <div className='flex-1 min-w-0'>
-                      <p className='text-[15px] font-bold text-foreground mb-3 leading-none'>{req.fullName}</p>
+                      <p className='text-[15px] font-bold text-foreground mb-1 leading-none'>{req.fullName}</p>
+                      {req.joinAnswer && (
+                        <div className='bg-muted/40 p-2.5 rounded-lg border border-border/40 mb-3'>
+                          <p className='text-[13px] text-foreground/80 leading-relaxed font-medium'>
+                            {req.joinAnswer}
+                          </p>
+                        </div>
+                      )}
                       <div className='flex items-center gap-2'>
                         <Button
                           variant='secondary'
