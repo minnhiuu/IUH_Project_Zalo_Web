@@ -101,9 +101,14 @@ export const deleteConversationApi = async (conversationId: string): Promise<voi
   await http.delete(`/messages/conversations/${conversationId}`)
 }
 
-export const leaveGroupApi = async (conversationId: string, silent = false, transferTo?: string): Promise<void> => {
+export const leaveGroupApi = async (
+  conversationId: string,
+  silent = false,
+  transferTo?: string,
+  blockReJoin = false
+): Promise<void> => {
   await http.delete(`/messages/conversations/${conversationId}/leave`, {
-    params: { silent, ...(transferTo ? { transferTo } : {}) }
+    params: { silent, blockReJoin, ...(transferTo ? { transferTo } : {}) }
   })
 }
 
@@ -293,10 +298,51 @@ export const cancelMyJoinRequestApi = async (conversationId: string): Promise<vo
   await http.delete(`/messages/conversations/${conversationId}/join-requests/me`)
 }
 
-export const blockMembersApi = async (conversationId: string, memberIds: string[]): Promise<ConversationResponse> => {
+export const blockMemberFromGroupApi = async (
+  conversationId: string,
+  targetUserId: string
+): Promise<ConversationResponse> => {
   const response = await http.post<ApiResponse<ConversationResponse>>(
-    `/messages/conversations/${conversationId}/members/block`,
-    { memberIds }
+    `/messages/conversations/${conversationId}/block/${targetUserId}`
+  )
+  return response.data.data
+}
+
+export const unblockMemberFromGroupApi = async (
+  conversationId: string,
+  targetUserId: string
+): Promise<ConversationResponse> => {
+  const response = await http.delete<ApiResponse<ConversationResponse>>(
+    `/messages/conversations/${conversationId}/block/${targetUserId}`
+  )
+  return response.data.data
+}
+
+export const blockUserFromAddingMeApi = async (targetUserId: string): Promise<void> => {
+  await http.post(`/messages/conversations/block-group-add/${targetUserId}`)
+}
+
+export const getBlockedMembersApi = async (
+  conversationId: string,
+  page = 0,
+  size = 20
+): Promise<PageResponse<SearchMemberResponse>> => {
+  const response = await http.get<ApiResponse<PageResponse<SearchMemberResponse>>>(
+    `/messages/conversations/${conversationId}/blocked-members`,
+    { params: { page, size } }
+  )
+  return response.data.data
+}
+
+export const getBlockCandidatesApi = async (
+  conversationId: string,
+  query?: string,
+  page = 0,
+  size = 20
+): Promise<PageResponse<SearchMemberResponse>> => {
+  const response = await http.get<ApiResponse<PageResponse<SearchMemberResponse>>>(
+    `/messages/conversations/${conversationId}/block-candidates`,
+    { params: { query, page, size } }
   )
   return response.data.data
 }

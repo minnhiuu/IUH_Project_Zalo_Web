@@ -130,6 +130,47 @@ export function getSystemMessagePreview(
     return preview.replace(/<[^>]*>/g, '')
   }
 
+  if (action === 'BLOCK_MEMBER') {
+    const normalizedTargetIds = (targetIds || []).map((id) => String(id))
+    const normalizedCurrentUserId = String(currentUserId || '')
+    const targetId = normalizedTargetIds[0]
+    const payloadTargetName = typeof payload?.targetName === 'string' ? String(payload.targetName) : undefined
+    const targetName =
+      targetId === normalizedCurrentUserId
+        ? String(translate('chat.you'))
+        : (memberNameById.get(String(targetId)) ?? payloadTargetName ?? fallbackUserLabel)
+    const actorName = memberNameById.get(String(senderId)) || senderName || fallbackUserLabel
+
+    if (targetId && targetId === normalizedCurrentUserId) {
+      return translate('chat.system.block_member.self_blocked') as string
+    }
+
+    if (String(senderId) === String(currentUserId)) {
+      const preview = translate('chat.system.block_member.by_you', { target: targetName }) as string
+      return preview.replace(/<[^>]*>/g, '')
+    }
+
+    const preview = translate('chat.system.block_member.by_actor', {
+      target: targetName,
+      actor: actorName
+    }) as string
+    return preview.replace(/<[^>]*>/g, '')
+  }
+
+  if (action === 'BLOCKED_FROM_JOINING') {
+    const normalizedTargetIds = (targetIds || []).map((id) => String(id))
+    const normalizedCurrentUserId = String(currentUserId || '')
+    const targetId = normalizedTargetIds[0]
+    const payloadTargetName = typeof payload?.targetName === 'string' ? String(payload.targetName) : undefined
+    const targetName =
+      targetId === normalizedCurrentUserId
+        ? String(translate('chat.you'))
+        : (memberNameById.get(String(targetId)) ?? payloadTargetName ?? fallbackUserLabel)
+
+    const preview = translate('chat.system.blocked_from_joining', { target: targetName }) as string
+    return preview.replace(/<[^>]*>/g, '')
+  }
+
   if (action === 'LEAVE_GROUP') {
     if (String(senderId) === String(currentUserId)) {
       return translate('chat.system.leave_group.self') as string

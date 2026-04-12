@@ -184,7 +184,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
       const targetIds = Array.isArray(metadata.targetIds) ? metadata.targetIds.map(String) : []
       const includesMe = targetIds.includes(String(user.id))
 
-      if (metadata.action === 'REMOVE_MEMBER' && includesMe) return true
+      if ((metadata.action === 'REMOVE_MEMBER' || metadata.action === 'BLOCK_MEMBER') && includesMe) return true
       if (metadata.action === 'LEAVE_GROUP' && String(msg.senderId || '') === String(user.id)) return true
       if (
         (metadata.action === 'ADD_MEMBERS' ||

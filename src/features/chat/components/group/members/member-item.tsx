@@ -13,6 +13,7 @@ interface MemberItemProps {
   selectionMode?: 'checkbox' | 'radio' | 'none'
   disabled?: boolean
   showSubtitle?: boolean
+  hideAlreadyJoined?: boolean
 }
 
 export const MemberItem = ({
@@ -21,21 +22,22 @@ export const MemberItem = ({
   onToggle,
   selectionMode = 'checkbox',
   disabled = false,
-  showSubtitle = true
+  showSubtitle = true,
+  hideAlreadyJoined = false
 }: MemberItemProps) => {
   const { text } = useChatText()
   const tg = text['create-group-dialog']
-  const isAlreadyMember = member.isAlreadyMember || disabled
+  const isActuallyAlreadyMember = (member.isAlreadyMember && !hideAlreadyJoined) || disabled
 
   return (
-    <div
-      className={`flex items-center gap-3 px-4 py-2 hover:bg-muted/50 transition-colors group ${
-        isAlreadyMember ? 'cursor-default opacity-90' : 'cursor-pointer'
-      }`}
-      onClick={isAlreadyMember ? undefined : onToggle}
-    >
+     <div
+       className={`flex items-center gap-3 px-4 py-2 hover:bg-muted/50 transition-colors group ${
+         isActuallyAlreadyMember ? 'cursor-default opacity-90' : 'cursor-pointer'
+       }`}
+       onClick={isActuallyAlreadyMember ? undefined : onToggle}
+     >
       <div className='flex items-center justify-center w-5 h-5'>
-        {member.isAlreadyMember ? (
+        {member.isAlreadyMember && !hideAlreadyJoined ? (
           <div className='w-4.5 h-4.5 rounded-full bg-dialog-selection-btn-disabled-bg flex items-center justify-center'>
             <Check className='w-3 h-3 text-white' />
           </div>
@@ -67,7 +69,7 @@ export const MemberItem = ({
         <span className='text-[15px] font-semibold text-foreground truncate'>{member.fullName}</span>
         {showSubtitle && (
           <span className='text-[12px] text-muted-foreground truncate'>
-            {member.isAlreadyMember && !member.role ? tg.alreadyJoined : null}
+            {member.isAlreadyMember && !member.role && !hideAlreadyJoined ? tg.alreadyJoined : null}
             {member.role === 'ADMIN' || member.role === GroupMemberRole.Admin
               ? text['sidebarInfo'].adminRole
               : member.role === 'OWNER' || member.role === GroupMemberRole.Owner

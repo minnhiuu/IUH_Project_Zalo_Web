@@ -28,7 +28,7 @@ export const SelectedMemberSidebar = ({
       </div>
 
       <ScrollArea className='flex-1'>
-        <div className='p-1.5 space-y-1'>
+        <div className='p-2 space-y-1.5'>
           {selectedFriends.map((friend) => (
             <div
               key={friend.userId}

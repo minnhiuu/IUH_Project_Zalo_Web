@@ -19,7 +19,9 @@ import {
   refreshJoinLinkApi,
   generateJoinLinkApi,
   joinByLinkApi,
-  blockMembersApi,
+  blockMemberFromGroupApi,
+  unblockMemberFromGroupApi,
+  blockUserFromAddingMeApi,
   approveJoinRequestApi,
   rejectJoinRequestApi,
   cancelMyJoinRequestApi,
@@ -196,13 +198,15 @@ export const useLeaveGroupMutation = () => {
     mutationFn: ({
       conversationId,
       silent,
-      transferTo
+      transferTo,
+      blockReJoin
     }: {
       conversationId: string
       silent?: boolean
       transferTo?: string
+      blockReJoin?: boolean
       navigateDelayMs?: number
-    }) => leaveGroupApi(conversationId, Boolean(silent), transferTo),
+    }) => leaveGroupApi(conversationId, Boolean(silent), transferTo, Boolean(blockReJoin)),
     onSuccess: (_, { conversationId, navigateDelayMs, transferTo }) => {
       const delay = Math.max(0, Number(navigateDelayMs ?? 0))
 
@@ -453,12 +457,12 @@ export const useUpdateJoinQuestionMutation = () => {
   })
 }
 
-export const useBlockMembersMutation = () => {
+export const useBlockMemberMutation = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ conversationId, memberIds }: { conversationId: string; memberIds: string[] }) =>
-      blockMembersApi(conversationId, memberIds),
+    mutationFn: ({ conversationId, targetUserId }: { conversationId: string; targetUserId: string }) =>
+      blockMemberFromGroupApi(conversationId, targetUserId),
     onSuccess: (updatedConv: ConversationResponse, variables) => {
       queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
         if (!oldData) return [updatedConv]
@@ -466,10 +470,38 @@ export const useBlockMembersMutation = () => {
       })
       queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'group-members', variables.conversationId] })
       queryClient.invalidateQueries({ queryKey: chatKeys.groupAdmins(variables.conversationId) })
-      queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'blocked-members', variables.conversationId] })
+      queryClient.invalidateQueries({ queryKey: chatKeys.blockedMembers(variables.conversationId) })
     },
     onError: (error) => {
-      console.error('Failed to block members', error)
+      console.error('Failed to block member', error)
+    }
+  })
+}
+
+export const useUnblockMemberMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ conversationId, targetUserId }: { conversationId: string; targetUserId: string }) =>
+      unblockMemberFromGroupApi(conversationId, targetUserId),
+    onSuccess: (updatedConv: ConversationResponse, variables) => {
+      queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
+        if (!oldData) return [updatedConv]
+        return oldData.map((conv) => (conv.id === updatedConv.id ? updatedConv : conv))
+      })
+      queryClient.invalidateQueries({ queryKey: chatKeys.blockedMembers(variables.conversationId) })
+    },
+    onError: (error) => {
+      console.error('Failed to unblock member', error)
+    }
+  })
+}
+
+export const useBlockUserFromAddingMeMutation = () => {
+  return useMutation({
+    mutationFn: (targetUserId: string) => blockUserFromAddingMeApi(targetUserId),
+    onError: (error) => {
+      console.error('Failed to block user from adding to group', error)
     }
   })
 }

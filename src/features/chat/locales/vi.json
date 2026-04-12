@@ -60,6 +60,12 @@
         "self_removed": "Bạn đã bị xóa khỏi nhóm",
         "by_actor": "<bold>{{target}}</bold> được <actorBold>{{actor}}</actorBold> xóa khỏi nhóm"
       },
+      "block_member": {
+        "by_you": "<bold>{{target}}</bold> bị bạn chặn khỏi nhóm này",
+        "self_blocked": "Bạn đã bị chặn khỏi nhóm này",
+        "by_actor": "<bold>{{target}}</bold> bị <actorBold>{{actor}}</actorBold> chặn khỏi nhóm này"
+      },
+      "blocked_from_joining": "<bold>{{target}}</bold> đã bị trưởng/phó nhóm chặn tham gia nhóm",
       "promote_admin": {
         "by_you": "<bold>{{target}}</bold> đã được bổ nhiệm thành phó nhóm",
         "self_promoted": "Bạn đã được bổ nhiệm thành phó nhóm",
@@ -196,7 +202,9 @@
       "removeAvatar": "Xoá Ảnh",
       "addMembersTitle": "Thêm thành viên",
       "alreadyJoined": "Đã tham gia",
-      "alreadyAdmin": "Đã là phó nhóm"
+      "alreadyAdmin": "Đã là phó nhóm",
+      "noResultsFound": "Không tìm thấy kết quả",
+      "noFriendsFound": "Không tìm thấy bạn bè"
     },
     "forward-dialog": {
       "title": "Chia sẻ",
@@ -291,7 +299,9 @@
           "silentTitle": "Rời nhóm trong im lặng",
           "silentDescription": "Chỉ trưởng/phó nhóm biết bạn rời nhóm.",
           "confirm": "Rời nhóm",
-          "cancel": "Hủy"
+          "cancel": "Hủy",
+          "blockGroupAddTitle": "Chặn thêm vào nhóm này",
+          "blockGroupAddDescription": "Người khác phải mời bạn qua link"
         },
         "transferOwnerDialog": {
           "title": "Chọn trưởng nhóm mới trước khi rời",
@@ -332,7 +342,10 @@
           "description": "Sau khi thay đổi {{name}} sẽ trở thành trưởng nhóm mới và bạn sẽ trở thành một thành viên bình thường.",
           "confirm": "Xác nhận",
           "cancel": "Không"
-        }
+        },
+        "blockedMembersCount": "Danh sách chặn ({{count}})",
+        "unblock": "Bỏ chặn",
+        "confirmBlock": "Chặn thành viên"
       }
     },
     "join-group-dialog": {
@@ -363,6 +376,7 @@
       "answer_placeholder": "Nhập câu trả lời của bạn...",
       "answer_required_toast": "Vui lòng trả lời câu hỏi bắt buộc",
       "already_member": "Bạn đã là thành viên của nhóm",
+      "blocked_from_group": "Bạn đã bị admin chặn tham gia nhóm này.",
       "request_title": "Yêu cầu tham gia",
       "approval_required_desc": "Nhóm này đang bật duyệt thành viên. Bạn cần trả lời câu hỏi xét duyệt để có thể gửi yêu cầu tham gia."
     },
@@ -372,7 +386,10 @@
       "updateNameSuccess": "Cập nhật tên nhóm thành công",
       "updateError": "Cập nhật thất bại",
       "leaveGroupSuccess": "Rời nhóm thành công",
-      "leaveGroupError": "Rời nhóm thất bại"
+      "leaveGroupError": "Rời nhóm thất bại",
+      "blockSuccess": "Đã chặn thành viên thành công",
+      "unblockSuccess": "Đã bỏ chặn thành công",
+      "noBlockCandidates": "Không có thành viên nào để chặn"
     },
     "sidebarInfo": {
       "title": "Thông tin hội thoại",

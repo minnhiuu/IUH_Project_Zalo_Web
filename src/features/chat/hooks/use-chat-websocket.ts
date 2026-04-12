@@ -116,7 +116,9 @@ export const useChatWebSocket = () => {
           const msgMetadata = msg.metadata as Record<string, unknown> | null | undefined
           const isNegativeSystemAction =
             msg.type === MessageType.System &&
-            (msgMetadata?.action === 'LEAVE_GROUP' || msgMetadata?.action === 'REMOVE_MEMBER')
+            (msgMetadata?.action === 'LEAVE_GROUP' ||
+              msgMetadata?.action === 'REMOVE_MEMBER' ||
+              msgMetadata?.action === 'BLOCK_MEMBER')
 
           queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
             if (!oldData) return oldData
@@ -127,6 +129,16 @@ export const useChatWebSocket = () => {
               const existingConv = conversations[existingConvIndex]
               const existingUnread = existingConv.unreadCount || 0
               const computedUnread = isOwnMessage ? existingUnread : existingUnread + 1
+
+              // Special handling for BLOCK_MEMBER (target me): Remove from sidebar
+              const removeTargetIds = Array.isArray(msgMetadata?.targetIds) ? msgMetadata.targetIds.map(String) : []
+              const isCurrentUserRemovedAtTop =
+                (msgMetadata?.action === 'REMOVE_MEMBER' || msgMetadata?.action === 'BLOCK_MEMBER') &&
+                removeTargetIds.includes(String(user.id))
+
+              if (isCurrentUserRemovedAtTop) {
+                return conversations.filter((c) => c.id !== conversationId)
+              }
 
               if (isNegativeSystemAction) {
                 // Compute which user IDs to remove from members list
@@ -191,7 +203,9 @@ export const useChatWebSocket = () => {
           const metadata = msg.metadata as Record<string, unknown> | null | undefined
           const isDisbandAction = metadata?.action === 'DISBAND_GROUP'
           const removeTargetIds = Array.isArray(metadata?.targetIds) ? metadata.targetIds.map(String) : []
-          const isCurrentUserRemoved = metadata?.action === 'REMOVE_MEMBER' && removeTargetIds.includes(String(user.id))
+          const isCurrentUserRemoved =
+            (metadata?.action === 'REMOVE_MEMBER' || metadata?.action === 'BLOCK_MEMBER') &&
+            removeTargetIds.includes(String(user.id))
           const isCurrentUserLeftGroup =
             metadata?.action === 'LEAVE_GROUP' && String(msg.senderId || '') === String(user.id)
 

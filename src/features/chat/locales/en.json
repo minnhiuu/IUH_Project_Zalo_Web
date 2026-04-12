@@ -60,6 +60,12 @@
         "self_removed": "You have been removed from the group",
         "by_actor": "<bold>{{target}}</bold> was removed from the group by <actorBold>{{actor}}</actorBold>"
       },
+      "block_member": {
+        "by_you": "<bold>{{target}}</bold> was blocked from this group by you",
+        "self_blocked": "You have been blocked from this group",
+        "by_actor": "<bold>{{target}}</bold> was blocked from this group by <actorBold>{{actor}}</actorBold>"
+      },
+      "blocked_from_joining": "<bold>{{target}}</bold> is blocked by owner/admin to join group",
       "promote_admin": {
         "by_you": "<bold>{{target}}</bold> has become admin of this group",
         "self_promoted": "You have become admin of this group",
@@ -196,7 +202,9 @@
       "removeAvatar": "Remove Avatar",
       "addMembersTitle": "Add Members",
       "alreadyJoined": "Joined group",
-      "alreadyAdmin": "Already an admin"
+      "alreadyAdmin": "Already an admin",
+      "noResultsFound": "No results found",
+      "noFriendsFound": "No friends found"
     },
     "forward-dialog": {
       "title": "Share",
@@ -291,7 +299,9 @@
           "silentTitle": "Leave silently",
           "silentDescription": "Only owner/admins will know that you left.",
           "confirm": "Leave group",
-          "cancel": "Cancel"
+          "cancel": "Cancel",
+          "blockGroupAddTitle": "Block from being added to this group",
+          "blockGroupAddDescription": "Others must invite you via link"
         },
         "transferOwnerDialog": {
           "title": "Select a new group owner before leaving",
@@ -332,7 +342,10 @@
           "description": "After change, {{name}} will become the new owner and you will become a normal member.",
           "confirm": "Confirm",
           "cancel": "No"
-        }
+        },
+        "blockedMembersCount": "Blocked members ({{count}})",
+        "unblock": "Unblock",
+        "confirmBlock": "Block members"
       }
     },
     "join-group-dialog": {
@@ -363,6 +376,7 @@
       "answer_placeholder": "Type your answer...",
       "answer_required_toast": "Please answer the required question",
       "already_member": "You are already a member of this group",
+      "blocked_from_group": "You were blocked by admin from joining this group.",
       "request_title": "Join Request",
       "approval_required_desc": "Membership approval is enabled for this group. You need to answer the following question to send a join request."
     },
@@ -372,7 +386,10 @@
       "updateNameSuccess": "Group name updated",
       "updateError": "Update failed",
       "leaveGroupSuccess": "Left group successfully",
-      "leaveGroupError": "Failed to leave group"
+      "leaveGroupError": "Failed to leave group",
+      "blockSuccess": "Blocked members successfully",
+      "unblockSuccess": "Unblocked successfully",
+      "noBlockCandidates": "No members available to block"
     },
     "sidebarInfo": {
       "title": "Chat Information",

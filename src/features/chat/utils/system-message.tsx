@@ -94,6 +94,22 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
         avatar: targetAvatar,
         name: targetName
       }))
+    } else if (metadata?.action === 'BLOCK_MEMBER' && metadata.targetIds) {
+      const targetAvatar = (payload?.targetAvatar as string) || null
+      const targetName = (payload?.targetName as string) || t('chat.user')
+      avatars = metadata.targetIds.map((id) => ({
+        id,
+        avatar: targetAvatar,
+        name: targetName
+      }))
+    } else if (metadata?.action === 'BLOCKED_FROM_JOINING' && metadata.targetIds) {
+      const targetAvatar = (payload?.targetAvatar as string) || null
+      const targetName = (payload?.targetName as string) || t('chat.user')
+      avatars = metadata.targetIds.map((id) => ({
+        id,
+        avatar: targetAvatar,
+        name: targetName
+      }))
     }
 
     return { systemLabel: label, targetAvatars: avatars }
@@ -174,7 +190,8 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
   if (!systemLabel) return null
   const isDisbanded = metadata?.action === 'DISBAND_GROUP'
   const isCurrentUserRemoved =
-    metadata?.action === 'REMOVE_MEMBER' && (metadata.targetIds || []).map(String).includes(String(user?.id || ''))
+    (metadata?.action === 'REMOVE_MEMBER' || metadata?.action === 'BLOCK_MEMBER') &&
+    (metadata.targetIds || []).map(String).includes(String(user?.id || ''))
   const isCurrentUserLeftGroup =
     metadata?.action === 'LEAVE_GROUP' && String(message.senderId || '') === String(user?.id || '')
   const showDeleteConversationAction = isDisbanded || isCurrentUserRemoved || isCurrentUserLeftGroup

@@ -67,3 +67,17 @@ export const useJoinPreviewQuery = (token: string, enabled: boolean = true) => {
     enabled: enabled && !!token
   })
 }
+
+export const useBlockedMembersInfiniteQuery = (conversationId: string, enabled: boolean = true) => {
+  return useInfiniteQuery({
+    ...chatOptions.blockedMembers(conversationId),
+    enabled: enabled && !!conversationId
+  })
+}
+
+export const useBlockCandidatesInfiniteQuery = (conversationId: string, query: string, enabled: boolean = true) => {
+  return useInfiniteQuery({
+    ...chatOptions.blockCandidates(conversationId, query),
+    enabled: enabled && !!conversationId
+  })
+}

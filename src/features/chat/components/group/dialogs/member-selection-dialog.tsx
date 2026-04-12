@@ -7,7 +7,8 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   useFriendsDirectory,
   useSearchMembersInfinite,
-  useAdminCandidatesInfiniteQuery
+  useAdminCandidatesInfiniteQuery,
+  useBlockCandidatesInfiniteQuery
 } from '../../../queries/use-queries'
 import { MemberItem } from '../members/member-item'
 import { SelectedMemberSidebar } from '../members/selected-member-sidebar'
@@ -28,7 +29,7 @@ interface MemberSelectionDialogProps {
   initialSelectedIds?: string[]
   singleSelection?: boolean
   staticMembers?: SearchMemberResponse[]
-  type?: 'friends' | 'admin-candidates'
+  type?: 'friends' | 'admin-candidates' | 'block-members'
 }
 
 export function MemberSelectionDialog({ isOpen, onClose, ...props }: MemberSelectionDialogProps) {
@@ -74,6 +75,11 @@ function MemberSelectionContent({
     search,
     !staticMembers && type === 'admin-candidates'
   )
+  const { data: blockCandidatesData } = useBlockCandidatesInfiniteQuery(
+    conversationId!,
+    search,
+    !staticMembers && type === 'block-members'
+  )
 
   const friends = useMemo(() => {
     if (!friendsData) return []
@@ -104,16 +110,22 @@ function MemberSelectionContent({
     ) as SearchMemberResponse[]
   }, [adminCandidatesData])
 
+  const blockCandidates = useMemo(() => {
+    if (!blockCandidatesData) return []
+    return blockCandidatesData.pages.flatMap((page) => page.data || []) as SearchMemberResponse[]
+  }, [blockCandidatesData])
+
   const displayMembers = useMemo(() => {
     if (staticMembers) return filteredStaticMembers
     if (type === 'admin-candidates') return adminCandidates
+    if (type === 'block-members') return blockCandidates
     return search ? searchResults : friends
-  }, [staticMembers, filteredStaticMembers, search, searchResults, friends, type, adminCandidates])
+  }, [staticMembers, filteredStaticMembers, search, searchResults, friends, type, adminCandidates, blockCandidates])
 
   const selectedMembers = useMemo(() => {
     const allAvailable: SearchMemberResponse[] = staticMembers
       ? staticMembers
-      : [...friends, ...searchResults, ...adminCandidates]
+      : [...friends, ...searchResults, ...adminCandidates, ...blockCandidates]
     return selectedIds
       .map((id) => allAvailable.find((member) => member.userId === id))
       .filter((member): member is SearchMemberResponse => !!member)
@@ -183,6 +195,7 @@ function MemberSelectionContent({
                       onToggle={() => handleToggle(member.userId)}
                       selectionMode={singleSelection ? 'radio' : 'checkbox'}
                       showSubtitle={type !== 'admin-candidates'}
+                      hideAlreadyJoined={type === 'block-members'}
                     />
                   ))
                 ) : (
@@ -200,7 +213,7 @@ function MemberSelectionContent({
           </div>
 
           {showSidebar && (
-            <div className='w-[210px] h-full shrink-0 p-2.5 pb-2 pl-1 bg-background animate-in fade-in slide-in-from-right-4 duration-300 border-l'>
+            <div className='w-[215px] h-full shrink-0 pt-3 pb-2 pr-4 pl-2 bg-background animate-in fade-in slide-in-from-right-4 duration-300 border-l'>
               <SelectedMemberSidebar
                 selectedFriends={selectedMembers}
                 onRemove={handleRemoveSelected}

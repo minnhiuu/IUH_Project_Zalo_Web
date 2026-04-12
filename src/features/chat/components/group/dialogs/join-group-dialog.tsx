@@ -45,6 +45,11 @@ export function JoinGroupDialog({ open, onOpenChange, token }: JoinGroupDialogPr
   }, [open])
 
   const handleAction = () => {
+    if (preview?.isBlockedFromGroup) {
+      showWarningToast(text.blocked_from_group)
+      return
+    }
+
     if (preview?.hasPendingRequest) {
       cancelRequest(preview.conversationId!, {
         onSuccess: () => {

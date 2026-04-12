@@ -189,6 +189,7 @@ export interface JoinGroupPreviewResponse {
   createdByName: string | null
   memberPreviews: { name: string; avatar: string | null }[]
   isAlreadyMember: boolean
+  isBlockedFromGroup: boolean
   membershipApprovalEnabled: boolean
   hasPendingRequest: boolean
   joinQuestion: string | null

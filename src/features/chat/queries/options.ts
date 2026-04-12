@@ -7,7 +7,9 @@ import {
   getGroupAdminsApi,
   getAdminCandidatesApi,
   searchMembersToAdd,
-  getJoinPreviewApi
+  getJoinPreviewApi,
+  getBlockedMembersApi,
+  getBlockCandidatesApi
 } from '../api/chat.api'
 import type { PageResponse } from '@/shared/api'
 import { chatKeys } from './keys'
@@ -89,5 +91,23 @@ export const chatOptions = {
       queryFn: () => getJoinPreviewApi(token),
       staleTime: 5000,
       enabled: !!token
+    }),
+  blockedMembers: (conversationId: string, size = 20) =>
+    infiniteQueryOptions({
+      ...QUERY_POLICIES.LIST,
+      queryKey: chatKeys.blockedMembers(conversationId),
+      queryFn: ({ pageParam = 0 }) => getBlockedMembersApi(conversationId, pageParam as number, size),
+      initialPageParam: 0,
+      getNextPageParam: (lastPage) => (lastPage.page + 1 < lastPage.totalPages ? lastPage.page + 1 : undefined),
+      enabled: !!conversationId
+    }),
+  blockCandidates: (conversationId: string, query: string, size = 20) =>
+    infiniteQueryOptions({
+      ...QUERY_POLICIES.LIST,
+      queryKey: chatKeys.blockCandidates(conversationId, query),
+      queryFn: ({ pageParam = 0 }) => getBlockCandidatesApi(conversationId, query, pageParam as number, size),
+      initialPageParam: 0,
+      getNextPageParam: (lastPage) => (lastPage.page + 1 < lastPage.totalPages ? lastPage.page + 1 : undefined),
+      enabled: !!conversationId
     })
 }

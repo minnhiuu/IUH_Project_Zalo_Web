@@ -109,6 +109,12 @@ export const CHAT_KEYS = {
       self_removed: 'chat.system.remove_member.self_removed',
       by_actor: 'chat.system.remove_member.by_actor'
     },
+    block_member: {
+      by_you: 'chat.system.block_member.by_you',
+      self_blocked: 'chat.system.block_member.self_blocked',
+      by_actor: 'chat.system.block_member.by_actor'
+    },
+    blocked_from_joining: 'chat.system.blocked_from_joining',
     leave_group: {
       self: 'chat.system.leave_group.self',
       by_actor: 'chat.system.leave_group.by_actor'
@@ -189,7 +195,9 @@ export const CHAT_KEYS = {
         silentTitle: 'chat.group-info-dialog.actions.leaveDialog.silentTitle',
         silentDescription: 'chat.group-info-dialog.actions.leaveDialog.silentDescription',
         confirm: 'chat.group-info-dialog.actions.leaveDialog.confirm',
-        cancel: 'chat.group-info-dialog.actions.leaveDialog.cancel'
+        cancel: 'chat.group-info-dialog.actions.leaveDialog.cancel',
+        blockGroupAddTitle: 'chat.group-info-dialog.actions.leaveDialog.blockGroupAddTitle',
+        blockGroupAddDescription: 'chat.group-info-dialog.actions.leaveDialog.blockGroupAddDescription'
       },
       transferOwnerDialog: {
         title: 'chat.group-info-dialog.actions.transferOwnerDialog.title',
@@ -230,7 +238,10 @@ export const CHAT_KEYS = {
         description: 'chat.group-info-dialog.actions.transferOwnerFinal.description',
         confirm: 'chat.group-info-dialog.actions.transferOwnerFinal.confirm',
         cancel: 'chat.group-info-dialog.actions.transferOwnerFinal.cancel'
-      }
+      },
+      blockedMembersCount: 'chat.group-info-dialog.actions.blockedMembersCount',
+      unblock: 'chat.group-info-dialog.actions.unblock',
+      confirmBlock: 'chat.group-info-dialog.actions.confirmBlock'
     }
   },
   toasts: {
@@ -239,7 +250,10 @@ export const CHAT_KEYS = {
     updateNameSuccess: 'chat.toasts.updateNameSuccess',
     updateError: 'chat.toasts.updateError',
     leaveGroupSuccess: 'chat.toasts.leaveGroupSuccess',
-    leaveGroupError: 'chat.toasts.leaveGroupError'
+    leaveGroupError: 'chat.toasts.leaveGroupError',
+    blockSuccess: 'chat.toasts.blockSuccess',
+    unblockSuccess: 'chat.toasts.unblockSuccess',
+    noBlockCandidates: 'chat.toasts.noBlockCandidates'
   },
   sidebarInfo: {
     title: 'chat.sidebarInfo.title',
@@ -330,6 +344,7 @@ export const CHAT_KEYS = {
     answer_placeholder: 'chat.join-group-dialog.answer_placeholder',
     answer_required_toast: 'chat.join-group-dialog.answer_required_toast',
     already_member: 'chat.join-group-dialog.already_member',
+    blocked_from_group: 'chat.join-group-dialog.blocked_from_group',
     request_title: 'chat.join-group-dialog.request_title',
     approval_required_desc: 'chat.join-group-dialog.approval_required_desc'
   }

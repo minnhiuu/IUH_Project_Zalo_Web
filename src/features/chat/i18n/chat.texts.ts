@@ -122,6 +122,12 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
       self_removed: t(CHAT_KEYS.system.remove_member.self_removed),
       by_actor: t(CHAT_KEYS.system.remove_member.by_actor)
     },
+    block_member: {
+      by_you: t(CHAT_KEYS.system.block_member.by_you),
+      self_blocked: t(CHAT_KEYS.system.block_member.self_blocked),
+      by_actor: t(CHAT_KEYS.system.block_member.by_actor)
+    },
+    blocked_from_joining: t(CHAT_KEYS.system.blocked_from_joining),
     leave_group: {
       self: t(CHAT_KEYS.system.leave_group.self),
       by_actor: t(CHAT_KEYS.system.leave_group.by_actor)
@@ -203,7 +209,9 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
         silentTitle: t(CHAT_KEYS['group-info-dialog'].actions.leaveDialog.silentTitle),
         silentDescription: t(CHAT_KEYS['group-info-dialog'].actions.leaveDialog.silentDescription),
         confirm: t(CHAT_KEYS['group-info-dialog'].actions.leaveDialog.confirm),
-        cancel: t(CHAT_KEYS['group-info-dialog'].actions.leaveDialog.cancel)
+        cancel: t(CHAT_KEYS['group-info-dialog'].actions.leaveDialog.cancel),
+        blockGroupAddTitle: t(CHAT_KEYS['group-info-dialog'].actions.leaveDialog.blockGroupAddTitle),
+        blockGroupAddDescription: t(CHAT_KEYS['group-info-dialog'].actions.leaveDialog.blockGroupAddDescription)
       },
       transferOwnerDialog: {
         title: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerDialog.title),
@@ -244,7 +252,10 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
         description: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerFinal.description),
         confirm: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerFinal.confirm),
         cancel: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerFinal.cancel)
-      }
+      },
+      blockedMembersCount: (count: number) => t(CHAT_KEYS['group-info-dialog'].actions.blockedMembersCount, { count }),
+      unblock: t(CHAT_KEYS['group-info-dialog'].actions.unblock),
+      confirmBlock: t(CHAT_KEYS['group-info-dialog'].actions.confirmBlock)
     }
   },
   toasts: {
@@ -253,7 +264,10 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     updateNameSuccess: t(CHAT_KEYS.toasts.updateNameSuccess),
     updateError: t(CHAT_KEYS.toasts.updateError),
     leaveGroupSuccess: t(CHAT_KEYS.toasts.leaveGroupSuccess),
-    leaveGroupError: t(CHAT_KEYS.toasts.leaveGroupError)
+    leaveGroupError: t(CHAT_KEYS.toasts.leaveGroupError),
+    blockSuccess: t(CHAT_KEYS.toasts.blockSuccess),
+    unblockSuccess: t(CHAT_KEYS.toasts.unblockSuccess),
+    noBlockCandidates: t(CHAT_KEYS.toasts.noBlockCandidates)
   },
   sidebarInfo: {
     title: t(CHAT_KEYS.sidebarInfo.title),
@@ -328,6 +342,7 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     answer_placeholder: t(CHAT_KEYS['join-group-dialog'].answer_placeholder),
     answer_required_toast: t(CHAT_KEYS['join-group-dialog'].answer_required_toast),
     already_member: t(CHAT_KEYS['join-group-dialog'].already_member),
+    blocked_from_group: t(CHAT_KEYS['join-group-dialog'].blocked_from_group),
     request_title: t(CHAT_KEYS['join-group-dialog'].request_title),
     approval_required_desc: t(CHAT_KEYS['join-group-dialog'].approval_required_desc)
   },
