@@ -14,6 +14,8 @@ import {
   useRevokeMessageMutation,
   useDeleteMessageForMeMutation
 } from '../queries/use-mutations'
+import { uploadFileApi } from '../api/chat.api'
+import type { FileAttachment } from '../context/chat-context'
 
 const WS_URL = import.meta.env.VITE_WS_URL || 'http://localhost:8080/ws'
 
@@ -187,7 +189,16 @@ export const useChatWebSocket = () => {
             }
           })
 
-          // 3. Special handling for DISBAND_GROUP / REMOVE_MEMBER(target me): Clear messages cache
+          // 3. Invalidate media/file cache so sidebar updates in real-time
+          if (
+            msg.type === MessageType.Image ||
+            msg.type === MessageType.Video ||
+            msg.type === MessageType.File
+          ) {
+            queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'media', conversationId] })
+          }
+
+          // 4. Special handling for DISBAND_GROUP / REMOVE_MEMBER(target me): Clear messages cache
           const metadata = msg.metadata as Record<string, unknown> | null | undefined
           const isDisbandAction = metadata?.action === 'DISBAND_GROUP'
           const removeTargetIds = Array.isArray(metadata?.targetIds) ? metadata.targetIds.map(String) : []
@@ -275,6 +286,30 @@ export const useChatWebSocket = () => {
             )
 
             queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+          }
+        })
+
+        // ────────── /queue/reactions ──────────
+        client.subscribe('/user/queue/reactions', (payload) => {
+          const update = JSON.parse(payload.body)
+          if (update.type === 'REACTION_UPDATE') {
+            queryClient.setQueryData(
+              chatKeys.messages(update.conversationId),
+              (oldData: InfiniteData<PageResponse<MessageResponse>> | undefined) => {
+                if (!oldData) return oldData
+                return {
+                  ...oldData,
+                  pages: oldData.pages.map((page: PageResponse<MessageResponse>) => ({
+                    ...page,
+                    data: page.data.map((m: MessageResponse) =>
+                      m.id === update.messageId
+                        ? { ...m, reactions: update.reactions && Object.keys(update.reactions).length ? update.reactions : undefined }
+                        : m
+                    )
+                  }))
+                }
+              }
+            )
           }
         })
 
@@ -543,5 +578,196 @@ export const useChatWebSocket = () => {
     [queryClient, deleteMsgMutate]
   )
 
-  return { connected, sendMessage, revokeMessage, deleteMessageForMe }
+
+  const sendFileMessage = useCallback(
+    async (
+      conversationId: string,
+      files: FileAttachment[],
+      replyTo?: ReplyMetadata | null
+    ) => {
+      if (!stompClientRef.current?.connected || files.length === 0) return
+
+      const isFake = conversationId.startsWith('fake_')
+      const folder = `conversations/direct/${conversationId}/messages`
+
+      const isMediaFile = (f: File) => f.type.startsWith('image/') || f.type.startsWith('video/')
+      const mediaFiles = files.filter((a) => isMediaFile(a.file))
+      const otherFiles = files.filter((a) => !isMediaFile(a.file))
+
+      // ── 1. All images/videos → ONE message, upload in parallel ─────────────
+      if (mediaFiles.length > 0) {
+        const clientMessageId = `temp-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+        const now = new Date().toISOString()
+        const allVideo = mediaFiles.every((a) => a.file.type.startsWith('video/'))
+        const msgType = allVideo ? MessageType.Video : MessageType.Image
+
+        const optimisticMsg: MessageResponse = {
+          id: clientMessageId,
+          clientMessageId,
+          senderId: user?.id || '',
+          content: '',
+          type: msgType,
+          status: MessageStatus.NORMAL,
+          createdAt: now,
+          lastModifiedAt: now,
+          conversationId,
+          senderName: user?.fullName,
+          senderAvatar: user?.avatar || undefined,
+          replyTo,
+          attachments: mediaFiles.map((a) => ({
+            key: '',
+            url: a.previewUrl || '',
+            fileName: a.file.name,
+            originalFileName: a.file.name,
+            contentType: a.file.type,
+            size: a.file.size
+          }))
+        }
+
+        queryClient.setQueryData(
+          chatKeys.messages(conversationId),
+          (oldData: InfiniteData<PageResponse<MessageResponse>> | undefined) => {
+            if (!oldData) return oldData
+            const firstPage = oldData.pages[0]
+            return {
+              ...oldData,
+              pages: [{ ...firstPage, data: [optimisticMsg, ...firstPage.data] }, ...oldData.pages.slice(1)]
+            }
+          }
+        )
+
+        const mediaPreview =
+          mediaFiles.length === 1
+            ? (allVideo ? '[Video]' : '[Hình ảnh]')
+            : `[${mediaFiles.length} ${allVideo ? 'video' : 'ảnh'}]`
+        queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
+          if (!oldData) return oldData
+          const idx = oldData.findIndex((c) => c.id === conversationId)
+          if (idx < 0) return oldData
+          return [
+            {
+              ...oldData[idx],
+              lastMessage: {
+                id: clientMessageId, content: mediaPreview, timestamp: now,
+                isFromMe: true, type: msgType, status: MessageStatus.NORMAL,
+                senderName: user?.fullName, senderId: user?.id
+              }
+            },
+            ...oldData.slice(0, idx),
+            ...oldData.slice(idx + 1)
+          ]
+        })
+
+        try {
+          const uploadResults = await Promise.all(mediaFiles.map((a) => uploadFileApi(a.file, folder)))
+          sendMsgMutate({
+            conversationId: isFake ? null : conversationId,
+            recipientId: isFake ? conversationId.replace('fake_', '') : null,
+            content: '',
+            clientMessageId,
+            replyTo: replyTo || undefined,
+            attachments: uploadResults.map((r) => ({
+              key: r.key, url: r.url, fileName: r.fileName,
+              originalFileName: r.originalFileName, contentType: r.contentType, size: r.size
+            }))
+          })
+        } catch (error) {
+          console.error('[Chat] Failed to upload & send media:', error)
+          queryClient.setQueryData(
+            chatKeys.messages(conversationId),
+            (oldData: InfiniteData<PageResponse<MessageResponse>> | undefined) => {
+              if (!oldData) return oldData
+              return {
+                ...oldData,
+                pages: oldData.pages.map((page: PageResponse<MessageResponse>) => ({
+                  ...page,
+                  data: page.data.filter((m: MessageResponse) => m.clientMessageId !== clientMessageId)
+                }))
+              }
+            }
+          )
+        }
+      }
+
+      // ── 2. Files → one message per file ─────────────────────────────────────
+      for (const attachment of otherFiles) {
+        const clientMessageId = `temp-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+        const { file } = attachment
+        const now = new Date().toISOString()
+
+        const optimisticMsg: MessageResponse = {
+          id: clientMessageId,
+          clientMessageId,
+          senderId: user?.id || '',
+          content: file.name,
+          type: MessageType.File,
+          status: MessageStatus.NORMAL,
+          createdAt: now,
+          lastModifiedAt: now,
+          conversationId,
+          senderName: user?.fullName,
+          senderAvatar: user?.avatar || undefined,
+          replyTo,
+          attachments: [{ key: '', url: attachment.previewUrl || '', fileName: file.name, originalFileName: file.name, contentType: file.type, size: file.size }]
+        }
+
+        queryClient.setQueryData(
+          chatKeys.messages(conversationId),
+          (oldData: InfiniteData<PageResponse<MessageResponse>> | undefined) => {
+            if (!oldData) return oldData
+            const firstPage = oldData.pages[0]
+            return { ...oldData, pages: [{ ...firstPage, data: [optimisticMsg, ...firstPage.data] }, ...oldData.pages.slice(1)] }
+          }
+        )
+
+        queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
+          if (!oldData) return oldData
+          const idx = oldData.findIndex((c) => c.id === conversationId)
+          if (idx < 0) return oldData
+          return [
+            {
+              ...oldData[idx],
+              lastMessage: {
+                id: clientMessageId, content: `[Tệp] ${file.name}`, timestamp: now,
+                isFromMe: true, type: MessageType.File, status: MessageStatus.NORMAL,
+                senderName: user?.fullName, senderId: user?.id
+              }
+            },
+            ...oldData.slice(0, idx),
+            ...oldData.slice(idx + 1)
+          ]
+        })
+
+        try {
+          const uploadResult = await uploadFileApi(file, folder)
+          sendMsgMutate({
+            conversationId: isFake ? null : conversationId,
+            recipientId: isFake ? conversationId.replace('fake_', '') : null,
+            content: file.name,
+            clientMessageId,
+            replyTo: replyTo || undefined,
+            attachments: [{ key: uploadResult.key, url: uploadResult.url, fileName: uploadResult.fileName, originalFileName: uploadResult.originalFileName, contentType: uploadResult.contentType, size: uploadResult.size }]
+          })
+        } catch (error) {
+          console.error('[Chat] Failed to upload & send file:', error)
+          queryClient.setQueryData(
+            chatKeys.messages(conversationId),
+            (oldData: InfiniteData<PageResponse<MessageResponse>> | undefined) => {
+              if (!oldData) return oldData
+              return {
+                ...oldData,
+                pages: oldData.pages.map((page: PageResponse<MessageResponse>) => ({
+                  ...page,
+                  data: page.data.filter((m: MessageResponse) => m.clientMessageId !== clientMessageId)
+                }))
+              }
+            }
+          )
+        }
+      }
+    },
+    [user, queryClient, sendMsgMutate]
+  )
+
+  return { connected, sendMessage, sendFileMessage, revokeMessage, deleteMessageForMe }
 }
