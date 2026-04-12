@@ -228,13 +228,17 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
                 color: 'text-icon-secondary',
                 disabled: false
               },
-              {
-                icon: UserMinus,
-                label: friendText.actions.unfriend,
-                color: 'text-destructive',
-                disabled: !canUnfriend,
-                onClick: () => setIsUnfriendConfirmOpen(true)
-              }
+              ...(canUnfriend
+                ? [
+                    {
+                      icon: UserMinus,
+                      label: friendText.actions.unfriend,
+                      color: 'text-destructive',
+                      disabled: false,
+                      onClick: () => setIsUnfriendConfirmOpen(true)
+                    }
+                  ]
+                : [])
             ].map((item, idx, arr) => (
               <div key={item.label}>
                 {item.disabled ? (

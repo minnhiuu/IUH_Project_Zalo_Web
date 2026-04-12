@@ -81,7 +81,7 @@ export function FriendSuggestionCard({
   const getMutualText = () => {
     const parts: string[] = []
     if (suggestion.mutualFriendsCount && suggestion.mutualFriendsCount > 0) {
-      parts.push(text.mutualFriends(suggestion.mutualFriendsCount))
+      parts.push(text.source.mutualFriendsSource(suggestion.mutualFriendsCount))
     }
     if (suggestion.sharedGroupsCount && suggestion.sharedGroupsCount > 0) {
       parts.push(text.source.mutualGroups(suggestion.sharedGroupsCount))
@@ -89,7 +89,21 @@ export function FriendSuggestionCard({
     return parts.length > 0 ? parts.join(' · ') : null
   }
 
+  // Determine the primary suggestion source badge
+  const getSuggestionSource = () => {
+    const hasContact = suggestion.contactScore != null && suggestion.contactScore > 0
+    const hasMutualFriends = (suggestion.mutualFriendsCount ?? 0) > 0
+    const hasGroups = (suggestion.sharedGroupsCount ?? 0) > 0
+
+    // Priority: contact > mutual friends > shared groups
+    if (hasContact) return { label: text.source.phoneContact, color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' }
+    if (hasMutualFriends) return { label: text.source.friendSuggestion, color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' }
+    if (hasGroups) return { label: text.source.mutualGroups(suggestion.sharedGroupsCount!), color: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400' }
+    return null
+  }
+
   const mutualText = getMutualText()
+  const suggestionSource = getSuggestionSource()
 
   return (
     <div className='bg-background rounded-xl border border-(--friend-card-border) p-4 flex flex-col'>
@@ -106,6 +120,11 @@ export function FriendSuggestionCard({
             {suggestion.fullName}
           </h4>
           {mutualText && <p className='text-[13px] text-muted-foreground'>{mutualText}</p>}
+          {suggestionSource && (
+            <span className={`inline-block text-[11px] font-medium px-2 py-0.5 rounded-full mt-1 ${suggestionSource.color}`}>
+              {suggestionSource.label}
+            </span>
+          )}
         </div>
       </div>
 
