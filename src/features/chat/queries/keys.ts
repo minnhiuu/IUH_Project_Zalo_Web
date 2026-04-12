@@ -1,8 +1,9 @@
 export const chatKeys = {
   all: () => ['chat'] as const,
   conversations: () => [...chatKeys.all(), 'conversations'] as const,
-  // Key theo conversationId (MongoDB ObjectId) thay vì recipientId
   messages: (conversationId: string) => [...chatKeys.all(), 'messages', conversationId] as const,
+  media: (conversationId: string, types: string[]) =>
+    [...chatKeys.all(), 'media', conversationId, types.join(',')] as const,
   friendsDirectory: (conversationId?: string | null) =>
     [...chatKeys.all(), 'friends-directory', conversationId || 'none'] as const,
   searchMembers: (query: string, conversationId?: string | null) =>

@@ -1,5 +1,7 @@
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import { chatOptions } from './options'
+import { chatKeys } from './keys'
+import { getMediaMessagesApi } from '../api/chat.api'
 
 export const useConversationsQuery = () => {
   return useQuery(chatOptions.conversations())
@@ -30,5 +32,19 @@ export const useGroupMembersInfinite = (conversationId: string, query: string, e
   return useInfiniteQuery({
     ...chatOptions.groupMembers(conversationId, query),
     enabled: enabled && !!conversationId
+  })
+}
+
+export const useMediaMessagesQuery = (
+  conversationId: string | undefined,
+  types: string[],
+  page = 0,
+  size = 20,
+  enabled = true
+) => {
+  return useQuery({
+    queryKey: chatKeys.media(conversationId || '', types),
+    queryFn: () => getMediaMessagesApi(conversationId!, types, page, size),
+    enabled: enabled && !!conversationId && types.length > 0
   })
 }

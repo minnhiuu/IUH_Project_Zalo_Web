@@ -50,7 +50,11 @@ export const CHAT_KEYS = {
     forwarded: 'chat.messageBubble.forwarded',
     revoked: 'chat.messageBubble.revoked',
     image: 'chat.messageBubble.image',
-    file: 'chat.messageBubble.file'
+    file: 'chat.messageBubble.file',
+    reactionModalTitle: 'chat.messageBubble.reactionModalTitle',
+    reactionModalAll: 'chat.messageBubble.reactionModalAll',
+    reactionModalYou: 'chat.messageBubble.reactionModalYou',
+    reactionModalEmpty: 'chat.messageBubble.reactionModalEmpty'
   },
   aiStatus: {
     ANALYZING_INTENT: 'ai.status.ANALYZING_INTENT',
@@ -247,7 +251,26 @@ export const CHAT_KEYS = {
     removeFromGroup: 'chat.sidebarInfo.removeFromGroup',
     searchMemberPlaceholder: 'chat.sidebarInfo.searchMemberPlaceholder',
     membersLoading: 'chat.sidebarInfo.membersLoading',
-    noMatchingMembers: 'chat.sidebarInfo.noMatchingMembers'
+    noMatchingMembers: 'chat.sidebarInfo.noMatchingMembers',
+    groupJoinLink: 'chat.sidebarInfo.groupJoinLink',
+    copied: 'chat.sidebarInfo.copied',
+    generating: 'chat.sidebarInfo.generating',
+    createInviteLink: 'chat.sidebarInfo.createInviteLink'
+  },
+  mediaStorage: {
+    title: 'chat.mediaStorage.title',
+    tabMedia: 'chat.mediaStorage.tabMedia',
+    tabFiles: 'chat.mediaStorage.tabFiles',
+    tabLinks: 'chat.mediaStorage.tabLinks',
+    filterSender: 'chat.mediaStorage.filterSender',
+    filterDate: 'chat.mediaStorage.filterDate',
+    filterType: 'chat.mediaStorage.filterType',
+    searchFilePlaceholder: 'chat.mediaStorage.searchFilePlaceholder',
+    noPhotosVideos: 'chat.mediaStorage.noPhotosVideos',
+    noFiles: 'chat.mediaStorage.noFiles',
+    noLinks: 'chat.mediaStorage.noLinks',
+    downloadedLocally: 'chat.mediaStorage.downloadedLocally',
+    dateLabel: 'chat.mediaStorage.dateLabel'
   },
   'forward-dialog': {
     title: 'chat.forward-dialog.title',
