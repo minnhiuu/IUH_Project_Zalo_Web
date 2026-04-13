@@ -2,6 +2,7 @@ import axios, { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig 
 import { showErrorToast } from '@/utils/toast'
 import { getDeviceId } from '../utils/device'
 import { storage, STORAGE_KEYS } from '@/utils/local-storage'
+import i18n from '@/lib/i18n'
 
 export const getAccessToken = (): string | null => storage.get(STORAGE_KEYS.ACCESS_TOKEN)
 
@@ -104,7 +105,12 @@ http.interceptors.response.use(
       return Promise.reject(error)
     }
 
-    if (!originalRequest || error.response?.status !== 401) {
+    if (!originalRequest || (error.response?.status !== 401 && (error.response?.status ?? 0) < 500)) {
+      return Promise.reject(error)
+    }
+
+    if (error.response && error.response.status >= 500) {
+      showErrorToast(i18n.t('common:errorDefault'))
       return Promise.reject(error)
     }
 

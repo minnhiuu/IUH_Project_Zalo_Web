@@ -75,6 +75,17 @@
         "self_removed": "You have been removed from the group",
         "by_actor": "<bold>{{target}}</bold> was removed from the group by <actorBold>{{actor}}</actorBold>"
       },
+      "block_member": {
+        "by_you": "<bold>{{target}}</bold> was blocked from this group by you",
+        "self_blocked": "You have been blocked from this group",
+        "by_actor": "<bold>{{target}}</bold> was blocked from this group by <actorBold>{{actor}}</actorBold>"
+      },
+      "blocked_from_joining": "<bold>{{target}}</bold> is blocked by owner/admin to join group",
+      "self_blocked_from_joining": {
+        "with_link": "Cannot add <bold>{{target}}</bold> to the group. They can only join via the group invite link.",
+        "without_link": "Cannot add <bold>{{target}}</bold> to the group.",
+        "join_link_hint": "<bold>{{actor}}</bold> has invited you to join the group <bold>{{groupName}}</bold>. Click the link to join:"
+      },
       "promote_admin": {
         "by_you": "<bold>{{target}}</bold> has become admin of this group",
         "self_promoted": "You have become admin of this group",
@@ -91,7 +102,7 @@
         "by_actor": "<bold>{{target}}</bold> is no longer an admin of a group"
       },
       "transfer_owner": {
-        "by_you": "You transferred ownership to <bold>{{target}}</bold>",
+        "by_you": "You appointed <bold>{{target}}</bold> as the new group owner",
         "self_promoted": "You are now the group owner",
         "by_actor": "<bold>{{target}}</bold> is now the group owner",
         "card_title": "You have been appointed as the new group owner",
@@ -138,6 +149,18 @@
         "two": "{{name1}}, {{name2}} are typing…",
         "many": "{{name1}}, {{name2}} and {{count}} others are typing…"
       },
+      "join_request_created": {
+        "self": "You requested to join the group",
+        "by_actor": "<actorBold>{{actor}}</actorBold> just requested to join group"
+      },
+      "join_request_approved": {
+        "self": "You were added to the group by <actorBold>{{actor}}</actorBold>",
+        "by_me": "<bold>{{target}}</bold> was added to the group by you",
+        "by_actor": "<bold>{{target}}</bold> was added to the group by <actorBold>{{actor}}</actorBold>"
+      },
+      "join_request_rejected": {
+        "self": "Your request to join the group was rejected"
+      },
       "join_link": {
         "label": "Join group link",
         "copy": "Copy link",
@@ -160,6 +183,13 @@
       "message": "The group has been disbanded by the owner.",
       "cannotSendMessage": "You can no longer send messages to this group",
       "deleteAction": "Delete conversation"
+    },
+    "joinRequestDialog": {
+      "title": "Requests pending approval",
+      "detail": "Detail",
+      "empty": "No pending requests",
+      "reject": "Reject",
+      "accept": "Accept"
     },
     "restricted": {
       "onlyAdminCanSend": "Only <highlight>owner/admins</highlight> can send messages to this group.",
@@ -203,7 +233,10 @@
       "changeAvatar": "Change Avatar",
       "removeAvatar": "Remove Avatar",
       "addMembersTitle": "Add Members",
-      "alreadyJoined": "Joined group"
+      "alreadyJoined": "Joined group",
+      "alreadyAdmin": "Already an admin",
+      "noResultsFound": "No results found",
+      "noFriendsFound": "No friends found"
     },
     "forward-dialog": {
       "title": "Share",
@@ -221,22 +254,6 @@
       "labels": "Labels",
       "forwardMessage": "Forward message",
       "addDescription": "Add description..."
-    },
-    "join-group-dialog": {
-      "title": "Group Info",
-      "members_and_creator": "{{count}} members • Created by {{creator}}",
-      "members_only": "{{count}} members",
-      "waiting_room": "You're in the waiting room. Join to chat with everyone in the group.",
-      "join": "Join",
-      "joining": "Joining...",
-      "close": "Close",
-      "go_to_chat": "Go to conversation",
-      "link_invalid": "Invalid link",
-      "link_invalid_desc": "This group invite link does not exist or has expired.",
-      "link_disabled": "Link disabled",
-      "link_disabled_desc": "The admin has disabled joining via link.",
-      "error": "An error occurred",
-      "error_desc": "Unable to load group info."
     },
     "join-link-card": {
       "group_label": "Group",
@@ -265,6 +282,9 @@
       "media": "Photos/Videos",
       "noMedia": "No shared image in this group",
       "sendMessage": "Chat",
+      "adminOnlyBanner": "Only Adminstrators can access these settings",
+      "copied": "Copied",
+      "share": "Forward",
       "groupLink": "Group link",
       "memberPermissionsTitle": "Allow group members to",
       "permissions": {
@@ -280,6 +300,15 @@
         "allowNewMembersReadRecent": "Allow new members to read most recent messages",
         "allowJoinByLink": "Allow joining group via link"
       },
+      "joinQuestion": "Join Question",
+      "joinQuestionDesc": "New members must answer this question to send a join request.",
+      "joinQuestionPlaceholder": "Type the question here...",
+      "joinQuestionRequired": "Required answer",
+      "joinQuestionRequiredDesc": "Members cannot send requests if left blank",
+      "joinQuestionSetup": "Setup",
+      "joinQuestionEdit": "Edit",
+      "joinQuestionEmpty": "No join question setup for new members",
+      "joinQuestionUpdateSuccess": "Join question updated successfully",
       "toggleTooltips": {
         "reviewNewMembers": "When enabled, new members must be approved by owner or admins to join the group.",
         "highlightAdminMessages": "When enabled, messages from owner or admin will have a key symbol.",
@@ -302,7 +331,9 @@
           "silentTitle": "Leave silently",
           "silentDescription": "Only owner/admins will know that you left.",
           "confirm": "Leave group",
-          "cancel": "Cancel"
+          "cancel": "Cancel",
+          "blockGroupAddTitle": "Block from being added to this group",
+          "blockGroupAddDescription": "Others must invite you via link"
         },
         "transferOwnerDialog": {
           "title": "Select a new group owner before leaving",
@@ -315,17 +346,71 @@
         "admin": "Admin",
         "delete": "Delete",
         "addDeputy": "Add admin",
+        "adjustDeputy": "Adjust deputies",
         "transferOwner": "Change group owner",
         "noBlockedMembers": "No blocked members",
         "blockedMembersDesc": "Blocked users cannot rejoin the group, unless they are unblocked or added by the group owner or admins.",
         "blockMember": "Add to block list",
-        "transferOwnerConfirm": {
-          "title": "Change group owner",
-          "description": "The chosen person will become the group owner and have all management rights. You will lose your management rights but still be a group member. This action cannot be undone.",
+        "refreshJoinLinkDialog": {
+          "title": "Confirm",
+          "description": "The current link will become invalid. Change the link?",
+          "confirm": "Confirm",
+          "cancel": "Cancel"
+        },
+        "disableLinkDialog": {
+          "title": "Disable join link",
+          "description": "Once disabled, people will no longer be able to join the group via this link. Are you sure you want to disable it?",
+          "confirm": "Disable link",
+          "cancel": "Cancel"
+        },
+        "transferOwnerWarning": {
+          "title": "Transfer group owner",
+          "description": "Selected person will become group owner and have all management rights. You will lose management rights but still be a group member. This action cannot be undone.",
           "confirm": "Continue",
           "cancel": "Cancel"
-        }
+        },
+        "transferOwnerFinal": {
+          "title": "Confirm new owner selection",
+          "description": "After change, {{name}} will become the new owner and you will become a normal member.",
+          "confirm": "Confirm",
+          "cancel": "No"
+        },
+        "blockedMembersCount": "Blocked members ({{count}})",
+        "unblock": "Unblock",
+        "confirmBlock": "Block members"
       }
+    },
+    "join-group-dialog": {
+      "title": "Group Info",
+      "members_and_creator": "{{count}} members • Created by {{creator}}",
+      "members_only": "{{count}} members",
+      "waiting_room": "You're in the waiting room. Join to chat with everyone in the group.",
+      "join": "Join",
+      "joining": "Joining...",
+      "close": "Close",
+      "go_to_chat": "Go to chat",
+      "link_invalid": "Invalid link",
+      "link_invalid_desc": "This link does not exist or has been deleted.",
+      "link_disabled": "Link disabled",
+      "link_disabled_desc": "The group admin has disabled joining via link.",
+      "error": "An error occurred",
+      "error_desc": "Unable to load group info. Please try again later.",
+      "approval_required": "Admin approval required to join",
+      "request_pending_dialog": "Join request sent",
+      "request_pending_toast": "Your request has been sent to owner and admins for approval",
+      "request_pending_desc": "Your request to join the group is pending approval.",
+      "sending_request": "Sending request...",
+      "send_request": "Send join request",
+      "cancel_request": "Withdraw request",
+      "canceling": "Withdrawing...",
+      "default_name": "New group",
+      "admin_question": "Admin's question:",
+      "answer_placeholder": "Type your answer...",
+      "answer_required_toast": "Please answer the required question",
+      "already_member": "You are already a member of this group",
+      "blocked_from_group": "You were blocked by admin from joining this group.",
+      "request_title": "Join Request",
+      "approval_required_desc": "Membership approval is enabled for this group. You need to answer the following question to send a join request."
     },
     "toasts": {
       "updating": "Updating...",
@@ -333,7 +418,10 @@
       "updateNameSuccess": "Group name updated",
       "updateError": "Update failed",
       "leaveGroupSuccess": "Left group successfully",
-      "leaveGroupError": "Failed to leave group"
+      "leaveGroupError": "Failed to leave group",
+      "blockSuccess": "Blocked members successfully",
+      "unblockSuccess": "Unblocked successfully",
+      "noBlockCandidates": "No members available to block"
     },
     "sidebarInfo": {
       "title": "Chat Information",
@@ -375,6 +463,10 @@
       "searchMemberPlaceholder": "Search members",
       "membersLoading": "Loading members...",
       "noMatchingMembers": "No matching members",
+      "pendingJoinRequests": "Pending join group requests ({{count}})",
+      "pendingJoinRequestsLabel": "{{count}} pending join group request",
+      "reject": "Reject",
+      "accept": "Accept",
       "groupJoinLink": "Group join link",
       "copied": "Copied",
       "generating": "Generating...",

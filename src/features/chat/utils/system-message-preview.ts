@@ -130,6 +130,61 @@ export function getSystemMessagePreview(
     return preview.replace(/<[^>]*>/g, '')
   }
 
+  if (action === 'BLOCK_MEMBER') {
+    const normalizedTargetIds = (targetIds || []).map((id) => String(id))
+    const normalizedCurrentUserId = String(currentUserId || '')
+    const targetId = normalizedTargetIds[0]
+    const payloadTargetName = typeof payload?.targetName === 'string' ? String(payload.targetName) : undefined
+    const targetName =
+      targetId === normalizedCurrentUserId
+        ? String(translate('chat.you'))
+        : (memberNameById.get(String(targetId)) ?? payloadTargetName ?? fallbackUserLabel)
+    const actorName = memberNameById.get(String(senderId)) || senderName || fallbackUserLabel
+
+    if (targetId && targetId === normalizedCurrentUserId) {
+      return translate('chat.system.block_member.self_blocked') as string
+    }
+
+    if (String(senderId) === String(currentUserId)) {
+      const preview = translate('chat.system.block_member.by_you', { target: targetName }) as string
+      return preview.replace(/<[^>]*>/g, '')
+    }
+
+    const preview = translate('chat.system.block_member.by_actor', {
+      target: targetName,
+      actor: actorName
+    }) as string
+    return preview.replace(/<[^>]*>/g, '')
+  }
+
+  if (action === 'BLOCKED_FROM_JOINING') {
+    const normalizedTargetIds = (targetIds || []).map((id) => String(id))
+    const normalizedCurrentUserId = String(currentUserId || '')
+    const targetId = normalizedTargetIds[0]
+    const payloadTargetName = typeof payload?.targetName === 'string' ? String(payload.targetName) : undefined
+    const targetName =
+      targetId === normalizedCurrentUserId
+        ? String(translate('chat.you'))
+        : (memberNameById.get(String(targetId)) ?? payloadTargetName ?? fallbackUserLabel)
+
+    const preview = translate('chat.system.blocked_from_joining', { target: targetName }) as string
+    return preview.replace(/<[^>]*>/g, '')
+  }
+
+  if (action === 'SELF_BLOCKED_FROM_JOINING') {
+    const normalizedTargetIds = (targetIds || []).map((id) => String(id))
+    const targetId = normalizedTargetIds[0]
+    const payloadTargetName = typeof payload?.targetName === 'string' ? String(payload.targetName) : undefined
+    const targetName = memberNameById.get(String(targetId)) ?? payloadTargetName ?? fallbackUserLabel
+    const joinLinkEnabled = payload?.joinLinkEnabled === true
+
+    const i18nKey = joinLinkEnabled
+      ? 'chat.system.self_blocked_from_joining.with_link'
+      : 'chat.system.self_blocked_from_joining.without_link'
+    const preview = translate(i18nKey, { target: targetName }) as string
+    return preview.replace(/<[^>]*>/g, '')
+  }
+
   if (action === 'LEAVE_GROUP') {
     if (String(senderId) === String(currentUserId)) {
       return translate('chat.system.leave_group.self') as string
@@ -245,6 +300,40 @@ export function getSystemMessagePreview(
     return p.replace(/<[^>]*>/g, '')
   }
 
+  if (action === 'JOIN_REQUEST_CREATED') {
+    if (String(senderId) === String(currentUserId)) {
+      return translate('chat.system.join_request_created.self') as string
+    }
+    const actorName = memberNameById.get(String(senderId)) || senderName || fallbackUserLabel
+    const p = translate('chat.system.join_request_created.by_actor', { actor: actorName }) as string
+    return p.replace(/<[^>]*>/g, '')
+  }
+
+  if (action === 'JOIN_REQUEST_APPROVED') {
+    const normalizedTargetIds = (targetIds || []).map((id) => String(id))
+    const normalizedCurrentUserId = String(currentUserId || '')
+    const payloadTargetNames = Array.isArray(payload?.targetNames) ? payload.targetNames.map(String) : []
+    const targetName = memberNameById.get(normalizedTargetIds[0]) ?? payloadTargetNames[0] ?? fallbackUserLabel
+    const actorName = memberNameById.get(String(senderId)) || senderName || fallbackUserLabel
+
+    if (normalizedTargetIds.includes(normalizedCurrentUserId)) {
+      const p = translate('chat.system.join_request_approved.self', { actor: actorName }) as string
+      return p.replace(/<[^>]*>/g, '')
+    }
+    if (String(senderId) === String(currentUserId)) {
+      const p = translate('chat.system.join_request_approved.by_me', { target: targetName }) as string
+      return p.replace(/<[^>]*>/g, '')
+    }
+    const p = translate('chat.system.join_request_approved.by_actor', {
+      actor: actorName,
+      target: targetName
+    }) as string
+    return p.replace(/<[^>]*>/g, '')
+  }
+
+  if (action === 'JOIN_REQUEST_REJECTED') {
+    return translate('chat.system.join_request_rejected.self') as string
+  }
   // Fallback to standard labels for other cases
   const label = getSystemMessageLabel(metadataRaw, senderId, undefined, currentUserId, members, translate, false)
   return typeof label === 'string' ? label : ''

@@ -173,7 +173,13 @@ export const SystemActionType = {
   GenerateJoinLink: 'GENERATE_JOIN_LINK',
   RefreshJoinLink: 'REFRESH_JOIN_LINK',
   PinMessage: 'PIN_MESSAGE',
-  UnpinMessage: 'UNPIN_MESSAGE'
+  UnpinMessage: 'UNPIN_MESSAGE',
+  JoinRequestCreated: 'JOIN_REQUEST_CREATED',
+  JoinRequestApproved: 'JOIN_REQUEST_APPROVED',
+  JoinRequestRejected: 'JOIN_REQUEST_REJECTED',
+  BlockMember: 'BLOCK_MEMBER',
+  BlockedFromJoining: 'BLOCKED_FROM_JOINING',
+  SelfBlockedFromJoining: 'SELF_BLOCKED_FROM_JOINING'
 } as const
 
 export type SystemActionType = (typeof SystemActionType)[keyof typeof SystemActionType]

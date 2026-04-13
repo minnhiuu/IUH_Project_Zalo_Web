@@ -68,6 +68,7 @@ function SidebarSection({ title, icon, children, badge, defaultOpen = true }: Si
 
 interface ChatInfoSectionsText {
   members: string
+  pendingJoinRequestsLabel: (count: number) => string
   groupBoard: string
   reminderBoard: string
   notesPinsPolls: string
@@ -92,6 +93,7 @@ interface ChatInfoSectionsProps {
   isMemberOnly: boolean
   text: ChatInfoSectionsText
   membersCountLabel: string
+  pendingRequestsCount?: number
   conversationId?: string
   members?: ConversationMemberResponse[] | null
   onOpenMembers: () => void
@@ -111,6 +113,7 @@ export function ChatInfoSections({
   isMemberOnly,
   text,
   membersCountLabel,
+  pendingRequestsCount = 0,
   conversationId,
   members,
   onOpenMembers,
@@ -161,7 +164,19 @@ export function ChatInfoSections({
         {isGroup && (
           <SidebarSection title={text.members} defaultOpen={true}>
             <div className='flex flex-col w-full'>
-              <ActionMenuItem icon={<Users />} label={membersCountLabel} onClick={onOpenMembers} />
+              <ActionMenuItem
+                icon={<Users />}
+                label={membersCountLabel}
+                onClick={onOpenMembers}
+                subLabel={
+                  !isMemberOnly && pendingRequestsCount > 0 ? (
+                    <div className='flex items-center gap-1 text-[13px] text-primary font-medium'>
+                      <span className='scale-150'>•</span>
+                      <span>{text.pendingJoinRequestsLabel(pendingRequestsCount)}</span>
+                    </div>
+                  ) : undefined
+                }
+              />
               {joinLinkToken ? (
                 <ActionMenuItem
                   icon={<Link />}
@@ -182,15 +197,13 @@ export function ChatInfoSections({
                           showSimpleToast(chatText.sidebarInfo.copied)
                         }}
                       />
-                      <ActionButton
-                        icon={<Forward />}
-                        onClick={onShareLink}
-                      />
+                      <ActionButton icon={<Forward />} onClick={onShareLink} />
                     </div>
                   }
                 />
               ) : (
-                joinByLinkEnabled && onGenerateJoinLink && (
+                joinByLinkEnabled &&
+                onGenerateJoinLink && (
                   <button
                     type='button'
                     disabled={isReadOnly || isGenerating}
@@ -232,7 +245,10 @@ export function ChatInfoSections({
                 const att = m.attachments?.[0]
                 const isVideo = m.type === MessageType.Video || att?.contentType?.startsWith('video/')
                 return (
-                  <div key={m.id} className='aspect-square bg-muted rounded overflow-hidden cursor-pointer relative group'>
+                  <div
+                    key={m.id}
+                    className='aspect-square bg-muted rounded overflow-hidden cursor-pointer relative group'
+                  >
                     {isVideo ? (
                       <div className='w-full h-full relative'>
                         <video src={att?.url} className='w-full h-full object-cover' preload='metadata' muted />
@@ -256,7 +272,11 @@ export function ChatInfoSections({
             </div>
           )}
           <div className='px-4 pb-4'>
-            <Button variant='secondary' className='w-full font-semibold text-[0.875rem] h-9' onClick={() => openStorage('media')}>
+            <Button
+              variant='secondary'
+              className='w-full font-semibold text-[0.875rem] h-9'
+              onClick={() => openStorage('media')}
+            >
               {text.viewAll}
             </Button>
           </div>
@@ -274,14 +294,20 @@ export function ChatInfoSections({
                 const fileSize = att?.size
                 const isDoc = ['DOC', 'DOCX'].includes(ext)
                 const sentAt = m.createdAt
-                  ? new Date(m.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                  ? new Date(m.createdAt).toLocaleDateString('vi-VN', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric'
+                    })
                   : ''
                 return (
                   <div key={m.id} className='flex items-start gap-3 cursor-pointer group'>
-                    <div className={cn(
-                      'w-10 h-10 shrink-0 rounded flex items-center justify-center text-white',
-                      isDoc ? 'bg-blue-500' : 'bg-purple-500'
-                    )}>
+                    <div
+                      className={cn(
+                        'w-10 h-10 shrink-0 rounded flex items-center justify-center text-white',
+                        isDoc ? 'bg-blue-500' : 'bg-purple-500'
+                      )}
+                    >
                       {isDoc ? <FileIcon className='w-5 h-5' /> : <FileArchive className='w-5 h-5' />}
                     </div>
                     <div className='flex-1 min-w-0 flex flex-col justify-center h-10'>
@@ -299,7 +325,11 @@ export function ChatInfoSections({
             </div>
           )}
           <div className='px-4 pb-4 mt-2'>
-            <Button variant='secondary' className='w-full font-semibold text-[0.875rem] h-9' onClick={() => openStorage('files')}>
+            <Button
+              variant='secondary'
+              className='w-full font-semibold text-[0.875rem] h-9'
+              onClick={() => openStorage('files')}
+            >
               {text.viewAll}
             </Button>
           </div>
@@ -371,7 +401,6 @@ export function ChatInfoSections({
           />
         )}
       </div>
-
     </>
   )
 }

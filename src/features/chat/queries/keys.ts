@@ -10,6 +10,13 @@ export const chatKeys = {
     [...chatKeys.all(), 'search-members', query, conversationId || 'none'] as const,
   groupMembers: (conversationId: string, query: string) =>
     [...chatKeys.all(), 'group-members', conversationId, query] as const,
-  pins: (conversationId: string) =>
-    [...chatKeys.all(), 'pins', conversationId] as const
+  pins: (conversationId: string) => [...chatKeys.all(), 'pins', conversationId] as const,
+  groupAdmins: (conversationId: string) => [...chatKeys.all(), 'group-admins', conversationId] as const,
+  adminCandidates: (conversationId: string, query: string) =>
+    [...chatKeys.all(), 'admin-candidates', conversationId, query] as const,
+  joinRequests: (conversationId: string) => [...chatKeys.all(), 'join-requests', conversationId] as const,
+  joinPreview: (token: string) => [...chatKeys.all(), 'join-preview', token] as const,
+  blockedMembers: (conversationId: string) => [...chatKeys.all(), 'blocked-members', conversationId] as const,
+  blockCandidates: (conversationId: string, query: string) =>
+    [...chatKeys.all(), 'block-candidates', conversationId, query] as const
 }

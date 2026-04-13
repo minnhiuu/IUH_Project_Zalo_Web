@@ -452,10 +452,6 @@ input[type='radio']:checked {
     @apply bg-destructive-solid/95;
   }
 
-  .centered-toast-content--warning {
-    @apply bg-amber-600/95;
-  }
-
   .centered-toast-icon-circle {
     @apply flex items-center justify-center w-12 h-12 rounded-full border-2 border-toast-text mb-1;
   }

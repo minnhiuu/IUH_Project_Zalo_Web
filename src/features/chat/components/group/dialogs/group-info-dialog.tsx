@@ -7,6 +7,12 @@ import { GroupInfoOverviewStep } from '../steps/group-info-overview-step'
 import { AnimatePresence, motion } from 'framer-motion'
 import { LeaveGroupDialog } from './leave-group-dialog'
 import { cn } from '@/lib/utils'
+import { GroupMemberRole } from '@/constants/enum'
+import { GroupBlockedStep } from '../steps/group-blocked-step'
+import { GroupAdminsStep } from '../steps/group-admins-step'
+import { GroupMembersStep } from '../steps/group-members-step'
+
+type Step = 'info' | 'management' | 'blocked' | 'admins' | 'members'
 
 interface GroupInfoDialogProps {
   conversation: ConversationResponse
@@ -15,7 +21,7 @@ interface GroupInfoDialogProps {
   onOpenChange: (open: boolean) => void
   onRenameClick: () => void
   onAvatarClick: () => void
-  initialStep?: 'info' | 'management'
+  initialStep?: Step
 }
 
 export function GroupInfoDialog({
@@ -29,7 +35,7 @@ export function GroupInfoDialog({
 }: GroupInfoDialogProps) {
   const { text } = useChatText()
   const tg = text['group-info-dialog']
-  const [step, setStep] = useState<'info' | 'management'>(initialStep)
+  const [step, setStep] = useState<Step>(initialStep)
   const [isLeaveGroupDialogOpen, setIsLeaveGroupDialogOpen] = useState(false)
 
   // Track previous open state to detect when the panel is opened
@@ -66,17 +72,31 @@ export function GroupInfoDialog({
       >
         {/* Header */}
         <div className='h-17 flex items-center border-b border-border shrink-0 px-4 gap-2'>
-          {step === 'management' && (
+          {step !== 'info' && (
             <button
-              onClick={() => setStep('info')}
+              onClick={() => {
+                if (step === 'blocked' || step === 'admins') {
+                  setStep('management')
+                } else {
+                  setStep('info')
+                }
+              }}
               className='p-1 -ml-1 hover:bg-muted rounded-full transition-colors outline-none cursor-pointer shrink-0'
               aria-label={tg.backToInfo}
             >
               <ArrowLeft className='w-5 h-5 text-foreground' />
             </button>
           )}
-          <h2 className='font-bold text-[16px] text-foreground flex-1 text-center'>
-            {step === 'management' ? tg.managementTitle : tg.title}
+          <h2 className='font-bold text-[16px] text-foreground flex-1 text-center truncate'>
+            {step === 'management'
+              ? tg.managementTitle
+              : step === 'blocked'
+                ? tg.actions.removeMembers
+                : step === 'admins'
+                  ? tg.actions.ownerAndDeputy
+                  : step === 'members'
+                    ? tg.members.replace(' ({{count}})', '')
+                    : tg.title}
           </h2>
           <button
             onClick={handleClose}
@@ -105,13 +125,12 @@ export function GroupInfoDialog({
                   onAvatarClick={onAvatarClick}
                   onRenameClick={onRenameClick}
                   onCloseDialog={handleClose}
-                  onOpenManagement={() => {
-                    setStep('management')
-                  }}
+                  onOpenManagement={() => setStep('management')}
+                  onOpenMembers={() => setStep('members')}
                   onLeaveGroup={() => setIsLeaveGroupDialogOpen(true)}
                 />
               </motion.div>
-            ) : (
+            ) : step === 'management' ? (
               <motion.div
                 key='group-info-management'
                 initial={{ x: 20, opacity: 0 }}
@@ -125,7 +144,75 @@ export function GroupInfoDialog({
                   conversationId={conversation.id}
                   settings={conversation.settings}
                   joinLinkToken={conversation.joinLinkToken}
+                  currentUserRole={
+                    (conversation.members?.find((m) => m.userId === currentUserId)?.role as GroupMemberRole) ||
+                    GroupMemberRole.Member
+                  }
                   onDisbandSuccess={handleClose}
+                  onGoToAdmins={() => setStep('admins')}
+                  onGoToBlocked={() => setStep('blocked')}
+                />
+              </motion.div>
+            ) : step === 'blocked' ? (
+              <motion.div
+                key='group-info-blocked'
+                initial={{ x: 20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: 20, opacity: 0 }}
+                transition={{ duration: 0.1, ease: 'easeOut' }}
+                className='h-full'
+              >
+                <GroupBlockedStep
+                  conversationId={conversation.id}
+                  currentUserRole={
+                    (conversation.members?.find((m) => m.userId === currentUserId)?.role as GroupMemberRole) ||
+                    GroupMemberRole.Member
+                  }
+                />
+              </motion.div>
+            ) : step === 'members' ? (
+              <motion.div
+                key='group-info-members'
+                initial={{ x: 20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: 20, opacity: 0 }}
+                transition={{ duration: 0.1, ease: 'easeOut' }}
+                className='h-full'
+              >
+                <GroupMembersStep
+                  conversationId={conversation.id}
+                  membersTitle={tg.members.replace(' ({{count}})', '')}
+                  membersCount={conversation.members?.length || 0}
+                  addMemberLabel={text['create-group-dialog'].addMembersTitle}
+                  addFriendLabel={text.sidebar.addFriend}
+                  currentUserRole={
+                    (conversation.members?.find((m) => m.userId === currentUserId)?.role as GroupMemberRole) ||
+                    GroupMemberRole.Member
+                  }
+                  onOpenAddMember={() => {}} // Handle this if needed
+                  onLeaveGroup={() => setIsLeaveGroupDialogOpen(true)}
+                  onMemberClick={(member) => {
+                    if (member.userId !== currentUserId) {
+                      // Handle member click if needed
+                    }
+                  }}
+                />
+              </motion.div>
+            ) : (
+              <motion.div
+                key='group-info-admins'
+                initial={{ x: 20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: 20, opacity: 0 }}
+                transition={{ duration: 0.1, ease: 'easeOut' }}
+                className='h-full'
+              >
+                <GroupAdminsStep
+                  conversation={conversation}
+                  currentUserRole={
+                    (conversation.members?.find((m) => m.userId === currentUserId)?.role as GroupMemberRole) ||
+                    GroupMemberRole.Member
+                  }
                 />
               </motion.div>
             )}

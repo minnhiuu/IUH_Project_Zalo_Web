@@ -47,7 +47,8 @@ export const GroupSettingsSchema = z.object({
   membershipApprovalEnabled: z.boolean().default(false),
   highlightAdminMessages: z.boolean().default(true),
   newMembersCanReadRecent: z.boolean().default(true),
-  joinByLinkEnabled: z.boolean().default(false)
+  joinByLinkEnabled: z.boolean().default(false),
+  joinQuestion: z.string().nullable().optional()
 })
 
 export type GroupSettings = z.infer<typeof GroupSettingsSchema>
@@ -70,7 +71,8 @@ export const ConversationResponseSchema = z.object({
   lastMessage: LastMessageResponseSchema.nullable().optional(),
   members: z.array(ConversationMemberResponseSchema).nullable().optional(),
   settings: GroupSettingsSchema.nullable().optional(),
-  joinLinkToken: z.string().nullable().optional()
+  joinLinkToken: z.string().nullable().optional(),
+  pendingJoinRequestCount: z.number().nullable().optional()
 })
 
 export type ConversationResponse = z.infer<typeof ConversationResponseSchema>
@@ -174,6 +176,14 @@ export const GroupConversationCreateRequestSchema = z.object({
 
 export type GroupConversationCreateRequest = z.infer<typeof GroupConversationCreateRequestSchema>
 
+export const LeaveGroupRequestSchema = z.object({
+  silent: z.boolean().default(false),
+  transferTo: z.string().nullable().optional(),
+  blockReJoin: z.boolean().default(false)
+})
+
+export type LeaveGroupRequest = z.infer<typeof LeaveGroupRequestSchema>
+
 export const GroupMemberListItemResponseSchema = z.object({
   userId: z.string(),
   fullName: z.string(),
@@ -187,11 +197,20 @@ export const GroupMemberListItemResponseSchema = z.object({
 
 export type GroupMemberListItemResponse = z.infer<typeof GroupMemberListItemResponseSchema>
 
+export const AdminMemberResponseSchema = z.object({
+  userId: z.string(),
+  fullName: z.string(),
+  avatar: z.string().nullable().optional(),
+  role: z.string().nullable().optional()
+})
+
+export type AdminMemberResponse = z.infer<typeof AdminMemberResponseSchema>
+
 export const SearchMemberResponseSchema = z.object({
   userId: z.string(),
   fullName: z.string(),
   avatar: z.string().nullable().optional(),
-  phoneNumber: z.string().nullable().optional(),
+  role: z.string().nullable().optional(),
   isAlreadyMember: z.boolean().default(false)
 })
 
@@ -205,6 +224,23 @@ export interface JoinGroupPreviewResponse {
   createdByName: string | null
   memberPreviews: { name: string; avatar: string | null }[]
   isAlreadyMember: boolean
+  isBlockedFromGroup: boolean
+  membershipApprovalEnabled: boolean
+  hasPendingRequest: boolean
+  joinQuestion: string | null
+}
+
+export interface JoinRequestResponse {
+  id: string
+  conversationId: string
+  userId: string
+  fullName: string
+  avatar: string | null
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED'
+  requestedAt: string
+  processedAt: string | null
+  processedBy: string | null
+  joinAnswer: string | null
 }
 
 export interface PinnedMessageInfo {

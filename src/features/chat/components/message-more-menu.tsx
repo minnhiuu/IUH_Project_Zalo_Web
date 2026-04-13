@@ -1,4 +1,4 @@
-import { Copy, Pin, Star, List, CircleAlert, Trash2, FolderHeart, AlarmClockPlus } from 'lucide-react'
+import { Copy, Pin, Star, List, CircleAlert, Trash2, FolderHeart, AlarmClockPlus, RotateCcw } from 'lucide-react'
 import {
   DropdownMenuContent,
   DropdownMenuSub,
@@ -16,18 +16,23 @@ interface MessageBubbleMenuText {
   otherOptions: string
   saveToMyDocuments: string
   createReminder: string
+  revoke: string
+  deleteForMe: string
   delete: string
+  more: string
 }
 
 interface MessageMoreMenuProps {
   side: 'left' | 'right'
   text: MessageBubbleMenuText
   messageContent: string
+  isOwn: boolean
   onDeleteForMe: () => void
   onPin?: () => void
+  onRevoke?: () => void
 }
 
-export function MessageMoreMenu({ side, text, messageContent, onDeleteForMe, onPin }: MessageMoreMenuProps) {
+export function MessageMoreMenu({ side, text, messageContent, isOwn, onDeleteForMe, onPin, onRevoke }: MessageMoreMenuProps) {
   return (
     <DropdownMenuContent side={side} align='start' sideOffset={4} className='w-62 rounded-xl '>
       <ActionMenuItem icon={<Copy />} label={text.copy} onClick={() => navigator.clipboard.writeText(messageContent)} />
@@ -47,7 +52,17 @@ export function MessageMoreMenu({ side, text, messageContent, onDeleteForMe, onP
         </DropdownMenuSubContent>
       </DropdownMenuSub>
 
-      <ActionMenuItem icon={<Trash2 />} label={text.delete} variant='destructive' showDivider onClick={onDeleteForMe} />
+      {isOwn && onRevoke && (
+        <ActionMenuItem icon={<RotateCcw />} label={text.revoke} variant='destructive' showDivider onClick={onRevoke} />
+      )}
+
+      <ActionMenuItem
+        icon={<Trash2 />}
+        label={isOwn ? text.deleteForMe : text.delete}
+        variant='destructive'
+        showDivider={!isOwn}
+        onClick={onDeleteForMe}
+      />
     </DropdownMenuContent>
   )
 }

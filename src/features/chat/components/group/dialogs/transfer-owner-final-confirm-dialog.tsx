@@ -1,34 +1,37 @@
 import { BaseDialog } from '@/components/common/base-dialog'
 import { useChatText } from '../../../i18n/use-chat-text'
 
-interface TransferOwnerConfirmDialogProps {
+interface TransferOwnerFinalConfirmDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onConfirm: () => void
+  targetName: string
   isPending?: boolean
 }
 
-export function TransferOwnerConfirmDialog({
+export function TransferOwnerFinalConfirmDialog({
   open,
   onOpenChange,
   onConfirm,
+  targetName,
   isPending
-}: TransferOwnerConfirmDialogProps) {
+}: TransferOwnerFinalConfirmDialogProps) {
   const { text } = useChatText()
-  const labels = text['group-info-dialog'].actions.transferOwnerWarning
+  const labels = text['group-info-dialog'].actions.transferOwnerFinal
+
+  const description = labels.description.replace('{{name}}', targetName)
 
   return (
     <BaseDialog
       open={open}
       onOpenChange={onOpenChange}
       title={labels.title}
-      description={labels.description}
+      description={description}
       confirmText={labels.confirm}
       cancelText={labels.cancel}
       onConfirm={onConfirm}
       isPending={isPending}
-      variant='danger'
-      className='w-120 max-w-[95vw]'
+      className='w-110 max-w-[90vw]'
     />
   )
 }

@@ -31,7 +31,15 @@ interface ForwardDialogProps {
   message?: MessageResponse
 }
 
-export function ForwardDialog({ open, onClose, title, confirmText, cancelText, onConfirm, message }: ForwardDialogProps) {
+export function ForwardDialog({
+  open,
+  onClose,
+  title,
+  confirmText,
+  cancelText,
+  onConfirm,
+  message
+}: ForwardDialogProps) {
   const { text } = useChatText()
   const [description, setDescription] = useState('')
   const tf = text['forward-dialog']

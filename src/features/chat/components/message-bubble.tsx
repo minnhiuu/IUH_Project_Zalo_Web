@@ -12,7 +12,12 @@ import { MessageSenderAvatar } from './message-sender-avatar'
 import { MessageIconButton } from './message-icon-button'
 import { MessageMoreMenu } from './message-more-menu'
 import { JoinLinkCard } from './join-link-card'
-import { useToggleReactionMutation, useRemoveAllMyReactionsMutation, usePinMessageMutation } from '../queries/use-mutations'
+import {
+  useRevokeMessageMutation,
+  useToggleReactionMutation,
+  useRemoveAllMyReactionsMutation,
+  usePinMessageMutation
+} from '../queries/use-mutations'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query'
 import type { PageResponse } from '@/shared/api'
@@ -42,6 +47,7 @@ export function MessageBubble({
 }) {
   const { text } = useChatText()
   const { deleteMessageForMe } = useChatContext()
+  const { mutate: revokeMessage } = useRevokeMessageMutation()
   const { user } = useAuth()
   const queryClient = useQueryClient()
   const { mutate: toggleReactionMutate } = useToggleReactionMutation()
@@ -199,7 +205,7 @@ export function MessageBubble({
                     isOwn ? 'right-0' : 'left-0'
                   )}
                 >
-                {['👍', '❤️', '🤣', '😮', '😢', '😡'].map((emoji) => (
+                  {['👍', '❤️', '🤣', '😮', '😢', '😡'].map((emoji) => (
                     <button
                       key={emoji}
                       type='button'
@@ -241,56 +247,61 @@ export function MessageBubble({
                     </button>
                   ))}
                   {/* X button — remove all my reactions */}
-                  {user?.id && Object.entries(message.reactions || {}).some(([, uids]) => uids.map(String).includes(String(user.id))) && (
-                    <button
-                      type='button'
-                      title='Xóa tất cả cảm xúc của bạn'
-                      className='w-6 h-6 flex items-center justify-center rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors shrink-0'
-                      onClick={async () => {
-                        if (!conversationId || message.id.startsWith('temp-') || !user?.id) return
-                        const uid = user.id
-                        const myEmojis = Object.entries(message.reactions || {})
-                          .filter(([, uids]) => uids.map(String).includes(String(uid)))
-                          .map(([e]) => e)
-                        if (myEmojis.length === 0) return
-                        // Optimistic: strip current user from all emoji lists immediately
-                        queryClient.setQueryData(
-                          chatKeys.messages(conversationId),
-                          (oldData: InfiniteData<PageResponse<MessageResponse>> | undefined) => {
-                            if (!oldData) return oldData
-                            return {
-                              ...oldData,
-                              pages: oldData.pages.map((page: PageResponse<MessageResponse>) => ({
-                                ...page,
-                                data: page.data.map((m: MessageResponse) => {
-                                  if (m.id !== message.id) return m
-                                  const reactions: Record<string, string[]> = {}
-                                  for (const [e, uids] of Object.entries(m.reactions || {})) {
-                                    const filtered = uids.filter((id) => String(id) !== String(uid))
-                                    if (filtered.length > 0) reactions[e] = filtered
-                                  }
-                                  return { ...m, reactions: Object.keys(reactions).length ? reactions : undefined }
-                                })
-                              }))
+                  {user?.id &&
+                    Object.entries(message.reactions || {}).some(([, uids]) =>
+                      uids.map(String).includes(String(user.id))
+                    ) && (
+                      <button
+                        type='button'
+                        title='Xóa tất cả cảm xúc của bạn'
+                        className='w-6 h-6 flex items-center justify-center rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors shrink-0'
+                        onClick={async () => {
+                          if (!conversationId || message.id.startsWith('temp-') || !user?.id) return
+                          const uid = user.id
+                          const myEmojis = Object.entries(message.reactions || {})
+                            .filter(([, uids]) => uids.map(String).includes(String(uid)))
+                            .map(([e]) => e)
+                          if (myEmojis.length === 0) return
+                          // Optimistic: strip current user from all emoji lists immediately
+                          queryClient.setQueryData(
+                            chatKeys.messages(conversationId),
+                            (oldData: InfiniteData<PageResponse<MessageResponse>> | undefined) => {
+                              if (!oldData) return oldData
+                              return {
+                                ...oldData,
+                                pages: oldData.pages.map((page: PageResponse<MessageResponse>) => ({
+                                  ...page,
+                                  data: page.data.map((m: MessageResponse) => {
+                                    if (m.id !== message.id) return m
+                                    const reactions: Record<string, string[]> = {}
+                                    for (const [e, uids] of Object.entries(m.reactions || {})) {
+                                      const filtered = uids.filter((id) => String(id) !== String(uid))
+                                      if (filtered.length > 0) reactions[e] = filtered
+                                    }
+                                    return { ...m, reactions: Object.keys(reactions).length ? reactions : undefined }
+                                  })
+                                }))
+                              }
                             }
-                          }
-                        )
-                        // Single API call to remove all my reactions
-                        await removeAllMyReactionsAsync({ messageId: message.id }).catch(() => {})
-                      }}
-                    >
-                      <X size={12} />
-                    </button>
-                  )}
+                          )
+                          // Single API call to remove all my reactions
+                          await removeAllMyReactionsAsync({ messageId: message.id }).catch(() => {})
+                        }}
+                      >
+                        <X size={12} />
+                      </button>
+                    )}
                 </div>
 
                 <MessageIconButton
                   className='h-7 w-7 bg-background border-border/80 text-icon-secondary hover:text-icon-secondary hover:bg-background cursor-pointer!'
                   aria-label={mb.like}
                   icon={
-                    quickReactEmoji !== '👍'
-                      ? <span style={{ fontSize: '16px', lineHeight: 1 }}>{quickReactEmoji}</span>
-                      : <ThumbsUp className='cursor-pointer' />
+                    quickReactEmoji !== '👍' ? (
+                      <span style={{ fontSize: '16px', lineHeight: 1 }}>{quickReactEmoji}</span>
+                    ) : (
+                      <ThumbsUp className='cursor-pointer' />
+                    )
                   }
                   iconSize='md'
                   style={{ cursor: 'pointer' }}
@@ -325,28 +336,29 @@ export function MessageBubble({
             )}
 
             {/* ── Reaction badge (inside bubble, Zalo-style overlay) ── */}
-            {hasReactions && (() => {
-              const entries = Object.entries(message.reactions!)
-              const totalCount = entries.reduce((sum, [, ids]) => sum + ids.length, 0)
-              const displayEmojis = [...new Set(entries.map(([e]) => e))].slice(0, 3)
-              return (
-                <button
-                  type='button'
-                  onClick={() => setReactionModalOpen(true)}
-                  className={cn(
-                    'absolute z-20 flex items-center gap-0.5 rounded-full select-none cursor-pointer transition-opacity',
-                    'right-8 -bottom-2 px-1.5 py-0.5 bg-white dark:bg-zinc-800 border border-border shadow-sm hover:bg-muted'
-                  )}
-                >
-                  {displayEmojis.map((emoji) => (
-                    <span key={emoji} style={{ fontSize: '14px', lineHeight: 1 }}>{emoji}</span>
-                  ))}
-                  <span className='text-[12px] font-medium ml-0.5 text-muted-foreground'>
-                    {totalCount}
-                  </span>
-                </button>
-              )
-            })()}
+            {hasReactions &&
+              (() => {
+                const entries = Object.entries(message.reactions!)
+                const totalCount = entries.reduce((sum, [, ids]) => sum + ids.length, 0)
+                const displayEmojis = [...new Set(entries.map(([e]) => e))].slice(0, 3)
+                return (
+                  <button
+                    type='button'
+                    onClick={() => setReactionModalOpen(true)}
+                    className={cn(
+                      'absolute z-20 flex items-center gap-0.5 rounded-full select-none cursor-pointer transition-opacity',
+                      'right-8 -bottom-2 px-1.5 py-0.5 bg-white dark:bg-zinc-800 border border-border shadow-sm hover:bg-muted'
+                    )}
+                  >
+                    {displayEmojis.map((emoji) => (
+                      <span key={emoji} style={{ fontSize: '14px', lineHeight: 1 }}>
+                        {emoji}
+                      </span>
+                    ))}
+                    <span className='text-[12px] font-medium ml-0.5 text-muted-foreground'>{totalCount}</span>
+                  </button>
+                )
+              })()}
           </div>
 
           {!isRevoked && (
@@ -381,8 +393,10 @@ export function MessageBubble({
                   side={isOwn ? 'left' : 'right'}
                   text={mb}
                   messageContent={message.content || ''}
+                  isOwn={isOwn}
                   onDeleteForMe={() => conversationId && deleteMessageForMe(message.id, conversationId)}
                   onPin={() => conversationId && pinMessageMutate({ conversationId, messageId: message.id })}
+                  onRevoke={() => revokeMessage(message.id)}
                 />
               </DropdownMenu>
             </div>
@@ -395,70 +409,67 @@ export function MessageBubble({
           onClose={() => setReactionModalOpen(false)}
           reactions={message.reactions || {}}
           members={conversation?.members}
-          currentUser={
-            user ? { id: user.id, fullName: user.fullName, avatar: user.avatar ?? undefined } : undefined
-          }
+          currentUser={user ? { id: user.id, fullName: user.fullName, avatar: user.avatar ?? undefined } : undefined}
         />
 
-        {isOwn && (() => {
-          const readers =
-            conversation?.members?.filter((m: ConversationMemberResponse) => m.lastReadMessageId === message.id) ||
-            []
-          const hasReaders = readers.length > 0
-          const hasContent = hasReaders || isNewest
-          if (!hasContent) return null
-          return (
-          <div className='flex flex-col items-end mt-1'>
-            {(() => {
-              return (
-                <>
-                  {!hasReaders && isNewest && (
-                    <span className='text-[11px] text-muted-foreground px-1 select-none'>
-                      {message.id.startsWith('temp-') ? text.status.sending : text.status.sent}
-                    </span>
-                  )}
+        {isOwn &&
+          (() => {
+            const readers =
+              conversation?.members?.filter((m: ConversationMemberResponse) => m.lastReadMessageId === message.id) || []
+            const hasReaders = readers.length > 0
+            const hasContent = hasReaders || isNewest
+            if (!hasContent) return null
+            return (
+              <div className='flex flex-col items-end mt-1'>
+                {(() => {
+                  return (
+                    <>
+                      {!hasReaders && isNewest && (
+                        <span className='text-[11px] text-muted-foreground px-1 select-none'>
+                          {message.id.startsWith('temp-') ? text.status.sending : text.status.sent}
+                        </span>
+                      )}
 
-                  {/* Read Receipts Avatars */}
-                  {hasReaders && (
-                    <div className='flex -space-x-1 items-center mt-1 pr-1'>
-                      {(() => {
-                        const MAX_AVATARS = 3
-                        const visibleReaders = readers.slice(0, MAX_AVATARS)
-                        const extraCount = readers.length - MAX_AVATARS
+                      {/* Read Receipts Avatars */}
+                      {hasReaders && (
+                        <div className='flex -space-x-1 items-center mt-1 pr-1'>
+                          {(() => {
+                            const MAX_AVATARS = 3
+                            const visibleReaders = readers.slice(0, MAX_AVATARS)
+                            const extraCount = readers.length - MAX_AVATARS
 
-                        return (
-                          <>
-                            {visibleReaders.map((reader: ConversationMemberResponse) => (
-                              <UserAvatar
-                                key={reader.userId}
-                                src={reader.avatar}
-                                name={reader.fullName || 'User'}
-                                className='w-3 h-3 border border-background shadow-sm'
-                                fallbackClassName='text-[6px]'
-                                // title={`Đã xem bởi ${reader.fullName}`}
-                              />
-                            ))}
-                            {extraCount > 0 && (
-                              <div className='w-3 h-3 rounded-full bg-muted border border-background flex items-center justify-center'>
-                                <span className='text-[6px] font-bold'>+{extraCount}</span>
-                              </div>
-                            )}
-                          </>
-                        )
-                      })()}
-                    </div>
-                  )}
-                </>
-              )
-            })()}
-          </div>
-          )
-        })()}
+                            return (
+                              <>
+                                {visibleReaders.map((reader: ConversationMemberResponse) => (
+                                  <UserAvatar
+                                    key={reader.userId}
+                                    src={reader.avatar}
+                                    name={reader.fullName || 'User'}
+                                    className='w-3 h-3 border border-background shadow-sm'
+                                    fallbackClassName='text-[6px]'
+                                    // title={`Đã xem bởi ${reader.fullName}`}
+                                  />
+                                ))}
+                                {extraCount > 0 && (
+                                  <div className='w-3 h-3 rounded-full bg-muted border border-background flex items-center justify-center'>
+                                    <span className='text-[6px] font-bold'>+{extraCount}</span>
+                                  </div>
+                                )}
+                              </>
+                            )
+                          })()}
+                        </div>
+                      )}
+                    </>
+                  )
+                })()}
+              </div>
+            )
+          })()}
       </div>
     </div>
   )
 }
-
 
 function MessageMediaContent({ message }: { message: MessageResponse }) {
   const atts = message.attachments || []
@@ -466,7 +477,6 @@ function MessageMediaContent({ message }: { message: MessageResponse }) {
   if (atts.length === 0) {
     return <span className='text-muted-foreground italic'>Đang tải...</span>
   }
-
 
   if (atts.length === 1) {
     const att = atts[0]
@@ -485,7 +495,6 @@ function MessageMediaContent({ message }: { message: MessageResponse }) {
       </a>
     )
   }
-
 
   const gridClass = atts.length === 2 ? 'grid-cols-2' : 'grid-cols-3'
 
@@ -548,7 +557,8 @@ function MessageFileContent({ message }: { message: MessageResponse }) {
       <div className='flex flex-col min-w-0 flex-1'>
         <span className='text-[14px] font-medium truncate max-w-[200px]'>{fileName}</span>
         <span className='text-[12px] text-muted-foreground'>
-          {fileSize ? formatFileSize(fileSize) : ''}{contentType ? ` · ${ext}` : ''}
+          {fileSize ? formatFileSize(fileSize) : ''}
+          {contentType ? ` · ${ext}` : ''}
         </span>
       </div>
       {fileUrl && (
@@ -668,9 +678,7 @@ function ReactionModal({
                 onClick={() => setSelectedEmoji(emoji)}
                 className={cn(
                   'flex items-center justify-between px-4 py-2.5 w-full text-left transition-colors',
-                  selectedEmoji === emoji
-                    ? 'bg-blue-50 dark:bg-blue-900/30'
-                    : 'hover:bg-muted'
+                  selectedEmoji === emoji ? 'bg-blue-50 dark:bg-blue-900/30' : 'hover:bg-muted'
                 )}
               >
                 <span style={{ fontSize: '20px' }}>{emoji}</span>
@@ -682,19 +690,13 @@ function ReactionModal({
           {/* Right: user list */}
           <div className='flex-1 overflow-y-auto py-2'>
             {filteredUsers.length === 0 ? (
-              <p className='text-center text-muted-foreground text-[13px] mt-10'>
-                {mb.reactionModalEmpty}
-              </p>
+              <p className='text-center text-muted-foreground text-[13px] mt-10'>{mb.reactionModalEmpty}</p>
             ) : (
               filteredUsers.map(({ userId, emojiCounts, userTotal }) => {
                 const member = memberMap.get(userId)
                 const isMe = userId === currentUser?.id
-                const name = isMe
-                  ? (currentUser?.fullName || member?.fullName || userId)
-                  : (member?.fullName || userId)
-                const avatar = isMe
-                  ? (currentUser?.avatar || member?.avatar || undefined)
-                  : (member?.avatar || undefined)
+                const name = isMe ? currentUser?.fullName || member?.fullName || userId : member?.fullName || userId
+                const avatar = isMe ? currentUser?.avatar || member?.avatar || undefined : member?.avatar || undefined
                 return (
                   <div key={userId} className='flex items-center gap-3 px-4 py-2.5 hover:bg-muted/50'>
                     <UserAvatar
@@ -708,7 +710,8 @@ function ReactionModal({
                         {name}
                         {isMe && (
                           <span className='text-muted-foreground font-normal text-[13px]'>
-                            {' '}({mb.reactionModalYou})
+                            {' '}
+                            ({mb.reactionModalYou})
                           </span>
                         )}
                       </p>
