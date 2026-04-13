@@ -34,6 +34,10 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     file: t(CHAT_KEYS.type.file),
     link: t(CHAT_KEYS.type.link)
   },
+  mentionDropdown: {
+    instruction: t(CHAT_KEYS.mentionDropdown.instruction),
+    notifyAll: t(CHAT_KEYS.mentionDropdown.notifyAll)
+  },
   messageBubble: {
     reply: t(CHAT_KEYS.messageBubble.reply),
     forward: t(CHAT_KEYS.messageBubble.forward),
@@ -65,7 +69,8 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     copy: t(CHAT_KEYS.pinBoard.copy),
     unpin: t(CHAT_KEYS.pinBoard.unpin),
     collapse: t(CHAT_KEYS.pinBoard.collapse),
-    extraPins: (count: number) => t(CHAT_KEYS.pinBoard.extraPins, { count })
+    extraPins: (count: number) => t(CHAT_KEYS.pinBoard.extraPins, { count }),
+    header: (count: number) => t(CHAT_KEYS.pinBoard.header, { count })
   },
   sidebar: {
     all: t(CHAT_KEYS.sidebar.all),

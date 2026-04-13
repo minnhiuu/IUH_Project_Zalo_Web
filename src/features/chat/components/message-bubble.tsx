@@ -17,6 +17,7 @@ import { useAuth } from '@/features/auth/hooks/use-auth'
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query'
 import type { PageResponse } from '@/shared/api'
 import { chatKeys } from '../queries/keys'
+import { parseMentionsForRender, stripMentionsForPreview } from '../utils/mention'
 
 export function MessageBubble({
   message,
@@ -136,7 +137,7 @@ export function MessageBubble({
                     ? mb.image
                     : message.replyTo.type === 'FILE'
                       ? mb.file
-                      : message.replyTo.content}
+                      : stripMentionsForPreview(message.replyTo.content)}
                 </div>
               </div>
             )}
@@ -155,7 +156,15 @@ export function MessageBubble({
               ) : message.type === MessageType.File ? (
                 <MessageFileContent message={message} />
               ) : (
-                message.content
+                parseMentionsForRender(message.content).map(({ isMention, text, key }) => (
+                  isMention ? (
+                    <span key={key} className='text-[#005AE0] dark:text-[#3B82F6] cursor-pointer hover:underline'>
+                      {text}
+                    </span>
+                  ) : (
+                    <span key={key} className="whitespace-pre-wrap">{text}</span>
+                  )
+                ))
               )}
             </span>
 

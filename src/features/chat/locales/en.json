@@ -17,6 +17,10 @@
       "link": "[Link]",
       "confirm": "Confirm"
     },
+    "mentionDropdown": {
+      "instruction": "Press ↑, ↓ to select and Enter to use.",
+      "notifyAll": "Notify all group members"
+    },
     "messageBubble": {
       "reply": "Reply",
       "forward": "Forward",

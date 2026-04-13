@@ -15,6 +15,7 @@ import { formatPreview } from '../utils/chat-preview'
 import { getSystemMessagePreviewDisplay } from '../utils/system-message-preview'
 import { formatMessageTime } from '@/utils/date'
 import { getConversationDisplayName } from '../utils/group-name'
+import { stripMentionsForPreview } from '../utils/mention'
 
 interface ChatSidebarProps {
   selectedChatId?: string
@@ -52,7 +53,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
     return {
       text: formatPreview(
         {
-          content: chat.lastMessage.content || '',
+          content: stripMentionsForPreview(chat.lastMessage.content),
           isFromMe: !!chat.lastMessage.isFromMe,
           senderName: chat.lastMessage.senderName || '',
           type: chat.lastMessage.type as MessageType,

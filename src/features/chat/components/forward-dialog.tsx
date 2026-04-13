@@ -11,6 +11,7 @@ import { useAuth } from '@/features/auth'
 import { getConversationDisplayName } from '../utils/group-name'
 import type { ConversationResponse, MessageResponse } from '../schemas/chat.schema'
 import { useChatText } from '../i18n/use-chat-text'
+import { stripMentionsForPreview } from '../utils/mention'
 
 type TabType = 'recent' | 'groups' | 'friends'
 
@@ -276,7 +277,7 @@ export function ForwardDialog({ open, onClose, title, confirmText, cancelText, o
               {tf.forwardMessage || 'Forward message'}
             </p>
             <p className='text-[13px] text-foreground/80 overflow-hidden text-ellipsis whitespace-nowrap italic'>
-              {message?.content || '...'}
+              {stripMentionsForPreview(message?.content) || '...'}
             </p>
           </div>
           <div className='relative'>

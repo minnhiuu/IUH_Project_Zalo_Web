@@ -3,6 +3,7 @@ import { MessageSquare, MoreHorizontal, Copy, Pin, ChevronDown, ChevronUp } from
 import { usePinsQuery } from '../queries/use-queries'
 import { useUnpinMessageMutation } from '../queries/use-mutations'
 import { useChatText } from '../i18n/use-chat-text'
+import { stripMentionsForPreview } from '../utils/mention'
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -104,7 +105,7 @@ export function PinBoard({ conversationId, onScrollToMessage }: PinBoardProps) {
           <div className='flex-1 min-w-0'>
             <p className='text-[13px] font-semibold text-foreground leading-tight mb-[2px]'>{text.pinBoard.title}</p>
             <p className='text-[13px] text-muted-foreground truncate leading-snug'>
-              <span className='font-medium text-foreground/80'>{latest.pinnedByName}:</span> {latest.contentSnapshot}
+              <span className='font-medium text-foreground/80'>{latest.pinnedByName}:</span> {stripMentionsForPreview(latest.contentSnapshot)}
             </p>
           </div>
 
@@ -200,7 +201,7 @@ function ExpandedPinRow({
       <div className='flex-1 min-w-0'>
         <p className='text-[13px] font-semibold text-foreground leading-tight mb-[2px]'>{text.pinBoard.title}</p>
         <p className='text-[13px] text-muted-foreground truncate leading-snug'>
-          <span className='font-medium text-foreground/80'>{pin.pinnedByName}:</span> {pin.contentSnapshot}
+          <span className='font-medium text-foreground/80'>{pin.pinnedByName}:</span> {stripMentionsForPreview(pin.contentSnapshot)}
         </p>
       </div>
       <div

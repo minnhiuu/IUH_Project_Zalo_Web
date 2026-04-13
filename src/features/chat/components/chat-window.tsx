@@ -461,7 +461,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
         ) : !canSendMessages(conversation, user?.id || '') ? (
           <ChatInputRestricted message={text.restricted.onlyAdminCanSend} highlightTags />
         ) : (
-          <ChatInput conversationId={conversation.id} replyTo={replyTo} onCancelReply={() => setReplyTo(null)} />
+          <ChatInput conversationId={conversation.id} isGroup={conversation.isGroup} replyTo={replyTo} onCancelReply={() => setReplyTo(null)} />
         )}
         {forwardingMessage && (
           <ForwardDialog

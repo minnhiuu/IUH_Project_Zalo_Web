@@ -25,6 +25,10 @@ export const CHAT_KEYS = {
   you: 'chat.you',
   you_lower: 'chat.you_lower',
   user: 'chat.user',
+  mentionDropdown: {
+    instruction: 'chat.mentionDropdown.instruction',
+    notifyAll: 'chat.mentionDropdown.notifyAll',
+  },
   type: {
     image: 'chat.type.image',
     file: 'chat.type.file',
@@ -69,7 +73,8 @@ export const CHAT_KEYS = {
     copy: 'chat.pinBoard.copy',
     unpin: 'chat.pinBoard.unpin',
     collapse: 'chat.pinBoard.collapse',
-    extraPins: 'chat.pinBoard.extraPins'
+    extraPins: 'chat.pinBoard.extraPins',
+    header: 'chat.pinBoard.header'
   },
 
   sidebar: {

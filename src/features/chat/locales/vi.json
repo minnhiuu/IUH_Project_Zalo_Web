@@ -17,6 +17,10 @@
       "link": "[Liên kết]",
       "confirm": "Xác nhận"
     },
+    "mentionDropdown": {
+      "instruction": "Sử dụng phím mũi tên lên, xuống để chọn. Nhấn phím Enter để sử dụng",
+      "notifyAll": "Báo nhắc cho tất cả thành viên"
+    },
     "messageBubble": {
       "reply": "Trả lời",
       "forward": "Chuyển tiếp",

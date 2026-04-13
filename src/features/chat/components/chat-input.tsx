@@ -1,10 +1,13 @@
-import { useState, useRef, useEffect, useCallback, type FormEvent, type KeyboardEvent } from 'react'
+import { useState, useRef, useEffect, useCallback, useMemo, type FormEvent, type KeyboardEvent } from 'react'
 import { SendHorizonal, Smile, Paperclip, ImageIcon, X, Quote, ThumbsUp, FileIcon, Loader2 } from 'lucide-react'
-import { Textarea } from '@/components/ui/textarea'
 import type { MessageResponse } from '../schemas/chat.schema'
 import { useChatContext, type FileAttachment } from '../context/chat-context'
 import { useChatText } from '../i18n/use-chat-text'
 import { useAuth } from '@/features/auth/hooks/use-auth'
+import { useGroupMembersInfinite } from '../queries/use-queries'
+import { MentionDropdown } from './mention-dropdown'
+import { RichInput, type RichInputRef } from './rich-input'
+import { stripMentionsForPreview } from '../utils/mention'
 
 const IMAGE_VIDEO_ACCEPT = 'image/*,video/*'
 const FILE_ACCEPT = '*/*'
@@ -12,24 +15,62 @@ const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50MB
 
 interface ChatInputProps {
   conversationId: string
+  isGroup?: boolean
   replyTo?: MessageResponse | null
   onCancelReply?: () => void
 }
 
-export function ChatInput({ conversationId, replyTo, onCancelReply }: ChatInputProps) {
+export function ChatInput({ conversationId, isGroup, replyTo, onCancelReply }: ChatInputProps) {
   const { sendMessage, sendFileMessage, sendTyping } = useChatContext()
   const { text } = useChatText()
   const { user } = useAuth()
   const [content, setContent] = useState('')
+  const [htmlContent, setHtmlContent] = useState('')
   const [fileAttachments, setFileAttachments] = useState<FileAttachment[]>([])
   const [attachmentType, setAttachmentType] = useState<'image' | 'file' | null>(null)
   const [isSending, setIsSending] = useState(false)
+  // Mention state
+  const [mentionQuery, setMentionQuery] = useState<string | null>(null) // null = closed
   const formRef = useRef<HTMLFormElement>(null)
-  const inputRef = useRef<HTMLTextAreaElement>(null)
+  const inputRef = useRef<RichInputRef>(null)
   const imageInputRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isTypingRef = useRef(false)
+
+  // Group members for @ mention (only fetch when mention is active)
+  const { data: membersData } = useGroupMembersInfinite(conversationId, '', mentionQuery !== null)
+  
+  const alreadyMentionedIds = useMemo(() => {
+    const ids = new Set<string>()
+    const matches = htmlContent.matchAll(/data-id="([^"]+)"/g)
+    for (const match of matches) {
+      ids.add(match[1])
+    }
+    return ids
+  }, [htmlContent])
+
+  const availableMembers = useMemo(() => {
+    return (membersData?.pages ?? [])
+      .flatMap((p) => p.data)
+      .filter((m) => !m.isCurrentUser && !alreadyMentionedIds.has(m.userId))
+  }, [membersData, alreadyMentionedIds])
+
+  // Parse current @ trigger from selection
+  const detectMentionTrigger = (): string | null => {
+    const selection = window.getSelection()
+    if (!selection || selection.rangeCount === 0) return null
+    const range = selection.getRangeAt(0)
+    if (range.startContainer.nodeType !== Node.TEXT_NODE) return null
+    
+    const textBefore = range.startContainer.textContent?.slice(0, range.startOffset) || ''
+    const atIdx = textBefore.lastIndexOf('@')
+    if (atIdx === -1) return null
+    
+    const between = textBefore.slice(atIdx + 1)
+    if (/\s/.test(between)) return null // contains space => not a mention trigger
+    return between
+  }
 
   // Focus input when opening a new conversation
   useEffect(() => {
@@ -98,6 +139,31 @@ export function ChatInput({ conversationId, replyTo, onCancelReply }: ChatInputP
     })
   }
 
+  const extractSendContent = () => {
+    if (!inputRef.current) return content
+    let html = inputRef.current.innerHTML
+    
+    // Replace mention spans with placeholders so they survive textContent extraction
+    html = html.replace(/<span[^>]*data-mention="true"[^>]*>@?(.*?)<\/span>/g, '{{MENTION_START}}$1{{MENTION_END}}')
+    
+    // Replace non-breaking spaces
+    html = html.replace(/&nbsp;/g, ' ')
+    // Replace divs/brs with newlines (for contentEditable multiline support)
+    html = html.replace(/<br\s*[\/]?>/gi, '\n')
+    html = html.replace(/<\/div>/gi, '\n').replace(/<div(?:[^>]*)>/gi, '')
+    
+    // Strip remaining tags using textContent
+    const tmp = document.createElement('div')
+    tmp.innerHTML = html
+    let rawText = tmp.textContent || tmp.innerText || ''
+    
+    // Convert placeholders back to desired format @<mention>Name</mention>
+    rawText = rawText.replace(/\{\{MENTION_START\}\}/g, '@<mention>')
+    rawText = rawText.replace(/\{\{MENTION_END\}\}/g, '</mention>')
+    
+    return rawText
+  }
+
   const handleSend = async (e?: FormEvent) => {
     e?.preventDefault()
     if (isSending) return
@@ -112,6 +178,8 @@ export function ChatInput({ conversationId, replyTo, onCancelReply }: ChatInputP
         }
       : null
 
+    const sendText = extractSendContent().trim()
+
     // Gửi file/ảnh/video
     if (fileAttachments.length > 0) {
       setIsSending(true)
@@ -123,8 +191,9 @@ export function ChatInput({ conversationId, replyTo, onCancelReply }: ChatInputP
         setIsSending(false)
       }
       // Nếu có text kèm theo, gửi riêng
-      if (content.trim()) {
-        sendMessage(conversationId, content)
+      if (sendText) {
+        sendMessage(conversationId, sendText)
+        inputRef.current?.clear()
         setContent('')
       }
       setTimeout(() => inputRef.current?.focus(), 0)
@@ -132,8 +201,9 @@ export function ChatInput({ conversationId, replyTo, onCancelReply }: ChatInputP
     }
 
     // Gửi text thường
-    if (!content.trim()) return
-    sendMessage(conversationId, content, replyMetadata)
+    if (!sendText) return
+    sendMessage(conversationId, sendText, replyMetadata)
+    inputRef.current?.clear()
     setContent('')
     onCancelReply?.()
     // Stop typing indicator
@@ -145,11 +215,23 @@ export function ChatInput({ conversationId, replyTo, onCancelReply }: ChatInputP
     setTimeout(() => inputRef.current?.focus(), 0)
   }
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Escape' && mentionQuery !== null) {
+      setMentionQuery(null)
+      return
+    }
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       handleSend()
     }
+  }
+
+  const handleMentionSelect = (fullName: string, userId: string) => {
+    inputRef.current?.insertMention(fullName, userId)
+    setMentionQuery(null)
+    setTimeout(() => {
+      inputRef.current?.focus()
+    }, 0)
   }
 
   const hasContent = content.trim() || fileAttachments.length > 0
@@ -216,7 +298,9 @@ export function ChatInput({ conversationId, replyTo, onCancelReply }: ChatInputP
               <Quote size={14} className='text-muted-foreground mt-1 shrink-0' />
               <div className='flex flex-col truncate'>
                 <span className='text-[13px]'>{text.replyingTo(replyTo.senderName || '')}</span>
-                <span className='truncate text-[13px] text-muted-foreground max-w-[600px]'>{replyTo.content}</span>
+                <span className='truncate text-[13px] text-muted-foreground max-w-[600px]'>
+                  {stripMentionsForPreview(replyTo.content)}
+                </span>
               </div>
             </div>
             <button onClick={onCancelReply} className='p-1 hover:bg-muted rounded-full transition-colors shrink-0 ml-2'>
@@ -289,14 +373,34 @@ export function ChatInput({ conversationId, replyTo, onCancelReply }: ChatInputP
       <form
         ref={formRef}
         onSubmit={handleSend}
-        className='bg-background flex-1 flex items-center p-2 gap-2 pr-4 min-w-0'
+        className='bg-background flex-1 flex items-center p-2 gap-2 pr-4 min-w-0 relative'
       >
+        {/* @ mention dropdown */}
+        {mentionQuery !== null && (
+          <MentionDropdown
+            members={availableMembers}
+            query={mentionQuery}
+            showAllMention={isGroup && !alreadyMentionedIds.has('all')}
+            onSelect={(member) => handleMentionSelect(member.fullName, member.userId)}
+            onClose={() => setMentionQuery(null)}
+          />
+        )}
         <div className='flex-1 min-w-0'>
-          <Textarea
+          <RichInput
             ref={inputRef}
             value={content}
-            onChange={(e) => {
-              setContent(e.target.value)
+            onChange={(html, textContent) => {
+              setContent(textContent)
+              setHtmlContent(html)
+              
+              // Detect @ trigger
+              const trigger = detectMentionTrigger()
+              if (trigger !== null) {
+                setMentionQuery(trigger)
+              } else {
+                setMentionQuery(null)
+              }
+              
               // Typing indicator
               if (!isTypingRef.current) {
                 isTypingRef.current = true
@@ -310,8 +414,6 @@ export function ChatInput({ conversationId, replyTo, onCancelReply }: ChatInputP
             }}
             onKeyDown={handleKeyDown}
             placeholder={text.inputPlaceholder}
-            className='min-h-[44px] max-h-[120px] bg-transparent border-none focus-visible:ring-0 shadow-none resize-none py-2.5 px-4 text-[16px] break-words'
-            rows={1}
           />
         </div>
         <div className='flex items-center gap-1'>
