@@ -2,9 +2,19 @@ import { createContext, useContext, type ReactNode } from 'react'
 import { useChatWebSocket } from '../hooks/use-chat-websocket'
 import type { ReplyMetadata } from '../schemas/chat.schema'
 
+export interface FileAttachment {
+  file: File
+  previewUrl?: string // blob URL for image/video preview
+}
+
 type ChatContextType = {
   connected: boolean
   sendMessage: (conversationId: string, content: string, replyTo?: ReplyMetadata | null, isForwarded?: boolean) => void
+  sendFileMessage: (
+    conversationId: string,
+    files: FileAttachment[],
+    replyTo?: ReplyMetadata | null
+  ) => Promise<void>
   revokeMessage: (messageId: string, conversationId: string) => Promise<void>
   deleteMessageForMe: (messageId: string, conversationId: string) => Promise<void>
 }

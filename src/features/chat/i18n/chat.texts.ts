@@ -54,7 +54,11 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     forwarded: t(CHAT_KEYS.messageBubble.forwarded),
     revoked: t(CHAT_KEYS.messageBubble.revoked),
     image: t(CHAT_KEYS.messageBubble.image),
-    file: t(CHAT_KEYS.messageBubble.file)
+    file: t(CHAT_KEYS.messageBubble.file),
+    reactionModalTitle: t(CHAT_KEYS.messageBubble.reactionModalTitle),
+    reactionModalAll: t(CHAT_KEYS.messageBubble.reactionModalAll),
+    reactionModalYou: t(CHAT_KEYS.messageBubble.reactionModalYou),
+    reactionModalEmpty: t(CHAT_KEYS.messageBubble.reactionModalEmpty)
   },
   sidebar: {
     all: t(CHAT_KEYS.sidebar.all),
@@ -316,7 +320,11 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     pendingJoinRequests: t(CHAT_KEYS.sidebarInfo.pendingJoinRequests),
     pendingJoinRequestsLabel: (count: number) => t(CHAT_KEYS.sidebarInfo.pendingJoinRequestsLabel, { count }),
     reject: t(CHAT_KEYS.sidebarInfo.reject),
-    accept: t(CHAT_KEYS.sidebarInfo.accept)
+    accept: t(CHAT_KEYS.sidebarInfo.accept),
+    groupJoinLink: t(CHAT_KEYS.sidebarInfo.groupJoinLink),
+    copied: t(CHAT_KEYS.sidebarInfo.copied),
+    generating: t(CHAT_KEYS.sidebarInfo.generating),
+    createInviteLink: t(CHAT_KEYS.sidebarInfo.createInviteLink)
   },
   'join-group-dialog': {
     title: t(CHAT_KEYS['join-group-dialog'].title),
@@ -350,6 +358,21 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     blocked_from_group: t(CHAT_KEYS['join-group-dialog'].blocked_from_group),
     request_title: t(CHAT_KEYS['join-group-dialog'].request_title),
     approval_required_desc: t(CHAT_KEYS['join-group-dialog'].approval_required_desc)
+  },
+  mediaStorage: {
+    title: t(CHAT_KEYS.mediaStorage.title),
+    tabMedia: t(CHAT_KEYS.mediaStorage.tabMedia),
+    tabFiles: t(CHAT_KEYS.mediaStorage.tabFiles),
+    tabLinks: t(CHAT_KEYS.mediaStorage.tabLinks),
+    filterSender: t(CHAT_KEYS.mediaStorage.filterSender),
+    filterDate: t(CHAT_KEYS.mediaStorage.filterDate),
+    filterType: t(CHAT_KEYS.mediaStorage.filterType),
+    searchFilePlaceholder: t(CHAT_KEYS.mediaStorage.searchFilePlaceholder),
+    noPhotosVideos: t(CHAT_KEYS.mediaStorage.noPhotosVideos),
+    noFiles: t(CHAT_KEYS.mediaStorage.noFiles),
+    noLinks: t(CHAT_KEYS.mediaStorage.noLinks),
+    downloadedLocally: t(CHAT_KEYS.mediaStorage.downloadedLocally),
+    dateLabel: (day: number, month: number) => t(CHAT_KEYS.mediaStorage.dateLabel, { day, month })
   },
   /** Trả về label dịch cho trạng thái pipeline AI theo ngôn ngữ hiện tại */
   aiStatusLabel: (status?: AiProcessingStatus): string => {

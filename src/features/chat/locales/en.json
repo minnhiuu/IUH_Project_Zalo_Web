@@ -37,7 +37,11 @@
       "forwarded": "Forwarded",
       "revoked": "This message was revoked",
       "image": "📷 Image",
-      "file": "📁 File"
+      "file": "📁 File",
+      "reactionModalTitle": "Reactions",
+      "reactionModalAll": "All",
+      "reactionModalYou": "You",
+      "reactionModalEmpty": "No reactions yet"
     },
     "system": {
       "add_members": {
@@ -439,7 +443,26 @@
       "pendingJoinRequests": "Pending join group requests ({{count}})",
       "pendingJoinRequestsLabel": "{{count}} pending join group request",
       "reject": "Reject",
-      "accept": "Accept"
+      "accept": "Accept",
+      "groupJoinLink": "Group join link",
+      "copied": "Copied",
+      "generating": "Generating...",
+      "createInviteLink": "Create invite link"
+    },
+    "mediaStorage": {
+      "title": "Storage",
+      "tabMedia": "Photos/Videos",
+      "tabFiles": "Files",
+      "tabLinks": "Links",
+      "filterSender": "Sender",
+      "filterDate": "Date",
+      "filterType": "Type",
+      "searchFilePlaceholder": "Search files",
+      "noPhotosVideos": "No photos or videos yet",
+      "noFiles": "No files yet",
+      "noLinks": "No links yet",
+      "downloadedLocally": "✓ Saved locally",
+      "dateLabel": "{{month}}/{{day}}"
     }
   },
   "ai": {

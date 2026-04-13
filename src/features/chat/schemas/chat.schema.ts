@@ -97,6 +97,19 @@ export const MessageResponseSchema = z.object({
   unreadCount: z.number().nullable().optional(),
   isFromMe: z.boolean().nullable().optional(),
   metadata: z.record(z.string(), z.any()).nullable().optional(),
+  attachments: z
+    .array(
+      z.object({
+        key: z.string(),
+        url: z.string(),
+        fileName: z.string(),
+        originalFileName: z.string(),
+        contentType: z.string(),
+        size: z.number()
+      })
+    )
+    .nullable()
+    .optional(),
   linkPreview: z
     .object({
       url: z.string(),
@@ -107,7 +120,9 @@ export const MessageResponseSchema = z.object({
       memberPreviews: z.array(z.object({ name: z.string(), avatar: z.string().nullable().optional() }))
     })
     .nullable()
-    .optional()
+    .optional(),
+  // emoji → array of userIds
+  reactions: z.record(z.string(), z.array(z.string())).nullable().optional()
 })
 
 export type MessageResponse = z.infer<typeof MessageResponseSchema>
@@ -129,13 +144,25 @@ export type ChatUser = z.infer<typeof ChatUserSchema>
 // ────────────────────────────────────────────────────────────────
 // ChatMessageRequest
 // ────────────────────────────────────────────────────────────────
+export const AttachmentRequestSchema = z.object({
+  key: z.string(),
+  url: z.string(),
+  fileName: z.string(),
+  originalFileName: z.string(),
+  contentType: z.string(),
+  size: z.number()
+})
+
+export type AttachmentRequest = z.infer<typeof AttachmentRequestSchema>
+
 export const ChatMessageRequestSchema = z.object({
   conversationId: z.string().nullable().optional(),
   recipientId: z.string().nullable().optional(),
   content: z.string(),
   clientMessageId: z.string().optional(),
   replyTo: ReplyMetadataSchema.nullable().optional(),
-  isForwarded: z.boolean().optional()
+  isForwarded: z.boolean().optional(),
+  attachments: z.array(AttachmentRequestSchema).nullable().optional()
 })
 
 export type ChatMessageRequest = z.infer<typeof ChatMessageRequestSchema>

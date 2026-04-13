@@ -57,9 +57,44 @@ export const markAsRead = async (conversationId: string): Promise<void> => {
   await http.put(`/messages/conversations/${conversationId}/read`)
 }
 
+export const getMediaMessagesApi = async (
+  conversationId: string,
+  types: string[],
+  page = 0,
+  size = 20
+): Promise<PageResponse<MessageResponse>> => {
+  const response = await http.get<ApiResponse<PageResponse<MessageResponse>>>(
+    `/messages/conversations/${conversationId}/media`,
+    { params: { types: types.join(','), page, size } }
+  )
+  return response.data.data
+}
+
 export const sendMessageApi = async (data: ChatMessageRequest): Promise<void> => {
   const { conversationId, ...requestBody } = data
   await http.post(`/messages/conversations/${conversationId}/messages`, requestBody)
+}
+
+// ────────────────────────────────────────────────────────────────
+// File Upload → S3 via file-service
+// ────────────────────────────────────────────────────────────────
+export interface FileUploadResult {
+  key: string
+  url: string
+  fileName: string
+  originalFileName: string
+  contentType: string
+  size: number
+}
+
+export const uploadFileApi = async (file: File, folder: string): Promise<FileUploadResult> => {
+  const formData = new FormData()
+  formData.append('file', file)
+  const response = await http.post<ApiResponse<FileUploadResult>>('/files/upload', formData, {
+    params: { folder },
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+  return response.data.data
 }
 
 export const revokeMessageApi = async (messageId: string): Promise<void> => {
@@ -68,6 +103,14 @@ export const revokeMessageApi = async (messageId: string): Promise<void> => {
 
 export const deleteMessageForMeApi = async (messageId: string): Promise<void> => {
   await http.delete(`/messages/messages/${messageId}/me`)
+}
+
+export const toggleReactionApi = async (messageId: string, emoji: string): Promise<void> => {
+  await http.post(`/messages/messages/${messageId}/reactions`, { emoji })
+}
+
+export const removeAllMyReactionsApi = async (messageId: string): Promise<void> => {
+  await http.delete(`/messages/messages/${messageId}/reactions/me`)
 }
 
 export const updateGroupNameApi = async (conversationId: string, name: string): Promise<ConversationResponse> => {

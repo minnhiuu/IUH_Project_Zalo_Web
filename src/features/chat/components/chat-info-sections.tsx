@@ -15,7 +15,8 @@ import {
   Trash2,
   Copy,
   Forward,
-  Link
+  Link,
+  Play
 } from 'lucide-react'
 import { useState } from 'react'
 import { Switch } from '@/components/ui/switch'
@@ -24,6 +25,12 @@ import { ActionMenuItem } from '@/components/common/action-menu-item'
 import { ActionButton } from '@/components/common/action-button'
 import { CustomTooltip } from '@/components/common/custom-tooltip'
 import { showSimpleToast } from '@/utils/toast'
+import { useMediaMessagesQuery } from '../queries/use-queries'
+import { MediaStorageView } from './media-storage-view'
+import { MessageType } from '@/constants/enum'
+import type { ConversationMemberResponse } from '../schemas/chat.schema'
+import { cn } from '@/lib/utils'
+import { useChatText } from '../i18n/use-chat-text'
 
 interface SidebarSectionProps {
   title: string
@@ -87,6 +94,8 @@ interface ChatInfoSectionsProps {
   text: ChatInfoSectionsText
   membersCountLabel: string
   pendingRequestsCount?: number
+  conversationId?: string
+  members?: ConversationMemberResponse[] | null
   onOpenMembers: () => void
   onOpenDisappearingDialog: () => void
   onLeaveGroup: () => void
@@ -96,6 +105,7 @@ interface ChatInfoSectionsProps {
   isGenerating?: boolean
   onGenerateJoinLink?: () => void
   onShareLink?: () => void
+  onOpenStorage?: (tab: 'media' | 'files' | 'links') => void
 }
 
 export function ChatInfoSections({
@@ -104,6 +114,8 @@ export function ChatInfoSections({
   text,
   membersCountLabel,
   pendingRequestsCount = 0,
+  conversationId,
+  members,
   onOpenMembers,
   onOpenDisappearingDialog,
   onLeaveGroup,
@@ -112,8 +124,40 @@ export function ChatInfoSections({
   isReadOnly,
   isGenerating,
   onShareLink,
-  onGenerateJoinLink
+  onGenerateJoinLink,
+  onOpenStorage
 }: ChatInfoSectionsProps) {
+  const [storageOpen, setStorageOpen] = useState(false)
+  const [storageTab, setStorageTab] = useState<'media' | 'files' | 'links'>('media')
+  const { text: chatText } = useChatText()
+
+  // Fetch preview data for sidebar
+  const { data: mediaData } = useMediaMessagesQuery(conversationId, ['IMAGE', 'VIDEO'], 0, 8)
+  const { data: fileData } = useMediaMessagesQuery(conversationId, ['FILE'], 0, 3)
+
+  const mediaItems = mediaData?.data || []
+  const fileItems = fileData?.data || []
+
+  const openStorage = (tab: 'media' | 'files' | 'links') => {
+    if (onOpenStorage) {
+      onOpenStorage(tab)
+    } else {
+      setStorageTab(tab)
+      setStorageOpen(true)
+    }
+  }
+
+  if (storageOpen && conversationId) {
+    return (
+      <MediaStorageView
+        conversationId={conversationId}
+        members={members}
+        defaultTab={storageTab}
+        onClose={() => setStorageOpen(false)}
+      />
+    )
+  }
+
   return (
     <>
       <div className='bg-background'>
@@ -136,7 +180,7 @@ export function ChatInfoSections({
               {joinLinkToken ? (
                 <ActionMenuItem
                   icon={<Link />}
-                  label='Link tham gia nhóm'
+                  label={chatText.sidebarInfo.groupJoinLink}
                   showDivider={true}
                   as='div'
                   subLabel={
@@ -150,7 +194,7 @@ export function ChatInfoSections({
                         icon={<Copy />}
                         onClick={() => {
                           navigator.clipboard.writeText(`${window.location.origin}/g/${joinLinkToken}`)
-                          showSimpleToast('Đã sao chép')
+                          showSimpleToast(chatText.sidebarInfo.copied)
                         }}
                       />
                       <ActionButton icon={<Forward />} onClick={onShareLink} />
@@ -167,7 +211,7 @@ export function ChatInfoSections({
                     onClick={onGenerateJoinLink}
                   >
                     <Link className='w-4 h-4' />
-                    {isGenerating ? 'Đang tạo...' : 'Tạo link mời'}
+                    {isGenerating ? chatText.sidebarInfo.generating : chatText.sidebarInfo.createInviteLink}
                   </button>
                 )
               )}
@@ -193,53 +237,99 @@ export function ChatInfoSections({
         )}
 
         <SidebarSection title={text.photosVideos} defaultOpen={true}>
-          <div className='grid grid-cols-4 gap-1 px-4 py-3'>
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className='aspect-square bg-muted rounded overflow-hidden cursor-pointer relative group'>
-                <img
-                  src='https://t4.ftcdn.net/jpg/04/81/13/43/360_F_481134373_0CE42TCSX9G1TOB9vA8n4wPZ88YfD55D.jpg'
-                  className='object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity'
-                  alt='Mocked media'
-                />
-              </div>
-            ))}
-          </div>
+          {mediaItems.length === 0 ? (
+            <p className='text-[12px] text-muted-foreground text-center py-4'>{chatText.mediaStorage.noPhotosVideos}</p>
+          ) : (
+            <div className='grid grid-cols-4 gap-1 px-4 py-3'>
+              {mediaItems.slice(0, 8).map((m) => {
+                const att = m.attachments?.[0]
+                const isVideo = m.type === MessageType.Video || att?.contentType?.startsWith('video/')
+                return (
+                  <div
+                    key={m.id}
+                    className='aspect-square bg-muted rounded overflow-hidden cursor-pointer relative group'
+                  >
+                    {isVideo ? (
+                      <div className='w-full h-full relative'>
+                        <video src={att?.url} className='w-full h-full object-cover' preload='metadata' muted />
+                        <div className='absolute inset-0 flex items-center justify-center bg-black/30'>
+                          <Play size={16} className='text-white fill-white' />
+                        </div>
+                      </div>
+                    ) : (
+                      <a href={att?.url} target='_blank' rel='noopener noreferrer'>
+                        <img
+                          src={att?.url}
+                          alt={att?.originalFileName || 'image'}
+                          className='object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity'
+                          loading='lazy'
+                        />
+                      </a>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
           <div className='px-4 pb-4'>
-            <Button variant='secondary' className='w-full font-semibold text-[0.875rem] h-9'>
+            <Button
+              variant='secondary'
+              className='w-full font-semibold text-[0.875rem] h-9'
+              onClick={() => openStorage('media')}
+            >
               {text.viewAll}
             </Button>
           </div>
         </SidebarSection>
 
         <SidebarSection title={text.files} defaultOpen={true}>
-          <div className='flex flex-col px-4 py-2 space-y-3'>
-            {[
-              { type: 'word', name: 'Desach-cnm.docx', size: '16.47 KB', date: '29/03/2026' },
-              { type: 'zip', name: 'ontapcnm.rar', size: '23.12 KB', date: '26/03/2026' },
-              { type: 'zip', name: 'NguyenXuanHo_DeThiThu.rar', size: '23.75 KB', date: '25/03/2026' }
-            ].map((file, i) => (
-              <div key={i} className='flex items-start gap-3 cursor-pointer group'>
-                <div
-                  className={`w-10 h-10 shrink-0 rounded flex items-center justify-center text-white ${file.type === 'word' ? 'bg-blue-500' : 'bg-purple-500'}`}
-                >
-                  {file.type === 'word' ? <FileIcon className='w-5 h-5' /> : <FileArchive className='w-5 h-5' />}
-                </div>
-                <div className='flex-1 min-w-0 flex flex-col justify-center h-10'>
-                  <p className='text-[0.875rem] text-foreground font-medium truncate group-hover:text-primary transition-colors'>
-                    {file.name}
-                  </p>
-                  <div className='flex items-center justify-between text-[0.75rem] text-muted-foreground mt-0.5'>
-                    <div className='flex items-center gap-1'>
-                      <span>{file.size}</span>
+          {fileItems.length === 0 ? (
+            <p className='text-[12px] text-muted-foreground text-center py-4'>{chatText.mediaStorage.noFiles}</p>
+          ) : (
+            <div className='flex flex-col px-4 py-2 space-y-3'>
+              {fileItems.slice(0, 3).map((m) => {
+                const att = m.attachments?.[0]
+                const fileName = att?.originalFileName || att?.fileName || 'File'
+                const ext = fileName.split('.').pop()?.toUpperCase() || ''
+                const fileSize = att?.size
+                const isDoc = ['DOC', 'DOCX'].includes(ext)
+                const sentAt = m.createdAt
+                  ? new Date(m.createdAt).toLocaleDateString('vi-VN', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric'
+                    })
+                  : ''
+                return (
+                  <div key={m.id} className='flex items-start gap-3 cursor-pointer group'>
+                    <div
+                      className={cn(
+                        'w-10 h-10 shrink-0 rounded flex items-center justify-center text-white',
+                        isDoc ? 'bg-blue-500' : 'bg-purple-500'
+                      )}
+                    >
+                      {isDoc ? <FileIcon className='w-5 h-5' /> : <FileArchive className='w-5 h-5' />}
                     </div>
-                    <span>{file.date}</span>
+                    <div className='flex-1 min-w-0 flex flex-col justify-center h-10'>
+                      <p className='text-[0.875rem] text-foreground font-medium truncate group-hover:text-primary transition-colors'>
+                        {fileName}
+                      </p>
+                      <div className='flex items-center justify-between text-[0.75rem] text-muted-foreground mt-0.5'>
+                        <span>{fileSize ? `${(fileSize / 1024).toFixed(2)} KB` : ''}</span>
+                        <span>{sentAt}</span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            ))}
-          </div>
+                )
+              })}
+            </div>
+          )}
           <div className='px-4 pb-4 mt-2'>
-            <Button variant='secondary' className='w-full font-semibold text-[0.875rem] h-9'>
+            <Button
+              variant='secondary'
+              className='w-full font-semibold text-[0.875rem] h-9'
+              onClick={() => openStorage('files')}
+            >
               {text.viewAll}
             </Button>
           </div>
