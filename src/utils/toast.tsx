@@ -1,16 +1,37 @@
 import { toast } from 'sonner'
 import { CenteredToast } from '@/components/common/centered-toast'
 
-export const showSuccessToast = (message: string) => {
+export const showSuccessToast = (message: string, duration: number = 2000) => {
   toast.custom(() => <CenteredToast message={message} type='success' />, {
-    duration: 2000,
+    duration,
     className: 'sonner-toast-center'
   })
 }
 
-export const showErrorToast = (message: string) => {
+export const showErrorToast = (message: string, duration: number = 2000) => {
   toast.custom(() => <CenteredToast message={message} type='error' />, {
-    duration: 2000,
+    duration,
+    className: 'sonner-toast-center'
+  })
+}
+
+export const showLoadingToast = (message: string) => {
+  return toast.custom(() => <CenteredToast message={message} type='loading' />, {
+    duration: Infinity,
+    className: 'sonner-toast-center'
+  })
+}
+
+export const showWarningToast = (message: string, duration: number = 2000) => {
+  toast.custom(() => <CenteredToast message={message} type='warning' />, {
+    duration,
+    className: 'sonner-toast-center'
+  })
+}
+
+export const showSimpleToast = (message: string, duration: number = 1500) => {
+  toast.custom(() => <CenteredToast message={message} type='none' />, {
+    duration,
     className: 'sonner-toast-center'
   })
 }

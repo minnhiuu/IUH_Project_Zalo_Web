@@ -6,6 +6,7 @@ import CloudPage from '@/pages/user/cloud/cloud-page'
 import SettingsPage from '@/pages/user/settings/settings-page'
 import { PrivateRoute } from './private-route'
 import ContactPage from '@/pages/user/contacts/contact-page'
+import JoinGroupPage from '@/pages/user/join/join-group-page'
 
 export const userRoutes: RouteObject = {
   element: <PrivateRoute requireAuth />,
@@ -16,6 +17,7 @@ export const userRoutes: RouteObject = {
         { path: PATHS.HOME, element: <ChatPage /> },
         { path: PATHS.CHAT.CONVERSATION, element: <ChatPage /> },
         { path: PATHS.CHAT.USER, element: <ChatPage /> },
+        { path: PATHS.JOIN_GROUP, element: <JoinGroupPage /> },
         { path: PATHS.CLOUD, element: <CloudPage /> },
         { path: PATHS.CONTACTS, element: <ContactPage /> },
         { path: PATHS.USER.SETTINGS, element: <SettingsPage /> }

@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import { friendOptions } from './options'
 
 export const useReceivedFriendRequests = (page: number = 0, size: number = 10, enabled: boolean = true) => {
@@ -11,6 +11,10 @@ export const useSentFriendRequests = (page: number = 0, size: number = 10, enabl
 
 export const useMyFriends = (page: number = 0, size: number = 10, enabled: boolean = true) => {
   return useQuery(friendOptions.myFriends(page, size, enabled))
+}
+
+export const useMyFriendsInfinite = (size: number = 20, enabled: boolean = true) => {
+  return useInfiniteQuery(friendOptions.myFriendsInfinite(size, enabled))
 }
 
 export const useFriendshipStatus = (userId: string, enabled: boolean = true) => {
