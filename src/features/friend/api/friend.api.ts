@@ -1,5 +1,5 @@
 import http from '@/lib/axios-client'
-import type { ApiResponse, PageResponse } from '@/shared/api'
+import type { ApiResponse } from '@/shared/api'
 import type {
   FriendRequestSendRequest,
   FriendRequestResponse,
@@ -28,14 +28,16 @@ export const friendApi = {
     http.get<ApiResponse<FriendRequestResponse[]>>(`/friendships/requests/sent?page=${page}&size=${size}`),
 
   getMyFriends: (page: number = 0, size: number = 10) =>
-    http.get<ApiResponse<PageResponse<FriendResponse>>>(`/friendships/friends?page=${page}&size=${size}`),
+    http.get<ApiResponse<FriendResponse[]>>(`/friendships/friends?page=${page}&size=${size}`),
 
   unfriend: (friendId: string) => http.delete<ApiResponse<void>>(`/friendships/friends/${friendId}`),
 
   checkFriendshipStatus: (userId: string) =>
     http.get<ApiResponse<FriendshipStatusResponse>>(`/friendships/status/${userId}`),
 
-  getMutualFriends: (userId: string) => http.get<ApiResponse<MutualFriendsResponse>>(`/friendships/mutual/${userId}`),
+  getMutualFriends: (userId: string) =>
+    http.get<ApiResponse<MutualFriendsResponse>>(`/friendships/mutual/${userId}`),
 
-  getMutualFriendsCount: (userId: string) => http.get<ApiResponse<number>>(`/friendships/mutual/${userId}/count`)
+  getMutualFriendsCount: (userId: string) =>
+    http.get<ApiResponse<number>>(`/friendships/mutual/${userId}/count`)
 }

@@ -9,27 +9,13 @@ import { ProfileInfoBase } from '../shared/profile-info-base'
 import { BlockUserModal } from '../block-user-modal'
 import { useBlockDetails } from '../../../queries/use-queries'
 import { cn } from '@/lib/utils'
-import {
-  useFriendshipStatus,
-  useAcceptFriendRequest,
-  useCancelFriendRequest,
-  useSendFriendRequest
-} from '@/features/friend/queries'
+import { useFriendshipStatus, useAcceptFriendRequest, useCancelFriendRequest, useSendFriendRequest } from '@/features/friend/queries'
 import { FriendStatus } from '@/features/friend/schemas/friend.schema'
 import { useAuthContext } from '@/features/auth/context/auth-context'
 import { useFriendText } from '@/features/friend/i18n/use-friend-text'
 
 interface OthersProfileInfoProps {
   user: UserResponse
-}
-
-type FriendAction = 'add' | 'accept' | 'withdraw' | null
-
-interface FriendButtonState {
-  label: string
-  variant: 'secondary' | 'secondary-blue'
-  disabled: boolean
-  action: FriendAction
 }
 
 export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
@@ -39,26 +25,26 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
   const { data: blockDetails } = useBlockDetails(user.id)
   const { text: friendText } = useFriendText()
   const { user: currentUser } = useAuthContext()
-
+  
   const { data: friendshipStatus, isLoading: isLoadingStatus } = useFriendshipStatus(user.id)
   const sendRequestMutation = useSendFriendRequest()
   const acceptRequestMutation = useAcceptFriendRequest()
   const cancelRequestMutation = useCancelFriendRequest()
 
-  const getFriendButtonState = (): FriendButtonState => {
+  const getFriendButtonState = () => {
     if (isLoadingStatus) {
-      return {
-        label: '...',
-        variant: 'secondary',
+      return { 
+        label: '...', 
+        variant: 'secondary' as const,
         disabled: true,
-        action: null
+        action: null as any
       }
     }
 
     if (!friendshipStatus || !friendshipStatus.status) {
-      return {
-        label: userText.profile.addFriend,
-        variant: 'secondary',
+      return { 
+        label: userText.profile.addFriend, 
+        variant: 'secondary' as const,
         disabled: false,
         action: 'add'
       }
@@ -66,43 +52,42 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
 
     switch (friendshipStatus.status) {
       case FriendStatus.Accepted:
-        return {
-          label: `✓ ${friendText.status.accepted}`,
-          variant: 'secondary',
+        return { 
+          label: `✓ ${friendText.status.accepted}`, 
+          variant: 'secondary' as const,
           disabled: true,
           action: null
         }
-      case FriendStatus.Pending: {
+      case FriendStatus.Pending:
         // Check if current user sent the request
         const sentByMe = friendshipStatus.requestedBy === currentUser?.id
         if (sentByMe) {
-          return {
-            label: friendText.actions.withdraw,
-            variant: 'secondary',
+          return { 
+            label: friendText.actions.withdraw, 
+            variant: 'secondary' as const,
             disabled: false,
             action: 'withdraw'
           }
         } else {
-          return {
-            label: friendText.actions.accept,
-            variant: 'secondary-blue',
+          return { 
+            label: friendText.actions.accept, 
+            variant: 'secondary-blue' as const,
             disabled: false,
             action: 'accept'
           }
         }
-      }
       case FriendStatus.Cancelled:
       case FriendStatus.Declined:
-        return {
-          label: userText.profile.addFriend,
-          variant: 'secondary',
+        return { 
+          label: userText.profile.addFriend, 
+          variant: 'secondary' as const,
           disabled: false,
           action: 'add'
         }
       default:
-        return {
-          label: userText.profile.addFriend,
-          variant: 'secondary',
+        return { 
+          label: userText.profile.addFriend, 
+          variant: 'secondary' as const,
           disabled: false,
           action: 'add'
         }
@@ -162,13 +147,8 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
       contentBeforeInfo={
         <div className='flex gap-3 w-full mb-4 mt-2'>
           <Button
-            variant={buttonState.variant}
-            disabled={
-              buttonState.disabled ||
-              sendRequestMutation.isPending ||
-              acceptRequestMutation.isPending ||
-              cancelRequestMutation.isPending
-            }
+            variant={buttonState.variant as any}
+            disabled={buttonState.disabled || sendRequestMutation.isPending || acceptRequestMutation.isPending || cancelRequestMutation.isPending}
             onClick={handleFriendAction}
             className='flex-1 font-bold h-9 rounded-md border-none shadow-none transition-all active:scale-95'
           >
@@ -177,17 +157,6 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
           <Button
             variant='secondary-blue'
             className='flex-1 font-bold h-9 rounded-md border-none shadow-none transition-all active:scale-95'
-            onClick={() => {
-              if (
-                friendshipStatus?.status === FriendStatus.Accepted ||
-                (friendshipStatus?.friendshipId && friendshipStatus?.status)
-              ) {
-                // It doesn't mean they have a chat, but maybe they do. We just route to /chat/u/ user.id
-                // ChatLayout will fallback to cached chat if it exists.
-              }
-              window.location.href = `/chat/u/${user.id}`
-              // Using window.location to ensure ChatLayout remounts or just navigate
-            }}
           >
             {userText.profile.message}
           </Button>
@@ -207,12 +176,7 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
                 disabled: false,
                 onClick: () => setIsBlockModalOpen(true)
               },
-              {
-                icon: MessageSquareWarning,
-                label: userText.profile.report,
-                color: 'text-icon-secondary',
-                disabled: false
-              }
+              { icon: MessageSquareWarning, label: userText.profile.report, color: 'text-icon-secondary', disabled: false }
             ].map((item, idx, arr) => (
               <div key={item.label}>
                 {item.disabled ? (

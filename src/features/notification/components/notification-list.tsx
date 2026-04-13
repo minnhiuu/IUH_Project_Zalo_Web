@@ -45,12 +45,9 @@ export const NotificationList = ({ filter }: NotificationListProps) => {
   const { ref, inView } = useInView({ rootMargin: '400px', threshold: 0 })
   const { group, empty, filter: localeFilter } = useNotificationText()
 
-  const handleMarkAsRead = useCallback(
-    (id: string) => {
-      markAsRead(id)
-    },
-    [markAsRead]
-  )
+  const handleMarkAsRead = useCallback((id: string) => {
+    markAsRead(id)
+  }, [markAsRead])
 
   const grouped = useMemo(() => {
     if (!data) return { newest: [], today: [], previous: [] }
@@ -195,7 +192,11 @@ export const NotificationList = ({ filter }: NotificationListProps) => {
                 </h4>
               </div>
               {grouped.newest.map((notification: NotificationGroupResponse) => (
-                <NotificationItem key={notification.id} notification={notification} onMarkAsRead={handleMarkAsRead} />
+                <NotificationItem
+                  key={notification.id}
+                  notification={notification}
+                  onMarkAsRead={handleMarkAsRead}
+                />
               ))}
             </div>
           )}
@@ -206,7 +207,11 @@ export const NotificationList = ({ filter }: NotificationListProps) => {
                 <h4 className='text-[17px] font-bold text-foreground'>{group.today}</h4>
               </div>
               {grouped.today.map((notification: NotificationGroupResponse) => (
-                <NotificationItem key={notification.id} notification={notification} onMarkAsRead={handleMarkAsRead} />
+                <NotificationItem
+                  key={notification.id}
+                  notification={notification}
+                  onMarkAsRead={handleMarkAsRead}
+                />
               ))}
             </div>
           )}
@@ -217,7 +222,11 @@ export const NotificationList = ({ filter }: NotificationListProps) => {
                 <h4 className='text-[17px] font-bold text-foreground'>{group.previous}</h4>
               </div>
               {grouped.previous.map((notification: NotificationGroupResponse) => (
-                <NotificationItem key={notification.id} notification={notification} onMarkAsRead={handleMarkAsRead} />
+                <NotificationItem
+                  key={notification.id}
+                  notification={notification}
+                  onMarkAsRead={handleMarkAsRead}
+                />
               ))}
             </div>
           )}

@@ -11,12 +11,9 @@
   },
   "ok": "OK",
   "cancel": "Cancel",
-  "save": "Save",
-  "close": "Close",
   "loading": "Loading...",
   "pleaseWait": "Please wait a moment...",
   "error_toast_title": "Failure",
   "errorDefault": "An error occurred",
-  "errorContactAdmin": "An error occurred, please contact admin",
-  "characters": "characters"
+  "errorContactAdmin": "An error occurred, please contact admin"
 }

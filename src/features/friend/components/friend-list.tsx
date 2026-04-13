@@ -14,10 +14,7 @@ interface FriendListProps {
 function getDisplayLetter(name: string): string {
   const firstChar = name.charAt(0).toUpperCase()
   if (/[A-Z]/.test(firstChar)) return firstChar
-  const normalized = firstChar
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toUpperCase()
+  const normalized = firstChar.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase()
   if (/[A-Z]/.test(normalized)) return normalized
   return '#'
 }
@@ -33,14 +30,13 @@ export function FriendList({ searchQuery = '' }: FriendListProps) {
   const { text } = useFriendText()
   const { data: friends, isLoading } = useMyFriends()
   const unfriendMutation = useUnfriend()
-  const safeFriends = useMemo(() => (Array.isArray(friends) ? friends : []), [friends])
 
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
 
   const processedFriends = useMemo(() => {
-    if (safeFriends.length === 0) return { newFriends: [], groupedFriends: {} }
+    if (!friends) return { newFriends: [], groupedFriends: {} }
 
-    let filtered = [...safeFriends]
+    let filtered = [...friends]
 
     // Apply search filter
     if (searchQuery.trim()) {
@@ -74,9 +70,9 @@ export function FriendList({ searchQuery = '' }: FriendListProps) {
     })
 
     return { newFriends, groupedFriends }
-  }, [safeFriends, searchQuery])
+  }, [friends, searchQuery])
 
-  const totalCount = safeFriends.length
+  const totalCount = friends?.length ?? 0
   const sortedLetters = Object.keys(processedFriends.groupedFriends).sort((a, b) =>
     a === '#' ? 1 : b === '#' ? -1 : a.localeCompare(b, 'vi')
   )
@@ -94,7 +90,9 @@ export function FriendList({ searchQuery = '' }: FriendListProps) {
       <div className='flex-1 flex flex-col h-full overflow-hidden bg-background dark:bg-background'>
         {/* Header with Title */}
         <div className='px-4 py-3 border-b border-border shrink-0'>
-          <h1 className='text-base font-semibold text-foreground'>{text.header.friendCount(totalCount)}</h1>
+          <h1 className='text-base font-semibold text-foreground'>
+            {text.header.friendCount(totalCount)}
+          </h1>
         </div>
 
         {/* Friends List */}
@@ -108,13 +106,11 @@ export function FriendList({ searchQuery = '' }: FriendListProps) {
                 </div>
               ))}
             </div>
-          ) : safeFriends.length === 0 ? (
+          ) : friends && friends.length === 0 ? (
             <div className='flex items-center justify-center h-full'>
               <SearchEmpty title={text.contactList.noFriendsMessage} />
             </div>
-          ) : searchQuery &&
-            processedFriends.newFriends.length === 0 &&
-            Object.keys(processedFriends.groupedFriends).length === 0 ? (
+          ) : searchQuery && processedFriends.newFriends.length === 0 && Object.keys(processedFriends.groupedFriends).length === 0 ? (
             <div className='flex items-center justify-center h-full'>
               <SearchEmpty title={text.search.noResult} />
             </div>
@@ -142,7 +138,9 @@ export function FriendList({ searchQuery = '' }: FriendListProps) {
               {/* Grouped Friends by Letter */}
               {sortedLetters.map((letter) => (
                 <div key={letter} className='mb-2'>
-                  <div className='text-sm font-bold text-foreground px-2 py-2'>{letter}</div>
+                  <div className='text-sm font-bold text-foreground px-2 py-2'>
+                    {letter}
+                  </div>
                   <div className='space-y-0'>
                     {processedFriends.groupedFriends[letter].map((friend) => (
                       <FriendListItem

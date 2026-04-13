@@ -74,7 +74,11 @@ export function FriendRequestCard({
         >
           {text.actions.decline}
         </Button>
-        <Button onClick={onAccept} disabled={isAccepting || isDeclining} className='flex-1 h-9 text-[13px] font-medium'>
+        <Button
+          onClick={onAccept}
+          disabled={isAccepting || isDeclining}
+          className='flex-1 h-9 text-[13px] font-medium'
+        >
           {text.actions.accept}
         </Button>
       </div>

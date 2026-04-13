@@ -10,7 +10,6 @@ export const userApi = {
   updateBackground: (body: FormData) => http.patch<ApiResponse<UserImageResponse>>('/users/profile/background', body),
   updateBackgroundPosition: (y: number) =>
     http.patch<ApiResponse<UserImageResponse>>(`/users/profile/background/position?y=${y}`),
-  updateBio: (body: { bio: string }) => http.put<ApiResponse<UserResponse>>('/users/profile/bio', body),
 
   getUserById: (id: string) => http.get<ApiResponse<UserResponse>>(`/users/${id}`),
 
@@ -19,5 +18,5 @@ export const userApi = {
     http.get<ApiResponse<PageResponse<AuditLog>>>('/audit-logs', { params }),
 
   getUserAuditLogs: (userId: string, params?: { page?: number; size?: number }) =>
-    http.get<ApiResponse<PageResponse<AuditLog>>>(`/audit-logs/${userId}`, { params })
+    http.get<ApiResponse<PageResponse<AuditLog>>>(`/audit-logs/${userId}`, { params }),
 }

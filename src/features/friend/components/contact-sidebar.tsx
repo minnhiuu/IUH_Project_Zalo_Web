@@ -48,7 +48,9 @@ export function ContactSidebar({ activeTab, onTabChange, friendRequestCount = 0 
               onClick={() => onTabChange(item.id)}
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors text-left',
-                isActive ? 'bg-primary/10 text-primary font-medium' : 'text-foreground hover:bg-muted'
+                isActive
+                  ? 'bg-primary/10 text-primary font-medium'
+                  : 'text-foreground hover:bg-muted'
               )}
             >
               <item.icon className={cn('w-5 h-5', isActive ? 'text-primary' : 'text-muted-foreground')} />

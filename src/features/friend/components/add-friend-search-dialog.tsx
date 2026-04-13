@@ -1,6 +1,12 @@
 import { useState } from 'react'
 import { X, Phone, Search as SearchIcon } from 'lucide-react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter
+} from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { UserAvatar } from '@/components/common/user-avatar'
@@ -34,7 +40,7 @@ function SearchResultItem({ user, onAddFriend }: SearchResultItemProps) {
 
   const getButtonState = () => {
     if (isLoadingStatus) {
-      return { disabled: true, label: '...', variant: 'outline' as const, action: null }
+      return { disabled: true, label: '...', variant: 'outline' as const, action: null as any }
     }
 
     if (!friendshipStatus || !friendshipStatus.status) {
@@ -44,7 +50,7 @@ function SearchResultItem({ user, onAddFriend }: SearchResultItemProps) {
     switch (friendshipStatus.status) {
       case FriendStatus.Accepted:
         return { disabled: true, label: `${text.status.accepted}`, variant: 'secondary' as const, action: null }
-      case FriendStatus.Pending: {
+      case FriendStatus.Pending:
         // Check if current user sent the request
         const sentByMe = friendshipStatus.requestedBy === currentUser?.id
         if (sentByMe) {
@@ -52,7 +58,6 @@ function SearchResultItem({ user, onAddFriend }: SearchResultItemProps) {
         } else {
           return { disabled: false, label: text.actions.accept, variant: 'default' as const, action: 'accept' }
         }
-      }
       case FriendStatus.Cancelled:
       case FriendStatus.Declined:
         return { disabled: false, label: text.actions.addFriend, variant: 'default' as const, action: 'add' }
@@ -110,8 +115,8 @@ function SearchResultItem({ user, onAddFriend }: SearchResultItemProps) {
           buttonState.variant === 'default'
             ? 'bg-primary hover:bg-primary/90 text-white'
             : buttonState.variant === 'outline'
-              ? 'border border-border bg-background hover:bg-muted text-foreground'
-              : 'bg-muted text-foreground'
+            ? 'border border-border bg-background hover:bg-muted text-foreground'
+            : 'bg-muted text-foreground'
         }`}
       >
         {buttonState.label}
@@ -211,7 +216,11 @@ export function AddFriendSearchDialog({ open, onOpenChange }: AddFriendSearchDia
               ) : searchResults.length > 0 ? (
                 <div className='space-y-1'>
                   {searchResults.map((user) => (
-                    <SearchResultItem key={user.id} user={user} onAddFriend={() => handleAddFriend(user)} />
+                    <SearchResultItem
+                      key={user.id}
+                      user={user}
+                      onAddFriend={() => handleAddFriend(user)}
+                    />
                   ))}
                 </div>
               ) : searchKeyword ? (
@@ -230,7 +239,11 @@ export function AddFriendSearchDialog({ open, onOpenChange }: AddFriendSearchDia
 
           {/* Footer */}
           <DialogFooter className='px-5 py-3 border-t border-border/60 flex items-center justify-end gap-2 bg-background'>
-            <Button variant='outline' onClick={handleClose} className='px-5 h-8 text-sm font-medium'>
+            <Button
+              variant='outline'
+              onClick={handleClose}
+              className='px-5 h-8 text-sm font-medium'
+            >
               {text.dialogs.addFriendSearch.cancel}
             </Button>
             <Button

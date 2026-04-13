@@ -7,13 +7,6 @@ export const PATHS = {
   CLOUD: '/cloud',
   BUSINESS: '/business',
 
-  CHAT: {
-    CONVERSATION: '/chat/c/:id',
-    USER: '/chat/u/:id'
-  },
-
-  JOIN_GROUP: '/g/:token',
-
   AUTH: {
     LOGIN: '/login',
     REGISTER: '/register',

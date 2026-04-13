@@ -56,7 +56,7 @@ export default function UserLayout() {
 
   return (
     <div className='flex h-screen w-full overflow-hidden bg-background'>
-      <nav className='w-16 bg-sidebar flex flex-col items-center py-4 shrink-0 h-full'>
+      <nav className='w-16 bg-sidebar flex flex-col items-center py-4 shrink-0 z-60 relative h-full'>
         <UserNavDropdown>
           <div className='mb-4 cursor-pointer flex justify-center w-full'>
             <div className='w-12 h-12 flex items-center justify-center rounded-lg transition-all data-[state=open]:bg-sidebar-accent group'>

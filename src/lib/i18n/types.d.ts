@@ -15,7 +15,6 @@ declare module 'i18next' {
       common: typeof common
       auth: typeof auth
       user: typeof user
-      chat: typeof chat
       admin: typeof user
       search: typeof search
       'admin-elasticsearch': typeof adminEs
