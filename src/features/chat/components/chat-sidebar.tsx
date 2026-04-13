@@ -15,7 +15,6 @@ import { formatPreview } from '../utils/chat-preview'
 import { getSystemMessagePreviewDisplay } from '../utils/system-message-preview'
 import { formatMessageTime } from '@/utils/date'
 import { getConversationDisplayName } from '../utils/group-name'
-import { stripMentionsForPreview } from '../utils/mention'
 
 interface ChatSidebarProps {
   selectedChatId?: string
@@ -53,7 +52,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
     return {
       text: formatPreview(
         {
-          content: stripMentionsForPreview(chat.lastMessage.content),
+          content: chat.lastMessage.content || '',
           isFromMe: !!chat.lastMessage.isFromMe,
           senderName: chat.lastMessage.senderName || '',
           type: chat.lastMessage.type as MessageType,
@@ -169,27 +168,13 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
                     <span className='truncate'>{previewDisplay.text}</span>
                   </p>
                   {chat.unreadCount && chat.unreadCount > 0 ? (
-                    (() => {
-                      const meta = chat.lastMessage?.metadata as Record<string, unknown> | null
-                      const mentions = meta?.mentions as string[] | undefined
-                      const isMentioned = mentions?.includes(user?.id || '')
-                      const isCreate = meta?.action === 'CREATE_GROUP'
-                      const isSystem = chat.lastMessage?.type === MessageType.System
-                      return (
-                        <div className='flex items-center gap-1 ml-2 shrink-0'>
-                          {isMentioned && (
-                            <div className='bg-blue-500 text-white text-[10px] font-bold w-[18px] h-[18px] rounded-full flex items-center justify-center shrink-0'>@</div>
-                          )}
-                          {isCreate ? (
-                            <div className='bg-red-500 rounded-full w-2.5 h-2.5 shrink-0' />
-                          ) : !isSystem ? (
-                            <div className='bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full flex items-center justify-center min-w-[18px] h-[18px] shrink-0'>
-                              {chat.unreadCount > 5 ? '5+' : chat.unreadCount}
-                            </div>
-                          ) : null}
-                        </div>
-                      )
-                    })()
+                    (chat.lastMessage?.metadata as Record<string, unknown> | null)?.action === 'CREATE_GROUP' ? (
+                      <div className='bg-red-500 rounded-full w-2.5 h-2.5 ml-2 shrink-0' />
+                    ) : chat.lastMessage?.type !== MessageType.System ? (
+                      <div className='bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full flex items-center justify-center min-w-[18px] h-[18px] ml-2 shrink-0'>
+                        {chat.unreadCount > 5 ? '5+' : chat.unreadCount}
+                      </div>
+                    ) : null
                   ) : null}
                 </div>
               </div>

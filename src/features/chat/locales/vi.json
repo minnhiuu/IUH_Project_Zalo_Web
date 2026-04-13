@@ -17,10 +17,6 @@
       "link": "[Liên kết]",
       "confirm": "Xác nhận"
     },
-    "mentionDropdown": {
-      "instruction": "Sử dụng phím mũi tên lên, xuống để chọn. Nhấn phím Enter để sử dụng",
-      "notifyAll": "Báo nhắc cho tất cả thành viên"
-    },
     "messageBubble": {
       "reply": "Trả lời",
       "forward": "Chuyển tiếp",
@@ -46,13 +42,6 @@
       "reactionModalAll": "Tất cả",
       "reactionModalYou": "Bạn",
       "reactionModalEmpty": "Chưa có cảm xúc"
-    },
-    "pinBoard": {
-      "title": "Tin nhắn",
-      "copy": "Sao chép",
-      "unpin": "Bỏ ghim",
-      "collapse": "Thu gọn",
-      "extraPins": "+{{count}} ghim"
     },
     "system": {
       "add_members": {
@@ -136,18 +125,6 @@
       "refresh_join_link": {
         "self": "Bạn đã làm mới link mời nhóm. Link cũ không còn hiệu lực.",
         "by_actor": "<actorBold>{{actor}}</actorBold> đã làm mới link mời nhóm. Link cũ không còn hiệu lực."
-      },
-      "pin_message": {
-        "pinned_self": "Bạn đã ghim 1 tin nhắn",
-        "pinned_by_actor": "<actorBold>{{actor}}</actorBold> đã ghim 1 tin nhắn",
-        "unpinned_self": "Bạn đã bỏ ghim 1 tin nhắn",
-        "unpinned_by_actor": "<actorBold>{{actor}}</actorBold> đã bỏ ghim 1 tin nhắn"
-      },
-      "typing": {
-        "one": "{{name}} đang soạn tin…",
-        "one_pc": "{{name}} đang soạn trên máy tính…",
-        "two": "{{name1}}, {{name2}} đang soạn tin…",
-        "many": "{{name1}}, {{name2}} và {{count}} người khác đang soạn tin…"
       },
       "join_request_created": {
         "self": "Bạn đã gửi yêu cầu tham gia nhóm",
