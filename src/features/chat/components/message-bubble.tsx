@@ -15,14 +15,12 @@ import { JoinLinkCard } from './join-link-card'
 import {
   useRevokeMessageMutation,
   useToggleReactionMutation,
-  useRemoveAllMyReactionsMutation,
-  usePinMessageMutation
+  useRemoveAllMyReactionsMutation
 } from '../queries/use-mutations'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query'
 import type { PageResponse } from '@/shared/api'
 import { chatKeys } from '../queries/keys'
-import { parseMentionsForRender, stripMentionsForPreview } from '../utils/mention'
 
 export function MessageBubble({
   message,
@@ -52,7 +50,6 @@ export function MessageBubble({
   const queryClient = useQueryClient()
   const { mutate: toggleReactionMutate } = useToggleReactionMutation()
   const { mutateAsync: removeAllMyReactionsAsync } = useRemoveAllMyReactionsMutation()
-  const { mutate: pinMessageMutate } = usePinMessageMutation()
   const mb = text.messageBubble
 
   const isRevoked = message.status === MessageStatus.REVOKED
@@ -143,7 +140,7 @@ export function MessageBubble({
                     ? mb.image
                     : message.replyTo.type === 'FILE'
                       ? mb.file
-                      : stripMentionsForPreview(message.replyTo.content)}
+                      : message.replyTo.content}
                 </div>
               </div>
             )}
@@ -162,15 +159,7 @@ export function MessageBubble({
               ) : message.type === MessageType.File ? (
                 <MessageFileContent message={message} />
               ) : (
-                parseMentionsForRender(message.content).map(({ isMention, text, key }) => (
-                  isMention ? (
-                    <span key={key} className='text-[#005AE0] dark:text-[#3B82F6] cursor-pointer hover:underline'>
-                      {text}
-                    </span>
-                  ) : (
-                    <span key={key} className="whitespace-pre-wrap">{text}</span>
-                  )
-                ))
+                message.content
               )}
             </span>
 
@@ -395,7 +384,6 @@ export function MessageBubble({
                   messageContent={message.content || ''}
                   isOwn={isOwn}
                   onDeleteForMe={() => conversationId && deleteMessageForMe(message.id, conversationId)}
-                  onPin={() => conversationId && pinMessageMutate({ conversationId, messageId: message.id })}
                   onRevoke={() => revokeMessage(message.id)}
                 />
               </DropdownMenu>

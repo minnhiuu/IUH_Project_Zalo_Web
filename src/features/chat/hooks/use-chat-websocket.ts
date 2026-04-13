@@ -5,7 +5,7 @@ import { useQueryClient, type InfiniteData } from '@tanstack/react-query'
 import type { PageResponse } from '@/shared/api'
 import { chatKeys } from '../queries/keys'
 import { friendKeys } from '@/features/friend/queries/keys'
-import type { MessageResponse, ConversationResponse, ChatMessageRequest, ReplyMetadata, TypingEvent } from '../schemas/chat.schema'
+import type { MessageResponse, ConversationResponse, ChatMessageRequest, ReplyMetadata } from '../schemas/chat.schema'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { getAccessToken } from '@/lib/axios-client'
 import { MessageStatus, MessageType } from '@/constants/enum'
@@ -26,8 +26,6 @@ export const useChatWebSocket = () => {
   const { user } = useAuth()
   const queryClient = useQueryClient()
   const [connected, setConnected] = useState(false)
-  const [typingUsers, setTypingUsers] = useState<TypingEvent[]>([])
-  const typingTimeoutsRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map())
   const stompClientRef = useRef<Client | null>(null)
   const { mutate: sendMsgMutate } = useSendMessageMutation()
   const { mutate: revokeMsgMutate } = useRevokeMessageMutation()
@@ -245,11 +243,6 @@ export const useChatWebSocket = () => {
           if (isCurrentUserReAdded) {
             queryClient.invalidateQueries({ queryKey: chatKeys.messages(conversationId) })
           }
-
-          // 5. Invalidate pins cache when a pin/unpin system message arrives
-          if (metadata?.action === 'PIN_MESSAGE' || metadata?.action === 'UNPIN_MESSAGE') {
-            queryClient.invalidateQueries({ queryKey: chatKeys.pins(conversationId) })
-          }
         })
 
         // ────────── /queue/presence ──────────
@@ -435,34 +428,6 @@ export const useChatWebSocket = () => {
           }
         })
 
-        // ────────── /queue/typing ──────────
-        client.subscribe('/user/queue/typing', (payload) => {
-          try {
-            const event: TypingEvent = JSON.parse(payload.body)
-            if (!event.conversationId) return
-
-            const key = `${event.conversationId}:${event.userId}`
-
-            if (event.isTyping) {
-              setTypingUsers((prev) => {
-                const filtered = prev.filter((u) => `${u.conversationId}:${u.userId}` !== key)
-                return [...filtered, event]
-              })
-              // auto-remove after 5s in case typing-stop never arrives
-              const existing = typingTimeoutsRef.current.get(key)
-              if (existing) clearTimeout(existing)
-              const t = setTimeout(() => {
-                setTypingUsers((prev) => prev.filter((u) => `${u.conversationId}:${u.userId}` !== key))
-                typingTimeoutsRef.current.delete(key)
-              }, 5000)
-              typingTimeoutsRef.current.set(key, t)
-            } else {
-              setTypingUsers((prev) => prev.filter((u) => `${u.conversationId}:${u.userId}` !== key))
-              const existing = typingTimeoutsRef.current.get(key)
-              if (existing) { clearTimeout(existing); typingTimeoutsRef.current.delete(key) }
-            }
-          } catch (e) {
-            // ignore
         // ────────── /queue/join-requests ──────────
         client.subscribe('/user/queue/join-requests', (payload) => {
           const update = JSON.parse(payload.body)
@@ -830,16 +795,5 @@ export const useChatWebSocket = () => {
     [user, queryClient, sendMsgMutate]
   )
 
-  const sendTyping = useCallback(
-    (conversationId: string, isTyping: boolean, userName: string) => {
-      if (!stompClientRef.current?.connected) return
-      stompClientRef.current.publish({
-        destination: '/app/chat.typing',
-        body: JSON.stringify({ conversationId, isTyping, userName, platform: 'PC' })
-      })
-    },
-    []
-  )
-
-  return { connected, sendMessage, sendFileMessage, revokeMessage, deleteMessageForMe, sendTyping, typingUsers }
+  return { connected, sendMessage, sendFileMessage, revokeMessage, deleteMessageForMe }
 }

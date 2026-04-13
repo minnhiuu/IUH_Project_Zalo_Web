@@ -34,10 +34,6 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     file: t(CHAT_KEYS.type.file),
     link: t(CHAT_KEYS.type.link)
   },
-  mentionDropdown: {
-    instruction: t(CHAT_KEYS.mentionDropdown.instruction),
-    notifyAll: t(CHAT_KEYS.mentionDropdown.notifyAll)
-  },
   messageBubble: {
     reply: t(CHAT_KEYS.messageBubble.reply),
     forward: t(CHAT_KEYS.messageBubble.forward),
@@ -63,14 +59,6 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     reactionModalAll: t(CHAT_KEYS.messageBubble.reactionModalAll),
     reactionModalYou: t(CHAT_KEYS.messageBubble.reactionModalYou),
     reactionModalEmpty: t(CHAT_KEYS.messageBubble.reactionModalEmpty)
-  },
-  pinBoard: {
-    title: t(CHAT_KEYS.pinBoard.title),
-    copy: t(CHAT_KEYS.pinBoard.copy),
-    unpin: t(CHAT_KEYS.pinBoard.unpin),
-    collapse: t(CHAT_KEYS.pinBoard.collapse),
-    extraPins: (count: number) => t(CHAT_KEYS.pinBoard.extraPins, { count }),
-    header: (count: number) => t(CHAT_KEYS.pinBoard.header, { count })
   },
   sidebar: {
     all: t(CHAT_KEYS.sidebar.all),
@@ -152,12 +140,6 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     leave_group: {
       self: t(CHAT_KEYS.system.leave_group.self),
       by_actor: t(CHAT_KEYS.system.leave_group.by_actor)
-    },
-    typing: {
-      one: (name: string) => t(CHAT_KEYS.system.typing.one, { name }),
-      one_pc: (name: string) => t(CHAT_KEYS.system.typing.one_pc, { name }),
-      two: (name1: string, name2: string) => t(CHAT_KEYS.system.typing.two, { name1, name2 }),
-      many: (name1: string, name2: string, count: number) => t(CHAT_KEYS.system.typing.many, { name1, name2, count })
     }
   },
   disbanded: {

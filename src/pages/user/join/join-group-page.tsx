@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router'
-import { ChatLayout } from '@/features/chat'
+import { ChatProvider, ChatLayout } from '@/features/chat'
 import { JoinGroupDialog } from '@/features/chat/components/group/dialogs/join-group-dialog'
 
 export default function JoinGroupPage() {
@@ -7,7 +7,7 @@ export default function JoinGroupPage() {
   const navigate = useNavigate()
 
   return (
-    <>
+    <ChatProvider>
       <ChatLayout />
       <JoinGroupDialog
         open={true}
@@ -16,6 +16,6 @@ export default function JoinGroupPage() {
         }}
         token={token || null}
       />
-    </>
+    </ChatProvider>
   )
 }

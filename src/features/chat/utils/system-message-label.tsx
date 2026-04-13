@@ -11,11 +11,6 @@ export interface SystemMetadata {
   action: ChatSystemActionType
   targetIds?: string[]
   payload?: Record<string, unknown>
-  originalSenderId?: string
-  originalSenderName?: string
-  originalSenderAvatar?: string
-  originalContent?: string
-  contentSnapshot?: string
 }
 
 export function getSystemMessageLabel(
