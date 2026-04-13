@@ -3,6 +3,7 @@ import common from '@/locales/vi/common.json'
 import auth from '@/features/auth/locales/vi.json'
 import user from '@/features/user/locales/vi.json'
 import search from '@/features/search-user/locales/vi.json'
+import social from '@/features/social-feed/locales/vi.json'
 
 declare module 'i18next' {
   interface CustomTypeOptions {
@@ -12,6 +13,7 @@ declare module 'i18next' {
       auth: typeof auth
       user: typeof user
       search: typeof search
+      social: typeof social
     }
   }
 }

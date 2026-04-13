@@ -1,5 +1,7 @@
 export const PATHS = {
   HOME: '/',
+  SOCIAL_FEED: '/social-feed',
+  REELS: '/reels',
   SEARCH: '/search',
   CONTACTS: '/contacts',
   TODO: '/todo',

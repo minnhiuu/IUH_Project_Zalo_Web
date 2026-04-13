@@ -10,5 +10,6 @@ export const userApi = {
   updateBackgroundPosition: (y: number) =>
     http.patch<ApiResponse<UserImageResponse>>(`/users/profile/background/position?y=${y}`),
 
-  getUserById: (id: string) => http.get<ApiResponse<UserResponse>>(`/users/${id}`)
+  getUserById: (id: string) => http.get<ApiResponse<UserResponse>>(`/users/${id}`),
+  getAuthorProfileById: (id: string) => http.get<ApiResponse<UserResponse>>(`/users/${id}`)
 }

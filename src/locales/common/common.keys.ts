@@ -1,6 +1,7 @@
 export const COMMON_KEYS = {
   nav: {
     messages: 'nav.messages',
+    socialFeed: 'nav.socialFeed',
     search: 'nav.search',
     contacts: 'nav.contacts',
     todo: 'nav.todo',

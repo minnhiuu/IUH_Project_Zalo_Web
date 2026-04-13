@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from 'react-router'
-import { Contact2, CheckSquare, Settings, Cloud, Briefcase, MessageCircle, Search } from 'lucide-react'
+import { Contact2, CheckSquare, Settings, Cloud, Briefcase, MessageCircle, Search, Newspaper } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { PATHS } from '@/constants/path'
 import { UserNavDropdown } from '@/features/user'
@@ -18,6 +18,7 @@ export default function UserLayout() {
 
   const navItems = [
     { icon: MessageCircle, path: PATHS.HOME, label: commonText.nav.messages },
+    { icon: Newspaper, path: PATHS.SOCIAL_FEED, label: commonText.nav.socialFeed },
     { icon: Search, path: PATHS.SEARCH, label: commonText.nav.search },
     { icon: Contact2, path: PATHS.CONTACTS, label: commonText.nav.contacts },
     { icon: CheckSquare, path: PATHS.TODO, label: commonText.nav.todo }
