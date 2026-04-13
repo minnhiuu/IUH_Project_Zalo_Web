@@ -66,9 +66,8 @@ export const useCancelFriendRequest = () => {
 
   return useMutation({
     mutationKey: friendKeys.cancelRequest(),
-    mutationFn: ( friendshipId : string ) =>
-      friendApi.cancelFriendRequest(friendshipId),
-    onSuccess: (_data) => {
+    mutationFn: (friendshipId: string) => friendApi.cancelFriendRequest(friendshipId),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: friendKeys.all() })
       showSuccessToast(toast.cancelSuccess)
     },

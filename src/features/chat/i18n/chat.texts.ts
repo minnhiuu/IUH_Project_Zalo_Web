@@ -1,0 +1,383 @@
+import type { TFunction } from 'i18next'
+import { CHAT_KEYS } from './chat.keys'
+import type { AiProcessingStatus } from '@/constants/enum'
+
+export const createChatTexts = (t: TFunction<'chat'>) => ({
+  title: t(CHAT_KEYS.title),
+  searchPlaceholder: t(CHAT_KEYS.searchPlaceholder),
+  emptyState: t(CHAT_KEYS.emptyState),
+  emptyStateSearch: t(CHAT_KEYS.emptyStateSearch),
+  inputPlaceholder: t(CHAT_KEYS.inputPlaceholder),
+  send: t(CHAT_KEYS.send),
+  loading: t(CHAT_KEYS.loading),
+  replyingTo: (name: string) => t(CHAT_KEYS.replyingTo, { name }),
+  status: {
+    online: t(CHAT_KEYS.status.online),
+    justNow: t(CHAT_KEYS.status.justNow),
+    minutesAgo: (count: number) => t(CHAT_KEYS.status.minutesAgo, { count }),
+    hoursAgo: (count: number) => t(CHAT_KEYS.status.hoursAgo, { count }),
+    daysAgo: (count: number) => t(CHAT_KEYS.status.daysAgo, { count }),
+    onDate: (date: string) => t(CHAT_KEYS.status.onDate, { date }),
+    sending: t(CHAT_KEYS.status.sending),
+    sent: t(CHAT_KEYS.status.sent),
+    membersCount: (count: number) => t(CHAT_KEYS.status.membersCount, { count })
+  },
+  errors: {
+    loadConversations: t(CHAT_KEYS.errors.loadConversations),
+    loadMessages: t(CHAT_KEYS.errors.loadMessages)
+  },
+  you: t(CHAT_KEYS.you),
+  you_lower: t(CHAT_KEYS.you_lower),
+  user: t(CHAT_KEYS.user),
+  type: {
+    image: t(CHAT_KEYS.type.image),
+    file: t(CHAT_KEYS.type.file),
+    link: t(CHAT_KEYS.type.link)
+  },
+  messageBubble: {
+    reply: t(CHAT_KEYS.messageBubble.reply),
+    forward: t(CHAT_KEYS.messageBubble.forward),
+    like: t(CHAT_KEYS.messageBubble.like),
+    share: t(CHAT_KEYS.messageBubble.share),
+    copy: t(CHAT_KEYS.messageBubble.copy),
+    pinMessage: t(CHAT_KEYS.messageBubble.pinMessage),
+    starMessage: t(CHAT_KEYS.messageBubble.starMessage),
+    selectMessages: t(CHAT_KEYS.messageBubble.selectMessages),
+    viewDetails: t(CHAT_KEYS.messageBubble.viewDetails),
+    otherOptions: t(CHAT_KEYS.messageBubble.otherOptions),
+    saveToMyDocuments: t(CHAT_KEYS.messageBubble.saveToMyDocuments),
+    createReminder: t(CHAT_KEYS.messageBubble.createReminder),
+    delete: t(CHAT_KEYS.messageBubble.delete),
+    more: t(CHAT_KEYS.messageBubble.more),
+    revoke: t(CHAT_KEYS.messageBubble.revoke),
+    deleteForMe: t(CHAT_KEYS.messageBubble.deleteForMe),
+    forwarded: t(CHAT_KEYS.messageBubble.forwarded),
+    revoked: t(CHAT_KEYS.messageBubble.revoked),
+    image: t(CHAT_KEYS.messageBubble.image),
+    file: t(CHAT_KEYS.messageBubble.file),
+    reactionModalTitle: t(CHAT_KEYS.messageBubble.reactionModalTitle),
+    reactionModalAll: t(CHAT_KEYS.messageBubble.reactionModalAll),
+    reactionModalYou: t(CHAT_KEYS.messageBubble.reactionModalYou),
+    reactionModalEmpty: t(CHAT_KEYS.messageBubble.reactionModalEmpty)
+  },
+  sidebar: {
+    all: t(CHAT_KEYS.sidebar.all),
+    unread: t(CHAT_KEYS.sidebar.unread),
+    category: t(CHAT_KEYS.sidebar.category),
+    createGroup: t(CHAT_KEYS.sidebar.createGroup),
+    addFriend: t(CHAT_KEYS.sidebar.addFriend)
+  },
+  'create-group-dialog': {
+    title: t(CHAT_KEYS['create-group-dialog'].title),
+    namePlaceholder: t(CHAT_KEYS['create-group-dialog'].namePlaceholder),
+    searchPlaceholder: t(CHAT_KEYS['create-group-dialog'].searchPlaceholder),
+    recentChats: t(CHAT_KEYS['create-group-dialog'].recentChats),
+    selected: t(CHAT_KEYS['create-group-dialog'].selected),
+    cancel: t(CHAT_KEYS['create-group-dialog'].cancel),
+    create: t(CHAT_KEYS['create-group-dialog'].create),
+    noSelected: t(CHAT_KEYS['create-group-dialog'].noSelected),
+    andOthers: (count: number) => t(CHAT_KEYS['create-group-dialog'].andOthers, { count }),
+    updateAvatarTitle: t(CHAT_KEYS['create-group-dialog'].updateAvatarTitle),
+    confirm: t(CHAT_KEYS['create-group-dialog'].confirm),
+    dragToMove: t(CHAT_KEYS['create-group-dialog'].dragToMove),
+    changeAvatar: t(CHAT_KEYS['create-group-dialog'].changeAvatar),
+    removeAvatar: t(CHAT_KEYS['create-group-dialog'].removeAvatar),
+    addMembersTitle: t(CHAT_KEYS['create-group-dialog'].addMembersTitle),
+    alreadyJoined: t(CHAT_KEYS['create-group-dialog'].alreadyJoined),
+    alreadyAdmin: t(CHAT_KEYS['create-group-dialog'].alreadyAdmin),
+    noResultsFound: t(CHAT_KEYS['create-group-dialog'].noResultsFound),
+    noFriendsFound: t(CHAT_KEYS['create-group-dialog'].noFriendsFound)
+  },
+  'forward-dialog': {
+    title: t(CHAT_KEYS['forward-dialog'].title),
+    share_title: t(CHAT_KEYS['forward-dialog'].share_title),
+    searchPlaceholder: t(CHAT_KEYS['forward-dialog'].searchPlaceholder),
+    selected: t(CHAT_KEYS['forward-dialog'].selected),
+    empty: t(CHAT_KEYS['forward-dialog'].empty),
+    forward: t(CHAT_KEYS['forward-dialog'].forward),
+    share: t(CHAT_KEYS['forward-dialog'].share),
+    cancel: t(CHAT_KEYS['forward-dialog'].cancel),
+    delete: t(CHAT_KEYS['forward-dialog'].delete),
+    tabRecent: t(CHAT_KEYS['forward-dialog'].tabRecent),
+    tabGroups: t(CHAT_KEYS['forward-dialog'].tabGroups),
+    tabFriends: t(CHAT_KEYS['forward-dialog'].tabFriends),
+    labels: t(CHAT_KEYS['forward-dialog'].labels),
+    forwardMessage: t(CHAT_KEYS['forward-dialog'].forwardMessage),
+    addDescription: t(CHAT_KEYS['forward-dialog'].addDescription)
+  },
+  system: {
+    add_members: {
+      single_self: t(CHAT_KEYS.system.add_members.single_self),
+      many_self: t(CHAT_KEYS.system.add_members.many_self),
+      many_self_count: t(CHAT_KEYS.system.add_members.many_self_count),
+      single_other: t(CHAT_KEYS.system.add_members.single_other),
+      many_other: t(CHAT_KEYS.system.add_members.many_other),
+      many_other_count: t(CHAT_KEYS.system.add_members.many_other_count),
+      group_created: t(CHAT_KEYS.system.add_members.group_created),
+      joined_group: t(CHAT_KEYS.system.add_members.joined_group),
+      update_name: t(CHAT_KEYS.system.add_members.update_name),
+      update_name_simple: t(CHAT_KEYS.system.add_members.update_name_simple),
+      update_avatar: t(CHAT_KEYS.system.add_members.update_avatar),
+      update_avatar_simple: t(CHAT_KEYS.system.add_members.update_avatar_simple),
+      disband_group: t(CHAT_KEYS.system.add_members.disband_group)
+    },
+    remove_member: {
+      by_you: t(CHAT_KEYS.system.remove_member.by_you),
+      self_removed: t(CHAT_KEYS.system.remove_member.self_removed),
+      by_actor: t(CHAT_KEYS.system.remove_member.by_actor)
+    },
+    block_member: {
+      by_you: t(CHAT_KEYS.system.block_member.by_you),
+      self_blocked: t(CHAT_KEYS.system.block_member.self_blocked),
+      by_actor: t(CHAT_KEYS.system.block_member.by_actor)
+    },
+    blocked_from_joining: t(CHAT_KEYS.system.blocked_from_joining),
+    self_blocked_from_joining: {
+      with_link: t(CHAT_KEYS.system.self_blocked_from_joining.with_link),
+      without_link: t(CHAT_KEYS.system.self_blocked_from_joining.without_link),
+      join_link_hint: t(CHAT_KEYS.system.self_blocked_from_joining.join_link_hint)
+    },
+    leave_group: {
+      self: t(CHAT_KEYS.system.leave_group.self),
+      by_actor: t(CHAT_KEYS.system.leave_group.by_actor)
+    }
+  },
+  disbanded: {
+    message: t(CHAT_KEYS.disbanded.message),
+    cannotSendMessage: t(CHAT_KEYS.disbanded.cannotSendMessage),
+    deleteAction: t(CHAT_KEYS.disbanded.deleteAction)
+  },
+  restricted: {
+    onlyAdminCanSend: t(CHAT_KEYS.restricted.onlyAdminCanSend)
+  },
+  'rename-group-dialog': {
+    title: t(CHAT_KEYS['rename-group-dialog'].title),
+    description: t(CHAT_KEYS['rename-group-dialog'].description),
+    placeholder: t(CHAT_KEYS['rename-group-dialog'].placeholder),
+    cancel: t(CHAT_KEYS['rename-group-dialog'].cancel),
+    confirm: t(CHAT_KEYS['rename-group-dialog'].confirm)
+  },
+  'group-info-dialog': {
+    title: t(CHAT_KEYS['group-info-dialog'].title),
+    managementTitle: t(CHAT_KEYS['group-info-dialog'].managementTitle),
+    backToInfo: t(CHAT_KEYS['group-info-dialog'].backToInfo),
+    members: t(CHAT_KEYS['group-info-dialog'].members),
+    management: t(CHAT_KEYS['group-info-dialog'].management),
+    leaveGroup: t(CHAT_KEYS['group-info-dialog'].leaveGroup),
+    viewAll: t(CHAT_KEYS['group-info-dialog'].viewAll),
+    media: t(CHAT_KEYS['group-info-dialog'].media),
+    noMedia: t(CHAT_KEYS['group-info-dialog'].noMedia),
+    sendMessage: t(CHAT_KEYS['group-info-dialog'].sendMessage),
+    adminOnlyBanner: t(CHAT_KEYS['group-info-dialog'].adminOnlyBanner),
+    copied: t(CHAT_KEYS['group-info-dialog'].copied),
+    share: t(CHAT_KEYS['group-info-dialog'].share),
+    membersCount: (count: number) => t(CHAT_KEYS.status.membersCount, { count }),
+    groupLink: t(CHAT_KEYS['group-info-dialog'].groupLink),
+    joinQuestion: t(CHAT_KEYS['group-info-dialog'].joinQuestion),
+    joinQuestionDesc: t(CHAT_KEYS['group-info-dialog'].joinQuestionDesc),
+    joinQuestionPlaceholder: t(CHAT_KEYS['group-info-dialog'].joinQuestionPlaceholder),
+    joinQuestionRequired: t(CHAT_KEYS['group-info-dialog'].joinQuestionRequired),
+    joinQuestionRequiredDesc: t(CHAT_KEYS['group-info-dialog'].joinQuestionRequiredDesc),
+    joinQuestionSetup: t(CHAT_KEYS['group-info-dialog'].joinQuestionSetup),
+    joinQuestionEdit: t(CHAT_KEYS['group-info-dialog'].joinQuestionEdit),
+    joinQuestionEmpty: t(CHAT_KEYS['group-info-dialog'].joinQuestionEmpty),
+    joinQuestionUpdateSuccess: t(CHAT_KEYS['group-info-dialog'].joinQuestionUpdateSuccess),
+    memberPermissionsTitle: t(CHAT_KEYS['group-info-dialog'].memberPermissionsTitle),
+    permissions: {
+      updateNameAvatar: t(CHAT_KEYS['group-info-dialog'].permissions.updateNameAvatar),
+      pinNotePoll: t(CHAT_KEYS['group-info-dialog'].permissions.pinNotePoll),
+      createReminder: t(CHAT_KEYS['group-info-dialog'].permissions.createReminder),
+      createPoll: t(CHAT_KEYS['group-info-dialog'].permissions.createPoll),
+      sendMessage: t(CHAT_KEYS['group-info-dialog'].permissions.sendMessage)
+    },
+    toggles: {
+      reviewNewMembers: t(CHAT_KEYS['group-info-dialog'].toggles.reviewNewMembers),
+      highlightAdminMessages: t(CHAT_KEYS['group-info-dialog'].toggles.highlightAdminMessages),
+      allowNewMembersReadRecent: t(CHAT_KEYS['group-info-dialog'].toggles.allowNewMembersReadRecent),
+      allowJoinByLink: t(CHAT_KEYS['group-info-dialog'].toggles.allowJoinByLink)
+    },
+    toggleTooltips: {
+      reviewNewMembers: t(CHAT_KEYS['group-info-dialog'].toggleTooltips.reviewNewMembers),
+      highlightAdminMessages: t(CHAT_KEYS['group-info-dialog'].toggleTooltips.highlightAdminMessages),
+      allowNewMembersReadRecent: t(CHAT_KEYS['group-info-dialog'].toggleTooltips.allowNewMembersReadRecent),
+      allowJoinByLink: t(CHAT_KEYS['group-info-dialog'].toggleTooltips.allowJoinByLink)
+    },
+    actions: {
+      removeMembers: t(CHAT_KEYS['group-info-dialog'].actions.removeMembers),
+      ownerAndDeputy: t(CHAT_KEYS['group-info-dialog'].actions.ownerAndDeputy),
+      disbandGroup: t(CHAT_KEYS['group-info-dialog'].actions.disbandGroup),
+      disbandDialog: {
+        title: t(CHAT_KEYS['group-info-dialog'].actions.disbandDialog.title),
+        description: t(CHAT_KEYS['group-info-dialog'].actions.disbandDialog.description),
+        confirm: t(CHAT_KEYS['group-info-dialog'].actions.disbandDialog.confirm),
+        cancel: t(CHAT_KEYS['group-info-dialog'].actions.disbandDialog.cancel)
+      },
+      leaveDialog: {
+        title: t(CHAT_KEYS['group-info-dialog'].actions.leaveDialog.title),
+        description: t(CHAT_KEYS['group-info-dialog'].actions.leaveDialog.description),
+        silentTitle: t(CHAT_KEYS['group-info-dialog'].actions.leaveDialog.silentTitle),
+        silentDescription: t(CHAT_KEYS['group-info-dialog'].actions.leaveDialog.silentDescription),
+        confirm: t(CHAT_KEYS['group-info-dialog'].actions.leaveDialog.confirm),
+        cancel: t(CHAT_KEYS['group-info-dialog'].actions.leaveDialog.cancel),
+        blockGroupAddTitle: t(CHAT_KEYS['group-info-dialog'].actions.leaveDialog.blockGroupAddTitle),
+        blockGroupAddDescription: t(CHAT_KEYS['group-info-dialog'].actions.leaveDialog.blockGroupAddDescription)
+      },
+      transferOwnerDialog: {
+        title: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerDialog.title),
+        description: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerDialog.description),
+        confirm: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerDialog.confirm),
+        cancel: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerDialog.cancel),
+        searchPlaceholder: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerDialog.searchPlaceholder)
+      },
+      owner: t(CHAT_KEYS['group-info-dialog'].actions.owner),
+      admin: t(CHAT_KEYS['group-info-dialog'].actions.admin),
+      delete: t(CHAT_KEYS['group-info-dialog'].actions.delete),
+      addDeputy: t(CHAT_KEYS['group-info-dialog'].actions.addDeputy),
+      adjustDeputy: t(CHAT_KEYS['group-info-dialog'].actions.adjustDeputy),
+      transferOwner: t(CHAT_KEYS['group-info-dialog'].actions.transferOwner),
+      noBlockedMembers: t(CHAT_KEYS['group-info-dialog'].actions.noBlockedMembers),
+      blockedMembersDesc: t(CHAT_KEYS['group-info-dialog'].actions.blockedMembersDesc),
+      blockMember: t(CHAT_KEYS['group-info-dialog'].actions.blockMember),
+      refreshJoinLinkDialog: {
+        title: t(CHAT_KEYS['group-info-dialog'].actions.refreshJoinLinkDialog.title),
+        description: t(CHAT_KEYS['group-info-dialog'].actions.refreshJoinLinkDialog.description),
+        confirm: t(CHAT_KEYS['group-info-dialog'].actions.refreshJoinLinkDialog.confirm),
+        cancel: t(CHAT_KEYS['group-info-dialog'].actions.refreshJoinLinkDialog.cancel)
+      },
+      disableLinkDialog: {
+        title: t(CHAT_KEYS['group-info-dialog'].actions.disableLinkDialog.title),
+        description: t(CHAT_KEYS['group-info-dialog'].actions.disableLinkDialog.description),
+        confirm: t(CHAT_KEYS['group-info-dialog'].actions.disableLinkDialog.confirm),
+        cancel: t(CHAT_KEYS['group-info-dialog'].actions.disableLinkDialog.cancel)
+      },
+      transferOwnerWarning: {
+        title: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerWarning.title),
+        description: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerWarning.description),
+        confirm: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerWarning.confirm),
+        cancel: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerWarning.cancel)
+      },
+      transferOwnerFinal: {
+        title: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerFinal.title),
+        description: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerFinal.description),
+        confirm: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerFinal.confirm),
+        cancel: t(CHAT_KEYS['group-info-dialog'].actions.transferOwnerFinal.cancel)
+      },
+      blockedMembersCount: (count: number) => t(CHAT_KEYS['group-info-dialog'].actions.blockedMembersCount, { count }),
+      unblock: t(CHAT_KEYS['group-info-dialog'].actions.unblock),
+      confirmBlock: t(CHAT_KEYS['group-info-dialog'].actions.confirmBlock)
+    }
+  },
+  toasts: {
+    updating: t(CHAT_KEYS.toasts.updating),
+    updateAvatarSuccess: t(CHAT_KEYS.toasts.updateAvatarSuccess),
+    updateNameSuccess: t(CHAT_KEYS.toasts.updateNameSuccess),
+    updateError: t(CHAT_KEYS.toasts.updateError),
+    leaveGroupSuccess: t(CHAT_KEYS.toasts.leaveGroupSuccess),
+    leaveGroupError: t(CHAT_KEYS.toasts.leaveGroupError),
+    blockSuccess: t(CHAT_KEYS.toasts.blockSuccess),
+    unblockSuccess: t(CHAT_KEYS.toasts.unblockSuccess),
+    noBlockCandidates: t(CHAT_KEYS.toasts.noBlockCandidates)
+  },
+  sidebarInfo: {
+    title: t(CHAT_KEYS.sidebarInfo.title),
+    groupTitle: t(CHAT_KEYS.sidebarInfo.groupTitle),
+    members: t(CHAT_KEYS.sidebarInfo.members),
+    groupBoard: t(CHAT_KEYS.sidebarInfo.groupBoard),
+    reminderBoard: t(CHAT_KEYS.sidebarInfo.reminderBoard),
+    notesPinsPolls: t(CHAT_KEYS.sidebarInfo.notesPinsPolls),
+    commonGroups: t(CHAT_KEYS.sidebarInfo.commonGroups),
+    commonGroupsCount: (count: number) => t(CHAT_KEYS.sidebarInfo.commonGroupsCount, { count }),
+    noCommonGroups: t(CHAT_KEYS.sidebarInfo.noCommonGroups),
+    viewAll: t(CHAT_KEYS.sidebarInfo.viewAll),
+    photosVideos: t(CHAT_KEYS.sidebarInfo.photosVideos),
+    noPhotosVideos: t(CHAT_KEYS.sidebarInfo.noPhotosVideos),
+    files: t(CHAT_KEYS.sidebarInfo.files),
+    noFiles: t(CHAT_KEYS.sidebarInfo.noFiles),
+    links: t(CHAT_KEYS.sidebarInfo.links),
+    noLinks: t(CHAT_KEYS.sidebarInfo.noLinks),
+    privacySettings: t(CHAT_KEYS.sidebarInfo.privacySettings),
+    disappearingMessages: t(CHAT_KEYS.sidebarInfo.disappearingMessages),
+    disappearingMessagesTooltip: t(CHAT_KEYS.sidebarInfo.disappearingMessagesTooltip),
+    disappearingMessagesWarning: t(CHAT_KEYS.sidebarInfo.disappearingMessagesWarning),
+    never: t(CHAT_KEYS.sidebarInfo.never),
+    hideConversation: t(CHAT_KEYS.sidebarInfo.hideConversation),
+    reportAction: t(CHAT_KEYS.sidebarInfo.reportAction),
+    deleteHistory: t(CHAT_KEYS.sidebarInfo.deleteHistory),
+    leaveGroup: t(CHAT_KEYS.sidebarInfo.leaveGroup),
+    viewAllMembers: t(CHAT_KEYS.sidebarInfo.viewAllMembers),
+    muteNotifications: t(CHAT_KEYS.sidebarInfo.muteNotifications),
+    pin: t(CHAT_KEYS.sidebarInfo.pin),
+    addMember: t(CHAT_KEYS.sidebarInfo.addMember),
+    settings: t(CHAT_KEYS.sidebarInfo.settings),
+    createGroup: t(CHAT_KEYS.sidebarInfo.createGroup),
+    ownerRole: t(CHAT_KEYS.sidebarInfo.ownerRole),
+    adminRole: t(CHAT_KEYS.sidebarInfo.adminRole),
+    addDeputy: t(CHAT_KEYS.sidebarInfo.addDeputy),
+    removeFromGroup: t(CHAT_KEYS.sidebarInfo.removeFromGroup),
+    searchMemberPlaceholder: t(CHAT_KEYS.sidebarInfo.searchMemberPlaceholder),
+    membersLoading: t(CHAT_KEYS.sidebarInfo.membersLoading),
+    noMatchingMembers: t(CHAT_KEYS.sidebarInfo.noMatchingMembers),
+    pendingJoinRequests: t(CHAT_KEYS.sidebarInfo.pendingJoinRequests),
+    pendingJoinRequestsLabel: (count: number) => t(CHAT_KEYS.sidebarInfo.pendingJoinRequestsLabel, { count }),
+    reject: t(CHAT_KEYS.sidebarInfo.reject),
+    accept: t(CHAT_KEYS.sidebarInfo.accept),
+    groupJoinLink: t(CHAT_KEYS.sidebarInfo.groupJoinLink),
+    copied: t(CHAT_KEYS.sidebarInfo.copied),
+    generating: t(CHAT_KEYS.sidebarInfo.generating),
+    createInviteLink: t(CHAT_KEYS.sidebarInfo.createInviteLink)
+  },
+  'join-group-dialog': {
+    title: t(CHAT_KEYS['join-group-dialog'].title),
+    members_and_creator: (count: number, creator: string) =>
+      t(CHAT_KEYS['join-group-dialog'].members_and_creator, { count, creator }),
+    members_only: (count: number) => t(CHAT_KEYS['join-group-dialog'].members_only, { count }),
+    waiting_room: t(CHAT_KEYS['join-group-dialog'].waiting_room),
+    join: t(CHAT_KEYS['join-group-dialog'].join),
+    joining: t(CHAT_KEYS['join-group-dialog'].joining),
+    close: t(CHAT_KEYS['join-group-dialog'].close),
+    go_to_chat: t(CHAT_KEYS['join-group-dialog'].go_to_chat),
+    link_invalid: t(CHAT_KEYS['join-group-dialog'].link_invalid),
+    link_invalid_desc: t(CHAT_KEYS['join-group-dialog'].link_invalid_desc),
+    link_disabled: t(CHAT_KEYS['join-group-dialog'].link_disabled),
+    link_disabled_desc: t(CHAT_KEYS['join-group-dialog'].link_disabled_desc),
+    error: t(CHAT_KEYS['join-group-dialog'].error),
+    error_desc: t(CHAT_KEYS['join-group-dialog'].error_desc),
+    approval_required: t(CHAT_KEYS['join-group-dialog'].approval_required),
+    request_pending_dialog: t(CHAT_KEYS['join-group-dialog'].request_pending_dialog),
+    request_pending_toast: t(CHAT_KEYS['join-group-dialog'].request_pending_toast),
+    request_pending_desc: t(CHAT_KEYS['join-group-dialog'].request_pending_desc),
+    sending_request: t(CHAT_KEYS['join-group-dialog'].sending_request),
+    send_request: t(CHAT_KEYS['join-group-dialog'].send_request),
+    cancel_request: t(CHAT_KEYS['join-group-dialog'].cancel_request),
+    canceling: t(CHAT_KEYS['join-group-dialog'].canceling),
+    default_name: t(CHAT_KEYS['join-group-dialog'].default_name),
+    admin_question: t(CHAT_KEYS['join-group-dialog'].admin_question),
+    answer_placeholder: t(CHAT_KEYS['join-group-dialog'].answer_placeholder),
+    answer_required_toast: t(CHAT_KEYS['join-group-dialog'].answer_required_toast),
+    already_member: t(CHAT_KEYS['join-group-dialog'].already_member),
+    blocked_from_group: t(CHAT_KEYS['join-group-dialog'].blocked_from_group),
+    request_title: t(CHAT_KEYS['join-group-dialog'].request_title),
+    approval_required_desc: t(CHAT_KEYS['join-group-dialog'].approval_required_desc)
+  },
+  mediaStorage: {
+    title: t(CHAT_KEYS.mediaStorage.title),
+    tabMedia: t(CHAT_KEYS.mediaStorage.tabMedia),
+    tabFiles: t(CHAT_KEYS.mediaStorage.tabFiles),
+    tabLinks: t(CHAT_KEYS.mediaStorage.tabLinks),
+    filterSender: t(CHAT_KEYS.mediaStorage.filterSender),
+    filterDate: t(CHAT_KEYS.mediaStorage.filterDate),
+    filterType: t(CHAT_KEYS.mediaStorage.filterType),
+    searchFilePlaceholder: t(CHAT_KEYS.mediaStorage.searchFilePlaceholder),
+    noPhotosVideos: t(CHAT_KEYS.mediaStorage.noPhotosVideos),
+    noFiles: t(CHAT_KEYS.mediaStorage.noFiles),
+    noLinks: t(CHAT_KEYS.mediaStorage.noLinks),
+    downloadedLocally: t(CHAT_KEYS.mediaStorage.downloadedLocally),
+    dateLabel: (day: number, month: number) => t(CHAT_KEYS.mediaStorage.dateLabel, { day, month })
+  },
+  /** Trả về label dịch cho trạng thái pipeline AI theo ngôn ngữ hiện tại */
+  aiStatusLabel: (status?: AiProcessingStatus): string => {
+    if (!status) return t(CHAT_KEYS.aiStatus.DEFAULT)
+    const key = CHAT_KEYS.aiStatus[status as keyof typeof CHAT_KEYS.aiStatus]
+    return key ? t(key) : t(CHAT_KEYS.aiStatus.DEFAULT)
+  }
+})

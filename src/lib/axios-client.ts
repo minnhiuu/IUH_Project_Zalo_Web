@@ -1,7 +1,8 @@
 import axios, { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
-import { toast } from 'sonner'
+import { showErrorToast } from '@/utils/toast'
 import { getDeviceId } from '../utils/device'
 import { storage, STORAGE_KEYS } from '@/utils/local-storage'
+import i18n from '@/lib/i18n'
 
 export const getAccessToken = (): string | null => storage.get(STORAGE_KEYS.ACCESS_TOKEN)
 
@@ -57,7 +58,7 @@ const refreshAccessToken = async (): Promise<string | null> => {
     const code = (err as AxiosError<{ code?: number }>)?.response?.data?.code
     if (code === 1013) {
       clearAccessToken()
-      toast.error('Tài khoản của bạn đã bị cấm', { duration: 4000 })
+      showErrorToast('Tài khoản của bạn đã bị cấm', 4000)
       setTimeout(() => {
         window.location.href = '/login'
       }, 2000)
@@ -95,7 +96,7 @@ http.interceptors.response.use(
     // Account banned — show message then redirect
     if (responseData?.code === 1013) {
       clearAccessToken()
-      toast.error('Tài khoản của bạn đã bị cấm', { duration: 4000 })
+      showErrorToast('Tài khoản của bạn đã bị cấm', 4000)
       if (!window.location.pathname.includes('/login')) {
         setTimeout(() => {
           window.location.href = '/login'
@@ -104,7 +105,12 @@ http.interceptors.response.use(
       return Promise.reject(error)
     }
 
-    if (!originalRequest || error.response?.status !== 401) {
+    if (!originalRequest || (error.response?.status !== 401 && (error.response?.status ?? 0) < 500)) {
+      return Promise.reject(error)
+    }
+
+    if (error.response && error.response.status >= 500) {
+      showErrorToast(i18n.t('common:errorDefault'))
       return Promise.reject(error)
     }
 
