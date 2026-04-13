@@ -20,7 +20,9 @@ import {
   refreshJoinLinkApi,
   generateJoinLinkApi,
   joinByLinkApi,
-  blockMembersApi
+  blockMembersApi,
+  pinMessageApi,
+  unpinMessageApi
 } from '../api/chat.api'
 import { chatKeys } from './keys'
 import type { ConversationResponse, MessageResponse, ChatMessageRequest, GroupSettings } from '../schemas/chat.schema'
@@ -463,6 +465,34 @@ export const useRemoveAllMyReactionsMutation = () => {
       removeAllMyReactionsApi(messageId),
     onError: (error) => {
       console.error('Failed to remove all reactions', error)
+    }
+  })
+}
+
+export const usePinMessageMutation = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ conversationId, messageId }: { conversationId: string; messageId: string }) =>
+      pinMessageApi(conversationId, messageId),
+    onSuccess: (_, { conversationId }) => {
+      queryClient.invalidateQueries({ queryKey: chatKeys.pins(conversationId) })
+    },
+    onError: (error) => {
+      console.error('Failed to pin message', error)
+    }
+  })
+}
+
+export const useUnpinMessageMutation = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ conversationId, messageId }: { conversationId: string; messageId: string }) =>
+      unpinMessageApi(conversationId, messageId),
+    onSuccess: (_, { conversationId }) => {
+      queryClient.invalidateQueries({ queryKey: chatKeys.pins(conversationId) })
+    },
+    onError: (error) => {
+      console.error('Failed to unpin message', error)
     }
   })
 }

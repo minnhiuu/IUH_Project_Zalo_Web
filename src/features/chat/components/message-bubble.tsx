@@ -12,7 +12,7 @@ import { MessageSenderAvatar } from './message-sender-avatar'
 import { MessageIconButton } from './message-icon-button'
 import { MessageMoreMenu } from './message-more-menu'
 import { JoinLinkCard } from './join-link-card'
-import { useToggleReactionMutation, useRemoveAllMyReactionsMutation } from '../queries/use-mutations'
+import { useToggleReactionMutation, useRemoveAllMyReactionsMutation, usePinMessageMutation } from '../queries/use-mutations'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query'
 import type { PageResponse } from '@/shared/api'
@@ -45,6 +45,7 @@ export function MessageBubble({
   const queryClient = useQueryClient()
   const { mutate: toggleReactionMutate } = useToggleReactionMutation()
   const { mutateAsync: removeAllMyReactionsAsync } = useRemoveAllMyReactionsMutation()
+  const { mutate: pinMessageMutate } = usePinMessageMutation()
   const mb = text.messageBubble
 
   const isRevoked = message.status === MessageStatus.REVOKED
@@ -372,6 +373,7 @@ export function MessageBubble({
                   text={mb}
                   messageContent={message.content || ''}
                   onDeleteForMe={() => conversationId && deleteMessageForMe(message.id, conversationId)}
+                  onPin={() => conversationId && pinMessageMutate({ conversationId, messageId: message.id })}
                 />
               </DropdownMenu>
             </div>

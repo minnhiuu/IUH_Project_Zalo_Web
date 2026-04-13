@@ -4,6 +4,7 @@ import { Textarea } from '@/components/ui/textarea'
 import type { MessageResponse } from '../schemas/chat.schema'
 import { useChatContext, type FileAttachment } from '../context/chat-context'
 import { useChatText } from '../i18n/use-chat-text'
+import { useAuth } from '@/features/auth/hooks/use-auth'
 
 const IMAGE_VIDEO_ACCEPT = 'image/*,video/*'
 const FILE_ACCEPT = '*/*'
@@ -16,8 +17,9 @@ interface ChatInputProps {
 }
 
 export function ChatInput({ conversationId, replyTo, onCancelReply }: ChatInputProps) {
-  const { sendMessage, sendFileMessage } = useChatContext()
+  const { sendMessage, sendFileMessage, sendTyping } = useChatContext()
   const { text } = useChatText()
+  const { user } = useAuth()
   const [content, setContent] = useState('')
   const [fileAttachments, setFileAttachments] = useState<FileAttachment[]>([])
   const [attachmentType, setAttachmentType] = useState<'image' | 'file' | null>(null)
@@ -26,6 +28,8 @@ export function ChatInput({ conversationId, replyTo, onCancelReply }: ChatInputP
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const imageInputRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isTypingRef = useRef(false)
 
   // Focus input when opening a new conversation
   useEffect(() => {
@@ -132,6 +136,12 @@ export function ChatInput({ conversationId, replyTo, onCancelReply }: ChatInputP
     sendMessage(conversationId, content, replyMetadata)
     setContent('')
     onCancelReply?.()
+    // Stop typing indicator
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
+    if (isTypingRef.current) {
+      isTypingRef.current = false
+      sendTyping(conversationId, false, user?.fullName || 'Người dùng')
+    }
     setTimeout(() => inputRef.current?.focus(), 0)
   }
 
@@ -285,7 +295,19 @@ export function ChatInput({ conversationId, replyTo, onCancelReply }: ChatInputP
           <Textarea
             ref={inputRef}
             value={content}
-            onChange={(e) => setContent(e.target.value)}
+            onChange={(e) => {
+              setContent(e.target.value)
+              // Typing indicator
+              if (!isTypingRef.current) {
+                isTypingRef.current = true
+                sendTyping(conversationId, true, user?.fullName || 'Người dùng')
+              }
+              if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
+              typingTimeoutRef.current = setTimeout(() => {
+                isTypingRef.current = false
+                sendTyping(conversationId, false, user?.fullName || 'Người dùng')
+              }, 2000)
+            }}
             onKeyDown={handleKeyDown}
             placeholder={text.inputPlaceholder}
             className='min-h-[44px] max-h-[120px] bg-transparent border-none focus-visible:ring-0 shadow-none resize-none py-2.5 px-4 text-[16px] break-words'

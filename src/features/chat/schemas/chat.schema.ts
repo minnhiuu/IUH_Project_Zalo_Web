@@ -206,3 +206,20 @@ export interface JoinGroupPreviewResponse {
   memberPreviews: { name: string; avatar: string | null }[]
   isAlreadyMember: boolean
 }
+
+export interface PinnedMessageInfo {
+  messageId: string
+  pinnedBy: string
+  pinnedByName: string
+  contentSnapshot: string
+  messageType: string
+  pinnedAt: string // ISO datetime
+}
+
+export interface TypingEvent {
+  conversationId: string
+  userId: string
+  userName: string
+  isTyping: boolean
+  platform: 'PC' | 'MOBILE'
+}

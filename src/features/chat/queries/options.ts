@@ -4,7 +4,8 @@ import {
   getMessages,
   getFriendsDirectory,
   getGroupMembersApi,
-  searchMembersToAdd
+  searchMembersToAdd,
+  getPinsApi
 } from '../api/chat.api'
 import type { PageResponse } from '@/shared/api'
 import { chatKeys } from './keys'
@@ -60,6 +61,13 @@ export const chatOptions = {
       queryFn: ({ pageParam = 0 }) => getGroupMembersApi(conversationId, { query, page: pageParam as number, size }),
       initialPageParam: 0,
       getNextPageParam: (lastPage) => (lastPage.page + 1 < lastPage.totalPages ? lastPage.page + 1 : undefined),
+      enabled: !!conversationId
+    }),
+  pins: (conversationId: string) =>
+    queryOptions({
+      ...QUERY_POLICIES.REALTIME,
+      queryKey: chatKeys.pins(conversationId),
+      queryFn: () => getPinsApi(conversationId),
       enabled: !!conversationId
     })
 }

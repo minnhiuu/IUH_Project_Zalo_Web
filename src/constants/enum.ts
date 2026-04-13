@@ -171,7 +171,9 @@ export const SystemActionType = {
   UpdateSettings: 'UPDATE_SETTINGS',
   JoinByLink: 'JOIN_BY_LINK',
   GenerateJoinLink: 'GENERATE_JOIN_LINK',
-  RefreshJoinLink: 'REFRESH_JOIN_LINK'
+  RefreshJoinLink: 'REFRESH_JOIN_LINK',
+  PinMessage: 'PIN_MESSAGE',
+  UnpinMessage: 'UNPIN_MESSAGE'
 } as const
 
 export type SystemActionType = (typeof SystemActionType)[keyof typeof SystemActionType]

@@ -60,6 +60,13 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     reactionModalYou: t(CHAT_KEYS.messageBubble.reactionModalYou),
     reactionModalEmpty: t(CHAT_KEYS.messageBubble.reactionModalEmpty)
   },
+  pinBoard: {
+    title: t(CHAT_KEYS.pinBoard.title),
+    copy: t(CHAT_KEYS.pinBoard.copy),
+    unpin: t(CHAT_KEYS.pinBoard.unpin),
+    collapse: t(CHAT_KEYS.pinBoard.collapse),
+    extraPins: (count: number) => t(CHAT_KEYS.pinBoard.extraPins, { count })
+  },
   sidebar: {
     all: t(CHAT_KEYS.sidebar.all),
     unread: t(CHAT_KEYS.sidebar.unread),
@@ -144,6 +151,12 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     leave_group: {
       self: t(CHAT_KEYS.system.leave_group.self),
       by_actor: t(CHAT_KEYS.system.leave_group.by_actor)
+    },
+    typing: {
+      one: (name: string) => t(CHAT_KEYS.system.typing.one, { name }),
+      one_pc: (name: string) => t(CHAT_KEYS.system.typing.one_pc, { name }),
+      two: (name1: string, name2: string) => t(CHAT_KEYS.system.typing.two, { name1, name2 }),
+      many: (name1: string, name2: string, count: number) => t(CHAT_KEYS.system.typing.many, { name1, name2, count })
     }
   },
   disbanded: {

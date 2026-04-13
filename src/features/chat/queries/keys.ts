@@ -9,5 +9,7 @@ export const chatKeys = {
   searchMembers: (query: string, conversationId?: string | null) =>
     [...chatKeys.all(), 'search-members', query, conversationId || 'none'] as const,
   groupMembers: (conversationId: string, query: string) =>
-    [...chatKeys.all(), 'group-members', conversationId, query] as const
+    [...chatKeys.all(), 'group-members', conversationId, query] as const,
+  pins: (conversationId: string) =>
+    [...chatKeys.all(), 'pins', conversationId] as const
 }

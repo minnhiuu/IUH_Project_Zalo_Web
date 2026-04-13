@@ -48,3 +48,7 @@ export const useMediaMessagesQuery = (
     enabled: enabled && !!conversationId && types.length > 0
   })
 }
+
+export const usePinsQuery = (conversationId: string) => {
+  return useQuery(chatOptions.pins(conversationId))
+}
