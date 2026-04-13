@@ -21,14 +21,13 @@ import {
   joinByLinkApi,
   blockMemberFromGroupApi,
   unblockMemberFromGroupApi,
-  blockUserFromAddingMeApi,
   approveJoinRequestApi,
   rejectJoinRequestApi,
   cancelMyJoinRequestApi,
   updateJoinQuestionApi
 } from '../api/chat.api'
 import { chatKeys } from './keys'
-import type { ConversationResponse, ChatMessageRequest, GroupSettings } from '../schemas/chat.schema'
+import type { ConversationResponse, ChatMessageRequest, GroupSettings, LeaveGroupRequest } from '../schemas/chat.schema'
 
 export const useMarkAsReadMutation = () => {
   const queryClient = useQueryClient()
@@ -197,16 +196,12 @@ export const useLeaveGroupMutation = () => {
   return useMutation({
     mutationFn: ({
       conversationId,
-      silent,
-      transferTo,
-      blockReJoin
-    }: {
+      navigateDelayMs: _,
+      ...request
+    }: LeaveGroupRequest & {
       conversationId: string
-      silent?: boolean
-      transferTo?: string
-      blockReJoin?: boolean
       navigateDelayMs?: number
-    }) => leaveGroupApi(conversationId, Boolean(silent), transferTo, Boolean(blockReJoin)),
+    }) => leaveGroupApi(conversationId, request),
     onSuccess: (_, { conversationId, navigateDelayMs, transferTo }) => {
       const delay = Math.max(0, Number(navigateDelayMs ?? 0))
 
@@ -493,15 +488,6 @@ export const useUnblockMemberMutation = () => {
     },
     onError: (error) => {
       console.error('Failed to unblock member', error)
-    }
-  })
-}
-
-export const useBlockUserFromAddingMeMutation = () => {
-  return useMutation({
-    mutationFn: (targetUserId: string) => blockUserFromAddingMeApi(targetUserId),
-    onError: (error) => {
-      console.error('Failed to block user from adding to group', error)
     }
   })
 }

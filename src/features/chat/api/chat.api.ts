@@ -5,6 +5,7 @@ import type {
   MessageResponse,
   ChatMessageRequest,
   GroupConversationCreateRequest,
+  LeaveGroupRequest,
   SearchMemberResponse,
   GroupMemberListItemResponse,
   AdminMemberResponse,
@@ -101,14 +102,9 @@ export const deleteConversationApi = async (conversationId: string): Promise<voi
   await http.delete(`/messages/conversations/${conversationId}`)
 }
 
-export const leaveGroupApi = async (
-  conversationId: string,
-  silent = false,
-  transferTo?: string,
-  blockReJoin = false
-): Promise<void> => {
+export const leaveGroupApi = async (conversationId: string, request: LeaveGroupRequest): Promise<void> => {
   await http.delete(`/messages/conversations/${conversationId}/leave`, {
-    params: { silent, blockReJoin, ...(transferTo ? { transferTo } : {}) }
+    data: request
   })
 }
 
@@ -316,10 +312,6 @@ export const unblockMemberFromGroupApi = async (
     `/messages/conversations/${conversationId}/block/${targetUserId}`
   )
   return response.data.data
-}
-
-export const blockUserFromAddingMeApi = async (targetUserId: string): Promise<void> => {
-  await http.post(`/messages/conversations/block-group-add/${targetUserId}`)
 }
 
 export const getBlockedMembersApi = async (

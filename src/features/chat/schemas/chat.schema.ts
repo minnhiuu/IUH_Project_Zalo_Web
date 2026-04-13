@@ -149,6 +149,14 @@ export const GroupConversationCreateRequestSchema = z.object({
 
 export type GroupConversationCreateRequest = z.infer<typeof GroupConversationCreateRequestSchema>
 
+export const LeaveGroupRequestSchema = z.object({
+  silent: z.boolean().default(false),
+  transferTo: z.string().nullable().optional(),
+  blockReJoin: z.boolean().default(false)
+})
+
+export type LeaveGroupRequest = z.infer<typeof LeaveGroupRequestSchema>
+
 export const GroupMemberListItemResponseSchema = z.object({
   userId: z.string(),
   fullName: z.string(),
