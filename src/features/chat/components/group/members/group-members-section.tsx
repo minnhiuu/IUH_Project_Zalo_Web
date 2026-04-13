@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { KeyRound, Search, Users } from 'lucide-react'
+import { Search, Users } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { UserAvatar } from '@/components/common/user-avatar'
@@ -14,6 +14,7 @@ import { useChatText } from '../../../i18n/use-chat-text'
 import { GroupMemberRole } from '@/constants/enum'
 import { useDebounce } from '@/hooks/use-debounce'
 import { MemberActionMenu } from './member-action-menu'
+import { MemberRoleBadge } from './member-role-badge'
 import type { GroupMemberListItemResponse } from '../../../schemas/chat.schema'
 
 interface GroupMembersSectionProps {
@@ -95,18 +96,7 @@ export function GroupMembersSection({
         >
           <div className='relative shrink-0'>
             <UserAvatar src={member.avatar} name={member.fullName} className='w-10 h-10 shrink-0' />
-            {(member.role === GroupMemberRole.Owner || member.role === GroupMemberRole.Admin) && (
-              <span className='member-role-key-badge absolute -right-0.5 -bottom-0.5 w-4 h-4 rounded-full flex items-center justify-center border border-background'>
-                <KeyRound
-                  strokeWidth={2.75}
-                  className={
-                    member.role === GroupMemberRole.Owner
-                      ? 'member-role-key-icon-owner w-2.5 h-2.5'
-                      : 'member-role-key-icon-admin w-2.5 h-2.5'
-                  }
-                />
-              </span>
-            )}
+            <MemberRoleBadge role={member.role} />
           </div>
           <div className='min-w-0 flex-1'>
             <p className='text-[15px] font-semibold text-foreground truncate'>

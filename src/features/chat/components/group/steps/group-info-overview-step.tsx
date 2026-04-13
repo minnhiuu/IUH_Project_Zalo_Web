@@ -27,6 +27,7 @@ interface GroupInfoOverviewStepProps {
   onRenameClick: () => void
   onCloseDialog: () => void
   onOpenManagement: () => void
+  onOpenMembers: () => void
   onLeaveGroup: () => void
 }
 
@@ -38,6 +39,7 @@ export function GroupInfoOverviewStep({
   onRenameClick,
   onCloseDialog,
   onOpenManagement,
+  onOpenMembers,
   onLeaveGroup
 }: GroupInfoOverviewStepProps) {
   const { t } = useTranslation('chat')
@@ -114,9 +116,12 @@ export function GroupInfoOverviewStep({
 
       <div className='bg-background mt-1.5 px-5 py-3 border-y border-border/50 overflow-visible'>
         <div className='flex items-center justify-between mb-2'>
-          <span className='text-[14px] font-bold text-foreground'>
+          <button
+            onClick={onOpenMembers}
+            className='text-[14px] font-bold text-foreground hover:text-primary transition-colors cursor-pointer'
+          >
             {text.membersCount(conversation.members?.length || 0)}
-          </span>
+          </button>
         </div>
         <div className='flex items-center overflow-visible -mx-0.5'>
           <div className='flex -space-x-2.5 items-center overflow-visible'>
@@ -131,7 +136,7 @@ export function GroupInfoOverviewStep({
             ))}
           </div>
           <button
-            onClick={onCloseDialog}
+            onClick={onOpenMembers}
             className='w-8.5 h-8.5 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-muted/80 transition-colors shrink-0 cursor-pointer -ml-0.5'
           >
             <div className='text-[17px] font-bold leading-none pb-1'>...</div>

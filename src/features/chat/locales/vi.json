@@ -1,4 +1,4 @@
-{
+﻿{
   "chat": {
     "title": "Tin nhắn",
     "searchPlaceholder": "Tìm kiếm",
@@ -64,6 +64,17 @@
         "self_removed": "Bạn đã bị xóa khỏi nhóm",
         "by_actor": "<bold>{{target}}</bold> được <actorBold>{{actor}}</actorBold> xóa khỏi nhóm"
       },
+      "block_member": {
+        "by_you": "<bold>{{target}}</bold> bị bạn chặn khỏi nhóm này",
+        "self_blocked": "Bạn đã bị chặn khỏi nhóm này",
+        "by_actor": "<bold>{{target}}</bold> bị <actorBold>{{actor}}</actorBold> chặn khỏi nhóm này"
+      },
+      "blocked_from_joining": "<bold>{{target}}</bold> đã bị trưởng/phó nhóm chặn tham gia nhóm",
+      "self_blocked_from_joining": {
+        "with_link": "Không thể thêm <bold>{{target}}</bold> vào nhóm. Họ chỉ có thể tham gia bằng link mời vào nhóm.",
+        "without_link": "Không thể thêm <bold>{{target}}</bold> vào nhóm.",
+        "join_link_hint": "<bold>{{actor}}</bold> đã mời bạn tham gia nhóm <bold>{{groupName}}</bold>. Nhấn vào link để tham gia:"
+      },
       "promote_admin": {
         "by_you": "<bold>{{target}}</bold> đã được bổ nhiệm thành phó nhóm",
         "self_promoted": "Bạn đã được bổ nhiệm thành phó nhóm",
@@ -115,6 +126,18 @@
         "self": "Bạn đã làm mới link mời nhóm. Link cũ không còn hiệu lực.",
         "by_actor": "<actorBold>{{actor}}</actorBold> đã làm mới link mời nhóm. Link cũ không còn hiệu lực."
       },
+      "join_request_created": {
+        "self": "Bạn đã gửi yêu cầu tham gia nhóm",
+        "by_actor": "<actorBold>{{actor}}</actorBold> vừa yêu cầu tham gia nhóm"
+      },
+      "join_request_approved": {
+        "self": "Bạn được <actorBold>{{actor}}</actorBold> thêm vào nhóm",
+        "by_me": "<bold>{{target}}</bold> được bạn thêm vào nhóm",
+        "by_actor": "<bold>{{target}}</bold> được <actorBold>{{actor}}</actorBold> thêm vào nhóm"
+      },
+      "join_request_rejected": {
+        "self": "Yêu cầu tham gia nhóm của bạn đã bị từ chối"
+      },
       "join_link": {
         "label": "Link mời tham gia nhóm",
         "copy": "Copy link",
@@ -137,6 +160,13 @@
       "message": "Trưởng nhóm đã giải tán nhóm.",
       "cannotSendMessage": "Bạn không thể gửi tin nhắn vào nhóm được nữa",
       "deleteAction": "Xóa cuộc trò chuyện"
+    },
+    "joinRequestDialog": {
+      "title": "Các yêu cầu cần được phê duyệt",
+      "detail": "Chi tiết",
+      "empty": "Không có yêu cầu nào",
+      "reject": "Từ chối",
+      "accept": "Đồng ý"
     },
     "restricted": {
       "onlyAdminCanSend": "Chỉ <highlight>trưởng/phó nhóm</highlight> mới có thể gửi tin nhắn trong nhóm này.",
@@ -180,7 +210,10 @@
       "changeAvatar": "Đổi Ảnh",
       "removeAvatar": "Xoá Ảnh",
       "addMembersTitle": "Thêm thành viên",
-      "alreadyJoined": "Đã tham gia"
+      "alreadyJoined": "Đã tham gia",
+      "alreadyAdmin": "Đã là phó nhóm",
+      "noResultsFound": "Không tìm thấy kết quả",
+      "noFriendsFound": "Không tìm thấy bạn bè"
     },
     "forward-dialog": {
       "title": "Chia sẻ",
@@ -198,22 +231,6 @@
       "labels": "Nhãn",
       "forwardMessage": "Nội dung chuyển tiếp",
       "addDescription": "Thêm lời nhắn..."
-    },
-    "join-group-dialog": {
-      "title": "Thông tin nhóm",
-      "members_and_creator": "{{count}} thành viên • Tạo bởi {{creator}}",
-      "members_only": "{{count}} thành viên",
-      "waiting_room": "Bạn đang ở phòng chờ. Tham gia để trò chuyện với mọi người trong nhóm.",
-      "join": "Tham gia",
-      "joining": "Đang tham gia...",
-      "close": "Đóng",
-      "go_to_chat": "Đi tới cuộc trò chuyện",
-      "link_invalid": "Link không hợp lệ",
-      "link_invalid_desc": "Link tham gia nhóm không tồn tại hoặc đã hết hạn.",
-      "link_disabled": "Link đã bị tắt",
-      "link_disabled_desc": "Quản trị viên đã tắt tính năng tham gia nhóm qua link.",
-      "error": "Đã xảy ra lỗi",
-      "error_desc": "Không thể tải thông tin nhóm."
     },
     "join-link-card": {
       "group_label": "Nhóm",
@@ -242,6 +259,9 @@
       "media": "Ảnh/Video",
       "noMedia": "Chưa có ảnh/video nào được chia sẻ trong nhóm này",
       "sendMessage": "Nhắn tin",
+      "adminOnlyBanner": "Tính năng chỉ dành cho quản trị viên",
+      "copied": "Đã sao chép",
+      "share": "Chia sẻ",
       "groupLink": "Link tham gia nhóm",
       "memberPermissionsTitle": "Cho phép các thành viên trong nhóm:",
       "permissions": {
@@ -257,6 +277,15 @@
         "allowNewMembersReadRecent": "Cho phép thành viên mới đọc tin nhắn gần nhất",
         "allowJoinByLink": "Cho phép dùng link tham gia nhóm"
       },
+      "joinQuestion": "Câu hỏi tham gia",
+      "joinQuestionDesc": "Thành viên mới phải trả lời câu hỏi này để gửi yêu cầu tham gia nhóm.",
+      "joinQuestionPlaceholder": "Nhập câu hỏi tại đây...",
+      "joinQuestionRequired": "Bắt buộc trả lời",
+      "joinQuestionRequiredDesc": "Thành viên không thể gửi yêu cầu nếu để trống",
+      "joinQuestionSetup": "Thiết lập",
+      "joinQuestionEdit": "Chỉnh sửa",
+      "joinQuestionEmpty": "Chưa thiết lập câu hỏi cho thành viên mới",
+      "joinQuestionUpdateSuccess": "Cập nhật câu hỏi thành công",
       "toggleTooltips": {
         "reviewNewMembers": "Khi bật, thành viên mới phải được Trưởng/ phó nhóm duyệt mới có thể tham gia nhóm.",
         "highlightAdminMessages": "Khi bật, tin nhắn từ Trưởng/ phó nhóm sẽ có ký hiệu chìa khóa.",
@@ -279,7 +308,9 @@
           "silentTitle": "Rời nhóm trong im lặng",
           "silentDescription": "Chỉ trưởng/phó nhóm biết bạn rời nhóm.",
           "confirm": "Rời nhóm",
-          "cancel": "Hủy"
+          "cancel": "Hủy",
+          "blockGroupAddTitle": "Chặn thêm vào nhóm này",
+          "blockGroupAddDescription": "Người khác phải mời bạn qua link"
         },
         "transferOwnerDialog": {
           "title": "Chọn trưởng nhóm mới trước khi rời",
@@ -292,17 +323,71 @@
         "admin": "Phó nhóm",
         "delete": "Xóa",
         "addDeputy": "Thêm phó nhóm",
+        "adjustDeputy": "Điều chỉnh phó nhóm",
         "transferOwner": "Chuyển quyền trưởng nhóm",
         "noBlockedMembers": "Chưa có thành viên nào bị chặn",
         "blockedMembersDesc": "Những người đã bị chặn không thể tham gia lại nhóm, trừ khi được trưởng, phó nhóm bỏ chặn hoặc thêm lại vào nhóm.",
         "blockMember": "Thêm vào danh sách chặn",
-        "transferOwnerConfirm": {
+        "refreshJoinLinkDialog": {
+          "title": "Xác nhận",
+          "description": "Link hiện tại sẽ không được sử dụng nữa. Đổi link tham gia nhóm",
+          "confirm": "Xác nhận",
+          "cancel": "Hủy"
+        },
+        "disableLinkDialog": {
+          "title": "Khóa link tham gia nhóm",
+          "description": "Sau khi khóa, người khác sẽ không thể tham gia nhóm qua link này nữa. Bạn có chắc chắn muốn khóa?",
+          "confirm": "Khóa link",
+          "cancel": "Hủy"
+        },
+        "transferOwnerWarning": {
           "title": "Chuyển quyền trưởng nhóm",
           "description": "Người được chọn sẽ trở thành trưởng nhóm và có mọi quyền quản lý nhóm. Bạn sẽ mất quyền quản lý nhưng vẫn là một thành viên của nhóm. Hành động này không thể phục hồi.",
           "confirm": "Tiếp tục",
           "cancel": "Hủy"
-        }
+        },
+        "transferOwnerFinal": {
+          "title": "Xác nhận chọn trưởng nhóm mới",
+          "description": "Sau khi thay đổi {{name}} sẽ trở thành trưởng nhóm mới và bạn sẽ trở thành một thành viên bình thường.",
+          "confirm": "Xác nhận",
+          "cancel": "Không"
+        },
+        "blockedMembersCount": "Danh sách chặn ({{count}})",
+        "unblock": "Bỏ chặn",
+        "confirmBlock": "Chặn thành viên"
       }
+    },
+    "join-group-dialog": {
+      "title": "Thông tin nhóm",
+      "members_and_creator": "{{count}} thành viên • Tạo bởi {{creator}}",
+      "members_only": "{{count}} thành viên",
+      "waiting_room": "Bạn đang ở phòng chờ. Hãy tham gia chat để cùng trò chuyện với mọi người trong nhóm.",
+      "join": "Tham gia",
+      "joining": "Đang tham gia...",
+      "close": "Đóng",
+      "go_to_chat": "Vào trò chuyện",
+      "link_invalid": "Link không hợp lệ",
+      "link_invalid_desc": "Link này không tồn tại hoặc đã bị xóa.",
+      "link_disabled": "Link đã bị khóa",
+      "link_disabled_desc": "Trưởng nhóm đã tắt tính năng tham gia nhóm qua link.",
+      "error": "Có lỗi xảy ra",
+      "error_desc": "Không thể tải thông tin nhóm. Vui lòng thử lại sau.",
+      "approval_required": "Yêu cầu phê duyệt từ Quản trị viên",
+      "request_pending_dialog": "Đã gửi yêu cầu tham gia",
+      "request_pending_toast": "Yêu cầu của bạn đã được gửi đến trưởng/phó nhóm chờ xét duyệt",
+      "request_pending_desc": "Yêu cầu tham gia nhóm của bạn đang chờ được phê duyệt.",
+      "sending_request": "Đang gửi yêu cầu...",
+      "send_request": "Gửi yêu cầu tham gia",
+      "cancel_request": "Rút yêu cầu",
+      "canceling": "Đang rút...",
+      "default_name": "Nhóm mới",
+      "admin_question": "Câu hỏi từ quản trị viên:",
+      "answer_placeholder": "Nhập câu trả lời của bạn...",
+      "answer_required_toast": "Vui lòng trả lời câu hỏi bắt buộc",
+      "already_member": "Bạn đã là thành viên của nhóm",
+      "blocked_from_group": "Bạn đã bị admin chặn tham gia nhóm này.",
+      "request_title": "Yêu cầu tham gia",
+      "approval_required_desc": "Nhóm này đang bật duyệt thành viên. Bạn cần trả lời câu hỏi xét duyệt để có thể gửi yêu cầu tham gia."
     },
     "toasts": {
       "updating": "Đang cập nhật...",
@@ -310,7 +395,10 @@
       "updateNameSuccess": "Cập nhật tên nhóm thành công",
       "updateError": "Cập nhật thất bại",
       "leaveGroupSuccess": "Rời nhóm thành công",
-      "leaveGroupError": "Rời nhóm thất bại"
+      "leaveGroupError": "Rời nhóm thất bại",
+      "blockSuccess": "Đã chặn thành viên thành công",
+      "unblockSuccess": "Đã bỏ chặn thành công",
+      "noBlockCandidates": "Không có thành viên nào để chặn"
     },
     "sidebarInfo": {
       "title": "Thông tin hội thoại",
@@ -352,6 +440,10 @@
       "searchMemberPlaceholder": "Tìm kiếm thành viên",
       "membersLoading": "Đang tải thành viên...",
       "noMatchingMembers": "Không có thành viên phù hợp",
+      "pendingJoinRequests": "Yêu cầu tham gia nhóm đang chờ ({{count}})",
+      "pendingJoinRequestsLabel": "Có {{count}} yêu cầu tham gia nhóm",
+      "reject": "Từ chối",
+      "accept": "Phê duyệt",
       "groupJoinLink": "Link tham gia nhóm",
       "copied": "Đã sao chép",
       "generating": "Đang tạo...",

@@ -1,29 +1,18 @@
-import { useMemo } from 'react'
-import { GroupMemberRole } from '@/constants/enum'
+import { useChatText } from '@/features/chat/i18n/use-chat-text'
 import { usePromoteToAdminMutation } from '../../../queries/use-mutations'
-import type { ConversationMemberResponse, SearchMemberResponse } from '../../../schemas/chat.schema'
 import { MemberSelectionDialog } from './member-selection-dialog'
 
 interface PromoteAdminDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   conversationId: string
-  members: ConversationMemberResponse[]
 }
 
-export function PromoteAdminDialog({ open, onOpenChange, conversationId, members }: PromoteAdminDialogProps) {
+export function PromoteAdminDialog({ open, onOpenChange, conversationId }: PromoteAdminDialogProps) {
+  const { text } = useChatText()
+  const tg = text['group-info-dialog'].actions
+  const tc = text['create-group-dialog']
   const { mutateAsync: promoteToAdmin, isPending } = usePromoteToAdminMutation()
-
-  const nonAdminMembers = useMemo(() => {
-    return (members || [])
-      .filter((m) => m.role === GroupMemberRole.Member)
-      .map((m) => ({
-        userId: m.userId,
-        fullName: m.fullName,
-        avatar: m.avatar,
-        isAlreadyMember: false
-      })) as SearchMemberResponse[]
-  }, [members])
 
   const handleConfirm = async (selectedIds: string[]) => {
     if (selectedIds.length === 0) return
@@ -41,12 +30,12 @@ export function PromoteAdminDialog({ open, onOpenChange, conversationId, members
     <MemberSelectionDialog
       isOpen={open}
       onClose={() => onOpenChange(false)}
-      title='Điều chỉnh phó nhóm'
-      confirmText='Xác nhận'
+      title={tg.adjustDeputy}
+      confirmText={tc.confirm}
       onConfirm={handleConfirm}
       isPending={isPending}
-      staticMembers={nonAdminMembers}
-      maxSelection={nonAdminMembers.length}
+      conversationId={conversationId}
+      type='admin-candidates'
     />
   )
 }

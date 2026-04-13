@@ -17,9 +17,7 @@ import { useAuth } from '@/features/auth'
 import { useDeleteConversationMutation } from '../../../queries/use-mutations'
 import { GroupMemberRole } from '@/constants/enum'
 import { getConversationDisplayName } from '../../../utils/group-name'
-import {
-  useGenerateJoinLinkMutation
-} from '../../../queries/use-mutations'
+import { useGenerateJoinLinkMutation } from '../../../queries/use-mutations'
 import { useChatContext } from '../../../context/chat-context'
 import { ForwardDialog } from '../../forward-dialog'
 
@@ -164,6 +162,7 @@ export function GroupInfoStep({
               members={conversation.members}
               text={{
                 members: tg.sidebarInfo.members,
+                pendingJoinRequestsLabel: tg.sidebarInfo.pendingJoinRequestsLabel,
                 groupBoard: tg.sidebarInfo.groupBoard,
                 reminderBoard: tg.sidebarInfo.reminderBoard,
                 notesPinsPolls: tg.sidebarInfo.notesPinsPolls,
@@ -183,6 +182,7 @@ export function GroupInfoStep({
                 viewAll: tg.sidebarInfo.viewAll
               }}
               membersCountLabel={tg.status.membersCount(conversation.members?.length || 0)}
+              pendingRequestsCount={conversation.pendingJoinRequestCount ?? 0}
               onOpenMembers={onGoToMembers}
               onOpenDisappearingDialog={() => setIsDisappearingDialogOpen(true)}
               onLeaveGroup={handleLeaveGroup}

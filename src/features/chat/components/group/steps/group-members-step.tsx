@@ -1,8 +1,11 @@
 import { UserPlus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { GroupMembersSection } from '../members/group-members-section'
-import type { GroupMemberRole } from '@/constants/enum'
+import { JoinRequestsSection } from '../members/join-requests-section'
+import { GroupMemberRole } from '@/constants/enum'
 import type { GroupMemberListItemResponse } from '../../../schemas/chat.schema'
+import { useJoinRequestsQuery } from '../../../queries/use-queries'
+import { useApproveJoinRequestMutation, useRejectJoinRequestMutation } from '../../../queries/use-mutations'
 
 interface GroupMembersStepProps {
   conversationId: string
@@ -27,6 +30,11 @@ export function GroupMembersStep({
   onLeaveGroup,
   onMemberClick
 }: GroupMembersStepProps) {
+  const isAdmin = currentUserRole === GroupMemberRole.Owner || currentUserRole === GroupMemberRole.Admin
+  const { data: joinRequests = [] } = useJoinRequestsQuery(conversationId, isAdmin)
+  const { mutate: approveRequest } = useApproveJoinRequestMutation()
+  const { mutate: rejectRequest } = useRejectJoinRequestMutation()
+
   return (
     <div className='flex flex-col h-full bg-background'>
       <div className='p-4 border-b border-border/50'>
@@ -36,16 +44,32 @@ export function GroupMembersStep({
         </Button>
       </div>
 
-      <div className='flex-1 overflow-hidden'>
-        <GroupMembersSection
-          conversationId={conversationId}
-          title={membersTitle}
-          membersCount={membersCount}
-          addFriendLabel={addFriendLabel}
-          currentUserRole={currentUserRole}
-          onLeaveGroup={onLeaveGroup}
-          onMemberClick={onMemberClick}
-        />
+      <div className='flex-1 overflow-hidden flex flex-col'>
+        {isAdmin && joinRequests.length > 0 && (
+          <JoinRequestsSection
+            requests={joinRequests.map((r) => ({
+              id: r.id,
+              userId: r.userId,
+              fullName: r.fullName,
+              avatar: r.avatar ?? '',
+              joinAnswer: r.joinAnswer
+            }))}
+            onAccept={(req) => approveRequest({ conversationId, requestId: req.id })}
+            onReject={(req) => rejectRequest({ conversationId, requestId: req.id })}
+          />
+        )}
+
+        <div className='flex-1 min-h-0'>
+          <GroupMembersSection
+            conversationId={conversationId}
+            title={membersTitle}
+            membersCount={membersCount}
+            addFriendLabel={addFriendLabel}
+            currentUserRole={currentUserRole}
+            onLeaveGroup={onLeaveGroup}
+            onMemberClick={onMemberClick}
+          />
+        </div>
       </div>
     </div>
   )
