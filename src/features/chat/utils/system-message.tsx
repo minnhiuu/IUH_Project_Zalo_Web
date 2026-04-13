@@ -110,6 +110,14 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
         avatar: targetAvatar,
         name: targetName
       }))
+    } else if (metadata?.action === 'SELF_BLOCKED_FROM_JOINING' && metadata.targetIds) {
+      const targetAvatar = (payload?.targetAvatar as string) || null
+      const targetName = (payload?.targetName as string) || t('chat.user')
+      avatars = metadata.targetIds.map((id) => ({
+        id,
+        avatar: targetAvatar,
+        name: targetName
+      }))
     }
 
     return { systemLabel: label, targetAvatars: avatars }

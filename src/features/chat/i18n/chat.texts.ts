@@ -128,6 +128,11 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
       by_actor: t(CHAT_KEYS.system.block_member.by_actor)
     },
     blocked_from_joining: t(CHAT_KEYS.system.blocked_from_joining),
+    self_blocked_from_joining: {
+      with_link: t(CHAT_KEYS.system.self_blocked_from_joining.with_link),
+      without_link: t(CHAT_KEYS.system.self_blocked_from_joining.without_link),
+      join_link_hint: t(CHAT_KEYS.system.self_blocked_from_joining.join_link_hint)
+    },
     leave_group: {
       self: t(CHAT_KEYS.system.leave_group.self),
       by_actor: t(CHAT_KEYS.system.leave_group.by_actor)

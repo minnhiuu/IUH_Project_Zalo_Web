@@ -171,6 +171,20 @@ export function getSystemMessagePreview(
     return preview.replace(/<[^>]*>/g, '')
   }
 
+  if (action === 'SELF_BLOCKED_FROM_JOINING') {
+    const normalizedTargetIds = (targetIds || []).map((id) => String(id))
+    const targetId = normalizedTargetIds[0]
+    const payloadTargetName = typeof payload?.targetName === 'string' ? String(payload.targetName) : undefined
+    const targetName = memberNameById.get(String(targetId)) ?? payloadTargetName ?? fallbackUserLabel
+    const joinLinkEnabled = payload?.joinLinkEnabled === true
+
+    const i18nKey = joinLinkEnabled
+      ? 'chat.system.self_blocked_from_joining.with_link'
+      : 'chat.system.self_blocked_from_joining.without_link'
+    const preview = translate(i18nKey, { target: targetName }) as string
+    return preview.replace(/<[^>]*>/g, '')
+  }
+
   if (action === 'LEAVE_GROUP') {
     if (String(senderId) === String(currentUserId)) {
       return translate('chat.system.leave_group.self') as string

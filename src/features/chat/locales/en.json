@@ -66,6 +66,11 @@
         "by_actor": "<bold>{{target}}</bold> was blocked from this group by <actorBold>{{actor}}</actorBold>"
       },
       "blocked_from_joining": "<bold>{{target}}</bold> is blocked by owner/admin to join group",
+      "self_blocked_from_joining": {
+        "with_link": "Cannot add <bold>{{target}}</bold> to the group. They can only join via the group invite link.",
+        "without_link": "Cannot add <bold>{{target}}</bold> to the group.",
+        "join_link_hint": "<bold>{{actor}}</bold> has invited you to join the group <bold>{{groupName}}</bold>. Click the link to join:"
+      },
       "promote_admin": {
         "by_you": "<bold>{{target}}</bold> has become admin of this group",
         "self_promoted": "You have become admin of this group",

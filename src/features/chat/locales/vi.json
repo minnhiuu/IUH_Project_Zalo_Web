@@ -66,6 +66,11 @@
         "by_actor": "<bold>{{target}}</bold> bị <actorBold>{{actor}}</actorBold> chặn khỏi nhóm này"
       },
       "blocked_from_joining": "<bold>{{target}}</bold> đã bị trưởng/phó nhóm chặn tham gia nhóm",
+      "self_blocked_from_joining": {
+        "with_link": "Không thể thêm <bold>{{target}}</bold> vào nhóm. Họ chỉ có thể tham gia bằng link mời vào nhóm.",
+        "without_link": "Không thể thêm <bold>{{target}}</bold> vào nhóm.",
+        "join_link_hint": "<bold>{{actor}}</bold> đã mời bạn tham gia nhóm <bold>{{groupName}}</bold>. Nhấn vào link để tham gia:"
+      },
       "promote_admin": {
         "by_you": "<bold>{{target}}</bold> đã được bổ nhiệm thành phó nhóm",
         "self_promoted": "Bạn đã được bổ nhiệm thành phó nhóm",

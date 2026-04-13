@@ -18,6 +18,7 @@ import { resolveJoinRequestApprovedAction } from './join-request-approved-action
 import { resolveJoinRequestRejectedAction } from './join-request-rejected-action'
 import { resolveBlockMemberAction } from './block-member-action'
 import { resolveBlockedFromJoiningAction } from './blocked-from-joining-action'
+import { resolveSelfBlockedFromJoiningAction } from './self-blocked-from-joining-action'
 
 export function resolveSystemAction(context: ActionContext): ActionResolveResult {
   const { metadata } = context
@@ -61,6 +62,8 @@ export function resolveSystemAction(context: ActionContext): ActionResolveResult
       return resolveBlockMemberAction(context)
     case 'BLOCKED_FROM_JOINING':
       return resolveBlockedFromJoiningAction(context)
+    case 'SELF_BLOCKED_FROM_JOINING':
+      return resolveSelfBlockedFromJoiningAction(context)
     default:
       return {}
   }

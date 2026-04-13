@@ -115,6 +115,11 @@ export const CHAT_KEYS = {
       by_actor: 'chat.system.block_member.by_actor'
     },
     blocked_from_joining: 'chat.system.blocked_from_joining',
+    self_blocked_from_joining: {
+      with_link: 'chat.system.self_blocked_from_joining.with_link',
+      without_link: 'chat.system.self_blocked_from_joining.without_link',
+      join_link_hint: 'chat.system.self_blocked_from_joining.join_link_hint'
+    },
     leave_group: {
       self: 'chat.system.leave_group.self',
       by_actor: 'chat.system.leave_group.by_actor'
