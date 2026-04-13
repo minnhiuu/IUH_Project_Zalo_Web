@@ -140,7 +140,7 @@ export function useAiChat(conversationId: string) {
 
       try {
         const token = getAccessToken()
-        const response = await fetch(`${AI_BASE_URL}/ai/chat/agentic`, {
+        const response = await fetch(`${AI_BASE_URL}/v1/ai/chat`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
