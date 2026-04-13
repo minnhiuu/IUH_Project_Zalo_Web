@@ -4,6 +4,8 @@ import {
   sendMessageApi,
   revokeMessageApi,
   deleteMessageForMeApi,
+  toggleReactionApi,
+  removeAllMyReactionsApi,
   createGroupConversation,
   updateGroupNameApi,
   updateGroupAvatarApi,
@@ -21,7 +23,7 @@ import {
   blockMembersApi
 } from '../api/chat.api'
 import { chatKeys } from './keys'
-import type { ConversationResponse, ChatMessageRequest, GroupSettings } from '../schemas/chat.schema'
+import type { ConversationResponse, MessageResponse, ChatMessageRequest, GroupSettings } from '../schemas/chat.schema'
 
 export const useMarkAsReadMutation = () => {
   const queryClient = useQueryClient()
@@ -435,6 +437,32 @@ export const useBlockMembersMutation = () => {
     },
     onError: (error) => {
       console.error('Failed to block members', error)
+    }
+  })
+}
+
+export const useToggleReactionMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ messageId, emoji }: { messageId: string; emoji: string }) =>
+      toggleReactionApi(messageId, emoji),
+    onError: (error) => {
+      console.error('Failed to toggle reaction', error)
+    },
+    onSuccess: (_data, { messageId, emoji }, context) => {
+      // Optimistic update was done before mutation, nothing needed here.
+      // If needed, we can invalidate but WS will push the update.
+    }
+  })
+}
+
+export const useRemoveAllMyReactionsMutation = () => {
+  return useMutation({
+    mutationFn: ({ messageId }: { messageId: string }) =>
+      removeAllMyReactionsApi(messageId),
+    onError: (error) => {
+      console.error('Failed to remove all reactions', error)
     }
   })
 }
