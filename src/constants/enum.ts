@@ -97,6 +97,7 @@ export const MessageType = {
   File: 'FILE',
   Link: 'LINK',
   System: 'SYSTEM',
+  Call: 'CALL',
   SystemFriendshipCard: 'SYSTEM_FRIENDSHIP_CARD',
   SystemFriendshipBadge: 'SYSTEM_FRIENDSHIP_BADGE'
 } as const

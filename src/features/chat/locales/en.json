@@ -350,6 +350,23 @@
       "noMatchingMembers": "No matching members"
     }
   },
+  "call": {
+    "you_called": "Call ended",
+    "they_called": "{{name}} called you",
+    "you_cancelled": "You cancelled",
+    "missed_call": "Missed call",
+    "you_declined": "You declined",
+    "they_declined": "{{name}} declined",
+    "video_call": "Video call",
+    "voice_call": "Voice call",
+    "recall": "Call back",
+    "duration_seconds": "{{count}} sec",
+    "duration_minutes": "{{count}} min",
+    "duration_mixed": "{{minutes}} min {{seconds}} sec",
+    "busy": "User is busy, please try again later",
+    "already_in_call": "You are already in another call",
+    "error": "Cannot make a call"
+  },
   "ai": {
     "status": {
       "ANALYZING_INTENT": "Analyzing your intent...",

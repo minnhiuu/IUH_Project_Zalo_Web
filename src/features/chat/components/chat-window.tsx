@@ -7,6 +7,9 @@ import { ChatInput } from './chat-input'
 import { ChatInputRestricted } from './chat-input-restricted'
 import { useChatScroll } from '../hooks/use-chat-scroll'
 import { useChatText } from '../i18n/use-chat-text'
+import { VideoCallRoom, IncomingCallDialog, OutgoingCallScreen, useVideoCall } from './call-video/video-call'
+import { useCallNotification } from '../hooks/use-call-notification'
+import { rejectCallApi } from '../api/call.api'
 import {
   useMarkAsReadMutation,
   useUpdateGroupNameMutation,
@@ -30,7 +33,7 @@ import { GroupIntroCard } from './group/cards/group-intro-card'
 import { getConversationDisplayName } from '../utils/group-name'
 import { GroupInfoDialog } from './group/dialogs/group-info-dialog'
 import { RenameGroupDialog } from './group/dialogs/rename-group-dialog'
-import { showLoadingToast, showSuccessToast, showErrorToast } from '@/utils/toast'
+import { showLoadingToast, showSuccessToast, showErrorToast, showWarningToast } from '@/utils/toast'
 import { toast } from 'sonner'
 import { StrangerBanner } from './stranger-banner'
 import { OthersProfileDialog } from '@/features/user/components/profile-dialog/others/others-profile-dialog'
@@ -61,6 +64,40 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isOwnerProfileOpen, setIsOwnerProfileOpen] = useState(false)
   const [profileUserId, setProfileUserId] = useState<string | undefined>(undefined)
+
+  // Video Call
+  const { callState, startCall, connectCall, cancelOutgoing, handleIncomingCall, acceptIncoming, rejectIncoming, endCall } = useVideoCall()
+  const [isCallLoading, setIsCallLoading] = useState(false)
+
+  useCallNotification({ onIncomingCall: handleIncomingCall })
+
+  const handleStartVideoCall = async () => {
+    if (!partnerId || isGroup || isCloudConversation) return
+    setIsCallLoading(true)
+    try {
+      await startCall(partnerId)
+    } catch (error: any) {
+      const code = error?.response?.data?.code
+      if (code === 5001) {
+        showWarningToast(t('call.busy'))
+      } else if (code === 5004) {
+        showWarningToast(t('call.already_in_call'))
+      } else {
+        showErrorToast(t('call.error'))
+      }
+    } finally {
+      setIsCallLoading(false)
+    }
+  }
+
+  const handleRejectIncoming = async () => {
+    if (callState.incoming) {
+      try {
+        await rejectCallApi(callState.incoming.sessionId)
+      } catch { /* ignore */ }
+    }
+    rejectIncoming()
+  }
 
   useEffect(() => {
     const handleResize = () => {
@@ -351,10 +388,20 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             </div>
           </div>
           <div className='flex items-center space-x-1 sm:space-x-2 text-muted-foreground'>
-            <button className='p-2 hover:bg-muted rounded-full transition-colors hidden sm:block'>
+            <button
+              onClick={handleStartVideoCall}
+              disabled={isCallLoading || isGroup || isCloudConversation || callState.phase !== 'idle'}
+              className='p-2 hover:bg-muted rounded-full transition-colors hidden sm:block disabled:opacity-40 disabled:cursor-not-allowed'
+              title='Gọi thoại'
+            >
               <Phone className='w-[18px] h-[18px]' />
             </button>
-            <button className='p-2 hover:bg-muted rounded-full transition-colors hidden sm:block'>
+            <button
+              onClick={handleStartVideoCall}
+              disabled={isCallLoading || isGroup || isCloudConversation || callState.phase !== 'idle'}
+              className='p-2 hover:bg-muted rounded-full transition-colors hidden sm:block disabled:opacity-40 disabled:cursor-not-allowed'
+              title='Gọi video'
+            >
               <Video className='w-4 h-4' />
             </button>
             <div className='w-px h-5 bg-border mx-1 hidden sm:block' />
@@ -411,6 +458,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
                       setIsProfileOpen(true)
                     }
                   }}
+                  onRecall={() => handleStartVideoCall()}
                 />
               </div>
             )
@@ -528,6 +576,25 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
       {/* Others Profile Dialog */}
       <OthersProfileDialog open={isProfileOpen} onOpenChange={setIsProfileOpen} userId={profileUserId || partnerId} />
       <OwnerProfileDialog open={isOwnerProfileOpen} onOpenChange={setIsOwnerProfileOpen} />
+
+      {/* Video Call Overlays */}
+      {callState.phase === 'ringing' && callState.callData && (
+        <OutgoingCallScreen callData={callState.callData} onCancel={cancelOutgoing} onConnect={connectCall} />
+      )}
+
+      {callState.phase === 'active' && callState.callData && (
+        <VideoCallRoom callData={callState.callData} onCallEnd={endCall} />
+      )}
+
+      {callState.incoming && (
+        <IncomingCallDialog
+          callerName={callState.incoming.callerName}
+          callerAvatar={callState.incoming.callerAvatar}
+          sessionId={callState.incoming.sessionId}
+          onAccept={acceptIncoming}
+          onReject={handleRejectIncoming}
+        />
+      )}
     </div>
   )
 }
