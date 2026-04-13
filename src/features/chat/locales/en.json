@@ -17,6 +17,10 @@
       "link": "[Link]",
       "confirm": "Confirm"
     },
+    "mentionDropdown": {
+      "instruction": "Press ↑, ↓ to select and Enter to use.",
+      "notifyAll": "Notify all group members"
+    },
     "messageBubble": {
       "reply": "Reply",
       "forward": "Forward",
@@ -42,6 +46,13 @@
       "reactionModalAll": "All",
       "reactionModalYou": "You",
       "reactionModalEmpty": "No reactions yet"
+    },
+    "pinBoard": {
+      "title": "Message",
+      "copy": "Copy",
+      "unpin": "Unpin",
+      "collapse": "Collapse",
+      "extraPins": "+{{count}} pin"
     },
     "system": {
       "add_members": {
@@ -125,6 +136,18 @@
       "refresh_join_link": {
         "self": "You refreshed the group invite link. The old link is no longer valid.",
         "by_actor": "<actorBold>{{actor}}</actorBold> refreshed the group invite link. The old link is no longer valid."
+      },
+      "pin_message": {
+        "pinned_self": "You pinned a message",
+        "pinned_by_actor": "<actorBold>{{actor}}</actorBold> pinned a message",
+        "unpinned_self": "You unpinned a message",
+        "unpinned_by_actor": "<actorBold>{{actor}}</actorBold> unpinned a message"
+      },
+      "typing": {
+        "one": "{{name}} is typing…",
+        "one_pc": "{{name}} is typing on PC…",
+        "two": "{{name1}}, {{name2}} are typing…",
+        "many": "{{name1}}, {{name2}} and {{count}} others are typing…"
       },
       "join_request_created": {
         "self": "You requested to join the group",

@@ -1,6 +1,6 @@
 import { createContext, useContext, type ReactNode } from 'react'
 import { useChatWebSocket } from '../hooks/use-chat-websocket'
-import type { ReplyMetadata } from '../schemas/chat.schema'
+import type { ReplyMetadata, TypingEvent } from '../schemas/chat.schema'
 
 export interface FileAttachment {
   file: File
@@ -17,6 +17,8 @@ type ChatContextType = {
   ) => Promise<void>
   revokeMessage: (messageId: string, conversationId: string) => Promise<void>
   deleteMessageForMe: (messageId: string, conversationId: string) => Promise<void>
+  sendTyping: (conversationId: string, isTyping: boolean, userName: string) => void
+  typingUsers: TypingEvent[]
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined)

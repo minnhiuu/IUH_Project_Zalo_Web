@@ -51,6 +51,10 @@ export const useMediaMessagesQuery = (
   })
 }
 
+export const usePinsQuery = (conversationId: string) => {
+  return useQuery(chatOptions.pins(conversationId))
+}
+
 export const useGroupAdminsInfiniteQuery = (conversationId: string, enabled: boolean = true) => {
   return useInfiniteQuery({
     ...chatOptions.groupAdmins(conversationId),

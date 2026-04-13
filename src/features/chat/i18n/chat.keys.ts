@@ -25,6 +25,10 @@ export const CHAT_KEYS = {
   you: 'chat.you',
   you_lower: 'chat.you_lower',
   user: 'chat.user',
+  mentionDropdown: {
+    instruction: 'chat.mentionDropdown.instruction',
+    notifyAll: 'chat.mentionDropdown.notifyAll',
+  },
   type: {
     image: 'chat.type.image',
     file: 'chat.type.file',
@@ -64,6 +68,15 @@ export const CHAT_KEYS = {
     GENERATING_ANSWER: 'ai.status.GENERATING_ANSWER',
     DEFAULT: 'ai.status.DEFAULT'
   },
+  pinBoard: {
+    title: 'chat.pinBoard.title',
+    copy: 'chat.pinBoard.copy',
+    unpin: 'chat.pinBoard.unpin',
+    collapse: 'chat.pinBoard.collapse',
+    extraPins: 'chat.pinBoard.extraPins',
+    header: 'chat.pinBoard.header'
+  },
+
   sidebar: {
     all: 'chat.sidebar.all',
     unread: 'chat.sidebar.unread',
@@ -127,6 +140,12 @@ export const CHAT_KEYS = {
     leave_group: {
       self: 'chat.system.leave_group.self',
       by_actor: 'chat.system.leave_group.by_actor'
+    },
+    typing: {
+      one: 'chat.system.typing.one',
+      one_pc: 'chat.system.typing.one_pc',
+      two: 'chat.system.typing.two',
+      many: 'chat.system.typing.many'
     }
   },
   disbanded: {

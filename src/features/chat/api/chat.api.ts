@@ -11,6 +11,7 @@ import type {
   AdminMemberResponse,
   GroupSettings,
   JoinGroupPreviewResponse,
+  PinnedMessageInfo,
   JoinRequestResponse
 } from '../schemas/chat.schema'
 
@@ -380,4 +381,22 @@ export const getBlockCandidatesApi = async (
     { params: { query, page, size } }
   )
   return response.data.data
+}
+
+// ─────────────────────────── PIN ───────────────────────────
+
+export const getPinsApi = async (conversationId: string): Promise<PinnedMessageInfo[]> => {
+  const response = await http.get<ApiResponse<PinnedMessageInfo[]>>(`/messages/conversations/${conversationId}/pins`)
+  return response.data.data
+}
+
+export const pinMessageApi = async (conversationId: string, messageId: string): Promise<PinnedMessageInfo> => {
+  const response = await http.post<ApiResponse<PinnedMessageInfo>>(
+    `/messages/conversations/${conversationId}/messages/${messageId}/pin`
+  )
+  return response.data.data
+}
+
+export const unpinMessageApi = async (conversationId: string, messageId: string): Promise<void> => {
+  await http.delete(`/messages/conversations/${conversationId}/messages/${messageId}/pin`)
 }

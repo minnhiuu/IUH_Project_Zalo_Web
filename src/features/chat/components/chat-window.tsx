@@ -12,7 +12,8 @@ import {
   useUpdateGroupNameMutation,
   useUpdateGroupAvatarMutation
 } from '../queries/use-mutations'
-import { useEffect, useRef, useMemo, useState } from 'react'
+import { useEffect, useRef, useMemo, useState, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import type { ConversationResponse, MessageResponse } from '../schemas/chat.schema'
 import { ForwardDialog } from './forward-dialog'
 import { formatLastSeen } from '@/utils/date'
@@ -35,13 +36,15 @@ import { StrangerBanner } from './stranger-banner'
 import { OthersProfileDialog } from '@/features/user/components/profile-dialog/others/others-profile-dialog'
 import { OwnerProfileDialog } from '@/features/user/components/profile-dialog/owner/owner-profile-dialog'
 import { canSendMessages, canChangeGroupInfo } from '../utils/group-permissions'
+import { PinBoard } from './pin-board'
+import { TypingIndicator } from './typing-indicator'
 
 const OPEN_GROUP_MANAGEMENT_EVENT = 'chat:open-group-management'
 const OPEN_GROUP_INFO_EVENT = 'chat:open-group-info'
 
 export function ChatWindow({ conversation }: { conversation: ConversationResponse }) {
   const { user } = useAuth()
-  const { sendMessage } = useChatContext()
+  const { sendMessage, typingUsers } = useChatContext()
   const { t, text } = useChatText()
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useMessagesInfiniteQuery(conversation.id)
 
@@ -60,6 +63,14 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isOwnerProfileOpen, setIsOwnerProfileOpen] = useState(false)
   const [profileUserId, setProfileUserId] = useState<string | undefined>(undefined)
+
+  const scrollToMessage = useCallback((messageId: string) => {
+    const el = document.getElementById(`msg-${messageId}`)
+    if (!el) return
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    el.classList.add('highlight-message')
+    setTimeout(() => el.classList.remove('highlight-message'), 1200)
+  }, [])
 
   useEffect(() => {
     const handleResize = () => {
@@ -396,11 +407,18 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
           <StrangerBanner partnerId={partnerId} partnerName={conversation.name || 'Thành viên Zalo'} />
         )}
 
-        <div
-          ref={scrollRef}
-          onScroll={handleScroll}
-          className='flex-1 overflow-y-auto px-4 py-4 flex flex-col-reverse custom-scrollbar'
-        >
+        {/* Pin Board & Messages Wrapper */}
+        <div className='flex-1 relative flex flex-col min-h-0'>
+          {/* Pin Board */}
+          {!isCloudConversation && !isAiConversation && (
+            <PinBoard conversationId={conversation.id} onScrollToMessage={scrollToMessage} />
+          )}
+
+          <div
+            ref={scrollRef}
+            onScroll={handleScroll}
+            className='flex-1 overflow-y-auto px-4 py-4 flex flex-col-reverse custom-scrollbar'
+          >
           {isLoading && (
             <div className='flex items-center justify-center flex-1 text-sm text-primary py-8'>{text.loading}</div>
           )}
@@ -411,7 +429,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             const isLast = !isSameGroup(msg, nextMsg)
             const isNewestVisible = index === 0
             return (
-              <div key={msg.id} ref={isNewestVisible ? lastMessageRef : null}>
+              <div key={msg.id} id={`msg-${msg.id}`} ref={isNewestVisible ? lastMessageRef : null}>
                 <MessageBubble
                   message={msg}
                   isOwn={msg.senderId === user?.id}
@@ -454,12 +472,15 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             )}
         </div>
 
+        <TypingIndicator typingUsers={typingUsers.filter(u => u.conversationId === conversation.id)} />
+        </div>
+
         {conversation.isDisbanded || isCurrentUserRemovedFromGroup ? (
           <ChatInputRestricted message={text.disbanded.cannotSendMessage} />
         ) : !canSendMessages(conversation, user?.id || '') ? (
           <ChatInputRestricted message={text.restricted.onlyAdminCanSend} highlightTags />
         ) : (
-          <ChatInput conversationId={conversation.id} replyTo={replyTo} onCancelReply={() => setReplyTo(null)} />
+          <ChatInput conversationId={conversation.id} isGroup={conversation.isGroup} replyTo={replyTo} onCancelReply={() => setReplyTo(null)} />
         )}
         {forwardingMessage && (
           <ForwardDialog

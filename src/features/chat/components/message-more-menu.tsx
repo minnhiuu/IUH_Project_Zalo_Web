@@ -28,14 +28,15 @@ interface MessageMoreMenuProps {
   messageContent: string
   isOwn: boolean
   onDeleteForMe: () => void
+  onPin?: () => void
   onRevoke?: () => void
 }
 
-export function MessageMoreMenu({ side, text, messageContent, isOwn, onDeleteForMe, onRevoke }: MessageMoreMenuProps) {
+export function MessageMoreMenu({ side, text, messageContent, isOwn, onDeleteForMe, onPin, onRevoke }: MessageMoreMenuProps) {
   return (
     <DropdownMenuContent side={side} align='start' sideOffset={4} className='w-62 rounded-xl '>
       <ActionMenuItem icon={<Copy />} label={text.copy} onClick={() => navigator.clipboard.writeText(messageContent)} />
-      <ActionMenuItem icon={<Pin />} label={text.pinMessage} onClick={() => {}} />
+      <ActionMenuItem icon={<Pin />} label={text.pinMessage} onClick={() => onPin?.()} />
       <ActionMenuItem icon={<Star />} label={text.starMessage} onClick={() => {}} />
       <ActionMenuItem icon={<List />} label={text.selectMessages} onClick={() => {}} />
       <ActionMenuItem icon={<CircleAlert />} label={text.viewDetails} onClick={() => {}} />
