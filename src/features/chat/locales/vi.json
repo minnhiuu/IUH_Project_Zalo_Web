@@ -37,7 +37,11 @@
       "forwarded": "Đã chuyển tiếp",
       "revoked": "Tin nhắn đã được thu hồi",
       "image": "📷 Hình ảnh",
-      "file": "📁 Tệp tin"
+      "file": "📁 Tệp tin",
+      "reactionModalTitle": "Biểu cảm",
+      "reactionModalAll": "Tất cả",
+      "reactionModalYou": "Bạn",
+      "reactionModalEmpty": "Chưa có cảm xúc"
     },
     "system": {
       "add_members": {
@@ -347,7 +351,26 @@
       "removeFromGroup": "Xóa khỏi nhóm",
       "searchMemberPlaceholder": "Tìm kiếm thành viên",
       "membersLoading": "Đang tải thành viên...",
-      "noMatchingMembers": "Không có thành viên phù hợp"
+      "noMatchingMembers": "Không có thành viên phù hợp",
+      "groupJoinLink": "Link tham gia nhóm",
+      "copied": "Đã sao chép",
+      "generating": "Đang tạo...",
+      "createInviteLink": "Tạo link mời"
+    },
+    "mediaStorage": {
+      "title": "Kho lưu trữ",
+      "tabMedia": "Ảnh/Video",
+      "tabFiles": "Files",
+      "tabLinks": "Links",
+      "filterSender": "Người gửi",
+      "filterDate": "Ngày gửi",
+      "filterType": "Loại",
+      "searchFilePlaceholder": "Tìm kiếm File",
+      "noPhotosVideos": "Chưa có ảnh hoặc video nào",
+      "noFiles": "Chưa có file nào",
+      "noLinks": "Chưa có link nào",
+      "downloadedLocally": "✓ Đã có trên máy",
+      "dateLabel": "Ngày {{day}} Tháng {{month}}"
     }
   },
   "ai": {
