@@ -113,6 +113,19 @@
       "filterLabel": "Filter",
       "noFriendsMessage": "No friends"
     },
+    "requestCard": {
+      "accept": "Accept",
+      "decline": "Decline",
+      "sourcePhone": "From phone number"
+    },
+    "dialogs": {
+      "unfriendConfirm": {
+        "title": "Confirm Unfriend",
+        "description": "Are you sure you want to unfriend {{userName}}?",
+        "cancel": "No",
+        "confirm": "Unfriend"
+      }
+    },
     "mutualFriends": "Mutual Friends",
     "viewMore": "View More",
     "loading": "Loading...",

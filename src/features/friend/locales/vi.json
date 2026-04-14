@@ -124,6 +124,12 @@
         "friendSuggestion": "Gợi ý kết bạn",
         "cancel": "Hủy",
         "search": "Tìm kiếm"
+      },
+      "unfriendConfirm": {
+        "title": "Xác nhận hủy kết bạn",
+        "description": "Bạn có chắc muốn hủy kết bạn với {{userName}} không?",
+        "cancel": "Không",
+        "confirm": "Hủy kết bạn"
       }
     },
     "contacts": {
@@ -149,6 +155,15 @@
     "buttons": {
       "cancel": "Hủy",
       "confirm": "Xác nhận"
+    },
+    "requestCard": {
+      "accept": "Đồng ý",
+      "decline": "Từ chối",
+      "sourcePhone": "Từ số điện thoại"
+    },
+    "pagination": {
+      "prev": "Trước",
+      "next": "Sau"
     },
     "mutualFriends": "{{count}} bạn chung",
     "viewMore": "Xem thêm",
