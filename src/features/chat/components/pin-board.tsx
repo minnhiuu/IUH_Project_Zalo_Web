@@ -178,6 +178,7 @@ function ExpandedPinRow({
   onUnpin
 }: {
   pin: PinnedMessageInfo
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   text: any
   onScrollToMessage: (messageId: string) => void
   onUnpin: () => void

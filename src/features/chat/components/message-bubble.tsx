@@ -80,7 +80,6 @@ export function MessageBubble({
   }, [user?.id, message.reactions])
 
   const isImageMessage = !isRevoked && (message.type === MessageType.Image || message.type === MessageType.Video)
-  const isFileMessage = !isRevoked && message.type === MessageType.File
   const hasReactions = !isRevoked && !!message.reactions && Object.keys(message.reactions).length > 0
 
   if (message.type === MessageType.System) {

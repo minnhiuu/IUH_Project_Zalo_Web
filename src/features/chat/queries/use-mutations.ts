@@ -95,9 +95,10 @@ export const useRevokeMessageMutation = () => {
 
   return useMutation({
     mutationFn: (messageId: string) => revokeMessageApi(messageId),
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error('Failed to revoke message', error)
-      const errorCode = error?.response?.data?.code
+      const err = error as { response?: { data?: { code?: number } } }
+      const errorCode = err.response?.data?.code
       if (errorCode === 4035) {
         showErrorToast(text.errors.revokeTimeExceeded)
       } else {
@@ -210,13 +211,16 @@ export const useLeaveGroupMutation = () => {
   return useMutation({
     mutationFn: ({
       conversationId,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       navigateDelayMs: _,
       ...request
     }: LeaveGroupRequest & {
       conversationId: string
       navigateDelayMs?: number
     }) => leaveGroupApi(conversationId, request),
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     onSuccess: (_, { conversationId, navigateDelayMs, transferTo }) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const delay = Math.max(0, Number(navigateDelayMs ?? 0))
 
       if (transferTo) {
@@ -562,16 +566,10 @@ export const useCancelJoinRequestMutation = () => {
 }
 
 export const useToggleReactionMutation = () => {
-  const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: ({ messageId, emoji }: { messageId: string; emoji: string }) => toggleReactionApi(messageId, emoji),
     onError: (error) => {
       console.error('Failed to toggle reaction', error)
-    },
-    onSuccess: (_data, { messageId, emoji }, context) => {
-      // Optimistic update was done before mutation, nothing needed here.
-      // If needed, we can invalidate but WS will push the update.
     }
   })
 }

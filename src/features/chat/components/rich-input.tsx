@@ -1,4 +1,4 @@
-import { useRef, useEffect, forwardRef, useImperativeHandle, useState } from 'react'
+import { useRef, useEffect, forwardRef, useImperativeHandle } from 'react'
 import { cn } from '@/lib/utils'
 
 interface RichInputProps {

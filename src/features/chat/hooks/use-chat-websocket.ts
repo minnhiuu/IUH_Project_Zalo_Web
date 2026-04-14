@@ -483,7 +483,7 @@ export const useChatWebSocket = () => {
                 typingTimeoutsRef.current.delete(key)
               }
             }
-          } catch (e) {
+          } catch {
             // ignore
           }
         })
