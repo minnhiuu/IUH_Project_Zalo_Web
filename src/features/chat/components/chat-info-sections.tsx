@@ -383,7 +383,7 @@ export function ChatInfoSections({
               subLabel={isMemberOnly ? text.disappearingMessagesWarning : text.never}
               disabled={isMemberOnly}
             />
-            <ActionMenuItem icon={<EyeOff />} label={text.hideConversation} rightElement={<Switch />} />
+            <ActionMenuItem icon={<EyeOff />} label={text.hideConversation} as='div' rightElement={<Switch />} />
           </div>
         </SidebarSection>
       </div>

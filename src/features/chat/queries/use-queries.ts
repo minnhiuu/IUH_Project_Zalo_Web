@@ -44,11 +44,16 @@ export const useMediaMessagesQuery = (
   size = 20,
   enabled = true
 ) => {
+  const isFake = !!conversationId?.startsWith('fake_')
   return useQuery({
     queryKey: chatKeys.media(conversationId || '', types),
     queryFn: () => getMediaMessagesApi(conversationId!, types, page, size),
-    enabled: enabled && !!conversationId && types.length > 0
+    enabled: enabled && !!conversationId && !isFake && types.length > 0
   })
+}
+
+export const usePinsQuery = (conversationId: string) => {
+  return useQuery(chatOptions.pins(conversationId))
 }
 
 export const useGroupAdminsInfiniteQuery = (conversationId: string, enabled: boolean = true) => {
