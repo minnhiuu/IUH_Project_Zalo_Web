@@ -1,7 +1,6 @@
 import type { UseFormSetError, FieldValues, Path } from 'react-hook-form'
 import axios, { AxiosError } from 'axios'
 import i18n from '@/lib/i18n'
-import { showErrorToast } from '@/utils/toast'
 
 type EntityErrorPayload = {
   message: string
@@ -76,8 +75,7 @@ export const getErrorMessage = (error: unknown): string => {
 
 export const handleErrorApi = <T extends FieldValues>({
   error,
-  setError,
-  duration
+  setError
 }: {
   error: unknown
   setError?: UseFormSetError<T>
@@ -103,11 +101,6 @@ export const handleErrorApi = <T extends FieldValues>({
         return
       }
     }
-
-    const message = getErrorMessage(error)
-    showErrorToast(message, duration ?? 4000)
-  } else {
-    showErrorToast(i18n.t('common:errorContactAdmin'), duration ?? 4000)
   }
 }
 

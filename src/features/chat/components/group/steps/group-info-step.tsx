@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { UserAvatar } from '@/components/common/user-avatar'
@@ -6,6 +6,7 @@ import { GroupAvatar } from '../group-avatar'
 import { ActionMenuItem } from '@/components/common/action-menu-item'
 import { ChatInfoTopSection } from '../../chat-info-top-section'
 import { ChatInfoSections } from '../../chat-info-sections'
+import { MediaStorageView } from '../../media-storage-view'
 import { DisappearingMessagesDialog } from '@/components/common/disappearing-messages-dialog'
 import { CreateGroupDialog } from '../dialogs/create-group-dialog'
 import { LeaveGroupDialog } from '../dialogs/leave-group-dialog'
@@ -16,9 +17,7 @@ import { useAuth } from '@/features/auth'
 import { useDeleteConversationMutation } from '../../../queries/use-mutations'
 import { GroupMemberRole } from '@/constants/enum'
 import { getConversationDisplayName } from '../../../utils/group-name'
-import {
-  useGenerateJoinLinkMutation
-} from '../../../queries/use-mutations'
+import { useGenerateJoinLinkMutation } from '../../../queries/use-mutations'
 import { useChatContext } from '../../../context/chat-context'
 import { ForwardDialog } from '../../forward-dialog'
 
@@ -53,6 +52,16 @@ export function GroupInfoStep({
   const [isTransferOwnerDialogOpen, setIsTransferOwnerDialogOpen] = useState(false)
   const [pendingTransferTargetId, setPendingTransferTargetId] = useState<string | null>(null)
   const [isShareLinkOpen, setIsShareLinkOpen] = useState(false)
+  const [storageOpen, setStorageOpen] = useState(false)
+  const [storageTab, setStorageTab] = useState<'media' | 'files' | 'links'>('media')
+
+  // Đảm bảo cả mình lẫn các thành viên khác đều xuất hiện trong bộ lọc "Người gửi"
+  const allMembersForFilter = useMemo(() => {
+    const list = conversation.members || []
+    const hasSelf = list.some((m) => m.userId === user?.id)
+    if (hasSelf || !user) return list
+    return [{ userId: user.id, fullName: `${user.fullName} (Bạn)`, avatar: user.avatar ?? null, role: null }, ...list]
+  }, [conversation.members, user])
 
   const { sendMessage } = useChatContext()
   const { mutate: generateJoinLink, isPending: isGenerating } = useGenerateJoinLinkMutation()
@@ -71,6 +80,15 @@ export function GroupInfoStep({
         'chat-info-sidebar w-87.5 border-l border-border bg-background flex flex-col h-full overflow-hidden shrink-0 shadow-xl min-[1150px]:shadow-none'
       )}
     >
+      {storageOpen ? (
+        <MediaStorageView
+          conversationId={conversation.id}
+          members={allMembersForFilter}
+          defaultTab={storageTab}
+          onClose={() => setStorageOpen(false)}
+        />
+      ) : (
+        <>
       <div className='h-17 flex items-center justify-center border-b border-border shrink-0 px-4'>
         <h2 className='font-bold text-[16px] text-foreground'>{tg.sidebarInfo.groupTitle}</h2>
       </div>
@@ -140,8 +158,11 @@ export function GroupInfoStep({
             <ChatInfoSections
               isGroup={true}
               isMemberOnly={isMemberOnly}
+              conversationId={conversation.id}
+              members={conversation.members}
               text={{
                 members: tg.sidebarInfo.members,
+                pendingJoinRequestsLabel: tg.sidebarInfo.pendingJoinRequestsLabel,
                 groupBoard: tg.sidebarInfo.groupBoard,
                 reminderBoard: tg.sidebarInfo.reminderBoard,
                 notesPinsPolls: tg.sidebarInfo.notesPinsPolls,
@@ -161,6 +182,7 @@ export function GroupInfoStep({
                 viewAll: tg.sidebarInfo.viewAll
               }}
               membersCountLabel={tg.status.membersCount(conversation.members?.length || 0)}
+              pendingRequestsCount={conversation.pendingJoinRequestCount ?? 0}
               onOpenMembers={onGoToMembers}
               onOpenDisappearingDialog={() => setIsDisappearingDialogOpen(true)}
               onLeaveGroup={handleLeaveGroup}
@@ -170,10 +192,16 @@ export function GroupInfoStep({
               isGenerating={isGenerating}
               onGenerateJoinLink={() => generateJoinLink(conversation.id)}
               onShareLink={() => setIsShareLinkOpen(true)}
+              onOpenStorage={(tab) => {
+                setStorageTab(tab)
+                setStorageOpen(true)
+              }}
             />
           </>
         )}
       </div>
+      </>
+      )}
 
       <DisappearingMessagesDialog
         open={isDisappearingDialogOpen}

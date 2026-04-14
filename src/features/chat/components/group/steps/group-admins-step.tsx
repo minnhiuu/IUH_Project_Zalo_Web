@@ -6,10 +6,12 @@ import { GroupMemberRole } from '@/constants/enum'
 import type { ConversationResponse } from '../../../schemas/chat.schema'
 import { useAuth } from '@/features/auth'
 import { useDemoteFromAdminMutation, useTransferOwnerMutation } from '../../../queries/use-mutations'
+import { useGroupAdminsInfiniteQuery } from '../../../queries/use-queries'
 import { TransferOwnerDialog } from '../dialogs/transfer-owner-dialog'
 import { LeaveGroupDialog } from '../dialogs/leave-group-dialog'
 import { PromoteAdminDialog } from '@/features/chat/components/group/dialogs/promote-admin-dialog'
 import { TransferOwnerConfirmDialog } from '../dialogs/transfer-owner-confirm-dialog'
+import { TransferOwnerFinalConfirmDialog } from '../dialogs/transfer-owner-final-confirm-dialog'
 
 import { useChatText } from '../../../i18n/use-chat-text'
 import { showSuccessToast } from '@/utils/toast'
@@ -17,9 +19,10 @@ import { showSuccessToast } from '@/utils/toast'
 interface GroupAdminsStepProps {
   conversation: ConversationResponse
   currentUserRole: GroupMemberRole
+  onSuccess?: () => void
 }
 
-export function GroupAdminsStep({ conversation, currentUserRole }: GroupAdminsStepProps) {
+export function GroupAdminsStep({ conversation, currentUserRole, onSuccess }: GroupAdminsStepProps) {
   const { text: tg } = useChatText()
   const { user } = useAuth()
   const { mutate: demoteFromAdmin } = useDemoteFromAdminMutation()
@@ -30,29 +33,38 @@ export function GroupAdminsStep({ conversation, currentUserRole }: GroupAdminsSt
   const [isAddAdminOpen, setIsAddAdminOpen] = useState(false)
   const [isTransferOwnerDialogOpen, setIsTransferOwnerDialogOpen] = useState(false)
   const [isTransferOwnerConfirmOpen, setIsTransferOwnerConfirmOpen] = useState(false)
+  const [isTransferOwnerFinalOpen, setIsTransferOwnerFinalOpen] = useState(false)
   const [isLeaveGroupDialogOpen, setIsLeaveGroupDialogOpen] = useState(false)
   const [pendingTransferTargetId, setPendingTransferTargetId] = useState<string | null>(null)
+  const [pendingTransferTargetName, setPendingTransferTargetName] = useState('')
 
   const isOwner = currentUserRole === GroupMemberRole.Owner
-  const admins =
-    conversation.members?.filter((m) => m.role === GroupMemberRole.Owner || m.role === GroupMemberRole.Admin) || []
-
-  // Sort: Owner first, then Admins
-  const sortedAdmins = [...admins].sort((a, b) => {
-    if (a.role === GroupMemberRole.Owner) return -1
-    if (b.role === GroupMemberRole.Owner) return 1
-    return 0
-  })
+  const { data: adminsData } = useGroupAdminsInfiniteQuery(conversation.id)
+  const sortedAdmins = adminsData?.pages.flatMap((page) => page.data) || []
 
   const handleDemote = (userId: string) => {
     demoteFromAdmin({ conversationId: conversation.id, targetUserId: userId })
   }
 
   const handleTransferOwner = () => {
+    setIsTransferOwnerConfirmOpen(true)
+  }
+
+  const handleTransferConfirmAction = () => {
+    setIsTransferOwnerConfirmOpen(false)
     setIsTransferOwnerDialogOpen(true)
   }
 
-  const handleTransferConfirm = () => {
+  const handleFinalTransferSelect = (targetUserId: string) => {
+    const targetMember = conversation.members?.find((m) => m.userId === targetUserId)
+    if (targetMember) {
+      setPendingTransferTargetId(targetUserId)
+      setPendingTransferTargetName(targetMember.fullName)
+      setIsTransferOwnerFinalOpen(true)
+    }
+  }
+
+  const handleExecuteTransfer = () => {
     if (!pendingTransferTargetId) return
 
     transferOwner(
@@ -60,8 +72,11 @@ export function GroupAdminsStep({ conversation, currentUserRole }: GroupAdminsSt
       {
         onSuccess: () => {
           showSuccessToast('Chuyển quyền trưởng nhóm thành công')
-          setIsTransferOwnerConfirmOpen(false)
+          setIsTransferOwnerFinalOpen(false)
+          setIsTransferOwnerDialogOpen(false)
           setPendingTransferTargetId(null)
+          setPendingTransferTargetName('')
+          onSuccess?.()
         }
       }
     )
@@ -91,49 +106,51 @@ export function GroupAdminsStep({ conversation, currentUserRole }: GroupAdminsSt
             </div>
           ))}
 
-          <div className='p-4 px-5 space-y-2 mt-2'>
-            <Button
-              variant='secondary'
-              className='w-full h-11 font-bold text-[14px] bg-[#eaedf0] hover:bg-[#dfe2e7] text-foreground border-none rounded-[4px]'
-              onClick={() => setIsAddAdminOpen(true)}
-            >
-              {labels.addDeputy}
-            </Button>
-            <Button
-              variant='secondary'
-              className='w-full h-11 font-bold text-[14px] bg-[#eaedf0] hover:bg-[#dfe2e7] text-foreground border-none rounded-[4px]'
-              onClick={handleTransferOwner}
-            >
-              {labels.transferOwner}
-            </Button>
-          </div>
+          {isOwner && (
+            <div className='p-4 px-5 space-y-2 mt-2'>
+              <Button
+                variant='secondary'
+                className='w-full h-11 font-bold text-[14px] bg-[#eaedf0] hover:bg-[#dfe2e7] text-foreground border-none rounded-[4px]'
+                onClick={() => setIsAddAdminOpen(true)}
+              >
+                {labels.addDeputy}
+              </Button>
+              <Button
+                variant='secondary'
+                className='w-full h-11 font-bold text-[14px] bg-[#eaedf0] hover:bg-[#dfe2e7] text-foreground border-none rounded-[4px]'
+                onClick={handleTransferOwner}
+              >
+                {labels.transferOwner}
+              </Button>
+            </div>
+          )}
         </div>
       </ScrollArea>
 
       {isAddAdminOpen && (
-        <PromoteAdminDialog
-          open={isAddAdminOpen}
-          onOpenChange={setIsAddAdminOpen}
-          conversationId={conversation.id}
-          members={conversation.members || []}
-        />
+        <PromoteAdminDialog open={isAddAdminOpen} onOpenChange={setIsAddAdminOpen} conversationId={conversation.id} />
       )}
+
+      <TransferOwnerConfirmDialog
+        open={isTransferOwnerConfirmOpen}
+        onOpenChange={setIsTransferOwnerConfirmOpen}
+        onConfirm={handleTransferConfirmAction}
+        isPending={isTransferring}
+      />
 
       <TransferOwnerDialog
         open={isTransferOwnerDialogOpen}
         onOpenChange={setIsTransferOwnerDialogOpen}
         members={conversation.members || []}
         currentUserId={user?.id}
-        onSelect={(targetUserId) => {
-          setPendingTransferTargetId(targetUserId)
-          setIsTransferOwnerConfirmOpen(true)
-        }}
+        onSelect={handleFinalTransferSelect}
       />
 
-      <TransferOwnerConfirmDialog
-        open={isTransferOwnerConfirmOpen}
-        onOpenChange={setIsTransferOwnerConfirmOpen}
-        onConfirm={handleTransferConfirm}
+      <TransferOwnerFinalConfirmDialog
+        open={isTransferOwnerFinalOpen}
+        onOpenChange={setIsTransferOwnerFinalOpen}
+        targetName={pendingTransferTargetName}
+        onConfirm={handleExecuteTransfer}
         isPending={isTransferring}
       />
 

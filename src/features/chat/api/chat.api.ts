@@ -5,10 +5,13 @@ import type {
   MessageResponse,
   ChatMessageRequest,
   GroupConversationCreateRequest,
+  LeaveGroupRequest,
   SearchMemberResponse,
   GroupMemberListItemResponse,
+  AdminMemberResponse,
   GroupSettings,
-  JoinGroupPreviewResponse
+  JoinGroupPreviewResponse,
+  JoinRequestResponse
 } from '../schemas/chat.schema'
 
 export const getConversations = async (page = 0, size = 20): Promise<PageResponse<ConversationResponse>> => {
@@ -54,9 +57,44 @@ export const markAsRead = async (conversationId: string): Promise<void> => {
   await http.put(`/messages/conversations/${conversationId}/read`)
 }
 
+export const getMediaMessagesApi = async (
+  conversationId: string,
+  types: string[],
+  page = 0,
+  size = 20
+): Promise<PageResponse<MessageResponse>> => {
+  const response = await http.get<ApiResponse<PageResponse<MessageResponse>>>(
+    `/messages/conversations/${conversationId}/media`,
+    { params: { types: types.join(','), page, size } }
+  )
+  return response.data.data
+}
+
 export const sendMessageApi = async (data: ChatMessageRequest): Promise<void> => {
   const { conversationId, ...requestBody } = data
   await http.post(`/messages/conversations/${conversationId}/messages`, requestBody)
+}
+
+// ────────────────────────────────────────────────────────────────
+// File Upload → S3 via file-service
+// ────────────────────────────────────────────────────────────────
+export interface FileUploadResult {
+  key: string
+  url: string
+  fileName: string
+  originalFileName: string
+  contentType: string
+  size: number
+}
+
+export const uploadFileApi = async (file: File, folder: string): Promise<FileUploadResult> => {
+  const formData = new FormData()
+  formData.append('file', file)
+  const response = await http.post<ApiResponse<FileUploadResult>>('/files/upload', formData, {
+    params: { folder },
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+  return response.data.data
 }
 
 export const revokeMessageApi = async (messageId: string): Promise<void> => {
@@ -65,6 +103,14 @@ export const revokeMessageApi = async (messageId: string): Promise<void> => {
 
 export const deleteMessageForMeApi = async (messageId: string): Promise<void> => {
   await http.delete(`/messages/messages/${messageId}/me`)
+}
+
+export const toggleReactionApi = async (messageId: string, emoji: string): Promise<void> => {
+  await http.post(`/messages/messages/${messageId}/reactions`, { emoji })
+}
+
+export const removeAllMyReactionsApi = async (messageId: string): Promise<void> => {
+  await http.delete(`/messages/messages/${messageId}/reactions/me`)
 }
 
 export const updateGroupNameApi = async (conversationId: string, name: string): Promise<ConversationResponse> => {
@@ -99,9 +145,9 @@ export const deleteConversationApi = async (conversationId: string): Promise<voi
   await http.delete(`/messages/conversations/${conversationId}`)
 }
 
-export const leaveGroupApi = async (conversationId: string, silent = false, transferTo?: string): Promise<void> => {
+export const leaveGroupApi = async (conversationId: string, request: LeaveGroupRequest): Promise<void> => {
   await http.delete(`/messages/conversations/${conversationId}/leave`, {
-    params: { silent, ...(transferTo ? { transferTo } : {}) }
+    data: request
   })
 }
 
@@ -190,12 +236,34 @@ export const demoteFromAdminApi = async (
   return response.data.data
 }
 
-export const transferOwnerApi = async (
-  conversationId: string,
-  targetUserId: string
-): Promise<ConversationResponse> => {
+export const transferOwnerApi = async (conversationId: string, targetUserId: string): Promise<ConversationResponse> => {
   const response = await http.patch<ApiResponse<ConversationResponse>>(
-    `/messages/conversations/${conversationId}/members/${targetUserId}/transfer-owner`
+    `/messages/conversations/${conversationId}/transfer-owner/${targetUserId}`
+  )
+  return response.data.data
+}
+
+export const getGroupAdminsApi = async (
+  conversationId: string,
+  page = 0,
+  size = 20
+): Promise<PageResponse<AdminMemberResponse>> => {
+  const response = await http.get<ApiResponse<PageResponse<AdminMemberResponse>>>(
+    `/messages/conversations/${conversationId}/group-admins`,
+    { params: { page, size } }
+  )
+  return response.data.data
+}
+
+export const getAdminCandidatesApi = async (
+  conversationId: string,
+  query?: string,
+  page = 0,
+  size = 20
+): Promise<PageResponse<AdminMemberResponse>> => {
+  const response = await http.get<ApiResponse<PageResponse<AdminMemberResponse>>>(
+    `/messages/conversations/${conversationId}/admin-candidates`,
+    { params: { query, page, size } }
   )
   return response.data.data
 }
@@ -221,9 +289,15 @@ export const generateJoinLinkApi = async (conversationId: string): Promise<strin
   return response.data.data
 }
 
-export const joinByLinkApi = async (token: string): Promise<ConversationResponse> => {
-  const response = await http.post<ApiResponse<ConversationResponse>>(`/messages/conversations/join/${token}`)
+export const joinByLinkApi = async (token: string, joinAnswer?: string): Promise<ConversationResponse> => {
+  const response = await http.post<ApiResponse<ConversationResponse>>(`/messages/conversations/join/${token}`, {
+    joinAnswer
+  })
   return response.data.data
+}
+
+export const updateJoinQuestionApi = async (conversationId: string, question: string): Promise<void> => {
+  await http.put(`/messages/conversations/${conversationId}/join-question`, { question })
 }
 
 export const getJoinPreviewApi = async (token: string): Promise<JoinGroupPreviewResponse> => {
@@ -233,13 +307,77 @@ export const getJoinPreviewApi = async (token: string): Promise<JoinGroupPreview
   return response.data.data
 }
 
-export const blockMembersApi = async (
+export const getJoinRequestsApi = async (
   conversationId: string,
-  memberIds: string[]
+  page = 0,
+  size = 20
+): Promise<PageResponse<JoinRequestResponse>> => {
+  const response = await http.get<ApiResponse<PageResponse<JoinRequestResponse>>>(
+    `/messages/conversations/${conversationId}/join-requests`,
+    { params: { page, size } }
+  )
+  return response.data.data
+}
+
+export const approveJoinRequestApi = async (
+  conversationId: string,
+  requestId: string
 ): Promise<ConversationResponse> => {
   const response = await http.post<ApiResponse<ConversationResponse>>(
-    `/messages/conversations/${conversationId}/members/block`,
-    { memberIds }
+    `/messages/conversations/${conversationId}/join-requests/${requestId}/approve`
+  )
+  return response.data.data
+}
+
+export const rejectJoinRequestApi = async (conversationId: string, requestId: string): Promise<void> => {
+  await http.post(`/messages/conversations/${conversationId}/join-requests/${requestId}/reject`)
+}
+
+export const cancelMyJoinRequestApi = async (conversationId: string): Promise<void> => {
+  await http.delete(`/messages/conversations/${conversationId}/join-requests/me`)
+}
+
+export const blockMemberFromGroupApi = async (
+  conversationId: string,
+  targetUserId: string
+): Promise<ConversationResponse> => {
+  const response = await http.post<ApiResponse<ConversationResponse>>(
+    `/messages/conversations/${conversationId}/block/${targetUserId}`
+  )
+  return response.data.data
+}
+
+export const unblockMemberFromGroupApi = async (
+  conversationId: string,
+  targetUserId: string
+): Promise<ConversationResponse> => {
+  const response = await http.delete<ApiResponse<ConversationResponse>>(
+    `/messages/conversations/${conversationId}/block/${targetUserId}`
+  )
+  return response.data.data
+}
+
+export const getBlockedMembersApi = async (
+  conversationId: string,
+  page = 0,
+  size = 20
+): Promise<PageResponse<SearchMemberResponse>> => {
+  const response = await http.get<ApiResponse<PageResponse<SearchMemberResponse>>>(
+    `/messages/conversations/${conversationId}/blocked-members`,
+    { params: { page, size } }
+  )
+  return response.data.data
+}
+
+export const getBlockCandidatesApi = async (
+  conversationId: string,
+  query?: string,
+  page = 0,
+  size = 20
+): Promise<PageResponse<SearchMemberResponse>> => {
+  const response = await http.get<ApiResponse<PageResponse<SearchMemberResponse>>>(
+    `/messages/conversations/${conversationId}/block-candidates`,
+    { params: { query, page, size } }
   )
   return response.data.data
 }

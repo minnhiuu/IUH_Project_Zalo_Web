@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router'
 import { ChatProvider, ChatLayout } from '@/features/chat'
-import { JoinGroupDialog } from '@/features/chat/components/join-group-dialog'
+import { JoinGroupDialog } from '@/features/chat/components/group/dialogs/join-group-dialog'
 
 export default function JoinGroupPage() {
   const { token } = useParams<{ token: string }>()

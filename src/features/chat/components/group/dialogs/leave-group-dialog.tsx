@@ -17,6 +17,7 @@ export function LeaveGroupDialog({ open, onOpenChange, conversationId, transferT
   const leaveDialogText = text['group-info-dialog'].actions.leaveDialog
   const { mutate: leaveGroup, isPending } = useLeaveGroupMutation()
   const [silent, setSilent] = useState(false)
+  const [isBlockAddEnabled, setIsBlockAddEnabled] = useState(false)
   const NAVIGATE_DELAY_MS = 900
 
   const handleConfirm = () => {
@@ -24,6 +25,7 @@ export function LeaveGroupDialog({ open, onOpenChange, conversationId, transferT
       {
         conversationId,
         silent,
+        blockReJoin: isBlockAddEnabled,
         navigateDelayMs: NAVIGATE_DELAY_MS,
         ...(transferTargetUserId ? { transferTo: transferTargetUserId } : {})
       },
@@ -31,6 +33,7 @@ export function LeaveGroupDialog({ open, onOpenChange, conversationId, transferT
         onSuccess: () => {
           showSuccessToast(text.toasts.leaveGroupSuccess, NAVIGATE_DELAY_MS)
           setSilent(false)
+          setIsBlockAddEnabled(false)
           onOpenChange(false)
         },
         onError: () => {
@@ -46,6 +49,7 @@ export function LeaveGroupDialog({ open, onOpenChange, conversationId, transferT
       onOpenChange={(nextOpen) => {
         if (!nextOpen) {
           setSilent(false)
+          setIsBlockAddEnabled(false)
         }
         onOpenChange(nextOpen)
       }}
@@ -58,12 +62,24 @@ export function LeaveGroupDialog({ open, onOpenChange, conversationId, transferT
       isPending={isPending}
       className='w-136 max-w-[95vw]'
     >
-      <div className='mt-4 rounded-md bg-muted/50 px-4 py-3 flex items-center justify-between gap-3'>
-        <div className='min-w-0'>
-          <p className='text-[15px] font-semibold text-foreground'>{leaveDialogText.silentTitle}</p>
-          <p className='text-[14px] text-muted-foreground leading-normal mt-1'>{leaveDialogText.silentDescription}</p>
+      <div className='mt-4 flex flex-col gap-2'>
+        <div className='rounded-md bg-muted/50 px-4 py-3 flex items-center justify-between gap-3'>
+          <div className='min-w-0'>
+            <p className='text-[15px] font-semibold text-foreground'>{leaveDialogText.silentTitle}</p>
+            <p className='text-[14px] text-muted-foreground leading-normal mt-1'>{leaveDialogText.silentDescription}</p>
+          </div>
+          <Switch checked={silent} onCheckedChange={setSilent} />
         </div>
-        <Switch checked={silent} onCheckedChange={setSilent} />
+
+        <div className='rounded-md bg-muted/50 px-4 py-3 flex items-center justify-between gap-3'>
+          <div className='min-w-0'>
+            <p className='text-[15px] font-semibold text-foreground'>{leaveDialogText.blockGroupAddTitle}</p>
+            <p className='text-[14px] text-muted-foreground leading-normal mt-1'>
+              {leaveDialogText.blockGroupAddDescription}
+            </p>
+          </div>
+          <Switch checked={isBlockAddEnabled} onCheckedChange={setIsBlockAddEnabled} />
+        </div>
       </div>
     </BaseDialog>
   )

@@ -24,8 +24,10 @@ interface BaseDialogProps {
   onCancel?: () => void
   isPending?: boolean
   variant?: 'danger' | 'primary'
+  confirmDisabled?: boolean
   className?: string
   noContentPadding?: boolean
+  hideFooterBorder?: boolean
 }
 
 export function BaseDialog({
@@ -41,8 +43,10 @@ export function BaseDialog({
   onCancel,
   isPending,
   variant = 'primary',
+  confirmDisabled = false,
   className,
-  noContentPadding = false
+  noContentPadding = false,
+  hideFooterBorder = false
 }: BaseDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -80,7 +84,12 @@ export function BaseDialog({
           </div>
 
           {(confirmText || cancelText) && (
-            <DialogFooter className='flex flex-row justify-end gap-3 px-4 py-3.5 border-t border-border'>
+            <DialogFooter
+              className={cn(
+                'flex flex-row justify-end gap-3 px-4 py-3.5',
+                !hideFooterBorder && 'border-t border-border'
+              )}
+            >
               {cancelText && (
                 <Button
                   variant='secondary'
@@ -99,7 +108,7 @@ export function BaseDialog({
                 <Button
                   variant={variant === 'danger' ? 'destructive' : 'default'}
                   onClick={onConfirm}
-                  disabled={isPending}
+                  disabled={isPending || confirmDisabled}
                 >
                   {confirmText}
                   {isPending && <Loader2 className='ml-2 h-4 w-4 animate-spin shrink-0' />}
