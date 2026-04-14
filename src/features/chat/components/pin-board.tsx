@@ -4,12 +4,7 @@ import { usePinsQuery } from '../queries/use-queries'
 import { useUnpinMessageMutation } from '../queries/use-mutations'
 import { useChatText } from '../i18n/use-chat-text'
 import { stripMentionsForPreview } from '../utils/mention'
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem
-} from '@/components/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { showSimpleToast } from '@/utils/toast'
 import type { PinnedMessageInfo } from '../schemas/chat.schema'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -105,7 +100,8 @@ export function PinBoard({ conversationId, onScrollToMessage }: PinBoardProps) {
           <div className='flex-1 min-w-0'>
             <p className='text-[13px] font-semibold text-foreground leading-tight mb-[2px]'>{text.pinBoard.title}</p>
             <p className='text-[13px] text-muted-foreground truncate leading-snug'>
-              <span className='font-medium text-foreground/80'>{latest.pinnedByName}:</span> {stripMentionsForPreview(latest.contentSnapshot)}
+              <span className='font-medium text-foreground/80'>{latest.pinnedByName}:</span>{' '}
+              {stripMentionsForPreview(latest.contentSnapshot)}
             </p>
           </div>
 
@@ -123,7 +119,11 @@ export function PinBoard({ conversationId, onScrollToMessage }: PinBoardProps) {
             )}
 
             {/* ... menu for the latest pin */}
-            <PinMoreMenu pin={latest} text={text} onUnpin={() => unpin({ conversationId, messageId: latest.messageId })} />
+            <PinMoreMenu
+              pin={latest}
+              text={text}
+              onUnpin={() => unpin({ conversationId, messageId: latest.messageId })}
+            />
           </div>
         </div>
       )}
@@ -132,15 +132,7 @@ export function PinBoard({ conversationId, onScrollToMessage }: PinBoardProps) {
 }
 
 /* ── ... menu for a single pin ── */
-function PinMoreMenu({
-  pin,
-  text,
-  onUnpin
-}: {
-  pin: PinnedMessageInfo
-  text: any
-  onUnpin: () => void
-}) {
+function PinMoreMenu({ pin, text, onUnpin }: { pin: PinnedMessageInfo; text: any; onUnpin: () => void }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -201,7 +193,8 @@ function ExpandedPinRow({
       <div className='flex-1 min-w-0'>
         <p className='text-[13px] font-semibold text-foreground leading-tight mb-[2px]'>{text.pinBoard.title}</p>
         <p className='text-[13px] text-muted-foreground truncate leading-snug'>
-          <span className='font-medium text-foreground/80'>{pin.pinnedByName}:</span> {stripMentionsForPreview(pin.contentSnapshot)}
+          <span className='font-medium text-foreground/80'>{pin.pinnedByName}:</span>{' '}
+          {stripMentionsForPreview(pin.contentSnapshot)}
         </p>
       </div>
       <div

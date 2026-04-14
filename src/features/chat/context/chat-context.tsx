@@ -10,11 +10,7 @@ export interface FileAttachment {
 type ChatContextType = {
   connected: boolean
   sendMessage: (conversationId: string, content: string, replyTo?: ReplyMetadata | null, isForwarded?: boolean) => void
-  sendFileMessage: (
-    conversationId: string,
-    files: FileAttachment[],
-    replyTo?: ReplyMetadata | null
-  ) => Promise<void>
+  sendFileMessage: (conversationId: string, files: FileAttachment[], replyTo?: ReplyMetadata | null) => Promise<void>
   revokeMessage: (messageId: string, conversationId: string) => Promise<void>
   deleteMessageForMe: (messageId: string, conversationId: string) => Promise<void>
   sendTyping: (conversationId: string, isTyping: boolean, userName: string) => void

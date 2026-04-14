@@ -27,9 +27,7 @@ export function MentionDropdown({ members, query, onSelect, onClose, showAllMent
     return () => document.removeEventListener('mousedown', handler)
   }, [onClose])
 
-  const filtered = query
-    ? members.filter((m) => m.fullName.toLowerCase().includes(query.toLowerCase()))
-    : members
+  const filtered = query ? members.filter((m) => m.fullName.toLowerCase().includes(query.toLowerCase())) : members
 
   const showAll = showAllMention && (!query || 'all'.includes(query.toLowerCase()))
 
@@ -48,9 +46,7 @@ export function MentionDropdown({ members, query, onSelect, onClose, showAllMent
       >
         {/* Header/Instructions */}
         <div className='px-4 py-2.5 border-b border-border/50 bg-muted/20 flex flex-col'>
-          <span className='text-[12px] text-muted-foreground'>
-            {text.mentionDropdown.instruction}
-          </span>
+          <span className='text-[12px] text-muted-foreground'>{text.mentionDropdown.instruction}</span>
         </div>
 
         {/* Member list */}
@@ -94,9 +90,7 @@ export function MentionDropdown({ members, query, onSelect, onClose, showAllMent
                   {member.fullName.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <span className='text-[13.5px] font-medium text-foreground leading-snug'>
-                {member.fullName}
-              </span>
+              <span className='text-[13.5px] font-medium text-foreground leading-snug'>{member.fullName}</span>
             </button>
           ))}
         </div>

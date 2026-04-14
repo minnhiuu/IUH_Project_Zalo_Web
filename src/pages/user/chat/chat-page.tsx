@@ -8,9 +8,6 @@ export default function ChatPage() {
   const isUserRoute = location.pathname.startsWith('/chat/u/')
 
   return (
-    <ChatLayout
-      defaultPartnerId={isUserRoute ? id : undefined}
-      defaultConversationId={!isUserRoute ? id : undefined}
-    />
+    <ChatLayout defaultPartnerId={isUserRoute ? id : undefined} defaultConversationId={!isUserRoute ? id : undefined} />
   )
 }

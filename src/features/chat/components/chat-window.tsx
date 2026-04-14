@@ -419,59 +419,59 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             onScroll={handleScroll}
             className='flex-1 overflow-y-auto px-4 py-4 flex flex-col-reverse custom-scrollbar'
           >
-          {isLoading && (
-            <div className='flex items-center justify-center flex-1 text-sm text-primary py-8'>{text.loading}</div>
-          )}
-          {allMessages.map((msg, index) => {
-            const prevMsg = allMessages[index + 1]
-            const nextMsg = allMessages[index - 1]
-            const isFirst = !isSameGroup(msg, prevMsg)
-            const isLast = !isSameGroup(msg, nextMsg)
-            const isNewestVisible = index === 0
-            return (
-              <div key={msg.id} id={`msg-${msg.id}`} ref={isNewestVisible ? lastMessageRef : null}>
-                <MessageBubble
-                  message={msg}
-                  isOwn={msg.senderId === user?.id}
-                  isFirst={isFirst}
-                  isLast={isLast}
-                  isNewest={isNewestVisible}
-                  conversation={conversation}
-                  onReply={() => setReplyTo(msg)}
-                  onForward={() => setForwardingMessage(msg)}
-                  onAvatarClick={(userId) => {
-                    if (userId === user?.id) {
-                      setIsOwnerProfileOpen(true)
-                    } else {
-                      setProfileUserId(userId)
-                      setIsProfileOpen(true)
-                    }
-                  }}
-                />
-              </div>
-            )
-          })}
-          {isFetchingNextPage && <div className='py-4 text-center text-sm text-muted-foreground'>{text.loading}</div>}
-          {conversation.isGroup &&
-            !conversation.isDisbanded &&
-            !isCurrentUserRemovedFromGroup &&
-            !hasNextPage &&
-            !isFetchingNextPage && (
-              <GroupIntroCard
-                conversationId={conversation.id}
-                groupTitle={getConversationDisplayName(conversation, 'Nhóm', undefined, user?.id)}
-                groupMembers={(conversation.members || []).map((m) => ({
-                  id: m.userId,
-                  avatar: m.avatar,
-                  name: m.fullName
-                }))}
-                targetAvatars={[]}
-                secondaryLabel={null}
-                t={t}
-              />
+            {isLoading && (
+              <div className='flex items-center justify-center flex-1 text-sm text-primary py-8'>{text.loading}</div>
             )}
+            {allMessages.map((msg, index) => {
+              const prevMsg = allMessages[index + 1]
+              const nextMsg = allMessages[index - 1]
+              const isFirst = !isSameGroup(msg, prevMsg)
+              const isLast = !isSameGroup(msg, nextMsg)
+              const isNewestVisible = index === 0
+              return (
+                <div key={msg.id} id={`msg-${msg.id}`} ref={isNewestVisible ? lastMessageRef : null}>
+                  <MessageBubble
+                    message={msg}
+                    isOwn={msg.senderId === user?.id}
+                    isFirst={isFirst}
+                    isLast={isLast}
+                    isNewest={isNewestVisible}
+                    conversation={conversation}
+                    onReply={() => setReplyTo(msg)}
+                    onForward={() => setForwardingMessage(msg)}
+                    onAvatarClick={(userId) => {
+                      if (userId === user?.id) {
+                        setIsOwnerProfileOpen(true)
+                      } else {
+                        setProfileUserId(userId)
+                        setIsProfileOpen(true)
+                      }
+                    }}
+                  />
+                </div>
+              )
+            })}
+            {isFetchingNextPage && <div className='py-4 text-center text-sm text-muted-foreground'>{text.loading}</div>}
+            {conversation.isGroup &&
+              !conversation.isDisbanded &&
+              !isCurrentUserRemovedFromGroup &&
+              !hasNextPage &&
+              !isFetchingNextPage && (
+                <GroupIntroCard
+                  conversationId={conversation.id}
+                  groupTitle={getConversationDisplayName(conversation, 'Nhóm', undefined, user?.id)}
+                  groupMembers={(conversation.members || []).map((m) => ({
+                    id: m.userId,
+                    avatar: m.avatar,
+                    name: m.fullName
+                  }))}
+                  targetAvatars={[]}
+                  secondaryLabel={null}
+                  t={t}
+                />
+              )}
           </div>
-          <TypingIndicator typingUsers={typingUsers.filter(u => u.conversationId === conversation.id)} />
+          <TypingIndicator typingUsers={typingUsers.filter((u) => u.conversationId === conversation.id)} />
         </div>
 
         {conversation.isDisbanded || isCurrentUserRemovedFromGroup ? (
@@ -479,7 +479,12 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
         ) : !canSendMessages(conversation, user?.id || '') ? (
           <ChatInputRestricted message={text.restricted.onlyAdminCanSend} highlightTags />
         ) : (
-          <ChatInput conversationId={conversation.id} isGroup={conversation.isGroup} replyTo={replyTo} onCancelReply={() => setReplyTo(null)} />
+          <ChatInput
+            conversationId={conversation.id}
+            isGroup={conversation.isGroup}
+            replyTo={replyTo}
+            onCancelReply={() => setReplyTo(null)}
+          />
         )}
         {forwardingMessage && (
           <ForwardDialog

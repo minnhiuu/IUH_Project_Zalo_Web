@@ -216,7 +216,8 @@
     },
     "errors": {
       "loadConversations": "Failed to load conversations.",
-      "loadMessages": "Failed to load messages."
+      "loadMessages": "Failed to load messages.",
+      "revokeTimeExceeded": "Revocation time limit exceeded (max 24 hours)"
     },
     "create-group-dialog": {
       "title": "Create Group",

@@ -76,7 +76,6 @@ export const sendMessageApi = async (data: ChatMessageRequest): Promise<void> =>
   await http.post(`/messages/conversations/${conversationId}/messages`, requestBody)
 }
 
-
 // ────────────────────────────────────────────────────────────────
 // File Upload → S3 via file-service
 // ────────────────────────────────────────────────────────────────

@@ -31,6 +31,8 @@ import {
   updateJoinQuestionApi
 } from '../api/chat.api'
 import { chatKeys } from './keys'
+import { showErrorToast } from '@/utils/toast'
+import { useChatText } from '../i18n/use-chat-text'
 import type { ConversationResponse, ChatMessageRequest, GroupSettings, LeaveGroupRequest } from '../schemas/chat.schema'
 
 export const useMarkAsReadMutation = () => {
@@ -89,10 +91,18 @@ export const useSendMessageMutation = () => {
 }
 
 export const useRevokeMessageMutation = () => {
+  const { text } = useChatText()
+
   return useMutation({
     mutationFn: (messageId: string) => revokeMessageApi(messageId),
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Failed to revoke message', error)
+      const errorCode = error?.response?.data?.code
+      if (errorCode === 4035) {
+        showErrorToast(text.errors.revokeTimeExceeded)
+      } else {
+        showErrorToast(text.messageBubble.revoke + ' thất bại')
+      }
     }
   })
 }

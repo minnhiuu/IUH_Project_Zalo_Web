@@ -1,4 +1,4 @@
-﻿{
+{
   "chat": {
     "title": "Tin nhắn",
     "searchPlaceholder": "Tìm kiếm",
@@ -216,7 +216,8 @@
     },
     "errors": {
       "loadConversations": "Không thể tải danh sách cuộc trò chuyện.",
-      "loadMessages": "Không thể tải tin nhắn."
+      "loadMessages": "Không thể tải tin nhắn.",
+      "revokeTimeExceeded": "Thời gian thu hồi tin nhắn đã hết (tối đa 24 giờ)"
     },
     "create-group-dialog": {
       "title": "Tạo nhóm",

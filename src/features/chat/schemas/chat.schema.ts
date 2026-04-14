@@ -15,7 +15,7 @@ export const ReplyMetadataSchema = z.object({
   messageId: z.string(),
   senderId: z.string(),
   senderName: z.string().nullable().optional(),
-  content: z.string(),
+  content: z.string().nullable(),
   type: z.nativeEnum(MessageType)
 })
 

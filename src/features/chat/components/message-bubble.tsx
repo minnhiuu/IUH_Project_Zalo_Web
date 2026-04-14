@@ -139,11 +139,15 @@ export function MessageBubble({
               <div className='mb-1.5 px-3 py-1.5 border-l-2 border-[#1972F5] bg-[#CDE2FF]/50 rounded-sm select-none'>
                 <div className='font-semibold text-[#0068FF] text-[13px]'>{message.replyTo.senderName}</div>
                 <div className='text-[13px] text-black/70 truncate'>
-                  {message.replyTo.type === 'IMAGE'
-                    ? mb.image
-                    : message.replyTo.type === 'FILE'
-                      ? mb.file
-                      : stripMentionsForPreview(message.replyTo.content)}
+                  {message.replyTo.content === null ? (
+                    <span className='italic opacity-60'>{mb.revoked}</span>
+                  ) : message.replyTo.type === MessageType.Image ? (
+                    mb.image
+                  ) : message.replyTo.type === MessageType.File ? (
+                    mb.file
+                  ) : (
+                    stripMentionsForPreview(message.replyTo.content)
+                  )}
                 </div>
               </div>
             )}
@@ -162,15 +166,17 @@ export function MessageBubble({
               ) : message.type === MessageType.File ? (
                 <MessageFileContent message={message} />
               ) : (
-                parseMentionsForRender(message.content).map(({ isMention, text, key }) => (
+                parseMentionsForRender(message.content).map(({ isMention, text, key }) =>
                   isMention ? (
                     <span key={key} className='text-[#005AE0] dark:text-[#3B82F6] cursor-pointer hover:underline'>
                       {text}
                     </span>
                   ) : (
-                    <span key={key} className="whitespace-pre-wrap">{text}</span>
+                    <span key={key} className='whitespace-pre-wrap'>
+                      {text}
+                    </span>
                   )
-                ))
+                )
               )}
             </span>
 
@@ -191,10 +197,7 @@ export function MessageBubble({
 
             {!isRevoked && (
               <div
-                className={cn(
-                  'absolute -bottom-2 right-0.5 z-10 group/like cursor-pointer',
-                  'hidden group-hover:flex'
-                )}
+                className={cn('absolute -bottom-2 right-0.5 z-10 group/like cursor-pointer', 'hidden group-hover:flex')}
                 onMouseEnter={() => setIsLikeHovered(true)}
                 onMouseLeave={() => setIsLikeHovered(false)}
               >
@@ -362,12 +365,7 @@ export function MessageBubble({
           </div>
 
           {!isRevoked && (
-            <div
-              className={cn(
-                'msg-actions',
-                isLikeHovered ? 'is-hidden' : isMoreMenuOpen ? 'is-open' : ''
-              )}
-            >
+            <div className={cn('msg-actions', isLikeHovered ? 'is-hidden' : isMoreMenuOpen ? 'is-open' : '')}>
               <MessageIconButton
                 onClick={onReply}
                 title={mb.reply}
