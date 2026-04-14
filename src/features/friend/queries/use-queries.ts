@@ -28,3 +28,11 @@ export const useMutualFriends = (userId: string, enabled: boolean = true) => {
 export const useMutualFriendsCount = (userId: string, enabled: boolean = true) => {
   return useQuery(friendOptions.mutualFriendsCount(userId, enabled))
 }
+
+export const useUnifiedSuggestions = (page: number = 0, size: number = 20, enabled: boolean = true) => {
+  return useQuery(friendOptions.unifiedSuggestions(page, size, enabled))
+}
+
+export const useUnifiedSuggestionsInfinite = (size: number = 20, enabled: boolean = true) => {
+  return useInfiniteQuery(friendOptions.unifiedSuggestionsInfinite(size, enabled))
+}

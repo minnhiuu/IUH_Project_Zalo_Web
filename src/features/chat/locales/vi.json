@@ -488,6 +488,23 @@
       "dateLabel": "Ngày {{day}} Tháng {{month}}"
     }
   },
+  "call": {
+    "you_called": "Cuộc gọi đã kết thúc",
+    "they_called": "{{name}} đã gọi cho bạn",
+    "you_cancelled": "Bạn đã hủy",
+    "missed_call": "Cuộc gọi nhỡ",
+    "you_declined": "Bạn đã từ chối",
+    "they_declined": "{{name}} đã từ chối",
+    "video_call": "Cuộc gọi video",
+    "voice_call": "Cuộc gọi thoại",
+    "recall": "Gọi lại",
+    "duration_seconds": "{{count}} giây",
+    "duration_minutes": "{{count}} phút",
+    "duration_mixed": "{{minutes}} phút {{seconds}} giây",
+    "busy": "Người dùng đang bận, vui lòng thử lại sau",
+    "already_in_call": "Bạn đang trong cuộc gọi khác",
+    "error": "Không thể thực hiện cuộc gọi"
+  },
   "ai": {
     "status": {
       "ANALYZING_INTENT": "Đang phân tích ý định của bạn...",

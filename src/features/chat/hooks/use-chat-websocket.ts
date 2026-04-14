@@ -475,6 +475,16 @@ export const useChatWebSocket = () => {
           }
         })
 
+        // ────────── /queue/call-signals ──────────
+        client.subscribe('/user/queue/call-signals', (payload) => {
+          try {
+            const signal = JSON.parse(payload.body)
+            window.dispatchEvent(new CustomEvent('call-signal', { detail: signal }))
+          } catch (error) {
+            console.error('[Socket] Error handling call signal:', error)
+          }
+        })
+
         client.publish({
           destination: '/app/user.addUser',
           body: JSON.stringify(user)
