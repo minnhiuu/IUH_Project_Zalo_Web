@@ -173,6 +173,8 @@ export const SystemActionType = {
   JoinByLink: 'JOIN_BY_LINK',
   GenerateJoinLink: 'GENERATE_JOIN_LINK',
   RefreshJoinLink: 'REFRESH_JOIN_LINK',
+  PinMessage: 'PIN_MESSAGE',
+  UnpinMessage: 'UNPIN_MESSAGE',
   JoinRequestCreated: 'JOIN_REQUEST_CREATED',
   JoinRequestApproved: 'JOIN_REQUEST_APPROVED',
   JoinRequestRejected: 'JOIN_REQUEST_REJECTED',

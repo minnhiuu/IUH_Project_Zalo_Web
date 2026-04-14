@@ -16,12 +16,14 @@ import { JoinLinkCard } from './join-link-card'
 import {
   useRevokeMessageMutation,
   useToggleReactionMutation,
-  useRemoveAllMyReactionsMutation
+  useRemoveAllMyReactionsMutation,
+  usePinMessageMutation
 } from '../queries/use-mutations'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query'
 import type { PageResponse } from '@/shared/api'
 import { chatKeys } from '../queries/keys'
+import { parseMentionsForRender, stripMentionsForPreview } from '../utils/mention'
 
 export function MessageBubble({
   message,
@@ -53,6 +55,7 @@ export function MessageBubble({
   const queryClient = useQueryClient()
   const { mutate: toggleReactionMutate } = useToggleReactionMutation()
   const { mutateAsync: removeAllMyReactionsAsync } = useRemoveAllMyReactionsMutation()
+  const { mutate: pinMessageMutate } = usePinMessageMutation()
   const mb = text.messageBubble
 
   const isRevoked = message.status === MessageStatus.REVOKED
@@ -92,7 +95,7 @@ export function MessageBubble({
   return (
     <div
       className={cn(
-        'group/message-row flex w-full px-2 gap-2',
+        'group flex w-full px-2 gap-2',
         isOwn ? 'justify-end' : 'justify-start',
         isFirst ? 'mt-4' : 'mt-1',
         hasReactions && 'mb-2'
@@ -146,7 +149,7 @@ export function MessageBubble({
                     ? mb.image
                     : message.replyTo.type === 'FILE'
                       ? mb.file
-                      : message.replyTo.content}
+                      : stripMentionsForPreview(message.replyTo.content)}
                 </div>
               </div>
             )}
@@ -165,7 +168,15 @@ export function MessageBubble({
               ) : message.type === MessageType.File ? (
                 <MessageFileContent message={message} />
               ) : (
-                message.content
+                parseMentionsForRender(message.content).map(({ isMention, text, key }) => (
+                  isMention ? (
+                    <span key={key} className='text-[#005AE0] dark:text-[#3B82F6] cursor-pointer hover:underline'>
+                      {text}
+                    </span>
+                  ) : (
+                    <span key={key} className="whitespace-pre-wrap">{text}</span>
+                  )
+                ))
               )}
             </span>
 
@@ -188,7 +199,7 @@ export function MessageBubble({
               <div
                 className={cn(
                   'absolute -bottom-2 right-0.5 z-10 group/like cursor-pointer',
-                  'hidden group-hover/message-row:flex'
+                  'hidden group-hover:flex'
                 )}
                 onMouseEnter={() => setIsLikeHovered(true)}
                 onMouseLeave={() => setIsLikeHovered(false)}
@@ -359,8 +370,8 @@ export function MessageBubble({
           {!isRevoked && (
             <div
               className={cn(
-                'items-center gap-1 mb-4',
-                isLikeHovered ? 'hidden' : isMoreMenuOpen ? 'flex' : 'hidden group-hover/message-row:flex'
+                'msg-actions',
+                isLikeHovered ? 'is-hidden' : isMoreMenuOpen ? 'is-open' : ''
               )}
             >
               <MessageIconButton
@@ -390,6 +401,7 @@ export function MessageBubble({
                   messageContent={message.content || ''}
                   isOwn={isOwn}
                   onDeleteForMe={() => conversationId && deleteMessageForMe(message.id, conversationId)}
+                  onPin={() => conversationId && pinMessageMutate({ conversationId, messageId: message.id })}
                   onRevoke={() => revokeMessage(message.id)}
                 />
               </DropdownMenu>

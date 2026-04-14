@@ -13,6 +13,8 @@ import { showSimpleToast } from '@/utils/toast'
 import { ForwardDialog } from '../components/forward-dialog'
 import { useChatContext } from '../context/chat-context'
 import { JoinRequestApprovalDialog } from '../components/group/dialogs/join-request-approval-dialog'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import { stripMentionsForPreview } from './mention'
 
 export { getSystemMessageLabel } from './system-message-label'
 export type { SystemActionType, SystemMetadata } from './system-message-label'
@@ -214,6 +216,29 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
 
   return (
     <>
+      {(metadata?.action === 'PIN_MESSAGE' || metadata?.action === 'UNPIN_MESSAGE') && (metadata.originalContent || metadata.contentSnapshot) ? (
+        <div className='flex justify-center w-full my-2.5 px-4'>
+          <div className='system-msg flex items-center gap-2 py-1.5 px-3.5 max-w-[95%]'>
+            <Avatar className='w-5 h-5 shrink-0'>
+              <AvatarImage src={String(metadata.originalSenderAvatar || '')} />
+              <AvatarFallback className='text-[10px] bg-primary/10 text-primary font-semibold'>
+                {String(metadata.originalSenderName || t('chat.user'))[0].toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className='flex-1 text-[12.5px] leading-relaxed text-left flex items-center gap-1 overflow-hidden'>
+              <span className='font-semibold shrink-0'>{String(metadata.originalSenderName || t('chat.user'))}</span>
+              <span className='shrink-0'>
+                {metadata.action === 'PIN_MESSAGE'
+                  ? String(t('chat.messageBubble.pinMessage')).toLowerCase()
+                  : String(t('chat.pinBoard.unpin')).toLowerCase()}
+              </span>
+              <span className='opacity-80 border-l border-foreground/30 pl-1.5 ml-0.5 truncate block max-w-[150px] sm:max-w-[250px] md:max-w-[350px] xl:max-w-[450px]'>
+                {stripMentionsForPreview(String(metadata.originalContent || metadata.contentSnapshot))}
+              </span>
+            </div>
+          </div>
+        </div>
+      ) : (
       <div className='flex justify-center w-full my-2.5 px-4'>
         <div className='system-msg flex items-center gap-2.5 py-1.5 px-3.5 max-w-[95%]'>
           {targetAvatars.length > 0 && <MemberAvatar members={targetAvatars} size='xs' className='shrink-0' />}
@@ -250,6 +275,7 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
           </div>
         </div>
       </div>
+      )}
 
       {isPromotedToAdmin && <PromoteAdminCard conversation={conversation} secondaryLabel={null} t={t} />}
 

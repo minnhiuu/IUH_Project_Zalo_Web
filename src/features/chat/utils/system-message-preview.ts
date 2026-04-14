@@ -284,6 +284,22 @@ export function getSystemMessagePreview(
     }
   }
 
+  if (action === 'PIN_MESSAGE') {
+    const actorName = memberNameById.get(String(senderId)) || senderName || fallbackUserLabel
+    const isActorMe = String(senderId) === String(currentUserId)
+    if (isActorMe) return translate('chat.system.pin_message.pinned_self') as string
+    const p = translate('chat.system.pin_message.pinned_by_actor', { actor: actorName }) as string
+    return p.replace(/<[^>]*>/g, '')
+  }
+
+  if (action === 'UNPIN_MESSAGE') {
+    const actorName = memberNameById.get(String(senderId)) || senderName || fallbackUserLabel
+    const isActorMe = String(senderId) === String(currentUserId)
+    if (isActorMe) return translate('chat.system.pin_message.unpinned_self') as string
+    const p = translate('chat.system.pin_message.unpinned_by_actor', { actor: actorName }) as string
+    return p.replace(/<[^>]*>/g, '')
+  }
+
   if (action === 'JOIN_REQUEST_CREATED') {
     if (String(senderId) === String(currentUserId)) {
       return translate('chat.system.join_request_created.self') as string

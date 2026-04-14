@@ -14,8 +14,8 @@ import { NotificationPanel } from '@/features/notification'
 import { notificationKeys } from '@/features/notification/queries/keys'
 import { useNotificationStateQuery } from '@/features/notification/queries/use-queries'
 import { useMarkHistoryAsCheckedMutation } from '@/features/notification/queries/use-mutations'
-
 import { useNotificationBadge } from '@/hooks/use-notification-badge'
+import { ChatProvider } from '@/features/chat'
 
 export default function UserLayout() {
   const location = useLocation()
@@ -55,7 +55,8 @@ export default function UserLayout() {
   ]
 
   return (
-    <div className='flex h-screen w-full overflow-hidden bg-background'>
+    <ChatProvider>
+      <div className='flex h-screen w-full overflow-hidden bg-background'>
       <nav className='w-16 bg-sidebar flex flex-col items-center py-4 shrink-0 h-full'>
         <UserNavDropdown>
           <div className='mb-4 cursor-pointer flex justify-center w-full'>
@@ -206,5 +207,6 @@ export default function UserLayout() {
       <SearchPanel open={isSearchOpen} onOpenChange={setIsSearchOpen} />
       <NotificationPanel open={isNotificationOpen} onOpenChange={setIsNotificationOpen} />
     </div>
+    </ChatProvider>
   )
 }

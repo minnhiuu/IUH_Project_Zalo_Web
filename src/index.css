@@ -688,3 +688,50 @@ input[type='radio']:checked {
   accent-color: var(--primary) !important;
   opacity: 1 !important;
 }
+
+/* ── Scrollbar ── */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* ── Highlight message (scroll-to) ── */
+@keyframes highlight-flash {
+  0%   { background-color: rgba(0, 104, 255, 0.18); }
+  60%  { background-color: rgba(0, 104, 255, 0.18); }
+  100% { background-color: transparent; }
+}
+
+.highlight-message {
+  animation: highlight-flash 1.2s ease-out forwards;
+  border-radius: 10px;
+}
+
+/* ── Message bubble action buttons: show on group hover (Tailwind v4 fix) ── */
+.msg-actions {
+  display: none;
+  align-items: center;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.group:hover .msg-actions {
+  display: flex;
+}
+
+.msg-actions.is-open {
+  display: flex;
+}
+
+.msg-actions.is-hidden {
+  display: none !important;
+}
