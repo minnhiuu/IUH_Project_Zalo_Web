@@ -72,15 +72,8 @@ export const getMediaMessagesApi = async (
 }
 
 export const sendMessageApi = async (data: ChatMessageRequest): Promise<void> => {
-  let { conversationId, recipientId, ...rest } = data
-
-  // Stranger mode: fake_ conversation → resolve real conversationId first
-  if (!conversationId && recipientId) {
-    const conv = await getOrCreateConversation(recipientId)
-    conversationId = conv.id
-  }
-
-  await http.post(`/messages/conversations/${conversationId}/messages`, { ...rest, recipientId })
+  const { conversationId, ...requestBody } = data
+  await http.post(`/messages/conversations/${conversationId}/messages`, requestBody)
 }
 
 
