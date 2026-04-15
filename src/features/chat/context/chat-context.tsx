@@ -13,6 +13,7 @@ type ChatContextType = {
   sendFileMessage: (
     conversationId: string,
     files: FileAttachment[],
+    content?: string,
     replyTo?: ReplyMetadata | null
   ) => Promise<void>
   revokeMessage: (messageId: string, conversationId: string) => Promise<void>

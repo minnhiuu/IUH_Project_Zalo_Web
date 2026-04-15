@@ -147,6 +147,14 @@ export function MessageBubble({
   const isImageMessage = !isRevoked && (message.type === MessageType.Image || message.type === MessageType.Video)
   const isFileMessage = !isRevoked && message.type === MessageType.File
   const hasReactions = !isRevoked && !!message.reactions && Object.keys(message.reactions).length > 0
+  const attachmentNames = (message.attachments || []).map((att) => att.originalFileName || att.fileName).filter(Boolean)
+  const shouldShowAttachmentCaption = (() => {
+    const trimmedContent = (message.content || '').trim()
+    if (!trimmedContent) return false
+    if (['[Hình ảnh]', '[Video]', '[Tệp]', '[File]'].includes(trimmedContent)) return false
+    if (attachmentNames.includes(trimmedContent)) return false
+    return true
+  })()
 
   if (message.type === MessageType.System) {
     return <SystemMessage message={message} conversation={conversation} />
@@ -226,9 +234,39 @@ export function MessageBubble({
                   cachedPreview={message.linkPreview!}
                 />
               ) : message.type === MessageType.Image || message.type === MessageType.Video ? (
-                <MessageMediaContent message={message} />
+                <div className='flex flex-col gap-2'>
+                  <MessageMediaContent message={message} />
+                  {shouldShowAttachmentCaption && (
+                    <div>
+                      {parseMentionsForRender(message.content).map(({ isMention, text, key }) => (
+                        isMention ? (
+                          <span key={key} className='text-[#005AE0] dark:text-[#3B82F6] cursor-pointer hover:underline'>
+                            {text}
+                          </span>
+                        ) : (
+                          <span key={key} className='whitespace-pre-wrap'>{text}</span>
+                        )
+                      ))}
+                    </div>
+                  )}
+                </div>
               ) : message.type === MessageType.File ? (
-                <MessageFileContent message={message} />
+                <div className='flex flex-col gap-2'>
+                  <MessageFileContent message={message} />
+                  {shouldShowAttachmentCaption && (
+                    <div>
+                      {parseMentionsForRender(message.content).map(({ isMention, text, key }) => (
+                        isMention ? (
+                          <span key={key} className='text-[#005AE0] dark:text-[#3B82F6] cursor-pointer hover:underline'>
+                            {text}
+                          </span>
+                        ) : (
+                          <span key={key} className='whitespace-pre-wrap'>{text}</span>
+                        )
+                      ))}
+                    </div>
+                  )}
+                </div>
               ) : (
                 parseMentionsForRender(message.content).map(({ isMention, text, key }) => (
                   isMention ? (
@@ -245,11 +283,11 @@ export function MessageBubble({
             {isLast && (
               <div
                 className={cn(
-                  'flex items-center mt-1 font-medium self-start',
+                  'flex items-center mt-2 font-medium self-start',
                   isOwn ? 'text-black/50 dark:text-primary-foreground/70' : 'text-muted-foreground'
                 )}
               >
-                <span className='text-[11px]'>
+                <span className='text-[11px] pb-4'>
                   {message.createdAt
                     ? new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                     : ''}

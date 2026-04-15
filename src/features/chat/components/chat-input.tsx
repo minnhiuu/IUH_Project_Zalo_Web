@@ -184,17 +184,20 @@ export function ChatInput({ conversationId, isGroup, replyTo, onCancelReply }: C
     if (fileAttachments.length > 0) {
       setIsSending(true)
       try {
-        await sendFileMessage(conversationId, fileAttachments, replyMetadata)
+        await sendFileMessage(conversationId, fileAttachments, sendText, replyMetadata)
         clearAttachments()
+        inputRef.current?.clear()
+        setContent('')
+        setHtmlContent('')
         onCancelReply?.()
       } finally {
         setIsSending(false)
       }
-      // Nếu có text kèm theo, gửi riêng
-      if (sendText) {
-        sendMessage(conversationId, sendText)
-        inputRef.current?.clear()
-        setContent('')
+      // Stop typing indicator
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
+      if (isTypingRef.current) {
+        isTypingRef.current = false
+        sendTyping(conversationId, false, user?.fullName || 'Người dùng')
       }
       setTimeout(() => inputRef.current?.focus(), 0)
       return
