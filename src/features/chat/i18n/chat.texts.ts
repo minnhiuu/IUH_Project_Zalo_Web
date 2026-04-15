@@ -98,7 +98,16 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     alreadyJoined: t(CHAT_KEYS['create-group-dialog'].alreadyJoined),
     alreadyAdmin: t(CHAT_KEYS['create-group-dialog'].alreadyAdmin),
     noResultsFound: t(CHAT_KEYS['create-group-dialog'].noResultsFound),
-    noFriendsFound: t(CHAT_KEYS['create-group-dialog'].noFriendsFound)
+    noFriendsFound: t(CHAT_KEYS['create-group-dialog'].noFriendsFound),
+    groupAlreadyExists: t(CHAT_KEYS['create-group-dialog'].groupAlreadyExists),
+    addMemberFailed: (count: number) => t(CHAT_KEYS['create-group-dialog'].addMemberFailed, { count }),
+    avatarAlt: t(CHAT_KEYS['create-group-dialog'].avatarAlt),
+    notAvailable: t(CHAT_KEYS['create-group-dialog'].notAvailable),
+    confirmSelection: t(CHAT_KEYS['create-group-dialog'].confirmSelection),
+    confirmCancelTitle: t(CHAT_KEYS['create-group-dialog'].confirmCancelTitle),
+    confirmCancelDescription: t(CHAT_KEYS['create-group-dialog'].confirmCancelDescription),
+    yes: t(CHAT_KEYS['create-group-dialog'].yes),
+    no: t(CHAT_KEYS['create-group-dialog'].no)
   },
   'forward-dialog': {
     title: t(CHAT_KEYS['forward-dialog'].title),
@@ -144,6 +153,7 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
       by_actor: t(CHAT_KEYS.system.block_member.by_actor)
     },
     blocked_from_joining: t(CHAT_KEYS.system.blocked_from_joining),
+    add_members_failed: t(CHAT_KEYS.system.add_members_failed),
     self_blocked_from_joining: {
       with_link: t(CHAT_KEYS.system.self_blocked_from_joining.with_link),
       without_link: t(CHAT_KEYS.system.self_blocked_from_joining.without_link),
@@ -330,6 +340,9 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     createGroup: t(CHAT_KEYS.sidebarInfo.createGroup),
     ownerRole: t(CHAT_KEYS.sidebarInfo.ownerRole),
     adminRole: t(CHAT_KEYS.sidebarInfo.adminRole),
+    joinedByLink: t(CHAT_KEYS.sidebarInfo.joinedByLink),
+    addedBy: (name: string) => t(CHAT_KEYS.sidebarInfo.addedBy, { name }),
+    addedByYou: t(CHAT_KEYS.sidebarInfo.addedByYou),
     addDeputy: t(CHAT_KEYS.sidebarInfo.addDeputy),
     removeFromGroup: t(CHAT_KEYS.sidebarInfo.removeFromGroup),
     searchMemberPlaceholder: t(CHAT_KEYS.sidebarInfo.searchMemberPlaceholder),

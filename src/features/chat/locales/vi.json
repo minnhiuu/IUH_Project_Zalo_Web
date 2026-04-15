@@ -1,4 +1,4 @@
-﻿{
+{
   "chat": {
     "title": "Tin nhắn",
     "searchPlaceholder": "Tìm kiếm",
@@ -81,6 +81,7 @@
         "by_actor": "<bold>{{target}}</bold> bị <actorBold>{{actor}}</actorBold> chặn khỏi nhóm này"
       },
       "blocked_from_joining": "<bold>{{target}}</bold> đã bị trưởng/phó nhóm chặn tham gia nhóm",
+      "add_members_failed": "Thêm thành viên không thành công({{count}}).",
       "self_blocked_from_joining": {
         "with_link": "Không thể thêm <bold>{{target}}</bold> vào nhóm. Họ chỉ có thể tham gia bằng link mời vào nhóm.",
         "without_link": "Không thể thêm <bold>{{target}}</bold> vào nhóm.",
@@ -236,7 +237,16 @@
       "alreadyJoined": "Đã tham gia",
       "alreadyAdmin": "Đã là phó nhóm",
       "noResultsFound": "Không tìm thấy kết quả",
-      "noFriendsFound": "Không tìm thấy bạn bè"
+      "noFriendsFound": "Không tìm thấy bạn bè",
+      "groupAlreadyExists": "Nhóm đã tồn tại",
+      "addMemberFailed": "Thêm thành viên không thành công({{count}}).",
+      "avatarAlt": "Ảnh đại diện",
+      "notAvailable": "Không khả dụng",
+      "confirmSelection": "Xác nhận chọn",
+      "confirmCancelTitle": "Xác nhận",
+      "confirmCancelDescription": "Bạn muốn hủy tạo nhóm này?",
+      "yes": "Có",
+      "no": "Không"
     },
     "forward-dialog": {
       "title": "Chia sẻ",
@@ -457,6 +467,9 @@
       "createGroup": "Tạo nhóm trò chuyện",
       "ownerRole": "Trưởng nhóm",
       "adminRole": "Phó nhóm",
+      "joinedByLink": "Tham gia qua link",
+      "addedBy": "Thêm bởi {{name}}",
+      "addedByYou": "Thêm bởi bạn",
       "addDeputy": "Thêm phó nhóm",
       "removeDeputy": "Thu hồi phó nhóm",
       "removeFromGroup": "Xóa khỏi nhóm",

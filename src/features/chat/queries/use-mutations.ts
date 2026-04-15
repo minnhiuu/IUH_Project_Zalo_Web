@@ -8,6 +8,7 @@ import {
   toggleReactionApi,
   removeAllMyReactionsApi,
   createGroupConversation,
+  sendGroupInvitesApi,
   updateGroupNameApi,
   updateGroupAvatarApi,
   updateGroupSettingsApi,
@@ -124,6 +125,16 @@ export const useCreateGroupMutation = () => {
   })
 }
 
+export const useSendGroupInvitesMutation = () => {
+  return useMutation({
+    mutationFn: ({ conversationId, userIds }: { conversationId: string; userIds: string[] }) =>
+      sendGroupInvitesApi(conversationId, userIds),
+    onError: (error) => {
+      console.error('Failed to send group invites', error)
+    }
+  })
+}
+
 export const useUpdateGroupNameMutation = () => {
   const queryClient = useQueryClient()
 
@@ -200,7 +211,6 @@ export const useLeaveGroupMutation = () => {
   return useMutation({
     mutationFn: ({
       conversationId,
-      navigateDelayMs: _,
       ...request
     }: LeaveGroupRequest & {
       conversationId: string
@@ -552,16 +562,10 @@ export const useCancelJoinRequestMutation = () => {
 }
 
 export const useToggleReactionMutation = () => {
-  const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: ({ messageId, emoji }: { messageId: string; emoji: string }) => toggleReactionApi(messageId, emoji),
     onError: (error) => {
       console.error('Failed to toggle reaction', error)
-    },
-    onSuccess: (_data, { messageId, emoji }, context) => {
-      // Optimistic update was done before mutation, nothing needed here.
-      // If needed, we can invalidate but WS will push the update.
     }
   })
 }

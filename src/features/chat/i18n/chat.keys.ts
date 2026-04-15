@@ -103,7 +103,16 @@ export const CHAT_KEYS = {
     alreadyJoined: 'chat.create-group-dialog.alreadyJoined',
     alreadyAdmin: 'chat.create-group-dialog.alreadyAdmin',
     noResultsFound: 'chat.create-group-dialog.noResultsFound',
-    noFriendsFound: 'chat.create-group-dialog.noFriendsFound'
+    noFriendsFound: 'chat.create-group-dialog.noFriendsFound',
+    groupAlreadyExists: 'chat.create-group-dialog.groupAlreadyExists',
+    addMemberFailed: 'chat.create-group-dialog.addMemberFailed',
+    avatarAlt: 'chat.create-group-dialog.avatarAlt',
+    notAvailable: 'chat.create-group-dialog.notAvailable',
+    confirmSelection: 'chat.create-group-dialog.confirmSelection',
+    confirmCancelTitle: 'chat.create-group-dialog.confirmCancelTitle',
+    confirmCancelDescription: 'chat.create-group-dialog.confirmCancelDescription',
+    yes: 'chat.create-group-dialog.yes',
+    no: 'chat.create-group-dialog.no'
   },
   system: {
     add_members: {
@@ -132,6 +141,7 @@ export const CHAT_KEYS = {
       by_actor: 'chat.system.block_member.by_actor'
     },
     blocked_from_joining: 'chat.system.blocked_from_joining',
+    add_members_failed: 'chat.system.add_members_failed',
     self_blocked_from_joining: {
       with_link: 'chat.system.self_blocked_from_joining.with_link',
       without_link: 'chat.system.self_blocked_from_joining.without_link',
@@ -317,6 +327,9 @@ export const CHAT_KEYS = {
     createGroup: 'chat.sidebarInfo.createGroup',
     ownerRole: 'chat.sidebarInfo.ownerRole',
     adminRole: 'chat.sidebarInfo.adminRole',
+    joinedByLink: 'chat.sidebarInfo.joinedByLink',
+    addedBy: 'chat.sidebarInfo.addedBy',
+    addedByYou: 'chat.sidebarInfo.addedByYou',
     addDeputy: 'chat.sidebarInfo.addDeputy',
     removeFromGroup: 'chat.sidebarInfo.removeFromGroup',
     searchMemberPlaceholder: 'chat.sidebarInfo.searchMemberPlaceholder',

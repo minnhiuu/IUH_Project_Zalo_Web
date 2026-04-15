@@ -3,7 +3,7 @@ import { BaseDialog } from '@/components/common/base-dialog'
 import { Switch } from '@/components/ui/switch'
 import { useChatText } from '../../../i18n/use-chat-text'
 import { useLeaveGroupMutation } from '../../../queries/use-mutations'
-import { showErrorToast, showSuccessToast } from '@/utils/toast'
+import { showSuccessToast } from '@/utils/toast'
 
 interface LeaveGroupDialogProps {
   open: boolean
@@ -35,9 +35,6 @@ export function LeaveGroupDialog({ open, onOpenChange, conversationId, transferT
           setSilent(false)
           setIsBlockAddEnabled(false)
           onOpenChange(false)
-        },
-        onError: () => {
-          showErrorToast(text.toasts.leaveGroupError)
         }
       }
     )

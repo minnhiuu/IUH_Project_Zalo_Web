@@ -38,6 +38,13 @@ export const createGroupConversation = async (
   return response.data.data
 }
 
+export const sendGroupInvitesApi = async (
+  conversationId: string,
+  userIds: string[]
+): Promise<void> => {
+  await http.post(`/messages/conversations/groups/${conversationId}/invites`, { userIds })
+}
+
 /**
  * Lấy tin nhắn theo conversationId (MongoDB ObjectId).
  * Endpoint mới: /messages/conversations/{conversationId}/messages

@@ -5,7 +5,13 @@ import { useQueryClient, type InfiniteData } from '@tanstack/react-query'
 import type { PageResponse } from '@/shared/api'
 import { chatKeys } from '../queries/keys'
 import { friendKeys } from '@/features/friend/queries/keys'
-import type { MessageResponse, ConversationResponse, ChatMessageRequest, ReplyMetadata, TypingEvent } from '../schemas/chat.schema'
+import type {
+  MessageResponse,
+  ConversationResponse,
+  ChatMessageRequest,
+  ReplyMetadata,
+  TypingEvent
+} from '../schemas/chat.schema'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { getAccessToken } from '@/lib/axios-client'
 import { MessageStatus, MessageType } from '@/constants/enum'
@@ -122,7 +128,8 @@ export const useChatWebSocket = () => {
             msg.type === MessageType.System &&
             (msgMetadata?.action === 'LEAVE_GROUP' ||
               msgMetadata?.action === 'REMOVE_MEMBER' ||
-              msgMetadata?.action === 'BLOCK_MEMBER')
+              msgMetadata?.action === 'BLOCK_MEMBER' ||
+              msgMetadata?.action === 'ADD_MEMBERS_FAILED')
 
           queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
             if (!oldData) return oldData
@@ -134,14 +141,34 @@ export const useChatWebSocket = () => {
               const existingUnread = existingConv.unreadCount || 0
               const computedUnread = isOwnMessage ? existingUnread : existingUnread + 1
 
-              // Special handling for BLOCK_MEMBER (target me): Remove from sidebar
+              // Special handling for BLOCK_MEMBER / REMOVE_MEMBER (target me): keep in sidebar but remove from members
               const removeTargetIds = Array.isArray(msgMetadata?.targetIds) ? msgMetadata.targetIds.map(String) : []
               const isCurrentUserRemovedAtTop =
                 (msgMetadata?.action === 'REMOVE_MEMBER' || msgMetadata?.action === 'BLOCK_MEMBER') &&
                 removeTargetIds.includes(String(user.id))
 
               if (isCurrentUserRemovedAtTop) {
-                return conversations.filter((c) => c.id !== conversationId)
+                const updatedMembers = (existingConv.members ?? []).filter(
+                  (m) => !removeTargetIds.includes(String(m.userId))
+                )
+                const updated = [...conversations]
+                updated[existingConvIndex] = {
+                  ...existingConv,
+                  members: updatedMembers,
+                  lastMessage: {
+                    id: msg.id,
+                    content: msg.content,
+                    timestamp: msg.createdAt || new Date().toISOString(),
+                    isFromMe: false,
+                    type: msg.type,
+                    status: msg.status,
+                    senderName: msg.senderName,
+                    senderId: msg.senderId,
+                    metadata: msg.metadata
+                  },
+                  unreadCount: 0
+                }
+                return updated
               }
 
               if (isNegativeSystemAction) {
@@ -204,11 +231,7 @@ export const useChatWebSocket = () => {
           })
 
           // 3. Invalidate media/file cache so sidebar updates in real-time
-          if (
-            msg.type === MessageType.Image ||
-            msg.type === MessageType.Video ||
-            msg.type === MessageType.File
-          ) {
+          if (msg.type === MessageType.Image || msg.type === MessageType.Video || msg.type === MessageType.File) {
             queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'media', conversationId] })
           }
 
@@ -324,7 +347,11 @@ export const useChatWebSocket = () => {
                     ...page,
                     data: page.data.map((m: MessageResponse) =>
                       m.id === update.messageId
-                        ? { ...m, reactions: update.reactions && Object.keys(update.reactions).length ? update.reactions : undefined }
+                        ? {
+                            ...m,
+                            reactions:
+                              update.reactions && Object.keys(update.reactions).length ? update.reactions : undefined
+                          }
                         : m
                     )
                   }))
@@ -398,7 +425,8 @@ export const useChatWebSocket = () => {
                     // If /queue/messages already set a newer lastMessage (different ID),
                     // preserve it — don't let /queue/conversations overwrite with stale data
                     const keepCachedLastMessage =
-                      c.lastMessage?.id && newConv.lastMessage?.id && c.lastMessage.id !== newConv.lastMessage.id
+                      (c.lastMessage?.id && newConv.lastMessage?.id && c.lastMessage.id !== newConv.lastMessage.id) ||
+                      (c.lastMessage?.id && !newConv.lastMessage?.id)
                     return {
                       ...c,
                       ...newConv,
@@ -459,9 +487,12 @@ export const useChatWebSocket = () => {
             } else {
               setTypingUsers((prev) => prev.filter((u) => `${u.conversationId}:${u.userId}` !== key))
               const existing = typingTimeoutsRef.current.get(key)
-              if (existing) { clearTimeout(existing); typingTimeoutsRef.current.delete(key) }
+              if (existing) {
+                clearTimeout(existing)
+                typingTimeoutsRef.current.delete(key)
+              }
             }
-          } catch (e) {
+          } catch {
             // ignore
           }
         })
@@ -652,13 +683,8 @@ export const useChatWebSocket = () => {
     [queryClient, deleteMsgMutate]
   )
 
-
   const sendFileMessage = useCallback(
-    async (
-      conversationId: string,
-      files: FileAttachment[],
-      replyTo?: ReplyMetadata | null
-    ) => {
+    async (conversationId: string, files: FileAttachment[], replyTo?: ReplyMetadata | null) => {
       if (!stompClientRef.current?.connected || files.length === 0) return
 
       const isFake = conversationId.startsWith('fake_')
@@ -712,7 +738,9 @@ export const useChatWebSocket = () => {
 
         const mediaPreview =
           mediaFiles.length === 1
-            ? (allVideo ? '[Video]' : '[Hình ảnh]')
+            ? allVideo
+              ? '[Video]'
+              : '[Hình ảnh]'
             : `[${mediaFiles.length} ${allVideo ? 'video' : 'ảnh'}]`
         queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
           if (!oldData) return oldData
@@ -722,9 +750,14 @@ export const useChatWebSocket = () => {
             {
               ...oldData[idx],
               lastMessage: {
-                id: clientMessageId, content: mediaPreview, timestamp: now,
-                isFromMe: true, type: msgType, status: MessageStatus.NORMAL,
-                senderName: user?.fullName, senderId: user?.id
+                id: clientMessageId,
+                content: mediaPreview,
+                timestamp: now,
+                isFromMe: true,
+                type: msgType,
+                status: MessageStatus.NORMAL,
+                senderName: user?.fullName,
+                senderId: user?.id
               }
             },
             ...oldData.slice(0, idx),
@@ -741,8 +774,12 @@ export const useChatWebSocket = () => {
             clientMessageId,
             replyTo: replyTo || undefined,
             attachments: uploadResults.map((r) => ({
-              key: r.key, url: r.url, fileName: r.fileName,
-              originalFileName: r.originalFileName, contentType: r.contentType, size: r.size
+              key: r.key,
+              url: r.url,
+              fileName: r.fileName,
+              originalFileName: r.originalFileName,
+              contentType: r.contentType,
+              size: r.size
             }))
           })
         } catch (error) {
@@ -782,7 +819,16 @@ export const useChatWebSocket = () => {
           senderName: user?.fullName,
           senderAvatar: user?.avatar || undefined,
           replyTo,
-          attachments: [{ key: '', url: attachment.previewUrl || '', fileName: file.name, originalFileName: file.name, contentType: file.type, size: file.size }]
+          attachments: [
+            {
+              key: '',
+              url: attachment.previewUrl || '',
+              fileName: file.name,
+              originalFileName: file.name,
+              contentType: file.type,
+              size: file.size
+            }
+          ]
         }
 
         queryClient.setQueryData(
@@ -790,7 +836,10 @@ export const useChatWebSocket = () => {
           (oldData: InfiniteData<PageResponse<MessageResponse>> | undefined) => {
             if (!oldData) return oldData
             const firstPage = oldData.pages[0]
-            return { ...oldData, pages: [{ ...firstPage, data: [optimisticMsg, ...firstPage.data] }, ...oldData.pages.slice(1)] }
+            return {
+              ...oldData,
+              pages: [{ ...firstPage, data: [optimisticMsg, ...firstPage.data] }, ...oldData.pages.slice(1)]
+            }
           }
         )
 
@@ -802,9 +851,14 @@ export const useChatWebSocket = () => {
             {
               ...oldData[idx],
               lastMessage: {
-                id: clientMessageId, content: `[Tệp] ${file.name}`, timestamp: now,
-                isFromMe: true, type: MessageType.File, status: MessageStatus.NORMAL,
-                senderName: user?.fullName, senderId: user?.id
+                id: clientMessageId,
+                content: `[Tệp] ${file.name}`,
+                timestamp: now,
+                isFromMe: true,
+                type: MessageType.File,
+                status: MessageStatus.NORMAL,
+                senderName: user?.fullName,
+                senderId: user?.id
               }
             },
             ...oldData.slice(0, idx),
@@ -820,7 +874,16 @@ export const useChatWebSocket = () => {
             content: file.name,
             clientMessageId,
             replyTo: replyTo || undefined,
-            attachments: [{ key: uploadResult.key, url: uploadResult.url, fileName: uploadResult.fileName, originalFileName: uploadResult.originalFileName, contentType: uploadResult.contentType, size: uploadResult.size }]
+            attachments: [
+              {
+                key: uploadResult.key,
+                url: uploadResult.url,
+                fileName: uploadResult.fileName,
+                originalFileName: uploadResult.originalFileName,
+                contentType: uploadResult.contentType,
+                size: uploadResult.size
+              }
+            ]
           })
         } catch (error) {
           console.error('[Chat] Failed to upload & send file:', error)
@@ -843,16 +906,13 @@ export const useChatWebSocket = () => {
     [user, queryClient, sendMsgMutate]
   )
 
-  const sendTyping = useCallback(
-    (conversationId: string, isTyping: boolean, userName: string) => {
-      if (!stompClientRef.current?.connected) return
-      stompClientRef.current.publish({
-        destination: '/app/chat.typing',
-        body: JSON.stringify({ conversationId, isTyping, userName, platform: 'PC' })
-      })
-    },
-    []
-  )
+  const sendTyping = useCallback((conversationId: string, isTyping: boolean, userName: string) => {
+    if (!stompClientRef.current?.connected) return
+    stompClientRef.current.publish({
+      destination: '/app/chat.typing',
+      body: JSON.stringify({ conversationId, isTyping, userName, platform: 'PC' })
+    })
+  }, [])
 
   return { connected, sendMessage, sendFileMessage, revokeMessage, deleteMessageForMe, sendTyping, typingUsers }
 }

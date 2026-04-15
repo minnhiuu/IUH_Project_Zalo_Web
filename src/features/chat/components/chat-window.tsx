@@ -180,7 +180,6 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             },
             onError: () => {
               toast.dismiss(toastId)
-              showErrorToast(text.toasts.updateError)
             }
           }
         )
@@ -208,7 +207,6 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
         },
         onError: () => {
           toast.dismiss(toastId)
-          showErrorToast(text.toasts.updateError)
         }
       }
     )

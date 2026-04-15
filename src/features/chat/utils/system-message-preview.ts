@@ -48,13 +48,21 @@ export function getSystemMessagePreview(
   const { action, targetIds, payload } = metadata
 
   if (action === 'CREATE_GROUP') {
-    const isSelfInTargets = targetIds?.includes(String(currentUserId) || '')
+    const normalizedTargetIds = (targetIds || []).map((id) => String(id))
+    const normalizedCurrentUserId = String(currentUserId || '')
+    const isSelfInTargets = normalizedTargetIds.includes(normalizedCurrentUserId)
+    const isActorMe = String(senderId) === normalizedCurrentUserId
 
-    if (String(senderId) === String(currentUserId)) {
+    if (isActorMe) {
       return translate('chat.system.add_members.group_created') as string
     }
 
     if (isSelfInTargets) {
+      return translate('chat.system.add_members.joined_group') as string
+    }
+
+    // Fallback: Nếu không rõ ai tạo nhưng bạn có trong list tham gia thì vẫn là joined_group
+    if (normalizedTargetIds.length > 0 && isSelfInTargets) {
       return translate('chat.system.add_members.joined_group') as string
     }
 
@@ -169,6 +177,11 @@ export function getSystemMessagePreview(
 
     const preview = translate('chat.system.blocked_from_joining', { target: targetName }) as string
     return preview.replace(/<[^>]*>/g, '')
+  }
+
+  if (action === 'ADD_MEMBERS_FAILED') {
+    const failedCount = (payload?.failedCount as number) || (targetIds || []).length || 0
+    return translate('chat.system.add_members_failed', { count: failedCount }) as string
   }
 
   if (action === 'SELF_BLOCKED_FROM_JOINING') {
