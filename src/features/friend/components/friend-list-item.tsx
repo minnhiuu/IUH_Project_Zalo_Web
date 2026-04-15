@@ -17,7 +17,7 @@ export function FriendListItem({ friend, onMessage, onViewProfile, onUnfriend }:
 
   return (
     <div
-      onClick={() => onViewProfile?.(friend)}
+      onClick={() => onMessage?.(friend)}
       className='flex items-center gap-3 px-2 py-2 hover:bg-muted/40 transition-colors group cursor-pointer rounded-md'
     >
       <UserAvatar src={friend.userAvatar} name={friend.userName} className='w-10 h-10 shrink-0' />
@@ -29,6 +29,7 @@ export function FriendListItem({ friend, onMessage, onViewProfile, onUnfriend }:
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
+            type='button'
             onClick={(e) => e.stopPropagation()}
             className={cn(
               'p-1.5 rounded-md transition-colors opacity-0 group-hover:opacity-100 hover:bg-muted/60',
@@ -38,10 +39,30 @@ export function FriendListItem({ friend, onMessage, onViewProfile, onUnfriend }:
             <MoreHorizontal className='w-4 h-4 text-muted-foreground' />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align='end' className='w-48'>
-          <DropdownMenuItem onClick={() => onViewProfile?.(friend)}>{text.menu.viewProfile}</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onMessage?.(friend)}>{text.actions.message}</DropdownMenuItem>
-          <DropdownMenuItem className='text-destructive focus:text-destructive' onClick={() => onUnfriend?.(friend)}>
+        <DropdownMenuContent align='end' className='w-48' onClick={(e) => e.stopPropagation()}>
+          <DropdownMenuItem
+            onClick={(e) => {
+              e.stopPropagation()
+              onViewProfile?.(friend)
+            }}
+          >
+            {text.menu.viewProfile}
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={(e) => {
+              e.stopPropagation()
+              onMessage?.(friend)
+            }}
+          >
+            {text.actions.message}
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className='text-destructive focus:text-destructive'
+            onClick={(e) => {
+              e.stopPropagation()
+              onUnfriend?.(friend)
+            }}
+          >
             {text.actions.unfriend}
           </DropdownMenuItem>
         </DropdownMenuContent>

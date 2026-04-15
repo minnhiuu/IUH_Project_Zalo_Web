@@ -7,6 +7,7 @@ import { DropdownMenu, DropdownMenuTrigger } from '@/components/ui/dropdown-menu
 import { useChatContext } from '../context/chat-context'
 import { MessageStatus, MessageType } from '@/constants/enum'
 import { SystemMessage } from '../utils/system-message'
+import { CallMessage } from './call-message'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { MessageSenderAvatar } from './message-sender-avatar'
 import { MessageIconButton } from './message-icon-button'
@@ -33,7 +34,8 @@ export function MessageBubble({
   conversation,
   onReply,
   onForward,
-  onAvatarClick
+  onAvatarClick,
+  onRecall
 }: {
   message: MessageResponse
   isOwn: boolean
@@ -44,6 +46,7 @@ export function MessageBubble({
   onReply?: () => void
   onForward?: () => void
   onAvatarClick?: (userId: string) => void
+  onRecall?: (receiverId: string) => void
 }) {
   const { text } = useChatText()
   const { deleteMessageForMe } = useChatContext()
@@ -84,6 +87,9 @@ export function MessageBubble({
 
   if (message.type === MessageType.System) {
     return <SystemMessage message={message} conversation={conversation} />
+  }
+  if (message.type === MessageType.Call) {
+    return <CallMessage message={message} isOwn={isOwn} onRecall={onRecall} />
   }
   return (
     <div
