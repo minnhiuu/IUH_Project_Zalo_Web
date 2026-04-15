@@ -3,6 +3,7 @@ import { SendHorizonal, Smile, Paperclip, ImageIcon, X, Quote, ThumbsUp, FileIco
 import type { MessageResponse } from '../schemas/chat.schema'
 import { useChatContext, type FileAttachment } from '../context/chat-context'
 import { useChatText } from '../i18n/use-chat-text'
+import { cn } from '@/lib/utils'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { useGroupMembersInfinite } from '../queries/use-queries'
 import { MentionDropdown } from './mention-dropdown'
@@ -238,9 +239,125 @@ export function ChatInput({ conversationId, isGroup, replyTo, onCancelReply }: C
   }
 
   const hasContent = content.trim() || fileAttachments.length > 0
+  const [isDragging, setIsDragging] = useState(false)
+  const dragCounterRef = useRef(0)
+
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    dragCounterRef.current++
+    if (e.dataTransfer.types.includes('Files')) {
+      setIsDragging(true)
+    }
+  }, [])
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    dragCounterRef.current--
+    if (dragCounterRef.current === 0) {
+      setIsDragging(false)
+    }
+  }, [])
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }, [])
+
+  const handleDrop = useCallback(async (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+    dragCounterRef.current = 0
+
+    const droppedFiles = e.dataTransfer.files
+    if (!droppedFiles || droppedFiles.length === 0) return
+
+    const hasMedia = Array.from(droppedFiles).some(
+      (f) => f.type.startsWith('image/') || f.type.startsWith('video/')
+    )
+    const isAllMedia = Array.from(droppedFiles).every(
+      (f) => f.type.startsWith('image/') || f.type.startsWith('video/')
+    )
+
+    if (isAllMedia) {
+      // Ảnh/video → thêm vào preview
+      const newAttachments: FileAttachment[] = []
+      for (let i = 0; i < droppedFiles.length; i++) {
+        const file = droppedFiles[i]
+        if (file.size > MAX_FILE_SIZE) {
+          alert(`File "${file.name}" vượt quá 50MB`)
+          continue
+        }
+        const previewUrl = URL.createObjectURL(file)
+        newAttachments.push({ file, previewUrl })
+      }
+      if (newAttachments.length > 0) {
+        if (attachmentType === 'file') clearAttachments()
+        setFileAttachments((prev) => [...prev, ...newAttachments])
+        setAttachmentType('image')
+      }
+    } else {
+      // File thường → gửi trực tiếp
+      const fileOnly = Array.from(droppedFiles).filter(
+        (f) => !f.type.startsWith('image/') && !f.type.startsWith('video/')
+      )
+      const attachments: FileAttachment[] = []
+      for (const file of fileOnly) {
+        if (file.size > MAX_FILE_SIZE) {
+          alert(`File "${file.name}" vượt quá 50MB`)
+          continue
+        }
+        attachments.push({ file })
+      }
+      if (attachments.length > 0) {
+        setIsSending(true)
+        try {
+          const replyMetadata = replyTo
+            ? { messageId: replyTo.id, senderId: replyTo.senderId, senderName: replyTo.senderName || '', content: replyTo.content || '', type: replyTo.type }
+            : null
+          await sendFileMessage(conversationId, attachments, '', replyMetadata)
+          onCancelReply?.()
+        } finally {
+          setIsSending(false)
+        }
+      }
+      // Nếu có cả ảnh lẫn file, thêm ảnh vào preview
+      if (hasMedia) {
+        const mediaOnly = Array.from(droppedFiles).filter(
+          (f) => f.type.startsWith('image/') || f.type.startsWith('video/')
+        )
+        const mediaAttachments: FileAttachment[] = []
+        for (const file of mediaOnly) {
+          if (file.size > MAX_FILE_SIZE) continue
+          mediaAttachments.push({ file, previewUrl: URL.createObjectURL(file) })
+        }
+        if (mediaAttachments.length > 0) {
+          if (attachmentType === 'file') clearAttachments()
+          setFileAttachments((prev) => [...prev, ...mediaAttachments])
+          setAttachmentType('image')
+        }
+      }
+    }
+  }, [attachmentType, clearAttachments, conversationId, onCancelReply, replyTo, sendFileMessage])
 
   return (
-    <div className='bg-background border-t border-border flex flex-col p-0 gap-0'>
+    <div
+      className={cn('bg-background border-t border-border flex flex-col p-0 gap-0 relative', isDragging && 'ring-2 ring-primary ring-inset')}
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+    >
+      {isDragging && (
+        <div className='absolute inset-0 z-50 flex items-center justify-center bg-primary/10 backdrop-blur-[1px] pointer-events-none rounded'>
+          <div className='flex flex-col items-center gap-2 text-primary'>
+            <Paperclip size={32} />
+            <span className='text-sm font-medium'>Thả file vào đây</span>
+          </div>
+        </div>
+      )}
       {/* Hidden file inputs */}
       <input
         ref={imageInputRef}
@@ -259,9 +376,29 @@ export function ChatInput({ conversationId, isGroup, replyTo, onCancelReply }: C
         accept={FILE_ACCEPT}
         multiple
         className='hidden'
-        onChange={(e) => {
-          handleFilesChange(e.target.files, 'file')
+        onChange={async (e) => {
+          const files = e.target.files
+          if (!files || files.length === 0) return
+
+          const attachments: FileAttachment[] = []
+          for (let i = 0; i < files.length; i++) {
+            const file = files[i]
+            if (file.size > MAX_FILE_SIZE) {
+              alert(`File "${file.name}" vượt quá 50MB`)
+              continue
+            }
+            attachments.push({ file })
+          }
           e.target.value = ''
+          if (attachments.length > 0) {
+            setIsSending(true)
+            try {
+              await sendFileMessage(conversationId, attachments, '', replyTo ? { messageId: replyTo.id, senderId: replyTo.senderId, senderName: replyTo.senderName || '', content: replyTo.content || '', type: replyTo.type } : null)
+              onCancelReply?.()
+            } finally {
+              setIsSending(false)
+            }
+          }
         }}
       />
 
@@ -315,8 +452,8 @@ export function ChatInput({ conversationId, isGroup, replyTo, onCancelReply }: C
         </div>
       )}
 
-      {/* 2.5. File/Image Preview */}
-      {fileAttachments.length > 0 && (
+      {/* 2.5. Image/Video Preview (chỉ hiện cho ảnh/video, file gửi trực tiếp) */}
+      {fileAttachments.length > 0 && attachmentType === 'image' && (
         <div className='px-4 py-2 bg-background border-b border-border'>
           <div className='flex gap-2 flex-wrap'>
             {fileAttachments.map((attachment, index) => (

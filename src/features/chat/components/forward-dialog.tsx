@@ -11,6 +11,8 @@ import { useAuth } from '@/features/auth'
 import { getConversationDisplayName } from '../utils/group-name'
 import type { ConversationResponse, MessageResponse } from '../schemas/chat.schema'
 import { useChatText } from '../i18n/use-chat-text'
+import { MessageType } from '@/constants/enum'
+import { Play } from 'lucide-react'
 
 type TabType = 'recent' | 'groups' | 'friends'
 
@@ -283,9 +285,31 @@ export function ForwardDialog({
             <p className='text-[11px] font-bold text-foreground mb-1 uppercase tracking-tight'>
               {tf.forwardMessage || 'Forward message'}
             </p>
-            <p className='text-[13px] text-foreground/80 overflow-hidden text-ellipsis whitespace-nowrap italic'>
-              {message?.content || '...'}
-            </p>
+            {message?.type === MessageType.Image || message?.type === MessageType.Video ? (
+              <div className='flex gap-2 overflow-x-auto py-1'>
+                {(message.attachments || []).map((att, idx) => {
+                  const isVideo = att.contentType?.startsWith('video/')
+                  return (
+                    <div key={idx} className='relative w-16 h-16 rounded overflow-hidden shrink-0 bg-muted'>
+                      {isVideo ? (
+                        <>
+                          <video src={att.url} className='w-full h-full object-cover' muted preload='metadata' />
+                          <div className='absolute inset-0 flex items-center justify-center bg-black/30'>
+                            <Play size={16} className='text-white fill-white' />
+                          </div>
+                        </>
+                      ) : (
+                        <img src={att.url} alt={att.originalFileName || 'image'} className='w-full h-full object-cover' />
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            ) : (
+              <p className='text-[13px] text-foreground/80 overflow-hidden text-ellipsis whitespace-nowrap italic'>
+                {message?.content || '...'}
+              </p>
+            )}
           </div>
           <div className='relative'>
             <Input
