@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
-import { Search, FileIcon, Download, Play, ChevronDown, ChevronLeft, X } from 'lucide-react'
+import { Search, FileIcon, Download, Play, ChevronDown, ChevronLeft, X, Archive } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useMediaMessagesQuery } from '../queries/use-queries'
 import { MessageType } from '@/constants/enum'
@@ -39,8 +39,8 @@ function getExtBadge(ext: string): { bg: string; label: string } {
   if (['DOC', 'DOCX'].includes(ext)) return { bg: 'bg-blue-600', label: 'WORD' }
   if (['XLS', 'XLSX'].includes(ext)) return { bg: 'bg-green-600', label: 'EXCEL' }
   if (['PPT', 'PPTX'].includes(ext)) return { bg: 'bg-orange-500', label: 'PPT' }
-  if (['ZIP', 'RAR', '7Z'].includes(ext)) return { bg: 'bg-yellow-600', label: ext }
-  if (['M4A', 'MP3', 'WAV', 'OGG'].includes(ext)) return { bg: 'bg-purple-600', label: ext }
+  if (['ZIP', 'RAR', '7Z'].includes(ext)) return { bg: 'bg-purple-600', label: ext }
+  if (['M4A', 'MP3', 'WAV', 'OGG'].includes(ext)) return { bg: 'bg-pink-600', label: ext }
   if (['MP4', 'MOV', 'AVI', 'MKV'].includes(ext)) return { bg: 'bg-indigo-600', label: ext }
   return { bg: 'bg-primary', label: ext || 'FILE' }
 }
@@ -49,7 +49,8 @@ const FILE_TYPE_FILTERS = [
   { label: 'PDF', ext: ['PDF'] },
   { label: 'Word', ext: ['DOC', 'DOCX'] },
   { label: 'PowerPoint', ext: ['PPT', 'PPTX'] },
-  { label: 'Excel', ext: ['XLS', 'XLSX'] }
+  { label: 'Excel', ext: ['XLS', 'XLSX'] },
+  { label: 'Archive', ext: ['ZIP', 'RAR', '7Z'] }
 ]
 
 // ── MediaStorageView ─────────────────────────────────────────────
@@ -215,7 +216,6 @@ export function MediaStorageView({ conversationId, members, defaultTab = 'media'
               />
               <DateFilter value={dateFilter} onChange={setDateFilter} label={text.mediaStorage.filterDate} />
             </div>
-          </div>
 
             {mediaLoading ? (
           <MediaSkeleton />
@@ -341,12 +341,17 @@ export function MediaStorageView({ conversationId, members, defaultTab = 'media'
                       <div key={m.id} className='flex items-center gap-3 group cursor-pointer'>
                         {(() => {
                           const { bg, label } = getExtBadge(ext)
+                          const isArchive = ['ZIP', 'RAR', '7Z'].includes(ext)
                           return (
                             <div className={cn(
                               'w-10 h-10 shrink-0 rounded-lg flex items-center justify-center text-white',
                               bg
                             )}>
-                              <span className='text-[9px] font-bold tracking-tight leading-none text-center px-0.5'>{label}</span>
+                              {isArchive ? (
+                                <Archive size={18} className='text-white' />
+                              ) : (
+                                <span className='text-[9px] font-bold tracking-tight leading-none text-center px-0.5'>{label}</span>
+                              )}
                             </div>
                           )
                         })()}
@@ -354,13 +359,8 @@ export function MediaStorageView({ conversationId, members, defaultTab = 'media'
                           <p className='text-[13px] font-medium truncate group-hover:text-primary transition-colors'>
                             {fileName}
                           </p>
-                          <p className='text-[11px] text-muted-foreground flex items-center gap-1'>
+                          <p className='text-[11px] text-muted-foreground'>
                             {fileSize ? formatFileSize(fileSize) : ''}
-                            {sender?.fullName && (
-                              <span className='text-green-500 flex items-center gap-0.5'>
-                                {text.mediaStorage.downloadedLocally}
-                              </span>
-                            )}
                           </p>
                         </div>
                         {att?.url && (

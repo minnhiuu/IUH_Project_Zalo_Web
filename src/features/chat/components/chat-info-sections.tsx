@@ -15,7 +15,8 @@ import {
   Forward,
   Link,
   Play,
-  X
+  X,
+  Archive
 } from 'lucide-react'
 import { useState } from 'react'
 import { Switch } from '@/components/ui/switch'
@@ -296,7 +297,7 @@ export function ChatInfoSections({
                   if (['DOC', 'DOCX'].includes(ext)) return { bg: 'bg-blue-600', label: 'WORD' }
                   if (['XLS', 'XLSX'].includes(ext)) return { bg: 'bg-green-600', label: 'EXCEL' }
                   if (['PPT', 'PPTX'].includes(ext)) return { bg: 'bg-orange-500', label: 'PPT' }
-                  if (['ZIP', 'RAR', '7Z'].includes(ext)) return { bg: 'bg-yellow-600', label: ext }
+                  if (['ZIP', 'RAR', '7Z'].includes(ext)) return { bg: 'bg-purple-600', label: ext }
                   return { bg: 'bg-primary', label: ext || 'FILE' }
                 }
                 const { bg, label } = getBadge(ext)
@@ -315,7 +316,11 @@ export function ChatInfoSections({
                         bg
                       )}
                     >
-                      <span className='text-[9px] font-bold tracking-tight leading-none text-center px-0.5'>{label}</span>
+                      {['ZIP', 'RAR', '7Z'].includes(ext) ? (
+                        <Archive size={18} className='text-white' />
+                      ) : (
+                        <span className='text-[9px] font-bold tracking-tight leading-none text-center px-0.5'>{label}</span>
+                      )}
                     </div>
                     <div className='flex-1 min-w-0 flex flex-col justify-center h-10'>
                       <p className='text-[0.875rem] text-foreground font-medium truncate group-hover:text-primary transition-colors'>

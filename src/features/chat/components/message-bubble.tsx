@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils'
 import type { ConversationResponse, ConversationMemberResponse, MessageResponse } from '../schemas/chat.schema'
 import { useChatText } from '../i18n/use-chat-text'
-import { Quote, Forward, MoreHorizontal, ThumbsUp, FileIcon, Download, X, Play } from 'lucide-react'
+import { Quote, Forward, MoreHorizontal, ThumbsUp, FileIcon, Download, X, Play, Archive } from 'lucide-react'
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import { DropdownMenu, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useChatContext } from '../context/chat-context'
@@ -642,7 +642,7 @@ function MessageFileContent({ message }: { message: MessageResponse }) {
     if (['DOC', 'DOCX'].includes(ext)) return { bg: 'bg-blue-600', label: 'WORD' }
     if (['XLS', 'XLSX'].includes(ext)) return { bg: 'bg-green-600', label: 'EXCEL' }
     if (['PPT', 'PPTX'].includes(ext)) return { bg: 'bg-orange-500', label: 'PPT' }
-    if (['ZIP', 'RAR', '7Z'].includes(ext)) return { bg: 'bg-yellow-500', label: ext }
+    if (['ZIP', 'RAR', '7Z'].includes(ext)) return { bg: 'bg-purple-600', label: ext }
     return { bg: 'bg-primary', label: ext || 'FILE' }
   }
 
@@ -651,7 +651,11 @@ function MessageFileContent({ message }: { message: MessageResponse }) {
   return (
     <div className='flex items-center gap-3 min-w-[200px]'>
       <div className={cn('w-10 h-10 rounded-lg flex items-center justify-center shrink-0', bg)}>
-        <span className='text-white text-[10px] font-bold tracking-tight leading-none text-center px-0.5'>{label}</span>
+        {['ZIP', 'RAR', '7Z'].includes(ext) ? (
+          <Archive size={18} className='text-white' />
+        ) : (
+          <span className='text-white text-[10px] font-bold tracking-tight leading-none text-center px-0.5'>{label}</span>
+        )}
       </div>
       <div className='flex flex-col min-w-0 flex-1'>
         <span className='text-[14px] font-medium truncate max-w-[200px]'>{fileName}</span>
