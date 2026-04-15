@@ -33,6 +33,8 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
     confirm: t(USER_KEYS.profile.confirm),
     edit: t(USER_KEYS.profile.edit),
     updating: t(USER_KEYS.profile.updating),
+    phoneLabel: t(USER_KEYS.profile.phoneLabel),
+    phonePlaceholder: t(USER_KEYS.profile.phonePlaceholder),
     bioLabel: t(USER_KEYS.profile.bioLabel),
     bioPlaceholder: t(USER_KEYS.profile.bioPlaceholder),
     bio: t(USER_KEYS.profile.bio),
@@ -62,7 +64,10 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
     fullNameRequired: t(USER_KEYS.validation.fullNameRequired),
     dobInvalid: t(USER_KEYS.validation.dobInvalid),
     genderRequired: t(USER_KEYS.validation.genderRequired),
-    bioTooLong: t(USER_KEYS.validation.bioTooLong)
+    bioTooLong: t(USER_KEYS.validation.bioTooLong),
+    phoneRequired: t(USER_KEYS.validation.phoneRequired),
+    phoneInvalid: t(USER_KEYS.validation.phoneInvalid),
+    phoneAlreadyUsed: t(USER_KEYS.validation.phoneAlreadyUsed)
   },
   settings: {
     title: t(USER_KEYS.settings.title),
