@@ -97,7 +97,8 @@ export function ChatInfoDirectSidebar({ conversation, onRenameClick, onAvatarCli
                 reportAction: tg.sidebarInfo.reportAction,
                 deleteHistory: tg.sidebarInfo.deleteHistory,
                 leaveGroup: tg.sidebarInfo.leaveGroup,
-                viewAll: tg.sidebarInfo.viewAll
+                viewAll: tg.sidebarInfo.viewAll,
+                pendingJoinRequestsLabel: tg.sidebarInfo.pendingJoinRequestsLabel
               }}
               membersCountLabel={tg.status.membersCount(conversation.members?.length || 0)}
               onOpenMembers={() => {}}

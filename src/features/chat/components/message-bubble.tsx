@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils'
 import type { ConversationResponse, ConversationMemberResponse, MessageResponse } from '../schemas/chat.schema'
 import { useChatText } from '../i18n/use-chat-text'
-import { Quote, Forward, MoreHorizontal, ThumbsUp, FileIcon, Download, X, Play, Archive } from 'lucide-react'
+import { Quote, Forward, MoreHorizontal, ThumbsUp, Download, X, Play, Archive } from 'lucide-react'
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import { DropdownMenu, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useChatContext } from '../context/chat-context'
@@ -210,22 +210,44 @@ export function MessageBubble({
               </div>
             )}
 
-            {message.replyTo && (
-              <div className='mb-1.5 px-3 py-1.5 border-l-2 border-[#1972F5] bg-[#CDE2FF]/50 rounded-sm select-none'>
-                <div className='font-semibold text-[#0068FF] text-[13px]'>{message.replyTo.senderName}</div>
-                <div className='text-[13px] text-black/70 truncate'>
-                  {message.replyTo.content === null ? (
-                    <span className='italic opacity-60'>{mb.revoked}</span>
-                  ) : message.replyTo.type === MessageType.Image ? (
-                    mb.image
-                  ) : message.replyTo.type === MessageType.File ? (
-                    mb.file
-                  ) : (
-                    stripMentionsForPreview(message.replyTo.content)
-                  )}
+            {message.replyTo && (() => {
+              const replyImageUrl =
+                message.replyTo.type === MessageType.Image
+                  ? message.replyTo.thumbnailUrl ||
+                    (message.replyTo.content && /^https?:\/\//.test(message.replyTo.content)
+                      ? message.replyTo.content
+                      : null)
+                  : null
+              return (
+                <div className='mb-1.5 px-3 py-1.5 border-l-2 border-[#1972F5] bg-[#CDE2FF]/50 rounded-sm select-none'>
+                  <div className='flex items-start gap-2'>
+                    <div className='flex-1 min-w-0'>
+                      <div className='font-semibold text-[#0068FF] text-[13px]'>{message.replyTo.senderName}</div>
+                      <div className='text-[13px] text-black/70 truncate'>
+                        {message.replyTo.content === null ? (
+                          <span className='italic opacity-60'>{mb.revoked}</span>
+                        ) : message.replyTo.type === MessageType.Image ? (
+                          mb.image
+                        ) : message.replyTo.type === MessageType.File ? (
+                          mb.file
+                        ) : message.replyTo.type === MessageType.Video ? (
+                          '🎥 Video'
+                        ) : (
+                          stripMentionsForPreview(message.replyTo.content)
+                        )}
+                      </div>
+                    </div>
+                    {replyImageUrl && (
+                      <img
+                        src={replyImageUrl}
+                        alt=''
+                        className='w-10 h-10 rounded object-cover shrink-0'
+                      />
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              )
+            })()}
 
             <span>
               {isRevoked ? (

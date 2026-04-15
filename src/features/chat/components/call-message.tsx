@@ -1,4 +1,3 @@
-import { Phone, PhoneMissed, PhoneOff, Video } from 'lucide-react'
 import type { MessageResponse } from '../schemas/chat.schema'
 import { useAuth } from '@/features/auth'
 import { useChatText } from '../i18n/use-chat-text'

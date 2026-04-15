@@ -16,7 +16,6 @@ import {
   useUpdateGroupAvatarMutation
 } from '../queries/use-mutations'
 import { useEffect, useRef, useMemo, useState, useCallback } from 'react'
-import { createPortal } from 'react-dom'
 import type { ConversationResponse, MessageResponse } from '../schemas/chat.schema'
 import { ForwardDialog } from './forward-dialog'
 import { formatLastSeen } from '@/utils/date'

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback, useMemo, type FormEvent, type KeyboardEvent } from 'react'
 import { SendHorizonal, Smile, Paperclip, ImageIcon, X, Quote, ThumbsUp, FileIcon, Loader2 } from 'lucide-react'
 import type { MessageResponse } from '../schemas/chat.schema'
+import { MessageType } from '@/constants/enum'
 import { useChatContext, type FileAttachment } from '../context/chat-context'
 import { useChatText } from '../i18n/use-chat-text'
 import { cn } from '@/lib/utils'
@@ -174,8 +175,12 @@ export function ChatInput({ conversationId, isGroup, replyTo, onCancelReply }: C
           messageId: replyTo.id,
           senderId: replyTo.senderId,
           senderName: replyTo.senderName || '',
-          content: replyTo.content || '',
-          type: replyTo.type
+          content:
+            (replyTo.type === MessageType.Image || replyTo.type === MessageType.Video) && !replyTo.content
+              ? replyTo.attachments?.[0]?.url || ''
+              : replyTo.content || '',
+          type: replyTo.type,
+          thumbnailUrl: replyTo.attachments?.[0]?.url || null
         }
       : null
 
@@ -435,17 +440,29 @@ export function ChatInput({ conversationId, isGroup, replyTo, onCancelReply }: C
       {/* 2. Trả lời (Reply Preview) */}
       {replyTo && (
         <div className='px-4 py-2 bg-background animate-in slide-in-from-bottom-1 duration-200'>
-          <div className='flex items-center justify-between bg-muted px-4 py-2.5 rounded-md border-l-2 border-primary'>
-            <div className='flex items-start gap-2 truncate'>
-              <Quote size={14} className='text-muted-foreground mt-1 shrink-0' />
-              <div className='flex flex-col truncate'>
-                <span className='text-[13px]'>{text.replyingTo(replyTo.senderName || '')}</span>
-                <span className='truncate text-[13px] text-muted-foreground max-w-[600px]'>
-                  {stripMentionsForPreview(replyTo.content)}
+          <div className='flex items-center justify-between bg-muted px-3 py-2 rounded-md border-l-2 border-primary gap-2'>
+            <div className='flex items-center gap-2 flex-1 min-w-0'>
+              {replyTo.type === MessageType.Image && replyTo.attachments?.[0]?.url ? (
+                <img
+                  src={replyTo.attachments[0].url}
+                  alt=''
+                  className='w-10 h-10 rounded object-cover shrink-0'
+                />
+              ) : (
+                <Quote size={14} className='text-muted-foreground shrink-0' />
+              )}
+              <div className='flex flex-col min-w-0'>
+                <span className='text-[13px] font-medium'>{text.replyingTo(replyTo.senderName || '')}</span>
+                <span className='truncate text-[13px] text-muted-foreground'>
+                  {replyTo.type === MessageType.Image
+                    ? '[Hình ảnh]'
+                    : replyTo.type === MessageType.Video
+                      ? '[Video]'
+                      : stripMentionsForPreview(replyTo.content)}
                 </span>
               </div>
             </div>
-            <button onClick={onCancelReply} className='p-1 hover:bg-muted rounded-full transition-colors shrink-0 ml-2'>
+            <button onClick={onCancelReply} className='p-1 hover:bg-muted rounded-full transition-colors shrink-0'>
               <X size={18} className='text-muted-foreground' />
             </button>
           </div>

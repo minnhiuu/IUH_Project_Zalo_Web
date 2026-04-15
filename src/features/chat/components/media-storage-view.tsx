@@ -1,8 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
-import { Search, FileIcon, Download, Play, ChevronDown, ChevronLeft, X, Archive } from 'lucide-react'
+import { Search, Download, Play, ChevronDown, ChevronLeft, X, Archive } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useMediaMessagesQuery } from '../queries/use-queries'
-import { MessageType } from '@/constants/enum'
 import type { MessageResponse, ConversationMemberResponse } from '../schemas/chat.schema'
 import { useChatText } from '../i18n/use-chat-text'
 import { UserAvatar } from '@/components/common/user-avatar'
@@ -70,11 +69,8 @@ export function MediaStorageView({ conversationId, members, defaultTab = 'media'
   const [senderFilter, setSenderFilter] = useState<string | null>(null)
   const [dateFilter, setDateFilter] = useState<{ from: string; to: string } | null>(null)
   const [viewingMedia, setViewingMedia] = useState<{ url: string; isVideo: boolean } | null>(null)
-  const [mediaSearch, setMediaSearch] = useState('')
   const [fileSearch, setFileSearch] = useState('')
   const { text } = useChatText()
-
-  const memberMap = useMemo(() => new Map((members || []).map((m) => [m.userId, m])), [members])
 
   // ── Fetch media ──
   const { data: mediaData, isLoading: mediaLoading } = useMediaMessagesQuery(
@@ -336,7 +332,6 @@ export function MediaStorageView({ conversationId, members, defaultTab = 'media'
                     const fileName = att?.originalFileName || att?.fileName || 'File'
                     const ext = fileName.split('.').pop()?.toUpperCase() || ''
                     const fileSize = att?.size
-                    const sender = memberMap.get(m.senderId || '')
                     return (
                       <div key={m.id} className='flex items-center gap-3 group cursor-pointer'>
                         {(() => {
@@ -423,7 +418,7 @@ export function MediaStorageView({ conversationId, members, defaultTab = 'media'
                     </div>
                     <div className='flex-1 min-w-0'>
                       <p className='text-[13px] font-medium truncate group-hover:text-primary transition-colors'>
-                        {preview?.title || url}
+                        {(preview as Record<string, unknown>)?.title as string || url}
                       </p>
                       <p className='text-[11px] text-primary/70 truncate'>{domain}</p>
                       <p className='text-[11px] text-muted-foreground mt-0.5'>
