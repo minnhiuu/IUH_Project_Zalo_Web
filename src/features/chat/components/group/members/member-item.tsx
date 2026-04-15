@@ -30,12 +30,12 @@ export const MemberItem = ({
   const isActuallyAlreadyMember = (member.isAlreadyMember && !hideAlreadyJoined) || disabled
 
   return (
-     <div
-       className={`flex items-center gap-3 px-4 py-2 hover:bg-muted/50 transition-colors group ${
-         isActuallyAlreadyMember ? 'cursor-default opacity-90' : 'cursor-pointer'
-       }`}
-       onClick={isActuallyAlreadyMember ? undefined : onToggle}
-     >
+    <div
+      className={`flex items-center gap-3 px-4 py-2 hover:bg-muted/50 transition-colors group ${
+        isActuallyAlreadyMember ? 'cursor-default opacity-90' : 'cursor-pointer'
+      }`}
+      onClick={isActuallyAlreadyMember ? undefined : onToggle}
+    >
       <div className='flex items-center justify-center w-5 h-5'>
         {member.isAlreadyMember && !hideAlreadyJoined ? (
           <div className='w-4.5 h-4.5 rounded-full bg-dialog-selection-btn-disabled-bg flex items-center justify-center'>

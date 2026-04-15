@@ -1,4 +1,4 @@
-import { useRef, useEffect, forwardRef, useImperativeHandle, useState } from 'react'
+import { useRef, useEffect, forwardRef, useImperativeHandle } from 'react'
 import { cn } from '@/lib/utils'
 
 interface RichInputProps {
@@ -24,25 +24,25 @@ export const RichInput = forwardRef<RichInputRef, RichInputProps>(
     useImperativeHandle(ref, () => ({
       insertMention: (name: string, userId: string) => {
         if (!editorRef.current) return
-        
+
         // Find the @ trigger text before caret and remove it
         const selection = window.getSelection()
         if (!selection || selection.rangeCount === 0) return
-        
+
         const range = selection.getRangeAt(0)
         const node = range.startContainer
-        
+
         if (node.nodeType === Node.TEXT_NODE) {
           const text = node.textContent || ''
           const atIndex = text.lastIndexOf('@', range.startOffset)
-          
+
           if (atIndex !== -1) {
             // Remove text from @ to cursor
             range.setStart(node, atIndex)
             range.deleteContents()
           }
         }
-        
+
         // Insert the mention span
         const span = document.createElement('span')
         span.className = 'text-blue-500 select-none'
@@ -50,19 +50,19 @@ export const RichInput = forwardRef<RichInputRef, RichInputProps>(
         span.dataset.mention = 'true'
         span.dataset.id = userId
         span.innerText = `@${name}`
-        
+
         range.insertNode(span)
-        
+
         // Insert a space after the mention
         const space = document.createTextNode(' ')
         range.setStartAfter(span)
         range.insertNode(space)
         range.setStartAfter(space)
         range.collapse(true)
-        
+
         selection.removeAllRanges()
         selection.addRange(range)
-        
+
         handleInput()
       },
       focus: () => {

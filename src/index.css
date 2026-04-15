@@ -706,9 +706,15 @@ input[type='radio']:checked {
 
 /* ── Highlight message (scroll-to) ── */
 @keyframes highlight-flash {
-  0%   { background-color: rgba(0, 104, 255, 0.18); }
-  60%  { background-color: rgba(0, 104, 255, 0.18); }
-  100% { background-color: transparent; }
+  0% {
+    background-color: rgba(0, 104, 255, 0.18);
+  }
+  60% {
+    background-color: rgba(0, 104, 255, 0.18);
+  }
+  100% {
+    background-color: transparent;
+  }
 }
 
 .highlight-message {

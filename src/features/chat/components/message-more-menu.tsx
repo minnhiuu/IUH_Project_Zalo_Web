@@ -32,7 +32,15 @@ interface MessageMoreMenuProps {
   onRevoke?: () => void
 }
 
-export function MessageMoreMenu({ side, text, messageContent, isOwn, onDeleteForMe, onPin, onRevoke }: MessageMoreMenuProps) {
+export function MessageMoreMenu({
+  side,
+  text,
+  messageContent,
+  isOwn,
+  onDeleteForMe,
+  onPin,
+  onRevoke
+}: MessageMoreMenuProps) {
   return (
     <DropdownMenuContent side={side} align='start' sideOffset={4} className='w-62 rounded-xl '>
       <ActionMenuItem icon={<Copy />} label={text.copy} onClick={() => navigator.clipboard.writeText(messageContent)} />
