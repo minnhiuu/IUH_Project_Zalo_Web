@@ -522,7 +522,7 @@ export const useChatWebSocket = () => {
 
   // ────────── sendMessage: conversationId thay vì recipientId ──────────
   const sendMessage = useCallback(
-    (conversationId: string, content: string, replyTo?: ReplyMetadata | null, isForwarded: boolean = false) => {
+    (conversationId: string, content: string, replyTo?: ReplyMetadata | null, isForwarded: boolean = false, attachments?: ChatMessageRequest['attachments']) => {
       if (!stompClientRef.current?.connected || (!content.trim() && !isForwarded)) return
 
       const clientMessageId = `temp-${Date.now()}`
@@ -533,19 +533,30 @@ export const useChatWebSocket = () => {
         content: content.trim(),
         clientMessageId,
         replyTo,
-        isForwarded
+        isForwarded,
+        attachments
       }
 
       sendMsgMutate(chatMessage)
 
       const now = new Date().toISOString()
       const isLink = JOIN_LINK_REGEX.test(content.trim())
+      const optimisticType = attachments?.length
+        ? attachments.some((a) => a.contentType.startsWith('video/'))
+          ? MessageType.Video
+          : attachments.some((a) => a.contentType.startsWith('image/'))
+            ? MessageType.Image
+            : MessageType.File
+        : isLink
+          ? MessageType.Link
+          : MessageType.Chat
       const optimisticMsg: MessageResponse = {
         id: clientMessageId,
         clientMessageId,
         senderId: user?.id || '',
         content,
-        type: isLink ? MessageType.Link : MessageType.Chat,
+        type: optimisticType,
+        attachments: attachments ?? undefined,
         status: MessageStatus.NORMAL,
         createdAt: now,
         lastModifiedAt: now,

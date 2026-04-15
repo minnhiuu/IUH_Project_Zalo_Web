@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils'
 import type { ConversationResponse, ConversationMemberResponse, MessageResponse } from '../schemas/chat.schema'
 import { useChatText } from '../i18n/use-chat-text'
 import { Quote, Forward, MoreHorizontal, ThumbsUp, FileIcon, Download, X, Play } from 'lucide-react'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import { DropdownMenu, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useChatContext } from '../context/chat-context'
 import { MessageStatus, MessageType } from '@/constants/enum'
@@ -72,15 +72,77 @@ export function MessageBubble({
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false)
   const [isLikeHovered, setIsLikeHovered] = useState(false)
   const [reactionModalOpen, setReactionModalOpen] = useState(false)
-  // Per-message quick react: show the last emoji the user reacted on THIS message, or 👍
-  const quickReactEmoji = useMemo(() => {
-    if (!user?.id || !message.reactions) return '👍'
+  const [spamCount, setSpamCount] = useState(0)
+  const spamIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const spamEmojiRef = useRef<string>('👍')
+
+  const fireReaction = useCallback((emoji: string) => {
+    if (message.id.startsWith('temp-') || !conversationId || !user?.id) return
+    toggleReactionMutate({ messageId: message.id, emoji })
+    const uid = user.id
+    queryClient.setQueryData(
+      chatKeys.messages(conversationId),
+      (oldData: InfiniteData<PageResponse<MessageResponse>> | undefined) => {
+        if (!oldData) return oldData
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page: PageResponse<MessageResponse>) => ({
+            ...page,
+            data: page.data.map((m: MessageResponse) => {
+              if (m.id !== message.id) return m
+              const reactions: Record<string, string[]> = JSON.parse(JSON.stringify(m.reactions || {}))
+              reactions[emoji] = [...(reactions[emoji] || []), uid]
+              return { ...m, reactions }
+            })
+          }))
+        }
+      }
+    )
+  }, [message.id, conversationId, user?.id, toggleReactionMutate, queryClient])
+
+  const startSpam = useCallback((emoji: string) => {
+    if (message.id.startsWith('temp-') || !conversationId) return
+    spamEmojiRef.current = emoji
+    fireReaction(emoji)
+    setSpamCount(1)
+    spamIntervalRef.current = setInterval(() => {
+      fireReaction(spamEmojiRef.current)
+      setSpamCount((c) => c + 1)
+    }, 200)
+  }, [fireReaction, message.id, conversationId])
+
+  const stopSpam = useCallback(() => {
+    if (spamIntervalRef.current) {
+      clearInterval(spamIntervalRef.current)
+      spamIntervalRef.current = null
+    }
+    setTimeout(() => setSpamCount(0), 800)
+  }, [])
+
+  // Cleanup on unmount
+  useEffect(() => () => { if (spamIntervalRef.current) clearInterval(spamIntervalRef.current) }, [])
+
+  // Serialize only MY reactions as a stable string — only changes when content truly changes,
+  // not on every re-render (avoids stale object reference resetting emoji state)
+  const myReactionsSummary = useMemo(() => {
+    if (!user?.id || !message.reactions) return ''
     const uid = String(user.id)
-    const myEmojis = Object.entries(message.reactions)
+    return Object.entries(message.reactions)
       .filter(([, uids]) => uids.map(String).includes(uid))
       .map(([e]) => e)
-    return myEmojis.length > 0 ? myEmojis[myEmojis.length - 1] : '👍'
+      .join(',')
   }, [user?.id, message.reactions])
+
+  const [quickReactEmoji, setQuickReactEmoji] = useState<string>(() => {
+    const emojis = myReactionsSummary.split(',').filter(Boolean)
+    return emojis.length > 0 ? emojis[emojis.length - 1] : '👍'
+  })
+
+  // Only fires when actual reaction content changes (not just object reference)
+  useEffect(() => {
+    const emojis = myReactionsSummary.split(',').filter(Boolean)
+    setQuickReactEmoji(emojis.length > 0 ? emojis[emojis.length - 1] : '👍')
+  }, [myReactionsSummary])
 
   const isImageMessage = !isRevoked && (message.type === MessageType.Image || message.type === MessageType.Video)
   const isFileMessage = !isRevoked && message.type === MessageType.File
@@ -102,8 +164,8 @@ export function MessageBubble({
       )}
     >
       {!isOwn && (
-        <div className='w-10 shrink-0 flex items-end'>
-          {isLast ? (
+        <div className='w-10 shrink-0 flex items-start'>
+          {isFirst ? (
             <MessageSenderAvatar
               src={message.senderAvatar}
               name={message.senderName || text.user}
@@ -218,10 +280,8 @@ export function MessageBubble({
                       className='leading-none hover:scale-125 transition-transform focus:outline-none'
                       style={{ cursor: 'pointer', fontSize: '20px' }}
                       onClick={() => {
-                        // Save as last used emoji
-                        if (user?.id) {
-                          localStorage.setItem(`chat_last_emoji_${user.id}`, emoji)
-                        }
+                        setQuickReactEmoji(emoji)
+                        if (user?.id) localStorage.setItem(`chat_last_emoji_${user.id}`, emoji)
                         toggleReactionMutate({ messageId: message.id, emoji })
                         // Optimistic — always add (use X button to remove)
                         if (!conversationId || message.id.startsWith('temp-')) return
@@ -290,7 +350,7 @@ export function MessageBubble({
                               }
                             }
                           )
-                          // Single API call to remove all my reactions
+                          setQuickReactEmoji('👍')
                           await removeAllMyReactionsAsync({ messageId: message.id }).catch(() => {})
                         }}
                       >
@@ -300,43 +360,38 @@ export function MessageBubble({
                 </div>
 
                 <MessageIconButton
-                  className='h-7 w-7 bg-background border-border/80 text-icon-secondary hover:text-icon-secondary hover:bg-background cursor-pointer!'
+                  className='h-7 w-7 bg-background border-border/80 text-icon-secondary hover:text-icon-secondary hover:bg-background cursor-pointer! relative'
                   aria-label={mb.like}
                   icon={
-                    quickReactEmoji !== '👍' ? (
-                      <span style={{ fontSize: '16px', lineHeight: 1 }}>{quickReactEmoji}</span>
-                    ) : (
-                      <ThumbsUp className='cursor-pointer' />
-                    )
+                    <>
+                      {quickReactEmoji !== '👍' ? (
+                        <span style={{ fontSize: '16px', lineHeight: 1 }}>{quickReactEmoji}</span>
+                      ) : (
+                        <ThumbsUp className='cursor-pointer' />
+                      )}
+                      {spamCount > 1 && (
+                        <span
+                          key={spamCount}
+                          className='absolute -top-5 left-1/2 -translate-x-1/2 text-[11px] font-bold text-primary animate-in fade-in zoom-in-95 duration-100 pointer-events-none whitespace-nowrap'
+                        >
+                          +{spamCount}
+                        </span>
+                      )}
+                    </>
                   }
                   iconSize='md'
                   style={{ cursor: 'pointer' }}
-                  onClick={() => {
-                    if (message.id.startsWith('temp-') || !conversationId) return
-                    const emojiToSend = quickReactEmoji
-                    toggleReactionMutate({ messageId: message.id, emoji: emojiToSend })
-                    // Optimistic — always add
-                    queryClient.setQueryData(
-                      chatKeys.messages(conversationId),
-                      (oldData: InfiniteData<PageResponse<MessageResponse>> | undefined) => {
-                        if (!oldData) return oldData
-                        return {
-                          ...oldData,
-                          pages: oldData.pages.map((page: PageResponse<MessageResponse>) => ({
-                            ...page,
-                            data: page.data.map((m: MessageResponse) => {
-                              if (m.id !== message.id) return m
-                              const reactions: Record<string, string[]> = JSON.parse(JSON.stringify(m.reactions || {}))
-                              const uid = user?.id || ''
-                              const existing = reactions[emojiToSend] || []
-                              reactions[emojiToSend] = [...existing, uid]
-                              return { ...m, reactions }
-                            })
-                          }))
-                        }
-                      }
-                    )
+                  onMouseDown={(e) => {
+                    e.preventDefault()
+                    startSpam(quickReactEmoji)
                   }}
+                  onMouseUp={stopSpam}
+                  onMouseLeave={stopSpam}
+                  onTouchStart={(e) => {
+                    e.preventDefault()
+                    startSpam(quickReactEmoji)
+                  }}
+                  onTouchEnd={stopSpam}
                 />
               </div>
             )}
@@ -546,19 +601,22 @@ function MessageFileContent({ message }: { message: MessageResponse }) {
   // Lấy extension từ tên file
   const ext = fileName.split('.').pop()?.toUpperCase() || ''
 
-  // Màu icon theo loại file
-  const getExtColor = () => {
-    if (['PDF'].includes(ext)) return 'text-red-500'
-    if (['DOC', 'DOCX'].includes(ext)) return 'text-blue-600'
-    if (['XLS', 'XLSX'].includes(ext)) return 'text-green-600'
-    if (['ZIP', 'RAR', '7Z'].includes(ext)) return 'text-yellow-600'
-    return 'text-primary'
+  // Màu nền badge theo loại file
+  const getBadgeStyle = (): { bg: string; label: string } => {
+    if (['PDF'].includes(ext)) return { bg: 'bg-red-500', label: 'PDF' }
+    if (['DOC', 'DOCX'].includes(ext)) return { bg: 'bg-blue-600', label: 'WORD' }
+    if (['XLS', 'XLSX'].includes(ext)) return { bg: 'bg-green-600', label: 'EXCEL' }
+    if (['PPT', 'PPTX'].includes(ext)) return { bg: 'bg-orange-500', label: 'PPT' }
+    if (['ZIP', 'RAR', '7Z'].includes(ext)) return { bg: 'bg-yellow-500', label: ext }
+    return { bg: 'bg-primary', label: ext || 'FILE' }
   }
+
+  const { bg, label } = getBadgeStyle()
 
   return (
     <div className='flex items-center gap-3 min-w-[200px]'>
-      <div className={cn('w-10 h-10 rounded-lg bg-muted flex items-center justify-center shrink-0', getExtColor())}>
-        <FileIcon size={22} />
+      <div className={cn('w-10 h-10 rounded-lg flex items-center justify-center shrink-0', bg)}>
+        <span className='text-white text-[10px] font-bold tracking-tight leading-none text-center px-0.5'>{label}</span>
       </div>
       <div className='flex flex-col min-w-0 flex-1'>
         <span className='text-[14px] font-medium truncate max-w-[200px]'>{fileName}</span>

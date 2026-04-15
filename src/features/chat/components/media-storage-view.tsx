@@ -31,15 +31,15 @@ function groupByDate(messages: MessageResponse[], dateLabelFn: (day: number, mon
   return [...map.entries()].map(([dateLabel, items]) => ({ dateLabel, items }))
 }
 
-function getExtColor(ext: string) {
-  if (['PDF'].includes(ext)) return 'bg-red-500'
-  if (['DOC', 'DOCX'].includes(ext)) return 'bg-blue-600'
-  if (['XLS', 'XLSX'].includes(ext)) return 'bg-green-600'
-  if (['PPT', 'PPTX'].includes(ext)) return 'bg-orange-500'
-  if (['ZIP', 'RAR', '7Z'].includes(ext)) return 'bg-yellow-600'
-  if (['M4A', 'MP3', 'WAV', 'OGG'].includes(ext)) return 'bg-purple-600'
-  if (['MP4', 'MOV', 'AVI', 'MKV'].includes(ext)) return 'bg-indigo-600'
-  return 'bg-primary'
+function getExtBadge(ext: string): { bg: string; label: string } {
+  if (['PDF'].includes(ext)) return { bg: 'bg-red-500', label: 'PDF' }
+  if (['DOC', 'DOCX'].includes(ext)) return { bg: 'bg-blue-600', label: 'WORD' }
+  if (['XLS', 'XLSX'].includes(ext)) return { bg: 'bg-green-600', label: 'EXCEL' }
+  if (['PPT', 'PPTX'].includes(ext)) return { bg: 'bg-orange-500', label: 'PPT' }
+  if (['ZIP', 'RAR', '7Z'].includes(ext)) return { bg: 'bg-yellow-600', label: ext }
+  if (['M4A', 'MP3', 'WAV', 'OGG'].includes(ext)) return { bg: 'bg-purple-600', label: ext }
+  if (['MP4', 'MOV', 'AVI', 'MKV'].includes(ext)) return { bg: 'bg-indigo-600', label: ext }
+  return { bg: 'bg-primary', label: ext || 'FILE' }
 }
 
 const FILE_TYPE_FILTERS = [
@@ -65,6 +65,7 @@ export function MediaStorageView({ conversationId, members, defaultTab = 'media'
   const [fileTypeMenuOpen, setFileTypeMenuOpen] = useState(false)
   const [senderFilter, setSenderFilter] = useState<string | null>(null)
   const [dateFilter, setDateFilter] = useState<{ from: string; to: string } | null>(null)
+  const [viewingMedia, setViewingMedia] = useState<{ url: string; isVideo: boolean } | null>(null)
   const [mediaSearch, setMediaSearch] = useState('')
   const [fileSearch, setFileSearch] = useState('')
   const { text } = useChatText()
@@ -215,39 +216,39 @@ export function MediaStorageView({ conversationId, members, defaultTab = 'media'
                   <div key={dateLabel} className='mb-5'>
                     <p className='text-[13px] font-semibold text-muted-foreground mb-2'>{dateLabel}</p>
                     <div className='grid grid-cols-3 gap-1'>
-                      {items.map((m) => {
-                        const att = m.attachments?.[0]
-                        const isVideo = m.type === MessageType.Video || att?.contentType?.startsWith('video/')
-                        return (
-                          <div
-                            key={m.id}
-                            className='aspect-square bg-muted rounded overflow-hidden relative group cursor-pointer'
-                          >
-                            {isVideo ? (
-                              <div className='w-full h-full relative'>
-                                <video
-                                  src={att?.url}
-                                  className='w-full h-full object-cover'
-                                  preload='metadata'
-                                  muted
-                                />
-                                <div className='absolute inset-0 flex items-center justify-center bg-black/30'>
-                                  <Play size={24} className='text-white fill-white' />
+                      {items.flatMap((m) =>
+                        (m.attachments || []).map((att) => {
+                          const isVideo = att.contentType?.startsWith('video/')
+                          return (
+                            <div
+                              key={`${m.id}-${att.key}`}
+                              className='aspect-square bg-muted rounded overflow-hidden relative group cursor-pointer'
+                              onClick={() => setViewingMedia({ url: att.url, isVideo: !!isVideo })}
+                            >
+                              {isVideo ? (
+                                <div className='w-full h-full relative'>
+                                  <video
+                                    src={att.url}
+                                    className='w-full h-full object-cover'
+                                    preload='metadata'
+                                    muted
+                                  />
+                                  <div className='absolute inset-0 flex items-center justify-center bg-black/30'>
+                                    <Play size={24} className='text-white fill-white' />
+                                  </div>
                                 </div>
-                              </div>
-                            ) : (
-                              <a href={att?.url} target='_blank' rel='noopener noreferrer'>
+                              ) : (
                                 <img
-                                  src={att?.url}
-                                  alt={att?.originalFileName || 'image'}
+                                  src={att.url}
+                                  alt={att.originalFileName || 'image'}
                                   className='w-full h-full object-cover group-hover:opacity-90 transition-opacity'
                                   loading='lazy'
                                 />
-                              </a>
-                            )}
-                          </div>
-                        )
-                      })}
+                              )}
+                            </div>
+                          )
+                        })
+                      )}
                     </div>
                   </div>
                 ))
@@ -332,12 +333,17 @@ export function MediaStorageView({ conversationId, members, defaultTab = 'media'
                         const sender = memberMap.get(m.senderId || '')
                         return (
                           <div key={m.id} className='flex items-center gap-3 group cursor-pointer'>
-                            <div className={cn(
-                              'w-10 h-10 shrink-0 rounded-lg flex items-center justify-center text-white',
-                              getExtColor(ext)
-                            )}>
-                              <FileIcon size={20} />
-                            </div>
+                            {(() => {
+                              const { bg, label } = getExtBadge(ext)
+                              return (
+                                <div className={cn(
+                                  'w-10 h-10 shrink-0 rounded-lg flex items-center justify-center text-white',
+                                  bg
+                                )}>
+                                  <span className='text-[9px] font-bold tracking-tight leading-none text-center px-0.5'>{label}</span>
+                                </div>
+                              )
+                            })()}
                             <div className='flex-1 min-w-0'>
                               <p className='text-[13px] font-medium truncate group-hover:text-primary transition-colors'>
                                 {fileName}
@@ -426,7 +432,38 @@ export function MediaStorageView({ conversationId, members, defaultTab = 'media'
             </div>
           )}
         </div>
-      </div>
+
+      {viewingMedia && (
+        <div
+          className='fixed inset-0 z-50 bg-black/90 flex items-center justify-center'
+          onClick={() => setViewingMedia(null)}
+        >
+          <button
+            type='button'
+            onClick={() => setViewingMedia(null)}
+            className='absolute top-4 right-4 text-white hover:text-white/70 transition-colors'
+          >
+            <X size={28} />
+          </button>
+          {viewingMedia.isVideo ? (
+            <video
+              src={viewingMedia.url}
+              controls
+              autoPlay
+              className='max-w-[90vw] max-h-[90vh] rounded-lg'
+              onClick={(e) => e.stopPropagation()}
+            />
+          ) : (
+            <img
+              src={viewingMedia.url}
+              alt='preview'
+              className='max-w-[90vw] max-h-[90vh] object-contain rounded-lg'
+              onClick={(e) => e.stopPropagation()}
+            />
+          )}
+        </div>
+      )}
+    </div>
   )
 }
 

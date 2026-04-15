@@ -9,14 +9,13 @@ import {
   HelpCircle,
   EyeOff,
   Link2,
-  FileArchive,
-  FileText as FileIcon,
   LogOut,
   Trash2,
   Copy,
   Forward,
   Link,
-  Play
+  Play,
+  X
 } from 'lucide-react'
 import { useState } from 'react'
 import { Switch } from '@/components/ui/switch'
@@ -27,7 +26,6 @@ import { CustomTooltip } from '@/components/common/custom-tooltip'
 import { showSimpleToast } from '@/utils/toast'
 import { useMediaMessagesQuery } from '../queries/use-queries'
 import { MediaStorageView } from './media-storage-view'
-import { MessageType } from '@/constants/enum'
 import type { ConversationMemberResponse } from '../schemas/chat.schema'
 import { cn } from '@/lib/utils'
 import { useChatText } from '../i18n/use-chat-text'
@@ -129,6 +127,7 @@ export function ChatInfoSections({
 }: ChatInfoSectionsProps) {
   const [storageOpen, setStorageOpen] = useState(false)
   const [storageTab, setStorageTab] = useState<'media' | 'files' | 'links'>('media')
+  const [viewingMedia, setViewingMedia] = useState<{ url: string; isVideo: boolean } | null>(null)
   const { text: chatText } = useChatText()
 
   // Fetch preview data for sidebar
@@ -241,13 +240,15 @@ export function ChatInfoSections({
             <p className='text-[12px] text-muted-foreground text-center py-4'>{chatText.mediaStorage.noPhotosVideos}</p>
           ) : (
             <div className='grid grid-cols-4 gap-1 px-4 py-3'>
-              {mediaItems.slice(0, 8).map((m) => {
-                const att = m.attachments?.[0]
-                const isVideo = m.type === MessageType.Video || att?.contentType?.startsWith('video/')
+              {mediaItems.flatMap((m) =>
+                (m.attachments || []).map((att, attIdx) => ({ m, att, attIdx }))
+              ).slice(0, 8).map(({ m, att, attIdx }) => {
+                const isVideo = att?.contentType?.startsWith('video/')
                 return (
                   <div
-                    key={m.id}
+                    key={`${m.id}-${attIdx}`}
                     className='aspect-square bg-muted rounded overflow-hidden cursor-pointer relative group'
+                    onClick={() => setViewingMedia({ url: att?.url || '', isVideo: !!isVideo })}
                   >
                     {isVideo ? (
                       <div className='w-full h-full relative'>
@@ -257,14 +258,12 @@ export function ChatInfoSections({
                         </div>
                       </div>
                     ) : (
-                      <a href={att?.url} target='_blank' rel='noopener noreferrer'>
-                        <img
-                          src={att?.url}
-                          alt={att?.originalFileName || 'image'}
-                          className='object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity'
-                          loading='lazy'
-                        />
-                      </a>
+                      <img
+                        src={att?.url}
+                        alt={att?.originalFileName || 'image'}
+                        className='object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity'
+                        loading='lazy'
+                      />
                     )}
                   </div>
                 )
@@ -292,7 +291,15 @@ export function ChatInfoSections({
                 const fileName = att?.originalFileName || att?.fileName || 'File'
                 const ext = fileName.split('.').pop()?.toUpperCase() || ''
                 const fileSize = att?.size
-                const isDoc = ['DOC', 'DOCX'].includes(ext)
+                const getBadge = (ext: string): { bg: string; label: string } => {
+                  if (['PDF'].includes(ext)) return { bg: 'bg-red-500', label: 'PDF' }
+                  if (['DOC', 'DOCX'].includes(ext)) return { bg: 'bg-blue-600', label: 'WORD' }
+                  if (['XLS', 'XLSX'].includes(ext)) return { bg: 'bg-green-600', label: 'EXCEL' }
+                  if (['PPT', 'PPTX'].includes(ext)) return { bg: 'bg-orange-500', label: 'PPT' }
+                  if (['ZIP', 'RAR', '7Z'].includes(ext)) return { bg: 'bg-yellow-600', label: ext }
+                  return { bg: 'bg-primary', label: ext || 'FILE' }
+                }
+                const { bg, label } = getBadge(ext)
                 const sentAt = m.createdAt
                   ? new Date(m.createdAt).toLocaleDateString('vi-VN', {
                       day: '2-digit',
@@ -305,10 +312,10 @@ export function ChatInfoSections({
                     <div
                       className={cn(
                         'w-10 h-10 shrink-0 rounded flex items-center justify-center text-white',
-                        isDoc ? 'bg-blue-500' : 'bg-purple-500'
+                        bg
                       )}
                     >
-                      {isDoc ? <FileIcon className='w-5 h-5' /> : <FileArchive className='w-5 h-5' />}
+                      <span className='text-[9px] font-bold tracking-tight leading-none text-center px-0.5'>{label}</span>
                     </div>
                     <div className='flex-1 min-w-0 flex flex-col justify-center h-10'>
                       <p className='text-[0.875rem] text-foreground font-medium truncate group-hover:text-primary transition-colors'>
@@ -401,6 +408,37 @@ export function ChatInfoSections({
           />
         )}
       </div>
+
+      {viewingMedia && (
+        <div
+          className='fixed inset-0 z-50 bg-black/90 flex items-center justify-center'
+          onClick={() => setViewingMedia(null)}
+        >
+          <button
+            type='button'
+            onClick={() => setViewingMedia(null)}
+            className='absolute top-4 right-4 text-white hover:text-white/70 transition-colors'
+          >
+            <X size={28} />
+          </button>
+          {viewingMedia.isVideo ? (
+            <video
+              src={viewingMedia.url}
+              controls
+              autoPlay
+              className='max-w-[90vw] max-h-[90vh] rounded-lg'
+              onClick={(e) => e.stopPropagation()}
+            />
+          ) : (
+            <img
+              src={viewingMedia.url}
+              alt='preview'
+              className='max-w-[90vw] max-h-[90vh] object-contain rounded-lg'
+              onClick={(e) => e.stopPropagation()}
+            />
+          )}
+        </div>
+      )}
     </>
   )
 }

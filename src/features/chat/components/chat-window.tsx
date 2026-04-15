@@ -536,10 +536,9 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             onClose={() => setForwardingMessage(null)}
             onConfirm={(selectedConvIds, description) => {
               selectedConvIds.forEach((convId) => {
-                const finalContent = description
-                  ? `${forwardingMessage.content}\n---\n${description}`
-                  : forwardingMessage.content || ''
-                sendMessage(convId, finalContent, null, true)
+                const baseContent = forwardingMessage.content ?? ''
+                const finalContent = description ? `${baseContent}\n---\n${description}` : baseContent
+                sendMessage(convId, finalContent, null, true, forwardingMessage.attachments ?? undefined)
               })
             }}
           />
