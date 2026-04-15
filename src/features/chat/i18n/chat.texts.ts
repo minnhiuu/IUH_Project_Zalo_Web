@@ -24,7 +24,8 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
   },
   errors: {
     loadConversations: t(CHAT_KEYS.errors.loadConversations),
-    loadMessages: t(CHAT_KEYS.errors.loadMessages)
+    loadMessages: t(CHAT_KEYS.errors.loadMessages),
+    revokeTimeExceeded: t(CHAT_KEYS.errors.revokeTimeExceeded)
   },
   you: t(CHAT_KEYS.you),
   you_lower: t(CHAT_KEYS.you_lower),

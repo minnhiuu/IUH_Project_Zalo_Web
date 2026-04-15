@@ -13,18 +13,12 @@ export function TypingIndicator({ typingUsers }: TypingIndicatorProps) {
   const getLabel = () => {
     if (typingUsers.length === 1) {
       const user = typingUsers[0]
-      return user.platform === 'PC'
-        ? text.system.typing.one_pc(user.userName)
-        : text.system.typing.one(user.userName)
+      return user.platform === 'PC' ? text.system.typing.one_pc(user.userName) : text.system.typing.one(user.userName)
     }
     if (typingUsers.length === 2) {
       return text.system.typing.two(typingUsers[0].userName, typingUsers[1].userName)
     }
-    return text.system.typing.many(
-      typingUsers[0].userName,
-      typingUsers[1].userName,
-      typingUsers.length - 2
-    )
+    return text.system.typing.many(typingUsers[0].userName, typingUsers[1].userName, typingUsers.length - 2)
   }
 
   return (
