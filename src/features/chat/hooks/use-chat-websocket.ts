@@ -5,7 +5,13 @@ import { useQueryClient, type InfiniteData } from '@tanstack/react-query'
 import type { PageResponse } from '@/shared/api'
 import { chatKeys } from '../queries/keys'
 import { friendKeys } from '@/features/friend/queries/keys'
-import type { MessageResponse, ConversationResponse, ChatMessageRequest, ReplyMetadata, TypingEvent } from '../schemas/chat.schema'
+import type {
+  MessageResponse,
+  ConversationResponse,
+  ChatMessageRequest,
+  ReplyMetadata,
+  TypingEvent
+} from '../schemas/chat.schema'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { getAccessToken } from '@/lib/axios-client'
 import { MessageStatus, MessageType } from '@/constants/enum'
@@ -204,11 +210,7 @@ export const useChatWebSocket = () => {
           })
 
           // 3. Invalidate media/file cache so sidebar updates in real-time
-          if (
-            msg.type === MessageType.Image ||
-            msg.type === MessageType.Video ||
-            msg.type === MessageType.File
-          ) {
+          if (msg.type === MessageType.Image || msg.type === MessageType.Video || msg.type === MessageType.File) {
             queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'media', conversationId] })
           }
 
@@ -298,9 +300,22 @@ export const useChatWebSocket = () => {
                   ...oldData,
                   pages: oldData.pages.map((page: PageResponse<MessageResponse>) => ({
                     ...page,
-                    data: page.data.map((m: MessageResponse) =>
-                      m.id === update.messageId ? { ...m, status: update.newStatus, content: null } : m
-                    )
+                    data: page.data.map((m: MessageResponse) => {
+                      if (m.id === update.messageId) {
+                        return { ...m, status: update.newStatus, content: null, replyTo: null }
+                      }
+                      if (update.newStatus === MessageStatus.REVOKED && m.replyTo?.messageId === update.messageId) {
+                        return {
+                          ...m,
+                          replyTo: {
+                            ...m.replyTo,
+                            content: null,
+                            type: MessageType.Chat
+                          }
+                        }
+                      }
+                      return m
+                    })
                   }))
                 }
               }
@@ -324,7 +339,11 @@ export const useChatWebSocket = () => {
                     ...page,
                     data: page.data.map((m: MessageResponse) =>
                       m.id === update.messageId
-                        ? { ...m, reactions: update.reactions && Object.keys(update.reactions).length ? update.reactions : undefined }
+                        ? {
+                          ...m,
+                          reactions:
+                            update.reactions && Object.keys(update.reactions).length ? update.reactions : undefined
+                        }
                         : m
                     )
                   }))
@@ -459,9 +478,12 @@ export const useChatWebSocket = () => {
             } else {
               setTypingUsers((prev) => prev.filter((u) => `${u.conversationId}:${u.userId}` !== key))
               const existing = typingTimeoutsRef.current.get(key)
-              if (existing) { clearTimeout(existing); typingTimeoutsRef.current.delete(key) }
+              if (existing) {
+                clearTimeout(existing)
+                typingTimeoutsRef.current.delete(key)
+              }
             }
-          } catch (e) {
+          } catch {
             // ignore
           }
         })
@@ -663,7 +685,6 @@ export const useChatWebSocket = () => {
     [queryClient, deleteMsgMutate]
   )
 
-
   const sendFileMessage = useCallback(
     async (
       conversationId: string,
@@ -735,9 +756,14 @@ export const useChatWebSocket = () => {
             {
               ...oldData[idx],
               lastMessage: {
-                id: clientMessageId, content: mediaPreview, timestamp: now,
-                isFromMe: true, type: msgType, status: MessageStatus.NORMAL,
-                senderName: user?.fullName, senderId: user?.id
+                id: clientMessageId,
+                content: mediaPreview,
+                timestamp: now,
+                isFromMe: true,
+                type: msgType,
+                status: MessageStatus.NORMAL,
+                senderName: user?.fullName,
+                senderId: user?.id
               }
             },
             ...oldData.slice(0, idx),
@@ -754,8 +780,12 @@ export const useChatWebSocket = () => {
             clientMessageId,
             replyTo: replyTo || undefined,
             attachments: uploadResults.map((r) => ({
-              key: r.key, url: r.url, fileName: r.fileName,
-              originalFileName: r.originalFileName, contentType: r.contentType, size: r.size
+              key: r.key,
+              url: r.url,
+              fileName: r.fileName,
+              originalFileName: r.originalFileName,
+              contentType: r.contentType,
+              size: r.size
             }))
           })
         } catch (error) {
@@ -797,7 +827,16 @@ export const useChatWebSocket = () => {
           senderName: user?.fullName,
           senderAvatar: user?.avatar || undefined,
           replyTo,
-          attachments: [{ key: '', url: attachment.previewUrl || '', fileName: file.name, originalFileName: file.name, contentType: file.type, size: file.size }]
+          attachments: [
+            {
+              key: '',
+              url: attachment.previewUrl || '',
+              fileName: file.name,
+              originalFileName: file.name,
+              contentType: file.type,
+              size: file.size
+            }
+          ]
         }
 
         queryClient.setQueryData(
@@ -805,7 +844,10 @@ export const useChatWebSocket = () => {
           (oldData: InfiniteData<PageResponse<MessageResponse>> | undefined) => {
             if (!oldData) return oldData
             const firstPage = oldData.pages[0]
-            return { ...oldData, pages: [{ ...firstPage, data: [optimisticMsg, ...firstPage.data] }, ...oldData.pages.slice(1)] }
+            return {
+              ...oldData,
+              pages: [{ ...firstPage, data: [optimisticMsg, ...firstPage.data] }, ...oldData.pages.slice(1)]
+            }
           }
         )
 
@@ -817,9 +859,14 @@ export const useChatWebSocket = () => {
             {
               ...oldData[idx],
               lastMessage: {
-                id: clientMessageId, content: trimmedContent || `[Tệp] ${file.name}`, timestamp: now,
-                isFromMe: true, type: MessageType.File, status: MessageStatus.NORMAL,
-                senderName: user?.fullName, senderId: user?.id
+                id: clientMessageId,
+                content: `[Tệp] ${file.name}`,
+                timestamp: now,
+                isFromMe: true,
+                type: MessageType.File,
+                status: MessageStatus.NORMAL,
+                senderName: user?.fullName,
+                senderId: user?.id
               }
             },
             ...oldData.slice(0, idx),
@@ -835,7 +882,16 @@ export const useChatWebSocket = () => {
             content: fileMessageContent,
             clientMessageId,
             replyTo: replyTo || undefined,
-            attachments: [{ key: uploadResult.key, url: uploadResult.url, fileName: uploadResult.fileName, originalFileName: uploadResult.originalFileName, contentType: uploadResult.contentType, size: uploadResult.size }]
+            attachments: [
+              {
+                key: uploadResult.key,
+                url: uploadResult.url,
+                fileName: uploadResult.fileName,
+                originalFileName: uploadResult.originalFileName,
+                contentType: uploadResult.contentType,
+                size: uploadResult.size
+              }
+            ]
           })
         } catch (error) {
           console.error('[Chat] Failed to upload & send file:', error)
@@ -858,16 +914,13 @@ export const useChatWebSocket = () => {
     [user, queryClient, sendMsgMutate]
   )
 
-  const sendTyping = useCallback(
-    (conversationId: string, isTyping: boolean, userName: string) => {
-      if (!stompClientRef.current?.connected) return
-      stompClientRef.current.publish({
-        destination: '/app/chat.typing',
-        body: JSON.stringify({ conversationId, isTyping, userName, platform: 'PC' })
-      })
-    },
-    []
-  )
+  const sendTyping = useCallback((conversationId: string, isTyping: boolean, userName: string) => {
+    if (!stompClientRef.current?.connected) return
+    stompClientRef.current.publish({
+      destination: '/app/chat.typing',
+      body: JSON.stringify({ conversationId, isTyping, userName, platform: 'PC' })
+    })
+  }, [])
 
   return { connected, sendMessage, sendFileMessage, revokeMessage, deleteMessageForMe, sendTyping, typingUsers }
 }

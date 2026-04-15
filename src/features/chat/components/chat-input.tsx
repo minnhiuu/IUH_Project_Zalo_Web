@@ -40,7 +40,7 @@ export function ChatInput({ conversationId, isGroup, replyTo, onCancelReply }: C
 
   // Group members for @ mention (only fetch when mention is active)
   const { data: membersData } = useGroupMembersInfinite(conversationId, '', mentionQuery !== null)
-  
+
   const alreadyMentionedIds = useMemo(() => {
     const ids = new Set<string>()
     const matches = htmlContent.matchAll(/data-id="([^"]+)"/g)
@@ -62,11 +62,11 @@ export function ChatInput({ conversationId, isGroup, replyTo, onCancelReply }: C
     if (!selection || selection.rangeCount === 0) return null
     const range = selection.getRangeAt(0)
     if (range.startContainer.nodeType !== Node.TEXT_NODE) return null
-    
+
     const textBefore = range.startContainer.textContent?.slice(0, range.startOffset) || ''
     const atIdx = textBefore.lastIndexOf('@')
     if (atIdx === -1) return null
-    
+
     const between = textBefore.slice(atIdx + 1)
     if (/\s/.test(between)) return null // contains space => not a mention trigger
     return between
@@ -142,25 +142,25 @@ export function ChatInput({ conversationId, isGroup, replyTo, onCancelReply }: C
   const extractSendContent = () => {
     if (!inputRef.current) return content
     let html = inputRef.current.innerHTML
-    
+
     // Replace mention spans with placeholders so they survive textContent extraction
     html = html.replace(/<span[^>]*data-mention="true"[^>]*>@?(.*?)<\/span>/g, '{{MENTION_START}}$1{{MENTION_END}}')
-    
+
     // Replace non-breaking spaces
     html = html.replace(/&nbsp;/g, ' ')
     // Replace divs/brs with newlines (for contentEditable multiline support)
     html = html.replace(/<br\s*[\/]?>/gi, '\n')
     html = html.replace(/<\/div>/gi, '\n').replace(/<div(?:[^>]*)>/gi, '')
-    
+
     // Strip remaining tags using textContent
     const tmp = document.createElement('div')
     tmp.innerHTML = html
     let rawText = tmp.textContent || tmp.innerText || ''
-    
+
     // Convert placeholders back to desired format @<mention>Name</mention>
     rawText = rawText.replace(/\{\{MENTION_START\}\}/g, '@<mention>')
     rawText = rawText.replace(/\{\{MENTION_END\}\}/g, '</mention>')
-    
+
     return rawText
   }
 
@@ -287,7 +287,9 @@ export function ChatInput({ conversationId, isGroup, replyTo, onCancelReply }: C
           <Paperclip size={20} />
         </button>
         <div className='w-[1px] h-4 bg-border mx-1' />
-        <button type='button' className='px-2 py-1 text-[13px] hover:bg-muted rounded text-muted-foreground'>@</button>
+        <button type='button' className='px-2 py-1 text-[13px] hover:bg-muted rounded text-muted-foreground'>
+          @
+        </button>
         <button type='button' className='p-1.5 hover:bg-muted rounded text-muted-foreground transition-colors'>
           <span className='font-bold text-lg'>...</span>
         </button>
@@ -323,11 +325,7 @@ export function ChatInput({ conversationId, isGroup, replyTo, onCancelReply }: C
                   // Ảnh/Video preview
                   attachment.file.type.startsWith('video/') ? (
                     <div className='relative w-20 h-20 rounded-lg overflow-hidden bg-muted'>
-                      <video
-                        src={attachment.previewUrl}
-                        className='w-full h-full object-cover'
-                        muted
-                      />
+                      <video src={attachment.previewUrl} className='w-full h-full object-cover' muted />
                       <div className='absolute inset-0 flex items-center justify-center bg-black/30'>
                         <span className='text-white text-xs font-medium'>VIDEO</span>
                       </div>
@@ -345,9 +343,7 @@ export function ChatInput({ conversationId, isGroup, replyTo, onCancelReply }: C
                     <FileIcon size={20} className='text-primary shrink-0' />
                     <div className='flex flex-col min-w-0'>
                       <span className='text-[13px] font-medium truncate'>{attachment.file.name}</span>
-                      <span className='text-[11px] text-muted-foreground'>
-                        {formatFileSize(attachment.file.size)}
-                      </span>
+                      <span className='text-[11px] text-muted-foreground'>{formatFileSize(attachment.file.size)}</span>
                     </div>
                   </div>
                 )}
@@ -395,7 +391,7 @@ export function ChatInput({ conversationId, isGroup, replyTo, onCancelReply }: C
             onChange={(html, textContent) => {
               setContent(textContent)
               setHtmlContent(html)
-              
+
               // Detect @ trigger
               const trigger = detectMentionTrigger()
               if (trigger !== null) {
@@ -403,7 +399,7 @@ export function ChatInput({ conversationId, isGroup, replyTo, onCancelReply }: C
               } else {
                 setMentionQuery(null)
               }
-              
+
               // Typing indicator
               if (!isTypingRef.current) {
                 isTypingRef.current = true
@@ -426,11 +422,7 @@ export function ChatInput({ conversationId, isGroup, replyTo, onCancelReply }: C
               disabled={isSending}
               className='p-2.5 rounded-full flex items-center justify-center transition-all text-primary disabled:opacity-50'
             >
-              {isSending ? (
-                <Loader2 className='w-6 h-6 animate-spin' />
-              ) : (
-                <SendHorizonal className='w-6 h-6' />
-              )}
+              {isSending ? <Loader2 className='w-6 h-6 animate-spin' /> : <SendHorizonal className='w-6 h-6' />}
             </button>
           ) : (
             <div className='relative group/like flex items-center justify-center w-11 h-11 shrink-0'>

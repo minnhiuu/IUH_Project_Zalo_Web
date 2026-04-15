@@ -37,6 +37,11 @@ export const userUpdateRequestSchema = z.object({
   gender: z.enum([Gender.Male, Gender.Female] as [string, ...string[]], {
     error: i18n.t('user:user.validation.genderRequired')
   }),
+  phoneNumber: z
+    .string()
+    .trim()
+    .min(1, i18n.t('user:user.validation.phoneRequired'))
+    .regex(/^\d{10,11}$/, i18n.t('user:user.validation.phoneInvalid')),
   bio: z.string().max(150, i18n.t('user:user.validation.bioTooLong')).nullish()
 })
 
