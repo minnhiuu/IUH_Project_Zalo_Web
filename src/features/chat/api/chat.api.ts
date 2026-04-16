@@ -118,6 +118,22 @@ export const removeAllMyReactionsApi = async (messageId: string): Promise<void> 
   await http.delete(`/messages/messages/${messageId}/reactions/me`)
 }
 
+export interface MessageSeenResponse {
+  userId: string
+  fullName: string | null
+  avatar: string | null
+}
+
+export const getSeenMembersApi = async (
+  conversationId: string,
+  messageId: string
+): Promise<MessageSeenResponse[]> => {
+  const response = await http.get<ApiResponse<MessageSeenResponse[]>>(
+    `/messages/conversations/${conversationId}/messages/${messageId}/seen-members`
+  )
+  return response.data.data
+}
+
 export const updateGroupNameApi = async (conversationId: string, name: string): Promise<ConversationResponse> => {
   const response = await http.patch<ApiResponse<ConversationResponse>>(
     `/messages/conversations/${conversationId}/name`,

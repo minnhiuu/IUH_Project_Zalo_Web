@@ -174,7 +174,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
                     <span className='truncate'>{previewDisplay.text}</span>
                   </p>
 
-                  {chat.unreadCount && chat.unreadCount > 0 && (
+                  {!!chat.unreadCount && chat.unreadCount > 0 && (
                     <div className='flex items-center gap-1 shrink-0'>
                       {(() => {
                         const meta = chat.lastMessage?.metadata as Record<string, unknown> | null

@@ -1,7 +1,7 @@
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import { chatOptions } from './options'
 import { chatKeys } from './keys'
-import { getMediaMessagesApi } from '../api/chat.api'
+import { getMediaMessagesApi, getSeenMembersApi } from '../api/chat.api'
 import { getJoinRequestsApi } from '../api/chat.api'
 import type { JoinRequestResponse } from '../schemas/chat.schema'
 import type { GroupSortOption, GroupFilterOption } from '../api/chat.api'
@@ -117,5 +117,14 @@ export const useMyGroupsQuery = (
   return useQuery({
     ...chatOptions.myGroups(query, sort, filter, page, size),
     enabled
+  })
+}
+
+export const useSeenMembersQuery = (conversationId: string, messageId: string, enabled: boolean) => {
+  return useQuery({
+    queryKey: chatKeys.seenMembers(conversationId, messageId),
+    queryFn: () => getSeenMembersApi(conversationId, messageId),
+    enabled: enabled && !!conversationId && !!messageId,
+    staleTime: 10_000
   })
 }

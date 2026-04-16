@@ -264,12 +264,12 @@ export function ForwardDialog({
         </div>
 
         {/* Content */}
-        <div className='flex-1 min-h-0 border-t bg-background overflow-hidden'>
-          <div className='flex h-full min-h-0'>
+        <div className='flex-1 min-h-0 min-w-0 border-t bg-background overflow-hidden'>
+          <div className='flex h-full min-h-0 min-w-0 overflow-hidden'>
             {/* Conversation list */}
-            <div className='flex flex-col flex-1 min-h-0 overflow-hidden'>
-              <ScrollArea className='h-full'>
-                <div className='p-0'>
+            <div className='flex flex-col flex-1 min-h-0 min-w-0 overflow-hidden border-r'>
+              <ScrollArea className='h-full w-full' viewportProps={{ className: 'min-w-0 overflow-x-hidden' }}>
+                <div className='p-0 min-w-0 overflow-hidden'>
                   {filteredConversations.length === 0 ? (
                     <div className='flex flex-col items-center justify-center p-12 text-center'>
                       <div className='w-16 h-16 bg-muted/30 rounded-full flex items-center justify-center mb-3'>
@@ -287,7 +287,7 @@ export function ForwardDialog({
                           onClick={() => handleToggle(conv.id)}
                           className={`flex items-center gap-3 px-4 py-2 hover:bg-muted/50 transition-colors cursor-pointer min-w-0 ${isSelected ? 'bg-muted/30' : ''}`}
                         >
-                          <div className='flex items-center justify-center w-5 h-5 shrink-0'>
+                          <div className='flex items-center justify-center shrink-0'>
                             <Checkbox
                               checked={isSelected}
                               onCheckedChange={() => handleToggle(conv.id)}
@@ -300,7 +300,17 @@ export function ForwardDialog({
                             className='w-10 h-10 shadow-sm border border-border/10 shrink-0'
                           />
                           <div className='flex-1 min-w-0 overflow-hidden'>
-                            <p className='text-[14px] font-medium text-foreground truncate'>{name}</p>
+                            <p
+                              style={{
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                                display: 'block'
+                              }}
+                              className='text-[14px] font-medium text-foreground w-full'
+                            >
+                              {name}
+                            </p>
                           </div>
                         </div>
                       )
@@ -313,7 +323,7 @@ export function ForwardDialog({
             {/* Selected sidebar */}
             {showSidebar && (
               <div className='w-[210px] h-full shrink-0 p-2.5 pb-2 pl-1 bg-background'>
-                <div className='flex flex-col border rounded-[8px] h-full overflow-hidden bg-background'>
+                <div className='flex flex-col border rounded-[8px] h-full overflow-hidden bg-background focus:outline-none'>
                   <div className='p-2.5 py-1.5 flex items-center gap-1.5 whitespace-nowrap overflow-hidden shrink-0'>
                     <span className='text-[11.5px] font-bold'>{tf.selected}</span>
                     <span className='text-[10.5px] text-primary font-medium'>{selectedIds.length}/100</span>
@@ -329,11 +339,21 @@ export function ForwardDialog({
                       {selectedEntries.map((entry) => (
                         <div
                           key={entry.id}
-                          className='flex items-center gap-2 p-1 px-2 rounded-full bg-background border border-border/50 group transition-colors w-full overflow-hidden min-w-0'
+                          className='flex items-center gap-2 p-1 px-2 rounded-full bg-background border border-border/50 group transition-colors w-full min-w-0 overflow-hidden shrink-0'
                         >
                           <UserAvatar name={entry.name} src={entry.avatar} className='w-6 h-6 shrink-0 shadow-sm' />
-                          <div className='flex-1 min-w-0 overflow-hidden'>
-                            <p className='text-[12px] font-medium truncate'>{entry.name}</p>
+                          <div className='flex-1 min-w-0'>
+                            <p
+                              style={{
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                                display: 'block'
+                              }}
+                              className='text-[12px] font-medium w-full'
+                            >
+                              {entry.name}
+                            </p>
                           </div>
                           <button
                             onClick={(e) => {
