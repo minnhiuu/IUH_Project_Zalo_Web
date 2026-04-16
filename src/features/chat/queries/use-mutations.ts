@@ -118,6 +118,7 @@ export const useCreateGroupMutation = () => {
         return [newConversation, ...oldData]
       })
       queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+      queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'my-groups'] })
     },
     onError: (error) => {
       console.error('Failed to create group conversation', error)
@@ -198,6 +199,7 @@ export const useDeleteConversationMutation = () => {
         return oldData.filter((conv) => conv.id !== conversationId)
       })
       queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+      queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'my-groups'] })
     },
     onError: (error) => {
       console.error('Failed to delete conversation', error)
@@ -231,6 +233,8 @@ export const useLeaveGroupMutation = () => {
           return oldData.filter((conv) => conv.id !== conversationId)
         })
         queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+        // Also invalidate my-groups to update the group list in the Friends tab
+        queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'my-groups'] })
         queryClient.removeQueries({ queryKey: chatKeys.messages(conversationId) })
       }, delay)
     },

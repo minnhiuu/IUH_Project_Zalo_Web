@@ -38,10 +38,7 @@ export const createGroupConversation = async (
   return response.data.data
 }
 
-export const sendGroupInvitesApi = async (
-  conversationId: string,
-  userIds: string[]
-): Promise<void> => {
+export const sendGroupInvitesApi = async (conversationId: string, userIds: string[]): Promise<void> => {
   await http.post(`/messages/conversations/groups/${conversationId}/invites`, { userIds })
 }
 
@@ -82,7 +79,6 @@ export const sendMessageApi = async (data: ChatMessageRequest): Promise<void> =>
   const { conversationId, ...requestBody } = data
   await http.post(`/messages/conversations/${conversationId}/messages`, requestBody)
 }
-
 
 // ────────────────────────────────────────────────────────────────
 // File Upload → S3 via file-service
@@ -387,6 +383,23 @@ export const getBlockCandidatesApi = async (
   const response = await http.get<ApiResponse<PageResponse<SearchMemberResponse>>>(
     `/messages/conversations/${conversationId}/block-candidates`,
     { params: { query, page, size } }
+  )
+  return response.data.data
+}
+
+export type GroupSortOption = 'activity_newest' | 'activity_oldest' | 'name_asc' | 'name_desc'
+export type GroupFilterOption = 'all' | 'owner'
+
+export const getMyGroupConversationsApi = async (params: {
+  query?: string
+  sort?: GroupSortOption
+  filter?: GroupFilterOption
+  page?: number
+  size?: number
+}): Promise<PageResponse<ConversationResponse>> => {
+  const response = await http.get<ApiResponse<PageResponse<ConversationResponse>>>(
+    '/messages/conversations/groups/mine',
+    { params: { ...params, page: params.page ?? 0, size: params.size ?? 20 } }
   )
   return response.data.data
 }

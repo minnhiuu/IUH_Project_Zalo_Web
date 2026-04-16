@@ -18,5 +18,7 @@ export const chatKeys = {
   joinPreview: (token: string) => [...chatKeys.all(), 'join-preview', token] as const,
   blockedMembers: (conversationId: string) => [...chatKeys.all(), 'blocked-members', conversationId] as const,
   blockCandidates: (conversationId: string, query: string) =>
-    [...chatKeys.all(), 'block-candidates', conversationId, query] as const
+    [...chatKeys.all(), 'block-candidates', conversationId, query] as const,
+  myGroups: (query: string, sort: string, filter: string, page: number) =>
+    [...chatKeys.all(), 'my-groups', query, sort, filter, page] as const
 }

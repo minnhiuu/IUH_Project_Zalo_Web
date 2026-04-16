@@ -140,6 +140,18 @@
   --friend-btn-primary: #cfe2f7;
   --friend-btn-primary-hover: #c1d8f2;
   --friend-btn-primary-text: #0a4ea7;
+  --layer-background-selected: #e5f1ff;
+  --text-primary: #081b3a;
+  --text-secondary: #5a6981;
+  --layer-background: #fff;
+  --divider-bold: #dbdbdb;
+  --surface-background-subtle: #ebecf0;
+  --badge-emerald-bg: #d1fae5;
+  --badge-emerald-text: #047857;
+  --badge-blue-bg: #dbeafe;
+  --badge-blue-text: #1d4ed8;
+  --badge-violet-bg: #ede9fe;
+  --badge-violet-text: #6d28d9;
 }
 
 @layer utilities {
@@ -267,6 +279,21 @@
   --friend-btn-primary: #2f5f9f;
   --friend-btn-primary-hover: #3a6cb0;
   --friend-btn-primary-text: #eaf2ff;
+  --layer-background-selected: #1f344d;
+  --text-primary: #dfe2e7;
+  --text-secondary: #9facbc;
+  --layer-background: #22262b;
+  --divider-bold: #16191d;
+  --surface-background-subtle: #16191d;
+  --input-field-bg-outline: #16191d;
+  --input-field-bg-filled: #16191d;
+  --button-secondary-neutral-text: #dfe2e7;
+  --badge-emerald-bg: #064e3b;
+  --badge-emerald-text: #10b981;
+  --badge-blue-bg: #1e3a8a;
+  --badge-blue-text: #60a5fa;
+  --badge-violet-bg: #4c1d95;
+  --badge-violet-text: #a78bfa;
 }
 
 @theme inline {
@@ -374,6 +401,16 @@
   --color-white-message: var(--white-message);
   --color-text-secondary: var(--text-secondary);
   --color-information: var(--text-information);
+  --color-layer-selected: var(--layer-background-selected);
+  --color-text-primary: var(--text-primary);
+  --color-layer-background: var(--layer-background);
+  --color-divider-bold: var(--divider-bold);
+  --color-badge-emerald-bg: var(--badge-emerald-bg);
+  --color-badge-emerald-text: var(--badge-emerald-text);
+  --color-badge-blue-bg: var(--badge-blue-bg);
+  --color-badge-blue-text: var(--badge-blue-text);
+  --color-badge-violet-bg: var(--badge-violet-bg);
+  --color-badge-violet-text: var(--badge-violet-text);
 
   @keyframes pulse-subtle {
     0%,
@@ -691,24 +728,36 @@ input[type='radio']:checked {
 
 /* ── Scrollbar ── */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.15);
-  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 10px;
+}
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.25);
 }
 .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.1);
+}
+.dark .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* ── Highlight message (scroll-to) ── */
 @keyframes highlight-flash {
-  0%   { background-color: rgba(0, 104, 255, 0.18); }
-  60%  { background-color: rgba(0, 104, 255, 0.18); }
-  100% { background-color: transparent; }
+  0% {
+    background-color: rgba(0, 104, 255, 0.18);
+  }
+  60% {
+    background-color: rgba(0, 104, 255, 0.18);
+  }
+  100% {
+    background-color: transparent;
+  }
 }
 
 .highlight-message {

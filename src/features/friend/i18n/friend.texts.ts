@@ -8,7 +8,8 @@ export const createFriendTexts = (t: TFunction<'friend'>) => ({
     friendList: t(FRIEND_KEYS.sidebar.friendList),
     groupList: t(FRIEND_KEYS.sidebar.groupList),
     friendRequests: t(FRIEND_KEYS.sidebar.friendRequests),
-    groupInvites: t(FRIEND_KEYS.sidebar.groupInvites)
+    groupInvites: t(FRIEND_KEYS.sidebar.groupInvites),
+    addFriend: t(FRIEND_KEYS.actions.addFriend)
   },
 
   header: {
@@ -174,6 +175,7 @@ export const createFriendTexts = (t: TFunction<'friend'>) => ({
     },
     sortOptions: {
       nameAZ: t(FRIEND_KEYS.contactsFilter.sortOptions.nameAZ),
+      nameZA: t(FRIEND_KEYS.contactsFilter.sortOptions.nameZA),
       recent: t(FRIEND_KEYS.contactsFilter.sortOptions.recent),
       online: t(FRIEND_KEYS.contactsFilter.sortOptions.online)
     },
@@ -201,5 +203,25 @@ export const createFriendTexts = (t: TFunction<'friend'>) => ({
   mutualFriends: (count: number) => t(FRIEND_KEYS.mutualFriends, { count }),
   viewMore: t(FRIEND_KEYS.viewMore),
   loading: t(FRIEND_KEYS.loading),
-  error: t(FRIEND_KEYS.error)
+  error: t(FRIEND_KEYS.error),
+
+  groupList: {
+    title: t(FRIEND_KEYS.groupList.title),
+    count: (count: number) => t(FRIEND_KEYS.groupList.count, { count }),
+    searchPlaceholder: t(FRIEND_KEYS.groupList.searchPlaceholder),
+    sortOptions: {
+      activityNewest: t(FRIEND_KEYS.groupList.sortOptions.activityNewest),
+      activityOldest: t(FRIEND_KEYS.groupList.sortOptions.activityOldest),
+      nameAsc: t(FRIEND_KEYS.groupList.sortOptions.nameAsc),
+      nameDesc: t(FRIEND_KEYS.groupList.sortOptions.nameDesc)
+    },
+    filterOptions: {
+      all: t(FRIEND_KEYS.groupList.filterOptions.all),
+      owner: t(FRIEND_KEYS.groupList.filterOptions.owner)
+    },
+    memberCount: (count: number) => t(FRIEND_KEYS.groupList.memberCount, { count }),
+    noGroups: t(FRIEND_KEYS.groupList.noGroups),
+    noResults: t(FRIEND_KEYS.groupList.noResults),
+    openChat: t(FRIEND_KEYS.groupList.openChat)
+  }
 })

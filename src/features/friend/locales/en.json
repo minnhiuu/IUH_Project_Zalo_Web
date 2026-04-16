@@ -175,6 +175,25 @@
       "sortLabel": "Name (A-Z)",
       "filterLabel": "All",
       "noFriendsMessage": "No friends yet. Start adding friends!"
+    },
+    "groupList": {
+      "title": "Groups & Communities",
+      "count": "Groups & Communities ({{count}})",
+      "searchPlaceholder": "Search...",
+      "sortOptions": {
+        "activityNewest": "Last updated (newest -> oldest)",
+        "activityOldest": "Last updated (oldest -> newest)",
+        "nameAsc": "Name (A-Z)",
+        "nameDesc": "Name (Z-A)"
+      },
+      "filterOptions": {
+        "all": "All",
+        "owner": "My owned groups"
+      },
+      "memberCount": "{{count}} members",
+      "noGroups": "No groups yet",
+      "noResults": "No groups found",
+      "openChat": "Open chat"
     }
   }
 }

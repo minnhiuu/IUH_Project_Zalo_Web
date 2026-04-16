@@ -4,9 +4,13 @@ import { chatKeys } from './keys'
 import { getMediaMessagesApi } from '../api/chat.api'
 import { getJoinRequestsApi } from '../api/chat.api'
 import type { JoinRequestResponse } from '../schemas/chat.schema'
+import type { GroupSortOption, GroupFilterOption } from '../api/chat.api'
 
-export const useConversationsQuery = () => {
-  return useQuery(chatOptions.conversations())
+export const useConversationsQuery = (enabled: boolean = true) => {
+  return useQuery({
+    ...chatOptions.conversations(),
+    enabled
+  })
 }
 
 export const useMessagesInfiniteQuery = (conversationId: string) => {
@@ -99,5 +103,19 @@ export const useBlockCandidatesInfiniteQuery = (conversationId: string, query: s
   return useInfiniteQuery({
     ...chatOptions.blockCandidates(conversationId, query),
     enabled: enabled && !!conversationId
+  })
+}
+
+export const useMyGroupsQuery = (
+  query: string,
+  sort: GroupSortOption,
+  filter: GroupFilterOption,
+  page: number,
+  size = 20,
+  enabled = true
+) => {
+  return useQuery({
+    ...chatOptions.myGroups(query, sort, filter, page, size),
+    enabled
   })
 }
