@@ -16,7 +16,6 @@ import {
   useUpdateGroupAvatarMutation
 } from '../queries/use-mutations'
 import { useEffect, useRef, useMemo, useState, useCallback } from 'react'
-import { createPortal } from 'react-dom'
 import type { ConversationResponse, MessageResponse } from '../schemas/chat.schema'
 import { ForwardDialog } from './forward-dialog'
 import { formatLastSeen } from '@/utils/date'
@@ -551,10 +550,9 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             onClose={() => setForwardingMessage(null)}
             onConfirm={(selectedConvIds, description) => {
               selectedConvIds.forEach((convId) => {
-                const finalContent = description
-                  ? `${forwardingMessage.content}\n---\n${description}`
-                  : forwardingMessage.content || ''
-                sendMessage(convId, finalContent, null, true)
+                const baseContent = forwardingMessage.content ?? ''
+                const finalContent = description ? `${baseContent}\n---\n${description}` : baseContent
+                sendMessage(convId, finalContent, null, true, forwardingMessage.attachments ?? undefined)
               })
             }}
           />

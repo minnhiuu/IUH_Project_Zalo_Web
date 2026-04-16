@@ -340,10 +340,10 @@ export const useChatWebSocket = () => {
                     data: page.data.map((m: MessageResponse) =>
                       m.id === update.messageId
                         ? {
-                            ...m,
-                            reactions:
-                              update.reactions && Object.keys(update.reactions).length ? update.reactions : undefined
-                          }
+                          ...m,
+                          reactions:
+                            update.reactions && Object.keys(update.reactions).length ? update.reactions : undefined
+                        }
                         : m
                     )
                   }))
@@ -544,7 +544,7 @@ export const useChatWebSocket = () => {
 
   // ────────── sendMessage: conversationId thay vì recipientId ──────────
   const sendMessage = useCallback(
-    (conversationId: string, content: string, replyTo?: ReplyMetadata | null, isForwarded: boolean = false) => {
+    (conversationId: string, content: string, replyTo?: ReplyMetadata | null, isForwarded: boolean = false, attachments?: ChatMessageRequest['attachments']) => {
       if (!stompClientRef.current?.connected || (!content.trim() && !isForwarded)) return
 
       const clientMessageId = `temp-${Date.now()}`
@@ -555,19 +555,30 @@ export const useChatWebSocket = () => {
         content: content.trim(),
         clientMessageId,
         replyTo,
-        isForwarded
+        isForwarded,
+        attachments
       }
 
       sendMsgMutate(chatMessage)
 
       const now = new Date().toISOString()
       const isLink = JOIN_LINK_REGEX.test(content.trim())
+      const optimisticType = attachments?.length
+        ? attachments.some((a) => a.contentType.startsWith('video/'))
+          ? MessageType.Video
+          : attachments.some((a) => a.contentType.startsWith('image/'))
+            ? MessageType.Image
+            : MessageType.File
+        : isLink
+          ? MessageType.Link
+          : MessageType.Chat
       const optimisticMsg: MessageResponse = {
         id: clientMessageId,
         clientMessageId,
         senderId: user?.id || '',
         content,
-        type: isLink ? MessageType.Link : MessageType.Chat,
+        type: optimisticType,
+        attachments: attachments ?? undefined,
         status: MessageStatus.NORMAL,
         createdAt: now,
         lastModifiedAt: now,
@@ -675,7 +686,12 @@ export const useChatWebSocket = () => {
   )
 
   const sendFileMessage = useCallback(
-    async (conversationId: string, files: FileAttachment[], replyTo?: ReplyMetadata | null) => {
+    async (
+      conversationId: string,
+      files: FileAttachment[],
+      content: string = '',
+      replyTo?: ReplyMetadata | null
+    ) => {
       if (!stompClientRef.current?.connected || files.length === 0) return
 
       const isFake = conversationId.startsWith('fake_')
@@ -691,12 +707,13 @@ export const useChatWebSocket = () => {
         const now = new Date().toISOString()
         const allVideo = mediaFiles.every((a) => a.file.type.startsWith('video/'))
         const msgType = allVideo ? MessageType.Video : MessageType.Image
+        const trimmedContent = content.trim()
 
         const optimisticMsg: MessageResponse = {
           id: clientMessageId,
           clientMessageId,
           senderId: user?.id || '',
-          content: '',
+          content: trimmedContent,
           type: msgType,
           status: MessageStatus.NORMAL,
           createdAt: now,
@@ -727,12 +744,10 @@ export const useChatWebSocket = () => {
           }
         )
 
-        const mediaPreview =
-          mediaFiles.length === 1
-            ? allVideo
-              ? '[Video]'
-              : '[Hình ảnh]'
-            : `[${mediaFiles.length} ${allVideo ? 'video' : 'ảnh'}]`
+        const mediaPreview = trimmedContent ||
+          (mediaFiles.length === 1
+            ? (allVideo ? '[Video]' : '[Hình ảnh]')
+            : `[${mediaFiles.length} ${allVideo ? 'video' : 'ảnh'}]`)
         queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
           if (!oldData) return oldData
           const idx = oldData.findIndex((c) => c.id === conversationId)
@@ -761,7 +776,7 @@ export const useChatWebSocket = () => {
           sendMsgMutate({
             conversationId: isFake ? null : conversationId,
             recipientId: isFake ? conversationId.replace('fake_', '') : null,
-            content: '',
+            content: trimmedContent,
             clientMessageId,
             replyTo: replyTo || undefined,
             attachments: uploadResults.map((r) => ({
@@ -796,12 +811,14 @@ export const useChatWebSocket = () => {
         const clientMessageId = `temp-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
         const { file } = attachment
         const now = new Date().toISOString()
+        const trimmedContent = content.trim()
+        const fileMessageContent = trimmedContent || file.name
 
         const optimisticMsg: MessageResponse = {
           id: clientMessageId,
           clientMessageId,
           senderId: user?.id || '',
-          content: file.name,
+          content: fileMessageContent,
           type: MessageType.File,
           status: MessageStatus.NORMAL,
           createdAt: now,
@@ -862,7 +879,7 @@ export const useChatWebSocket = () => {
           sendMsgMutate({
             conversationId: isFake ? null : conversationId,
             recipientId: isFake ? conversationId.replace('fake_', '') : null,
-            content: file.name,
+            content: fileMessageContent,
             clientMessageId,
             replyTo: replyTo || undefined,
             attachments: [

@@ -16,7 +16,8 @@ export const ReplyMetadataSchema = z.object({
   senderId: z.string(),
   senderName: z.string().nullable().optional(),
   content: z.string().nullable(),
-  type: z.nativeEnum(MessageType)
+  type: z.nativeEnum(MessageType),
+  thumbnailUrl: z.string().nullable().optional()
 })
 
 export type ReplyMetadata = z.infer<typeof ReplyMetadataSchema>

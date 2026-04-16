@@ -38,8 +38,8 @@ export default function UserManagementPage() {
   const baseCountFilters = { name: filters.name, phone: filters.phone, email: filters.email, page: 0, size: 1 }
   const { data: activeCountData } = useAdminUsers({ ...baseCountFilters, status: 'ACTIVE' as const })
   const { data: bannedCountData } = useAdminUsers({ ...baseCountFilters, status: 'BANNED' as const })
-  const activeCount = activeCountData?.data?.data?.totalItems
-  const bannedCount = bannedCountData?.data?.data?.totalItems
+  const activeCount = activeCountData?.data?.data?.totalItems as number | undefined
+  const bannedCount = bannedCountData?.data?.data?.totalItems as number | undefined
 
   const updateParams = (updates: Record<string, string | undefined>) => {
     setSearchParams((prev) => {
