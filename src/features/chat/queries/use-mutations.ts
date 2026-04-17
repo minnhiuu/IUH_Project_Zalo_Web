@@ -38,10 +38,9 @@ export const useMarkAsReadMutation = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (conversationId: string) => markAsRead(conversationId),
-    onMutate: async (conversationId) => {
-      // Vì hook này k nhận context user, ta lấy từ query cache or pass từ ngoài
-      // Tuy nhiên ta có thể update lastReadMessageId dựa trên lastMessage.id của conv đó
+    mutationFn: ({ conversationId, lastReadMessageId }: { conversationId: string; lastReadMessageId?: string }) =>
+      markAsRead(conversationId, lastReadMessageId),
+    onMutate: async ({ conversationId }) => {
       await queryClient.cancelQueries({ queryKey: chatKeys.conversations() })
       const previousConversations = queryClient.getQueryData<ConversationResponse[]>(chatKeys.conversations())
 
@@ -53,8 +52,6 @@ export const useMarkAsReadMutation = () => {
               return {
                 ...conv,
                 unreadCount: 0,
-                // Cập nhật optimistic lastReadMessageId cho tất cả members (hoặc ít nhất là chính mình)
-                // Phía FE detect unread dựa trên lastReadMessageId của chính mình
                 members: conv.members?.map((m) => ({
                   ...m,
                   lastReadMessageId: conv.lastMessage?.id || m.lastReadMessageId
@@ -68,7 +65,7 @@ export const useMarkAsReadMutation = () => {
 
       return { previousConversations }
     },
-    onError: (error, _conversationId, context) => {
+    onError: (error, _vars, context) => {
       console.error('Error marking conversation as read:', error)
       if (context?.previousConversations) {
         queryClient.setQueryData(chatKeys.conversations(), context.previousConversations)

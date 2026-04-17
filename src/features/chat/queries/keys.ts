@@ -22,5 +22,6 @@ export const chatKeys = {
   myGroups: (query: string, sort: string, filter: string, page: number) =>
     [...chatKeys.all(), 'my-groups', query, sort, filter, page] as const,
   seenMembers: (conversationId: string, messageId: string) =>
-    [...chatKeys.all(), 'seen-members', conversationId, messageId] as const
+    [...chatKeys.all(), 'seen-members', conversationId, messageId] as const,
+  unreadAnchor: (conversationId: string) => [...chatKeys.all(), 'unread-anchor', conversationId] as const
 }

@@ -58,8 +58,23 @@ export const getMessages = async (
   return response.data.data
 }
 
-export const markAsRead = async (conversationId: string): Promise<void> => {
-  await http.put(`/messages/conversations/${conversationId}/read`)
+export const markAsRead = async (conversationId: string, lastReadMessageId?: string): Promise<void> => {
+  await http.put(
+    `/messages/conversations/${conversationId}/read`,
+    lastReadMessageId ? { lastReadMessageId } : undefined
+  )
+}
+
+export interface UnreadAnchorResponse {
+  firstUnreadMessageId: string | null
+  unreadCount: number
+}
+
+export const getUnreadAnchorApi = async (conversationId: string): Promise<UnreadAnchorResponse> => {
+  const response = await http.get<ApiResponse<UnreadAnchorResponse>>(
+    `/messages/conversations/${conversationId}/unread-anchor`
+  )
+  return response.data.data
 }
 
 export const getMediaMessagesApi = async (
@@ -124,10 +139,7 @@ export interface MessageSeenResponse {
   avatar: string | null
 }
 
-export const getSeenMembersApi = async (
-  conversationId: string,
-  messageId: string
-): Promise<MessageSeenResponse[]> => {
+export const getSeenMembersApi = async (conversationId: string, messageId: string): Promise<MessageSeenResponse[]> => {
   const response = await http.get<ApiResponse<MessageSeenResponse[]>>(
     `/messages/conversations/${conversationId}/messages/${messageId}/seen-members`
   )

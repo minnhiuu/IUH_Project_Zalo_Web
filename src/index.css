@@ -120,6 +120,10 @@
   --white-message: #ffffff;
   --text-secondary: #5a6981;
 
+  --accent-blue-border: #66a6ff;
+  --accent-blue-text: #005ae0;
+  --bg-message-info: hsla(0, 0%, 100%, 0.85);
+
   --B10: #f0f7ff;
   --B70: #0045ad;
   --NG15: #efefef;
@@ -171,6 +175,10 @@
   --brand-blue-hover: #162638;
   --brand-blue-text: #66a6ff;
   --cta-link: #66a6ff;
+
+  --accent-blue-border: #66a6ff;
+  --accent-blue-text: #66a6ff;
+  --bg-message-info: hsla(0, 0%, 100%, 0.05);
 
   --background: #22262b;
   --foreground: #dfe2e7;
@@ -770,7 +778,7 @@ input[type='radio']:checked {
   display: none;
   align-items: center;
   gap: 0.25rem;
-  margin-bottom: 1rem;
+  align-self: center;
 }
 
 .group:hover .msg-actions {

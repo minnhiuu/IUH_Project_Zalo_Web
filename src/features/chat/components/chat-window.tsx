@@ -1,5 +1,5 @@
 import { Phone, Video, Search, PanelsTopLeft, Users, Pencil } from 'lucide-react'
-import { useMessagesInfiniteQuery } from '../queries/use-queries'
+import { useMessagesInfiniteQuery, useUnreadAnchorQuery } from '../queries/use-queries'
 import { useAuth } from '@/features/auth'
 import { useChatContext } from '../context/chat-context'
 import { MessageBubble } from './message-bubble'
@@ -15,8 +15,7 @@ import {
   useUpdateGroupNameMutation,
   useUpdateGroupAvatarMutation
 } from '../queries/use-mutations'
-import { useEffect, useRef, useMemo, useState, useCallback } from 'react'
-import { createPortal } from 'react-dom'
+import { useEffect, useRef, useMemo, useState, useCallback, Fragment } from 'react'
 import type { ConversationResponse, MessageResponse } from '../schemas/chat.schema'
 import { ForwardDialog } from './forward-dialog'
 import { formatLastSeen } from '@/utils/date'
@@ -51,7 +50,13 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   const { t, text } = useChatText()
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useMessagesInfiniteQuery(conversation.id)
 
-  const { scrollRef, handleScroll } = useChatScroll({ fetchNextPage, hasNextPage, isFetchingNextPage })
+  const suppressFetchRef = useRef(false)
+  const { scrollRef, handleScroll, isAtBottom, scrollToBottom } = useChatScroll({
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    suppressFetchRef
+  })
   const { mutate: markAsRead } = useMarkAsReadMutation()
   const lastMessageRef = useRef<HTMLDivElement>(null)
   const lastReadSentId = useRef<string | null>(null)
@@ -63,6 +68,36 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
     el.classList.add('highlight-message')
     setTimeout(() => el.classList.remove('highlight-message'), 1200)
   }, [])
+
+  // ─── Unread anchor ───
+  const { data: unreadAnchor } = useUnreadAnchorQuery(conversation.id)
+  const [firstUnreadId, setFirstUnreadId] = useState<string | null>(null)
+  const [unreadDisplayCount, setUnreadDisplayCount] = useState(0)
+  const [unreadDividerEl, setUnreadDividerEl] = useState<HTMLDivElement | null>(null)
+  const [showUnreadBtn, setShowUnreadBtn] = useState(false)
+  const pendingScrollToUnread = useRef(false)
+  const anchorInitialized = useRef(false)
+
+  // ─── New message button state (populated after latestMessageId is known) ───
+  const [newMsgCount, setNewMsgCount] = useState(0)
+  const prevLatestIdRef = useRef<string | null>(null)
+
+  const scrollToUnread = useCallback(() => {
+    if (!firstUnreadId) return
+    const el = document.getElementById(`msg-${firstUnreadId}`)
+    if (el) {
+      suppressFetchRef.current = true
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      el.classList.add('highlight-message')
+      setTimeout(() => el.classList.remove('highlight-message'), 1200)
+      setTimeout(() => {
+        suppressFetchRef.current = false
+      }, 1500)
+    } else if (hasNextPage && !isFetchingNextPage) {
+      pendingScrollToUnread.current = true
+      fetchNextPage()
+    }
+  }, [firstUnreadId, fetchNextPage, hasNextPage, isFetchingNextPage])
 
   const [replyTo, setReplyTo] = useState<MessageResponse | null>(null)
   const [forwardingMessage, setForwardingMessage] = useState<MessageResponse | null>(null)
@@ -76,7 +111,16 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   const [profileUserId, setProfileUserId] = useState<string | undefined>(undefined)
 
   // Video Call
-  const { callState, startCall, connectCall, cancelOutgoing, handleIncomingCall, acceptIncoming, rejectIncoming, endCall } = useVideoCall()
+  const {
+    callState,
+    startCall,
+    connectCall,
+    cancelOutgoing,
+    handleIncomingCall,
+    acceptIncoming,
+    rejectIncoming,
+    endCall
+  } = useVideoCall()
   const [isCallLoading, setIsCallLoading] = useState(false)
 
   useCallNotification({ onIncomingCall: handleIncomingCall })
@@ -86,8 +130,8 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
     setIsCallLoading(true)
     try {
       await startCall(partnerId)
-    } catch (error: any) {
-      const code = error?.response?.data?.code
+    } catch (error: unknown) {
+      const code = (error as { response?: { data?: { code?: number } } })?.response?.data?.code
       if (code === 5001) {
         showWarningToast(t('call.busy'))
       } else if (code === 5004) {
@@ -104,7 +148,9 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
     if (callState.incoming) {
       try {
         await rejectCallApi(callState.incoming.sessionId)
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     }
     rejectIncoming()
   }
@@ -217,6 +263,20 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   const latestMessageId = allMessages[0]?.id
   const latestMessageSenderId = allMessages[0]?.senderId
 
+  // ─── New message button: track new incoming messages while scrolled up ───
+  useEffect(() => {
+    if (!latestMessageId) return
+    if (prevLatestIdRef.current === null) {
+      prevLatestIdRef.current = latestMessageId
+      return
+    }
+    if (prevLatestIdRef.current === latestMessageId) return
+    prevLatestIdRef.current = latestMessageId
+    if (!isAtBottom && latestMessageSenderId !== user?.id) {
+      setNewMsgCount((c) => c + 1)
+    }
+  }, [latestMessageId, latestMessageSenderId, isAtBottom, user?.id])
+
   const isCloudConversation =
     !conversation.isGroup && (conversation.name === 'My Documents' || (conversation.avatar ?? '').includes('cloud.png'))
   const isAiConversation = conversation.members?.some((m) => m.userId === 'ai-assistant-001') ?? false
@@ -253,15 +313,17 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
 
   useEffect(() => {
     if (isCurrentUserRemovedFromGroup) return
+    // Only handle new incoming messages when there's no unread divider (divider handles its own case)
     if (!latestMessageId || !conversation.id || conversation.unreadCount === 0) return
     if (latestMessageSenderId === user?.id) return
+    if (firstUnreadId) return // divider observer will handle markAsRead
 
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && document.visibilityState === 'visible') {
           if (lastReadSentId.current === latestMessageId) return
           lastReadSentId.current = latestMessageId
-          markAsRead(conversation.id)
+          markAsRead({ conversationId: conversation.id, lastReadMessageId: latestMessageId })
         }
       },
       { threshold: 0.5 }
@@ -278,9 +340,124 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
     latestMessageSenderId,
     conversation.id,
     conversation.unreadCount,
+    firstUnreadId,
     markAsRead,
     user?.id
   ])
+
+  // ─── Reset unread state when switching conversations ───
+  useEffect(() => {
+    setFirstUnreadId(null)
+    setUnreadDisplayCount(0)
+    setShowUnreadBtn(false)
+    setAboveViewportCount(-1)
+    setNewMsgCount(0)
+    prevLatestIdRef.current = null
+    anchorInitialized.current = false
+    pendingScrollToUnread.current = false
+  }, [conversation.id])
+
+  // ─── Clear new-msg badge when user is at bottom ───
+  useEffect(() => {
+    if (isAtBottom && newMsgCount > 0) setNewMsgCount(0)
+  }, [isAtBottom, newMsgCount])
+
+  // ─── Initialise from query — only once per conversation ───
+  useEffect(() => {
+    if (!unreadAnchor || anchorInitialized.current) return
+    anchorInitialized.current = true
+    setFirstUnreadId(unreadAnchor.firstUnreadMessageId ?? null)
+    setUnreadDisplayCount(unreadAnchor.unreadCount)
+    // Do NOT set showUnreadBtn here — IntersectionObserver is the sole controller:
+    // it fires immediately on observe() and sets true/false based on actual viewport position.
+  }, [unreadAnchor])
+
+  // ─── IntersectionObserver: show/hide floating button + debounced markAsRead ───
+  useEffect(() => {
+    if (!unreadDividerEl || !scrollRef.current) return
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        setShowUnreadBtn(!entry.isIntersecting)
+        if (entry.isIntersecting && document.visibilityState === 'visible' && firstUnreadId) {
+          debounceTimer = setTimeout(() => {
+            markAsRead({ conversationId: conversation.id, lastReadMessageId: latestMessageId })
+            // Only hide button + count; divider stays until conversation switch
+            setShowUnreadBtn(false)
+            setUnreadDisplayCount(0)
+          }, 500)
+        } else {
+          if (debounceTimer) clearTimeout(debounceTimer)
+        }
+      },
+      { root: scrollRef.current, threshold: 0 }
+    )
+    obs.observe(unreadDividerEl)
+    return () => {
+      obs.disconnect()
+      if (debounceTimer) clearTimeout(debounceTimer)
+    }
+  }, [unreadDividerEl, scrollRef, firstUnreadId, latestMessageId, conversation.id, markAsRead])
+
+  // ─── Dynamic count: unread messages still above viewport fold ───
+  const [aboveViewportCount, setAboveViewportCount] = useState(-1)
+  const allMessagesRef = useRef(allMessages)
+  useEffect(() => {
+    allMessagesRef.current = allMessages
+  }, [allMessages])
+
+  const computeAboveViewportCount = useCallback(() => {
+    if (!firstUnreadId || !scrollRef.current || !showUnreadBtn) return
+    const msgs = allMessagesRef.current
+    const containerRect = scrollRef.current.getBoundingClientRect()
+    const anchorIndex = msgs.findIndex((m) => m.id === firstUnreadId)
+    if (anchorIndex === -1) {
+      setAboveViewportCount(unreadDisplayCount)
+      return
+    }
+    let count = 0
+    // allMessages[0] = newest (bottom). Messages 0..anchorIndex are all unread.
+    // A message is "above the viewport" when its bottom edge is above the container's top.
+    for (let i = 0; i <= anchorIndex; i++) {
+      const el = document.getElementById(`msg-${msgs[i].id}`)
+      if (!el) {
+        count++
+        continue
+      } // not rendered yet = still above fold
+      const rect = el.getBoundingClientRect()
+      if (rect.bottom < containerRect.top) count++
+    }
+    setAboveViewportCount(count)
+  }, [firstUnreadId, showUnreadBtn, unreadDisplayCount, scrollRef])
+
+  // Re-compute immediately when messages change (e.g. new page loaded)
+  useEffect(() => {
+    computeAboveViewportCount()
+  }, [allMessages, computeAboveViewportCount])
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el || !showUnreadBtn) return
+    el.addEventListener('scroll', computeAboveViewportCount, { passive: true })
+    computeAboveViewportCount()
+    return () => el.removeEventListener('scroll', computeAboveViewportCount)
+  }, [showUnreadBtn, computeAboveViewportCount, scrollRef])
+
+  // ─── Retry scroll once pending page loads ───
+  useEffect(() => {
+    if (!pendingScrollToUnread.current || !firstUnreadId || isFetchingNextPage) return
+    const el = document.getElementById(`msg-${firstUnreadId}`)
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      el.classList.add('highlight-message')
+      setTimeout(() => el.classList.remove('highlight-message'), 1200)
+      pendingScrollToUnread.current = false
+    } else if (hasNextPage) {
+      fetchNextPage()
+    } else {
+      pendingScrollToUnread.current = false
+    }
+  }, [allMessages.length, isFetchingNextPage, firstUnreadId, hasNextPage, fetchNextPage])
 
   const isSameGroup = (msg1: MessageResponse, msg2: MessageResponse) => {
     if (!msg1 || !msg2) return false
@@ -459,65 +636,148 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             <PinBoard conversationId={conversation.id} onScrollToMessage={scrollToMessage} />
           )}
 
+          {/* Floating Unread Button — only after aboveViewportCount is computed */}
+          {showUnreadBtn &&
+            firstUnreadId &&
+            unreadDisplayCount > 0 &&
+            aboveViewportCount >= 0 &&
+            (() => {
+              const displayCount = aboveViewportCount
+              return (
+                <div className='absolute top-4 right-4 z-20'>
+                  <button
+                    type='button'
+                    onClick={scrollToUnread}
+                    className='relative flex flex-col items-center justify-center w-11 h-11 bg-white dark:bg-zinc-800 border border-border rounded-full shadow-lg hover:shadow-xl active:scale-95 transition-all cursor-pointer'
+                  >
+                    <svg
+                      xmlns='http://www.w3.org/2000/svg'
+                      className='w-5 h-5 text-foreground'
+                      viewBox='0 0 24 24'
+                      fill='none'
+                      stroke='currentColor'
+                      strokeWidth='2.5'
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                    >
+                      <polyline points='17 11 12 6 7 11' />
+                      <polyline points='17 18 12 13 7 18' />
+                    </svg>
+                    <span className='absolute -top-2 -right-2 min-w-[20px] h-5 px-1 flex items-center justify-center bg-primary text-white text-[10px] font-bold rounded-full leading-none'>
+                      {displayCount > 99 ? '99+' : displayCount}
+                    </span>
+                  </button>
+                </div>
+              )
+            })()}
+
+          {/* Scroll-to-bottom button — new incoming messages while scrolled up */}
+          {!isAtBottom && newMsgCount > 0 && (
+            <div className='absolute bottom-4 right-4 z-20'>
+              <button
+                type='button'
+                onClick={() => {
+                  scrollToBottom()
+                  setNewMsgCount(0)
+                }}
+                className='relative flex flex-col items-center justify-center w-11 h-11 bg-white dark:bg-zinc-800 border border-border rounded-full shadow-lg hover:shadow-xl active:scale-95 transition-all cursor-pointer'
+              >
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  className='w-5 h-5 text-foreground'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  stroke='currentColor'
+                  strokeWidth='2.5'
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                >
+                  <polyline points='7 13 12 18 17 13' />
+                  <polyline points='7 6 12 11 17 6' />
+                </svg>
+                <span className='absolute -top-2 -right-2 min-w-5 h-5 px-1 flex items-center justify-center bg-primary text-white text-[10px] font-bold rounded-full leading-none'>
+                  {newMsgCount > 99 ? '99+' : newMsgCount}
+                </span>
+              </button>
+            </div>
+          )}
+
           <div
             ref={scrollRef}
             onScroll={handleScroll}
             className='flex-1 overflow-y-auto px-4 py-4 flex flex-col-reverse custom-scrollbar'
           >
-          {isLoading && (
-            <div className='flex items-center justify-center flex-1 text-sm text-primary py-8'>{text.loading}</div>
-          )}
-          {allMessages.map((msg, index) => {
-            const prevMsg = allMessages[index + 1]
-            const nextMsg = allMessages[index - 1]
-            const isFirst = !isSameGroup(msg, prevMsg)
-            const isLast = !isSameGroup(msg, nextMsg)
-            const isNewestVisible = index === 0
-            return (
-              <div key={msg.id} id={`msg-${msg.id}`} ref={isNewestVisible ? lastMessageRef : null}>
-                <MessageBubble
-                  message={msg}
-                  isOwn={msg.senderId === user?.id}
-                  isFirst={isFirst}
-                  isLast={isLast}
-                  isNewest={isNewestVisible}
-                  conversation={conversation}
-                  onReply={() => setReplyTo(msg)}
-                  onForward={() => setForwardingMessage(msg)}
-                  onAvatarClick={(userId) => {
-                    if (userId === user?.id) {
-                      setIsOwnerProfileOpen(true)
-                    } else {
-                      setProfileUserId(userId)
-                      setIsProfileOpen(true)
-                    }
-                  }}
-                  onRecall={() => handleStartVideoCall()}
-                />
-              </div>
-            )
-          })}
-          {isFetchingNextPage && <div className='py-4 text-center text-sm text-muted-foreground'>{text.loading}</div>}
-          {conversation.isGroup &&
-            !conversation.isDisbanded &&
-            !isCurrentUserRemovedFromGroup &&
-            !hasNextPage &&
-            !isFetchingNextPage && (
-              <GroupIntroCard
-                conversationId={conversation.id}
-                groupTitle={getConversationDisplayName(conversation, 'Nhóm', undefined, user?.id)}
-                groupMembers={(conversation.members || []).map((m) => ({
-                  id: m.userId,
-                  avatar: m.avatar,
-                  name: m.fullName
-                }))}
-                targetAvatars={[]}
-                secondaryLabel={null}
-                t={t}
-              />
+            {isLoading && (
+              <div className='flex items-center justify-center flex-1 text-sm text-primary py-8'>{text.loading}</div>
             )}
+            {allMessages.map((msg, index) => {
+              const prevMsg = allMessages[index + 1]
+              const nextMsg = allMessages[index - 1]
+              const isFirst = !isSameGroup(msg, prevMsg)
+              const isLast = !isSameGroup(msg, nextMsg)
+              const isNewestVisible = index === 0
+              return (
+                <Fragment key={msg.id}>
+                  <div id={`msg-${msg.id}`} ref={isNewestVisible ? lastMessageRef : null}>
+                    <MessageBubble
+                      message={msg}
+                      isOwn={msg.senderId === user?.id}
+                      isFirst={isFirst}
+                      isLast={isLast}
+                      isNewest={isNewestVisible}
+                      conversation={conversation}
+                      onReply={() => setReplyTo(msg)}
+                      onForward={() => setForwardingMessage(msg)}
+                      onAvatarClick={(userId) => {
+                        if (userId === user?.id) {
+                          setIsOwnerProfileOpen(true)
+                        } else {
+                          setProfileUserId(userId)
+                          setIsProfileOpen(true)
+                        }
+                      }}
+                      onRecall={() => handleStartVideoCall()}
+                    />
+                  </div>
+                  {msg.id === firstUnreadId && (
+                    <div
+                      ref={setUnreadDividerEl}
+                      className='flex items-center gap-2 px-2 py-0 my-0 select-none pointer-events-none'
+                    >
+                      <div className='flex-1 h-0 border-t border-(--accent-blue-border)' />
+                      <span
+                        className='text-[11px] font-semibold whitespace-nowrap px-3 py-px rounded-[26px]'
+                        style={{ color: 'var(--accent-blue-text)', background: 'var(--bg-message-info)' }}
+                      >
+                        Tin nhắn chưa đọc
+                      </span>
+                      <div className='flex-1 h-0 border-t border-(--accent-blue-border)' />
+                    </div>
+                  )}
+                </Fragment>
+              )
+            })}
+            {isFetchingNextPage && <div className='py-4 text-center text-sm text-muted-foreground'>{text.loading}</div>}
+            {conversation.isGroup &&
+              !conversation.isDisbanded &&
+              !isCurrentUserRemovedFromGroup &&
+              !hasNextPage &&
+              !isFetchingNextPage && (
+                <GroupIntroCard
+                  conversationId={conversation.id}
+                  groupTitle={getConversationDisplayName(conversation, 'Nhóm', undefined, user?.id)}
+                  groupMembers={(conversation.members || []).map((m) => ({
+                    id: m.userId,
+                    avatar: m.avatar,
+                    name: m.fullName
+                  }))}
+                  targetAvatars={[]}
+                  secondaryLabel={null}
+                  t={t}
+                />
+              )}
           </div>
-          <TypingIndicator typingUsers={typingUsers.filter(u => u.conversationId === conversation.id)} />
+          <TypingIndicator typingUsers={typingUsers.filter((u) => u.conversationId === conversation.id)} />
         </div>
 
         {conversation.isDisbanded || isCurrentUserRemovedFromGroup ? (
@@ -525,7 +785,12 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
         ) : !canSendMessages(conversation, user?.id || '') ? (
           <ChatInputRestricted message={text.restricted.onlyAdminCanSend} highlightTags />
         ) : (
-          <ChatInput conversationId={conversation.id} isGroup={conversation.isGroup} replyTo={replyTo} onCancelReply={() => setReplyTo(null)} />
+          <ChatInput
+            conversationId={conversation.id}
+            isGroup={conversation.isGroup}
+            replyTo={replyTo}
+            onCancelReply={() => setReplyTo(null)}
+          />
         )}
         {forwardingMessage && (
           <ForwardDialog

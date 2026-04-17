@@ -27,7 +27,6 @@ import { chatKeys } from '../queries/keys'
 import { parseMentionsForRender, stripMentionsForPreview } from '../utils/mention'
 import { useSeenMembersQuery } from '../queries/use-queries'
 
-
 export function MessageBubble({
   message,
   isOwn,
@@ -98,7 +97,6 @@ export function MessageBubble({
   }, [user?.id, message.reactions])
 
   const isImageMessage = !isRevoked && (message.type === MessageType.Image || message.type === MessageType.Video)
-  const isFileMessage = !isRevoked && message.type === MessageType.File
   const hasReactions = !isRevoked && !!message.reactions && Object.keys(message.reactions).length > 0
 
   if (message.type === MessageType.System) {
@@ -316,7 +314,7 @@ export function MessageBubble({
                 </div>
 
                 <MessageIconButton
-                  className='h-7 w-7 bg-background border-border/80 text-icon-secondary hover:text-icon-secondary hover:bg-background cursor-pointer!'
+                  className='h-6 w-6 bg-background border-border/80 text-icon-secondary hover:text-icon-secondary hover:bg-background cursor-pointer!'
                   aria-label={mb.like}
                   icon={
                     quickReactEmoji !== '👍' ? (

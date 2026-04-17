@@ -1,7 +1,7 @@
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import { chatOptions } from './options'
 import { chatKeys } from './keys'
-import { getMediaMessagesApi, getSeenMembersApi } from '../api/chat.api'
+import { getMediaMessagesApi, getSeenMembersApi, getUnreadAnchorApi } from '../api/chat.api'
 import { getJoinRequestsApi } from '../api/chat.api'
 import type { JoinRequestResponse } from '../schemas/chat.schema'
 import type { GroupSortOption, GroupFilterOption } from '../api/chat.api'
@@ -126,5 +126,15 @@ export const useSeenMembersQuery = (conversationId: string, messageId: string, e
     queryFn: () => getSeenMembersApi(conversationId, messageId),
     enabled: enabled && !!conversationId && !!messageId,
     staleTime: 10_000
+  })
+}
+
+export const useUnreadAnchorQuery = (conversationId: string, enabled: boolean = true) => {
+  return useQuery({
+    queryKey: chatKeys.unreadAnchor(conversationId),
+    queryFn: () => getUnreadAnchorApi(conversationId),
+    enabled: enabled && !!conversationId,
+    staleTime: 0,
+    gcTime: 0
   })
 }

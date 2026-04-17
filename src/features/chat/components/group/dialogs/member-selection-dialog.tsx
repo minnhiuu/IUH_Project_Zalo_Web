@@ -130,7 +130,7 @@ function MemberSelectionContent({
       .map((id) => allAvailable.find((member) => member.userId === id))
       .filter((member): member is SearchMemberResponse => !!member)
       .filter((member, index, self) => self.findIndex((target) => target.userId === member.userId) === index)
-  }, [staticMembers, friends, searchResults, adminCandidates, selectedIds])
+  }, [staticMembers, friends, searchResults, adminCandidates, blockCandidates, selectedIds])
 
   const handleToggle = (userId: string) => {
     if (singleSelection) {

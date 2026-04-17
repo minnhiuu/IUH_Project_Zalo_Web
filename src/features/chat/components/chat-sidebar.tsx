@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { UserPlus, Users, Filter, MoreHorizontal, Megaphone } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useConversationsQuery } from '../queries/use-queries'
-import { useMarkAsReadMutation } from '../queries/use-mutations'
 import { useAuth } from '@/features/auth'
 import { MessageType, MessageStatus } from '@/constants/enum'
 import { useChatText } from '../i18n/use-chat-text'
@@ -29,13 +28,9 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
   const { text, t, i18n } = useChatText()
   const { user } = useAuth()
   const { data: conversations, isLoading, isError } = useConversationsQuery()
-  const { mutate: markAsRead } = useMarkAsReadMutation()
 
   const handleSelectChat = (chat: ConversationResponse) => {
     onSelectChat(chat)
-    if (chat.unreadCount && chat.unreadCount > 0) {
-      markAsRead(chat.id)
-    }
   }
 
   const getPreviewDisplay = (chat: ConversationResponse) => {
@@ -116,7 +111,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
         {conversations?.map((chat: ConversationResponse) => {
           const previewDisplay = getPreviewDisplay(chat)
           const isSelected = selectedChatId === chat.id
-          
+
           return (
             <div
               key={chat.id}
@@ -170,7 +165,9 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
                         : 'text-text-secondary font-normal'
                     )}
                   >
-                    {previewDisplay.showPromoteTargetIcon && <Megaphone className='w-3.5 h-3.5 shrink-0 text-orange-500' />}
+                    {previewDisplay.showPromoteTargetIcon && (
+                      <Megaphone className='w-3.5 h-3.5 shrink-0 text-orange-500' />
+                    )}
                     <span className='truncate'>{previewDisplay.text}</span>
                   </p>
 
@@ -182,20 +179,20 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
                         const isMentioned = mentions?.includes(user?.id || '')
                         const isCreate = meta?.action === 'CREATE_GROUP'
                         const isSystem = chat.lastMessage?.type === MessageType.System
-                        
+
                         return (
                           <>
                             {isMentioned && (
-                              <div className='bg-primary text-white text-[10px] font-bold w-[18px] h-[18px] rounded-full flex items-center justify-center'>@</div>
+                              <div className='bg-primary text-white text-[10px] font-bold w-[18px] h-[18px] rounded-full flex items-center justify-center'>
+                                @
+                              </div>
                             )}
                             {!isSystem && (
                               <div className='bg-destructive text-white text-[10px] font-bold px-1.5 min-w-[18px] h-[18px] rounded-full flex items-center justify-center'>
                                 {chat.unreadCount > 5 ? '5+' : chat.unreadCount}
                               </div>
                             )}
-                            {isSystem && isCreate && (
-                              <div className='w-2 h-2 bg-destructive rounded-full mr-1' />
-                            )}
+                            {isSystem && isCreate && <div className='w-2 h-2 bg-destructive rounded-full mr-1' />}
                           </>
                         )
                       })()}

@@ -1,0 +1,284 @@
+# Pull Request
+
+## Jira Ticket
+
+- [BH-200](https://tranngochuyen.atlassian.net/browse/BH-200)
+- Parent Epic: [BH-194](https://tranngochuyen.atlassian.net/browse/BH-194)
+
+**Related backend tickets covered by this PR:**
+
+- [BH-195](https://tranngochuyen.atlassian.net/browse/BH-195): Role-based UI (Owner / Admin / Member) + read receipt sync via WebSocket (`lastReadMessageId`).
+- [BH-196](https://tranngochuyen.atlassian.net/browse/BH-196): Create group, update name/avatar, disband group flows.
+- [BH-197](https://tranngochuyen.atlassian.net/browse/BH-197): Add/remove members, promote/demote admin. _Join-request UI not implemented._
+- _[BH-198](https://tranngochuyen.atlassian.net/browse/BH-198): Group invite system (join links / QR codes) — not implemented._
+- _[BH-199](https://tranngochuyen.atlassian.net/browse/BH-199): Per-member seen status display (read receipts per message) — not implemented._
+- _[BH-260](https://tranngochuyen.atlassian.net/browse/BH-260): Group settings API (permission toggles wired to backend) — UI scaffolded, API calls not connected._
+
+> Items in _italic_ are not yet implemented on the frontend.
+
+---
+
+## Description
+
+Frontend Web implementation for group conversation management (Feature 12). Covers the full group lifecycle UI/UX: group creation, member management, admin role actions, system message rendering, leave/disband flows, and real-time sync via WebSocket.
+
+---
+
+## Type of change
+
+- [ ] Bug fix
+- [x] New feature
+- [x] UI / UX update
+- [x] Refactor
+- [ ] Other (please describe)
+
+---
+
+## What was changed?
+
+### 1. Group Components (20 new/updated components)
+
+Files are organized into subfolders under `group/` for clarity:
+
+```
+group/
+  chat-info-group-sidebar.tsx   ← main entry (step router)
+  group-avatar.tsx
+  cards/      → group-intro-card, owner-card, promote-admin-card
+  dialogs/    → create-group, group-info, leave-group, rename-group, transfer-owner
+  steps/      → group-info-step, group-sub-step, group-management-step, group-members-step, group-info-overview-step
+  members/    → group-members-section, member-action-menu, member-avatar, member-item, selected-member-sidebar
+```
+
+| Component               | File                                        | Description                                                                                                                     |
+| ----------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `CreateGroupDialog`     | `group/dialogs/create-group-dialog.tsx`     | Create group / add member dialog: 2 modes (Directory A-Z + Search), image cropper for avatar; navigates to new group on success |
+| `GroupIntroCard`        | `group/cards/group-intro-card.tsx`          | Welcome card at top of chat: member avatars (grid up to 8, +N overflow), 3 tips; uniform `max-w-sm`                             |
+| `GroupMembersSection`   | `group/members/group-members-section.tsx`   | Members list: debounced search, infinite scroll, role badges (Owner gold / Admin silver)                                        |
+| `MemberActionMenu`      | `group/members/member-action-menu.tsx`      | Per-member dropdown: Leave / Promote / Demote / Remove (shown/hidden based on role)                                             |
+| `MemberItem`            | `group/members/member-item.tsx`             | Item in add-member dialog: checkbox or "Already joined" (disabled)                                                              |
+| `GroupAvatar`           | `group/group-avatar.tsx`                    | Composite avatar: 1→single, 2→diagonal, 3→triangle, 4+→grid 2×2 with +N                                                         |
+| `MemberAvatar`          | `group/members/member-avatar.tsx`           | Single avatar or delegates to GroupAvatar                                                                                       |
+| `SelectedMemberSidebar` | `group/members/selected-member-sidebar.tsx` | Selected members sidebar with X remove button, badge count (3/100)                                                              |
+| `ChatInfoGroupSidebar`  | `group/chat-info-group-sidebar.tsx`         | Thin orchestrator: manages step state (`info/management/members`) + `managementOpenSignal` sync                                 |
+| `GroupInfoStep`         | `group/steps/group-info-step.tsx`           | Info panel: disbanded state, ChatInfoTopSection, ChatInfoSections, all info-step dialogs                                        |
+| `GroupSubStep`          | `group/steps/group-sub-step.tsx`            | Management/Members panel: back button header, GroupManagementStep or GroupMembersStep                                           |
+| `GroupManagementStep`   | `group/steps/group-management-step.tsx`     | Role-aware management tab: Owner=full, Admin=restricted (no disband/owner section), Member=locked view                          |
+| `GroupMembersStep`      | `group/steps/group-members-step.tsx`        | Members tab: add button + GroupMembersSection                                                                                   |
+| `LeaveGroupDialog`      | `group/dialogs/leave-group-dialog.tsx`      | Leave group dialog: "silent" mode toggle, handles transfer+leave atomically for Owner                                           |
+| `TransferOwnerDialog`   | `group/dialogs/transfer-owner-dialog.tsx`   | Select new owner dialog: search + radio list; Admin members show key badge on avatar                                            |
+| `OwnerCard`             | `group/cards/owner-card.tsx`                | Notification card when ownership transferred: "Manage Group" + "Thông tin nhóm" buttons; uniform `max-w-sm`                     |
+| `RenameGroupDialog`     | `group/dialogs/rename-group-dialog.tsx`     | Rename dialog: pre-filled, auto-selected, validates against current name                                                        |
+| `GroupInfoDialog`       | `group/dialogs/group-info-dialog.tsx`       | Group info modal: step navigation with Framer Motion animation                                                                  |
+| `GroupInfoOverviewStep` | `group/steps/group-info-overview-step.tsx`  | Info content: avatar edit, members mini preview, media gallery                                                                  |
+| `PromoteAdminCard`      | `group/cards/promote-admin-card.tsx`        | Notification card when promoted to admin: "Manage Group" + "Send Greeting" buttons; uniform `max-w-sm`                          |
+| `ChatInfoTopSection`    | `chat-info-top-section.tsx`                 | Sidebar header: icon buttons based on group/direct (Mute, Pin, Add Member, Settings)                                            |
+
+### 2. System Message Rendering (11 action handlers)
+
+Each `SystemActionType` has a dedicated handler that generates i18n keys + interpolation values:
+
+| Action           | Handler File                           | Key Pattern                                                                                                            | Notes                                            |
+| ---------------- | -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| `CREATE_GROUP`   | → delegates to `add-members-action.ts` | `chat.system.add_members.*`                                                                                            | Shares logic with ADD_MEMBERS                    |
+| `ADD_MEMBERS`    | `add-members-action.ts`                | `.single_self`, `.many_self`, `.many_self_count`, `.single_other`, `.many_other`, `.many_other_count`, `.joined_group` | Branches by: self/other, count ≤3/>3             |
+| `REMOVE_MEMBER`  | `remove-member-action.ts`              | `.self_removed`, `.by_you`, `.by_actor`                                                                                | Shows target avatar                              |
+| `LEAVE_GROUP`    | `leave-group-action.ts`                | `.self`, `.by_actor`                                                                                                   | —                                                |
+| `PROMOTE_ADMIN`  | `promote-admin-action.ts`              | `.self_promoted`, `.by_you`, `.by_actor`                                                                               | Renders `PromoteAdminCard` for the promoted user |
+| `DEMOTE_ADMIN`   | `demote-admin-action.ts`               | `.self_demoted`, `.by_you`, `.by_actor`                                                                                | —                                                |
+| `TRANSFER_OWNER` | `transfer-owner-action.ts`             | `.self_promoted`, `.by_you`, `.by_actor`                                                                               | Renders `OwnerCard` for the new owner            |
+| `UPDATE_NAME`    | `update-name-action.ts`                | `.update_name`                                                                                                         | Includes Pencil icon, shows oldName → newName    |
+| `UPDATE_AVATAR`  | `update-avatar-action.ts`              | `.update_avatar`                                                                                                       | —                                                |
+| `DISBAND_GROUP`  | `disband-group-action.ts`              | `.disband_group`                                                                                                       | Includes Delete conversation button              |
+
+**System message UI:** Displays target avatars, clickable names (opens OthersProfileDialog), delete button for DISBAND/REMOVE(self)/LEAVE(self). For PROMOTE_ADMIN and TRANSFER_OWNER, when the current user is the target, renders the notification card (PromoteAdminCard/OwnerCard) instead of the text bubble. For PROMOTE_ADMIN bubbles a green `Key` icon is shown; for DEMOTE_ADMIN a `Key+X` overlay icon is shown.
+
+### 3. API Hooks (9 mutations + 3 queries)
+
+**Mutations:**
+
+| Hook                               | API                                        | Invalidation                                                                                                                                         |
+| ---------------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `useCreateGroupMutation`           | `POST /conversations/groups`               | conversations (prepends new group to top)                                                                                                            |
+| `useAddMembersMutation`            | `POST /conversations/{id}/members`         | conversations, messages, friendsDirectory, search-members                                                                                            |
+| `useRemoveMemberFromGroupMutation` | `DELETE /conversations/{id}/members/{uid}` | conversations, messages, group-members                                                                                                               |
+| `usePromoteToAdminMutation`        | `PATCH /.../promote`                       | conversations, messages, group-members                                                                                                               |
+| `useDemoteFromAdminMutation`       | `PATCH /.../demote`                        | conversations, messages, group-members                                                                                                               |
+| `useUpdateGroupNameMutation`       | `PATCH /conversations/{id}/name`           | conversations                                                                                                                                        |
+| `useUpdateGroupAvatarMutation`     | `PATCH /conversations/{id}/avatar`         | conversations (FormData multipart)                                                                                                                   |
+| `useLeaveGroupMutation`            | `DELETE /conversations/{id}/leave`         | conversations (filtered out), messages (removed); passes optional `transferTo` for owner leave (transfer + leave handled atomically in one API call) |
+
+**Queries:**
+
+| Hook                       | Triggered When                  | Returns                           |
+| -------------------------- | ------------------------------- | --------------------------------- |
+| `useFriendsDirectory`      | Dialog open + no search query   | Friends grouped A-Z (TreeMap)     |
+| `useSearchMembersInfinite` | Query present (debounced 300ms) | Matching friends, paginated       |
+| `useGroupMembersInfinite`  | Members tab open                | Members sorted by role, paginated |
+
+### 4. WebSocket Real-time Updates
+
+**Conversation cache updates on socket event:**
+
+| Action Type                              | Behavior                                                                 |
+| ---------------------------------------- | ------------------------------------------------------------------------ |
+| Normal messages, ADD_MEMBERS             | Move conversation to top, increment unreadCount                          |
+| LEAVE_GROUP, REMOVE_MEMBER               | Do **not** move to top; only update lastMessage, remove member from list |
+| DISBAND_GROUP, REMOVE(self), LEAVE(self) | Clear messages cache, conversation disabled                              |
+| ADD_MEMBERS (self re-added)              | Invalidate messages cache → refetch (BE filters by joinedAt)             |
+
+**Read receipts:** Updates `lastReadMessageId` in `conversation.members` for the specific user.
+
+### 5. Role-Based UI
+
+| Role       | Visible Actions                                                                                                              |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| **OWNER**  | All: Management tab (full), promote/demote, remove any member, disband, avatar/name edit                                     |
+| **ADMIN**  | Management tab (restricted — no owner/deputy section, no disband), remove Member-role only, avatar/name edit                 |
+| **MEMBER** | Management tab locked (blur + ban icon overlay), can only view member list and leave group. No action menus on other members |
+
+### 6. Leave / Disband UX Flows
+
+**Leave Group (non-Owner):**
+
+1. Click "Leave Group" in sidebar → `LeaveGroupDialog` opens
+2. Toggle "Silent mode" (leave without sending notification)
+3. Confirm → mutation fires → success toast → 900ms delay → conversation removed from list
+
+**Leave Group (Owner — Transfer Ownership Flow):**
+
+1. Click "Leave Group" in sidebar → `TransferOwnerDialog` opens
+2. Search/select a new group owner from the member list (radio buttons)
+3. Click "Select and continue" → `LeaveGroupDialog` opens
+4. Toggle "Silent mode" if desired, click "Leave group"
+5. On confirm → single `leaveGroup` API call (with `transferTo` param) → BE handles transfer + leave atomically
+6. Cancel at any step → no changes made (neither transfer nor leave happens)
+
+**Disband Group (Owner only):**
+
+1. Sidebar → Management tab → scroll to "Disband group"
+2. Click → confirmation dialog
+3. Confirm → `disbandGroupApi` → `isDisbanded=true`
+4. Sidebar shows "Group has been disbanded" + Delete button
+5. Input composer disabled, cannot send messages
+
+### 7. Member Add/Search Flow
+
+**Directory mode** (default when dialog opens):
+
+- Shows all friends grouped alphabetically A-Z
+- Existing group members shown as "Already joined" (disabled, checkmark icon)
+
+**Search mode** (user types name or phone):
+
+- Debounced 300ms, strips leading "+" (for phone numbers)
+- Infinite scroll pagination
+- Same `isAlreadyMember` disable logic
+
+**Selected sidebar:** Shows selected members list, X button to deselect, badge counter.
+
+---
+
+## Screenshots / Video
+
+> Attach screenshots by section below:
+
+### A. Create Group
+
+- [ ] **A1.** Create group dialog: A-Z friends directory (Directory mode)
+- [ ] **A2.** Create group dialog: search mode (search results by name)
+- [ ] **A3.** Create group dialog: search mode (search results by phone number)
+- [ ] **A4.** Selected member sidebar (showing selected count)
+- [ ] **A5.** Image cropper for group avatar
+- [ ] **A6.** Newly created group: GroupIntroCard + "group created" system message
+
+### B. Member Management
+
+- [ ] **B1.** Members tab: member list with role badges (Owner gold, Admin silver)
+- [ ] **B2.** Search members within group
+- [ ] **B3.** Action menu on member (Owner view): Promote / Remove
+- [ ] **B4.** Action menu on admin (Owner view): Demote / Remove
+- [ ] **B5.** Add member to existing group dialog (showing "Already joined" for current members)
+
+### C. Admin Role Actions
+
+- [ ] **C1.** System message "promoted to admin" (seen from owner)
+- [ ] **C2.** PromoteAdminCard: notification card for promoted user ("Manage Group" + "Send Greeting" buttons)
+- [ ] **C3.** System message "demoted from admin"
+
+### D. System Messages (all types)
+
+- [ ] **D1.** Create group: member list with avatars
+- [ ] **D2.** Add members: system message with target avatars
+- [ ] **D3.** Kick member: system message "removed [name] from group"
+- [ ] **D4.** Rename group: system message with oldName → newName + Pencil icon
+- [ ] **D5.** Update avatar: system message "changed group photo"
+
+### E. Leave / Disband
+
+- [ ] **E1.** LeaveGroupDialog: "leave silently" toggle
+- [ ] **E2.** System message when member leaves group (public)
+- [ ] **E3.** Sidebar after group disbanded: notice + Delete button
+- [ ] **E4.** Chat window after disband: input disabled, disband system message
+
+### F. Sidebar Group Info
+
+- [ ] **F1.** Sidebar Info step: avatar, name, action buttons (Mute, Pin, Add, Settings)
+- [ ] **F2.** Sidebar Management step: permission toggles, disband button
+- [ ] **F3.** GroupInfoDialog (modal): overview with mini member preview + media gallery
+- [ ] **F4.** ChatInfoSections: Members, Group Board, Media, Files, Links, Privacy Settings sections
+
+### G. Group Avatar & Intro
+
+- [ ] **G1.** GroupAvatar composite: 2 members, 3 members, 4+ members
+- [ ] **G2.** GroupIntroCard at top of chat: avatar grid + tips
+
+---
+
+## How Has This Been Tested? (Manual)
+
+1. Run FE Web locally (`npm run dev`).
+2. Login with test accounts: Owner, Admin, Member.
+3. Verify each flow:
+
+| Test Case                                                                 | Expected                                                     | Checked |
+| ------------------------------------------------------------------------- | ------------------------------------------------------------ | ------- |
+| Create group from dialog: select ≥2 friends, set name, crop avatar        | Group created, redirected to group, IntroCard displayed      | [x]     |
+| Directory A-Z shows correct order, existing members show "Already joined" | Grouped alphabetically, disabled for existing members        | [x]     |
+| Search member by name + phone number                                      | Correct results, infinite scroll works                       | [x]     |
+| Add member from group settings                                            | Member list updated, system message broadcast                | [x]     |
+| Remove member (Owner/Admin click)                                         | Member removed from list, system message shown               | [x]     |
+| Promote/Demote admin                                                      | Role badge updated, PromoteAdminCard shown for target        | [x]     |
+| Leave group (public)                                                      | Toast → 900ms delay → conversation removed from list         | [x]     |
+| Leave group (silent)                                                      | Only admins/owner see system message                         | [x]     |
+| Disband group (Owner)                                                     | Confirmation → sidebar shows "disbanded" → input disabled    | [x]     |
+| WebSocket: new message → conversation moves to top                        | Conversations list sorted correctly                          | [x]     |
+| WebSocket: LEAVE/REMOVE → conversation stays in place                     | lastMessage updated but position unchanged                   | [x]     |
+| Role-based: Member cannot see Management tab or action menus              | Only sees leave + view members                               | [x]     |
+| Rename group: pre-fills current name, validates same name                 | Dialog shows current name selected, blocks save if unchanged | [x]     |
+| Update avatar: crop → upload → new avatar displayed                       | Multipart file upload, avatar updated in real-time           | [x]     |
+
+---
+
+## Risk Level
+
+- [ ] Low – UI-only or safe change
+- [x] Medium – affects logic or state
+- [ ] High – affects authentication or data flow
+
+**Rationale:** Complex state management: role-based rendering, WebSocket cache invalidation for multiple action types, optimistic updates. Does not affect authentication.
+
+---
+
+## Checklist
+
+- [x] PR title contains `[BH-KEY]`
+- [x] Commit messages follow the convention
+- [x] Jira ticket is linked
+- [x] UI layout is not broken
+- [x] Responsive behavior works correctly (sidebar hidden at ≤1150px width)
+- [x] Manual testing completed
+- [x] i18n keys for all 9 system action types
+- [x] Role-based UI: Owner/Admin/Member see correct actions
+- [x] WebSocket sync: negative actions do not push conversation to top
+- [x] Query invalidation correct for each mutation
