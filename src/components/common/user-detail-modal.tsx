@@ -42,8 +42,8 @@ export function UserDetailModal({ userId, open, onOpenChange }: UserDetailModalP
     enabled: open && !!userId && activeTab === 'activity'
   })
 
-  const user = userData?.data
-  const auditLogs = auditData?.data?.data || []
+  const user = userData?.data?.data
+  const auditLogs = auditData?.data?.data?.data || []
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

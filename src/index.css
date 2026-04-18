@@ -130,6 +130,16 @@
   --text-disable: #738296;
   --empty-state-icon: rgba(0, 0, 0, 0.08);
   --empty-state-lock: rgba(0, 0, 0, 0.15);
+
+  --friend-page-bg: #f2f4f8;
+  --friend-card-border: #e6e8ed;
+  --friend-message-bg: #f4f6fa;
+  --friend-message-border: #d6dae2;
+  --friend-btn-muted: #e6e8ed;
+  --friend-btn-muted-hover: #dde0e7;
+  --friend-btn-primary: #cfe2f7;
+  --friend-btn-primary-hover: #c1d8f2;
+  --friend-btn-primary-text: #0a4ea7;
 }
 
 @layer utilities {
@@ -247,6 +257,16 @@
   --text-disable: #738296;
   --empty-state-icon: hsla(0, 0%, 100%, 0.1);
   --empty-state-lock: hsla(0, 0%, 100%, 0.15);
+
+  --friend-page-bg: #252b33;
+  --friend-card-border: #3a424d;
+  --friend-message-bg: #313843;
+  --friend-message-border: #46505f;
+  --friend-btn-muted: #3a424d;
+  --friend-btn-muted-hover: #46505f;
+  --friend-btn-primary: #2f5f9f;
+  --friend-btn-primary-hover: #3a6cb0;
+  --friend-btn-primary-text: #eaf2ff;
 }
 
 @theme inline {
@@ -450,10 +470,6 @@ input[type='radio']:checked {
 
   .centered-toast-content--error {
     @apply bg-destructive-solid/95;
-  }
-
-  .centered-toast-content--warning {
-    @apply bg-amber-600/95;
   }
 
   .centered-toast-icon-circle {
@@ -671,4 +687,57 @@ input[type='radio']:checked {
 .readonly-management-checkbox:disabled:checked {
   accent-color: var(--primary) !important;
   opacity: 1 !important;
+}
+
+/* ── Scrollbar ── */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* ── Highlight message (scroll-to) ── */
+@keyframes highlight-flash {
+  0% {
+    background-color: rgba(0, 104, 255, 0.18);
+  }
+  60% {
+    background-color: rgba(0, 104, 255, 0.18);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.highlight-message {
+  animation: highlight-flash 1.2s ease-out forwards;
+  border-radius: 10px;
+}
+
+/* ── Message bubble action buttons: show on group hover (Tailwind v4 fix) ── */
+.msg-actions {
+  display: none;
+  align-items: center;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.group:hover .msg-actions {
+  display: flex;
+}
+
+.msg-actions.is-open {
+  display: flex;
+}
+
+.msg-actions.is-hidden {
+  display: none !important;
 }

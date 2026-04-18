@@ -7,13 +7,15 @@ import { ChatInput } from './chat-input'
 import { ChatInputRestricted } from './chat-input-restricted'
 import { useChatScroll } from '../hooks/use-chat-scroll'
 import { useChatText } from '../i18n/use-chat-text'
+import { VideoCallRoom, IncomingCallDialog, OutgoingCallScreen, useVideoCall } from './call-video/video-call'
+import { useCallNotification } from '../hooks/use-call-notification'
+import { rejectCallApi } from '../api/call.api'
 import {
   useMarkAsReadMutation,
   useUpdateGroupNameMutation,
   useUpdateGroupAvatarMutation
 } from '../queries/use-mutations'
-import { useEffect, useRef, useMemo, useState } from 'react'
-import { createPortal } from 'react-dom'
+import { useEffect, useRef, useMemo, useState, useCallback } from 'react'
 import type { ConversationResponse, MessageResponse } from '../schemas/chat.schema'
 import { ForwardDialog } from './forward-dialog'
 import { formatLastSeen } from '@/utils/date'
@@ -30,19 +32,21 @@ import { GroupIntroCard } from './group/cards/group-intro-card'
 import { getConversationDisplayName } from '../utils/group-name'
 import { GroupInfoDialog } from './group/dialogs/group-info-dialog'
 import { RenameGroupDialog } from './group/dialogs/rename-group-dialog'
-import { showLoadingToast, showSuccessToast, showErrorToast } from '@/utils/toast'
+import { showLoadingToast, showSuccessToast, showErrorToast, showWarningToast } from '@/utils/toast'
 import { toast } from 'sonner'
 import { StrangerBanner } from './stranger-banner'
 import { OthersProfileDialog } from '@/features/user/components/profile-dialog/others/others-profile-dialog'
 import { OwnerProfileDialog } from '@/features/user/components/profile-dialog/owner/owner-profile-dialog'
 import { canSendMessages, canChangeGroupInfo } from '../utils/group-permissions'
+import { PinBoard } from './pin-board'
+import { TypingIndicator } from './typing-indicator'
 
 const OPEN_GROUP_MANAGEMENT_EVENT = 'chat:open-group-management'
 const OPEN_GROUP_INFO_EVENT = 'chat:open-group-info'
 
 export function ChatWindow({ conversation }: { conversation: ConversationResponse }) {
   const { user } = useAuth()
-  const { sendMessage } = useChatContext()
+  const { sendMessage, typingUsers } = useChatContext()
   const { t, text } = useChatText()
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useMessagesInfiniteQuery(conversation.id)
 
@@ -50,6 +54,14 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   const { mutate: markAsRead } = useMarkAsReadMutation()
   const lastMessageRef = useRef<HTMLDivElement>(null)
   const lastReadSentId = useRef<string | null>(null)
+
+  const scrollToMessage = useCallback((messageId: string) => {
+    const el = document.getElementById(`msg-${messageId}`)
+    if (!el) return
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    el.classList.add('highlight-message')
+    setTimeout(() => el.classList.remove('highlight-message'), 1200)
+  }, [])
 
   const [replyTo, setReplyTo] = useState<MessageResponse | null>(null)
   const [forwardingMessage, setForwardingMessage] = useState<MessageResponse | null>(null)
@@ -61,6 +73,51 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isOwnerProfileOpen, setIsOwnerProfileOpen] = useState(false)
   const [profileUserId, setProfileUserId] = useState<string | undefined>(undefined)
+
+  // Video Call
+  const {
+    callState,
+    startCall,
+    connectCall,
+    cancelOutgoing,
+    handleIncomingCall,
+    acceptIncoming,
+    rejectIncoming,
+    endCall
+  } = useVideoCall()
+  const [isCallLoading, setIsCallLoading] = useState(false)
+
+  useCallNotification({ onIncomingCall: handleIncomingCall })
+
+  const handleStartVideoCall = async () => {
+    if (!partnerId || isGroup || isCloudConversation) return
+    setIsCallLoading(true)
+    try {
+      await startCall(partnerId)
+    } catch (error: any) {
+      const code = error?.response?.data?.code
+      if (code === 5001) {
+        showWarningToast(t('call.busy'))
+      } else if (code === 5004) {
+        showWarningToast(t('call.already_in_call'))
+      } else {
+        showErrorToast(t('call.error'))
+      }
+    } finally {
+      setIsCallLoading(false)
+    }
+  }
+
+  const handleRejectIncoming = async () => {
+    if (callState.incoming) {
+      try {
+        await rejectCallApi(callState.incoming.sessionId)
+      } catch {
+        /* ignore */
+      }
+    }
+    rejectIncoming()
+  }
 
   useEffect(() => {
     const handleResize = () => {
@@ -185,9 +242,16 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
       const targetIds = Array.isArray(metadata.targetIds) ? metadata.targetIds.map(String) : []
       const includesMe = targetIds.includes(String(user.id))
 
-      if (metadata.action === 'REMOVE_MEMBER' && includesMe) return true
+      if ((metadata.action === 'REMOVE_MEMBER' || metadata.action === 'BLOCK_MEMBER') && includesMe) return true
       if (metadata.action === 'LEAVE_GROUP' && String(msg.senderId || '') === String(user.id)) return true
-      if ((metadata.action === 'ADD_MEMBERS' || metadata.action === 'CREATE_GROUP') && includesMe) return false
+      if (
+        (metadata.action === 'ADD_MEMBERS' ||
+          metadata.action === 'CREATE_GROUP' ||
+          metadata.action === 'JOIN_REQUEST_APPROVED') &&
+        includesMe
+      )
+        return false
+      if (metadata.action === 'JOIN_BY_LINK' && String(msg.senderId || '') === String(user.id)) return false
     }
 
     return false
@@ -302,15 +366,27 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
               )}
             </div>
             <div className='min-w-0 flex-1 group/header'>
-              <button
-                disabled={
+              <div
+                role='button'
+                aria-disabled={
                   !conversation.isGroup || isCloudConversation || !canChangeGroupInfo(conversation, user?.id || '')
                 }
                 onClick={(e) => {
-                  e.stopPropagation()
-                  setIsRenameDialogOpen(true)
+                  if (
+                    conversation.isGroup &&
+                    !isCloudConversation &&
+                    canChangeGroupInfo(conversation, user?.id || '')
+                  ) {
+                    e.stopPropagation()
+                    setIsRenameDialogOpen(true)
+                  }
                 }}
-                className='flex items-center gap-1.5 max-w-full group/btn'
+                className={cn(
+                  'flex items-center gap-1.5 max-w-full group/btn text-left',
+                  conversation.isGroup && !isCloudConversation && canChangeGroupInfo(conversation, user?.id || '')
+                    ? 'cursor-pointer'
+                    : 'cursor-default'
+                )}
               >
                 <h2 className='text-[16px] font-semibold text-foreground/90 leading-tight overflow-hidden whitespace-nowrap truncate'>
                   {isCloudConversation
@@ -322,7 +398,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
                     <ActionButton icon={<Pencil />} size='sm' iconSize='sm' />
                   </div>
                 )}
-              </button>
+              </div>
               <p className='text-[12px] text-muted-foreground mt-0.5 leading-tight flex items-center gap-1 overflow-hidden whitespace-nowrap'>
                 {isCloudConversation ? (
                   'Lưu và đồng bộ dữ liệu giữa các thiết bị'
@@ -351,10 +427,20 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             </div>
           </div>
           <div className='flex items-center space-x-1 sm:space-x-2 text-muted-foreground'>
-            <button className='p-2 hover:bg-muted rounded-full transition-colors hidden sm:block'>
+            <button
+              onClick={handleStartVideoCall}
+              disabled={isCallLoading || isGroup || isCloudConversation || callState.phase !== 'idle'}
+              className='p-2 hover:bg-muted rounded-full transition-colors hidden sm:block disabled:opacity-40 disabled:cursor-not-allowed'
+              title='Gọi thoại'
+            >
               <Phone className='w-[18px] h-[18px]' />
             </button>
-            <button className='p-2 hover:bg-muted rounded-full transition-colors hidden sm:block'>
+            <button
+              onClick={handleStartVideoCall}
+              disabled={isCallLoading || isGroup || isCloudConversation || callState.phase !== 'idle'}
+              className='p-2 hover:bg-muted rounded-full transition-colors hidden sm:block disabled:opacity-40 disabled:cursor-not-allowed'
+              title='Gọi video'
+            >
               <Video className='w-4 h-4' />
             </button>
             <div className='w-px h-5 bg-border mx-1 hidden sm:block' />
@@ -378,62 +464,71 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
           <StrangerBanner partnerId={partnerId} partnerName={conversation.name || 'Thành viên Zalo'} />
         )}
 
-        <div
-          ref={scrollRef}
-          onScroll={handleScroll}
-          className='flex-1 overflow-y-auto px-4 py-4 flex flex-col-reverse custom-scrollbar'
-        >
-          {isLoading && (
-            <div className='flex items-center justify-center flex-1 text-sm text-primary py-8'>{text.loading}</div>
+        {/* Pin Board & Messages Wrapper */}
+        <div className='flex-1 relative flex flex-col min-h-0'>
+          {/* Pin Board */}
+          {!isCloudConversation && !isAiConversation && (
+            <PinBoard conversationId={conversation.id} onScrollToMessage={scrollToMessage} />
           )}
-          {allMessages.map((msg, index) => {
-            const prevMsg = allMessages[index + 1]
-            const nextMsg = allMessages[index - 1]
-            const isFirst = !isSameGroup(msg, prevMsg)
-            const isLast = !isSameGroup(msg, nextMsg)
-            const isNewestVisible = index === 0
-            return (
-              <div key={msg.id} ref={isNewestVisible ? lastMessageRef : null}>
-                <MessageBubble
-                  message={msg}
-                  isOwn={msg.senderId === user?.id}
-                  isFirst={isFirst}
-                  isLast={isLast}
-                  isNewest={isNewestVisible}
-                  conversation={conversation}
-                  onReply={() => setReplyTo(msg)}
-                  onForward={() => setForwardingMessage(msg)}
-                  onAvatarClick={(userId) => {
-                    if (userId === user?.id) {
-                      setIsOwnerProfileOpen(true)
-                    } else {
-                      setProfileUserId(userId)
-                      setIsProfileOpen(true)
-                    }
-                  }}
-                />
-              </div>
-            )
-          })}
-          {isFetchingNextPage && <div className='py-4 text-center text-sm text-muted-foreground'>{text.loading}</div>}
-          {conversation.isGroup &&
-            !conversation.isDisbanded &&
-            !isCurrentUserRemovedFromGroup &&
-            !hasNextPage &&
-            !isFetchingNextPage && (
-              <GroupIntroCard
-                conversationId={conversation.id}
-                groupTitle={getConversationDisplayName(conversation, 'Nhóm', undefined, user?.id)}
-                groupMembers={(conversation.members || []).map((m) => ({
-                  id: m.userId,
-                  avatar: m.avatar,
-                  name: m.fullName
-                }))}
-                targetAvatars={[]}
-                secondaryLabel={null}
-                t={t}
-              />
+
+          <div
+            ref={scrollRef}
+            onScroll={handleScroll}
+            className='flex-1 overflow-y-auto px-4 py-4 flex flex-col-reverse custom-scrollbar'
+          >
+            {isLoading && (
+              <div className='flex items-center justify-center flex-1 text-sm text-primary py-8'>{text.loading}</div>
             )}
+            {allMessages.map((msg, index) => {
+              const prevMsg = allMessages[index + 1]
+              const nextMsg = allMessages[index - 1]
+              const isFirst = !isSameGroup(msg, prevMsg)
+              const isLast = !isSameGroup(msg, nextMsg)
+              const isNewestVisible = index === 0
+              return (
+                <div key={msg.id} id={`msg-${msg.id}`} ref={isNewestVisible ? lastMessageRef : null}>
+                  <MessageBubble
+                    message={msg}
+                    isOwn={msg.senderId === user?.id}
+                    isFirst={isFirst}
+                    isLast={isLast}
+                    isNewest={isNewestVisible}
+                    conversation={conversation}
+                    onReply={() => setReplyTo(msg)}
+                    onForward={() => setForwardingMessage(msg)}
+                    onAvatarClick={(userId) => {
+                      if (userId === user?.id) {
+                        setIsOwnerProfileOpen(true)
+                      } else {
+                        setProfileUserId(userId)
+                        setIsProfileOpen(true)
+                      }
+                    }}
+                  />
+                </div>
+              )
+            })}
+            {isFetchingNextPage && <div className='py-4 text-center text-sm text-muted-foreground'>{text.loading}</div>}
+            {conversation.isGroup &&
+              !conversation.isDisbanded &&
+              !isCurrentUserRemovedFromGroup &&
+              !hasNextPage &&
+              !isFetchingNextPage && (
+                <GroupIntroCard
+                  conversationId={conversation.id}
+                  groupTitle={getConversationDisplayName(conversation, 'Nhóm', undefined, user?.id)}
+                  groupMembers={(conversation.members || []).map((m) => ({
+                    id: m.userId,
+                    avatar: m.avatar,
+                    name: m.fullName
+                  }))}
+                  targetAvatars={[]}
+                  secondaryLabel={null}
+                  t={t}
+                />
+              )}
+          </div>
+          <TypingIndicator typingUsers={typingUsers.filter((u) => u.conversationId === conversation.id)} />
         </div>
 
         {conversation.isDisbanded || isCurrentUserRemovedFromGroup ? (
@@ -441,7 +536,12 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
         ) : !canSendMessages(conversation, user?.id || '') ? (
           <ChatInputRestricted message={text.restricted.onlyAdminCanSend} highlightTags />
         ) : (
-          <ChatInput conversationId={conversation.id} replyTo={replyTo} onCancelReply={() => setReplyTo(null)} />
+          <ChatInput
+            conversationId={conversation.id}
+            isGroup={conversation.isGroup}
+            replyTo={replyTo}
+            onCancelReply={() => setReplyTo(null)}
+          />
         )}
         {forwardingMessage && (
           <ForwardDialog
@@ -450,10 +550,9 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             onClose={() => setForwardingMessage(null)}
             onConfirm={(selectedConvIds, description) => {
               selectedConvIds.forEach((convId) => {
-                const finalContent = description
-                  ? `${forwardingMessage.content}\n---\n${description}`
-                  : forwardingMessage.content || ''
-                sendMessage(convId, finalContent, null, true)
+                const baseContent = forwardingMessage.content ?? ''
+                const finalContent = description ? `${baseContent}\n---\n${description}` : baseContent
+                sendMessage(convId, finalContent, null, true, forwardingMessage.attachments ?? undefined)
               })
             }}
           />
@@ -472,14 +571,9 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
 
       {isInfoSidebarOpen && !isInfoDialogOpen && (
         <div
-          className='absolute inset-0 bg-transparent z-90 min-[1150px]:hidden animate-in fade-in duration-200 cursor-pointer'
+          className='absolute inset-0 bg-transparent z-[35] min-[1150px]:hidden animate-in fade-in duration-200 cursor-pointer'
           onClick={() => setIsInfoSidebarOpen(false)}
         />
-      )}
-
-      {/* Placeholder to reserve sidebar width in flex layout */}
-      {isInfoSidebarOpen && !isInfoDialogOpen && !isCloudConversation && (
-        <div className='w-87.5 shrink-0 hidden min-[1150px]:block' />
       )}
 
       {isCloudConversation ? (
@@ -498,17 +592,20 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
           onAvatarClick={triggerFileInput}
         />
       ) : (
-        isInfoSidebarOpen &&
-        createPortal(
-          <div className='fixed top-0 right-0 h-full pointer-events-auto z-[100]'>
+        isInfoSidebarOpen && (
+          <div
+            className={cn(
+              'h-full pointer-events-auto z-[40] bg-background w-87.5 shrink-0 border-l border-border',
+              window.innerWidth < 1150 ? 'absolute top-0 right-0 shadow-2xl overflow-hidden' : 'relative'
+            )}
+          >
             <ChatInfoSidebar
               conversation={conversation}
               onRenameClick={() => setIsRenameDialogOpen(true)}
               onAvatarClick={triggerFileInput}
               managementOpenSignal={managementOpenSignal}
             />
-          </div>,
-          document.body
+          </div>
         )
       )}
 
@@ -528,6 +625,25 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
       {/* Others Profile Dialog */}
       <OthersProfileDialog open={isProfileOpen} onOpenChange={setIsProfileOpen} userId={profileUserId || partnerId} />
       <OwnerProfileDialog open={isOwnerProfileOpen} onOpenChange={setIsOwnerProfileOpen} />
+
+      {/* Video Call Overlays */}
+      {callState.phase === 'ringing' && callState.callData && (
+        <OutgoingCallScreen callData={callState.callData} onCancel={cancelOutgoing} onConnect={connectCall} />
+      )}
+
+      {callState.phase === 'active' && callState.callData && (
+        <VideoCallRoom callData={callState.callData} onCallEnd={endCall} />
+      )}
+
+      {callState.incoming && (
+        <IncomingCallDialog
+          callerName={callState.incoming.callerName}
+          callerAvatar={callState.incoming.callerAvatar}
+          sessionId={callState.incoming.sessionId}
+          onAccept={acceptIncoming}
+          onReject={handleRejectIncoming}
+        />
+      )}
     </div>
   )
 }

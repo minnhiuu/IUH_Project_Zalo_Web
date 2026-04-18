@@ -35,7 +35,7 @@ export function FriendRequestCard({
   const formattedDate = format(new Date(request.createdAt), 'dd/MM', { locale: dateLocale })
 
   return (
-    <div className='bg-background rounded-lg border border-border p-4 min-w-70 max-w-80 flex flex-col'>
+    <div className='bg-background rounded-xl border border-(--friend-card-border) p-4 flex flex-col shadow-[0_1px_0_rgba(8,27,58,0.02)]'>
       {/* Header */}
       <div className='flex items-start gap-3'>
         <div className='cursor-pointer' onClick={onViewProfile}>
@@ -48,34 +48,38 @@ export function FriendRequestCard({
           >
             {displayName}
           </h4>
-          <p className='text-[13px] text-muted-foreground'>
-            {formattedDate} - {text.source.friendSuggestion}
+          <p className='text-[13px] text-muted-foreground font-medium'>
+            {formattedDate} - {text.requestCard.sourcePhone}
           </p>
         </div>
-        <button className='p-1.5 hover:bg-muted rounded-md transition-colors'>
-          <MessageSquare className='w-4 h-4 text-muted-foreground' />
+        <button type='button' className='p-1.5 hover:bg-muted rounded-md transition-colors'>
+          <MessageSquare className='w-4 h-4 text-muted-foreground/80' />
         </button>
       </div>
 
       {/* Message */}
       {request.message && (
-        <div className='mt-3 bg-muted/50 rounded-lg p-3 border-l-2 border-primary/30'>
-          <p className='text-[13px] text-foreground leading-relaxed line-clamp-3'>{request.message}</p>
+        <div className='mt-3 bg-(--friend-message-bg) rounded-md p-3 border border-(--friend-message-border)'>
+          <p className='text-[13px] leading-relaxed text-foreground/90 line-clamp-2'>{request.message}</p>
         </div>
       )}
 
       {/* Actions */}
       <div className='flex items-center gap-2 mt-4'>
         <Button
-          variant='outline'
+          variant='secondary'
           onClick={onDecline}
           disabled={isDeclining || isAccepting}
-          className='flex-1 h-9 text-[13px] font-medium'
+          className='flex-1 h-10 text-[14px] font-semibold bg-(--friend-btn-muted) hover:bg-(--friend-btn-muted-hover) text-foreground/90'
         >
-          {text.actions.decline}
+          {text.requestCard.decline}
         </Button>
-        <Button onClick={onAccept} disabled={isAccepting || isDeclining} className='flex-1 h-9 text-[13px] font-medium'>
-          {text.actions.accept}
+        <Button
+          onClick={onAccept}
+          disabled={isAccepting || isDeclining}
+          className='flex-1 h-10 text-[14px] font-semibold bg-(--friend-btn-primary) hover:bg-(--friend-btn-primary-hover) text-(--friend-btn-primary-text)'
+        >
+          {text.requestCard.accept}
         </Button>
       </div>
     </div>

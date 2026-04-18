@@ -1,4 +1,4 @@
-import { Copy, Pin, Star, List, CircleAlert, Trash2, FolderHeart, AlarmClockPlus } from 'lucide-react'
+import { Copy, Pin, Star, List, CircleAlert, Trash2, FolderHeart, AlarmClockPlus, RotateCcw } from 'lucide-react'
 import {
   DropdownMenuContent,
   DropdownMenuSub,
@@ -16,21 +16,35 @@ interface MessageBubbleMenuText {
   otherOptions: string
   saveToMyDocuments: string
   createReminder: string
+  revoke: string
+  deleteForMe: string
   delete: string
+  more: string
 }
 
 interface MessageMoreMenuProps {
   side: 'left' | 'right'
   text: MessageBubbleMenuText
   messageContent: string
+  isOwn: boolean
   onDeleteForMe: () => void
+  onPin?: () => void
+  onRevoke?: () => void
 }
 
-export function MessageMoreMenu({ side, text, messageContent, onDeleteForMe }: MessageMoreMenuProps) {
+export function MessageMoreMenu({
+  side,
+  text,
+  messageContent,
+  isOwn,
+  onDeleteForMe,
+  onPin,
+  onRevoke
+}: MessageMoreMenuProps) {
   return (
     <DropdownMenuContent side={side} align='start' sideOffset={4} className='w-62 rounded-xl '>
       <ActionMenuItem icon={<Copy />} label={text.copy} onClick={() => navigator.clipboard.writeText(messageContent)} />
-      <ActionMenuItem icon={<Pin />} label={text.pinMessage} onClick={() => {}} />
+      <ActionMenuItem icon={<Pin />} label={text.pinMessage} onClick={() => onPin?.()} />
       <ActionMenuItem icon={<Star />} label={text.starMessage} onClick={() => {}} />
       <ActionMenuItem icon={<List />} label={text.selectMessages} onClick={() => {}} />
       <ActionMenuItem icon={<CircleAlert />} label={text.viewDetails} onClick={() => {}} />
@@ -46,7 +60,17 @@ export function MessageMoreMenu({ side, text, messageContent, onDeleteForMe }: M
         </DropdownMenuSubContent>
       </DropdownMenuSub>
 
-      <ActionMenuItem icon={<Trash2 />} label={text.delete} variant='destructive' showDivider onClick={onDeleteForMe} />
+      {isOwn && onRevoke && (
+        <ActionMenuItem icon={<RotateCcw />} label={text.revoke} variant='destructive' showDivider onClick={onRevoke} />
+      )}
+
+      <ActionMenuItem
+        icon={<Trash2 />}
+        label={isOwn ? text.deleteForMe : text.delete}
+        variant='destructive'
+        showDivider={!isOwn}
+        onClick={onDeleteForMe}
+      />
     </DropdownMenuContent>
   )
 }

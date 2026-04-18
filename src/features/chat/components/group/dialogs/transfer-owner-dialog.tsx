@@ -29,13 +29,13 @@ export function TransferOwnerDialog({
         userId: m.userId,
         fullName: m.fullName,
         avatar: m.avatar,
+        role: m.role,
         isAlreadyMember: false
       })) as SearchMemberResponse[]
   }, [members, currentUserId])
 
   const handleConfirm = (selectedIds: string[]) => {
     if (selectedIds.length === 0) return
-    onOpenChange(false)
     onSelect(selectedIds[0])
   }
 

@@ -1,8 +1,9 @@
 import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router'
-import { getJoinPreviewApi } from '../api/chat.api'
+import { useQueryClient } from '@tanstack/react-query'
+import { chatOptions } from '../queries/options'
 import { Users } from 'lucide-react'
-import { JoinGroupDialog } from './join-group-dialog'
+import { JoinGroupDialog } from './group/dialogs/join-group-dialog'
 import { useChatText } from '../i18n/use-chat-text'
 import { GroupAvatar } from './group/group-avatar'
 import { showSimpleToast } from '@/utils/toast'
@@ -38,11 +39,13 @@ export function JoinLinkCard({ token, url, cachedPreview }: JoinLinkCardProps) {
     }
   })()
 
+  const queryClient = useQueryClient()
   const handleClick = useCallback(async () => {
     if (isChecking) return
     setIsChecking(true)
     try {
-      const freshPreview = await getJoinPreviewApi(token)
+      const freshPreview = await queryClient.fetchQuery(chatOptions.joinPreview(token))
+
       if (freshPreview.isAlreadyMember && freshPreview.conversationId) {
         navigate(`/chat/c/${freshPreview.conversationId}`)
       } else {
@@ -53,7 +56,7 @@ export function JoinLinkCard({ token, url, cachedPreview }: JoinLinkCardProps) {
     } finally {
       setIsChecking(false)
     }
-  }, [token, navigate, t, isChecking])
+  }, [token, navigate, t, isChecking, queryClient])
 
   return (
     <>

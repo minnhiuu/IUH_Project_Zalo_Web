@@ -31,6 +31,8 @@
       "confirm": "Confirm",
       "edit": "Edit",
       "updating": "Updating...",
+      "phoneLabel": "Phone number",
+      "phonePlaceholder": "Enter phone number",
       "bio": "Bio",
       "bioLabel": "Bio",
       "bioPlaceholder": "Enter bio",
@@ -58,9 +60,12 @@
     },
     "validation": {
       "fullNameRequired": "Display name is required",
+      "phoneRequired": "Phone number is required",
       "dobInvalid": "Birthday cannot be in the future",
       "genderRequired": "Please select a gender",
-      "bioTooLong": "Bio cannot exceed 150 characters"
+      "bioTooLong": "Bio cannot exceed 150 characters",
+      "phoneInvalid": "Invalid phone number",
+      "phoneAlreadyUsed": "This phone number is already in use"
     },
     "settings": {
       "title": "Settings",

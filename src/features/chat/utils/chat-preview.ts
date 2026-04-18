@@ -10,9 +10,14 @@ interface PreviewData {
 
 export const formatPreview = (
   data: PreviewData,
-  text: { you: string; user: string; type: { image: string; file: string; link: string } }
+  text: {
+    you: string
+    user: string
+    type: { image: string; file: string; link: string }
+    messageBubble: { revoked: string }
+  }
 ) => {
-  if (!data.content && !data.type) return ''
+  if (!data.status && !data.content && !data.type) return ''
 
   // 1. Determine prefix
   const isRevoked = data.status === MessageStatus.REVOKED
@@ -20,7 +25,9 @@ export const formatPreview = (
 
   // 2. Determine display content
   let displayContent = data.content || ''
-  if (data.type === MessageType.Image || data.content === '[IMAGE]') {
+  if (isRevoked) {
+    displayContent = text.messageBubble.revoked
+  } else if (data.type === MessageType.Image || data.content === '[IMAGE]') {
     displayContent = text.type.image
   } else if (data.type === MessageType.File || data.content === '[FILE]') {
     displayContent = text.type.file

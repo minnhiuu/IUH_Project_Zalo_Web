@@ -15,7 +15,7 @@ export function TransferOwnerConfirmDialog({
   isPending
 }: TransferOwnerConfirmDialogProps) {
   const { text } = useChatText()
-  const labels = text['group-info-dialog'].actions.transferOwnerConfirm
+  const labels = text['group-info-dialog'].actions.transferOwnerWarning
 
   return (
     <BaseDialog
@@ -27,6 +27,7 @@ export function TransferOwnerConfirmDialog({
       cancelText={labels.cancel}
       onConfirm={onConfirm}
       isPending={isPending}
+      variant='danger'
       className='w-120 max-w-[95vw]'
     />
   )

@@ -15,8 +15,9 @@ export const ReplyMetadataSchema = z.object({
   messageId: z.string(),
   senderId: z.string(),
   senderName: z.string().nullable().optional(),
-  content: z.string(),
-  type: z.nativeEnum(MessageType)
+  content: z.string().nullable(),
+  type: z.nativeEnum(MessageType),
+  thumbnailUrl: z.string().nullable().optional()
 })
 
 export type ReplyMetadata = z.infer<typeof ReplyMetadataSchema>
@@ -47,7 +48,8 @@ export const GroupSettingsSchema = z.object({
   membershipApprovalEnabled: z.boolean().default(false),
   highlightAdminMessages: z.boolean().default(true),
   newMembersCanReadRecent: z.boolean().default(true),
-  joinByLinkEnabled: z.boolean().default(false)
+  joinByLinkEnabled: z.boolean().default(false),
+  joinQuestion: z.string().nullable().optional()
 })
 
 export type GroupSettings = z.infer<typeof GroupSettingsSchema>
@@ -70,7 +72,8 @@ export const ConversationResponseSchema = z.object({
   lastMessage: LastMessageResponseSchema.nullable().optional(),
   members: z.array(ConversationMemberResponseSchema).nullable().optional(),
   settings: GroupSettingsSchema.nullable().optional(),
-  joinLinkToken: z.string().nullable().optional()
+  joinLinkToken: z.string().nullable().optional(),
+  pendingJoinRequestCount: z.number().nullable().optional()
 })
 
 export type ConversationResponse = z.infer<typeof ConversationResponseSchema>
@@ -95,6 +98,19 @@ export const MessageResponseSchema = z.object({
   unreadCount: z.number().nullable().optional(),
   isFromMe: z.boolean().nullable().optional(),
   metadata: z.record(z.string(), z.any()).nullable().optional(),
+  attachments: z
+    .array(
+      z.object({
+        key: z.string(),
+        url: z.string(),
+        fileName: z.string(),
+        originalFileName: z.string(),
+        contentType: z.string(),
+        size: z.number()
+      })
+    )
+    .nullable()
+    .optional(),
   linkPreview: z
     .object({
       url: z.string(),
@@ -105,7 +121,9 @@ export const MessageResponseSchema = z.object({
       memberPreviews: z.array(z.object({ name: z.string(), avatar: z.string().nullable().optional() }))
     })
     .nullable()
-    .optional()
+    .optional(),
+  // emoji → array of userIds
+  reactions: z.record(z.string(), z.array(z.string())).nullable().optional()
 })
 
 export type MessageResponse = z.infer<typeof MessageResponseSchema>
@@ -127,13 +145,25 @@ export type ChatUser = z.infer<typeof ChatUserSchema>
 // ────────────────────────────────────────────────────────────────
 // ChatMessageRequest
 // ────────────────────────────────────────────────────────────────
+export const AttachmentRequestSchema = z.object({
+  key: z.string(),
+  url: z.string(),
+  fileName: z.string(),
+  originalFileName: z.string(),
+  contentType: z.string(),
+  size: z.number()
+})
+
+export type AttachmentRequest = z.infer<typeof AttachmentRequestSchema>
+
 export const ChatMessageRequestSchema = z.object({
   conversationId: z.string().nullable().optional(),
   recipientId: z.string().nullable().optional(),
   content: z.string(),
   clientMessageId: z.string().optional(),
   replyTo: ReplyMetadataSchema.nullable().optional(),
-  isForwarded: z.boolean().optional()
+  isForwarded: z.boolean().optional(),
+  attachments: z.array(AttachmentRequestSchema).nullable().optional()
 })
 
 export type ChatMessageRequest = z.infer<typeof ChatMessageRequestSchema>
@@ -146,6 +176,14 @@ export const GroupConversationCreateRequestSchema = z.object({
 })
 
 export type GroupConversationCreateRequest = z.infer<typeof GroupConversationCreateRequestSchema>
+
+export const LeaveGroupRequestSchema = z.object({
+  silent: z.boolean().default(false),
+  transferTo: z.string().nullable().optional(),
+  blockReJoin: z.boolean().default(false)
+})
+
+export type LeaveGroupRequest = z.infer<typeof LeaveGroupRequestSchema>
 
 export const GroupMemberListItemResponseSchema = z.object({
   userId: z.string(),
@@ -160,11 +198,20 @@ export const GroupMemberListItemResponseSchema = z.object({
 
 export type GroupMemberListItemResponse = z.infer<typeof GroupMemberListItemResponseSchema>
 
+export const AdminMemberResponseSchema = z.object({
+  userId: z.string(),
+  fullName: z.string(),
+  avatar: z.string().nullable().optional(),
+  role: z.string().nullable().optional()
+})
+
+export type AdminMemberResponse = z.infer<typeof AdminMemberResponseSchema>
+
 export const SearchMemberResponseSchema = z.object({
   userId: z.string(),
   fullName: z.string(),
   avatar: z.string().nullable().optional(),
-  phoneNumber: z.string().nullable().optional(),
+  role: z.string().nullable().optional(),
   isAlreadyMember: z.boolean().default(false)
 })
 
@@ -178,4 +225,38 @@ export interface JoinGroupPreviewResponse {
   createdByName: string | null
   memberPreviews: { name: string; avatar: string | null }[]
   isAlreadyMember: boolean
+  isBlockedFromGroup: boolean
+  membershipApprovalEnabled: boolean
+  hasPendingRequest: boolean
+  joinQuestion: string | null
+}
+
+export interface JoinRequestResponse {
+  id: string
+  conversationId: string
+  userId: string
+  fullName: string
+  avatar: string | null
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED'
+  requestedAt: string
+  processedAt: string | null
+  processedBy: string | null
+  joinAnswer: string | null
+}
+
+export interface PinnedMessageInfo {
+  messageId: string
+  pinnedBy: string
+  pinnedByName: string
+  contentSnapshot: string
+  messageType: string
+  pinnedAt: string // ISO datetime
+}
+
+export interface TypingEvent {
+  conversationId: string
+  userId: string
+  userName: string
+  isTyping: boolean
+  platform: 'PC' | 'MOBILE'
 }

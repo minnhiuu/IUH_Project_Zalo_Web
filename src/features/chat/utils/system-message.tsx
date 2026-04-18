@@ -12,6 +12,9 @@ import { Key, X, Link2 } from 'lucide-react'
 import { showSimpleToast } from '@/utils/toast'
 import { ForwardDialog } from '../components/forward-dialog'
 import { useChatContext } from '../context/chat-context'
+import { JoinRequestApprovalDialog } from '../components/group/dialogs/join-request-approval-dialog'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import { stripMentionsForPreview } from './mention'
 
 export { getSystemMessageLabel } from './system-message-label'
 export type { SystemActionType, SystemMetadata } from './system-message-label'
@@ -29,6 +32,7 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
   const [profileUserId, setProfileUserId] = useState<string | undefined>(undefined)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isJoinLinkShareOpen, setIsJoinLinkShareOpen] = useState(false)
+  const [isJoinRequestDialogOpen, setIsJoinRequestDialogOpen] = useState(false)
 
   const handleOpenProfile = useCallback(
     (userId: string) => {
@@ -69,12 +73,46 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
       avatars = [{ id: message.senderId, avatar: message.senderAvatar, name: message.senderName || t('chat.user') }]
     } else if (metadata?.action === 'JOIN_BY_LINK' && message.senderId) {
       avatars = [{ id: message.senderId, avatar: message.senderAvatar, name: message.senderName || t('chat.user') }]
+    } else if (metadata?.action === 'JOIN_REQUEST_CREATED' && message.senderId) {
+      avatars = [{ id: message.senderId, avatar: message.senderAvatar, name: message.senderName || t('chat.user') }]
     } else if (
       (metadata?.action === 'GENERATE_JOIN_LINK' || metadata?.action === 'REFRESH_JOIN_LINK') &&
       message.senderId
     ) {
       avatars = [{ id: message.senderId, avatar: message.senderAvatar, name: message.senderName || t('chat.user') }]
+    } else if (metadata?.action === 'JOIN_REQUEST_APPROVED' && metadata.targetIds) {
+      const targetNames = (payload?.targetNames as string[]) || []
+      const targetAvatarList = (payload?.targetAvatars as string[]) || []
+      avatars = metadata.targetIds.map((id, index) => ({
+        id,
+        avatar: targetAvatarList[index] || null,
+        name: targetNames[index] || t('chat.user')
+      }))
     } else if (metadata?.action === 'REMOVE_MEMBER' && metadata.targetIds) {
+      const targetAvatar = (payload?.targetAvatar as string) || null
+      const targetName = (payload?.targetName as string) || t('chat.user')
+      avatars = metadata.targetIds.map((id) => ({
+        id,
+        avatar: targetAvatar,
+        name: targetName
+      }))
+    } else if (metadata?.action === 'BLOCK_MEMBER' && metadata.targetIds) {
+      const targetAvatar = (payload?.targetAvatar as string) || null
+      const targetName = (payload?.targetName as string) || t('chat.user')
+      avatars = metadata.targetIds.map((id) => ({
+        id,
+        avatar: targetAvatar,
+        name: targetName
+      }))
+    } else if (metadata?.action === 'BLOCKED_FROM_JOINING' && metadata.targetIds) {
+      const targetAvatar = (payload?.targetAvatar as string) || null
+      const targetName = (payload?.targetName as string) || t('chat.user')
+      avatars = metadata.targetIds.map((id) => ({
+        id,
+        avatar: targetAvatar,
+        name: targetName
+      }))
+    } else if (metadata?.action === 'SELF_BLOCKED_FROM_JOINING' && metadata.targetIds) {
       const targetAvatar = (payload?.targetAvatar as string) || null
       const targetName = (payload?.targetName as string) || t('chat.user')
       avatars = metadata.targetIds.map((id) => ({
@@ -162,10 +200,14 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
   if (!systemLabel) return null
   const isDisbanded = metadata?.action === 'DISBAND_GROUP'
   const isCurrentUserRemoved =
-    metadata?.action === 'REMOVE_MEMBER' && (metadata.targetIds || []).map(String).includes(String(user?.id || ''))
+    (metadata?.action === 'REMOVE_MEMBER' || metadata?.action === 'BLOCK_MEMBER') &&
+    (metadata.targetIds || []).map(String).includes(String(user?.id || ''))
   const isCurrentUserLeftGroup =
     metadata?.action === 'LEAVE_GROUP' && String(message.senderId || '') === String(user?.id || '')
   const showDeleteConversationAction = isDisbanded || isCurrentUserRemoved || isCurrentUserLeftGroup
+
+  const isJoinRequestCreated =
+    metadata?.action === 'JOIN_REQUEST_CREATED' && String(message.senderId || '') !== String(user?.id || '')
 
   const isPromotedToAdmin =
     metadata?.action === 'PROMOTE_ADMIN' && (metadata.targetIds || []).map(String).includes(String(user?.id || ''))
@@ -174,40 +216,81 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
 
   return (
     <>
-      <div className='flex justify-center w-full my-2.5 px-4'>
-        <div className='system-msg flex items-center gap-2.5 py-1.5 px-3.5 max-w-[95%]'>
-          {targetAvatars.length > 0 && <MemberAvatar members={targetAvatars} size='xs' className='shrink-0' />}
-          <div className='flex-1 text-[12.5px] leading-relaxed text-left flex items-center gap-1.5'>
-            {metadata?.action === 'TRANSFER_OWNER' && <Key className='system-msg-owner-icon shrink-0' />}
-            {metadata?.action === 'PROMOTE_ADMIN' && <Key className='system-msg-promote-icon shrink-0' />}
-            {metadata?.action === 'DEMOTE_ADMIN' && (
-              <div className='relative shrink-0'>
-                <Key className='system-msg-promote-icon' />
-                <X className='absolute -bottom-1 -right-1.5 w-2 h-2 system-msg-promote-icon stroke-3 mr-2' />
-              </div>
-            )}
-            {systemLabel}
-            {showDeleteConversationAction && (
-              <button
-                onClick={() => {
-                  if (conversation?.id) {
-                    deleteConversation(conversation.id)
-                  }
-                }}
-                className='text-information hover:underline font-medium whitespace-nowrap'
-              >
-                {t('chat.disbanded.deleteAction')}
-              </button>
-            )}
+      {(metadata?.action === 'PIN_MESSAGE' || metadata?.action === 'UNPIN_MESSAGE') &&
+      (metadata.originalContent || metadata.contentSnapshot) ? (
+        <div className='flex justify-center w-full my-2.5 px-4'>
+          <div className='system-msg flex items-center gap-2 py-1.5 px-3.5 max-w-[95%]'>
+            <Avatar className='w-5 h-5 shrink-0'>
+              <AvatarImage src={String(metadata.originalSenderAvatar || '')} />
+              <AvatarFallback className='text-[10px] bg-primary/10 text-primary font-semibold'>
+                {String(metadata.originalSenderName || t('chat.user'))[0].toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className='flex-1 text-[12.5px] leading-relaxed text-left flex items-center gap-1 overflow-hidden'>
+              <span className='font-semibold shrink-0'>{String(metadata.originalSenderName || t('chat.user'))}</span>
+              <span className='shrink-0'>
+                {metadata.action === 'PIN_MESSAGE'
+                  ? String(t('chat.messageBubble.pinMessage')).toLowerCase()
+                  : String(t('chat.pinBoard.unpin')).toLowerCase()}
+              </span>
+              <span className='opacity-80 border-l border-foreground/30 pl-1.5 ml-0.5 truncate block max-w-[150px] sm:max-w-[250px] md:max-w-[350px] xl:max-w-[450px]'>
+                {stripMentionsForPreview(String(metadata.originalContent || metadata.contentSnapshot))}
+              </span>
+            </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className='flex justify-center w-full my-2.5 px-4'>
+          <div className='system-msg flex items-center gap-2.5 py-1.5 px-3.5 max-w-[95%]'>
+            {targetAvatars.length > 0 && <MemberAvatar members={targetAvatars} size='xs' className='shrink-0' />}
+            <div className='flex-1 text-[12.5px] leading-relaxed text-left flex items-center gap-1.5'>
+              {metadata?.action === 'TRANSFER_OWNER' && <Key className='system-msg-owner-icon shrink-0' />}
+              {metadata?.action === 'PROMOTE_ADMIN' && <Key className='system-msg-promote-icon shrink-0' />}
+              {metadata?.action === 'DEMOTE_ADMIN' && (
+                <div className='relative shrink-0'>
+                  <Key className='system-msg-promote-icon' />
+                  <X className='absolute -bottom-1 -right-1.5 w-2 h-2 system-msg-promote-icon stroke-3 mr-2' />
+                </div>
+              )}
+              {systemLabel}
+              {showDeleteConversationAction && (
+                <button
+                  onClick={() => {
+                    if (conversation?.id) {
+                      deleteConversation(conversation.id)
+                    }
+                  }}
+                  className='text-information hover:underline font-medium whitespace-nowrap cursor-pointer'
+                >
+                  {t('chat.disbanded.deleteAction')}
+                </button>
+              )}
+              {isJoinRequestCreated && (
+                <button
+                  onClick={() => setIsJoinRequestDialogOpen(true)}
+                  className='text-information hover:underline font-medium whitespace-nowrap cursor-pointer'
+                >
+                  {t('chat.joinRequestDialog.detail')}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {isPromotedToAdmin && <PromoteAdminCard conversation={conversation} secondaryLabel={null} t={t} />}
 
       {isTransferredOwner && <OwnerCard conversation={conversation} secondaryLabel={null} t={t} />}
 
       <OthersProfileDialog open={isProfileOpen} onOpenChange={setIsProfileOpen} userId={profileUserId} />
+
+      {isJoinRequestCreated && conversation?.id && (
+        <JoinRequestApprovalDialog
+          open={isJoinRequestDialogOpen}
+          onOpenChange={setIsJoinRequestDialogOpen}
+          conversationId={conversation.id}
+        />
+      )}
     </>
   )
 }

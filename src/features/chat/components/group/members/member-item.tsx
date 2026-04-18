@@ -2,6 +2,8 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { UserAvatar } from '@/components/common/user-avatar'
 import type { SearchMemberResponse } from '../../../schemas/chat.schema'
 import { Check } from 'lucide-react'
+import { MemberRoleBadge } from './member-role-badge'
+import { GroupMemberRole } from '@/constants/enum'
 import { useChatText } from '../../../i18n/use-chat-text'
 
 interface MemberItemProps {
@@ -10,6 +12,8 @@ interface MemberItemProps {
   onToggle: () => void
   selectionMode?: 'checkbox' | 'radio' | 'none'
   disabled?: boolean
+  showSubtitle?: boolean
+  hideAlreadyJoined?: boolean
 }
 
 export const MemberItem = ({
@@ -17,21 +21,23 @@ export const MemberItem = ({
   isSelected,
   onToggle,
   selectionMode = 'checkbox',
-  disabled = false
+  disabled = false,
+  showSubtitle = true,
+  hideAlreadyJoined = false
 }: MemberItemProps) => {
   const { text } = useChatText()
   const tg = text['create-group-dialog']
-  const isAlreadyMember = member.isAlreadyMember || disabled
+  const isActuallyAlreadyMember = (member.isAlreadyMember && !hideAlreadyJoined) || disabled
 
   return (
     <div
       className={`flex items-center gap-3 px-4 py-2 hover:bg-muted/50 transition-colors group ${
-        isAlreadyMember ? 'cursor-default opacity-90' : 'cursor-pointer'
+        isActuallyAlreadyMember ? 'cursor-default opacity-90' : 'cursor-pointer'
       }`}
-      onClick={isAlreadyMember ? undefined : onToggle}
+      onClick={isActuallyAlreadyMember ? undefined : onToggle}
     >
       <div className='flex items-center justify-center w-5 h-5'>
-        {member.isAlreadyMember ? (
+        {member.isAlreadyMember && !hideAlreadyJoined ? (
           <div className='w-4.5 h-4.5 rounded-full bg-dialog-selection-btn-disabled-bg flex items-center justify-center'>
             <Check className='w-3 h-3 text-white' />
           </div>
@@ -51,14 +57,26 @@ export const MemberItem = ({
           />
         ) : null}
       </div>
-      <UserAvatar name={member.fullName} src={member.avatar} className='w-10 h-10 shadow-sm border border-border/10' />
+      <div className='relative shrink-0'>
+        <UserAvatar
+          name={member.fullName}
+          src={member.avatar}
+          className='w-10 h-10 shadow-sm border border-border/10'
+        />
+        <MemberRoleBadge role={member.role} />
+      </div>
       <div className='flex flex-col min-w-0'>
-        <span className='text-[14px] font-normal text-foreground truncate'>{member.fullName}</span>
-        {member.isAlreadyMember ? (
-          <span className='text-[12px] text-muted-foreground/70 truncate'>{tg.alreadyJoined}</span>
-        ) : member.phoneNumber ? (
-          <span className='text-[12px] text-muted-foreground/60 truncate'>{member.phoneNumber}</span>
-        ) : null}
+        <span className='text-[15px] font-semibold text-foreground truncate'>{member.fullName}</span>
+        {showSubtitle && (
+          <span className='text-[12px] text-muted-foreground truncate'>
+            {member.isAlreadyMember && !member.role && !hideAlreadyJoined ? tg.alreadyJoined : null}
+            {member.role === 'ADMIN' || member.role === GroupMemberRole.Admin
+              ? text['sidebarInfo'].adminRole
+              : member.role === 'OWNER' || member.role === GroupMemberRole.Owner
+                ? text['sidebarInfo'].ownerRole
+                : null}
+          </span>
+        )}
       </div>
     </div>
   )
