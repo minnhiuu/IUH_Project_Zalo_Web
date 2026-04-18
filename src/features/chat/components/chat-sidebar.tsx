@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import { chatKeys } from '../queries/keys'
 import { UserPlus, Users, Filter, MoreHorizontal, Megaphone } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useConversationsQuery } from '../queries/use-queries'
@@ -28,8 +30,13 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
   const { text, t, i18n } = useChatText()
   const { user } = useAuth()
   const { data: conversations, isLoading, isError } = useConversationsQuery()
+  const queryClient = useQueryClient()
 
   const handleSelectChat = (chat: ConversationResponse) => {
+    // Immediately zero out unread badge so bold/dot disappears on click
+    queryClient.setQueryData(chatKeys.conversations(), (old: ConversationResponse[] | undefined) =>
+      old?.map((c) => (c.id === chat.id ? { ...c, unreadCount: 0 } : c))
+    )
     onSelectChat(chat)
   }
 
@@ -151,7 +158,12 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
                   >
                     {getConversationDisplayName(chat, 'Group', undefined, user?.id)}
                   </h3>
-                  <span className='text-xs text-text-secondary whitespace-nowrap ml-2 font-normal'>
+                  <span
+                    className={cn(
+                      'text-xs text-text-secondary whitespace-nowrap ml-2',
+                      chat.unreadCount && chat.unreadCount > 0 ? 'font-semibold' : 'font-normal'
+                    )}
+                  >
                     {chat.lastMessage?.timestamp ? formatMessageTime(chat.lastMessage.timestamp, i18n.language) : ''}
                   </span>
                 </div>
@@ -177,8 +189,8 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
                         const meta = chat.lastMessage?.metadata as Record<string, unknown> | null
                         const mentions = meta?.mentions as string[] | undefined
                         const isMentioned = mentions?.includes(user?.id || '')
-                        const isCreate = meta?.action === 'CREATE_GROUP'
                         const isSystem = chat.lastMessage?.type === MessageType.System
+                        const isNegativeSysAction = meta?.action === 'DISBAND_GROUP'
 
                         return (
                           <>
@@ -192,7 +204,9 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
                                 {chat.unreadCount > 5 ? '5+' : chat.unreadCount}
                               </div>
                             )}
-                            {isSystem && isCreate && <div className='w-2 h-2 bg-destructive rounded-full mr-1' />}
+                            {isSystem && !isNegativeSysAction && (
+                              <div className='w-2 h-2 bg-destructive rounded-full mr-1' />
+                            )}
                           </>
                         )
                       })()}
