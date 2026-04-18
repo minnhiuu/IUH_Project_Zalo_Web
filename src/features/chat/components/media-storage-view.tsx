@@ -1,5 +1,5 @@
-import { useState, useMemo, useRef, useEffect, type RefObject } from 'react'
-import { Search, FileIcon, Download, Play, ChevronDown, ChevronLeft, X } from 'lucide-react'
+import { useState, useMemo, useRef, useEffect, useCallback, type RefObject } from 'react'
+import { Search, Download, Play, ChevronDown, ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useMediaMessagesQuery } from '../queries/use-queries'
 import { MessageType } from '@/constants/enum'
@@ -39,17 +39,27 @@ function getExtColor(ext: string) {
   if (['DOC', 'DOCX'].includes(ext)) return 'bg-blue-600'
   if (['XLS', 'XLSX'].includes(ext)) return 'bg-green-600'
   if (['PPT', 'PPTX'].includes(ext)) return 'bg-orange-500'
-  if (['ZIP', 'RAR', '7Z'].includes(ext)) return 'bg-yellow-600'
+  if (['ZIP', 'RAR', '7Z'].includes(ext)) return 'bg-purple-600'
   if (['M4A', 'MP3', 'WAV', 'OGG'].includes(ext)) return 'bg-purple-600'
   if (['MP4', 'MOV', 'AVI', 'MKV'].includes(ext)) return 'bg-indigo-600'
   return 'bg-primary'
+}
+
+function getExtLabel(ext: string) {
+  if (ext === 'PDF') return 'PDF'
+  if (['DOC', 'DOCX'].includes(ext)) return 'WORD'
+  if (['XLS', 'XLSX'].includes(ext)) return 'EXCEL'
+  if (['PPT', 'PPTX'].includes(ext)) return 'PPT'
+  if (['ZIP', 'RAR', '7Z'].includes(ext)) return ext.slice(0, 3)
+  return ext.slice(0, 3) || '?'
 }
 
 const FILE_TYPE_FILTERS = [
   { label: 'PDF', ext: ['PDF'] },
   { label: 'Word', ext: ['DOC', 'DOCX'] },
   { label: 'PowerPoint', ext: ['PPT', 'PPTX'] },
-  { label: 'Excel', ext: ['XLS', 'XLSX'] }
+  { label: 'Excel', ext: ['XLS', 'XLSX'] },
+  { label: 'ZIP/RAR', ext: ['ZIP', 'RAR', '7Z'] }
 ]
 
 // ── MediaStorageView ─────────────────────────────────────────────
@@ -70,8 +80,6 @@ export function MediaStorageView({ conversationId, members, defaultTab = 'media'
   const [dateFilter, setDateFilter] = useState<{ from: string; to: string } | null>(null)
   const [fileSearch, setFileSearch] = useState('')
   const { text } = useChatText()
-
-  const memberMap = useMemo(() => new Map((members || []).map((m) => [m.userId, m])), [members])
 
   // ── Fetch media ──
   const { data: mediaData, isLoading: mediaLoading } = useMediaMessagesQuery(
@@ -155,6 +163,48 @@ export function MediaStorageView({ conversationId, members, defaultTab = 'media'
     return groupByDate(items, text.mediaStorage.dateLabel)
   }, [mediaData, senderFilter, dateFilter, text.mediaStorage.dateLabel])
 
+  // ── Lightbox (media tab) ──
+  type LightboxItem = { url: string; contentType: string; originalFileName?: string | null }
+  const lightboxItems = useMemo<LightboxItem[]>(() => {
+    const items: LightboxItem[] = []
+    for (const { items: msgs } of groupedMedia) {
+      for (const m of msgs) {
+        const att = m.attachments?.[0]
+        if (att?.url) items.push({ url: att.url, contentType: att.contentType || '', originalFileName: att.originalFileName })
+      }
+    }
+    return items
+  }, [groupedMedia])
+  const urlToLightboxIndex = useMemo(() => {
+    const map = new Map<string, number>()
+    lightboxItems.forEach((item, i) => map.set(item.url, i))
+    return map
+  }, [lightboxItems])
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
+  const closeLightbox = useCallback(() => setLightboxIndex(null), [])
+  const prevImage = useCallback(() => setLightboxIndex((i) => (i !== null && i > 0 ? i - 1 : i)), [])
+  const nextImage = useCallback(
+    () => setLightboxIndex((i) => (i !== null && i < lightboxItems.length - 1 ? i + 1 : i)),
+    [lightboxItems.length]
+  )
+  const handleMediaClick = useCallback(
+    (url: string) => {
+      const idx = urlToLightboxIndex.get(url)
+      if (idx !== undefined) setLightboxIndex(idx)
+    },
+    [urlToLightboxIndex]
+  )
+  useEffect(() => {
+    if (lightboxIndex === null) return
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeLightbox()
+      else if (e.key === 'ArrowLeft') prevImage()
+      else if (e.key === 'ArrowRight') nextImage()
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [lightboxIndex, closeLightbox, prevImage, nextImage])
+
   // ── Filter: links ──
   const filteredLinks = useMemo(() => linkData?.data || [], [linkData])
 
@@ -232,21 +282,23 @@ export function MediaStorageView({ conversationId, members, defaultTab = 'media'
                           className='aspect-square bg-muted rounded overflow-hidden relative group cursor-pointer'
                         >
                           {isVideo ? (
-                            <div className='w-full h-full relative'>
+                            <div
+                              className='w-full h-full relative'
+                              onClick={() => att?.url && handleMediaClick(att.url)}
+                            >
                               <video src={att?.url} className='w-full h-full object-cover' preload='metadata' muted />
                               <div className='absolute inset-0 flex items-center justify-center bg-black/30'>
                                 <Play size={24} className='text-white fill-white' />
                               </div>
                             </div>
                           ) : (
-                            <a href={att?.url} target='_blank' rel='noopener noreferrer'>
-                              <img
-                                src={att?.url}
-                                alt={att?.originalFileName || 'image'}
-                                className='w-full h-full object-cover group-hover:opacity-90 transition-opacity'
-                                loading='lazy'
-                              />
-                            </a>
+                            <img
+                              src={att?.url}
+                              alt={att?.originalFileName || 'image'}
+                              className='w-full h-full object-cover group-hover:opacity-90 transition-opacity'
+                              loading='lazy'
+                              onClick={() => att?.url && handleMediaClick(att.url)}
+                            />
                           )}
                         </div>
                       )
@@ -328,7 +380,6 @@ export function MediaStorageView({ conversationId, members, defaultTab = 'media'
                       const fileName = att?.originalFileName || att?.fileName || 'File'
                       const ext = fileName.split('.').pop()?.toUpperCase() || ''
                       const fileSize = att?.size
-                      const sender = memberMap.get(m.senderId || '')
                       return (
                         <div key={m.id} className='flex items-center gap-3 group cursor-pointer'>
                           <div
@@ -337,7 +388,7 @@ export function MediaStorageView({ conversationId, members, defaultTab = 'media'
                               getExtColor(ext)
                             )}
                           >
-                            <FileIcon size={20} />
+                            <span className='text-[10px] font-bold leading-none tracking-tight'>{getExtLabel(ext)}</span>
                           </div>
                           <div className='flex-1 min-w-0'>
                             <p className='text-[13px] font-medium truncate group-hover:text-primary transition-colors'>
@@ -345,11 +396,6 @@ export function MediaStorageView({ conversationId, members, defaultTab = 'media'
                             </p>
                             <p className='text-[11px] text-muted-foreground flex items-center gap-1'>
                               {fileSize ? formatFileSize(fileSize) : ''}
-                              {sender?.fullName && (
-                                <span className='text-green-500 flex items-center gap-0.5'>
-                                  {text.mediaStorage.downloadedLocally}
-                                </span>
-                              )}
                             </p>
                           </div>
                           {att?.url && (
@@ -431,6 +477,80 @@ export function MediaStorageView({ conversationId, members, defaultTab = 'media'
           </div>
         )}
       </div>
+
+      {/* Lightbox overlay */}
+      {lightboxIndex !== null && (
+        <StorageLightbox
+          items={lightboxItems}
+          index={lightboxIndex}
+          onClose={closeLightbox}
+          onPrev={prevImage}
+          onNext={nextImage}
+        />
+      )}
+    </div>
+  )
+}
+
+// ── StorageLightbox ──────────────────────────────────────────────
+type LightboxItemDef = { url: string; contentType: string; originalFileName?: string | null }
+function StorageLightbox({
+  items,
+  index,
+  onClose,
+  onPrev,
+  onNext
+}: {
+  items: LightboxItemDef[]
+  index: number
+  onClose: () => void
+  onPrev: () => void
+  onNext: () => void
+}) {
+  const item = items[index]
+  const isVideo = item?.contentType?.startsWith('video/')
+  return (
+    <div
+      className='fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center'
+      onClick={onClose}
+    >
+      <button
+        className='absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors'
+        onClick={onClose}
+      >
+        <X size={22} />
+      </button>
+      {index > 0 && (
+        <button
+          className='absolute left-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors'
+          onClick={(e) => { e.stopPropagation(); onPrev() }}
+        >
+          <ChevronLeft size={28} />
+        </button>
+      )}
+      <div
+        className='max-w-[90vw] max-h-[90vh] flex items-center justify-center'
+        onClick={(e) => e.stopPropagation()}
+      >
+        {isVideo ? (
+          <video src={item.url} controls autoPlay className='max-w-full max-h-[90vh] rounded-md' />
+        ) : (
+          <img
+            src={item.url}
+            alt={item.originalFileName || 'image'}
+            className='max-w-full max-h-[90vh] object-contain rounded-md select-none'
+            draggable={false}
+          />
+        )}
+      </div>
+      {index < items.length - 1 && (
+        <button
+          className='absolute right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors'
+          onClick={(e) => { e.stopPropagation(); onNext() }}
+        >
+          <ChevronRight size={28} />
+        </button>
+      )}
     </div>
   )
 }

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Search, X } from 'lucide-react'
+import { Search, X, FileText } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -406,6 +406,22 @@ export function ForwardDialog({
                     </div>
                   )
                 })}
+              </div>
+            ) : message?.type === MessageType.File ? (
+              <div className='flex flex-col gap-1 py-0.5'>
+                {(message.attachments && message.attachments.length > 0 ? message.attachments : [{ originalFileName: message.content || 'File', size: 0 }]).map((att, idx) => (
+                  <div key={idx} className='flex items-center gap-2'>
+                    <div className='w-8 h-8 rounded bg-primary/10 flex items-center justify-center shrink-0'>
+                      <FileText size={16} className='text-primary' />
+                    </div>
+                    <div className='flex flex-col min-w-0'>
+                      <span className='text-[13px] text-foreground font-medium truncate'>{att.originalFileName || 'File'}</span>
+                      {att.size > 0 && (
+                        <span className='text-[11px] text-muted-foreground'>{att.size < 1024 * 1024 ? `${(att.size / 1024).toFixed(1)} KB` : `${(att.size / (1024 * 1024)).toFixed(1)} MB`}</span>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : (
               <p className='text-[13px] text-foreground/80 overflow-hidden text-ellipsis whitespace-nowrap italic'>
