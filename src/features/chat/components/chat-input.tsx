@@ -83,9 +83,14 @@ export function ChatInput({ conversationId, isGroup, replyTo, onCancelReply }: C
   }, [conversationId])
 
   // Cleanup blob URLs on unmount
+  const attachmentsRef = useRef(fileAttachments)
+  useEffect(() => {
+    attachmentsRef.current = fileAttachments
+  }, [fileAttachments])
+
   useEffect(() => {
     return () => {
-      fileAttachments.forEach((a) => {
+      attachmentsRef.current.forEach((a) => {
         if (a.previewUrl) URL.revokeObjectURL(a.previewUrl)
       })
     }

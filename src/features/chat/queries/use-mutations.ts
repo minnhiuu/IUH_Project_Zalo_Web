@@ -5,6 +5,7 @@ import {
   sendMessageApi,
   revokeMessageApi,
   deleteMessageForMeApi,
+  deleteGroupMemberMessageApi,
   toggleReactionApi,
   removeAllMyReactionsApi,
   createGroupConversation,
@@ -100,6 +101,16 @@ export const useDeleteMessageForMeMutation = () => {
     mutationFn: (messageId: string) => deleteMessageForMeApi(messageId),
     onError: (error) => {
       console.error('Failed to delete message for me', error)
+    }
+  })
+}
+
+export const useDeleteGroupMemberMessageMutation = () => {
+  return useMutation({
+    mutationFn: ({ conversationId, messageId }: { conversationId: string; messageId: string }) =>
+      deleteGroupMemberMessageApi(conversationId, messageId),
+    onError: (error) => {
+      console.error('Failed to delete group member message', error)
     }
   })
 }

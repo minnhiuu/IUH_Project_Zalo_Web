@@ -125,6 +125,10 @@ export const deleteMessageForMeApi = async (messageId: string): Promise<void> =>
   await http.delete(`/messages/messages/${messageId}/me`)
 }
 
+export const deleteGroupMemberMessageApi = async (conversationId: string, messageId: string): Promise<void> => {
+  await http.delete(`/messages/conversations/${conversationId}/messages/${messageId}/admin`)
+}
+
 export const toggleReactionApi = async (messageId: string, emoji: string): Promise<void> => {
   await http.post(`/messages/messages/${messageId}/reactions`, { emoji })
 }

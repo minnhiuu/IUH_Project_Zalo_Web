@@ -2,6 +2,8 @@ import type { TFunction } from 'i18next'
 import { CHAT_KEYS } from './chat.keys'
 import type { AiProcessingStatus } from '@/constants/enum'
 
+export type ChatTexts = ReturnType<typeof createChatTexts>
+
 export const createChatTexts = (t: TFunction<'chat'>) => ({
   title: t(CHAT_KEYS.title),
   searchPlaceholder: t(CHAT_KEYS.searchPlaceholder),
@@ -26,7 +28,8 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
   errors: {
     loadConversations: t(CHAT_KEYS.errors.loadConversations),
     loadMessages: t(CHAT_KEYS.errors.loadMessages),
-    revokeTimeExceeded: t(CHAT_KEYS.errors.revokeTimeExceeded)
+    revokeTimeExceeded: t(CHAT_KEYS.errors.revokeTimeExceeded),
+    adminDeleteTimeExceeded: t(CHAT_KEYS.errors.adminDeleteTimeExceeded)
   },
   you: t(CHAT_KEYS.you),
   you_lower: t(CHAT_KEYS.you_lower),
@@ -67,7 +70,23 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     reactionModalYou: t(CHAT_KEYS.messageBubble.reactionModalYou),
     reactionModalEmpty: t(CHAT_KEYS.messageBubble.reactionModalEmpty),
     removeAllMyReactions: t(CHAT_KEYS.messageBubble.removeAllMyReactions),
-    download: t(CHAT_KEYS.messageBubble.download)
+    download: t(CHAT_KEYS.messageBubble.download),
+    deletedByAdmin: t(CHAT_KEYS.messageBubble.deletedByAdmin),
+    adminDeleteDialog: {
+      title: t(CHAT_KEYS.messageBubble.adminDeleteDialog.title),
+      cancel: t(CHAT_KEYS.messageBubble.adminDeleteDialog.cancel),
+      optionForMe: t(CHAT_KEYS.messageBubble.adminDeleteDialog.optionForMe),
+      optionForAll: t(CHAT_KEYS.messageBubble.adminDeleteDialog.optionForAll),
+      confirm: t(CHAT_KEYS.messageBubble.adminDeleteDialog.confirm),
+      confirmForMe: t(CHAT_KEYS.messageBubble.adminDeleteDialog.confirmForMe)
+    },
+    adminDeleteConfirm: {
+      title: t(CHAT_KEYS.messageBubble.adminDeleteConfirm.title),
+      description: t(CHAT_KEYS.messageBubble.adminDeleteConfirm.description),
+      descriptionBold: t(CHAT_KEYS.messageBubble.adminDeleteConfirm.descriptionBold),
+      cancel: t(CHAT_KEYS.messageBubble.adminDeleteConfirm.cancel),
+      confirm: t(CHAT_KEYS.messageBubble.adminDeleteConfirm.confirm)
+    }
   },
   pinBoard: {
     title: t(CHAT_KEYS.pinBoard.title),

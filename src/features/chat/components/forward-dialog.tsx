@@ -62,7 +62,7 @@ export function ForwardDialog({
     100,
     open && activeTab === 'groups'
   )
-  const myGroups = myGroupsPage?.data || []
+  const myGroups = useMemo(() => myGroupsPage?.data || [], [myGroupsPage])
 
   const { data: myFriendsPage } = useMyFriendsInfinite(100, open && activeTab === 'friends')
   const myFriends = useMemo(() => {

@@ -22,7 +22,8 @@ export const CHAT_KEYS = {
   errors: {
     loadConversations: 'chat.errors.loadConversations',
     loadMessages: 'chat.errors.loadMessages',
-    revokeTimeExceeded: 'chat.errors.revokeTimeExceeded'
+    revokeTimeExceeded: 'chat.errors.revokeTimeExceeded',
+    adminDeleteTimeExceeded: 'chat.errors.adminDeleteTimeExceeded'
   },
   you: 'chat.you',
   you_lower: 'chat.you_lower',
@@ -63,7 +64,23 @@ export const CHAT_KEYS = {
     reactionModalYou: 'chat.messageBubble.reactionModalYou',
     reactionModalEmpty: 'chat.messageBubble.reactionModalEmpty',
     removeAllMyReactions: 'chat.messageBubble.removeAllMyReactions',
-    download: 'chat.messageBubble.download'
+    download: 'chat.messageBubble.download',
+    deletedByAdmin: 'chat.messageBubble.deletedByAdmin',
+    adminDeleteDialog: {
+      title: 'chat.messageBubble.adminDeleteDialog.title',
+      cancel: 'chat.messageBubble.adminDeleteDialog.cancel',
+      optionForMe: 'chat.messageBubble.adminDeleteDialog.optionForMe',
+      optionForAll: 'chat.messageBubble.adminDeleteDialog.optionForAll',
+      confirm: 'chat.messageBubble.adminDeleteDialog.confirm',
+      confirmForMe: 'chat.messageBubble.adminDeleteDialog.confirmForMe'
+    },
+    adminDeleteConfirm: {
+      title: 'chat.messageBubble.adminDeleteConfirm.title',
+      description: 'chat.messageBubble.adminDeleteConfirm.description',
+      descriptionBold: 'chat.messageBubble.adminDeleteConfirm.descriptionBold',
+      cancel: 'chat.messageBubble.adminDeleteConfirm.cancel',
+      confirm: 'chat.messageBubble.adminDeleteConfirm.confirm'
+    }
   },
   aiStatus: {
     ANALYZING_INTENT: 'ai.status.ANALYZING_INTENT',

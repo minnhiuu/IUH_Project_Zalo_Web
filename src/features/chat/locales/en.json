@@ -48,7 +48,23 @@
       "reactionModalYou": "You",
       "reactionModalEmpty": "No reactions yet",
       "removeAllMyReactions": "Remove all your reactions",
-      "download": "Download"
+      "download": "Download",
+      "deletedByAdmin": "This message was deleted by an admin",
+      "adminDeleteDialog": {
+        "title": "Delete message",
+        "cancel": "Cancel",
+        "optionForMe": "Delete only for me",
+        "optionForAll": "Delete for everyone",
+        "confirm": "Delete",
+        "confirmForMe": "Delete (for me only)"
+      },
+      "adminDeleteConfirm": {
+        "title": "Confirm",
+        "description": "If deleted for everyone, they will not be able to see the content, but can still see who deleted the message.",
+        "descriptionBold": "Only admins have this option.",
+        "cancel": "Cancel",
+        "confirm": "Delete"
+      }
     },
     "pinBoard": {
       "title": "Message",
@@ -222,7 +238,8 @@
     "errors": {
       "loadConversations": "Failed to load conversations.",
       "loadMessages": "Failed to load messages.",
-      "revokeTimeExceeded": "Revocation time limit exceeded (max 24 hours)"
+      "revokeTimeExceeded": "Revocation time limit exceeded (max 24 hours)",
+      "adminDeleteTimeExceeded": "You can only delete messages on the recipient's device within 24 hours"
     },
     "create-group-dialog": {
       "title": "Create Group",

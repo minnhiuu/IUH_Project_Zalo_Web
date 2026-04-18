@@ -48,7 +48,23 @@
       "reactionModalYou": "Bạn",
       "reactionModalEmpty": "Chưa có cảm xúc",
       "removeAllMyReactions": "Xóa tất cả biểu cảm của bạn",
-      "download": "Tải xuống"
+      "download": "Tải xuống",
+      "deletedByAdmin": "Tin nhắn đã bị quản trị viên xóa",
+      "adminDeleteDialog": {
+        "title": "Xóa tin nhắn",
+        "cancel": "Hủy",
+        "optionForMe": "Xóa chỉ ở phía tôi",
+        "optionForAll": "Xóa cho cả nhóm",
+        "confirm": "Xóa",
+        "confirmForMe": "Xóa (chỉ ở phía tôi)"
+      },
+      "adminDeleteConfirm": {
+        "title": "Xác nhận",
+        "description": "Nếu xóa trên máy của mọi người, họ sẽ không xem được nội dung, nhưng có thể thấy ai là người đã xóa tin nhắn này.",
+        "descriptionBold": "Chỉ quản trị viên mới có tùy chọn này.",
+        "cancel": "Không",
+        "confirm": "Xóa"
+      }
     },
     "pinBoard": {
       "title": "Tin nhắn",
@@ -222,7 +238,8 @@
     "errors": {
       "loadConversations": "Không thể tải danh sách cuộc trò chuyện.",
       "loadMessages": "Không thể tải tin nhắn.",
-      "revokeTimeExceeded": "Thời gian thu hồi tin nhắn đã hết (tối đa 24 giờ)"
+      "revokeTimeExceeded": "Thời gian thu hồi tin nhắn đã hết (tối đa 24 giờ)",
+      "adminDeleteTimeExceeded": "Bạn chỉ có thể xóa tin nhắn trên máy người nhận trong vòng 24 giờ"
     },
     "create-group-dialog": {
       "title": "Tạo nhóm",

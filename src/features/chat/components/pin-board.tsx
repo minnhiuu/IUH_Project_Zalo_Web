@@ -3,6 +3,7 @@ import { MessageSquare, MoreHorizontal, Copy, Pin, ChevronDown, ChevronUp } from
 import { usePinsQuery } from '../queries/use-queries'
 import { useUnpinMessageMutation } from '../queries/use-mutations'
 import { useChatText } from '../i18n/use-chat-text'
+import type { ChatTexts } from '../i18n/chat.texts'
 import { stripMentionsForPreview } from '../utils/mention'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { showSimpleToast } from '@/utils/toast'
@@ -138,7 +139,7 @@ function PinMoreMenu({
   onUnpin
 }: {
   pin: PinnedMessageInfo
-  text: Record<string, unknown>
+  text: ChatTexts
   onUnpin: () => void
 }) {
   return (
@@ -186,7 +187,7 @@ function ExpandedPinRow({
   onUnpin
 }: {
   pin: PinnedMessageInfo
-  text: Record<string, unknown>
+  text: ChatTexts
   onScrollToMessage: (messageId: string) => void
   onUnpin: () => void
 }) {

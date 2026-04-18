@@ -715,7 +715,7 @@ export const useChatWebSocket = () => {
   )
 
   const sendFileMessage = useCallback(
-    async (conversationId: string, files: FileAttachment[], replyTo?: ReplyMetadata | null) => {
+    async (conversationId: string, files: FileAttachment[], content?: string, replyTo?: ReplyMetadata | null) => {
       if (!stompClientRef.current?.connected || files.length === 0) return
 
       const isFake = conversationId.startsWith('fake_')
@@ -736,7 +736,7 @@ export const useChatWebSocket = () => {
           id: clientMessageId,
           clientMessageId,
           senderId: user?.id || '',
-          content: '',
+          content: content || '',
           type: msgType,
           status: MessageStatus.NORMAL,
           createdAt: now,
@@ -801,7 +801,7 @@ export const useChatWebSocket = () => {
           sendMsgMutate({
             conversationId: isFake ? null : conversationId,
             recipientId: isFake ? conversationId.replace('fake_', '') : null,
-            content: '',
+            content: content || '',
             clientMessageId,
             replyTo: replyTo || undefined,
             attachments: uploadResults.map((r) => ({
@@ -841,7 +841,7 @@ export const useChatWebSocket = () => {
           id: clientMessageId,
           clientMessageId,
           senderId: user?.id || '',
-          content: file.name,
+          content: content || file.name,
           type: MessageType.File,
           status: MessageStatus.NORMAL,
           createdAt: now,
@@ -902,7 +902,7 @@ export const useChatWebSocket = () => {
           sendMsgMutate({
             conversationId: isFake ? null : conversationId,
             recipientId: isFake ? conversationId.replace('fake_', '') : null,
-            content: file.name,
+            content: content || file.name,
             clientMessageId,
             replyTo: replyTo || undefined,
             attachments: [

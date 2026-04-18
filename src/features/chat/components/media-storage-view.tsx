@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect } from 'react'
+import { useState, useMemo, useRef, useEffect, type RefObject } from 'react'
 import { Search, FileIcon, Download, Play, ChevronDown, ChevronLeft, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useMediaMessagesQuery } from '../queries/use-queries'
@@ -416,7 +416,7 @@ export function MediaStorageView({ conversationId, members, defaultTab = 'media'
                       </div>
                       <div className='flex-1 min-w-0'>
                         <p className='text-[13px] font-medium truncate group-hover:text-primary transition-colors'>
-                          {preview?.title || url}
+                          {preview?.groupName || url}
                         </p>
                         <p className='text-[11px] text-primary/70 truncate'>{domain}</p>
                         <p className='text-[11px] text-muted-foreground mt-0.5'>
@@ -436,7 +436,7 @@ export function MediaStorageView({ conversationId, members, defaultTab = 'media'
 }
 
 // ── Small helper components ──────────────────────────────────────
-function useOutsideClick(ref: React.RefObject<HTMLElement | null>, onClose: () => void) {
+function useOutsideClick(ref: RefObject<HTMLElement | null>, onClose: () => void) {
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) onClose()
@@ -523,6 +523,7 @@ interface DateFilterProps {
   label: string
 }
 function DateFilter({ value, onChange, label }: DateFilterProps) {
+  const { text } = useChatText()
   const [open, setOpen] = useState(false)
   const [from, setFrom] = useState(value?.from ?? '')
   const [to, setTo] = useState(value?.to ?? '')

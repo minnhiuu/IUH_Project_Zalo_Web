@@ -13,12 +13,14 @@ import { MessageSenderAvatar } from './message-sender-avatar'
 import { MessageIconButton } from './message-icon-button'
 import { MessageMoreMenu } from './message-more-menu'
 import { MessageInfoDialog } from './message-info-dialog'
+import { BaseDialog } from '@/components/common/base-dialog'
 import { JoinLinkCard } from './join-link-card'
 import {
   useRevokeMessageMutation,
   useToggleReactionMutation,
   useRemoveAllMyReactionsMutation,
-  usePinMessageMutation
+  usePinMessageMutation,
+  useDeleteGroupMemberMessageMutation
 } from '../queries/use-mutations'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query'
@@ -58,9 +60,12 @@ export function MessageBubble({
   const { mutate: toggleReactionMutate } = useToggleReactionMutation()
   const { mutateAsync: removeAllMyReactionsAsync } = useRemoveAllMyReactionsMutation()
   const { mutate: pinMessageMutate } = usePinMessageMutation()
+  const { mutate: deleteGroupMemberMessage, isPending: isAdminDeleting } = useDeleteGroupMemberMessageMutation()
   const mb = text.messageBubble
 
   const isRevoked = message.status === MessageStatus.REVOKED
+  const isDeletedByAdmin = message.status === MessageStatus.DELETED_BY_ADMIN
+  const isUnavailable = isRevoked || isDeletedByAdmin
   const conversationId = message.conversationId
 
   const isJoinLink = message.type === MessageType.Link && !!message.linkPreview
@@ -71,6 +76,15 @@ export function MessageBubble({
   const isOwner = senderRole === 'OWNER'
   const highlightEnabled = conversation?.isGroup && conversation?.settings?.highlightAdminMessages && isAdminOrOwner
   const isGroup = conversation?.isGroup
+
+  const currentUserMember = conversation?.members?.find((m) => m.userId === String(user?.id))
+  const currentUserRole = currentUserMember?.role?.toUpperCase()
+  const currentUserIsOwner = currentUserRole === 'OWNER'
+  const currentUserIsAdmin = currentUserRole === 'ADMIN'
+  const canAdminDelete = !!isGroup && !isOwn && (currentUserIsOwner || currentUserIsAdmin)
+  // Admin can delete for everyone unless the sender is the owner
+  const canDeleteMsgForAll = currentUserIsOwner || (currentUserIsAdmin && senderRole !== 'OWNER')
+
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false)
   const [isLikeHovered, setIsLikeHovered] = useState(false)
   const [reactionModalOpen, setReactionModalOpen] = useState(false)
@@ -78,8 +92,12 @@ export function MessageBubble({
   const [seenDialogOpen, setSeenDialogOpen] = useState(false)
   // showInlineSeen: previous own group messages — click bubble to toggle seen list inline
   const [showInlineSeen, setShowInlineSeen] = useState(false)
+  const [adminDeleteOpen, setAdminDeleteOpen] = useState(false)
+  const [adminDeleteMode, setAdminDeleteMode] = useState<'me' | 'everyone'>('me')
+  const [adminDeleteConfirmOpen, setAdminDeleteConfirmOpen] = useState(false)
+  const [adminDeleteError, setAdminDeleteError] = useState<string | null>(null)
 
-  const isPreviousOwnGroup = isOwn && !isNewest && !!isGroup && !isRevoked
+  const isPreviousOwnGroup = isOwn && !isNewest && !!isGroup && !isUnavailable
   const { data: seenMembers, isLoading: seenLoading } = useSeenMembersQuery(
     conversationId!,
     message.id,
@@ -96,8 +114,8 @@ export function MessageBubble({
     return myEmojis.length > 0 ? myEmojis[myEmojis.length - 1] : '👍'
   }, [user?.id, message.reactions])
 
-  const isImageMessage = !isRevoked && (message.type === MessageType.Image || message.type === MessageType.Video)
-  const hasReactions = !isRevoked && !!message.reactions && Object.keys(message.reactions).length > 0
+  const isImageMessage = !isUnavailable && (message.type === MessageType.Image || message.type === MessageType.Video)
+  const hasReactions = !isUnavailable && !!message.reactions && Object.keys(message.reactions).length > 0
 
   if (message.type === MessageType.System) {
     return <SystemMessage message={message} conversation={conversation} />
@@ -138,7 +156,7 @@ export function MessageBubble({
               'max-w-md wrap-break-word text-[15px] shadow-sm flex flex-col relative rounded-lg',
               isImageMessage ? 'p-1' : 'p-5',
               isOwn ? 'bg-blue-message text-black dark:text-primary-foreground' : 'bg-white-message text-foreground',
-              isRevoked && 'pointer-events-none select-none opacity-80',
+              isUnavailable && 'pointer-events-none select-none opacity-80',
               highlightEnabled && 'border border-border-highlight',
               isPreviousOwnGroup && 'cursor-pointer'
             )}
@@ -170,8 +188,10 @@ export function MessageBubble({
             )}
 
             <span>
-              {isRevoked ? (
-                <span className='italic text-muted-foreground/60'>{mb.revoked}</span>
+              {isUnavailable ? (
+                <span className='italic text-muted-foreground/60'>
+                  {isDeletedByAdmin ? mb.deletedByAdmin : mb.revoked}
+                </span>
               ) : isJoinLink ? (
                 <JoinLinkCard
                   token={message.linkPreview!.token}
@@ -212,7 +232,7 @@ export function MessageBubble({
               </div>
             )}
 
-            {!isRevoked && (
+            {!isUnavailable && (
               <div
                 className={cn('absolute -bottom-2 right-0.5 z-10 group/like cursor-pointer', 'hidden group-hover:flex')}
                 onMouseEnter={() => setIsLikeHovered(true)}
@@ -381,7 +401,7 @@ export function MessageBubble({
               })()}
           </div>
 
-          {!isRevoked && (
+          {!isUnavailable && (
             <div className={cn('msg-actions', isLikeHovered ? 'is-hidden' : isMoreMenuOpen ? 'is-open' : '')}>
               <MessageIconButton
                 onClick={onReply}
@@ -412,6 +432,14 @@ export function MessageBubble({
                   onDeleteForMe={() => conversationId && deleteMessageForMe(message.id, conversationId)}
                   onPin={() => conversationId && pinMessageMutate({ conversationId, messageId: message.id })}
                   onRevoke={() => revokeMessage(message.id)}
+                  onAdminDelete={
+                    canAdminDelete
+                      ? () => {
+                          setAdminDeleteMode('me')
+                          setAdminDeleteOpen(true)
+                        }
+                      : undefined
+                  }
                 />
               </DropdownMenu>
             </div>
@@ -521,12 +549,94 @@ export function MessageBubble({
             />
           </div>
         )}
+
+        {/* ── Admin Delete: Step 1 – choose scope ── */}
+        {canAdminDelete && (
+          <>
+            <BaseDialog
+              open={adminDeleteOpen}
+              onOpenChange={setAdminDeleteOpen}
+              title={mb.adminDeleteDialog.title}
+              cancelText={mb.adminDeleteDialog.cancel}
+              confirmText={canDeleteMsgForAll ? mb.adminDeleteDialog.confirm : mb.adminDeleteDialog.confirmForMe}
+              onConfirm={() => {
+                if (adminDeleteMode === 'everyone' && canDeleteMsgForAll) {
+                  setAdminDeleteOpen(false)
+                  setAdminDeleteError(null)
+                  setAdminDeleteConfirmOpen(true)
+                } else {
+                  if (conversationId) deleteMessageForMe(message.id, conversationId)
+                  setAdminDeleteOpen(false)
+                }
+              }}
+              noContentPadding
+            >
+              <div className='px-4 py-1 space-y-3'>
+                <label className='flex items-center gap-3 cursor-pointer'>
+                  <input
+                    type='radio'
+                    name={`admin-delete-${message.id}`}
+                    checked={adminDeleteMode === 'me'}
+                    onChange={() => setAdminDeleteMode('me')}
+                    className='accent-primary w-4 h-4'
+                  />
+                  <span className='text-[14px] text-foreground'>{mb.adminDeleteDialog.optionForMe}</span>
+                </label>
+                {canDeleteMsgForAll && (
+                  <label className='flex items-center gap-3 cursor-pointer'>
+                    <input
+                      type='radio'
+                      name={`admin-delete-${message.id}`}
+                      checked={adminDeleteMode === 'everyone'}
+                      onChange={() => setAdminDeleteMode('everyone')}
+                      className='accent-primary w-4 h-4'
+                    />
+                    <span className='text-[14px] text-foreground'>{mb.adminDeleteDialog.optionForAll}</span>
+                  </label>
+                )}
+              </div>
+            </BaseDialog>
+
+            {/* ── Admin Delete: Step 2 – confirm delete for everyone ── */}
+            <BaseDialog
+              open={adminDeleteConfirmOpen}
+              onOpenChange={(v) => {
+                setAdminDeleteConfirmOpen(v)
+                if (!v) setAdminDeleteError(null)
+              }}
+              title={mb.adminDeleteConfirm.title}
+              cancelText={mb.adminDeleteConfirm.cancel}
+              confirmText={mb.adminDeleteConfirm.confirm}
+              variant='danger'
+              isPending={isAdminDeleting}
+              onConfirm={() => {
+                if (!conversationId) return
+                deleteGroupMemberMessage(
+                  { conversationId, messageId: message.id },
+                  {
+                    onSuccess: () => {
+                      setAdminDeleteConfirmOpen(false)
+                      setAdminDeleteError(null)
+                    },
+                    onError: () => setAdminDeleteError(text.errors.adminDeleteTimeExceeded)
+                  }
+                )
+              }}
+            >
+              <p className='text-[14.5px] text-foreground leading-normal'>
+                {mb.adminDeleteConfirm.description} <strong>{mb.adminDeleteConfirm.descriptionBold}</strong>
+              </p>
+              {adminDeleteError && <p className='text-[13px] text-destructive mt-2'>{adminDeleteError}</p>}
+            </BaseDialog>
+          </>
+        )}
       </div>
     </div>
   )
 }
 
 function MessageMediaContent({ message }: { message: MessageResponse }) {
+  const { text } = useChatText()
   const atts = message.attachments || []
 
   if (atts.length === 0) {
@@ -586,6 +696,8 @@ function MessageMediaContent({ message }: { message: MessageResponse }) {
 }
 
 function MessageFileContent({ message }: { message: MessageResponse }) {
+  const { text } = useChatText()
+  const mb = text.messageBubble
   const att = message.attachments?.[0]
   const fileUrl = att?.url
   const fileName = att?.originalFileName || att?.fileName || 'File'
