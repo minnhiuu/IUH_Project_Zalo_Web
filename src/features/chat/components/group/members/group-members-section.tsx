@@ -17,6 +17,7 @@ import { useDebounce } from '@/hooks/use-debounce'
 import { MemberActionMenu } from './member-action-menu'
 import { MemberRoleBadge } from './member-role-badge'
 import type { GroupMemberListItemResponse } from '../../../schemas/chat.schema'
+import { RemoveMemberDialog } from './remove-member-dialog'
 
 interface GroupMembersSectionProps {
   conversationId: string
@@ -48,9 +49,11 @@ export function GroupMembersSection({
     true
   )
   const sendFriendRequest = useSendFriendRequest()
-  const removeMemberMutation = useRemoveMemberFromGroupMutation()
   const promoteMutation = usePromoteToAdminMutation()
   const demoteMutation = useDemoteFromAdminMutation()
+
+  const [targetMember, setTargetMember] = useState<GroupMemberListItemResponse | null>(null)
+  const [removeOpen, setRemoveOpen] = useState(false)
 
   const members = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data])
 
@@ -59,7 +62,8 @@ export function GroupMembersSection({
     member: GroupMemberListItemResponse
   ) => {
     if (action === 'remove-member') {
-      removeMemberMutation.mutate({ conversationId, targetUserId: member.userId })
+      setTargetMember(member)
+      setRemoveOpen(true)
       return
     }
 
@@ -189,6 +193,16 @@ export function GroupMembersSection({
             {isFetchingNextPage ? 'Đang tải...' : 'Xem thêm'}
           </Button>
         </div>
+      )}
+
+      {targetMember && (
+        <RemoveMemberDialog
+          open={removeOpen}
+          onOpenChange={setRemoveOpen}
+          conversationId={conversationId}
+          targetUserId={targetMember.userId}
+          targetUserName={targetMember.fullName}
+        />
       )}
     </div>
   )

@@ -71,7 +71,9 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     reactionModalEmpty: t(CHAT_KEYS.messageBubble.reactionModalEmpty),
     removeAllMyReactions: t(CHAT_KEYS.messageBubble.removeAllMyReactions),
     download: t(CHAT_KEYS.messageBubble.download),
-    deletedByAdmin: t(CHAT_KEYS.messageBubble.deletedByAdmin),
+    deletedByAdmin: (name: string) => t(CHAT_KEYS.messageBubble.deletedByAdmin, { name }),
+    deletedByAdminSelf: t(CHAT_KEYS.messageBubble.deletedByAdminSelf),
+    replyUnavailable: t(CHAT_KEYS.messageBubble.replyUnavailable),
     adminDeleteDialog: {
       title: t(CHAT_KEYS.messageBubble.adminDeleteDialog.title),
       cancel: t(CHAT_KEYS.messageBubble.adminDeleteDialog.cancel),
@@ -379,7 +381,12 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     groupJoinLink: t(CHAT_KEYS.sidebarInfo.groupJoinLink),
     copied: t(CHAT_KEYS.sidebarInfo.copied),
     generating: t(CHAT_KEYS.sidebarInfo.generating),
-    createInviteLink: t(CHAT_KEYS.sidebarInfo.createInviteLink)
+    createInviteLink: t(CHAT_KEYS.sidebarInfo.createInviteLink),
+    removeFromGroupConfirmTitle: t(CHAT_KEYS.sidebarInfo.removeFromGroupConfirmTitle),
+    removeFromGroupConfirmDesc: t(CHAT_KEYS.sidebarInfo.removeFromGroupConfirmDesc),
+    blockFromGroupDesc: t(CHAT_KEYS.sidebarInfo.blockFromGroupDesc),
+    confirmAccept: t(CHAT_KEYS.sidebarInfo.confirmAccept),
+    closeDialog: t(CHAT_KEYS.sidebarInfo.close)
   },
   'join-group-dialog': {
     title: t(CHAT_KEYS['join-group-dialog'].title),

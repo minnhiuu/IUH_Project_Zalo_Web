@@ -358,7 +358,6 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   useEffect(() => {
     setFirstUnreadId(null)
     setUnreadDisplayCount(0)
-    setAboveViewportCount(-1)
     setNewMsgCount(0)
     prevLatestIdRef.current = null
     anchorInitialized.current = false
@@ -369,7 +368,6 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
     }
   }, [conversation.id])
 
-  // ΓöÇΓöÇΓöÇ Clear new-msg badge when user is at bottom ΓöÇΓöÇΓöÇ
   useEffect(() => {
     if (isAtBottom && newMsgCount > 0) setNewMsgCount(0)
   }, [isAtBottom, newMsgCount])
@@ -393,20 +391,25 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
       setUnreadDisplayCount(unreadAnchor.unreadCount)
       return
     }
-    // Element is in the DOM — check actual visibility.
+    // Element is in the DOM — defer check to after browser layout/paint.
     anchorInitialized.current = true
-    const container = scrollRef.current
-    if (container) {
-      const cr = container.getBoundingClientRect()
-      const mr = msgEl.getBoundingClientRect()
-      const isInView = mr.bottom > cr.top && mr.top < cr.bottom
-      if (isInView) {
-        markAsReadRef.current({ conversationId: conversation.id, lastReadMessageId: latestMessageIdRef.current })
-        return
+    const capturedAnchorId = anchorId
+    const capturedUnreadCount = unreadAnchor.unreadCount
+    requestAnimationFrame(() => {
+      const container = scrollRef.current
+      const el = document.getElementById(`msg-${capturedAnchorId}`)
+      if (container && el) {
+        const cr = container.getBoundingClientRect()
+        const mr = el.getBoundingClientRect()
+        const isInView = mr.bottom > cr.top && mr.top < cr.bottom
+        if (isInView) {
+          markAsReadRef.current({ conversationId: conversation.id, lastReadMessageId: latestMessageIdRef.current })
+          return
+        }
       }
-    }
-    setFirstUnreadId(anchorId)
-    setUnreadDisplayCount(unreadAnchor.unreadCount)
+      setFirstUnreadId(capturedAnchorId)
+      setUnreadDisplayCount(capturedUnreadCount)
+    })
   }, [unreadAnchor, conversation.id, scrollRef, allMessages])
 
   // getBoundingClientRect: debounced markAsRead when divider enters viewport
@@ -442,52 +445,15 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
     }
   }, [unreadDividerEl, allMessages, checkDividerVisibility])
 
-  // Dynamic count: unread messages outside viewport
-  const [aboveViewportCount, setAboveViewportCount] = useState(-1)
-  const allMessagesRef = useRef(allMessages)
-  useEffect(() => {
-    allMessagesRef.current = allMessages
-  }, [allMessages])
-
-  const computeAboveViewportCount = useCallback(() => {
-    if (!firstUnreadId || !scrollRef.current) return
-    const msgs = allMessagesRef.current
-    const containerRect = scrollRef.current.getBoundingClientRect()
-    const anchorIndex = msgs.findIndex((m) => m.id === firstUnreadId)
-    if (anchorIndex === -1) {
-      setAboveViewportCount(unreadDisplayCount)
-      return
-    }
-    let count = 0
-    for (let i = 0; i <= anchorIndex; i++) {
-      const el = document.getElementById(`msg-${msgs[i].id}`)
-      if (!el) {
-        count++
-        continue
-      }
-      const rect = el.getBoundingClientRect()
-      if (!(rect.bottom > containerRect.top && rect.top < containerRect.bottom)) count++
-    }
-    setAboveViewportCount(count)
-  }, [firstUnreadId, unreadDisplayCount, scrollRef])
-
-  // Re-compute immediately when messages change (e.g. new page loaded)
-  useEffect(() => {
-    computeAboveViewportCount()
-  }, [allMessages, computeAboveViewportCount])
-
   useEffect(() => {
     const el = scrollRef.current
     if (!el || !firstUnreadId || !unreadDisplayCount) return
     const onScroll = () => {
-      requestAnimationFrame(() => {
-        checkDividerVisibility()
-        computeAboveViewportCount()
-      })
+      requestAnimationFrame(() => checkDividerVisibility())
     }
     el.addEventListener('scroll', onScroll, { passive: true })
     return () => el.removeEventListener('scroll', onScroll)
-  }, [firstUnreadId, unreadDisplayCount, checkDividerVisibility, computeAboveViewportCount, scrollRef])
+  }, [firstUnreadId, unreadDisplayCount, checkDividerVisibility, scrollRef])
 
   // ΓöÇΓöÇΓöÇ Retry scroll once pending page loads ΓöÇΓöÇΓöÇ
   useEffect(() => {
@@ -682,39 +648,33 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             <PinBoard conversationId={conversation.id} onScrollToMessage={scrollToMessage} />
           )}
 
-          {/* Floating Unread Button ΓÇö only after aboveViewportCount is computed */}
-          {firstUnreadId &&
-            unreadDisplayCount > 0 &&
-            aboveViewportCount > 0 &&
-            (() => {
-              const displayCount = aboveViewportCount
-              return (
-                <div className='absolute top-4 right-4 z-20'>
-                  <button
-                    type='button'
-                    onClick={scrollToUnread}
-                    className='relative flex flex-col items-center justify-center w-11 h-11 bg-white dark:bg-zinc-800 border border-border rounded-full shadow-lg hover:shadow-xl active:scale-95 transition-all cursor-pointer'
-                  >
-                    <svg
-                      xmlns='http://www.w3.org/2000/svg'
-                      className='w-5 h-5 text-foreground'
-                      viewBox='0 0 24 24'
-                      fill='none'
-                      stroke='currentColor'
-                      strokeWidth='2.5'
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                    >
-                      <polyline points='17 11 12 6 7 11' />
-                      <polyline points='17 18 12 13 7 18' />
-                    </svg>
-                    <span className='absolute -top-2 -right-2 min-w-[20px] h-5 px-1 flex items-center justify-center bg-primary text-white text-[10px] font-bold rounded-full leading-none'>
-                      {displayCount > 99 ? '99+' : displayCount}
-                    </span>
-                  </button>
-                </div>
-              )
-            })()}
+          {/* Floating Unread Button */}
+          {firstUnreadId && unreadDisplayCount > 0 && (
+            <div className='absolute top-4 right-4 z-20'>
+              <button
+                type='button'
+                onClick={scrollToUnread}
+                className='relative flex flex-col items-center justify-center w-11 h-11 bg-white dark:bg-zinc-800 border border-border rounded-full shadow-lg hover:shadow-xl active:scale-95 transition-all cursor-pointer'
+              >
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  className='w-5 h-5 text-foreground'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  stroke='currentColor'
+                  strokeWidth='2.5'
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                >
+                  <polyline points='17 11 12 6 7 11' />
+                  <polyline points='17 18 12 13 7 18' />
+                </svg>
+                <span className='absolute -top-2 -right-2 min-w-[20px] h-5 px-1 flex items-center justify-center bg-primary text-white text-[10px] font-bold rounded-full leading-none'>
+                  {unreadDisplayCount > 99 ? '99+' : unreadDisplayCount}
+                </span>
+              </button>
+            </div>
+          )}
 
           {/* Scroll-to-bottom button ΓÇö new incoming messages while scrolled up */}
           {!isAtBottom && newMsgCount > 0 && (
@@ -810,7 +770,12 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
               !isFetchingNextPage && (
                 <GroupIntroCard
                   conversationId={conversation.id}
-                  groupTitle={getConversationDisplayName(conversation, text['group-info-dialog'].title, undefined, user?.id)}
+                  groupTitle={getConversationDisplayName(
+                    conversation,
+                    text['group-info-dialog'].title,
+                    undefined,
+                    user?.id
+                  )}
                   groupMembers={(conversation.members || []).map((m) => ({
                     id: m.userId,
                     avatar: m.avatar,

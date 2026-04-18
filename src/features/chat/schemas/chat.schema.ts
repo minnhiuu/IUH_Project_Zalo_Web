@@ -124,7 +124,8 @@ export const MessageResponseSchema = z.object({
     .nullable()
     .optional(),
   // emoji → array of userIds
-  reactions: z.record(z.string(), z.array(z.string())).nullable().optional()
+  reactions: z.record(z.string(), z.array(z.string())).nullable().optional(),
+  deletedByAdminId: z.string().nullable().optional()
 })
 
 export type MessageResponse = z.infer<typeof MessageResponseSchema>

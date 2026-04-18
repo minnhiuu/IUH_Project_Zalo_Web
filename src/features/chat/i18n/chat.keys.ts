@@ -66,6 +66,8 @@ export const CHAT_KEYS = {
     removeAllMyReactions: 'chat.messageBubble.removeAllMyReactions',
     download: 'chat.messageBubble.download',
     deletedByAdmin: 'chat.messageBubble.deletedByAdmin',
+    deletedByAdminSelf: 'chat.messageBubble.deletedByAdminSelf',
+    replyUnavailable: 'chat.messageBubble.replyUnavailable',
     adminDeleteDialog: {
       title: 'chat.messageBubble.adminDeleteDialog.title',
       cancel: 'chat.messageBubble.adminDeleteDialog.cancel',
@@ -364,7 +366,12 @@ export const CHAT_KEYS = {
     groupJoinLink: 'chat.sidebarInfo.groupJoinLink',
     copied: 'chat.sidebarInfo.copied',
     generating: 'chat.sidebarInfo.generating',
-    createInviteLink: 'chat.sidebarInfo.createInviteLink'
+    createInviteLink: 'chat.sidebarInfo.createInviteLink',
+    removeFromGroupConfirmTitle: 'chat.sidebarInfo.removeFromGroupConfirmTitle',
+    removeFromGroupConfirmDesc: 'chat.sidebarInfo.removeFromGroupConfirmDesc',
+    blockFromGroupDesc: 'chat.sidebarInfo.blockFromGroupDesc',
+    confirmAccept: 'chat.sidebarInfo.confirmAccept',
+    close: 'chat.sidebarInfo.close'
   },
   mediaStorage: {
     title: 'chat.mediaStorage.title',

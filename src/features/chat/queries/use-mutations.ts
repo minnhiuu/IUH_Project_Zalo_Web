@@ -300,14 +300,23 @@ export const useRemoveMemberFromGroupMutation = () => {
   }
 
   return useMutation({
-    mutationFn: ({ conversationId, targetUserId }: { conversationId: string; targetUserId: string }) =>
-      removeMemberFromGroupApi(conversationId, targetUserId),
+    mutationFn: ({
+      conversationId,
+      targetUserId,
+      blockFromGroup
+    }: {
+      conversationId: string
+      targetUserId: string
+      blockFromGroup?: boolean
+    }) => removeMemberFromGroupApi(conversationId, targetUserId, blockFromGroup),
     onSuccess: (updatedConv, variables) => {
       updateConversationInList(updatedConv)
       queryClient.invalidateQueries({ queryKey: chatKeys.messages(variables.conversationId) })
       queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'group-members', variables.conversationId] })
       queryClient.invalidateQueries({ queryKey: chatKeys.groupAdmins(variables.conversationId) })
       queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'admin-candidates'] })
+      queryClient.invalidateQueries({ queryKey: chatKeys.blockedMembers(variables.conversationId) })
+      queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'block-candidates'] })
     },
     onError: (error) => {
       console.error('Failed to remove member from group', error)

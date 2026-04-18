@@ -245,10 +245,12 @@ export const getGroupMembersApi = async (
 
 export const removeMemberFromGroupApi = async (
   conversationId: string,
-  targetUserId: string
+  targetUserId: string,
+  blockFromGroup = false
 ): Promise<ConversationResponse> => {
   const response = await http.delete<ApiResponse<ConversationResponse>>(
-    `/messages/conversations/${conversationId}/members/${targetUserId}`
+    `/messages/conversations/${conversationId}/members/${targetUserId}`,
+    { params: { blockFromGroup } }
   )
   return response.data.data
 }

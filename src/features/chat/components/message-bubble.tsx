@@ -13,14 +13,13 @@ import { MessageSenderAvatar } from './message-sender-avatar'
 import { MessageIconButton } from './message-icon-button'
 import { MessageMoreMenu } from './message-more-menu'
 import { MessageInfoDialog } from './message-info-dialog'
-import { BaseDialog } from '@/components/common/base-dialog'
+import { AdminDeleteMessageDialog } from './admin-delete-message-dialog'
 import { JoinLinkCard } from './join-link-card'
 import {
   useRevokeMessageMutation,
   useToggleReactionMutation,
   useRemoveAllMyReactionsMutation,
-  usePinMessageMutation,
-  useDeleteGroupMemberMessageMutation
+  usePinMessageMutation
 } from '../queries/use-mutations'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query'
@@ -60,7 +59,6 @@ export function MessageBubble({
   const { mutate: toggleReactionMutate } = useToggleReactionMutation()
   const { mutateAsync: removeAllMyReactionsAsync } = useRemoveAllMyReactionsMutation()
   const { mutate: pinMessageMutate } = usePinMessageMutation()
-  const { mutate: deleteGroupMemberMessage, isPending: isAdminDeleting } = useDeleteGroupMemberMessageMutation()
   const mb = text.messageBubble
 
   const isRevoked = message.status === MessageStatus.REVOKED
@@ -93,9 +91,6 @@ export function MessageBubble({
   // showInlineSeen: previous own group messages — click bubble to toggle seen list inline
   const [showInlineSeen, setShowInlineSeen] = useState(false)
   const [adminDeleteOpen, setAdminDeleteOpen] = useState(false)
-  const [adminDeleteMode, setAdminDeleteMode] = useState<'me' | 'everyone'>('me')
-  const [adminDeleteConfirmOpen, setAdminDeleteConfirmOpen] = useState(false)
-  const [adminDeleteError, setAdminDeleteError] = useState<string | null>(null)
 
   const isPreviousOwnGroup = isOwn && !isNewest && !!isGroup && !isUnavailable
   const { data: seenMembers, isLoading: seenLoading } = useSeenMembersQuery(
@@ -154,9 +149,11 @@ export function MessageBubble({
           <div
             className={cn(
               'max-w-md wrap-break-word text-[15px] shadow-sm flex flex-col relative rounded-lg',
-              isImageMessage ? 'p-1' : 'p-5',
-              isOwn ? 'bg-blue-message text-black dark:text-primary-foreground' : 'bg-white-message text-foreground',
-              isUnavailable && 'pointer-events-none select-none opacity-80',
+              isImageMessage ? 'p-1' : isUnavailable ? 'px-3 py-1.5' : 'p-5',
+              isOwn && !isUnavailable
+                ? 'bg-blue-message text-black dark:text-primary-foreground'
+                : 'bg-white-message text-foreground',
+              isUnavailable && 'pointer-events-none select-none border border-black/5 shadow-none',
               highlightEnabled && 'border border-border-highlight',
               isPreviousOwnGroup && 'cursor-pointer'
             )}
@@ -178,19 +175,32 @@ export function MessageBubble({
               <div className='mb-1.5 px-3 py-1.5 border-l-2 border-[#1972F5] bg-[#CDE2FF]/50 rounded-sm select-none'>
                 <div className='font-semibold text-[#0068FF] text-[13px]'>{message.replyTo.senderName}</div>
                 <div className='text-[13px] text-black/70 truncate'>
-                  {message.replyTo.type === 'IMAGE'
-                    ? mb.image
-                    : message.replyTo.type === 'FILE'
-                      ? mb.file
-                      : stripMentionsForPreview(message.replyTo.content)}
+                  {message.replyTo.content === null ? (
+                    <span className='italic'>{mb.replyUnavailable}</span>
+                  ) : message.replyTo.type === 'IMAGE' ? (
+                    mb.image
+                  ) : message.replyTo.type === 'FILE' ? (
+                    mb.file
+                  ) : (
+                    stripMentionsForPreview(message.replyTo.content)
+                  )}
                 </div>
               </div>
             )}
 
             <span>
               {isUnavailable ? (
-                <span className='italic text-muted-foreground/60'>
-                  {isDeletedByAdmin ? mb.deletedByAdmin : mb.revoked}
+                <span className='text-muted-foreground/50 font-normal'>
+                  {isDeletedByAdmin
+                    ? message.deletedByAdminId === String(user?.id)
+                      ? mb.deletedByAdminSelf
+                      : mb.deletedByAdmin(
+                          conversation?.members?.find((m) => m.userId === message.deletedByAdminId)?.fullName ??
+                            'Quản trị viên'
+                        )
+                    : isOwn
+                      ? 'Bạn đã thu hồi tin nhắn'
+                      : mb.revoked}
                 </span>
               ) : isJoinLink ? (
                 <JoinLinkCard
@@ -432,14 +442,7 @@ export function MessageBubble({
                   onDeleteForMe={() => conversationId && deleteMessageForMe(message.id, conversationId)}
                   onPin={() => conversationId && pinMessageMutate({ conversationId, messageId: message.id })}
                   onRevoke={() => revokeMessage(message.id)}
-                  onAdminDelete={
-                    canAdminDelete
-                      ? () => {
-                          setAdminDeleteMode('me')
-                          setAdminDeleteOpen(true)
-                        }
-                      : undefined
-                  }
+                  onAdminDelete={canAdminDelete ? () => setAdminDeleteOpen(true) : undefined}
                 />
               </DropdownMenu>
             </div>
@@ -550,85 +553,14 @@ export function MessageBubble({
           </div>
         )}
 
-        {/* ── Admin Delete: Step 1 – choose scope ── */}
         {canAdminDelete && (
-          <>
-            <BaseDialog
-              open={adminDeleteOpen}
-              onOpenChange={setAdminDeleteOpen}
-              title={mb.adminDeleteDialog.title}
-              cancelText={mb.adminDeleteDialog.cancel}
-              confirmText={canDeleteMsgForAll ? mb.adminDeleteDialog.confirm : mb.adminDeleteDialog.confirmForMe}
-              onConfirm={() => {
-                if (adminDeleteMode === 'everyone' && canDeleteMsgForAll) {
-                  setAdminDeleteOpen(false)
-                  setAdminDeleteError(null)
-                  setAdminDeleteConfirmOpen(true)
-                } else {
-                  if (conversationId) deleteMessageForMe(message.id, conversationId)
-                  setAdminDeleteOpen(false)
-                }
-              }}
-              noContentPadding
-            >
-              <div className='px-4 py-1 space-y-3'>
-                <label className='flex items-center gap-3 cursor-pointer'>
-                  <input
-                    type='radio'
-                    name={`admin-delete-${message.id}`}
-                    checked={adminDeleteMode === 'me'}
-                    onChange={() => setAdminDeleteMode('me')}
-                    className='accent-primary w-4 h-4'
-                  />
-                  <span className='text-[14px] text-foreground'>{mb.adminDeleteDialog.optionForMe}</span>
-                </label>
-                {canDeleteMsgForAll && (
-                  <label className='flex items-center gap-3 cursor-pointer'>
-                    <input
-                      type='radio'
-                      name={`admin-delete-${message.id}`}
-                      checked={adminDeleteMode === 'everyone'}
-                      onChange={() => setAdminDeleteMode('everyone')}
-                      className='accent-primary w-4 h-4'
-                    />
-                    <span className='text-[14px] text-foreground'>{mb.adminDeleteDialog.optionForAll}</span>
-                  </label>
-                )}
-              </div>
-            </BaseDialog>
-
-            {/* ── Admin Delete: Step 2 – confirm delete for everyone ── */}
-            <BaseDialog
-              open={adminDeleteConfirmOpen}
-              onOpenChange={(v) => {
-                setAdminDeleteConfirmOpen(v)
-                if (!v) setAdminDeleteError(null)
-              }}
-              title={mb.adminDeleteConfirm.title}
-              cancelText={mb.adminDeleteConfirm.cancel}
-              confirmText={mb.adminDeleteConfirm.confirm}
-              variant='danger'
-              isPending={isAdminDeleting}
-              onConfirm={() => {
-                if (!conversationId) return
-                deleteGroupMemberMessage(
-                  { conversationId, messageId: message.id },
-                  {
-                    onSuccess: () => {
-                      setAdminDeleteConfirmOpen(false)
-                      setAdminDeleteError(null)
-                    },
-                    onError: () => setAdminDeleteError(text.errors.adminDeleteTimeExceeded)
-                  }
-                )
-              }}
-            >
-              <p className='text-[14.5px] text-foreground leading-normal'>
-                {mb.adminDeleteConfirm.description} <strong>{mb.adminDeleteConfirm.descriptionBold}</strong>
-              </p>
-              {adminDeleteError && <p className='text-[13px] text-destructive mt-2'>{adminDeleteError}</p>}
-            </BaseDialog>
-          </>
+          <AdminDeleteMessageDialog
+            open={adminDeleteOpen}
+            onOpenChange={setAdminDeleteOpen}
+            message={message}
+            conversationId={conversationId}
+            canDeleteMsgForAll={canDeleteMsgForAll}
+          />
         )}
       </div>
     </div>

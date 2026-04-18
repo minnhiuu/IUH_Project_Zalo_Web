@@ -49,7 +49,9 @@
       "reactionModalEmpty": "No reactions yet",
       "removeAllMyReactions": "Remove all your reactions",
       "download": "Download",
-      "deletedByAdmin": "This message was deleted by an admin",
+      "deletedByAdmin": "{{name}} deleted this message",
+      "deletedByAdminSelf": "You deleted this message",
+      "replyUnavailable": "Message deleted",
       "adminDeleteDialog": {
         "title": "Delete message",
         "cancel": "Cancel",
@@ -505,7 +507,11 @@
       "groupJoinLink": "Group join link",
       "copied": "Copied",
       "generating": "Generating...",
-      "createInviteLink": "Create invite link"
+      "createInviteLink": "Create invite link",
+      "removeFromGroupConfirmTitle": "Confirm",
+      "removeFromGroupConfirmDesc": "Remove this member from group?",
+      "blockFromGroupDesc": "Block this one from rejoining",
+      "close": "Close"
     },
     "mediaStorage": {
       "title": "Storage",

@@ -49,7 +49,9 @@
       "reactionModalEmpty": "Chưa có cảm xúc",
       "removeAllMyReactions": "Xóa tất cả biểu cảm của bạn",
       "download": "Tải xuống",
-      "deletedByAdmin": "Tin nhắn đã bị quản trị viên xóa",
+      "deletedByAdmin": "{{name}} đã xoá tin nhắn này",
+      "deletedByAdminSelf": "Bạn đã xoá tin nhắn này",
+      "replyUnavailable": "Tin nhắn đã bị xoá",
       "adminDeleteDialog": {
         "title": "Xóa tin nhắn",
         "cancel": "Hủy",
@@ -505,7 +507,12 @@
       "groupJoinLink": "Link tham gia nhóm",
       "copied": "Đã sao chép",
       "generating": "Đang tạo...",
-      "createInviteLink": "Tạo link mời"
+      "createInviteLink": "Tạo link mời",
+      "removeFromGroupConfirmTitle": "Xác nhận",
+      "removeFromGroupConfirmDesc": "Xoá thành viên này khỏi nhóm?",
+      "blockFromGroupDesc": "Chặn người này tham gia lại",
+      "confirmAccept": "Đồng ý",
+      "close": "Đóng"
     },
     "mediaStorage": {
       "title": "Kho lưu trữ",

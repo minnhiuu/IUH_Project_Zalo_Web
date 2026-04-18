@@ -328,9 +328,20 @@ export const useChatWebSocket = () => {
                   ...oldData,
                   pages: oldData.pages.map((page: PageResponse<MessageResponse>) => ({
                     ...page,
-                    data: page.data.map((m: MessageResponse) =>
-                      m.id === update.messageId ? { ...m, status: update.newStatus, content: null } : m
-                    )
+                    data: page.data.map((m: MessageResponse) => {
+                      if (m.id === update.messageId) {
+                        return {
+                          ...m,
+                          status: update.newStatus,
+                          content: null,
+                          ...(update.deletedByAdminId ? { deletedByAdminId: update.deletedByAdminId } : {})
+                        }
+                      }
+                      if (m.replyTo?.messageId === update.messageId) {
+                        return { ...m, replyTo: { ...m.replyTo, content: null } }
+                      }
+                      return m
+                    })
                   }))
                 }
               }

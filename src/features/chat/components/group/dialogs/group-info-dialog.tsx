@@ -36,6 +36,7 @@ export function GroupInfoDialog({
   const { text } = useChatText()
   const tg = text['group-info-dialog']
   const [step, setStep] = useState<Step>(initialStep)
+  const [sourceStep, setSourceStep] = useState<Step>('info')
   const [isLeaveGroupDialogOpen, setIsLeaveGroupDialogOpen] = useState(false)
 
   // Track previous open state to detect when the panel is opened
@@ -46,12 +47,21 @@ export function GroupInfoDialog({
     setPrevOpen(open)
     if (open) {
       setStep(initialStep)
+      setSourceStep('info')
     }
   }
 
   const handleClose = () => {
     onOpenChange(false)
-    setTimeout(() => setStep('info'), 200)
+    setTimeout(() => {
+      setStep('info')
+      setSourceStep('info')
+    }, 200)
+  }
+
+  const navigateTo = (newStep: Step) => {
+    setSourceStep(step)
+    setStep(newStep)
   }
 
   if (!open) return null
@@ -76,7 +86,7 @@ export function GroupInfoDialog({
             <button
               onClick={() => {
                 if (step === 'blocked' || step === 'admins') {
-                  setStep('management')
+                  setStep(sourceStep === 'management' ? 'management' : 'members')
                 } else {
                   setStep('info')
                 }
@@ -91,7 +101,7 @@ export function GroupInfoDialog({
             {step === 'management'
               ? tg.managementTitle
               : step === 'blocked'
-                ? tg.actions.removeMembers
+                ? tg.blockedMembersTitle || tg.actions.removeMembers
                 : step === 'admins'
                   ? tg.actions.ownerAndDeputy
                   : step === 'members'
@@ -125,8 +135,8 @@ export function GroupInfoDialog({
                   onAvatarClick={onAvatarClick}
                   onRenameClick={onRenameClick}
                   onCloseDialog={handleClose}
-                  onOpenManagement={() => setStep('management')}
-                  onOpenMembers={() => setStep('members')}
+                  onOpenManagement={() => navigateTo('management')}
+                  onOpenMembers={() => navigateTo('members')}
                   onLeaveGroup={() => setIsLeaveGroupDialogOpen(true)}
                 />
               </motion.div>
@@ -149,8 +159,8 @@ export function GroupInfoDialog({
                     GroupMemberRole.Member
                   }
                   onDisbandSuccess={handleClose}
-                  onGoToAdmins={() => setStep('admins')}
-                  onGoToBlocked={() => setStep('blocked')}
+                  onGoToAdmins={() => navigateTo('admins')}
+                  onGoToBlocked={() => navigateTo('blocked')}
                 />
               </motion.div>
             ) : step === 'blocked' ? (
@@ -196,6 +206,8 @@ export function GroupInfoDialog({
                       // Handle member click if needed
                     }
                   }}
+                  onGoToAdmins={() => navigateTo('admins')}
+                  onGoToBlocked={() => navigateTo('blocked')}
                 />
               </motion.div>
             ) : (
