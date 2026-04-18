@@ -350,7 +350,7 @@ export function ChatInfoSections({
         <SidebarSection title={text.links} defaultOpen={true}>
           <div className='flex flex-col px-4 py-2 space-y-3'>
             {[
-              { url: 'https://youtu.be/rRA9NVIKhjQ', domain: 'youtu.be', date: 'Hôm qua' },
+              { url: 'https://youtu.be/rRA9NVIKhjQ', domain: 'youtu.be', date: chatText.status.yesterday },
               { url: 'Pollinations API Reference', domain: 'enter.pollinations.ai', date: '28/03' },
               { url: 'Unknown', domain: 'youtu.be', date: '28/03' }
             ].map((link, i) => (

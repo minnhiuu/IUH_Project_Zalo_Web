@@ -1,8 +1,8 @@
 import { cn } from '@/lib/utils'
 import type { ConversationResponse, ConversationMemberResponse, MessageResponse } from '../schemas/chat.schema'
 import { useChatText } from '../i18n/use-chat-text'
-import { Quote, Forward, MoreHorizontal, ThumbsUp, Download, X, Play, Archive } from 'lucide-react'
-import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
+import { Quote, Forward, MoreHorizontal, ThumbsUp, FileIcon, Download, X, Play } from 'lucide-react'
+import { useState, useMemo } from 'react'
 import { DropdownMenu, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useChatContext } from '../context/chat-context'
 import { MessageStatus, MessageType } from '@/constants/enum'
@@ -12,6 +12,8 @@ import { UserAvatar } from '@/components/common/user-avatar'
 import { MessageSenderAvatar } from './message-sender-avatar'
 import { MessageIconButton } from './message-icon-button'
 import { MessageMoreMenu } from './message-more-menu'
+import { MessageInfoDialog } from './message-info-dialog'
+import { AdminDeleteMessageDialog } from './admin-delete-message-dialog'
 import { JoinLinkCard } from './join-link-card'
 import {
   useRevokeMessageMutation,
@@ -24,6 +26,7 @@ import { useQueryClient, type InfiniteData } from '@tanstack/react-query'
 import type { PageResponse } from '@/shared/api'
 import { chatKeys } from '../queries/keys'
 import { parseMentionsForRender, stripMentionsForPreview } from '../utils/mention'
+import { useSeenMembersQuery } from '../queries/use-queries'
 
 export function MessageBubble({
   message,
@@ -59,6 +62,8 @@ export function MessageBubble({
   const mb = text.messageBubble
 
   const isRevoked = message.status === MessageStatus.REVOKED
+  const isDeletedByAdmin = message.status === MessageStatus.DELETED_BY_ADMIN
+  const isUnavailable = isRevoked || isDeletedByAdmin
   const conversationId = message.conversationId
 
   const isJoinLink = message.type === MessageType.Link && !!message.linkPreview
@@ -69,91 +74,43 @@ export function MessageBubble({
   const isOwner = senderRole === 'OWNER'
   const highlightEnabled = conversation?.isGroup && conversation?.settings?.highlightAdminMessages && isAdminOrOwner
   const isGroup = conversation?.isGroup
+
+  const currentUserMember = conversation?.members?.find((m) => m.userId === String(user?.id))
+  const currentUserRole = currentUserMember?.role?.toUpperCase()
+  const currentUserIsOwner = currentUserRole === 'OWNER'
+  const currentUserIsAdmin = currentUserRole === 'ADMIN'
+  const canAdminDelete = !!isGroup && !isOwn && (currentUserIsOwner || currentUserIsAdmin)
+  // Admin can delete for everyone unless the sender is the owner
+  const canDeleteMsgForAll = currentUserIsOwner || (currentUserIsAdmin && senderRole !== 'OWNER')
+
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false)
   const [isLikeHovered, setIsLikeHovered] = useState(false)
   const [reactionModalOpen, setReactionModalOpen] = useState(false)
-  const [spamCount, setSpamCount] = useState(0)
-  const spamIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const spamEmojiRef = useRef<string>('👍')
+  // seenDialogOpen: true = show full BaseDialog (both newest & previous messages)
+  const [seenDialogOpen, setSeenDialogOpen] = useState(false)
+  // showInlineSeen: previous own group messages — click bubble to toggle seen list inline
+  const [showInlineSeen, setShowInlineSeen] = useState(false)
+  const [adminDeleteOpen, setAdminDeleteOpen] = useState(false)
 
-  const fireReaction = useCallback((emoji: string) => {
-    if (message.id.startsWith('temp-') || !conversationId || !user?.id) return
-    toggleReactionMutate({ messageId: message.id, emoji })
-    const uid = user.id
-    queryClient.setQueryData(
-      chatKeys.messages(conversationId),
-      (oldData: InfiniteData<PageResponse<MessageResponse>> | undefined) => {
-        if (!oldData) return oldData
-        return {
-          ...oldData,
-          pages: oldData.pages.map((page: PageResponse<MessageResponse>) => ({
-            ...page,
-            data: page.data.map((m: MessageResponse) => {
-              if (m.id !== message.id) return m
-              const reactions: Record<string, string[]> = JSON.parse(JSON.stringify(m.reactions || {}))
-              reactions[emoji] = [...(reactions[emoji] || []), uid]
-              return { ...m, reactions }
-            })
-          }))
-        }
-      }
-    )
-  }, [message.id, conversationId, user?.id, toggleReactionMutate, queryClient])
+  const isPreviousOwnGroup = isOwn && !isNewest && !!isGroup && !isUnavailable
+  const { data: seenMembers, isLoading: seenLoading } = useSeenMembersQuery(
+    conversationId!,
+    message.id,
+    (seenDialogOpen || showInlineSeen) && isPreviousOwnGroup
+  )
 
-  const startSpam = useCallback((emoji: string) => {
-    if (message.id.startsWith('temp-') || !conversationId) return
-    spamEmojiRef.current = emoji
-    fireReaction(emoji)
-    setSpamCount(1)
-    spamIntervalRef.current = setInterval(() => {
-      fireReaction(spamEmojiRef.current)
-      setSpamCount((c) => c + 1)
-    }, 200)
-  }, [fireReaction, message.id, conversationId])
-
-  const stopSpam = useCallback(() => {
-    if (spamIntervalRef.current) {
-      clearInterval(spamIntervalRef.current)
-      spamIntervalRef.current = null
-    }
-    setTimeout(() => setSpamCount(0), 800)
-  }, [])
-
-  // Cleanup on unmount
-  useEffect(() => () => { if (spamIntervalRef.current) clearInterval(spamIntervalRef.current) }, [])
-
-  // Serialize only MY reactions as a stable string — only changes when content truly changes,
-  // not on every re-render (avoids stale object reference resetting emoji state)
-  const myReactionsSummary = useMemo(() => {
-    if (!user?.id || !message.reactions) return ''
+  // Per-message quick react: show the last emoji the user reacted on THIS message, or 👍
+  const quickReactEmoji = useMemo(() => {
+    if (!user?.id || !message.reactions) return '👍'
     const uid = String(user.id)
-    return Object.entries(message.reactions)
+    const myEmojis = Object.entries(message.reactions)
       .filter(([, uids]) => uids.map(String).includes(uid))
       .map(([e]) => e)
-      .join(',')
+    return myEmojis.length > 0 ? myEmojis[myEmojis.length - 1] : '👍'
   }, [user?.id, message.reactions])
 
-  const [quickReactEmoji, setQuickReactEmoji] = useState<string>(() => {
-    const emojis = myReactionsSummary.split(',').filter(Boolean)
-    return emojis.length > 0 ? emojis[emojis.length - 1] : '👍'
-  })
-
-  // Only fires when actual reaction content changes (not just object reference)
-  useEffect(() => {
-    const emojis = myReactionsSummary.split(',').filter(Boolean)
-    setQuickReactEmoji(emojis.length > 0 ? emojis[emojis.length - 1] : '👍')
-  }, [myReactionsSummary])
-
-  const isImageMessage = !isRevoked && (message.type === MessageType.Image || message.type === MessageType.Video)
-  const hasReactions = !isRevoked && !!message.reactions && Object.keys(message.reactions).length > 0
-  const attachmentNames = (message.attachments || []).map((att) => att.originalFileName || att.fileName).filter(Boolean)
-  const shouldShowAttachmentCaption = (() => {
-    const trimmedContent = (message.content || '').trim()
-    if (!trimmedContent) return false
-    if (['[Hình ảnh]', '[Video]', '[Tệp]', '[File]'].includes(trimmedContent)) return false
-    if (attachmentNames.includes(trimmedContent)) return false
-    return true
-  })()
+  const isImageMessage = !isUnavailable && (message.type === MessageType.Image || message.type === MessageType.Video)
+  const hasReactions = !isUnavailable && !!message.reactions && Object.keys(message.reactions).length > 0
 
   if (message.type === MessageType.System) {
     return <SystemMessage message={message} conversation={conversation} />
@@ -171,8 +128,8 @@ export function MessageBubble({
       )}
     >
       {!isOwn && (
-        <div className='w-10 shrink-0 flex items-start'>
-          {isFirst ? (
+        <div className='w-10 shrink-0 flex items-end'>
+          {isLast ? (
             <MessageSenderAvatar
               src={message.senderAvatar}
               name={message.senderName || text.user}
@@ -192,11 +149,15 @@ export function MessageBubble({
           <div
             className={cn(
               'max-w-md wrap-break-word text-[15px] shadow-sm flex flex-col relative rounded-lg',
-              isImageMessage ? 'p-1' : 'p-5',
-              isOwn ? 'bg-blue-message text-black dark:text-primary-foreground' : 'bg-white-message text-foreground',
-              isRevoked && 'pointer-events-none select-none opacity-80',
-              highlightEnabled && 'border border-border-highlight'
+              isImageMessage ? 'p-1' : isUnavailable ? 'px-3 py-1.5' : 'p-5',
+              isOwn && !isUnavailable
+                ? 'bg-blue-message text-black dark:text-primary-foreground'
+                : 'bg-white-message text-foreground',
+              isUnavailable && 'pointer-events-none select-none border border-black/5 shadow-none',
+              highlightEnabled && 'border border-border-highlight',
+              isPreviousOwnGroup && 'cursor-pointer'
             )}
+            onClick={isPreviousOwnGroup ? () => setShowInlineSeen((v) => !v) : undefined}
           >
             {isGroup && !isOwn && isFirst && (
               <span className='text-[11px] font-medium text-text-secondary mb-1 truncate max-w-md'>
@@ -210,48 +171,37 @@ export function MessageBubble({
               </div>
             )}
 
-            {message.replyTo && (() => {
-              const replyImageUrl =
-                message.replyTo.type === MessageType.Image
-                  ? message.replyTo.thumbnailUrl ||
-                    (message.replyTo.content && /^https?:\/\//.test(message.replyTo.content)
-                      ? message.replyTo.content
-                      : null)
-                  : null
-              return (
-                <div className='mb-1.5 px-3 py-1.5 border-l-2 border-[#1972F5] bg-[#CDE2FF]/50 rounded-sm select-none'>
-                  <div className='flex items-start gap-2'>
-                    <div className='flex-1 min-w-0'>
-                      <div className='font-semibold text-[#0068FF] text-[13px]'>{message.replyTo.senderName}</div>
-                      <div className='text-[13px] text-black/70 truncate'>
-                        {message.replyTo.content === null ? (
-                          <span className='italic opacity-60'>{mb.revoked}</span>
-                        ) : message.replyTo.type === MessageType.Image ? (
-                          mb.image
-                        ) : message.replyTo.type === MessageType.File ? (
-                          mb.file
-                        ) : message.replyTo.type === MessageType.Video ? (
-                          '🎥 Video'
-                        ) : (
-                          stripMentionsForPreview(message.replyTo.content)
-                        )}
-                      </div>
-                    </div>
-                    {replyImageUrl && (
-                      <img
-                        src={replyImageUrl}
-                        alt=''
-                        className='w-10 h-10 rounded object-cover shrink-0'
-                      />
-                    )}
-                  </div>
+            {message.replyTo && (
+              <div className='mb-1.5 px-3 py-1.5 border-l-2 border-[#1972F5] bg-[#CDE2FF]/50 rounded-sm select-none'>
+                <div className='font-semibold text-[#0068FF] text-[13px]'>{message.replyTo.senderName}</div>
+                <div className='text-[13px] text-black/70 truncate'>
+                  {message.replyTo.content === null ? (
+                    <span className='italic'>{mb.replyUnavailable}</span>
+                  ) : message.replyTo.type === 'IMAGE' ? (
+                    mb.image
+                  ) : message.replyTo.type === 'FILE' ? (
+                    mb.file
+                  ) : (
+                    stripMentionsForPreview(message.replyTo.content)
+                  )}
                 </div>
-              )
-            })()}
+              </div>
+            )}
 
             <span>
-              {isRevoked ? (
-                <span className='italic text-muted-foreground/60'>{mb.revoked}</span>
+              {isUnavailable ? (
+                <span className='text-muted-foreground/50 font-normal'>
+                  {isDeletedByAdmin
+                    ? message.deletedByAdminId === String(user?.id)
+                      ? mb.deletedByAdminSelf
+                      : mb.deletedByAdmin(
+                          conversation?.members?.find((m) => m.userId === message.deletedByAdminId)?.fullName ??
+                            'Quản trị viên'
+                        )
+                    : isOwn
+                      ? 'Bạn đã thu hồi tin nhắn'
+                      : mb.revoked}
+                </span>
               ) : isJoinLink ? (
                 <JoinLinkCard
                   token={message.linkPreview!.token}
@@ -259,39 +209,9 @@ export function MessageBubble({
                   cachedPreview={message.linkPreview!}
                 />
               ) : message.type === MessageType.Image || message.type === MessageType.Video ? (
-                <div className='flex flex-col gap-2'>
-                  <MessageMediaContent message={message} />
-                  {shouldShowAttachmentCaption && (
-                    <div>
-                      {parseMentionsForRender(message.content).map(({ isMention, text, key }) => (
-                        isMention ? (
-                          <span key={key} className='text-[#005AE0] dark:text-[#3B82F6] cursor-pointer hover:underline'>
-                            {text}
-                          </span>
-                        ) : (
-                          <span key={key} className='whitespace-pre-wrap'>{text}</span>
-                        )
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <MessageMediaContent message={message} />
               ) : message.type === MessageType.File ? (
-                <div className='flex flex-col gap-2'>
-                  <MessageFileContent message={message} />
-                  {shouldShowAttachmentCaption && (
-                    <div>
-                      {parseMentionsForRender(message.content).map(({ isMention, text, key }) => (
-                        isMention ? (
-                          <span key={key} className='text-[#005AE0] dark:text-[#3B82F6] cursor-pointer hover:underline'>
-                            {text}
-                          </span>
-                        ) : (
-                          <span key={key} className='whitespace-pre-wrap'>{text}</span>
-                        )
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <MessageFileContent message={message} />
               ) : (
                 parseMentionsForRender(message.content).map(({ isMention, text, key }) =>
                   isMention ? (
@@ -310,11 +230,11 @@ export function MessageBubble({
             {isLast && (
               <div
                 className={cn(
-                  'flex items-center mt-2 font-medium self-start',
+                  'flex items-center mt-1 font-medium self-start',
                   isOwn ? 'text-black/50 dark:text-primary-foreground/70' : 'text-muted-foreground'
                 )}
               >
-                <span className='text-[11px] pb-4'>
+                <span className='text-[11px]'>
                   {message.createdAt
                     ? new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                     : ''}
@@ -322,7 +242,7 @@ export function MessageBubble({
               </div>
             )}
 
-            {!isRevoked && (
+            {!isUnavailable && (
               <div
                 className={cn('absolute -bottom-2 right-0.5 z-10 group/like cursor-pointer', 'hidden group-hover:flex')}
                 onMouseEnter={() => setIsLikeHovered(true)}
@@ -342,8 +262,10 @@ export function MessageBubble({
                       className='leading-none hover:scale-125 transition-transform focus:outline-none'
                       style={{ cursor: 'pointer', fontSize: '20px' }}
                       onClick={() => {
-                        setQuickReactEmoji(emoji)
-                        if (user?.id) localStorage.setItem(`chat_last_emoji_${user.id}`, emoji)
+                        // Save as last used emoji
+                        if (user?.id) {
+                          localStorage.setItem(`chat_last_emoji_${user.id}`, emoji)
+                        }
                         toggleReactionMutate({ messageId: message.id, emoji })
                         // Optimistic — always add (use X button to remove)
                         if (!conversationId || message.id.startsWith('temp-')) return
@@ -381,7 +303,7 @@ export function MessageBubble({
                     ) && (
                       <button
                         type='button'
-                        title='Xóa tất cả cảm xúc của bạn'
+                        title={mb.removeAllMyReactions}
                         className='w-6 h-6 flex items-center justify-center rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors shrink-0'
                         onClick={async () => {
                           if (!conversationId || message.id.startsWith('temp-') || !user?.id) return
@@ -412,7 +334,7 @@ export function MessageBubble({
                               }
                             }
                           )
-                          setQuickReactEmoji('👍')
+                          // Single API call to remove all my reactions
                           await removeAllMyReactionsAsync({ messageId: message.id }).catch(() => {})
                         }}
                       >
@@ -422,38 +344,43 @@ export function MessageBubble({
                 </div>
 
                 <MessageIconButton
-                  className='h-7 w-7 bg-background border-border/80 text-icon-secondary hover:text-icon-secondary hover:bg-background cursor-pointer! relative'
+                  className='h-6 w-6 bg-background border-border/80 text-icon-secondary hover:text-icon-secondary hover:bg-background cursor-pointer!'
                   aria-label={mb.like}
                   icon={
-                    <>
-                      {quickReactEmoji !== '👍' ? (
-                        <span style={{ fontSize: '16px', lineHeight: 1 }}>{quickReactEmoji}</span>
-                      ) : (
-                        <ThumbsUp className='cursor-pointer' />
-                      )}
-                      {spamCount > 1 && (
-                        <span
-                          key={spamCount}
-                          className='absolute -top-5 left-1/2 -translate-x-1/2 text-[11px] font-bold text-primary animate-in fade-in zoom-in-95 duration-100 pointer-events-none whitespace-nowrap'
-                        >
-                          +{spamCount}
-                        </span>
-                      )}
-                    </>
+                    quickReactEmoji !== '👍' ? (
+                      <span style={{ fontSize: '16px', lineHeight: 1 }}>{quickReactEmoji}</span>
+                    ) : (
+                      <ThumbsUp className='cursor-pointer' />
+                    )
                   }
                   iconSize='md'
                   style={{ cursor: 'pointer' }}
-                  onMouseDown={(e) => {
-                    e.preventDefault()
-                    startSpam(quickReactEmoji)
+                  onClick={() => {
+                    if (message.id.startsWith('temp-') || !conversationId) return
+                    const emojiToSend = quickReactEmoji
+                    toggleReactionMutate({ messageId: message.id, emoji: emojiToSend })
+                    // Optimistic — always add
+                    queryClient.setQueryData(
+                      chatKeys.messages(conversationId),
+                      (oldData: InfiniteData<PageResponse<MessageResponse>> | undefined) => {
+                        if (!oldData) return oldData
+                        return {
+                          ...oldData,
+                          pages: oldData.pages.map((page: PageResponse<MessageResponse>) => ({
+                            ...page,
+                            data: page.data.map((m: MessageResponse) => {
+                              if (m.id !== message.id) return m
+                              const reactions: Record<string, string[]> = JSON.parse(JSON.stringify(m.reactions || {}))
+                              const uid = user?.id || ''
+                              const existing = reactions[emojiToSend] || []
+                              reactions[emojiToSend] = [...existing, uid]
+                              return { ...m, reactions }
+                            })
+                          }))
+                        }
+                      }
+                    )
                   }}
-                  onMouseUp={stopSpam}
-                  onMouseLeave={stopSpam}
-                  onTouchStart={(e) => {
-                    e.preventDefault()
-                    startSpam(quickReactEmoji)
-                  }}
-                  onTouchEnd={stopSpam}
                 />
               </div>
             )}
@@ -484,7 +411,7 @@ export function MessageBubble({
               })()}
           </div>
 
-          {!isRevoked && (
+          {!isUnavailable && (
             <div className={cn('msg-actions', isLikeHovered ? 'is-hidden' : isMoreMenuOpen ? 'is-open' : '')}>
               <MessageIconButton
                 onClick={onReply}
@@ -515,6 +442,7 @@ export function MessageBubble({
                   onDeleteForMe={() => conversationId && deleteMessageForMe(message.id, conversationId)}
                   onPin={() => conversationId && pinMessageMutate({ conversationId, messageId: message.id })}
                   onRevoke={() => revokeMessage(message.id)}
+                  onAdminDelete={canAdminDelete ? () => setAdminDeleteOpen(true) : undefined}
                 />
               </DropdownMenu>
             </div>
@@ -530,75 +458,126 @@ export function MessageBubble({
           currentUser={user ? { id: user.id, fullName: user.fullName, avatar: user.avatar ?? undefined } : undefined}
         />
 
+        {/* ── Newest own message: always show seen avatars, click → dialog ── */}
         {isOwn &&
+          isNewest &&
           (() => {
             const readers =
               conversation?.members?.filter((m: ConversationMemberResponse) => m.lastReadMessageId === message.id) || []
             const hasReaders = readers.length > 0
-            const hasContent = hasReaders || isNewest
-            if (!hasContent) return null
+            const MAX_AVATARS = 5
+            const visibleReaders = readers.slice(0, MAX_AVATARS)
+            const extraCount = readers.length - MAX_AVATARS
             return (
               <div className='flex flex-col items-end mt-1'>
-                {(() => {
-                  return (
-                    <>
-                      {!hasReaders && isNewest && (
-                        <span className='text-[11px] text-muted-foreground px-1 select-none'>
-                          {message.id.startsWith('temp-') ? text.status.sending : text.status.sent}
-                        </span>
-                      )}
-
-                      {/* Read Receipts Avatars */}
-                      {hasReaders && (
-                        <div className='flex -space-x-1 items-center mt-1 pr-1'>
-                          {(() => {
-                            const MAX_AVATARS = 3
-                            const visibleReaders = readers.slice(0, MAX_AVATARS)
-                            const extraCount = readers.length - MAX_AVATARS
-
-                            return (
-                              <>
-                                {visibleReaders.map((reader: ConversationMemberResponse) => (
-                                  <UserAvatar
-                                    key={reader.userId}
-                                    src={reader.avatar}
-                                    name={reader.fullName || 'User'}
-                                    className='w-3 h-3 border border-background shadow-sm'
-                                    fallbackClassName='text-[6px]'
-                                    // title={`Đã xem bởi ${reader.fullName}`}
-                                  />
-                                ))}
-                                {extraCount > 0 && (
-                                  <div className='w-3 h-3 rounded-full bg-muted border border-background flex items-center justify-center'>
-                                    <span className='text-[6px] font-bold'>+{extraCount}</span>
-                                  </div>
-                                )}
-                              </>
-                            )
-                          })()}
-                        </div>
-                      )}
-                    </>
-                  )
-                })()}
+                {!hasReaders && (
+                  <span className='text-[11px] text-muted-foreground px-1 select-none'>
+                    {message.id.startsWith('temp-') ? text.status.sending : text.status.sent}
+                  </span>
+                )}
+                {hasReaders && (
+                  <button
+                    type='button'
+                    onClick={() => setSeenDialogOpen(true)}
+                    className='flex -space-x-1 items-center mt-1 pr-1 cursor-pointer'
+                  >
+                    {visibleReaders.map((reader: ConversationMemberResponse) => (
+                      <UserAvatar
+                        key={reader.userId}
+                        src={reader.avatar}
+                        name={reader.fullName || 'User'}
+                        className='w-3 h-3 border border-background shadow-sm'
+                        fallbackClassName='text-[6px]'
+                      />
+                    ))}
+                    {extraCount > 0 && (
+                      <div className='w-3 h-3 rounded-full bg-muted border border-background flex items-center justify-center'>
+                        <span className='text-[6px] font-bold'>+{extraCount}</span>
+                      </div>
+                    )}
+                  </button>
+                )}
+                {/* Dialog for newest own message */}
+                <MessageInfoDialog
+                  open={seenDialogOpen}
+                  onOpenChange={setSeenDialogOpen}
+                  message={message}
+                  seenMembers={readers.map((r) => ({
+                    userId: r.userId,
+                    fullName: r.fullName || null,
+                    avatar: r.avatar || null
+                  }))}
+                  loading={false}
+                />
               </div>
             )
           })()}
+
+        {/* ── Previous own group messages: click bubble → show seen inline ── */}
+        {isPreviousOwnGroup && showInlineSeen && (
+          <div className='flex flex-col items-end mt-1'>
+            {seenLoading ? (
+              <span className='text-[11px] text-muted-foreground pr-1'>{text.loading}</span>
+            ) : !seenMembers || seenMembers.length === 0 ? (
+              <span className='text-[11px] text-muted-foreground pr-1'>{text['message-info-dialog'].noOneSeen}</span>
+            ) : (
+              <button
+                type='button'
+                onClick={() => setSeenDialogOpen(true)}
+                className='flex -space-x-1 items-center mt-0.5 pr-1 cursor-pointer'
+              >
+                {seenMembers.slice(0, 5).map((m) => (
+                  <UserAvatar
+                    key={m.userId}
+                    src={m.avatar}
+                    name={m.fullName || 'User'}
+                    className='w-3 h-3 border border-background shadow-sm'
+                    fallbackClassName='text-[6px]'
+                  />
+                ))}
+                {seenMembers.length > 5 && (
+                  <div className='w-3 h-3 rounded-full bg-muted border border-background flex items-center justify-center'>
+                    <span className='text-[6px] font-bold'>+{seenMembers.length - 5}</span>
+                  </div>
+                )}
+              </button>
+            )}
+            {/* Dialog for previous own group messages */}
+            <MessageInfoDialog
+              open={seenDialogOpen}
+              onOpenChange={setSeenDialogOpen}
+              message={message}
+              seenMembers={seenMembers ?? []}
+              loading={seenLoading}
+            />
+          </div>
+        )}
+
+        {canAdminDelete && (
+          <AdminDeleteMessageDialog
+            open={adminDeleteOpen}
+            onOpenChange={setAdminDeleteOpen}
+            message={message}
+            conversationId={conversationId}
+            canDeleteMsgForAll={canDeleteMsgForAll}
+          />
+        )}
       </div>
     </div>
   )
 }
 
 function MessageMediaContent({ message }: { message: MessageResponse }) {
+  const { text } = useChatText()
   const atts = message.attachments || []
 
   if (atts.length === 0) {
-    return <span className='text-muted-foreground italic'>Đang tải...</span>
+    return <span className='text-muted-foreground italic'>{text.loading}</span>
   }
 
   if (atts.length === 1) {
     const att = atts[0]
-    if (!att.url) return <span className='text-muted-foreground italic'>Đang tải...</span>
+    if (!att.url) return <span className='text-muted-foreground italic'>{text.loading}</span>
     if (att.contentType.startsWith('video/')) {
       return <video src={att.url} controls className='max-w-xs max-h-[300px] rounded-md' preload='metadata' />
     }
@@ -649,6 +628,8 @@ function MessageMediaContent({ message }: { message: MessageResponse }) {
 }
 
 function MessageFileContent({ message }: { message: MessageResponse }) {
+  const { text } = useChatText()
+  const mb = text.messageBubble
   const att = message.attachments?.[0]
   const fileUrl = att?.url
   const fileName = att?.originalFileName || att?.fileName || 'File'
@@ -658,26 +639,19 @@ function MessageFileContent({ message }: { message: MessageResponse }) {
   // Lấy extension từ tên file
   const ext = fileName.split('.').pop()?.toUpperCase() || ''
 
-  // Màu nền badge theo loại file
-  const getBadgeStyle = (): { bg: string; label: string } => {
-    if (['PDF'].includes(ext)) return { bg: 'bg-red-500', label: 'PDF' }
-    if (['DOC', 'DOCX'].includes(ext)) return { bg: 'bg-blue-600', label: 'WORD' }
-    if (['XLS', 'XLSX'].includes(ext)) return { bg: 'bg-green-600', label: 'EXCEL' }
-    if (['PPT', 'PPTX'].includes(ext)) return { bg: 'bg-orange-500', label: 'PPT' }
-    if (['ZIP', 'RAR', '7Z'].includes(ext)) return { bg: 'bg-purple-600', label: ext }
-    return { bg: 'bg-primary', label: ext || 'FILE' }
+  // Màu icon theo loại file
+  const getExtColor = () => {
+    if (['PDF'].includes(ext)) return 'text-red-500'
+    if (['DOC', 'DOCX'].includes(ext)) return 'text-blue-600'
+    if (['XLS', 'XLSX'].includes(ext)) return 'text-green-600'
+    if (['ZIP', 'RAR', '7Z'].includes(ext)) return 'text-yellow-600'
+    return 'text-primary'
   }
-
-  const { bg, label } = getBadgeStyle()
 
   return (
     <div className='flex items-center gap-3 min-w-[200px]'>
-      <div className={cn('w-10 h-10 rounded-lg flex items-center justify-center shrink-0', bg)}>
-        {['ZIP', 'RAR', '7Z'].includes(ext) ? (
-          <Archive size={18} className='text-white' />
-        ) : (
-          <span className='text-white text-[10px] font-bold tracking-tight leading-none text-center px-0.5'>{label}</span>
-        )}
+      <div className={cn('w-10 h-10 rounded-lg bg-muted flex items-center justify-center shrink-0', getExtColor())}>
+        <FileIcon size={22} />
       </div>
       <div className='flex flex-col min-w-0 flex-1'>
         <span className='text-[14px] font-medium truncate max-w-[200px]'>{fileName}</span>
@@ -693,7 +667,7 @@ function MessageFileContent({ message }: { message: MessageResponse }) {
           target='_blank'
           rel='noopener noreferrer'
           className='p-1.5 hover:bg-muted rounded-full transition-colors shrink-0'
-          title='Tải xuống'
+          title={mb.download}
         >
           <Download size={18} className='text-muted-foreground' />
         </a>

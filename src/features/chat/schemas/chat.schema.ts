@@ -73,7 +73,8 @@ export const ConversationResponseSchema = z.object({
   members: z.array(ConversationMemberResponseSchema).nullable().optional(),
   settings: GroupSettingsSchema.nullable().optional(),
   joinLinkToken: z.string().nullable().optional(),
-  pendingJoinRequestCount: z.number().nullable().optional()
+  pendingJoinRequestCount: z.number().nullable().optional(),
+  invitedUserIds: z.array(z.string()).nullable().optional()
 })
 
 export type ConversationResponse = z.infer<typeof ConversationResponseSchema>
@@ -123,7 +124,8 @@ export const MessageResponseSchema = z.object({
     .nullable()
     .optional(),
   // emoji → array of userIds
-  reactions: z.record(z.string(), z.array(z.string())).nullable().optional()
+  reactions: z.record(z.string(), z.array(z.string())).nullable().optional(),
+  deletedByAdminId: z.string().nullable().optional()
 })
 
 export type MessageResponse = z.infer<typeof MessageResponseSchema>
@@ -193,7 +195,10 @@ export const GroupMemberListItemResponseSchema = z.object({
   role: z.string().nullable().optional(),
   joinedAt: z.string().datetime().nullable().optional(),
   isFriend: z.boolean().default(false),
-  isCurrentUser: z.boolean().default(false)
+  isCurrentUser: z.boolean().default(false),
+  joinMethod: z.string().nullable().optional(),
+  addedBy: z.string().nullable().optional(),
+  addedByName: z.string().nullable().optional()
 })
 
 export type GroupMemberListItemResponse = z.infer<typeof GroupMemberListItemResponseSchema>
@@ -211,6 +216,7 @@ export const SearchMemberResponseSchema = z.object({
   userId: z.string(),
   fullName: z.string(),
   avatar: z.string().nullable().optional(),
+  phoneNumber: z.string().nullable().optional(),
   role: z.string().nullable().optional(),
   isAlreadyMember: z.boolean().default(false)
 })

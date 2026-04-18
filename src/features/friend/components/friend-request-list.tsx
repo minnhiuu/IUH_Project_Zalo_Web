@@ -16,6 +16,7 @@ import type { FriendRequestResponse } from '../schemas/friend.schema'
 import { OthersProfileDialog } from '@/features/user'
 import { AddFriendConfirmDialog } from './add-friend-confirm-dialog'
 import type { UserSummaryResponse } from '@/shared/user/user-summary'
+import { ContactPageLayout } from './contact-page-layout'
 
 export function FriendRequestList() {
   const { text } = useFriendText()
@@ -120,21 +121,15 @@ export function FriendRequestList() {
   )
 
   return (
-    <div className='flex-1 flex flex-col h-full overflow-hidden bg-(--friend-page-bg)'>
-      {/* Header */}
-      <div className='bg-background border-b border-border px-6 py-4 shrink-0'>
-        <div className='flex items-center gap-2'>
-          <UserRoundPlus className='w-5 h-5 text-foreground/80' />
-          <h1 className='text-[17px] font-semibold text-foreground'>{text.sidebar.friendRequests}</h1>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className='flex-1 overflow-y-auto'>
+    <ContactPageLayout
+      title={text.sidebar.friendRequests}
+      icon={UserRoundPlus}
+    >
+      <div className='flex-1 overflow-y-auto bg-background'>
         <div className='p-6 space-y-6'>
           {/* Received Friend Requests Section */}
           <section>
-            <h2 className='text-[15px] font-semibold text-foreground mb-4'>
+            <h2 className='text-[15px] font-semibold text-text-primary mb-4'>
               {text.sections.receivedRequests(receivedRequests?.length ?? 0)}
             </h2>
 
@@ -169,11 +164,11 @@ export function FriendRequestList() {
                 onClick={toggleSuggestionPanel}
                 className='inline-flex items-center gap-2 hover:opacity-80 transition-opacity'
               >
-                <h2 className='text-[15px] font-semibold text-foreground'>
+                <h2 className='text-[15px] font-semibold text-text-primary'>
                   {text.sections.suggestions(visibleSuggestions.length)}
                 </h2>
                 <ChevronDown
-                  className={`w-4 h-4 text-muted-foreground transition-transform ${isSuggestionsExpanded ? '' : '-rotate-90'}`}
+                  className={`w-4 h-4 text-text-secondary transition-transform ${isSuggestionsExpanded ? '' : '-rotate-90'}`}
                 />
               </button>
             </div>
@@ -268,6 +263,6 @@ export function FriendRequestList() {
           user={confirmUser}
         />
       )}
-    </div>
+    </ContactPageLayout>
   )
 }

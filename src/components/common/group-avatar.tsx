@@ -26,11 +26,6 @@ export function GroupAvatar({ avatars, names, count, size = 'md', className }: G
     xl: 'w-7 h-7 text-[12px]'
   }
 
-  // Zalo layout logic:
-  // 2 members: Two circles side by side or overlap
-  // 3 members: Triangle (1 top, 2 bottom)
-  // 4+ members: 2x2 Grid (3 avatars + count/4th avatar)
-
   const renderAvatars = () => {
     // ────────── 1 Member ──────────
     if (count <= 1) {

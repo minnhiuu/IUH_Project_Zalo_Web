@@ -38,8 +38,8 @@ export function ContactSidebar({ activeTab, onTabChange, friendRequestCount = 0 
   ]
 
   return (
-    <div className='w-[300px] flex flex-col border-r border-border bg-background shrink-0 h-full'>
-      <nav className='flex flex-col p-2'>
+    <div className='flex-1 flex flex-col bg-background shrink-0 h-full overflow-y-auto no-scrollbar'>
+      <nav className='flex flex-col py-2'>
         {menuItems.map((item) => {
           const isActive = activeTab === item.id
           return (
@@ -47,14 +47,16 @@ export function ContactSidebar({ activeTab, onTabChange, friendRequestCount = 0 
               key={item.id}
               onClick={() => onTabChange(item.id)}
               className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors text-left',
-                isActive ? 'bg-primary/10 text-primary font-medium' : 'text-foreground hover:bg-muted'
+                'flex items-center gap-4 px-4 h-[56px] mx-2 my-1 rounded-[6px] transition-colors text-left relative cursor-pointer',
+                isActive
+                  ? 'bg-(--layer-background-selected) text-text-primary'
+                  : 'text-text-primary hover:bg-muted font-normal'
               )}
             >
-              <item.icon className={cn('w-5 h-5', isActive ? 'text-primary' : 'text-muted-foreground')} />
-              <span className='flex-1 text-[15px]'>{item.label}</span>
+              <item.icon className={cn('w-4.5 h-4.5', isActive ? 'text-text-primary' : 'text-text-secondary')} />
+              <span className='flex-1 text-sm leading-6'>{item.label}</span>
               {item.badge && item.badge > 0 && (
-                <span className='bg-destructive text-destructive-foreground text-xs font-medium rounded-full px-2 py-0.5 min-w-[20px] text-center'>
+                <span className='bg-destructive text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] h-[18px] text-center flex items-center justify-center shrink-0'>
                   {item.badge}
                 </span>
               )}

@@ -35,7 +35,7 @@ export function FriendRequestCard({
   const formattedDate = format(new Date(request.createdAt), 'dd/MM', { locale: dateLocale })
 
   return (
-    <div className='bg-background rounded-xl border border-(--friend-card-border) p-4 flex flex-col shadow-[0_1px_0_rgba(8,27,58,0.02)]'>
+    <div className='bg-background rounded-xl border border-(--friend-card-border) p-4 flex flex-col shadow-sm'>
       {/* Header */}
       <div className='flex items-start gap-3'>
         <div className='cursor-pointer' onClick={onViewProfile}>

@@ -3,6 +3,7 @@ import { MessageSquare, MoreHorizontal, Copy, Pin, ChevronDown, ChevronUp } from
 import { usePinsQuery } from '../queries/use-queries'
 import { useUnpinMessageMutation } from '../queries/use-mutations'
 import { useChatText } from '../i18n/use-chat-text'
+import type { ChatTexts } from '../i18n/chat.texts'
 import { stripMentionsForPreview } from '../utils/mention'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { showSimpleToast } from '@/utils/toast'
@@ -132,7 +133,15 @@ export function PinBoard({ conversationId, onScrollToMessage }: PinBoardProps) {
 }
 
 /* ── ... menu for a single pin ── */
-function PinMoreMenu({ pin, text, onUnpin }: { pin: PinnedMessageInfo; text: any; onUnpin: () => void }) {
+function PinMoreMenu({
+  pin,
+  text,
+  onUnpin
+}: {
+  pin: PinnedMessageInfo
+  text: ChatTexts
+  onUnpin: () => void
+}) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -178,8 +187,7 @@ function ExpandedPinRow({
   onUnpin
 }: {
   pin: PinnedMessageInfo
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  text: any
+  text: ChatTexts
   onScrollToMessage: (messageId: string) => void
   onUnpin: () => void
 }) {

@@ -10,7 +10,10 @@ import {
   searchMembersToAdd,
   getJoinPreviewApi,
   getBlockedMembersApi,
-  getBlockCandidatesApi
+  getBlockCandidatesApi,
+  getMyGroupConversationsApi,
+  type GroupSortOption,
+  type GroupFilterOption
 } from '../api/chat.api'
 import type { PageResponse } from '@/shared/api'
 import { chatKeys } from './keys'
@@ -117,5 +120,11 @@ export const chatOptions = {
       initialPageParam: 0,
       getNextPageParam: (lastPage) => (lastPage.page + 1 < lastPage.totalPages ? lastPage.page + 1 : undefined),
       enabled: !!conversationId
+    }),
+  myGroups: (query: string, sort: GroupSortOption, filter: GroupFilterOption, page: number, size = 20) =>
+    queryOptions({
+      ...QUERY_POLICIES.LIST,
+      queryKey: chatKeys.myGroups(query, sort, filter, page),
+      queryFn: () => getMyGroupConversationsApi({ query, sort, filter, page, size })
     })
 }

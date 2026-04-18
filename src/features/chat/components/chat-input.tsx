@@ -83,9 +83,14 @@ export function ChatInput({ conversationId, isGroup, replyTo, onCancelReply }: C
   }, [conversationId])
 
   // Cleanup blob URLs on unmount
+  const attachmentsRef = useRef(fileAttachments)
+  useEffect(() => {
+    attachmentsRef.current = fileAttachments
+  }, [fileAttachments])
+
   useEffect(() => {
     return () => {
-      fileAttachments.forEach((a) => {
+      attachmentsRef.current.forEach((a) => {
         if (a.previewUrl) URL.revokeObjectURL(a.previewUrl)
       })
     }
@@ -151,7 +156,7 @@ export function ChatInput({ conversationId, isGroup, replyTo, onCancelReply }: C
     // Replace non-breaking spaces
     html = html.replace(/&nbsp;/g, ' ')
     // Replace divs/brs with newlines (for contentEditable multiline support)
-    html = html.replace(/<br\s*[\/]?>/gi, '\n')
+    html = html.replace(/<br\s*\/?>/gi, '\n')
     html = html.replace(/<\/div>/gi, '\n').replace(/<div(?:[^>]*)>/gi, '')
 
     // Strip remaining tags using textContent

@@ -1,7 +1,8 @@
-import { useState, useMemo, useRef, useEffect } from 'react'
-import { Search, Download, Play, ChevronDown, ChevronLeft, X, Archive } from 'lucide-react'
+import { useState, useMemo, useRef, useEffect, type RefObject } from 'react'
+import { Search, FileIcon, Download, Play, ChevronDown, ChevronLeft, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useMediaMessagesQuery } from '../queries/use-queries'
+import { MessageType } from '@/constants/enum'
 import type { MessageResponse, ConversationMemberResponse } from '../schemas/chat.schema'
 import { useChatText } from '../i18n/use-chat-text'
 import { UserAvatar } from '@/components/common/user-avatar'
@@ -33,23 +34,22 @@ function groupByDate(
   return [...map.entries()].map(([dateLabel, items]) => ({ dateLabel, items }))
 }
 
-function getExtBadge(ext: string): { bg: string; label: string } {
-  if (['PDF'].includes(ext)) return { bg: 'bg-red-500', label: 'PDF' }
-  if (['DOC', 'DOCX'].includes(ext)) return { bg: 'bg-blue-600', label: 'WORD' }
-  if (['XLS', 'XLSX'].includes(ext)) return { bg: 'bg-green-600', label: 'EXCEL' }
-  if (['PPT', 'PPTX'].includes(ext)) return { bg: 'bg-orange-500', label: 'PPT' }
-  if (['ZIP', 'RAR', '7Z'].includes(ext)) return { bg: 'bg-purple-600', label: ext }
-  if (['M4A', 'MP3', 'WAV', 'OGG'].includes(ext)) return { bg: 'bg-pink-600', label: ext }
-  if (['MP4', 'MOV', 'AVI', 'MKV'].includes(ext)) return { bg: 'bg-indigo-600', label: ext }
-  return { bg: 'bg-primary', label: ext || 'FILE' }
+function getExtColor(ext: string) {
+  if (['PDF'].includes(ext)) return 'bg-red-500'
+  if (['DOC', 'DOCX'].includes(ext)) return 'bg-blue-600'
+  if (['XLS', 'XLSX'].includes(ext)) return 'bg-green-600'
+  if (['PPT', 'PPTX'].includes(ext)) return 'bg-orange-500'
+  if (['ZIP', 'RAR', '7Z'].includes(ext)) return 'bg-yellow-600'
+  if (['M4A', 'MP3', 'WAV', 'OGG'].includes(ext)) return 'bg-purple-600'
+  if (['MP4', 'MOV', 'AVI', 'MKV'].includes(ext)) return 'bg-indigo-600'
+  return 'bg-primary'
 }
 
 const FILE_TYPE_FILTERS = [
   { label: 'PDF', ext: ['PDF'] },
   { label: 'Word', ext: ['DOC', 'DOCX'] },
   { label: 'PowerPoint', ext: ['PPT', 'PPTX'] },
-  { label: 'Excel', ext: ['XLS', 'XLSX'] },
-  { label: 'Archive', ext: ['ZIP', 'RAR', '7Z'] }
+  { label: 'Excel', ext: ['XLS', 'XLSX'] }
 ]
 
 // ── MediaStorageView ─────────────────────────────────────────────
@@ -68,9 +68,10 @@ export function MediaStorageView({ conversationId, members, defaultTab = 'media'
   const [fileTypeMenuOpen, setFileTypeMenuOpen] = useState(false)
   const [senderFilter, setSenderFilter] = useState<string | null>(null)
   const [dateFilter, setDateFilter] = useState<{ from: string; to: string } | null>(null)
-  const [viewingMedia, setViewingMedia] = useState<{ url: string; isVideo: boolean } | null>(null)
   const [fileSearch, setFileSearch] = useState('')
   const { text } = useChatText()
+
+  const memberMap = useMemo(() => new Map((members || []).map((m) => [m.userId, m])), [members])
 
   // ── Fetch media ──
   const { data: mediaData, isLoading: mediaLoading } = useMediaMessagesQuery(
@@ -214,264 +215,228 @@ export function MediaStorageView({ conversationId, members, defaultTab = 'media'
             </div>
 
             {mediaLoading ? (
-          <MediaSkeleton />
-        ) : groupedMedia.length === 0 ? (
-          <EmptyState label={text.mediaStorage.noPhotosVideos} />
-        ) : (
-          groupedMedia.map(({ dateLabel, items }) => (
-            <div key={dateLabel} className='mb-5'>
-              <p className='text-[13px] font-semibold text-muted-foreground mb-2'>{dateLabel}</p>
-              <div className='grid grid-cols-3 gap-1'>
-                {items.flatMap((m) =>
-                  (m.attachments || []).map((att) => {
-                    const isVideo = att.contentType?.startsWith('video/')
-                    return (
-                      <div
-                        key={`${m.id}-${att.key}`}
-                        className='aspect-square bg-muted rounded overflow-hidden relative group cursor-pointer'
-                        onClick={() => setViewingMedia({ url: att.url, isVideo: !!isVideo })}
-                      >
-                        {isVideo ? (
-                          <div className='w-full h-full relative'>
-                            <video
-                              src={att.url}
-                              className='w-full h-full object-cover'
-                              preload='metadata'
-                              muted
-                            />
-                            <div className='absolute inset-0 flex items-center justify-center bg-black/30'>
-                              <Play size={24} className='text-white fill-white' />
+              <MediaSkeleton />
+            ) : groupedMedia.length === 0 ? (
+              <EmptyState label={text.mediaStorage.noPhotosVideos} />
+            ) : (
+              groupedMedia.map(({ dateLabel, items }) => (
+                <div key={dateLabel} className='mb-5'>
+                  <p className='text-[13px] font-semibold text-muted-foreground mb-2'>{dateLabel}</p>
+                  <div className='grid grid-cols-3 gap-1'>
+                    {items.map((m) => {
+                      const att = m.attachments?.[0]
+                      const isVideo = m.type === MessageType.Video || att?.contentType?.startsWith('video/')
+                      return (
+                        <div
+                          key={m.id}
+                          className='aspect-square bg-muted rounded overflow-hidden relative group cursor-pointer'
+                        >
+                          {isVideo ? (
+                            <div className='w-full h-full relative'>
+                              <video src={att?.url} className='w-full h-full object-cover' preload='metadata' muted />
+                              <div className='absolute inset-0 flex items-center justify-center bg-black/30'>
+                                <Play size={24} className='text-white fill-white' />
+                              </div>
                             </div>
-                          </div>
-                        ) : (
-                          <img
-                            src={att.url}
-                            alt={att.originalFileName || 'image'}
-                            className='w-full h-full object-cover group-hover:opacity-90 transition-opacity'
-                            loading='lazy'
-                          />
+                          ) : (
+                            <a href={att?.url} target='_blank' rel='noopener noreferrer'>
+                              <img
+                                src={att?.url}
+                                alt={att?.originalFileName || 'image'}
+                                className='w-full h-full object-cover group-hover:opacity-90 transition-opacity'
+                                loading='lazy'
+                              />
+                            </a>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* ── Files ── */}
+        {tab === 'files' && (
+          <div className='p-4'>
+            {/* Search */}
+            <div className='relative mb-3'>
+              <Search size={14} className='absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground' />
+              <input
+                className='w-full pl-8 pr-3 py-2 text-[13px] bg-muted rounded-lg border-0 outline-none placeholder:text-muted-foreground'
+                placeholder={text.mediaStorage.searchFilePlaceholder}
+                value={fileSearch}
+                onChange={(e) => setFileSearch(e.target.value)}
+              />
+            </div>
+
+            {/* Filters row */}
+            <div className='flex gap-2 mb-4'>
+              {/* Loại file dropdown */}
+              <div className='relative'>
+                <button
+                  type='button'
+                  onClick={() => setFileTypeMenuOpen(!fileTypeMenuOpen)}
+                  className='flex items-center gap-1 px-3 py-1.5 text-[13px] border rounded-full hover:bg-muted transition-colors'
+                >
+                  <span>{fileTypeFilter || text.mediaStorage.filterType}</span>
+                  <ChevronDown size={13} />
+                </button>
+                {fileTypeMenuOpen && (
+                  <div className='absolute top-full left-0 mt-1 w-40 bg-background border rounded-xl shadow-xl z-10 py-1'>
+                    {FILE_TYPE_FILTERS.map(({ label }) => (
+                      <button
+                        key={label}
+                        type='button'
+                        onClick={() => {
+                          setFileTypeFilter(fileTypeFilter === label ? null : label)
+                          setFileTypeMenuOpen(false)
+                        }}
+                        className={cn(
+                          'w-full text-left px-4 py-2.5 text-[13px] hover:bg-muted transition-colors flex items-center gap-2',
+                          fileTypeFilter === label && 'text-primary font-medium'
                         )}
-                      </div>
-                    )
-                  })
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
                 )}
               </div>
+              <SenderFilter
+                members={members || []}
+                value={senderFilter}
+                onChange={setSenderFilter}
+                label={text.mediaStorage.filterSender}
+              />
+              <DateFilter value={dateFilter} onChange={setDateFilter} label={text.mediaStorage.filterDate} />
             </div>
-          ))
-        )}
-      </div>
-        )}
 
-      {/* ── Files ── */}
-      {tab === 'files' && (
-        <div className='p-4'>
-          {/* Search */}
-          <div className='relative mb-3'>
-            <Search size={14} className='absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground' />
-            <input
-              className='w-full pl-8 pr-3 py-2 text-[13px] bg-muted rounded-lg border-0 outline-none placeholder:text-muted-foreground'
-              placeholder={text.mediaStorage.searchFilePlaceholder}
-              value={fileSearch}
-              onChange={(e) => setFileSearch(e.target.value)}
-            />
-          </div>
-
-          {/* Filters row */}
-          <div className='flex gap-2 mb-4'>
-            {/* Loại file dropdown */}
-            <div className='relative'>
-              <button
-                type='button'
-                onClick={() => setFileTypeMenuOpen(!fileTypeMenuOpen)}
-                className='flex items-center gap-1 px-3 py-1.5 text-[13px] border rounded-full hover:bg-muted transition-colors'
-              >
-                <span>{fileTypeFilter || text.mediaStorage.filterType}</span>
-                <ChevronDown size={13} />
-              </button>
-              {fileTypeMenuOpen && (
-                <div className='absolute top-full left-0 mt-1 w-40 bg-background border rounded-xl shadow-xl z-10 py-1'>
-                  {FILE_TYPE_FILTERS.map(({ label }) => (
-                    <button
-                      key={label}
-                      type='button'
-                      onClick={() => {
-                        setFileTypeFilter(fileTypeFilter === label ? null : label)
-                        setFileTypeMenuOpen(false)
-                      }}
-                      className={cn(
-                        'w-full text-left px-4 py-2.5 text-[13px] hover:bg-muted transition-colors flex items-center gap-2',
-                        fileTypeFilter === label && 'text-primary font-medium'
-                      )}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            <SenderFilter
-              members={members || []}
-              value={senderFilter}
-              onChange={setSenderFilter}
-              label={text.mediaStorage.filterSender}
-            />
-            <DateFilter value={dateFilter} onChange={setDateFilter} label={text.mediaStorage.filterDate} />
-          </div>
-
-          {fileLoading ? (
-            <FileSkeleton />
-          ) : groupedFiles.length === 0 ? (
-            <EmptyState label={text.mediaStorage.noFiles} />
-          ) : (
-            groupedFiles.map(({ dateLabel, items }) => (
-              <div key={dateLabel} className='mb-5'>
-                <p className='text-[13px] font-semibold text-muted-foreground mb-2'>{dateLabel}</p>
-                <div className='flex flex-col gap-3'>
-                  {items.map((m) => {
-                    const att = m.attachments?.[0]
-                    const fileName = att?.originalFileName || att?.fileName || 'File'
-                    const ext = fileName.split('.').pop()?.toUpperCase() || ''
-                    const fileSize = att?.size
-                    return (
-                      <div key={m.id} className='flex items-center gap-3 group cursor-pointer'>
-                        {(() => {
-                          const { bg, label } = getExtBadge(ext)
-                          const isArchive = ['ZIP', 'RAR', '7Z'].includes(ext)
-                          return (
-                            <div className={cn(
+            {fileLoading ? (
+              <FileSkeleton />
+            ) : groupedFiles.length === 0 ? (
+              <EmptyState label={text.mediaStorage.noFiles} />
+            ) : (
+              groupedFiles.map(({ dateLabel, items }) => (
+                <div key={dateLabel} className='mb-5'>
+                  <p className='text-[13px] font-semibold text-muted-foreground mb-2'>{dateLabel}</p>
+                  <div className='flex flex-col gap-3'>
+                    {items.map((m) => {
+                      const att = m.attachments?.[0]
+                      const fileName = att?.originalFileName || att?.fileName || 'File'
+                      const ext = fileName.split('.').pop()?.toUpperCase() || ''
+                      const fileSize = att?.size
+                      const sender = memberMap.get(m.senderId || '')
+                      return (
+                        <div key={m.id} className='flex items-center gap-3 group cursor-pointer'>
+                          <div
+                            className={cn(
                               'w-10 h-10 shrink-0 rounded-lg flex items-center justify-center text-white',
-                              bg
-                            )}>
-                              {isArchive ? (
-                                <Archive size={18} className='text-white' />
-                              ) : (
-                                <span className='text-[9px] font-bold tracking-tight leading-none text-center px-0.5'>{label}</span>
-                              )}
-                            </div>
-                          )
-                        })()}
-                        <div className='flex-1 min-w-0'>
-                          <p className='text-[13px] font-medium truncate group-hover:text-primary transition-colors'>
-                            {fileName}
-                          </p>
-                          <p className='text-[11px] text-muted-foreground'>
-                            {fileSize ? formatFileSize(fileSize) : ''}
-                          </p>
-                        </div>
-                        {att?.url && (
-                          <a
-                            href={att.url}
-                            download={fileName}
-                            target='_blank'
-                            rel='noopener noreferrer'
-                            className='p-1.5 hover:bg-muted rounded-full transition-colors shrink-0 opacity-0 group-hover:opacity-100'
+                              getExtColor(ext)
+                            )}
                           >
-                            <Download size={16} className='text-muted-foreground' />
-                          </a>
-                        )}
-                      </div>
-                    )
-                  })}
+                            <FileIcon size={20} />
+                          </div>
+                          <div className='flex-1 min-w-0'>
+                            <p className='text-[13px] font-medium truncate group-hover:text-primary transition-colors'>
+                              {fileName}
+                            </p>
+                            <p className='text-[11px] text-muted-foreground flex items-center gap-1'>
+                              {fileSize ? formatFileSize(fileSize) : ''}
+                              {sender?.fullName && (
+                                <span className='text-green-500 flex items-center gap-0.5'>
+                                  {text.mediaStorage.downloadedLocally}
+                                </span>
+                              )}
+                            </p>
+                          </div>
+                          {att?.url && (
+                            <a
+                              href={att.url}
+                              download={fileName}
+                              target='_blank'
+                              rel='noopener noreferrer'
+                              className='p-1.5 hover:bg-muted rounded-full transition-colors shrink-0 opacity-0 group-hover:opacity-100'
+                            >
+                              <Download size={16} className='text-muted-foreground' />
+                            </a>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
-              </div>
-            ))
-          )}
-        </div>
-      )}
-
-      {/* ── Links ── */}
-      {tab === 'links' && (
-        <div className='p-4'>
-          <div className='flex gap-2 mb-4 flex-wrap'>
-            <SenderFilter
-              members={members || []}
-              value={senderFilter}
-              onChange={setSenderFilter}
-              label={text.mediaStorage.filterSender}
-            />
-            <DateFilter
-              value={dateFilter}
-              onChange={setDateFilter}
-              label={text.mediaStorage.filterDate}
-            />
+              ))
+            )}
           </div>
-          {linkLoading ? (
-            <FileSkeleton />
-          ) : filteredLinks.length === 0 ? (
-            <EmptyState label={text.mediaStorage.noLinks} />
-          ) : (
-            <div className='flex flex-col gap-3'>
-              {filteredLinks.map((m) => {
-                const preview = m.linkPreview
-                const url = preview?.url || m.content || ''
-                const domain = url ? (() => { try { return new URL(url).hostname } catch { return url } })() : ''
-                return (
-                  <a
-                    key={m.id}
-                    href={url}
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='flex items-start gap-3 group cursor-pointer hover:bg-muted/50 rounded-lg p-2 -mx-2'
-                  >
-                    <div className='w-10 h-10 shrink-0 bg-muted rounded-lg flex items-center justify-center text-primary font-bold text-[14px]'>
-                      {domain.charAt(0).toUpperCase()}
-                    </div>
-                    <div className='flex-1 min-w-0'>
-                      <p className='text-[13px] font-medium truncate group-hover:text-primary transition-colors'>
-                        {(preview as Record<string, unknown>)?.title as string || url}
-                      </p>
-                      <p className='text-[11px] text-primary/70 truncate'>{domain}</p>
-                      <p className='text-[11px] text-muted-foreground mt-0.5'>
-                        {m.createdAt ? formatDate(m.createdAt) : ''}
-                      </p>
-                    </div>
-                  </a>
-                )
-              })}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+        )}
 
-      {
-    viewingMedia && (
-      <div
-        className='fixed inset-0 z-50 bg-black/90 flex items-center justify-center'
-        onClick={() => setViewingMedia(null)}
-      >
-        <button
-          type='button'
-          onClick={() => setViewingMedia(null)}
-          className='absolute top-4 right-4 text-white hover:text-white/70 transition-colors'
-        >
-          <X size={28} />
-        </button>
-        {viewingMedia.isVideo ? (
-          <video
-            src={viewingMedia.url}
-            controls
-            autoPlay
-            className='max-w-[90vw] max-h-[90vh] rounded-lg'
-            onClick={(e) => e.stopPropagation()}
-          />
-        ) : (
-          <img
-            src={viewingMedia.url}
-            alt='preview'
-            className='max-w-[90vw] max-h-[90vh] object-contain rounded-lg'
-            onClick={(e) => e.stopPropagation()}
-          />
+        {/* ── Links ── */}
+        {tab === 'links' && (
+          <div className='p-4'>
+            <div className='flex gap-2 mb-4 flex-wrap'>
+              <SenderFilter
+                members={members || []}
+                value={senderFilter}
+                onChange={setSenderFilter}
+                label={text.mediaStorage.filterSender}
+              />
+              <DateFilter value={dateFilter} onChange={setDateFilter} label={text.mediaStorage.filterDate} />
+            </div>
+            {linkLoading ? (
+              <FileSkeleton />
+            ) : filteredLinks.length === 0 ? (
+              <EmptyState label={text.mediaStorage.noLinks} />
+            ) : (
+              <div className='flex flex-col gap-3'>
+                {filteredLinks.map((m) => {
+                  const preview = m.linkPreview
+                  const url = preview?.url || m.content || ''
+                  const domain = url
+                    ? (() => {
+                        try {
+                          return new URL(url).hostname
+                        } catch {
+                          return url
+                        }
+                      })()
+                    : ''
+                  return (
+                    <a
+                      key={m.id}
+                      href={url}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='flex items-start gap-3 group cursor-pointer hover:bg-muted/50 rounded-lg p-2 -mx-2'
+                    >
+                      <div className='w-10 h-10 shrink-0 bg-muted rounded-lg flex items-center justify-center text-primary font-bold text-[14px]'>
+                        {domain.charAt(0).toUpperCase()}
+                      </div>
+                      <div className='flex-1 min-w-0'>
+                        <p className='text-[13px] font-medium truncate group-hover:text-primary transition-colors'>
+                          {preview?.groupName || url}
+                        </p>
+                        <p className='text-[11px] text-primary/70 truncate'>{domain}</p>
+                        <p className='text-[11px] text-muted-foreground mt-0.5'>
+                          {m.createdAt ? formatDate(m.createdAt) : ''}
+                        </p>
+                      </div>
+                    </a>
+                  )
+                })}
+              </div>
+            )}
+          </div>
         )}
       </div>
-    )
-  }
-    </div >
+    </div>
   )
 }
 
 // ── Small helper components ──────────────────────────────────────
-function useOutsideClick(ref: React.RefObject<HTMLElement | null>, onClose: () => void) {
+function useOutsideClick(ref: RefObject<HTMLElement | null>, onClose: () => void) {
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) onClose()
@@ -558,6 +523,7 @@ interface DateFilterProps {
   label: string
 }
 function DateFilter({ value, onChange, label }: DateFilterProps) {
+  const { text } = useChatText()
   const [open, setOpen] = useState(false)
   const [from, setFrom] = useState(value?.from ?? '')
   const [to, setTo] = useState(value?.to ?? '')
@@ -604,7 +570,7 @@ function DateFilter({ value, onChange, label }: DateFilterProps) {
       {open && (
         <div className='absolute top-full left-0 mt-1 w-56 bg-background border rounded-xl shadow-xl z-20 p-3 flex flex-col gap-2'>
           <div className='flex flex-col gap-1'>
-            <label className='text-[11px] text-muted-foreground'>Từ ngày</label>
+            <label className='text-[11px] text-muted-foreground'>{text.mediaStorage.fromDate}</label>
             <input
               type='date'
               value={from}
@@ -614,7 +580,7 @@ function DateFilter({ value, onChange, label }: DateFilterProps) {
             />
           </div>
           <div className='flex flex-col gap-1'>
-            <label className='text-[11px] text-muted-foreground'>Đến ngày</label>
+            <label className='text-[11px] text-muted-foreground'>{text.mediaStorage.toDate}</label>
             <input
               type='date'
               value={to}
@@ -630,14 +596,14 @@ function DateFilter({ value, onChange, label }: DateFilterProps) {
               onClick={clear}
               className='flex-1 text-[13px] py-1.5 rounded-lg border hover:bg-muted transition-colors'
             >
-              Xoá
+              {text.mediaStorage.clear}
             </button>
             <button
               type='button'
               onClick={apply}
               className='flex-1 text-[13px] py-1.5 rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors'
             >
-              Áp dụng
+              {text.mediaStorage.apply}
             </button>
           </div>
         </div>

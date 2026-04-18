@@ -27,7 +27,9 @@ interface BaseDialogProps {
   confirmDisabled?: boolean
   className?: string
   noContentPadding?: boolean
+  hideHeaderBorder?: boolean
   hideFooterBorder?: boolean
+  compact?: boolean
 }
 
 export function BaseDialog({
@@ -46,7 +48,9 @@ export function BaseDialog({
   confirmDisabled = false,
   className,
   noContentPadding = false,
-  hideFooterBorder = false
+  hideHeaderBorder = false,
+  hideFooterBorder = false,
+  compact = false
 }: BaseDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -61,7 +65,7 @@ export function BaseDialog({
             className
           )}
         >
-          <div className='flex items-center justify-between px-4 h-11 border-b border-border'>
+          <div className={cn('flex items-center justify-between px-4', compact ? 'h-10' : 'h-11', !hideHeaderBorder && 'border-b border-border')}>
             <div className='flex items-center min-w-0 gap-1'>
               {headerLeft}
               <DialogTitle className='text-[15px] font-bold text-foreground truncate mr-2'>{title}</DialogTitle>
@@ -74,7 +78,7 @@ export function BaseDialog({
             </button>
           </div>
 
-          <div className={cn(!noContentPadding && 'p-4 pt-5 pb-5')}>
+          <div className={cn(!noContentPadding && (compact ? 'p-4 py-3' : 'p-4 pt-5 pb-5'))}>
             {description && (
               <DialogDescription className='text-[14.5px] text-foreground font-normal leading-normal px-4'>
                 {description}
@@ -86,7 +90,8 @@ export function BaseDialog({
           {(confirmText || cancelText) && (
             <DialogFooter
               className={cn(
-                'flex flex-row justify-end gap-3 px-4 py-3.5',
+                'flex flex-row justify-end gap-2.5 px-4',
+                compact ? 'py-2.5' : 'py-3.5',
                 !hideFooterBorder && 'border-t border-border'
               )}
             >
@@ -100,6 +105,7 @@ export function BaseDialog({
                       onOpenChange(false)
                     }
                   }}
+                  className='text-[14.5px] font-semibold px-6'
                 >
                   {cancelText}
                 </Button>
@@ -109,6 +115,7 @@ export function BaseDialog({
                   variant={variant === 'danger' ? 'destructive' : 'default'}
                   onClick={onConfirm}
                   disabled={isPending || confirmDisabled}
+                  className='text-[14.5px] font-semibold px-6'
                 >
                   {confirmText}
                   {isPending && <Loader2 className='ml-2 h-4 w-4 animate-spin shrink-0' />}
