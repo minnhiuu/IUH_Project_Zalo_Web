@@ -17,6 +17,7 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     minutesAgo: (count: number) => t(CHAT_KEYS.status.minutesAgo, { count }),
     hoursAgo: (count: number) => t(CHAT_KEYS.status.hoursAgo, { count }),
     daysAgo: (count: number) => t(CHAT_KEYS.status.daysAgo, { count }),
+    yesterday: t(CHAT_KEYS.status.yesterday),
     onDate: (date: string) => t(CHAT_KEYS.status.onDate, { date }),
     sending: t(CHAT_KEYS.status.sending),
     sent: t(CHAT_KEYS.status.sent),
@@ -24,7 +25,8 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
   },
   errors: {
     loadConversations: t(CHAT_KEYS.errors.loadConversations),
-    loadMessages: t(CHAT_KEYS.errors.loadMessages)
+    loadMessages: t(CHAT_KEYS.errors.loadMessages),
+    revokeTimeExceeded: t(CHAT_KEYS.errors.revokeTimeExceeded)
   },
   you: t(CHAT_KEYS.you),
   you_lower: t(CHAT_KEYS.you_lower),
@@ -36,7 +38,8 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
   },
   mentionDropdown: {
     instruction: t(CHAT_KEYS.mentionDropdown.instruction),
-    notifyAll: t(CHAT_KEYS.mentionDropdown.notifyAll)
+    notifyAll: t(CHAT_KEYS.mentionDropdown.notifyAll),
+    all: t(CHAT_KEYS.mentionDropdown.all)
   },
   messageBubble: {
     reply: t(CHAT_KEYS.messageBubble.reply),
@@ -62,7 +65,9 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     reactionModalTitle: t(CHAT_KEYS.messageBubble.reactionModalTitle),
     reactionModalAll: t(CHAT_KEYS.messageBubble.reactionModalAll),
     reactionModalYou: t(CHAT_KEYS.messageBubble.reactionModalYou),
-    reactionModalEmpty: t(CHAT_KEYS.messageBubble.reactionModalEmpty)
+    reactionModalEmpty: t(CHAT_KEYS.messageBubble.reactionModalEmpty),
+    removeAllMyReactions: t(CHAT_KEYS.messageBubble.removeAllMyReactions),
+    download: t(CHAT_KEYS.messageBubble.download)
   },
   pinBoard: {
     title: t(CHAT_KEYS.pinBoard.title),
@@ -403,7 +408,51 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     noFiles: t(CHAT_KEYS.mediaStorage.noFiles),
     noLinks: t(CHAT_KEYS.mediaStorage.noLinks),
     downloadedLocally: t(CHAT_KEYS.mediaStorage.downloadedLocally),
-    dateLabel: (day: number, month: number) => t(CHAT_KEYS.mediaStorage.dateLabel, { day, month })
+    dateLabel: (day: number, month: number) => t(CHAT_KEYS.mediaStorage.dateLabel, { day, month }),
+    fromDate: t(CHAT_KEYS.mediaStorage.fromDate),
+    toDate: t(CHAT_KEYS.mediaStorage.toDate),
+    clear: t(CHAT_KEYS.mediaStorage.clear),
+    apply: t(CHAT_KEYS.mediaStorage.apply)
+  },
+  'message-info-dialog': {
+    title: t(CHAT_KEYS['message-info-dialog'].title),
+    today: t(CHAT_KEYS['message-info-dialog'].today),
+    sender: t(CHAT_KEYS['message-info-dialog'].sender),
+    seen: (count: number) => t(CHAT_KEYS['message-info-dialog'].seen, { count }),
+    noOneSeen: t(CHAT_KEYS['message-info-dialog'].noOneSeen),
+    voiceCall: t(CHAT_KEYS['message-info-dialog'].voiceCall),
+    videoCall: t(CHAT_KEYS['message-info-dialog'].videoCall)
+  },
+  'stranger-banner': {
+    sendRequestHint: t(CHAT_KEYS['stranger-banner'].sendRequestHint),
+    sentRequestTo: (name: string) => t(CHAT_KEYS['stranger-banner'].sentRequestTo, { name }),
+    receivedRequest: t(CHAT_KEYS['stranger-banner'].receivedRequest),
+    sendRequest: t(CHAT_KEYS['stranger-banner'].sendRequest),
+    cancelRequest: t(CHAT_KEYS['stranger-banner'].cancelRequest),
+    acceptRequest: t(CHAT_KEYS['stranger-banner'].acceptRequest)
+  },
+  'chat-window': {
+    cloudSyncDesc: t(CHAT_KEYS['chat-window'].cloudSyncDesc),
+    stranger: t(CHAT_KEYS['chat-window'].stranger),
+    commonGroups: (count: number) => t(CHAT_KEYS['chat-window'].commonGroups, { count }),
+    voiceCall: t(CHAT_KEYS['chat-window'].voiceCall),
+    videoCall: t(CHAT_KEYS['chat-window'].videoCall),
+    zaloMember: t(CHAT_KEYS['chat-window'].zaloMember),
+    unreadMessages: t(CHAT_KEYS['chat-window'].unreadMessages)
+  },
+  'cloud-sidebar': {
+    title: t(CHAT_KEYS['cloud-sidebar'].title),
+    description: t(CHAT_KEYS['cloud-sidebar'].description),
+    storageLabel: t(CHAT_KEYS['cloud-sidebar'].storageLabel),
+    image: t(CHAT_KEYS['cloud-sidebar'].image),
+    video: t(CHAT_KEYS['cloud-sidebar'].video),
+    file: t(CHAT_KEYS['cloud-sidebar'].file),
+    other: t(CHAT_KEYS['cloud-sidebar'].other),
+    cleanupAction: t(CHAT_KEYS['cloud-sidebar'].cleanupAction),
+    upgradeTitle: t(CHAT_KEYS['cloud-sidebar'].upgradeTitle),
+    upgradeDesc: t(CHAT_KEYS['cloud-sidebar'].upgradeDesc),
+    upgradeAction: t(CHAT_KEYS['cloud-sidebar'].upgradeAction),
+    reminderList: t(CHAT_KEYS['cloud-sidebar'].reminderList)
   },
   /** Trả về label dịch cho trạng thái pipeline AI theo ngôn ngữ hiện tại */
   aiStatusLabel: (status?: AiProcessingStatus): string => {

@@ -273,7 +273,7 @@ export function MessageBubble({
                     ) && (
                       <button
                         type='button'
-                        title='Xóa tất cả cảm xúc của bạn'
+                        title={mb.removeAllMyReactions}
                         className='w-6 h-6 flex items-center justify-center rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors shrink-0'
                         onClick={async () => {
                           if (!conversationId || message.id.startsWith('temp-') || !user?.id) return
@@ -486,9 +486,9 @@ export function MessageBubble({
         {isPreviousOwnGroup && showInlineSeen && (
           <div className='flex flex-col items-end mt-1'>
             {seenLoading ? (
-              <span className='text-[11px] text-muted-foreground pr-1'>Đang tải...</span>
+              <span className='text-[11px] text-muted-foreground pr-1'>{text.loading}</span>
             ) : !seenMembers || seenMembers.length === 0 ? (
-              <span className='text-[11px] text-muted-foreground pr-1'>Chưa có ai xem</span>
+              <span className='text-[11px] text-muted-foreground pr-1'>{text['message-info-dialog'].noOneSeen}</span>
             ) : (
               <button
                 type='button'
@@ -530,12 +530,12 @@ function MessageMediaContent({ message }: { message: MessageResponse }) {
   const atts = message.attachments || []
 
   if (atts.length === 0) {
-    return <span className='text-muted-foreground italic'>Đang tải...</span>
+    return <span className='text-muted-foreground italic'>{text.loading}</span>
   }
 
   if (atts.length === 1) {
     const att = atts[0]
-    if (!att.url) return <span className='text-muted-foreground italic'>Đang tải...</span>
+    if (!att.url) return <span className='text-muted-foreground italic'>{text.loading}</span>
     if (att.contentType.startsWith('video/')) {
       return <video src={att.url} controls className='max-w-xs max-h-[300px] rounded-md' preload='metadata' />
     }
@@ -623,7 +623,7 @@ function MessageFileContent({ message }: { message: MessageResponse }) {
           target='_blank'
           rel='noopener noreferrer'
           className='p-1.5 hover:bg-muted rounded-full transition-colors shrink-0'
-          title='Tải xuống'
+          title={mb.download}
         >
           <Download size={18} className='text-muted-foreground' />
         </a>

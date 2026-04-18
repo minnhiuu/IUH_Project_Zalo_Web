@@ -19,7 +19,8 @@
     },
     "mentionDropdown": {
       "instruction": "Press ↑, ↓ to select and Enter to use.",
-      "notifyAll": "Notify all group members"
+      "notifyAll": "Notify all group members",
+      "all": "All"
     },
     "messageBubble": {
       "reply": "Reply",
@@ -45,7 +46,9 @@
       "reactionModalTitle": "Reactions",
       "reactionModalAll": "All",
       "reactionModalYou": "You",
-      "reactionModalEmpty": "No reactions yet"
+      "reactionModalEmpty": "No reactions yet",
+      "removeAllMyReactions": "Remove all your reactions",
+      "download": "Download"
     },
     "pinBoard": {
       "title": "Message",
@@ -203,6 +206,7 @@
       "minutesAgo": "{{count}} minutes ago",
       "hoursAgo": "{{count}} hours ago",
       "daysAgo": "{{count}} days ago",
+      "yesterday": "Yesterday",
       "onDate": "Accessed on {{date}}",
       "sending": "Sending...",
       "sent": "Sent",
@@ -217,7 +221,8 @@
     },
     "errors": {
       "loadConversations": "Failed to load conversations.",
-      "loadMessages": "Failed to load messages."
+      "loadMessages": "Failed to load messages.",
+      "revokeTimeExceeded": "Revocation time limit exceeded (max 24 hours)"
     },
     "create-group-dialog": {
       "title": "Create Group",
@@ -498,7 +503,51 @@
       "noFiles": "No files yet",
       "noLinks": "No links yet",
       "downloadedLocally": "✓ Saved locally",
-      "dateLabel": "{{month}}/{{day}}"
+      "dateLabel": "{{month}}/{{day}}",
+      "fromDate": "From date",
+      "toDate": "To date",
+      "clear": "Clear",
+      "apply": "Apply"
+    },
+    "message-info-dialog": {
+      "title": "Message info",
+      "today": "Today",
+      "sender": "Sender",
+      "seen": "Seen ({{count}})",
+      "noOneSeen": "No one has seen yet",
+      "voiceCall": "Voice call",
+      "videoCall": "Video call"
+    },
+    "stranger-banner": {
+      "sendRequestHint": "Send friend request to this person",
+      "sentRequestTo": "Friend request sent to {{name}}",
+      "receivedRequest": "This person sent you a friend request",
+      "sendRequest": "Add friend",
+      "cancelRequest": "Cancel",
+      "acceptRequest": "Accept"
+    },
+    "chat-window": {
+      "cloudSyncDesc": "Save and sync data between devices",
+      "stranger": "Stranger",
+      "commonGroups": "{{count}} common groups",
+      "voiceCall": "Voice call",
+      "videoCall": "Video call",
+      "zaloMember": "Zalo User",
+      "unreadMessages": "Unread messages"
+    },
+    "cloud-sidebar": {
+      "title": "Conversation Info",
+      "description": "Store and quickly access your important content right on Zalo",
+      "storageLabel": "Storage",
+      "image": "Photos",
+      "video": "Videos",
+      "file": "Files",
+      "other": "Others",
+      "cleanupAction": "View and clean up My Documents",
+      "upgradeTitle": "Upgrade My Documents storage",
+      "upgradeDesc": "Expand storage up to 100GB and automatically preserve chat data with zCloud.",
+      "upgradeAction": "Add storage",
+      "reminderList": "Reminder list"
     }
   },
   "call": {

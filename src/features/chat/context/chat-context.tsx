@@ -9,10 +9,11 @@ export interface FileAttachment {
 
 type ChatContextType = {
   connected: boolean
-  sendMessage: (conversationId: string, content: string, replyTo?: ReplyMetadata | null, isForwarded?: boolean) => void
+  sendMessage: (conversationId: string, content: string, replyTo?: ReplyMetadata | null, isForwarded?: boolean, attachments?: import('../schemas/chat.schema').ChatMessageRequest['attachments']) => void
   sendFileMessage: (
     conversationId: string,
     files: FileAttachment[],
+    content?: string,
     replyTo?: ReplyMetadata | null
   ) => Promise<void>
   revokeMessage: (messageId: string, conversationId: string) => Promise<void>

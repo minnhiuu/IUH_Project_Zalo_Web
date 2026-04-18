@@ -31,6 +31,8 @@
       "confirm": "Xác nhận",
       "edit": "Chỉnh sửa",
       "updating": "Đang cập nhật...",
+      "phoneLabel": "Số điện thoại",
+      "phonePlaceholder": "Nhập số điện thoại",
       "bio": "Giới thiệu",
       "bioLabel": "Bio",
       "bioPlaceholder": "Nhập giới thiệu bản thân",
@@ -58,9 +60,12 @@
     },
     "validation": {
       "fullNameRequired": "Tên hiển thị không được để trống",
+      "phoneRequired": "Số điện thoại không được để trống",
       "dobInvalid": "Ngày sinh không được lớn hơn ngày hiện tại",
       "genderRequired": "Vui lòng chọn giới tính",
-      "bioTooLong": "Tiểu sử không được vượt quá 150 ký tự"
+      "bioTooLong": "Tiểu sử không được vượt quá 150 ký tự",
+      "phoneInvalid": "Số điện thoại không hợp lệ",
+      "phoneAlreadyUsed": "Số điện thoại này đã được sử dụng"
     },
     "settings": {
       "title": "Cài đặt",

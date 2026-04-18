@@ -1,4 +1,4 @@
-﻿import { Phone, Video, Search, PanelsTopLeft, Users, Pencil } from 'lucide-react'
+import { Phone, Video, Search, PanelsTopLeft, Users, Pencil } from 'lucide-react'
 import { useMessagesInfiniteQuery, useUnreadAnchorQuery } from '../queries/use-queries'
 import { useAuth } from '@/features/auth'
 import { useChatContext } from '../context/chat-context'
@@ -377,25 +377,37 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   // ΓöÇΓöÇΓöÇ Initialise from query ΓÇö only once per conversation ΓöÇΓöÇΓöÇ
   useEffect(() => {
     if (!unreadAnchor || anchorInitialized.current) return
-    anchorInitialized.current = true
     const anchorId = unreadAnchor.firstUnreadMessageId
-    if (!anchorId) return
-    requestAnimationFrame(() => {
-      const msgEl = document.getElementById(`msg-${anchorId}`)
-      const container = scrollRef.current
-      if (msgEl && container) {
-        const cr = container.getBoundingClientRect()
-        const mr = msgEl.getBoundingClientRect()
-        const isInView = mr.bottom > cr.top && mr.top < cr.bottom
-        if (isInView) {
-          markAsReadRef.current({ conversationId: conversation.id, lastReadMessageId: latestMessageIdRef.current })
-          return
-        }
-      }
+    if (!anchorId) {
+      anchorInitialized.current = true
+      return
+    }
+    const msgEl = document.getElementById(`msg-${anchorId}`)
+    if (!msgEl) {
+      // Element not in DOM yet — if the message is already in the loaded list,
+      // wait for the next render (effect will re-run via allMessages dependency).
+      if (allMessages.some((m) => m.id === anchorId)) return
+      // Message not loaded yet (will be fetched) → show divider now.
+      anchorInitialized.current = true
       setFirstUnreadId(anchorId)
       setUnreadDisplayCount(unreadAnchor.unreadCount)
-    })
-  }, [unreadAnchor, conversation.id, scrollRef])
+      return
+    }
+    // Element is in the DOM — check actual visibility.
+    anchorInitialized.current = true
+    const container = scrollRef.current
+    if (container) {
+      const cr = container.getBoundingClientRect()
+      const mr = msgEl.getBoundingClientRect()
+      const isInView = mr.bottom > cr.top && mr.top < cr.bottom
+      if (isInView) {
+        markAsReadRef.current({ conversationId: conversation.id, lastReadMessageId: latestMessageIdRef.current })
+        return
+      }
+    }
+    setFirstUnreadId(anchorId)
+    setUnreadDisplayCount(unreadAnchor.unreadCount)
+  }, [unreadAnchor, conversation.id, scrollRef, allMessages])
 
   // getBoundingClientRect: debounced markAsRead when divider enters viewport
   const checkDividerVisibility = useCallback(() => {
@@ -600,7 +612,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
               </div>
               <p className='text-[12px] text-muted-foreground mt-0.5 leading-tight flex items-center gap-1 overflow-hidden whitespace-nowrap'>
                 {isCloudConversation ? (
-                  'L╞░u v├á ─æß╗ông bß╗Ö dß╗» liß╗çu giß╗»a c├íc thiß║┐t bß╗ï'
+                  text['chat-window'].cloudSyncDesc
                 ) : conversation.isGroup ? (
                   <span className='flex items-center gap-1 cursor-pointer hover:text-foreground transition-colors'>
                     <Users className='w-4 h-4' />
@@ -609,12 +621,12 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
                 ) : !isGroup && (!conversation.friendshipStatus || conversation.friendshipStatus !== 'ACCEPTED') ? (
                   <span className='flex items-center space-x-2'>
                     <span className='bg-[#A6AAB1] text-white text-[10px] font-semibold px-1.5 py-[1px] rounded-[3px] uppercase tracking-wide'>
-                      Ng╞░ß╗¥i lß║í
+                      {text['chat-window'].stranger}
                     </span>
                     <span className='text-muted-foreground'>|</span>
                     <span className='flex items-center text-[12px] text-muted-foreground gap-1 font-medium'>
                       <Users className='w-3.5 h-3.5' />
-                      <span>Nh├│m chung (0)</span>
+                      <span>{text['chat-window'].commonGroups(0)}</span>
                     </span>
                   </span>
                 ) : conversation.status === 'ONLINE' ? (
@@ -630,7 +642,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
               onClick={handleStartVideoCall}
               disabled={isCallLoading || isGroup || isCloudConversation || callState.phase !== 'idle'}
               className='p-2 hover:bg-muted rounded-full transition-colors hidden sm:block disabled:opacity-40 disabled:cursor-not-allowed'
-              title='Gß╗ìi thoß║íi'
+              title={text['chat-window'].voiceCall}
             >
               <Phone className='w-[18px] h-[18px]' />
             </button>
@@ -638,7 +650,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
               onClick={handleStartVideoCall}
               disabled={isCallLoading || isGroup || isCloudConversation || callState.phase !== 'idle'}
               className='p-2 hover:bg-muted rounded-full transition-colors hidden sm:block disabled:opacity-40 disabled:cursor-not-allowed'
-              title='Gß╗ìi video'
+              title={text['chat-window'].videoCall}
             >
               <Video className='w-4 h-4' />
             </button>
@@ -660,7 +672,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
 
         {/* Stranger Banner */}
         {!isGroup && !isCloudConversation && !isAiConversation && partnerId && (
-          <StrangerBanner partnerId={partnerId} partnerName={conversation.name || 'Th├ánh vi├¬n Zalo'} />
+          <StrangerBanner partnerId={partnerId} partnerName={conversation.name || text['chat-window'].zaloMember} />
         )}
 
         {/* Pin Board & Messages Wrapper */}
@@ -782,7 +794,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
                         className='text-[11px] font-semibold whitespace-nowrap px-3 py-px rounded-[26px]'
                         style={{ color: 'var(--accent-blue-text)', background: 'var(--bg-message-info)' }}
                       >
-                        Tin nhß║»n ch╞░a ─æß╗ìc
+                        {text['chat-window'].unreadMessages}
                       </span>
                       <div className='flex-1 h-0 border-t border-(--accent-blue-border)' />
                     </div>
@@ -798,7 +810,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
               !isFetchingNextPage && (
                 <GroupIntroCard
                   conversationId={conversation.id}
-                  groupTitle={getConversationDisplayName(conversation, 'Nh├│m', undefined, user?.id)}
+                  groupTitle={getConversationDisplayName(conversation, text['group-info-dialog'].title, undefined, user?.id)}
                   groupMembers={(conversation.members || []).map((m) => ({
                     id: m.userId,
                     avatar: m.avatar,

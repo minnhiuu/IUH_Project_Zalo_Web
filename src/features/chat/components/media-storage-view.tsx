@@ -569,7 +569,7 @@ function DateFilter({ value, onChange, label }: DateFilterProps) {
       {open && (
         <div className='absolute top-full left-0 mt-1 w-56 bg-background border rounded-xl shadow-xl z-20 p-3 flex flex-col gap-2'>
           <div className='flex flex-col gap-1'>
-            <label className='text-[11px] text-muted-foreground'>Từ ngày</label>
+            <label className='text-[11px] text-muted-foreground'>{text.mediaStorage.fromDate}</label>
             <input
               type='date'
               value={from}
@@ -579,7 +579,7 @@ function DateFilter({ value, onChange, label }: DateFilterProps) {
             />
           </div>
           <div className='flex flex-col gap-1'>
-            <label className='text-[11px] text-muted-foreground'>Đến ngày</label>
+            <label className='text-[11px] text-muted-foreground'>{text.mediaStorage.toDate}</label>
             <input
               type='date'
               value={to}
@@ -595,14 +595,14 @@ function DateFilter({ value, onChange, label }: DateFilterProps) {
               onClick={clear}
               className='flex-1 text-[13px] py-1.5 rounded-lg border hover:bg-muted transition-colors'
             >
-              Xoá
+              {text.mediaStorage.clear}
             </button>
             <button
               type='button'
               onClick={apply}
               className='flex-1 text-[13px] py-1.5 rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors'
             >
-              Áp dụng
+              {text.mediaStorage.apply}
             </button>
           </div>
         </div>

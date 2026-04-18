@@ -19,7 +19,8 @@
     },
     "mentionDropdown": {
       "instruction": "Sử dụng phím mũi tên lên, xuống để chọn. Nhấn phím Enter để sử dụng",
-      "notifyAll": "Báo nhắc cho tất cả thành viên"
+      "notifyAll": "Báo nhắc cho tất cả thành viên",
+      "all": "Tất cả"
     },
     "messageBubble": {
       "reply": "Trả lời",
@@ -45,7 +46,9 @@
       "reactionModalTitle": "Biểu cảm",
       "reactionModalAll": "Tất cả",
       "reactionModalYou": "Bạn",
-      "reactionModalEmpty": "Chưa có cảm xúc"
+      "reactionModalEmpty": "Chưa có cảm xúc",
+      "removeAllMyReactions": "Xóa tất cả biểu cảm của bạn",
+      "download": "Tải xuống"
     },
     "pinBoard": {
       "title": "Tin nhắn",
@@ -203,6 +206,7 @@
       "minutesAgo": "{{count}} phút trước",
       "hoursAgo": "{{count}} giờ trước",
       "daysAgo": "{{count}} ngày trước",
+      "yesterday": "Hôm qua",
       "onDate": "Truy cập ngày {{date}}",
       "sending": "Đang gửi...",
       "sent": "Đã gửi",
@@ -217,7 +221,8 @@
     },
     "errors": {
       "loadConversations": "Không thể tải danh sách cuộc trò chuyện.",
-      "loadMessages": "Không thể tải tin nhắn."
+      "loadMessages": "Không thể tải tin nhắn.",
+      "revokeTimeExceeded": "Thời gian thu hồi tin nhắn đã hết (tối đa 24 giờ)"
     },
     "create-group-dialog": {
       "title": "Tạo nhóm",
@@ -498,7 +503,51 @@
       "noFiles": "Chưa có file nào",
       "noLinks": "Chưa có link nào",
       "downloadedLocally": "✓ Đã có trên máy",
-      "dateLabel": "Ngày {{day}} Tháng {{month}}"
+      "dateLabel": "Ngày {{day}} Tháng {{month}}",
+      "fromDate": "Từ ngày",
+      "toDate": "Đến ngày",
+      "clear": "Xoá",
+      "apply": "Áp dụng"
+    },
+    "message-info-dialog": {
+      "title": "Thông tin tin nhắn",
+      "today": "Hôm nay",
+      "sender": "Người gửi",
+      "seen": "Đã xem ({{count}})",
+      "noOneSeen": "Chưa có ai xem",
+      "voiceCall": "Cuộc gọi thoại",
+      "videoCall": "Cuộc gọi video"
+    },
+    "stranger-banner": {
+      "sendRequestHint": "Gửi yêu cầu kết bạn tới người này",
+      "sentRequestTo": "Đã gửi yêu cầu kết bạn tới {{name}}",
+      "receivedRequest": "Người này đã gửi cho bạn yêu cầu kết bạn",
+      "sendRequest": "Gửi kết bạn",
+      "cancelRequest": "Thu hồi",
+      "acceptRequest": "Chấp nhận"
+    },
+    "chat-window": {
+      "cloudSyncDesc": "Lưu và đồng bộ dữ liệu giữa các thiết bị",
+      "stranger": "Người lạ",
+      "commonGroups": "{{count}} nhóm chung",
+      "voiceCall": "Gọi thoại",
+      "videoCall": "Gọi video",
+      "zaloMember": "Thành viên Zalo",
+      "unreadMessages": "Tin nhắn chưa đọc"
+    },
+    "cloud-sidebar": {
+      "title": "Thông tin hội thoại",
+      "description": "Lưu trữ và truy cập nhanh những nội dung quan trọng của bạn ngay trên Zalo",
+      "storageLabel": "Dung lượng",
+      "image": "Ảnh",
+      "video": "Video",
+      "file": "File",
+      "other": "Khác",
+      "cleanupAction": "Xem và dọn dẹp My Documents",
+      "upgradeTitle": "Nâng cấp dung lượng My Documents",
+      "upgradeDesc": "Mở rộng dung lượng lên đến 100GB và tự động bảo toàn dữ liệu trò chuyện với zCloud.",
+      "upgradeAction": "Thêm dung lượng",
+      "reminderList": "Danh sách nhắc hẹn"
     }
   },
   "call": {

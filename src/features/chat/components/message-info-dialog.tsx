@@ -25,7 +25,7 @@ export function MessageInfoDialog({ open, onOpenChange, message, seenMembers, lo
   const isToday = !!message.createdAt && new Date(message.createdAt).toDateString() === new Date().toDateString()
   const timeStr = message.createdAt
     ? isToday
-      ? `Hôm nay • ${format(new Date(message.createdAt), 'HH:mm')}`
+      ? `${text['message-info-dialog'].today} • ${format(new Date(message.createdAt), 'HH:mm')}`
       : format(new Date(message.createdAt), 'dd/MM/yyyy • HH:mm', { locale: vi })
     : ''
 
@@ -34,13 +34,13 @@ export function MessageInfoDialog({ open, onOpenChange, message, seenMembers, lo
       case MessageType.Image:
         return text.type.image || '[Hình ảnh]'
       case MessageType.Video:
-        return 'Video'
+        return text['message-info-dialog'].videoCall || 'Video'
       case MessageType.File:
         return text.type.file || '[File]'
       case MessageType.Link:
         return message.content || text.type.link || '[Link]'
       case MessageType.Call:
-        return 'Cuộc gọi'
+        return text['message-info-dialog'].voiceCall || 'Cuộc gọi'
       default:
         return stripMentionsForPreview(message.content || '')
     }
@@ -51,7 +51,7 @@ export function MessageInfoDialog({ open, onOpenChange, message, seenMembers, lo
       <BaseDialog
         open={open}
         onOpenChange={onOpenChange}
-        title='Thông tin tin nhắn'
+        title={text['message-info-dialog'].title}
         className='w-[440px]'
         noContentPadding
       >
@@ -60,7 +60,7 @@ export function MessageInfoDialog({ open, onOpenChange, message, seenMembers, lo
           <div className='pl-6 pr-3 py-5 flex justify-end bg-background'>
             <div className='relative bg-blue-message text-foreground px-3.5 py-2.5 rounded-xl shadow-sm border border-border/20 max-w-[300px]'>
               <div className='text-[13px] font-semibold text-text-secondary mb-0.5 truncate'>
-                {message.senderName || 'Người gửi'}
+                {message.senderName || text['message-info-dialog'].sender}
               </div>
               <div className='text-[15px] mb-2 break-words leading-snug'>
                 {getPreviewContent()}
@@ -77,15 +77,15 @@ export function MessageInfoDialog({ open, onOpenChange, message, seenMembers, lo
           {/* Seen Section */}
           <div className='flex flex-col flex-1 py-3'>
             <div className='px-6 pb-3 font-bold text-[14px] text-foreground'>
-              Đã xem ({seenMembers.length})
+              {text['message-info-dialog'].seen(seenMembers.length)}
             </div>
 
             <div className='flex flex-col overflow-y-auto max-h-[350px] min-h-[150px] custom-scrollbar'>
               {loading ? (
-                <div className='flex items-center justify-center p-10 text-sm text-muted-foreground'>Đang tải...</div>
+                <div className='flex items-center justify-center p-10 text-sm text-muted-foreground'>{text.loading}</div>
               ) : seenMembers.length === 0 ? (
                 <div className='flex items-center justify-center p-10 text-sm text-muted-foreground'>
-                  Chưa có ai xem
+                  {text['message-info-dialog'].noOneSeen}
                 </div>
               ) : (
                 <div className='flex flex-col'>
