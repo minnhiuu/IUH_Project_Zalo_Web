@@ -203,6 +203,15 @@ export const GroupMemberListItemResponseSchema = z.object({
 
 export type GroupMemberListItemResponse = z.infer<typeof GroupMemberListItemResponseSchema>
 
+export const ConversationParticipantResponseSchema = z.object({
+  userId: z.string(),
+  fullName: z.string(),
+  avatar: z.string().nullable().optional(),
+  isMe: z.boolean()
+})
+
+export type ConversationParticipantResponse = z.infer<typeof ConversationParticipantResponseSchema>
+
 export const AdminMemberResponseSchema = z.object({
   userId: z.string(),
   fullName: z.string(),

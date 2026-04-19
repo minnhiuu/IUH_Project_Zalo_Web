@@ -571,6 +571,14 @@
       "upgradeDesc": "Expand storage up to 100GB and automatically preserve chat data with zCloud.",
       "upgradeAction": "Add storage",
       "reminderList": "Reminder list"
+    },
+    "searchSidebar": {
+      "title": "Search messages",
+      "placeholder": "Search messages",
+      "filterLabel": "Filter by:",
+      "filterSender": "Sender",
+      "filterTime": "Sent date",
+      "emptyStateText": "Enter a keyword to start searching for messages and files in the chat"
     }
   },
   "call": {

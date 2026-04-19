@@ -22,6 +22,7 @@ import { formatLastSeen } from '@/utils/date'
 import { CloudInfoSidebar } from './cloud-info-sidebar'
 import { AiChatWindow } from './ai-chat-window'
 import { ChatInfoSidebar } from './chat-info-sidebar'
+import { SearchSidebar } from './search-sidebar'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { ActionButton } from '@/components/common/action-button'
 import { GroupAvatar } from '@/components/common/group-avatar'
@@ -110,6 +111,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   const [managementOpenSignal, setManagementOpenSignal] = useState(0)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isOwnerProfileOpen, setIsOwnerProfileOpen] = useState(false)
+  const [isSearchSidebarOpen, setIsSearchSidebarOpen] = useState(false)
   const [profileUserId, setProfileUserId] = useState<string | undefined>(undefined)
 
   // Video Call
@@ -192,6 +194,18 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
     window.addEventListener(OPEN_GROUP_INFO_EVENT, handleOpenInfo as EventListener)
     return () => window.removeEventListener(OPEN_GROUP_INFO_EVENT, handleOpenInfo as EventListener)
   }, [conversation.id])
+
+  useEffect(() => {
+    if (isSearchSidebarOpen) {
+      setIsInfoSidebarOpen(false)
+    }
+  }, [isSearchSidebarOpen])
+
+  useEffect(() => {
+    if (isInfoSidebarOpen) {
+      setIsSearchSidebarOpen(false)
+    }
+  }, [isInfoSidebarOpen])
   const { mutate: updateGroupName, isPending: isUpdatingName } = useUpdateGroupNameMutation()
   const { mutate: updateGroupAvatar } = useUpdateGroupAvatarMutation()
 
@@ -362,6 +376,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
     prevLatestIdRef.current = null
     anchorInitialized.current = false
     pendingScrollToUnread.current = false
+    setIsSearchSidebarOpen(false)
     if (dividerVisibleTimerRef.current) {
       clearTimeout(dividerVisibleTimerRef.current)
       dividerVisibleTimerRef.current = null
@@ -621,7 +636,13 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
               <Video className='w-4 h-4' />
             </button>
             <div className='w-px h-5 bg-border mx-1 hidden sm:block' />
-            <button className='p-2 hover:bg-muted rounded-full transition-colors'>
+            <button
+              onClick={() => setIsSearchSidebarOpen(!isSearchSidebarOpen)}
+              className={cn(
+                'p-2 rounded-full transition-colors',
+                isSearchSidebarOpen ? 'bg-blue-50 text-primary hover:bg-blue-100' : 'hover:bg-muted'
+              )}
+            >
               <Search className='w-[18px] h-[18px]' />
             </button>
             <button
@@ -829,13 +850,6 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
         />
       </div>
 
-      {isInfoSidebarOpen && !isInfoDialogOpen && (
-        <div
-          className='absolute inset-0 bg-transparent z-[35] min-[1150px]:hidden animate-in fade-in duration-200 cursor-pointer'
-          onClick={() => setIsInfoSidebarOpen(false)}
-        />
-      )}
-
       {isCloudConversation ? (
         <CloudInfoSidebar />
       ) : isInfoDialogOpen ? (
@@ -852,20 +866,38 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
           onAvatarClick={triggerFileInput}
         />
       ) : (
-        isInfoSidebarOpen && (
-          <div
-            className={cn(
-              'h-full pointer-events-auto z-[40] bg-background w-87.5 shrink-0 border-l border-border',
-              window.innerWidth < 1150 ? 'absolute top-0 right-0 shadow-2xl overflow-hidden' : 'relative'
+        (isInfoSidebarOpen || isSearchSidebarOpen) && (
+          <>
+            {(isInfoSidebarOpen || isSearchSidebarOpen) && (
+              <div
+                className='absolute inset-0 bg-transparent z-[35] min-[1150px]:hidden animate-in fade-in duration-200 cursor-pointer'
+                onClick={() => {
+                  setIsInfoSidebarOpen(false)
+                  setIsSearchSidebarOpen(false)
+                }}
+              />
             )}
-          >
-            <ChatInfoSidebar
-              conversation={conversation}
-              onRenameClick={() => setIsRenameDialogOpen(true)}
-              onAvatarClick={triggerFileInput}
-              managementOpenSignal={managementOpenSignal}
-            />
-          </div>
+            <div
+              className={cn(
+                'h-full pointer-events-auto z-[40] bg-background w-87.5 shrink-0 border-l border-border',
+                window.innerWidth < 1150 ? 'absolute top-0 right-0 shadow-2xl overflow-hidden' : 'relative'
+              )}
+            >
+              {isSearchSidebarOpen ? (
+                <SearchSidebar
+                  conversationId={conversation.id}
+                  onClose={() => setIsSearchSidebarOpen(false)}
+                />
+              ) : (
+                <ChatInfoSidebar
+                  conversation={conversation}
+                  onRenameClick={() => setIsRenameDialogOpen(true)}
+                  onAvatarClick={triggerFileInput}
+                  managementOpenSignal={managementOpenSignal}
+                />
+              )}
+            </div>
+          </>
         )
       )}
 

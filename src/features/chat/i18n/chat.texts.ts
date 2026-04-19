@@ -480,6 +480,14 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     upgradeAction: t(CHAT_KEYS['cloud-sidebar'].upgradeAction),
     reminderList: t(CHAT_KEYS['cloud-sidebar'].reminderList)
   },
+  searchSidebar: {
+    title: t(CHAT_KEYS.searchSidebar.title),
+    placeholder: t(CHAT_KEYS.searchSidebar.placeholder),
+    filterLabel: t(CHAT_KEYS.searchSidebar.filterLabel),
+    filterSender: t(CHAT_KEYS.searchSidebar.filterSender),
+    filterTime: t(CHAT_KEYS.searchSidebar.filterTime),
+    emptyStateText: t(CHAT_KEYS.searchSidebar.emptyStateText)
+  },
   /** Trả về label dịch cho trạng thái pipeline AI theo ngôn ngữ hiện tại */
   aiStatusLabel: (status?: AiProcessingStatus): string => {
     if (!status) return t(CHAT_KEYS.aiStatus.DEFAULT)

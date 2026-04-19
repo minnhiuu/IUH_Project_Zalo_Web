@@ -572,6 +572,14 @@
       "upgradeDesc": "Mở rộng dung lượng lên đến 100GB và tự động bảo toàn dữ liệu trò chuyện với zCloud.",
       "upgradeAction": "Thêm dung lượng",
       "reminderList": "Danh sách nhắc hẹn"
+    },
+    "searchSidebar": {
+      "title": "Tìm kiếm tin nhắn",
+      "placeholder": "Tìm kiếm tin nhắn",
+      "filterLabel": "Lọc theo:",
+      "filterSender": "Người gửi",
+      "filterTime": "Ngày gửi",
+      "emptyStateText": "Hãy nhập từ khóa để bắt đầu tìm kiếm tin nhắn và file trong trò chuyện"
     }
   },
   "call": {

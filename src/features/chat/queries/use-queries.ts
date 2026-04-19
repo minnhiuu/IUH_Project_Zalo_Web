@@ -138,3 +138,10 @@ export const useUnreadAnchorQuery = (conversationId: string, enabled: boolean = 
     gcTime: 0
   })
 }
+
+export const useConversationParticipantsInfinite = (conversationId: string, query: string, enabled = true) => {
+  return useInfiniteQuery({
+    ...chatOptions.conversationParticipants(conversationId, query),
+    enabled: enabled && !!conversationId
+  })
+}

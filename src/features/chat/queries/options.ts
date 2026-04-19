@@ -12,6 +12,7 @@ import {
   getBlockedMembersApi,
   getBlockCandidatesApi,
   getMyGroupConversationsApi,
+  getConversationParticipantsApi,
   type GroupSortOption,
   type GroupFilterOption
 } from '../api/chat.api'
@@ -126,5 +127,15 @@ export const chatOptions = {
       ...QUERY_POLICIES.LIST,
       queryKey: chatKeys.myGroups(query, sort, filter, page),
       queryFn: () => getMyGroupConversationsApi({ query, sort, filter, page, size })
+    }),
+  conversationParticipants: (conversationId: string, query: string, size = 50) =>
+    infiniteQueryOptions({
+      ...QUERY_POLICIES.LIST,
+      queryKey: chatKeys.conversationParticipants(conversationId, query),
+      queryFn: ({ pageParam = 0 }) =>
+        getConversationParticipantsApi(conversationId, { query, page: pageParam as number, size }),
+      initialPageParam: 0,
+      getNextPageParam: (lastPage) => (lastPage.page + 1 < lastPage.totalPages ? lastPage.page + 1 : undefined),
+      enabled: !!conversationId
     })
 }

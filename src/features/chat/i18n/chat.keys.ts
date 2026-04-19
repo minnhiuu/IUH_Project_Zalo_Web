@@ -480,5 +480,13 @@ export const CHAT_KEYS = {
     upgradeDesc: 'chat.cloud-sidebar.upgradeDesc',
     upgradeAction: 'chat.cloud-sidebar.upgradeAction',
     reminderList: 'chat.cloud-sidebar.reminderList'
+  },
+  searchSidebar: {
+    title: 'chat.searchSidebar.title',
+    placeholder: 'chat.searchSidebar.placeholder',
+    filterLabel: 'chat.searchSidebar.filterLabel',
+    filterSender: 'chat.searchSidebar.filterSender',
+    filterTime: 'chat.searchSidebar.filterTime',
+    emptyStateText: 'chat.searchSidebar.emptyStateText'
   }
 } as const
