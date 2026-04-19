@@ -6,7 +6,6 @@ import { UserAvatar } from '@/components/common/user-avatar'
 import { useGroupMembersInfinite } from '../../../queries/use-queries'
 import { useSendFriendRequest } from '@/features/friend/queries/use-mutations'
 import {
-  useRemoveMemberFromGroupMutation,
   usePromoteToAdminMutation,
   useDemoteFromAdminMutation
 } from '../../../queries/use-mutations'
@@ -201,7 +200,7 @@ export function GroupMembersSection({
           onOpenChange={setRemoveOpen}
           conversationId={conversationId}
           targetUserId={targetMember.userId}
-          targetUserName={targetMember.fullName}
+
         />
       )}
     </div>

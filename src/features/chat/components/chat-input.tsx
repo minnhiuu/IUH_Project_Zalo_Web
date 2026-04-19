@@ -498,6 +498,13 @@ export function ChatInput({ conversationId, isGroup, replyTo, onCancelReply }: C
                   alt=''
                   className='w-10 h-10 rounded object-cover shrink-0'
                 />
+              ) : replyTo.type === MessageType.Video && replyTo.attachments?.[0]?.url ? (
+                <div className='relative w-10 h-10 rounded overflow-hidden shrink-0 bg-muted'>
+                  <video src={replyTo.attachments[0].url} className='w-full h-full object-cover' preload='metadata' muted />
+                  <div className='absolute inset-0 flex items-center justify-center bg-black/40'>
+                    <svg width='14' height='14' viewBox='0 0 24 24' fill='white'><polygon points='5,3 19,12 5,21' /></svg>
+                  </div>
+                </div>
               ) : (
                 <Quote size={14} className='text-muted-foreground shrink-0' />
               )}
