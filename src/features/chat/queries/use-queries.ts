@@ -1,8 +1,7 @@
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import { chatOptions } from './options'
 import { chatKeys } from './keys'
-import { getMediaMessagesApi, getSeenMembersApi, getUnreadAnchorApi } from '../api/chat.api'
-import { getJoinRequestsApi } from '../api/chat.api'
+import { getMediaMessagesApi, getSeenMembersApi, getUnreadAnchorApi, getJoinRequestsApi } from '../api/chat.api'
 import type { JoinRequestResponse } from '../schemas/chat.schema'
 import type { GroupSortOption, GroupFilterOption } from '../api/chat.api'
 

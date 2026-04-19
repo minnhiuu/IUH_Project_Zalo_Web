@@ -22,7 +22,7 @@ import { formatLastSeen } from '@/utils/date'
 import { CloudInfoSidebar } from './cloud-info-sidebar'
 import { AiChatWindow } from './ai-chat-window'
 import { ChatInfoSidebar } from './chat-info-sidebar'
-import { SearchSidebar } from './search-sidebar'
+import { SearchSidebar } from './search-message'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { ActionButton } from '@/components/common/action-button'
 import { GroupAvatar } from '@/components/common/group-avatar'
@@ -879,15 +879,12 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             )}
             <div
               className={cn(
-                'h-full pointer-events-auto z-[40] bg-background w-87.5 shrink-0 border-l border-border',
+                'h-full pointer-events-auto z-[40] bg-background w-[340px] shrink-0 border-l border-border',
                 window.innerWidth < 1150 ? 'absolute top-0 right-0 shadow-2xl overflow-hidden' : 'relative'
               )}
             >
               {isSearchSidebarOpen ? (
-                <SearchSidebar
-                  conversationId={conversation.id}
-                  onClose={() => setIsSearchSidebarOpen(false)}
-                />
+                <SearchSidebar conversationId={conversation.id} onClose={() => setIsSearchSidebarOpen(false)} />
               ) : (
                 <ChatInfoSidebar
                   conversation={conversation}

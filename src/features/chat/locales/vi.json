@@ -221,9 +221,9 @@
     "status": {
       "online": "Vừa mới truy cập",
       "justNow": "Vừa xong",
-      "minutesAgo": "{{count}} phút trước",
-      "hoursAgo": "{{count}} giờ trước",
-      "daysAgo": "{{count}} ngày trước",
+      "minutesAgo": "{{count}} phút",
+      "hoursAgo": "{{count}} giờ",
+      "daysAgo": "{{count}} ngày",
       "yesterday": "Hôm qua",
       "onDate": "Truy cập ngày {{date}}",
       "sending": "Đang gửi...",
@@ -575,11 +575,24 @@
     },
     "searchSidebar": {
       "title": "Tìm kiếm tin nhắn",
-      "placeholder": "Tìm kiếm tin nhắn",
+      "placeholder": "Tìm kiếm",
       "filterLabel": "Lọc theo:",
       "filterSender": "Người gửi",
-      "filterTime": "Ngày gửi",
-      "emptyStateText": "Hãy nhập từ khóa để bắt đầu tìm kiếm tin nhắn và file trong trò chuyện"
+      "filterDate": "Ngày gửi",
+      "filterTime": "Thời gian",
+      "emptyStateText": "Hãy nhập từ khóa để tìm kiếm tin nhắn trong hội thoại này",
+      "emptyStateSearch": "Không tìm thấy kết quả",
+      "timeSuggestion": "Gợi ý thời gian",
+      "last7Days": "7 ngày trước",
+      "last30Days": "30 ngày trước",
+      "last3Months": "3 tháng trước",
+      "chooseTimeRange": "Chọn khoảng thời gian",
+      "fromDate": "Từ ngày",
+      "toDate": "Đến ngày",
+      "loadMore": "Xem thêm",
+      "clear": "Xóa",
+      "confirm": "Xác nhận",
+      "cancel": "Hủy"
     }
   },
   "call": {

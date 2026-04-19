@@ -160,8 +160,12 @@
   --badge-violet-bg: #ede9fe;
   --badge-violet-text: #6d28d9;
   --input-field-bg-outline: #fff;
+  --input-field-bg-filled: #f1f2f4;
   --border-subtle: rgba(0, 0, 0, 0.1);
   --layer-background-hover: #f1f2f4;
+  --button-tertiary-neutral-focus-bg: #e5f1ff;
+  --button-tertiary-neutral-focus-text: #005ae0;
+  --divider: rgba(0, 0, 0, 0.15);
 }
 
 @layer utilities {
@@ -312,6 +316,9 @@
   --badge-violet-text: #a78bfa;
   --border-subtle: hsla(0, 0%, 100%, 0.2);
   --layer-background-hover: hsla(0, 0%, 100%, 0.05);
+  --button-tertiary-neutral-focus-bg: #002152;
+  --button-tertiary-neutral-focus-text: #66a6ff;
+  --divider: hsla(0, 0%, 100%, 0.1);
 }
 
 @theme inline {
@@ -493,6 +500,16 @@ select,
 textarea {
   font-family: inherit;
   font-size: 100%;
+}
+
+em {
+  font-style: normal;
+  color: #0068ff;
+  font-weight: 600;
+}
+
+.dark em {
+  color: #66a6ff;
 }
 
 input[type='radio'] {

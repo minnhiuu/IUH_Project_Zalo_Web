@@ -485,8 +485,21 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     placeholder: t(CHAT_KEYS.searchSidebar.placeholder),
     filterLabel: t(CHAT_KEYS.searchSidebar.filterLabel),
     filterSender: t(CHAT_KEYS.searchSidebar.filterSender),
+    filterDate: t(CHAT_KEYS.searchSidebar.filterDate),
     filterTime: t(CHAT_KEYS.searchSidebar.filterTime),
-    emptyStateText: t(CHAT_KEYS.searchSidebar.emptyStateText)
+    emptyStateText: t(CHAT_KEYS.searchSidebar.emptyStateText),
+    emptyStateSearch: t(CHAT_KEYS.searchSidebar.emptyStateSearch),
+    timeSuggestion: t(CHAT_KEYS.searchSidebar.timeSuggestion),
+    last7Days: t(CHAT_KEYS.searchSidebar.last7Days),
+    last30Days: t(CHAT_KEYS.searchSidebar.last30Days),
+    last3Months: t(CHAT_KEYS.searchSidebar.last3Months),
+    chooseTimeRange: t(CHAT_KEYS.searchSidebar.chooseTimeRange),
+    fromDate: t(CHAT_KEYS.searchSidebar.fromDate),
+    toDate: t(CHAT_KEYS.searchSidebar.toDate),
+    loadMore: t(CHAT_KEYS.searchSidebar.loadMore),
+    clear: t(CHAT_KEYS.searchSidebar.clear),
+    confirm: t(CHAT_KEYS.searchSidebar.confirm),
+    cancel: t(CHAT_KEYS.searchSidebar.cancel)
   },
   /** Trả về label dịch cho trạng thái pipeline AI theo ngôn ngữ hiện tại */
   aiStatusLabel: (status?: AiProcessingStatus): string => {

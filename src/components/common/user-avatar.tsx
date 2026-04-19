@@ -61,7 +61,7 @@ export const UserAvatar = ({ name, src, className, fallbackClassName }: UserAvat
       {displaySrc && <AvatarImage src={displaySrc} alt={name} className='object-cover' />}
       <AvatarFallback
         delayMs={300}
-        className={cn('text-white font-bold text-[11px]', fallbackClassName)}
+        className={cn('!text-white font-bold text-[11px]', fallbackClassName)}
         style={{ backgroundColor: bgColor }}
       >
         {getInitials(name)}
