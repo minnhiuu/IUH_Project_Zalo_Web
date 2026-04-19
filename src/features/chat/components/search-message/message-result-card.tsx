@@ -1,3 +1,4 @@
+import { Skeleton } from '@/components/ui/skeleton'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { MessageType } from '@/constants/enum'
 import { cn } from '@/lib/utils'
@@ -130,4 +131,22 @@ function renderMessageContent(msg: MessageSearchResponse, lang: string) {
   }
 
   return contentElement
+}
+
+export function MessageResultSkeleton() {
+  return (
+    <div className='flex items-start gap-3 p-3 border-b border-(--divider) last:border-none'>
+      <Skeleton className='w-10 h-10 rounded-full shrink-0 mt-0.5' />
+      <div className='flex-1 min-w-0 space-y-2'>
+        <div className='flex items-center justify-between gap-2'>
+          <Skeleton className='h-3 w-24' />
+          <Skeleton className='h-2 w-12' />
+        </div>
+        <div className='space-y-1.5'>
+          <Skeleton className='h-3 w-full' />
+          <Skeleton className='h-3 w-4/5' />
+        </div>
+      </div>
+    </div>
+  )
 }

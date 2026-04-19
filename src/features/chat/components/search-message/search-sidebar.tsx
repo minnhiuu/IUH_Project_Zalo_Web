@@ -6,7 +6,7 @@ import { useConversationParticipantsInfinite } from '../../queries/use-queries'
 import { useMessageSearchInfinite } from '../../../search/messages'
 import { DateFilter } from './date-filter'
 import { EmptyState } from './empty-state'
-import { MessageResultCard } from './message-result-card'
+import { MessageResultCard, MessageResultSkeleton } from './message-result-card'
 import { SenderFilter } from './sender-filter'
 
 interface SearchSidebarProps {
@@ -113,8 +113,10 @@ export function SearchSidebar({ conversationId, onClose }: SearchSidebarProps) {
           {!hasFilters ? (
             <EmptyState image='/images/search_empty_keyword_state.png' text={sText.emptyStateText} />
           ) : isLoadingSearch ? (
-            <div className='flex items-center justify-center py-20'>
-              <Loader2 className='w-8 h-8 animate-spin text-primary opacity-50' />
+            <div className='flex flex-col'>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <MessageResultSkeleton key={i} />
+              ))}
             </div>
           ) : allResults.length === 0 ? (
             <EmptyState image='/images/search_empty_state.png' text={text.emptyStateSearch} />
