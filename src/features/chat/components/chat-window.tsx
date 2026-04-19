@@ -44,7 +44,17 @@ import { TypingIndicator } from './typing-indicator'
 const OPEN_GROUP_MANAGEMENT_EVENT = 'chat:open-group-management'
 const OPEN_GROUP_INFO_EVENT = 'chat:open-group-info'
 
-export function ChatWindow({ conversation }: { conversation: ConversationResponse }) {
+export function ChatWindow({ 
+  conversation, 
+  snapshotId, 
+  capturedUnreadCount,
+  onClearSnapshot
+}: { 
+  conversation: ConversationResponse, 
+  snapshotId: string | null,
+  capturedUnreadCount: number,
+  onClearSnapshot: () => void
+}) {
   const { user } = useAuth()
   const { sendMessage, typingUsers } = useChatContext()
   const { t, text } = useChatText()
@@ -265,7 +275,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
 
   useEffect(() => {
     if (isCurrentUserRemovedFromGroup) return
-    if (!latestMessageId || !conversation.id || conversation.unreadCount === 0) return
+    if (!latestMessageId || !conversation.id || (conversation.unreadCount ?? 0) === 0) return
     if (latestMessageSenderId === user?.id) return
 
     const observer = new IntersectionObserver(
@@ -289,7 +299,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
     latestMessageId,
     latestMessageSenderId,
     conversation.id,
-    conversation.unreadCount,
+    conversation.unreadCount ?? 0,
     markAsRead,
     user?.id
   ])
@@ -320,8 +330,8 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             className={cn(
               'flex items-center space-x-3 min-w-0 flex-1',
               !isGroup &&
-                !isCloudConversation &&
-                'cursor-pointer hover:bg-black/5 p-1.5 -ml-1.5 rounded-lg transition-colors'
+              !isCloudConversation &&
+              'cursor-pointer hover:bg-black/5 p-1.5 -ml-1.5 rounded-lg transition-colors'
             )}
             onClick={() => {
               if (!isGroup && !isCloudConversation) {
@@ -335,10 +345,10 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
                 onClick={
                   conversation.isGroup && !isAiConversation
                     ? (e: React.MouseEvent) => {
-                        e.stopPropagation()
-                        setInfoDialogStep('info')
-                        setIsInfoDialogOpen(true)
-                      }
+                      e.stopPropagation()
+                      setInfoDialogStep('info')
+                      setIsInfoDialogOpen(true)
+                    }
                     : undefined
                 }
                 className={cn(
@@ -540,7 +550,10 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             conversationId={conversation.id}
             isGroup={conversation.isGroup}
             replyTo={replyTo}
+            unreadCount={capturedUnreadCount}
+            snapshotId={snapshotId}
             onCancelReply={() => setReplyTo(null)}
+            onClearSnapshot={onClearSnapshot}
           />
         )}
         {forwardingMessage && (

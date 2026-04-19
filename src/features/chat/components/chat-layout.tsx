@@ -20,6 +20,8 @@ export function ChatLayout({
   const { text } = useChatText()
 
   const [userSelectedChatId, setUserSelectedChatId] = useState<string | null>(null)
+  const [currentSnapshotId, setCurrentSnapshotId] = useState<string | null>(null)
+  const [capturedUnreadCount, setCapturedUnreadCount] = useState<number>(0)
 
   const { data: conversations } = useConversationsQuery()
   const { mutate: markAsRead } = useMarkAsReadMutation()
@@ -106,12 +108,19 @@ export function ChatLayout({
     return () => document.removeEventListener('visibilitychange', tryMarkRead)
   }, [selectedChat, conversations, markAsRead])
 
+  const handleClearSnapshot = () => {
+    setCurrentSnapshotId(null)
+    setCapturedUnreadCount(0)
+  }
+
   return (
     <div className='flex w-full h-full overflow-hidden'>
       <ChatSidebar
         selectedChatId={selectedChatId || undefined}
-        onSelectChat={(chat: ConversationResponse) => {
+        onSelectChat={(chat: ConversationResponse, snapshotId, unreadCount) => {
           setUserSelectedChatId(chat.id)
+          setCurrentSnapshotId(snapshotId || null)
+          setCapturedUnreadCount(unreadCount || 0)
           navigate(`/chat/c/${chat.id}`)
         }}
       />
@@ -126,7 +135,12 @@ export function ChatLayout({
         }
 
         return selectedChat ? (
-          <ChatWindow conversation={selectedChat} />
+          <ChatWindow 
+            conversation={selectedChat} 
+            snapshotId={currentSnapshotId} 
+            capturedUnreadCount={capturedUnreadCount}
+            onClearSnapshot={handleClearSnapshot}
+          />
         ) : (
           <div className='flex-1 flex flex-col items-center justify-center bg-background p-8 text-center'>
             <div className='max-w-[500px] space-y-8 animate-in fade-in zoom-in duration-700'>

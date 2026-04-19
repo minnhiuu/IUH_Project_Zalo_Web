@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useMemo, type FormEvent, type KeyboardEvent } from 'react'
-import { SendHorizonal, Smile, Paperclip, ImageIcon, X, Quote, ThumbsUp, FileIcon, Loader2 } from 'lucide-react'
+import { SendHorizonal, Smile, Paperclip, ImageIcon, X, Quote, ThumbsUp, FileIcon, Loader2, Sparkles } from 'lucide-react'
 import type { MessageResponse } from '../schemas/chat.schema'
 import { MessageType } from '@/constants/enum'
 import { useChatContext, type FileAttachment } from '../context/chat-context'
@@ -10,6 +10,9 @@ import { useGroupMembersInfinite } from '../queries/use-queries'
 import { MentionDropdown } from './mention-dropdown'
 import { RichInput, type RichInputRef } from './rich-input'
 import { stripMentionsForPreview } from '../utils/mention'
+import { showErrorToast } from '@/utils/toast'
+import http from '@/lib/axios-client'
+import ReactMarkdown from 'react-markdown'
 
 const IMAGE_VIDEO_ACCEPT = 'image/*,video/*'
 const FILE_ACCEPT = '*/*'
@@ -20,9 +23,20 @@ interface ChatInputProps {
   isGroup?: boolean
   replyTo?: MessageResponse | null
   onCancelReply?: () => void
+  unreadCount?: number
+  snapshotId?: string | null
+  onClearSnapshot: () => void
 }
 
-export function ChatInput({ conversationId, isGroup, replyTo, onCancelReply }: ChatInputProps) {
+export function ChatInput({ 
+  conversationId, 
+  isGroup, 
+  replyTo, 
+  onCancelReply, 
+  unreadCount = 0, 
+  snapshotId,
+  onClearSnapshot 
+}: ChatInputProps) {
   const { sendMessage, sendFileMessage, sendTyping } = useChatContext()
   const { text } = useChatText()
   const { user } = useAuth()
@@ -31,6 +45,37 @@ export function ChatInput({ conversationId, isGroup, replyTo, onCancelReply }: C
   const [fileAttachments, setFileAttachments] = useState<FileAttachment[]>([])
   const [attachmentType, setAttachmentType] = useState<'image' | 'file' | null>(null)
   const [isSending, setIsSending] = useState(false)
+  
+  const [isSummarizing, setIsSummarizing] = useState(false)
+  const [summaryResult, setSummaryResult] = useState<string | null>(null)
+
+  const handleSummarize = async () => {
+    if (!snapshotId) return
+    setIsSummarizing(true)
+    try {
+      const response = await http.post('/v1/ai/summarize', {
+        conversationId: conversationId,
+        sinceMessageId: snapshotId
+      })
+      setSummaryResult(response.data.summary)
+    } catch (error) {
+      console.error('Failed to summarize:', error)
+      showErrorToast('Không thể kết nối với AI. Vui lòng thử lại sau.')
+    } finally {
+      setIsSummarizing(false)
+    }
+  }
+
+  // ── AI Summarize Auto-hide logic (5 seconds) ──
+  useEffect(() => {
+    if (snapshotId && unreadCount > 0 && !isSummarizing && !summaryResult) {
+      const timer = setTimeout(() => {
+        onClearSnapshot()
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [snapshotId, unreadCount, isSummarizing, summaryResult, onClearSnapshot])
+
   // Mention state
   const [mentionQuery, setMentionQuery] = useState<string | null>(null) // null = closed
   const formRef = useRef<HTMLFormElement>(null)
@@ -429,13 +474,78 @@ export function ChatInput({ conversationId, isGroup, replyTo, onCancelReply }: C
           <Paperclip size={20} />
         </button>
         <div className='w-[1px] h-4 bg-border mx-1' />
-        <button type='button' className='px-2 py-1 text-[13px] hover:bg-muted rounded text-muted-foreground'>
+        <button 
+          type='button' 
+          onClick={() => {
+            inputRef.current?.insertText('@')
+            inputRef.current?.focus()
+          }}
+          className='px-2 py-1 text-[13px] hover:bg-muted rounded text-muted-foreground'
+        >
           @
         </button>
         <button type='button' className='p-1.5 hover:bg-muted rounded text-muted-foreground transition-colors'>
           <span className='font-bold text-lg'>...</span>
         </button>
       </div>
+
+      {/* Floating AI Summarize Button Case */}
+      {unreadCount > 0 && snapshotId && !summaryResult && (
+        <div className='absolute bottom-full left-0 right-0 flex justify-center pb-4 z-40 pointer-events-none'>
+          <button
+            type='button'
+            onClick={handleSummarize}
+            disabled={isSummarizing}
+            className='pointer-events-auto flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-zinc-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-full text-[13px] font-bold border border-blue-200 dark:border-blue-800 transition-all shadow-xl hover:shadow-blue-200 animate-in slide-in-from-bottom-4 zoom-in-95 duration-300'
+          >
+            {isSummarizing ? (
+              <>
+                <Loader2 className='w-4 h-4 animate-spin' />
+                AI đang đọc tin nhắn...
+              </>
+            ) : (
+              <>
+                <Sparkles className='w-4 h-4 text-amber-500' />
+                Tóm tắt {unreadCount} tin nhắn mới
+              </>
+            )}
+          </button>
+        </div>
+      )}
+
+      {/* AI Summary Result Dialog */}
+      {summaryResult && (
+        <div className='absolute bottom-full left-4 right-4 mb-4 bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-border overflow-hidden animate-in slide-in-from-bottom-4 duration-300 z-[60] max-h-[60vh] flex flex-col'>
+          <div className='px-4 py-3 border-b border-border bg-blue-50/50 dark:bg-blue-900/10 flex items-center justify-between shrink-0'>
+            <div className='flex items-center gap-2 text-primary font-bold text-sm'>
+              <span className='text-lg'>✨</span> Tóm tắt nội dung Catch-up
+            </div>
+            <button
+              onClick={() => {
+                setSummaryResult(null)
+                onClearSnapshot()
+              }}
+              className='p-1.5 hover:bg-black/5 rounded-full transition-colors'
+            >
+              <X size={18} />
+            </button>
+          </div>
+          <div className='p-5 overflow-y-auto custom-scrollbar prose prose-sm dark:prose-invert max-w-none text-foreground/90'>
+            <ReactMarkdown>{summaryResult}</ReactMarkdown>
+          </div>
+          <div className='px-4 py-3 border-t border-border bg-muted/30 flex justify-end shrink-0'>
+            <button
+              onClick={() => {
+                setSummaryResult(null)
+                onClearSnapshot()
+              }}
+              className='px-4 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-medium hover:opacity-90 transition-opacity'
+            >
+              Đóng
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 2. Trả lời (Reply Preview) */}
       {replyTo && (

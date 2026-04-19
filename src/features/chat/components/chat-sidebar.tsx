@@ -19,7 +19,7 @@ import { stripMentionsForPreview } from '../utils/mention'
 
 interface ChatSidebarProps {
   selectedChatId?: string
-  onSelectChat: (chat: ConversationResponse) => void
+  onSelectChat: (chat: ConversationResponse, snapshotId?: string | null, unreadCount?: number) => void
 }
 
 export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) {
@@ -30,8 +30,19 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
   const { mutate: markAsRead } = useMarkAsReadMutation()
 
   const handleSelectChat = (chat: ConversationResponse) => {
-    onSelectChat(chat)
-    if (chat.unreadCount && chat.unreadCount > 0) {
+    const unreadCount = chat.unreadCount ?? 0
+    console.log(`[ChatSidebar] Selecting chat: ${chat.id}, unreadCount: ${unreadCount}`)
+    
+    let capturedSnapshotId: string | null = null
+    if (unreadCount > 0) {
+      const myMember = chat.members?.find((m) => m.userId === user?.id)
+      capturedSnapshotId = myMember?.lastReadMessageId || null
+      console.log(`[ChatSidebar] Snapshot captured before markAsRead: ${capturedSnapshotId}`)
+    }
+
+    onSelectChat(chat, capturedSnapshotId, unreadCount)
+    
+    if (unreadCount > 0) {
       markAsRead(chat.id)
     }
   }
