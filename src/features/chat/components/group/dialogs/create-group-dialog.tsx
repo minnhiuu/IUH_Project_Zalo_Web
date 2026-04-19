@@ -1,6 +1,5 @@
 import { useState, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router'
-import { useQueryClient } from '@tanstack/react-query'
 import { Camera, Search, X, Loader2 } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -16,7 +15,7 @@ import {
   useSendGroupInvitesMutation
 } from '../../../queries/use-mutations'
 import { useFriendsDirectory, useSearchMembersInfinite } from '../../../queries/use-queries'
-import type { ConversationResponse, SearchMemberResponse } from '../../../schemas/chat.schema'
+import type { SearchMemberResponse } from '../../../schemas/chat.schema'
 import { useChatText } from '../../../i18n/use-chat-text'
 import { ImageCropperDialog } from '@/components/common/image-cropper-dialog'
 import { getCroppedImg } from '@/utils/image-crop'
@@ -24,7 +23,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { MemberItem } from '../members/member-item'
 import { SelectedMemberSidebar } from '../members/selected-member-sidebar'
 import { useDebounce } from '@/hooks/use-debounce'
-import { chatKeys } from '../../../queries/keys'
 import { showSimpleToast } from '@/utils/toast'
 
 interface CreateGroupDialogProps {
@@ -48,7 +46,6 @@ export function CreateGroupDialog({
   const { text } = useChatText()
   const tg = text['create-group-dialog']
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const queryClient = useQueryClient()
   const navigate = useNavigate()
 
   const [groupName, setGroupName] = useState('')
@@ -205,13 +202,10 @@ export function CreateGroupDialog({
       },
       {
         onSuccess: (conversation) => {
-          const existing = queryClient.getQueryData<ConversationResponse[]>(chatKeys.conversations())
-          const isDuplicate = existing?.some((c) => c.id === conversation.id) ?? false
           onClose()
           resetState()
           navigate(`/chat/c/${conversation.id}`)
-          if (isDuplicate) showSimpleToast(tg.groupAlreadyExists)
-          if (pendingFile && conversation.id && !isDuplicate) {
+          if (pendingFile && conversation.id) {
             updateAvatarMutation.mutate({ id: conversation.id, file: pendingFile })
           }
 
