@@ -61,7 +61,16 @@ export default function UserLayout() {
           6000
         )
       } else if (type === 'USER_WARNED') {
-        showWarningToast(data?.body || 'You received a warning from an administrator.', 6000)
+        const targetType = data?.targetType
+        const adminNote = data?.adminNote
+        let message = data?.body || 'You received a warning from an administrator.'
+        if (targetType && !data?.body) {
+          message = `You received a warning about your ${targetType} from an administrator.`
+        }
+        if (adminNote) {
+          message += ` Note: ${adminNote}`
+        }
+        showWarningToast(message, 8000)
       }
     },
     [queryClient]

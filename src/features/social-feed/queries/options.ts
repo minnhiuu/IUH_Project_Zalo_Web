@@ -2,12 +2,17 @@ import { queryOptions, infiniteQueryOptions } from '@tanstack/react-query'
 import { QUERY_POLICIES } from '@/constants'
 import { socialFeedApi, type BackendPostResponse } from '../api/post.api'
 import { commentApi } from '../api/comment.api'
-import { socialFeedCommentKeys, socialFeedKeys, socialReelKeys, socialStoryKeys } from './keys'
+import {
+  myPostsKeys,
+  singlePostKeys,
+  socialFeedCommentKeys,
+  socialFeedKeys,
+  socialReelKeys,
+  socialStoryKeys
+} from './keys'
 import type { SocialPost } from '../components/post/post-card'
 import type { SocialStory, StoryGroup } from '../components/stories/stories-strip'
 import type { BackendCommentResponse, SocialFeedComment } from '../schemas/comment.schema'
-
-
 
 const toPostType = (postType?: string | null): SocialPost['postType'] => {
   switch ((postType ?? '').toUpperCase()) {
@@ -58,7 +63,6 @@ const toContent = (post: BackendPostResponse): string => {
 }
 
 const getFallbackAuthorName = () => 'Unknown user'
-
 
 const mapPostToSocialPost = (post: BackendPostResponse): SocialPost => {
   const media =
@@ -142,7 +146,8 @@ const mapCommentToSocialComment = (comment: BackendCommentResponse): SocialFeedC
     content: comment.content,
     createdAt: comment.createdAt ?? '',
     reactions: comment.reactionCount ?? 0,
-    currentUserReaction: (comment.currentUserReaction?.toUpperCase() ?? null) as SocialFeedComment['currentUserReaction'],
+    currentUserReaction: (comment.currentUserReaction?.toUpperCase() ??
+      null) as SocialFeedComment['currentUserReaction'],
     isEdited: comment.isEdited ?? comment.edited ?? false,
     replyDepth: comment.replyDepth ?? 0,
     replyCount: comment.replyCount ?? 0
@@ -301,7 +306,7 @@ export const getSocialStoriesQueryOptions = (page = 0, size = 20) =>
     queryKey: socialStoryKeys.list(page, size),
     queryFn: async () => {
       const response = await socialFeedApi.getStoryPosts(page, size)
-      const groups = (response.data.data as unknown) as BackendStoryGroup[]
+      const groups = response.data.data as unknown as BackendStoryGroup[]
       return groups.map(mapBackendGroupToStoryGroup)
     },
     ...QUERY_POLICIES.LIST
@@ -331,4 +336,68 @@ export const getInfiniteSocialReelsQueryOptions = (size = 20) =>
       return lastPage.length > 0 ? allPages.length : undefined
     },
     ...QUERY_POLICIES.LIST
+  })
+
+export const getInfiniteMyPostsQueryOptions = (size = 20) =>
+  infiniteQueryOptions({
+    queryKey: [...myPostsKeys.all, 'infinite', size] as const,
+    initialPageParam: 0,
+    queryFn: async ({ pageParam = 0 }) => {
+      const response = await socialFeedApi.getMyPosts(pageParam, size)
+      const posts = response.data.data.data
+
+      return posts.map((post) => {
+        const mappedPost = mapPostToSocialPost(post)
+
+        if ((post.postType ?? '').toUpperCase() !== 'SHARE') {
+          return mappedPost
+        }
+
+        if (post.sharedPostPreview) {
+          return {
+            ...mappedPost,
+            sharedPost: mapSharedPreview(post.sharedPostPreview)
+          }
+        }
+
+        if (post.sharedPostId) {
+          return {
+            ...mappedPost,
+            sharedPost: {
+              postId: post.sharedPostId,
+              authorName: 'Original post unavailable',
+              authorAvatar: null,
+              content: '',
+              media: []
+            }
+          }
+        }
+
+        return mappedPost
+      })
+    },
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.length > 0 ? allPages.length : undefined
+    },
+    ...QUERY_POLICIES.LIST
+  })
+
+export const getPostByIdQueryOptions = (postId: string) =>
+  queryOptions({
+    queryKey: singlePostKeys.byId(postId),
+    queryFn: async () => {
+      const response = await socialFeedApi.getPostById(postId)
+      const post = response.data.data
+      const mappedPost = mapPostToSocialPost(post)
+
+      if ((post.postType ?? '').toUpperCase() === 'SHARE' && post.sharedPostPreview) {
+        return {
+          ...mappedPost,
+          sharedPost: mapSharedPreview(post.sharedPostPreview)
+        }
+      }
+
+      return mappedPost
+    },
+    enabled: !!postId
   })

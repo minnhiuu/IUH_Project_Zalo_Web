@@ -5,11 +5,7 @@ import { Button } from '@/components/ui/button'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { useGroupMembersInfinite } from '../../../queries/use-queries'
 import { useSendFriendRequest } from '@/features/friend/queries/use-mutations'
-import {
-  useRemoveMemberFromGroupMutation,
-  usePromoteToAdminMutation,
-  useDemoteFromAdminMutation
-} from '../../../queries/use-mutations'
+import { usePromoteToAdminMutation, useDemoteFromAdminMutation } from '../../../queries/use-mutations'
 import { useChatText } from '../../../i18n/use-chat-text'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { GroupMemberRole } from '@/constants/enum'
@@ -201,7 +197,6 @@ export function GroupMembersSection({
           onOpenChange={setRemoveOpen}
           conversationId={conversationId}
           targetUserId={targetMember.userId}
-          targetUserName={targetMember.fullName}
         />
       )}
     </div>

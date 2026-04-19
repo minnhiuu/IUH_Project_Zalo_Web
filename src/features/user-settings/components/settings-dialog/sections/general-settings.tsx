@@ -1,4 +1,3 @@
-import { useTranslation } from 'react-i18next'
 import { Loader2 } from 'lucide-react'
 import { useUserText } from '@/features/user/i18n/use-user-text'
 import { Separator } from '@/components/ui/separator'
@@ -6,27 +5,26 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useEffect } from 'react'
 import { ActionRow } from './action-row'
 import { useSettingsState } from '../settings-state-context'
+import { useLocale } from '@/lib/i18n'
 
 export function GeneralSettings() {
   const { text } = useUserText()
-  const { i18n } = useTranslation()
+  const { locale: currentLanguage, changeLocale } = useLocale()
   const { settings, isLoading, pending, updateGeneralSettings } = useSettingsState()
-
-  const currentLanguage = i18n.language
 
   // Sync language from settings
   useEffect(() => {
     if (settings?.generalSettings.languageEn !== undefined) {
       const settingsLang = settings.generalSettings.languageEn ? 'en' : 'vi'
-      if (i18n.language !== settingsLang) {
-        i18n.changeLanguage(settingsLang)
+      if (currentLanguage !== settingsLang) {
+        changeLocale(settingsLang)
       }
     }
-  }, [settings?.generalSettings.languageEn, i18n])
+  }, [settings?.generalSettings.languageEn, currentLanguage, changeLocale])
 
   const handleLanguageChange = (lang: 'en' | 'vi') => {
     const languageEn = lang === 'en'
-    i18n.changeLanguage(lang)
+    changeLocale(lang)
     updateGeneralSettings({
       showAllFriends: settings?.generalSettings.showAllFriends ?? false,
       languageEn

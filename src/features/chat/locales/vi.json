@@ -73,7 +73,8 @@
       "copy": "Sao chép",
       "unpin": "Bỏ ghim",
       "collapse": "Thu gọn",
-      "extraPins": "+{{count}} ghim"
+      "extraPins": "+{{count}} ghim",
+      "header": "Tin nhắn đã ghim ({{count}})"
     },
     "system": {
       "add_members": {
@@ -249,6 +250,7 @@
       "searchPlaceholder": "Tìm tên, số điện thoại, hoặc danh sách đã chọn",
       "recentChats": "Trò chuyện gần đây",
       "selected": "Đã chọn",
+      "noSelected": "Chưa chọn",
       "cancel": "Hủy",
       "create": "Tạo nhóm",
       "andOthers": "và {{count}} người khác",

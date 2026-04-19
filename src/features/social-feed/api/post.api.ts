@@ -89,12 +89,12 @@ export interface CreatePostRequest {
 export const socialFeedApi = {
   getFeedAndSharePosts: (page = 0, size = 20) =>
     http.get<ApiResponse<BackendPostResponse[]>>('/recommendations/feed', {
-      params: { size }
+      params: { page, size }
     }),
 
   getReelPosts: (page = 0, size = 20) =>
     http.get<ApiResponse<BackendPostResponse[]>>('/recommendations/reels', {
-      params: { size }
+      params: { page, size }
     }),
 
   getStoryPosts: (page = 0, size = 20) =>
@@ -106,5 +106,10 @@ export const socialFeedApi = {
 
   createPost: (data: CreatePostRequest) => http.post<ApiResponse<BackendPostResponse>>('/posts', data),
 
-  recordStoryView: (postId: string) => http.post<ApiResponse<void>>(`/interactions/posts/${postId}/view`)
+  recordStoryView: (postId: string) => http.post<ApiResponse<void>>(`/interactions/posts/${postId}/view`),
+
+  getMyPosts: (page = 0, size = 20) =>
+    http.get<ApiResponse<PageResponse<BackendPostResponse>>>('/posts/me', {
+      params: { page, size }
+    })
 }

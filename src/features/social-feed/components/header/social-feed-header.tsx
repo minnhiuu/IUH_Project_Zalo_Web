@@ -1,18 +1,15 @@
 import { useState } from 'react'
-import { Search, MessageSquare, Bell, Settings, LayoutList, PlaySquare, LogOut } from 'lucide-react'
+import { Search, MessageSquare, Settings, LayoutList, PlaySquare, LogOut } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useNavigate, useLocation } from 'react-router'
+import { useQueryClient } from '@tanstack/react-query'
 import { PATHS } from '@/constants/path'
 import { SettingsDialog } from '@/features/user'
 import { LogoutConfirmDialog } from '@/features/auth'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
+import { NotificationDropdown } from '@/features/notification'
+import { useMarkHistoryAsCheckedMutation } from '@/features/notification/queries/use-mutations'
+import { notificationKeys } from '@/features/notification/queries/keys'
 
 interface SocialFeedHeaderProps {
   query: string
@@ -22,21 +19,30 @@ interface SocialFeedHeaderProps {
 
 export function SocialFeedHeader({ query, onQueryChange, placeholder }: SocialFeedHeaderProps) {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const location = useLocation()
   const searchParams = new URLSearchParams(location.search)
   const isReels = searchParams.get('tab') === 'reels' || location.pathname === PATHS.REELS
   const [showSettingsDialog, setShowSettingsDialog] = useState(false)
   const [showLogoutDialog, setShowLogoutDialog] = useState(false)
+  const { mutate: markAsChecked } = useMarkHistoryAsCheckedMutation()
+
+  const handleNotificationOpenChange = (open: boolean) => {
+    if (!open) return
+    markAsChecked()
+    queryClient.invalidateQueries({ queryKey: notificationKeys.all })
+  }
 
   return (
     <header className='sticky top-0 z-30 border-b border-zinc-200/50 bg-white/70 shadow-sm backdrop-blur-xl transition-all duration-300 dark:border-white/5 dark:bg-zinc-950/70'>
       <div className='mx-auto flex w-full max-w-[1400px] items-center justify-between gap-4 px-4 py-3 md:px-8'>
         {/* Left: Logo & Search */}
         <div className='flex flex-1 items-center gap-4 md:flex-none md:w-[360px]'>
-          <div className='flex items-center gap-2.5 shrink-0 cursor-pointer' onClick={() => navigate(PATHS.SOCIAL_FEED)}>
-            <div className='text-xl font-bold tracking-tight text-indigo-600 dark:text-indigo-400'>
-              Bondhub
-            </div>
+          <div
+            className='flex items-center gap-2.5 shrink-0 cursor-pointer'
+            onClick={() => navigate(PATHS.SOCIAL_FEED)}
+          >
+            <div className='text-xl font-bold tracking-tight text-indigo-600 dark:text-indigo-400'>Bondhub</div>
           </div>
 
           <div className='relative flex-1 max-w-[240px] transition-all duration-300 focus-within:max-w-[280px] hidden md:block'>
@@ -56,8 +62,8 @@ export function SocialFeedHeader({ query, onQueryChange, placeholder }: SocialFe
             variant='ghost'
             onClick={() => navigate(`${PATHS.SOCIAL_FEED}?tab=feed`)}
             className={`relative h-11 px-4 sm:px-6 rounded-xl transition-all flex items-center gap-2 ${
-              !isReels 
-                ? 'bg-transparent text-indigo-600 dark:text-indigo-400 font-semibold hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50' 
+              !isReels
+                ? 'bg-transparent text-indigo-600 dark:text-indigo-400 font-semibold hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50'
                 : 'text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50 font-medium'
             }`}
           >
@@ -72,8 +78,8 @@ export function SocialFeedHeader({ query, onQueryChange, placeholder }: SocialFe
             variant='ghost'
             onClick={() => navigate(`${PATHS.SOCIAL_FEED}?tab=reels`)}
             className={`relative h-11 px-4 sm:px-6 rounded-xl transition-all flex items-center gap-2 ${
-              isReels 
-                ? 'bg-transparent text-indigo-600 dark:text-indigo-400 font-semibold hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50' 
+              isReels
+                ? 'bg-transparent text-indigo-600 dark:text-indigo-400 font-semibold hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50'
                 : 'text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50 font-medium'
             }`}
           >
@@ -97,29 +103,12 @@ export function SocialFeedHeader({ query, onQueryChange, placeholder }: SocialFe
             <MessageSquare className='h-5 w-5' />
           </Button>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant='ghost'
-                size='icon'
-                className='relative h-11 w-11 rounded-full text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 transition-colors'
-                title='Notifications'
-              >
-                <Bell className='h-5 w-5' />
-                <span className='absolute right-2 top-2.5 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-zinc-950 px-0' />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align='end' className='w-80 p-2'>
-              <DropdownMenuLabel className='text-[15px] font-semibold tracking-tight'>Notifications</DropdownMenuLabel>
-              <DropdownMenuSeparator className='my-2' />
-              <div className='flex h-40 flex-col items-center justify-center space-y-3 text-center text-[13px] font-medium text-zinc-500 dark:text-zinc-400'>
-                <div className='flex h-12 w-12 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800/50'>
-                  <Bell className='h-6 w-6 text-zinc-400 dark:text-zinc-500' />
-                </div>
-                <p>You have no new notifications.</p>
-              </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <NotificationDropdown
+            onOpenChange={handleNotificationOpenChange}
+            triggerClassName='relative flex h-11 w-11 items-center justify-center rounded-full text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 transition-colors p-0 border border-transparent hover:border-zinc-200/80 dark:hover:border-zinc-700/70'
+            iconClassName='h-5 w-5 group-hover:text-current text-current'
+            badgeClassName='top-1 right-1 border-2 border-white dark:border-zinc-950 shadow-sm'
+          />
 
           <Button
             variant='ghost'

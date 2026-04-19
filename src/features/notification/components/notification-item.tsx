@@ -23,11 +23,17 @@ import { useTranslation } from 'react-i18next'
 import { formatTimeAgo } from '@/utils/date'
 import { useAcceptFriendRequest, useDeclineFriendRequest } from '@/features/friend/queries/use-mutations'
 import { showSuccessToast, showErrorToast } from '@/utils/toast'
+import { useNavigate } from 'react-router'
+import { PATHS } from '@/constants/path'
 
 interface NotificationItemProps {
   notification: NotificationGroupResponse
   onMarkAsRead: (id: string) => void
 }
+
+const MODERATION_TYPES: ReadonlySet<string> = new Set(['CONTENT_REMOVED', 'CONTENT_HIDDEN', 'USER_WARNED'])
+
+const isModerationNotification = (type: NotificationType) => MODERATION_TYPES.has(type)
 
 const getBadgeConfig = (type: NotificationType) => {
   switch (type) {
@@ -36,6 +42,8 @@ const getBadgeConfig = (type: NotificationType) => {
     case 'POST_LIKE':
     case 'COMMENT_LIKE':
       return { icon: Heart, color: 'bg-brand-blue' }
+    case 'POST_PUBLISHED':
+      return { icon: MessageCircle, color: 'bg-brand-blue' }
     case 'FRIEND_REQUEST':
       return { icon: User, color: 'bg-brand-blue' }
     case 'FRIEND_ACCEPT':
@@ -67,15 +75,59 @@ const getBadgeConfig = (type: NotificationType) => {
 }
 
 export const NotificationItem = React.memo(({ notification, onMarkAsRead }: NotificationItemProps) => {
-  const { action } = useNotificationText()
+  const { action, toast } = useNotificationText()
   const { i18n } = useTranslation()
   const [status, setStatus] = useState<'pending' | 'accepted' | 'declined'>('pending')
+  const navigate = useNavigate()
   const acceptRequestMutation = useAcceptFriendRequest()
   const declineRequestMutation = useDeclineFriendRequest()
+
+  const getModerationTargetPostId = (): string | null => {
+    if (!isModerationNotification(notification.type)) return null
+
+    if (notification.type === 'USER_WARNED') {
+      // For USER_WARNED, the targetId is in the payload (post/comment that triggered the warning)
+      const targetId = notification.payload?.targetId as string | undefined
+      const targetType = notification.payload?.targetType as string | undefined
+      if (targetId && (!targetType || targetType === 'post')) return targetId
+      return null
+    }
+
+    // For CONTENT_REMOVED / CONTENT_HIDDEN, referenceId is the post/comment ID
+    const targetType = notification.payload?.targetType as string | undefined
+    if (notification.referenceId && (!targetType || targetType === 'post')) {
+      return notification.referenceId
+    }
+    return null
+  }
+
+  const getPostNotificationPostId = (): string | null => {
+    if (
+      notification.type === 'POST_PUBLISHED' ||
+      notification.type === 'POST_COMMENT' ||
+      notification.type === 'POST_LIKE'
+    ) {
+      if (notification.referenceId) return notification.referenceId
+      const payloadPostId = notification.payload?.postId as string | undefined
+      return payloadPostId ?? null
+    }
+
+    if (notification.type === 'COMMENT_REPLY') {
+      const payloadPostId = notification.payload?.postId as string | undefined
+      return payloadPostId ?? null
+    }
+
+    return null
+  }
 
   const handleClick = () => {
     if (!notification.read) {
       onMarkAsRead(notification.id)
+    }
+
+    const postId = getModerationTargetPostId() ?? getPostNotificationPostId()
+    if (postId) {
+      navigate(`${PATHS.SOCIAL_FEED}?postId=${postId}`)
     }
   }
 
@@ -85,11 +137,11 @@ export const NotificationItem = React.memo(({ notification, onMarkAsRead }: Noti
     if (!requestId) return
     acceptRequestMutation.mutate(requestId, {
       onSuccess: () => {
-        showSuccessToast('Đã chấp nhận lời mời kết bạn')
+        showSuccessToast(toast.acceptSuccess)
         setStatus('accepted')
       },
       onError: () => {
-        showErrorToast('Không thể chấp nhận lời mời')
+        showErrorToast(toast.acceptError)
       }
     })
   }
@@ -100,15 +152,16 @@ export const NotificationItem = React.memo(({ notification, onMarkAsRead }: Noti
     if (!requestId) return
     declineRequestMutation.mutate(requestId, {
       onSuccess: () => {
-        showSuccessToast('Đã từ chối lời mời kết bạn')
+        showSuccessToast(toast.declineSuccess)
         setStatus('declined')
       },
       onError: () => {
-        showErrorToast('Không thể từ chối lời mời')
+        showErrorToast(toast.declineError)
       }
     })
   }
   const badge = getBadgeConfig(notification.type)
+  const isModeration = isModerationNotification(notification.type)
 
   return (
     <div
@@ -119,12 +172,29 @@ export const NotificationItem = React.memo(({ notification, onMarkAsRead }: Noti
       )}
     >
       <div className='relative shrink-0'>
-        <Avatar className='h-14 w-14'>
-          {notification.payload?.actorAvatar && <AvatarImage src={notification.payload.actorAvatar as string} />}
-          <AvatarFallback className='bg-primary/5 text-primary text-lg font-bold'>
-            {((notification.payload?.actorName as string) || 'U').substring(0, 1).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
+        {isModeration ? (
+          <div
+            className={cn(
+              'h-14 w-14 rounded-full flex items-center justify-center',
+              notification.type === 'CONTENT_REMOVED' ? 'bg-destructive/10' : 'bg-orange-500/10'
+            )}
+          >
+            <Shield
+              className={cn(
+                'h-7 w-7',
+                notification.type === 'CONTENT_REMOVED' ? 'text-destructive' : 'text-orange-500'
+              )}
+              strokeWidth={2}
+            />
+          </div>
+        ) : (
+          <Avatar className='h-14 w-14'>
+            {notification.payload?.actorAvatar && <AvatarImage src={notification.payload.actorAvatar as string} />}
+            <AvatarFallback className='bg-primary/5 text-primary text-lg font-bold'>
+              {((notification.payload?.actorName as string) || 'U').substring(0, 1).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+        )}
         <div
           className={cn(
             'absolute -right-1 -bottom-1 h-7 w-7 rounded-full border-[3px] border-background flex items-center justify-center text-white',

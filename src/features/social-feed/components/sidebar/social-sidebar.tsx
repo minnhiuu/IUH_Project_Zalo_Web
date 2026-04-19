@@ -24,7 +24,10 @@ export function SocialSidebar() {
   return (
     <aside className='hidden w-70 shrink-0 xl:block'>
       <div className='sticky top-0 space-y-4 pb-10'>
-        <div className='flex cursor-pointer items-center gap-3 rounded-xl p-2 transition-colors hover:bg-zinc-200/50 dark:hover:bg-zinc-900/50'>
+        <Link
+          to={PATHS.USER.PROFILE}
+          className='flex cursor-pointer items-center gap-3 rounded-xl p-2 transition-colors hover:bg-zinc-200/50 dark:hover:bg-zinc-900/50'
+        >
           <UserAvatar
             name={profileName}
             src={profileAvatar}
@@ -32,7 +35,7 @@ export function SocialSidebar() {
             fallbackClassName='bg-indigo-500/10 text-indigo-500'
           />
           <span className='text-[15px] font-semibold text-zinc-900 dark:text-[#ececec]'>{profileName}</span>
-        </div>
+        </Link>
 
         <div className='grid gap-1 pt-2'>
           {shortcuts.map((item, i) => {

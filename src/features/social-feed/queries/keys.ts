@@ -21,3 +21,13 @@ export const socialFeedCommentKeys = {
   replies: (postId: string, commentId: string) =>
     [...socialFeedCommentKeys.byPost(postId), 'replies', commentId] as const
 }
+
+export const myPostsKeys = {
+  all: ['my-posts'] as const,
+  list: (page: number, size: number) => [...myPostsKeys.all, page, size] as const
+}
+
+export const singlePostKeys = {
+  all: ['single-post'] as const,
+  byId: (postId: string) => [...singlePostKeys.all, postId] as const
+}

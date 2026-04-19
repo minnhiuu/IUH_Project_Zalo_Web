@@ -75,11 +75,8 @@ export const formatDate = (
   const parsedDate = toDate(date)
   if (!parsedDate) return '—'
 
-  const d = new Date(date)
-  if (isNaN(d.getTime())) return String(date)
-
   try {
-    return format(d, dateFormat, { locale: getLocale(lang) })
+    return format(parsedDate, dateFormat, { locale: getLocale(lang) })
   } catch (error) {
     console.error('Date formatting error:', error)
     return String(date)
