@@ -28,6 +28,10 @@ import { GroupAvatar } from './group/group-avatar'
 import { ImageCropperDialog } from '@/components/common/image-cropper-dialog'
 import { getCroppedImg } from '@/utils/image-crop'
 import { cn } from '@/lib/utils'
+import { BONDHUB_AI } from '@/constants/system'
+import { useAiStreamingStore } from '../hooks/ai-streaming-registry'
+import { AiMessageBubble } from './ai-message-bubble'
+import { parseAiSuggestions, parseAiQuestion, AI_SUGGESTION_EVENT } from '../utils/ai-parser'
 import { GroupIntroCard } from './group/cards/group-intro-card'
 import { getConversationDisplayName } from '../utils/group-name'
 import { GroupInfoDialog } from './group/dialogs/group-info-dialog'
@@ -234,7 +238,29 @@ export function ChatWindow({
     )
   }
 
-  const allMessages = useMemo(() => data?.pages.flatMap((page) => page.data) || [], [data])
+  const aiStream = useAiStreamingStore(conversation.id)
+
+  const allMessages = useMemo(() => {
+    const rawMessages = data?.pages.flatMap((page) => page.data) || []
+    if (aiStream && aiStream.isStreaming) {
+      const syntheticMsg = {
+        id: aiStream.messageId || `temp-ai-${Date.now()}`,
+        senderId: BONDHUB_AI.userId,
+        senderName: BONDHUB_AI.fullName,
+        senderAvatar: BONDHUB_AI.avatar,
+        content: aiStream.content,
+        processingStatus: aiStream.processingStatus,
+        isStreaming: true,
+        type: 'TEXT' as const,
+        status: 'NORMAL' as const,
+        conversationId: conversation.id,
+        createdAt: new Date().toISOString(),
+        isFromMe: false
+      } as any // ép kiểu để bỏ qua một số field không dùng tới trong preview
+      return [syntheticMsg, ...rawMessages]
+    }
+    return rawMessages
+  }, [data, aiStream, conversation.id])
 
   const latestMessageId = allMessages[0]?.id
   const latestMessageSenderId = allMessages[0]?.senderId
@@ -495,6 +521,38 @@ export function ChatWindow({
               const isFirst = !isSameGroup(msg, prevMsg)
               const isLast = !isSameGroup(msg, nextMsg)
               const isNewestVisible = index === 0
+
+              const isAiMessage = msg.senderId === BONDHUB_AI.userId && msg.type !== 'SYSTEM'
+              
+              if (isAiMessage) {
+                const { cleanContent, suggestions } = parseAiSuggestions(msg.content)
+                const { cleanContent: finalContent, isClarification } = parseAiQuestion(cleanContent)
+                
+                const aiMsg = {
+                  id: msg.id,
+                  role: 'ai' as const,
+                  content: finalContent,
+                  suggestions,
+                  isClarification,
+                  isStreaming: !!msg.isStreaming, // from synthetic msg
+                  processingStatus: msg.processingStatus, // from synthetic msg
+                  timestamp: new Date(msg.createdAt)
+                }
+
+                return (
+                  <div key={msg.id} id={`msg-${msg.id}`} ref={isNewestVisible ? lastMessageRef : null}>
+                    <AiMessageBubble
+                      msg={aiMsg}
+                      avatarUrl={msg.senderAvatar || BONDHUB_AI.avatar}
+                      isLoading={false}
+                      onSuggestionClick={(text) => {
+                        window.dispatchEvent(new CustomEvent(AI_SUGGESTION_EVENT, { detail: { text } }))
+                      }}
+                    />
+                  </div>
+                )
+              }
+
               return (
                 <div key={msg.id} id={`msg-${msg.id}`} ref={isNewestVisible ? lastMessageRef : null}>
                   <MessageBubble

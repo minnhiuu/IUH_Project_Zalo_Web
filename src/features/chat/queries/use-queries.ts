@@ -30,10 +30,32 @@ export const useSearchMembersInfinite = (query: string, conversationId?: string 
   })
 }
 
+import { BONDHUB_AI } from '@/constants/system'
+
 export const useGroupMembersInfinite = (conversationId: string, query: string, enabled: boolean = true) => {
   return useInfiniteQuery({
     ...chatOptions.groupMembers(conversationId, query),
-    enabled: enabled && !!conversationId
+    enabled: enabled && !!conversationId,
+    select: (data) => {
+      // Inject AI vào trang đầu tiên
+      const mappedPages = data.pages.map((page, index) => {
+        if (index === 0) {
+          // Chỉ hiện AI nếu không search, hoặc tên search match với 'Bondhub AI'
+          const lowerQuery = query.toLowerCase()
+          if (!lowerQuery || BONDHUB_AI.fullName.toLowerCase().includes(lowerQuery)) {
+             return {
+               ...page,
+               data: [
+                 { ...BONDHUB_AI, isFriend: false, isCurrentUser: false }, 
+                 ...page.data
+               ]
+             }
+          }
+        }
+        return page
+      })
+      return { ...data, pages: mappedPages }
+    }
   })
 }
 

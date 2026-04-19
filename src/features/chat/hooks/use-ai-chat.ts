@@ -4,6 +4,7 @@ import { getAccessToken } from '@/lib/axios-client'
 import { getMessages } from '../api/chat.api'
 import type { MessageResponse } from '../schemas/chat.schema'
 import type { AiProcessingStatus } from '@/constants/enum'
+import { parseAiSuggestions, parseAiQuestion } from '../utils/ai-parser'
 
 // Re-export cho các consumer khác giữ import path cũ
 export type { AiProcessingStatus } from '@/constants/enum'
@@ -21,28 +22,6 @@ export interface AiMessage {
   timestamp: Date
 }
 
-/** Tách <suggestions>Q1|Q2</suggestions> ra khỏi content. */
-function parseSuggestions(raw: string): { cleanContent: string; suggestions: string[] } {
-  const match = raw.match(/<suggestions>(.*?)<\/suggestions>/s)
-  if (!match) return { cleanContent: raw.trim(), suggestions: [] }
-  const suggestions = match[1]
-    .split('|')
-    .map((s) => s.trim())
-    .filter(Boolean)
-  const cleanContent = raw.replace(/<suggestions>.*?<\/suggestions>/s, '').trim()
-  return { cleanContent, suggestions }
-}
-
-/**
- * Tách <question>...</question> — dùng để nhận dạng CLARIFICATION khi load từ DB.
- * Returns { questionText, isClarification }.
- */
-function parseQuestion(raw: string): { cleanContent: string; isClarification: boolean } {
-  const match = raw.match(/<question>([\s\S]*?)<\/question>/)
-  if (!match) return { cleanContent: raw.trim(), isClarification: false }
-  return { cleanContent: match[1].trim(), isClarification: true }
-}
-
 /**
  * Parse toàn bộ tags cho một tin nhắn AI từ DB:
  * 1. Tách <question> → isClarification
@@ -53,8 +32,8 @@ function parseAiMessageFromDb(raw: string): {
   suggestions: string[]
   isClarification: boolean
 } {
-  const { cleanContent: afterQuestion, isClarification } = parseQuestion(raw)
-  const { cleanContent, suggestions } = parseSuggestions(afterQuestion)
+  const { cleanContent: afterQuestion, isClarification } = parseAiQuestion(raw)
+  const { cleanContent, suggestions } = parseAiSuggestions(afterQuestion)
   return { cleanContent, suggestions, isClarification }
 }
 
@@ -126,11 +105,14 @@ export function useAiChat(conversationId: string) {
   }, [conversationId])
 
   const mutation = useMutation({
-    mutationFn: async (userText: string) => {
+    mutationFn: async (payload: { userText: string; isMention?: boolean }) => {
+      const { userText, isMention = false } = payload
       if (!userText.trim()) return
 
       const userMsgId = `user-${Date.now()}`
-      setMessages((prev) => [...prev, { id: userMsgId, role: 'user', content: userText, timestamp: new Date() }])
+      if (!isMention) {
+        setMessages((prev) => [...prev, { id: userMsgId, role: 'user', content: userText, timestamp: new Date() }])
+      }
 
       const aiMsgId = `ai-${Date.now()}`
       setMessages((prev) => [
@@ -139,6 +121,11 @@ export function useAiChat(conversationId: string) {
       ])
 
       abortRef.current = new AbortController()
+
+      // Đánh dấu cho WebSocket biết đang stream AI để tránh lặp tin nhắn
+      import('./ai-streaming-registry').then(({ aiStreamingRegistry }) => {
+        aiStreamingRegistry.setStreaming(conversationId, true, aiMsgId)
+      })
 
       try {
         const token = getAccessToken()
@@ -153,7 +140,8 @@ export function useAiChat(conversationId: string) {
             content: userText,
             conversationId,
             clientMessageId: userMsgId,
-            isForwarded: false
+            isForwarded: false,
+            isMention
           }),
           signal: abortRef.current?.signal
         })
@@ -166,6 +154,7 @@ export function useAiChat(conversationId: string) {
         const decoder = new TextDecoder()
         let buffer = ''
         let isClarification = false
+        const bufferState = { content: '' }
 
         while (true) {
           const { done, value } = await reader.read()
@@ -186,13 +175,15 @@ export function useAiChat(conversationId: string) {
               const event = JSON.parse(rawJson) as { type: string; content: string }
 
               if (event.type === 'STATUS') {
+                import('./ai-streaming-registry').then(({ aiStreamingRegistry }) => {
+                  aiStreamingRegistry.updateStream(conversationId, bufferState.content, event.content)
+                })
                 setMessages((prev) =>
                   prev.map((m) =>
                     m.id === aiMsgId ? { ...m, processingStatus: event.content as AiProcessingStatus } : m
                   )
                 )
               } else if (event.type === 'CLARIFICATION') {
-                // BE đã tách text sạch trước khi emit — chỉ cần set isClarification
                 isClarification = true
                 setMessages((prev) =>
                   prev.map((m) =>
@@ -209,6 +200,10 @@ export function useAiChat(conversationId: string) {
                 )
               } else if (event.type === 'ANSWER_CHUNK') {
                 console.log('[AiChat] Stream chunk:', event.content)
+                bufferState.content += event.content
+                import('./ai-streaming-registry').then(({ aiStreamingRegistry }) => {
+                  aiStreamingRegistry.updateStream(conversationId, bufferState.content)
+                })
                 setMessages((prev) =>
                   prev.map((m) =>
                     m.id === aiMsgId ? { ...m, content: m.content + event.content, processingStatus: undefined } : m
@@ -225,7 +220,7 @@ export function useAiChat(conversationId: string) {
         setMessages((prev) =>
           prev.map((m) => {
             if (m.id !== aiMsgId) return m
-            const { cleanContent, suggestions } = parseSuggestions(m.content)
+            const { cleanContent, suggestions } = parseAiSuggestions(m.content)
             return {
               ...m,
               content: cleanContent,
@@ -250,17 +245,23 @@ export function useAiChat(conversationId: string) {
               : m
           )
         )
+      } finally {
+        // Tắt cờ streaming để WebSocket có thể nhận tin nhắn bình thường
+        import('./ai-streaming-registry').then(({ aiStreamingRegistry }) => {
+          aiStreamingRegistry.setStreaming(conversationId, false)
+        })
       }
     }
   })
 
   const sendMessage = useCallback(
-    (userText: string) => {
+    (userText: string, isMention: boolean = false) => {
       if (mutation.isPending) return
-      mutation.mutate(userText)
+      mutation.mutate({ userText, isMention })
     },
     [mutation]
   )
+
 
   const handleSummarize = useCallback(async (snapshotId: string) => {
     if (!snapshotId || !conversationId) return

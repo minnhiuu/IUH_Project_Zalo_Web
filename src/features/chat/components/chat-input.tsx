@@ -8,11 +8,11 @@ import { useChatText } from '../i18n/use-chat-text'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { useGroupMembersInfinite } from '../queries/use-queries'
+import { BONDHUB_AI } from '@/constants/system'
 import { MentionDropdown } from './mention-dropdown'
 import { RichInput, type RichInputRef } from './rich-input'
-import { stripMentionsForPreview } from '../utils/mention'
-import { showErrorToast } from '@/utils/toast'
-import http from '@/lib/axios-client'
+import { stripMentionsForPreview, isAiMentioned } from '../utils/mention'
+import { AI_SUGGESTION_EVENT } from '../utils/ai-parser'
 import ReactMarkdown from 'react-markdown'
 
 const IMAGE_VIDEO_ACCEPT = 'image/*,video/*'
@@ -51,7 +51,8 @@ export function ChatInput({
     isSummarizing,
     summaryResult,
     handleSummarize,
-    clearSummary
+    clearSummary,
+    sendMessage: sendAiMessage
   } = useAiChat(conversationId)
 
   // ── AI Summarize Auto-hide logic (5 seconds) ──
@@ -123,6 +124,43 @@ export function ChatInput({
       })
     }
   }, [])
+
+  // Listen for AI suggestions
+  useEffect(() => {
+    const handleAiSuggestion = (e: Event) => {
+      const customEvent = e as CustomEvent<{ text: string }>
+      const suggestionText = customEvent.detail.text
+      if (!suggestionText) return
+
+      const aiMember = BONDHUB_AI
+
+      if (inputRef.current) {
+        // Clear old content and insert @Bondhub AI + suggestion
+        inputRef.current.clear()
+        inputRef.current.insertMention(aiMember.fullName, aiMember.userId)
+        
+        // Use a small timeout to ensure mention span is inserted before plain text
+        setTimeout(() => {
+          const el = document.querySelector('[contenteditable="true"]') as HTMLDivElement
+          if (el) {
+            el.focus()
+            const sel = window.getSelection()
+            if (sel) {
+              const range = document.createRange()
+              range.selectNodeContents(el)
+              range.collapse(false)
+              sel.removeAllRanges()
+              sel.addRange(range)
+              document.execCommand('insertText', false, ` ${suggestionText}`)
+            }
+          }
+        }, 50)
+      }
+    }
+
+    window.addEventListener(AI_SUGGESTION_EVENT, handleAiSuggestion)
+    return () => window.removeEventListener(AI_SUGGESTION_EVENT, handleAiSuggestion)
+  }, [conversationId])
 
   const clearAttachments = useCallback(() => {
     fileAttachments.forEach((a) => {
@@ -218,6 +256,7 @@ export function ChatInput({
       : null
 
     const sendText = extractSendContent().trim()
+    console.log("sendText", sendText);
 
     // Gửi file/ảnh/video
     if (fileAttachments.length > 0) {
@@ -244,7 +283,16 @@ export function ChatInput({
 
     // Gửi text thường
     if (!sendText) return
+
     sendMessage(conversationId, sendText, replyMetadata)
+
+    console.log("isAiMentioned", isAiMentioned(sendText));
+
+    if (isAiMentioned(sendText)) {
+      console.log("sendAiMessage (mention mode)");
+      sendAiMessage(sendText, true) // QUAN TRỌNG: pass true cho isMention
+    }
+
     inputRef.current?.clear()
     setContent('')
     onCancelReply?.()
@@ -465,8 +513,18 @@ export function ChatInput({
         <button
           type='button'
           onClick={() => {
-            inputRef.current?.insertText('@')
-            inputRef.current?.focus()
+            if (inputRef.current) {
+              const el = document.querySelector('[contenteditable="true"]') as HTMLDivElement
+              if (el) {
+                el.focus()
+                const sel = window.getSelection()
+                if (sel && sel.rangeCount > 0) {
+                  const range = sel.getRangeAt(0)
+                  range.insertNode(document.createTextNode('@'))
+                  range.collapse(false)
+                }
+              }
+            }
           }}
           className='px-2 py-1 text-[13px] hover:bg-muted rounded text-muted-foreground'
         >

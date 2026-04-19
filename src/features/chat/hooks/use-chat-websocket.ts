@@ -15,6 +15,8 @@ import type {
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { getAccessToken } from '@/lib/axios-client'
 import { MessageStatus, MessageType } from '@/constants/enum'
+import { BONDHUB_AI } from '@/constants/system'
+import { aiStreamingRegistry } from './ai-streaming-registry'
 import {
   useSendMessageMutation,
   useRevokeMessageMutation,
@@ -57,6 +59,11 @@ export const useChatWebSocket = () => {
         // ────────── /queue/messages ──────────
         client.subscribe('/user/queue/messages', (payload) => {
           const rawMsg = JSON.parse(payload.body)
+          
+          if (rawMsg.senderId === BONDHUB_AI.userId) {
+            console.log('>>> [DEBUG WS] Nhận tin nhắn AI hoàn chỉnh từ server:', rawMsg)
+          }
+
           const msg: MessageResponse = {
             ...rawMsg,
             createdAt: normalizeDateTime(rawMsg.createdAt || rawMsg.timestamp),
@@ -67,6 +74,15 @@ export const useChatWebSocket = () => {
           if (!conversationId) return
 
           const isOwnMessage = msg.isFromMe === true || msg.senderId === user.id
+
+          // --- AI STREAMING DEDUPLICATION / SYNC ---
+          // Khi nhận tin nhắn hoàn chỉnh từ AI qua WebSocket, ta ưu tiên lưu vào cache 
+          // để lấy ID thật từ MongoDB, đồng thời tắt trạng thái streaming tự tạo của FE.
+          if (msg.senderId === BONDHUB_AI.userId && aiStreamingRegistry.isStreaming(conversationId)) {
+            console.log('[WebSocket] Nhận tin nhắn hoàn tất từ AI, thay thế stream tự tạo bằng tin nhắn thật:', msg.id)
+            aiStreamingRegistry.setStreaming(conversationId, false)
+            // Không return, cho phép cập nhật vào Messages Cache!
+          }
 
           // 1. Update Messages Cache (key = conversationId)
           if (isOwnMessage) {
