@@ -183,7 +183,8 @@ export const SystemActionType = {
   JoinRequestRejected: 'JOIN_REQUEST_REJECTED',
   BlockMember: 'BLOCK_MEMBER',
   BlockedFromJoining: 'BLOCKED_FROM_JOINING',
-  SelfBlockedFromJoining: 'SELF_BLOCKED_FROM_JOINING'
+  SelfBlockedFromJoining: 'SELF_BLOCKED_FROM_JOINING',
+  AddMembersFailed: 'ADD_MEMBERS_FAILED'
 } as const
 
 export type SystemActionType = (typeof SystemActionType)[keyof typeof SystemActionType]

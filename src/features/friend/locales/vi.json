@@ -145,7 +145,8 @@
       },
       "sortOptions": {
         "nameAZ": "Tên A-Z",
-        "recent": "Gần đây",
+        "nameZA": "Tên Z-A",
+        "recent": "Mới thêm",
         "online": "Đang hoạt động"
       },
       "resultsLabel": "kết quả",
@@ -175,6 +176,25 @@
       "sortLabel": "Tên (A-Z)",
       "filterLabel": "Tất cả",
       "noFriendsMessage": "Chưa có bạn bè nào. Bắt đầu kết bạn ngay!"
+    },
+    "groupList": {
+      "title": "Danh sách nhóm và cộng đồng",
+      "count": "Nhóm và cộng đồng ({{count}})",
+      "searchPlaceholder": "Tìm kiếm...",
+      "sortOptions": {
+        "activityNewest": "Hoạt động (mới → cũ)",
+        "activityOldest": "Hoạt động (cũ → mới)",
+        "nameAsc": "Tên (A-Z)",
+        "nameDesc": "Tên (Z-A)"
+      },
+      "filterOptions": {
+        "all": "Tất cả",
+        "owner": "Nhóm tôi quản lý"
+      },
+      "memberCount": "{{count}} thành viên",
+      "noGroups": "Chưa có nhóm nào",
+      "noResults": "Không tìm thấy nhóm nào",
+      "openChat": "Mở trò chuyện"
     }
   }
 }

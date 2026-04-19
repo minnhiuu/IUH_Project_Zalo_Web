@@ -253,6 +253,7 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
         logoutSuccess: t(USER_KEYS.settings.accountPrivacy.deviceManagement.logoutSuccess),
         logoutError: t(USER_KEYS.settings.accountPrivacy.deviceManagement.logoutError),
         activeStatus: t(USER_KEYS.settings.accountPrivacy.deviceManagement.activeStatus),
+        activeDevices: t(USER_KEYS.settings.accountPrivacy.deviceManagement.activeDevices),
         inactiveDevices: t(USER_KEYS.settings.accountPrivacy.deviceManagement.inactiveDevices)
       },
       blockedUsers: {

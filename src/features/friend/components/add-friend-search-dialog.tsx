@@ -110,8 +110,8 @@ function SearchResultItem({ user, onAddFriend }: SearchResultItemProps) {
           buttonState.variant === 'default'
             ? 'bg-primary hover:bg-primary/90 text-white'
             : buttonState.variant === 'outline'
-              ? 'border border-border bg-background hover:bg-muted text-foreground'
-              : 'bg-muted text-foreground'
+              ? 'border border-border bg-background hover:bg-muted text-text-primary'
+              : 'bg-muted text-text-primary'
         }`}
       >
         {buttonState.label}
@@ -155,7 +155,7 @@ export function AddFriendSearchDialog({ open, onOpenChange }: AddFriendSearchDia
         <DialogContent className='w-full max-w-sm p-0 gap-0 sm:rounded-lg border shadow-lg' showCloseButton>
           {/* Header */}
           <DialogHeader className='px-5 pt-4 pb-3 border-b border-border bg-background'>
-            <DialogTitle className='text-base font-semibold text-foreground'>{text.addFriend.title}</DialogTitle>
+            <DialogTitle className='text-base font-semibold text-text-primary'>{text.addFriend.title}</DialogTitle>
           </DialogHeader>
 
           {/* Content */}
@@ -163,7 +163,7 @@ export function AddFriendSearchDialog({ open, onOpenChange }: AddFriendSearchDia
             {/* Search Input Section */}
             <div className='px-5 py-4 border-b border-border/60 bg-background'>
               <div className='flex items-center gap-2'>
-                <div className='flex items-center px-2.5 py-1.5 bg-muted rounded-md text-xs font-medium text-muted-foreground'>
+                <div className='flex items-center px-2.5 py-1.5 bg-muted rounded-md text-xs font-medium text-text-secondary'>
                   {text.dialogs.addFriendSearch.countryCode}
                 </div>
                 <div className='flex-1 relative'>
@@ -172,12 +172,12 @@ export function AddFriendSearchDialog({ open, onOpenChange }: AddFriendSearchDia
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder={text.addFriend.phonePlaceholder}
-                    className='h-9 pl-3 pr-8 border border-border/60 bg-white dark:bg-slate-950 hover:bg-muted/30 focus-visible:bg-background transition-colors rounded-md text-sm'
+                    className='h-9 pl-3 pr-8 border border-border/60 bg-background hover:bg-muted/30 focus-visible:bg-background transition-colors rounded-md text-sm'
                   />
                   {searchQuery && (
                     <button
                       onClick={() => setSearchQuery('')}
-                      className='absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-0.5'
+                      className='absolute right-2.5 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary transition-colors p-0.5'
                     >
                       <X className='w-4 h-4' />
                     </button>
@@ -189,8 +189,8 @@ export function AddFriendSearchDialog({ open, onOpenChange }: AddFriendSearchDia
             {/* Search Results Section */}
             <div className='px-5 py-4 max-h-72 overflow-y-auto flex-1 bg-background'>
               {searchKeyword && (
-                <p className='text-xs font-semibold text-foreground mb-3 flex items-center gap-2'>
-                  <SearchIcon className='w-3.5 h-3.5 text-muted-foreground' />
+                <p className='text-xs font-semibold text-text-primary mb-3 flex items-center gap-2'>
+                  <SearchIcon className='w-3.5 h-3.5 text-text-secondary' />
                   {text.dialogs.addFriendSearch.recentResults}
                 </p>
               )}
@@ -216,13 +216,13 @@ export function AddFriendSearchDialog({ open, onOpenChange }: AddFriendSearchDia
                 </div>
               ) : searchKeyword ? (
                 <div className='py-8 text-center'>
-                  <Phone className='w-8 h-8 text-muted-foreground/30 mx-auto mb-2' />
-                  <p className='text-xs text-muted-foreground'>{text.dialogs.addFriendSearch.noUsersFound}</p>
+                  <Phone className='w-8 h-8 text-text-secondary/30 mx-auto mb-2' />
+                  <p className='text-xs text-text-secondary'>{text.dialogs.addFriendSearch.noUsersFound}</p>
                 </div>
               ) : (
                 <div className='py-6 text-center'>
-                  <Phone className='w-8 h-8 text-muted-foreground/30 mx-auto mb-2' />
-                  <p className='text-xs text-muted-foreground'>{text.dialogs.addFriendSearch.emptyState}</p>
+                  <Phone className='w-8 h-8 text-text-secondary/30 mx-auto mb-2' />
+                  <p className='text-xs text-text-secondary'>{text.dialogs.addFriendSearch.emptyState}</p>
                 </div>
               )}
             </div>
@@ -236,7 +236,7 @@ export function AddFriendSearchDialog({ open, onOpenChange }: AddFriendSearchDia
             <Button
               onClick={handleSearch}
               disabled={searchQuery.trim().length < 2}
-              className='px-5 h-8 text-sm font-medium bg-blue-500 hover:bg-blue-600 text-white'
+              className='px-5 h-8 text-sm font-medium bg-primary hover:bg-primary/90 text-white'
             >
               {text.dialogs.addFriendSearch.search}
             </Button>

@@ -1,8 +1,9 @@
-import { ADMIN_KEYS } from './keys'
+import { ADMIN_KEYS } from './admin.keys'
 
 import type { TFunction } from 'i18next'
 
-export const createAdminTexts = (t: TFunction<'admin'>) => ({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const createAdminTexts = (t: TFunction<any>) => ({
   brand: t(ADMIN_KEYS.BRAND),
   panel: t(ADMIN_KEYS.PANEL),
   systemAdmin: t(ADMIN_KEYS.SYSTEM_ADMIN),

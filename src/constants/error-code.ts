@@ -49,7 +49,10 @@ export const ErrorCode = {
   // QR errors
   QR_SESSION_EXPIRED: 1010,
   QR_SESSION_INVALID_STATE: 1011,
-  QR_SESSION_UNAUTHORIZED: 1012
+  QR_SESSION_UNAUTHORIZED: 1012,
+  
+  // Chat errors
+  CHAT_NEED_AT_LEAST_ONE_FRIEND: 4036
 } as const
 
 export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode]

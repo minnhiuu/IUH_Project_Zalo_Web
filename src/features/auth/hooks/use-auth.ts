@@ -5,7 +5,7 @@ export const useAuth = () => {
   const auth = useAuthContext()
 
   // Fallback to localStorage in case React state hasn't updated yet (race condition after login)
-  const effectiveRole = auth.user?.role ?? storage.get(STORAGE_KEYS.USER_PROFILE)?.role
+  const effectiveRole = auth.user?.role ?? storage.get<{ role?: string }>(STORAGE_KEYS.USER_PROFILE)?.role
 
   return {
     ...auth,

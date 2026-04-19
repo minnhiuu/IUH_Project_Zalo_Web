@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect } from 'react'
+import { useState, useMemo, useRef, useEffect, type RefObject } from 'react'
 import { Search, FileIcon, Download, Play, ChevronDown, ChevronLeft, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useMediaMessagesQuery } from '../queries/use-queries'
@@ -68,7 +68,6 @@ export function MediaStorageView({ conversationId, members, defaultTab = 'media'
   const [fileTypeMenuOpen, setFileTypeMenuOpen] = useState(false)
   const [senderFilter, setSenderFilter] = useState<string | null>(null)
   const [dateFilter, setDateFilter] = useState<{ from: string; to: string } | null>(null)
-  const [mediaSearch, setMediaSearch] = useState('')
   const [fileSearch, setFileSearch] = useState('')
   const { text } = useChatText()
 
@@ -417,7 +416,7 @@ export function MediaStorageView({ conversationId, members, defaultTab = 'media'
                       </div>
                       <div className='flex-1 min-w-0'>
                         <p className='text-[13px] font-medium truncate group-hover:text-primary transition-colors'>
-                          {preview?.title || url}
+                          {preview?.groupName || url}
                         </p>
                         <p className='text-[11px] text-primary/70 truncate'>{domain}</p>
                         <p className='text-[11px] text-muted-foreground mt-0.5'>
@@ -437,7 +436,7 @@ export function MediaStorageView({ conversationId, members, defaultTab = 'media'
 }
 
 // ── Small helper components ──────────────────────────────────────
-function useOutsideClick(ref: React.RefObject<HTMLElement | null>, onClose: () => void) {
+function useOutsideClick(ref: RefObject<HTMLElement | null>, onClose: () => void) {
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) onClose()
@@ -524,6 +523,7 @@ interface DateFilterProps {
   label: string
 }
 function DateFilter({ value, onChange, label }: DateFilterProps) {
+  const { text } = useChatText()
   const [open, setOpen] = useState(false)
   const [from, setFrom] = useState(value?.from ?? '')
   const [to, setTo] = useState(value?.to ?? '')
@@ -570,7 +570,7 @@ function DateFilter({ value, onChange, label }: DateFilterProps) {
       {open && (
         <div className='absolute top-full left-0 mt-1 w-56 bg-background border rounded-xl shadow-xl z-20 p-3 flex flex-col gap-2'>
           <div className='flex flex-col gap-1'>
-            <label className='text-[11px] text-muted-foreground'>Từ ngày</label>
+            <label className='text-[11px] text-muted-foreground'>{text.mediaStorage.fromDate}</label>
             <input
               type='date'
               value={from}
@@ -580,7 +580,7 @@ function DateFilter({ value, onChange, label }: DateFilterProps) {
             />
           </div>
           <div className='flex flex-col gap-1'>
-            <label className='text-[11px] text-muted-foreground'>Đến ngày</label>
+            <label className='text-[11px] text-muted-foreground'>{text.mediaStorage.toDate}</label>
             <input
               type='date'
               value={to}
@@ -596,14 +596,14 @@ function DateFilter({ value, onChange, label }: DateFilterProps) {
               onClick={clear}
               className='flex-1 text-[13px] py-1.5 rounded-lg border hover:bg-muted transition-colors'
             >
-              Xoá
+              {text.mediaStorage.clear}
             </button>
             <button
               type='button'
               onClick={apply}
               className='flex-1 text-[13px] py-1.5 rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors'
             >
-              Áp dụng
+              {text.mediaStorage.apply}
             </button>
           </div>
         </div>

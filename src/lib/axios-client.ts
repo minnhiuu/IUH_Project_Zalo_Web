@@ -1,8 +1,8 @@
 import axios, { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
-import { showErrorToast } from '@/utils/toast'
+import { showErrorToast, showSimpleToast } from '@/utils/toast'
+import { getErrorMessage } from '@/utils/error-handler'
 import { getDeviceId } from '../utils/device'
 import { storage, STORAGE_KEYS } from '@/utils/local-storage'
-import i18n from '@/lib/i18n'
 
 export const getAccessToken = (): string | null => storage.get(STORAGE_KEYS.ACCESS_TOKEN)
 
@@ -105,12 +105,21 @@ http.interceptors.response.use(
       return Promise.reject(error)
     }
 
+    if (error.response) {
+      const status = error.response.status
+      if (status >= 500) {
+        showErrorToast(getErrorMessage(error))
+      } else if (status >= 400 && status !== 401 && responseData?.code !== 1013) {
+        // Simple toast (no icon) for 4xx client errors
+        showSimpleToast(getErrorMessage(error))
+      }
+    }
+
     if (!originalRequest || (error.response?.status !== 401 && (error.response?.status ?? 0) < 500)) {
       return Promise.reject(error)
     }
 
     if (error.response && error.response.status >= 500) {
-      showErrorToast(i18n.t('common:errorDefault'))
       return Promise.reject(error)
     }
 

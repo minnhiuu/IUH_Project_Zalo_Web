@@ -124,7 +124,7 @@ export default function UserLayout() {
                   >
                     <item.icon
                       className={cn(
-                        'w-[24px] h-[24px] transition-colors',
+                        'w-[22px] h-[22px] transition-colors',
                         isActive ? 'text-white' : 'text-white/80 group-hover:text-white'
                       )}
                     />
@@ -153,7 +153,7 @@ export default function UserLayout() {
                   >
                     <item.icon
                       className={cn(
-                        'w-[24px] h-[24px] transition-colors',
+                        'w-[22px] h-[22px] transition-colors',
                         isActive ? 'text-white' : 'text-white/80 group-hover:text-white'
                       )}
                     />
@@ -204,7 +204,7 @@ export default function UserLayout() {
                     >
                       <item.icon
                         className={cn(
-                          'w-6 h-6 transition-colors',
+                          'w-[26px] h-[26px] transition-colors',
                           isActive ? 'text-white' : 'text-white/80 group-hover:text-white'
                         )}
                       />
@@ -224,7 +224,7 @@ export default function UserLayout() {
                 >
                   <item.icon
                     className={cn(
-                      'w-6 h-6 transition-colors',
+                      'w-[26px] h-[26px] transition-colors',
                       isActive ? 'text-white' : 'text-white/70 group-hover:text-white'
                     )}
                   />

@@ -1,12 +1,14 @@
 import { Cloud, Info, Clock, Image as ImageIcon, FileText, Link as LinkIcon, ChevronRight } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { useChatText } from '../i18n/use-chat-text'
 
 export function CloudInfoSidebar() {
+  const { text } = useChatText()
   return (
     <div className='w-[340px] border-l border-border bg-background hidden lg:flex flex-col h-full overflow-y-auto custom-scrollbar shrink-0'>
       <div className='flex items-center justify-center border-b border-border h-[68px] shrink-0 font-medium pb-2 text-foreground/90'>
-        Thông tin hội thoại
+        {text['cloud-sidebar'].title}
       </div>
 
       <div className='p-6 flex flex-col items-center border-b border-border'>
@@ -15,12 +17,12 @@ export function CloudInfoSidebar() {
         </div>
         <h3 className='font-semibold text-lg text-foreground/90'>My Documents</h3>
         <p className='text-sm text-center text-muted-foreground mt-2 px-4'>
-          Lưu trữ và truy cập nhanh những nội dung quan trọng của bạn ngay trên Zalo
+          {text['cloud-sidebar'].description}
         </p>
 
         <div className='w-full mt-6'>
           <div className='flex justify-between items-center mb-1'>
-            <span className='text-xs font-medium text-foreground/80'>Dung lượng</span>
+            <span className='text-xs font-medium text-foreground/80'>{text['cloud-sidebar'].storageLabel}</span>
             <span className='text-xs text-muted-foreground'>249 MB / 500 MB</span>
           </div>
 
@@ -33,16 +35,16 @@ export function CloudInfoSidebar() {
 
           <div className='flex items-center space-x-3 text-[10px] text-muted-foreground mb-4 justify-center'>
             <div className='flex items-center'>
-              <div className='w-1.5 h-1.5 rounded-full bg-orange-400 mr-1' /> Ảnh
+              <div className='w-1.5 h-1.5 rounded-full bg-orange-400 mr-1' /> {text['cloud-sidebar'].image}
             </div>
             <div className='flex items-center'>
-              <div className='w-1.5 h-1.5 rounded-full bg-green-500 mr-1' /> Video
+              <div className='w-1.5 h-1.5 rounded-full bg-green-500 mr-1' /> {text['cloud-sidebar'].video}
             </div>
             <div className='flex items-center'>
-              <div className='w-1.5 h-1.5 rounded-full bg-blue-400 mr-1' /> File
+              <div className='w-1.5 h-1.5 rounded-full bg-blue-400 mr-1' /> {text['cloud-sidebar'].file}
             </div>
             <div className='flex items-center'>
-              <div className='w-1.5 h-1.5 rounded-full bg-zinc-300 mr-1' /> Khác
+              <div className='w-1.5 h-1.5 rounded-full bg-zinc-300 mr-1' /> {text['cloud-sidebar'].other}
             </div>
           </div>
 
@@ -50,19 +52,19 @@ export function CloudInfoSidebar() {
             variant='secondary'
             className='w-full bg-secondary/60 hover:bg-secondary border shadow-none font-medium text-sm text-foreground/80 mb-4'
           >
-            Xem và dọn dẹp My Documents
+            {text['cloud-sidebar'].cleanupAction}
           </Button>
 
           <Card className='p-3 bg-blue-50/50 dark:bg-blue-950/20 border-blue-100 dark:border-blue-900/40 shadow-none rounded-lg'>
             <div className='flex items-start space-x-2'>
               <Info className='w-4 h-4 text-blue-500 mt-0.5 shrink-0' />
               <div>
-                <p className='text-[13px] font-medium text-foreground/80'>Nâng cấp dung lượng My Documents</p>
+                <p className='text-[13px] font-medium text-foreground/80'>{text['cloud-sidebar'].upgradeTitle}</p>
                 <p className='text-[12px] text-muted-foreground mt-1 mb-2'>
-                  Mở rộng dung lượng lên đến 100GB và tự động bảo toàn dữ liệu trò chuyện với zCloud.
+                  {text['cloud-sidebar'].upgradeDesc}
                 </p>
                 <div className='text-[13px] font-semibold text-blue-600 cursor-pointer hover:underline'>
-                  Thêm dung lượng
+                  {text['cloud-sidebar'].upgradeAction}
                 </div>
               </div>
             </div>
@@ -75,7 +77,7 @@ export function CloudInfoSidebar() {
         <div className='flex items-center justify-between p-4 py-3 hover:bg-muted/50 cursor-pointer border-b border-border transition-colors'>
           <div className='flex items-center text-sm font-medium'>
             <Clock className='w-4 h-4 mr-3 text-muted-foreground' />
-            Danh sách nhắc hẹn
+            {text['cloud-sidebar'].reminderList}
           </div>
           <ChevronRight className='w-4 h-4 text-muted-foreground' />
         </div>
@@ -83,7 +85,7 @@ export function CloudInfoSidebar() {
         <div className='flex items-center justify-between p-4 py-3 hover:bg-muted/50 cursor-pointer border-b border-border transition-colors'>
           <div className='flex items-center text-sm font-medium'>
             <ImageIcon className='w-4 h-4 mr-3 text-muted-foreground' />
-            Ảnh/Video
+            {text.mediaStorage.tabMedia}
           </div>
           <ChevronRight className='w-4 h-4 text-muted-foreground' />
         </div>
@@ -91,7 +93,7 @@ export function CloudInfoSidebar() {
         <div className='flex items-center justify-between p-4 py-3 hover:bg-muted/50 cursor-pointer border-b border-border transition-colors'>
           <div className='flex items-center text-sm font-medium'>
             <FileText className='w-4 h-4 mr-3 text-muted-foreground' />
-            File
+            {text.mediaStorage.tabFiles}
           </div>
           <ChevronRight className='w-4 h-4 text-muted-foreground' />
         </div>
@@ -99,7 +101,7 @@ export function CloudInfoSidebar() {
         <div className='flex items-center justify-between p-4 py-3 hover:bg-muted/50 cursor-pointer border-b border-border transition-colors'>
           <div className='flex items-center text-sm font-medium'>
             <LinkIcon className='w-4 h-4 mr-3 text-muted-foreground' />
-            Link
+            {text.mediaStorage.tabLinks}
           </div>
           <ChevronRight className='w-4 h-4 text-muted-foreground' />
         </div>

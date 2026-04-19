@@ -1,7 +1,8 @@
 export type ApiResponse<T = unknown> = {
-  status: number
+  code: number
   message: string
   data: T
+  errors?: Record<string, string>
 }
 
 export type PageResponse<T = unknown> = {

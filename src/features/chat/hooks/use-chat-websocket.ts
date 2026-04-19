@@ -122,13 +122,15 @@ export const useChatWebSocket = () => {
           }
 
           // 2. Update Conversations Cache
-          // Negative system actions (leave/remove) should NOT move conversation to top
+          // Negative system actions should NOT move conversation to top
           const msgMetadata = msg.metadata as Record<string, unknown> | null | undefined
           const isNegativeSystemAction =
             msg.type === MessageType.System &&
             (msgMetadata?.action === 'LEAVE_GROUP' ||
+              msgMetadata?.action === 'DISBAND_GROUP' ||
               msgMetadata?.action === 'REMOVE_MEMBER' ||
-              msgMetadata?.action === 'BLOCK_MEMBER')
+              msgMetadata?.action === 'BLOCK_MEMBER' ||
+              msgMetadata?.action === 'ADD_MEMBERS_FAILED')
 
           queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
             if (!oldData) return oldData
@@ -138,16 +140,39 @@ export const useChatWebSocket = () => {
             if (existingConvIndex >= 0) {
               const existingConv = conversations[existingConvIndex]
               const existingUnread = existingConv.unreadCount || 0
-              const computedUnread = isOwnMessage ? existingUnread : existingUnread + 1
+              // Avoid double-increment: if /queue/conversations already updated lastMessage
+              // to this same message, unreadCount was already set by BE — don't add +1 again.
+              const alreadyApplied = existingConv.lastMessage?.id === msg.id
+              const computedUnread = isOwnMessage || alreadyApplied ? existingUnread : existingUnread + 1
 
-              // Special handling for BLOCK_MEMBER (target me): Remove from sidebar
+              // Special handling for BLOCK_MEMBER / REMOVE_MEMBER (target me): keep in sidebar but remove from members
               const removeTargetIds = Array.isArray(msgMetadata?.targetIds) ? msgMetadata.targetIds.map(String) : []
               const isCurrentUserRemovedAtTop =
                 (msgMetadata?.action === 'REMOVE_MEMBER' || msgMetadata?.action === 'BLOCK_MEMBER') &&
                 removeTargetIds.includes(String(user.id))
 
               if (isCurrentUserRemovedAtTop) {
-                return conversations.filter((c) => c.id !== conversationId)
+                const updatedMembers = (existingConv.members ?? []).filter(
+                  (m) => !removeTargetIds.includes(String(m.userId))
+                )
+                const updated = [...conversations]
+                updated[existingConvIndex] = {
+                  ...existingConv,
+                  members: updatedMembers,
+                  lastMessage: {
+                    id: msg.id,
+                    content: msg.content,
+                    timestamp: msg.createdAt || new Date().toISOString(),
+                    isFromMe: false,
+                    type: msg.type,
+                    status: msg.status,
+                    senderName: msg.senderName,
+                    senderId: msg.senderId,
+                    metadata: msg.metadata
+                  },
+                  unreadCount: 0
+                }
+                return updated
               }
 
               if (isNegativeSystemAction) {
@@ -155,9 +180,11 @@ export const useChatWebSocket = () => {
                 const removedIds: string[] =
                   msgMetadata?.action === 'LEAVE_GROUP'
                     ? [String(msg.senderId)]
-                    : Array.isArray(msgMetadata?.targetIds)
-                      ? (msgMetadata.targetIds as unknown[]).map(String)
-                      : []
+                    : msgMetadata?.action === 'REMOVE_MEMBER' || msgMetadata?.action === 'BLOCK_MEMBER'
+                      ? Array.isArray(msgMetadata?.targetIds)
+                        ? (msgMetadata.targetIds as unknown[]).map(String)
+                        : []
+                      : [] // DISBAND_GROUP / ADD_MEMBERS_FAILED — no member list update needed
 
                 const updatedMembers = removedIds.length
                   ? (existingConv.members ?? []).filter((m) => !removedIds.includes(String(m.userId)))
@@ -185,6 +212,7 @@ export const useChatWebSocket = () => {
 
               const updatedConv: ConversationResponse = {
                 ...existingConv,
+                members: existingConv.members,
                 lastMessage: {
                   id: msg.id,
                   content: msg.content,
@@ -302,17 +330,15 @@ export const useChatWebSocket = () => {
                     ...page,
                     data: page.data.map((m: MessageResponse) => {
                       if (m.id === update.messageId) {
-                        return { ...m, status: update.newStatus, content: null, replyTo: null }
-                      }
-                      if (update.newStatus === MessageStatus.REVOKED && m.replyTo?.messageId === update.messageId) {
                         return {
                           ...m,
-                          replyTo: {
-                            ...m.replyTo,
-                            content: null,
-                            type: MessageType.Chat
-                          }
+                          status: update.newStatus,
+                          content: null,
+                          ...(update.deletedByAdminId ? { deletedByAdminId: update.deletedByAdminId } : {})
                         }
+                      }
+                      if (m.replyTo?.messageId === update.messageId) {
+                        return { ...m, replyTo: { ...m.replyTo, content: null } }
                       }
                       return m
                     })
@@ -417,10 +443,16 @@ export const useChatWebSocket = () => {
                     // If /queue/messages already set a newer lastMessage (different ID),
                     // preserve it — don't let /queue/conversations overwrite with stale data
                     const keepCachedLastMessage =
-                      c.lastMessage?.id && newConv.lastMessage?.id && c.lastMessage.id !== newConv.lastMessage.id
+                      (c.lastMessage?.id && newConv.lastMessage?.id && c.lastMessage.id !== newConv.lastMessage.id) ||
+                      (c.lastMessage?.id && !newConv.lastMessage?.id)
+                    // System messages don't increment unreadCounts in DB, so /queue/conversations
+                    // may arrive with a lower (stale) unreadCount than what /queue/messages already
+                    // computed locally. Take the max so the red dot doesn't flash then vanish.
+                    const mergedUnreadCount = Math.max(c.unreadCount || 0, newConv.unreadCount || 0)
                     return {
                       ...c,
                       ...newConv,
+                      unreadCount: mergedUnreadCount,
                       name: newConv.name ?? c.name,
                       avatar: newConv.avatar ?? c.avatar,
                       recipientId: newConv.recipientId ?? c.recipientId,
@@ -428,7 +460,26 @@ export const useChatWebSocket = () => {
                     }
                   })
                 } else {
-                  nextData = [newConv, ...currentData]
+                  // New conversation pushed by /queue/conversations (e.g. newly added member).
+                  // If the last message is a non-negative system action, ensure at least unread: 1
+                  // so the red dot appears (system messages don't increment unreadCounts in DB).
+                  const lastMeta = newConv.lastMessage?.metadata as Record<string, unknown> | null | undefined
+                  const isNonNegativeSystemMsg =
+                    newConv.lastMessage?.type === MessageType.System &&
+                    lastMeta?.action !== 'DISBAND_GROUP' &&
+                    lastMeta?.action !== 'REMOVE_MEMBER' &&
+                    lastMeta?.action !== 'LEAVE_GROUP' &&
+                    lastMeta?.action !== 'BLOCK_MEMBER' &&
+                    lastMeta?.action !== 'ADD_MEMBERS_FAILED'
+                  nextData = [
+                    {
+                      ...newConv,
+                      unreadCount: isNonNegativeSystemMsg
+                        ? Math.max(newConv.unreadCount || 0, 1)
+                        : newConv.unreadCount || 0
+                    },
+                    ...currentData
+                  ]
                 }
 
                 return nextData.sort(
@@ -675,7 +726,7 @@ export const useChatWebSocket = () => {
   )
 
   const sendFileMessage = useCallback(
-    async (conversationId: string, files: FileAttachment[], replyTo?: ReplyMetadata | null) => {
+    async (conversationId: string, files: FileAttachment[], content?: string, replyTo?: ReplyMetadata | null) => {
       if (!stompClientRef.current?.connected || files.length === 0) return
 
       const isFake = conversationId.startsWith('fake_')
@@ -696,7 +747,7 @@ export const useChatWebSocket = () => {
           id: clientMessageId,
           clientMessageId,
           senderId: user?.id || '',
-          content: '',
+          content: content || '',
           type: msgType,
           status: MessageStatus.NORMAL,
           createdAt: now,
@@ -761,7 +812,7 @@ export const useChatWebSocket = () => {
           sendMsgMutate({
             conversationId: isFake ? null : conversationId,
             recipientId: isFake ? conversationId.replace('fake_', '') : null,
-            content: '',
+            content: content || '',
             clientMessageId,
             replyTo: replyTo || undefined,
             attachments: uploadResults.map((r) => ({
@@ -801,7 +852,7 @@ export const useChatWebSocket = () => {
           id: clientMessageId,
           clientMessageId,
           senderId: user?.id || '',
-          content: file.name,
+          content: content || file.name,
           type: MessageType.File,
           status: MessageStatus.NORMAL,
           createdAt: now,
@@ -862,7 +913,7 @@ export const useChatWebSocket = () => {
           sendMsgMutate({
             conversationId: isFake ? null : conversationId,
             recipientId: isFake ? conversationId.replace('fake_', '') : null,
-            content: file.name,
+            content: content || file.name,
             clientMessageId,
             replyTo: replyTo || undefined,
             attachments: [
