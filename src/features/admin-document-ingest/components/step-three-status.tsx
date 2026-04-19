@@ -17,7 +17,7 @@ export function StepThreeStatus({ state, onUpdate }: StepThreeStatusProps) {
   const [uploadedChunks, setUploadedChunks] = useState(0)
   const [totalChunks, setTotalChunks] = useState(0)
   const [currentVectorId, setCurrentVectorId] = useState<string | null>(null)
-  const startedDocIdsRef = useRef<Set<string>>(new Set())
+  const activePollingDocIdRef = useRef<string | null>(null)
   const [terminalLines, setTerminalLines] = useState<string[]>([])
 
   const activeDocId = useMemo(
@@ -25,10 +25,12 @@ export function StepThreeStatus({ state, onUpdate }: StepThreeStatusProps) {
     [state.chunks, state.uploadedDocuments]
   )
 
-  const activeDocument = useMemo(
-    () => state.uploadedDocuments.find((doc) => doc.id === activeDocId) ?? state.uploadedDocuments[0],
-    [activeDocId, state.uploadedDocuments]
-  )
+  const activeDocument = useMemo(() => {
+    if (!activeDocId) {
+      return state.uploadedDocuments[0]
+    }
+    return state.uploadedDocuments.find((doc) => doc.id === activeDocId) ?? null
+  }, [activeDocId, state.uploadedDocuments])
 
   const activeChunks = useMemo(
     () => (activeDocId ? state.chunks.filter((chunk) => chunk.docId === activeDocId) : state.chunks),
@@ -40,11 +42,12 @@ export function StepThreeStatus({ state, onUpdate }: StepThreeStatusProps) {
       return
     }
 
-    let cancelled = false
-    const hasStartedIngest = startedDocIdsRef.current.has(activeDocument.id)
-    if (!hasStartedIngest) {
-      startedDocIdsRef.current.add(activeDocument.id)
+    if (activePollingDocIdRef.current === activeDocument.id) {
+      return
     }
+    activePollingDocIdRef.current = activeDocument.id
+
+    let cancelled = false
 
     const syncProgressFromServer = (doc: {
       status: string
@@ -89,7 +92,42 @@ export function StepThreeStatus({ state, onUpdate }: StepThreeStatusProps) {
           return ['[SYSTEM] Khoi dong ingest pipeline...']
         })
 
-        if (!hasStartedIngest) {
+        const initialDocs = await getDocuments(state.conversationId)
+        const initialCurrent = initialDocs.find((doc) => doc.id === activeDocument.id)
+        let shouldStartIngest = true
+        if (initialCurrent) {
+          syncProgressFromServer(initialCurrent)
+          const initialServerTotalChunks = initialCurrent.totalChunks ?? 0
+          const initialTotalChunks = Math.max(initialCurrent.totalChunks ?? 0, activeChunks.length)
+          const initialUploadedChunks = initialCurrent.uploadedChunks ?? 0
+          const initialReachedChunkTarget =
+            initialTotalChunks > 0 &&
+            initialUploadedChunks >= initialTotalChunks &&
+            (initialCurrent.currentVectorId ?? null) === null
+
+          if (initialCurrent.status === 'COMPLETED' || initialReachedChunkTarget) {
+            setIngestStatus('success')
+            setProgress(100)
+            setUploadedChunks(Math.max(initialUploadedChunks, initialTotalChunks))
+            setTotalChunks(initialTotalChunks)
+            return
+          }
+
+          if (initialCurrent.status === 'FAILED') {
+            setIngestStatus('failed')
+            return
+          }
+
+          const initialInProgress =
+            initialCurrent.status === 'INGESTING' &&
+            initialServerTotalChunks > 0 &&
+            initialUploadedChunks < initialServerTotalChunks
+          if (initialInProgress) {
+            shouldStartIngest = false
+          }
+        }
+
+        if (shouldStartIngest) {
           await startIngest({
             docId: activeDocument.id,
             conversationId: state.conversationId,
@@ -107,7 +145,10 @@ export function StepThreeStatus({ state, onUpdate }: StepThreeStatusProps) {
           })
         }
 
-        for (let i = 0; i < 300; i += 1) {
+        let lastProgressSignature = ''
+        let stagnantRounds = 0
+
+        for (let i = 0; i < 180; i += 1) {
           if (cancelled) {
             return
           }
@@ -115,17 +156,38 @@ export function StepThreeStatus({ state, onUpdate }: StepThreeStatusProps) {
           const docs = await getDocuments(state.conversationId)
           const current = docs.find((doc) => doc.id === activeDocument.id)
           if (!current) {
-            await new Promise((resolve) => setTimeout(resolve, 800))
+            await new Promise((resolve) => setTimeout(resolve, 1200))
             continue
           }
 
           syncProgressFromServer(current)
 
-          if (current?.status === 'COMPLETED') {
+          const progressSignature = [
+            current.status,
+            String(current.uploadedChunks ?? 0),
+            String(current.totalChunks ?? 0),
+            current.currentVectorId ?? ''
+          ].join(':')
+
+          if (progressSignature === lastProgressSignature) {
+            stagnantRounds += 1
+          } else {
+            stagnantRounds = 0
+            lastProgressSignature = progressSignature
+          }
+
+          const resolvedTotalChunks = Math.max(current.totalChunks ?? 0, activeChunks.length)
+          const resolvedUploadedChunks = current.uploadedChunks ?? 0
+          const reachedChunkTarget =
+            resolvedTotalChunks > 0 &&
+            resolvedUploadedChunks >= resolvedTotalChunks &&
+            (current.currentVectorId ?? null) === null
+
+          if (current?.status === 'COMPLETED' || reachedChunkTarget) {
             setIngestStatus('success')
             setProgress(100)
-            setUploadedChunks(Math.max(current.uploadedChunks ?? 0, current.totalChunks ?? activeChunks.length))
-            setTotalChunks(Math.max(current.totalChunks ?? 0, activeChunks.length))
+            setUploadedChunks(Math.max(current.uploadedChunks ?? 0, resolvedTotalChunks))
+            setTotalChunks(resolvedTotalChunks)
             onUpdate({
               uploadedDocuments: state.uploadedDocuments.map((doc) =>
                 doc.id === activeDocument.id
@@ -152,7 +214,13 @@ export function StepThreeStatus({ state, onUpdate }: StepThreeStatusProps) {
 
           setIngestStatus(current.uploadedChunks && current.uploadedChunks > 0 ? 'finalizing' : 'vectorizing')
 
-          await new Promise((resolve) => setTimeout(resolve, 800))
+          if (stagnantRounds >= 15) {
+            setIngestStatus('failed')
+            setTerminalLines((prev) => [...prev, '[ERROR] No ingest progress detected. Please retry start ingest.'])
+            return
+          }
+
+          await new Promise((resolve) => setTimeout(resolve, 1200))
         }
 
         setIngestStatus('failed')
@@ -167,6 +235,9 @@ export function StepThreeStatus({ state, onUpdate }: StepThreeStatusProps) {
 
     return () => {
       cancelled = true
+      if (activePollingDocIdRef.current === activeDocument.id) {
+        activePollingDocIdRef.current = null
+      }
     }
   }, [activeChunks, activeDocument, onUpdate, state.conversationId, state.uploadedDocuments])
 

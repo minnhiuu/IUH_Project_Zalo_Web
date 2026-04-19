@@ -203,7 +203,7 @@ export function StepOneParse({ state, onUpdate, onNext }: StepOneParseProps) {
 
       onUpdate({
         uploadedDocuments: nextUploadedDocuments.map((item) =>
-          item.id === uploaded.docId ? { ...item, status: IngestDocumentStatus.Completed } : item
+          item.id === uploaded.docId ? { ...item, status: IngestDocumentStatus.Ingesting } : item
         ),
         rawContent: parsed.rawContent ?? '',
         isUploadModalOpen: false
