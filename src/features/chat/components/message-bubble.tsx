@@ -249,7 +249,7 @@ export function MessageBubble({
               ) : message.type === MessageType.Image || message.type === MessageType.Video ? (
                 <>
                   <MessageMediaContent message={message} />
-                  {!!message.content && (
+                  {!!message.content && !['[Hình ảnh]', '[IMAGE]', '[Video]', '[VIDEO]'].includes(message.content) && (
                     <div className='px-1 pt-1'>
                       {parseMentionsForRender(message.content).map(({ isMention, text, key }) =>
                         isMention ? (

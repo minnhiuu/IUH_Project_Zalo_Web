@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect, useCallback, type RefObject } from 'react'
-import { Search, Download, Play, ChevronDown, ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { Search, Download, Play, ChevronDown, ChevronLeft, ChevronRight, X, Calendar } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useMediaMessagesQuery } from '../queries/use-queries'
 import { MessageType } from '@/constants/enum'
@@ -325,7 +325,7 @@ export function MediaStorageView({ conversationId, members, defaultTab = 'media'
             </div>
 
             {/* Filters row */}
-            <div className='flex gap-2 mb-4'>
+              <div className='flex flex-wrap gap-2 mb-4'>
               {/* Loại file dropdown */}
               <div className='relative'>
                 <button
@@ -642,89 +642,184 @@ interface DateFilterProps {
   onChange: (v: DateRange | null) => void
   label: string
 }
+function toDateStr(d: Date) {
+  return d.toISOString().split('T')[0]
+}
+
+const DATE_SHORTCUTS = [
+  {
+    label: '7 ngày trước',
+    getRange: () => {
+      const to = new Date()
+      const from = new Date(to)
+      from.setDate(from.getDate() - 6)
+      return { from: toDateStr(from), to: toDateStr(to) }
+    }
+  },
+  {
+    label: '30 ngày trước',
+    getRange: () => {
+      const to = new Date()
+      const from = new Date(to)
+      from.setDate(from.getDate() - 29)
+      return { from: toDateStr(from), to: toDateStr(to) }
+    }
+  },
+  {
+    label: '3 tháng trước',
+    getRange: () => {
+      const to = new Date()
+      const from = new Date(to)
+      from.setMonth(from.getMonth() - 3)
+      return { from: toDateStr(from), to: toDateStr(to) }
+    }
+  }
+]
+
 function DateFilter({ value, onChange, label }: DateFilterProps) {
   const { text } = useChatText()
   const [open, setOpen] = useState(false)
+  const [showShortcuts, setShowShortcuts] = useState(false)
   const [from, setFrom] = useState(value?.from ?? '')
   const [to, setTo] = useState(value?.to ?? '')
   const ref = useRef<HTMLDivElement>(null)
-  useOutsideClick(ref, () => setOpen(false))
+  useOutsideClick(ref, () => { setOpen(false); setShowShortcuts(false) })
   const isActive = !!value
   const today = new Date().toISOString().split('T')[0]
 
   const apply = () => {
     if (from || to) onChange({ from, to })
     setOpen(false)
+    setShowShortcuts(false)
   }
   const clear = () => {
     onChange(null)
     setFrom('')
     setTo('')
     setOpen(false)
+    setShowShortcuts(false)
+  }
+  const applyShortcut = (range: { from: string; to: string }) => {
+    setFrom(range.from)
+    setTo(range.to)
+    onChange(range)
+    setOpen(false)
+    setShowShortcuts(false)
   }
 
   return (
     <div ref={ref} className='relative'>
       <button
         type='button'
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => { setOpen((v) => !v); setShowShortcuts(false) }}
         className={cn(
-          'flex items-center gap-1 px-3 py-1.5 text-[13px] border rounded-full transition-colors',
+          'flex min-w-0 max-w-32 items-center gap-1 px-3 py-1.5 text-[13px] border rounded-full transition-colors',
           isActive ? 'bg-primary/10 border-primary text-primary' : 'hover:bg-muted'
         )}
       >
-        <span>{isActive ? `${value!.from || '...'} → ${value!.to || '...'}` : label}</span>
+        <span className='min-w-0 flex-1 truncate whitespace-nowrap'>
+          {isActive ? `${value!.from || '...'} → ${value!.to || '...'}` : label}
+        </span>
         {isActive ? (
-          <X
-            size={12}
-            onClick={(e) => {
-              e.stopPropagation()
-              clear()
-            }}
-            className='cursor-pointer'
-          />
+          <X size={12} onClick={(e) => { e.stopPropagation(); clear() }} className='shrink-0 cursor-pointer' />
         ) : (
-          <ChevronDown size={13} />
+          <ChevronDown size={13} className='shrink-0' />
         )}
       </button>
-      {open && (
-        <div className='absolute top-full left-0 mt-1 w-56 bg-background border rounded-xl shadow-xl z-20 p-3 flex flex-col gap-2'>
-          <div className='flex flex-col gap-1'>
-            <label className='text-[11px] text-muted-foreground'>{text.mediaStorage.fromDate}</label>
-            <input
-              type='date'
-              value={from}
-              max={to || today}
-              onChange={(e) => setFrom(e.target.value)}
-              className='w-full text-[13px] border rounded-lg px-2 py-1.5 bg-background outline-none'
-            />
-          </div>
-          <div className='flex flex-col gap-1'>
-            <label className='text-[11px] text-muted-foreground'>{text.mediaStorage.toDate}</label>
-            <input
-              type='date'
-              value={to}
-              min={from || undefined}
-              max={today}
-              onChange={(e) => setTo(e.target.value)}
-              className='w-full text-[13px] border rounded-lg px-2 py-1.5 bg-background outline-none'
-            />
-          </div>
-          <div className='flex gap-2 pt-1'>
+
+      {/* Shortcuts panel — separate small dropdown */}
+      {open && showShortcuts && (
+        <div className='absolute top-full right-0 mt-1 w-44 bg-background border rounded-xl shadow-xl z-30 overflow-hidden'>
+          <div className='flex items-center gap-1 px-3 py-2 border-b'>
             <button
               type='button'
-              onClick={clear}
-              className='flex-1 text-[13px] py-1.5 rounded-lg border hover:bg-muted transition-colors'
+              onClick={() => setShowShortcuts(false)}
+              className='p-0.5 rounded hover:bg-muted transition-colors text-muted-foreground'
             >
-              {text.mediaStorage.clear}
+              <ChevronLeft size={14} />
             </button>
+            <span className='text-[12px] font-medium'>Gợi ý thời gian</span>
+          </div>
+          {DATE_SHORTCUTS.map((s) => (
             <button
+              key={s.label}
               type='button'
-              onClick={apply}
-              className='flex-1 text-[13px] py-1.5 rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors'
+              onClick={() => applyShortcut(s.getRange())}
+              className='w-full text-left px-4 py-2.5 text-[13px] hover:bg-muted transition-colors'
             >
-              {text.mediaStorage.apply}
+              {s.label}
             </button>
+          ))}
+        </div>
+      )}
+
+      {open && !showShortcuts && (
+        <div className='absolute top-full right-0 mt-1 w-60 bg-background border rounded-xl shadow-xl z-20 overflow-hidden'>
+          {/* Gợi ý thời gian — click to show shortcuts panel */}
+          <button
+            type='button'
+            onClick={() => setShowShortcuts(true)}
+            className='w-full flex items-center justify-between px-4 py-2.5 text-[13px] hover:bg-muted transition-colors'
+          >
+            <span>Gợi ý thời gian</span>
+            <ChevronRight size={14} className='text-muted-foreground' />
+          </button>
+
+          {/* Divider */}
+          <div className='border-t' />
+
+          {/* Custom date range */}
+          <div className='p-3 flex flex-col gap-2.5'>
+            <p className='text-[12px] font-medium text-foreground'>Chọn khoảng thời gian</p>
+            <div className='flex gap-2'>
+              <div className='relative flex-1'>
+                <div className='flex items-center justify-between gap-1 border rounded-lg px-2.5 py-1.5 pointer-events-none'>
+                  <span className={cn('text-[12px] truncate', from ? 'text-foreground' : 'text-muted-foreground')}>
+                    {from || text.mediaStorage.fromDate}
+                  </span>
+                  <Calendar size={13} className='text-muted-foreground shrink-0' />
+                </div>
+                <input
+                  type='date'
+                  value={from}
+                  max={to || today}
+                  onChange={(e) => setFrom(e.target.value)}
+                  className='absolute inset-0 w-full h-full opacity-0 cursor-pointer'
+                />
+              </div>
+              <div className='relative flex-1'>
+                <div className='flex items-center justify-between gap-1 border rounded-lg px-2.5 py-1.5 pointer-events-none'>
+                  <span className={cn('text-[12px] truncate', to ? 'text-foreground' : 'text-muted-foreground')}>
+                    {to || text.mediaStorage.toDate}
+                  </span>
+                  <Calendar size={13} className='text-muted-foreground shrink-0' />
+                </div>
+                <input
+                  type='date'
+                  value={to}
+                  min={from || undefined}
+                  max={today}
+                  onChange={(e) => setTo(e.target.value)}
+                  className='absolute inset-0 w-full h-full opacity-0 cursor-pointer'
+                />
+              </div>
+            </div>
+            <div className='flex gap-2'>
+              <button
+                type='button'
+                onClick={clear}
+                className='flex-1 text-[13px] py-1.5 rounded-lg border hover:bg-muted transition-colors'
+              >
+                {text.mediaStorage.clear}
+              </button>
+              <button
+                type='button'
+                onClick={apply}
+                className='flex-1 text-[13px] py-1.5 rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors'
+              >
+                {text.mediaStorage.apply}
+              </button>
+            </div>
           </div>
         </div>
       )}

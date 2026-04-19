@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Search, X, FileText } from 'lucide-react'
+import { Search, X } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,6 +14,7 @@ import type { ConversationResponse, MessageResponse } from '../schemas/chat.sche
 import { useChatText } from '../i18n/use-chat-text'
 import { MessageType } from '@/constants/enum'
 import { Play } from 'lucide-react'
+import { getExtColor, getExtLabel, formatFileSize } from './message-file-content'
 
 type TabType = 'recent' | 'groups' | 'friends'
 
@@ -408,20 +409,24 @@ export function ForwardDialog({
                 })}
               </div>
             ) : message?.type === MessageType.File ? (
-              <div className='flex flex-col gap-1 py-0.5'>
-                {(message.attachments && message.attachments.length > 0 ? message.attachments : [{ originalFileName: message.content || 'File', size: 0 }]).map((att, idx) => (
-                  <div key={idx} className='flex items-center gap-2'>
-                    <div className='w-8 h-8 rounded bg-primary/10 flex items-center justify-center shrink-0'>
-                      <FileText size={16} className='text-primary' />
+              <div className='flex flex-col gap-1.5 py-0.5'>
+                {(message.attachments && message.attachments.length > 0 ? message.attachments : [{ originalFileName: message.content || 'File', size: 0, url: '' }]).map((att, idx) => {
+                  const fileName = att.originalFileName || 'File'
+                  const ext = fileName.split('.').pop()?.toUpperCase() || ''
+                  return (
+                    <div key={idx} className='flex items-center gap-2'>
+                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 text-white ${getExtColor(ext)}`}>
+                        <span className='text-[8px] font-bold leading-none tracking-tight'>{getExtLabel(ext)}</span>
+                      </div>
+                      <div className='flex flex-col min-w-0'>
+                        <span className='text-[13px] text-foreground font-medium truncate'>{fileName}</span>
+                        {att.size > 0 && (
+                          <span className='text-[11px] text-muted-foreground'>{formatFileSize(att.size)}</span>
+                        )}
+                      </div>
                     </div>
-                    <div className='flex flex-col min-w-0'>
-                      <span className='text-[13px] text-foreground font-medium truncate'>{att.originalFileName || 'File'}</span>
-                      {att.size > 0 && (
-                        <span className='text-[11px] text-muted-foreground'>{att.size < 1024 * 1024 ? `${(att.size / 1024).toFixed(1)} KB` : `${(att.size / (1024 * 1024)).toFixed(1)} MB`}</span>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             ) : (
               <p className='text-[13px] text-foreground/80 overflow-hidden text-ellipsis whitespace-nowrap italic'>

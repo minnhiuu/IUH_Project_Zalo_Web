@@ -10,7 +10,7 @@ export function formatFileSize(bytes: number): string {
   return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
 }
 
-function getExtColor(ext: string): string {
+export function getExtColor(ext: string): string {
   if (['PDF'].includes(ext)) return 'bg-red-500'
   if (['DOC', 'DOCX'].includes(ext)) return 'bg-blue-600'
   if (['XLS', 'XLSX'].includes(ext)) return 'bg-green-600'
@@ -19,7 +19,7 @@ function getExtColor(ext: string): string {
   return 'bg-primary'
 }
 
-function getExtLabel(ext: string): string {
+export function getExtLabel(ext: string): string {
   if (ext === 'PDF') return 'PDF'
   if (['DOC', 'DOCX'].includes(ext)) return 'WORD'
   if (['XLS', 'XLSX'].includes(ext)) return 'EXCEL'
