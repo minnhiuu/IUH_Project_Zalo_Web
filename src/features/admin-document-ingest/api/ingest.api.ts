@@ -1,86 +1,35 @@
 import http from '@/lib/axios-client'
+import type { ApiResponse } from '@/shared/api'
+import type {
+  ChunkPreviewRequest,
+  ChunkPreviewResponse,
+  GetDocumentsResponse,
+  IngestAckResponse,
+  IngestRequest,
+  ParseRequest,
+  ParseResponse,
+  UploadIngestResponse
+} from '../schemas/ingest-document.schema'
 
 const AI_BASE = '/v1/ai/ingest'
 
-export type UploadIngestResponse = {
-  docId: string
-  conversationId: string
-  key: string
-  fileName: string
-  originalFileName: string
-  contentType: string
-  size: number
-}
+export const ingestApi = {
+  uploadIngestFile: (file: File, conversationId: string) => {
+    const form = new FormData()
+    form.append('file', file)
 
-export async function uploadIngestFile(file: File, conversationId: string): Promise<UploadIngestResponse> {
-  const form = new FormData()
-  form.append('file', file)
+    return http.post<ApiResponse<UploadIngestResponse>>(`/files/ingest/upload?conversationId=${conversationId}`, form)
+  },
 
-  const { data } = await http.post(`/files/ingest/upload?conversationId=${conversationId}`, form)
-  return data.data
-}
+  parseDocument: (payload: ParseRequest) => http.post<ApiResponse<ParseResponse>>(`${AI_BASE}/parse`, payload),
 
-export async function parseDocument(payload: {
-  docId: string
-  conversationId: string
-  s3Key: string
-  fileName: string
-}) {
-  const { data } = await http.post(`${AI_BASE}/parse`, payload)
-  return data
-}
+  chunkPreview: (payload: ChunkPreviewRequest) =>
+    http.post<ApiResponse<ChunkPreviewResponse>>(`${AI_BASE}/chunk-preview`, payload),
 
-export async function chunkPreview(payload: {
-  docId: string
-  conversationId: string
-  rawContent: string
-  strategy: 'fixed' | 'recursive' | 'semantic' | 'excel_row'
-  s3Key?: string
-  fileName?: string
-  chunkSize: number
-  overlap: number
-}) {
-  const { data } = await http.post(`${AI_BASE}/chunk-preview`, payload)
-  return data
-}
+  startIngest: (payload: IngestRequest) => http.post<ApiResponse<IngestAckResponse>>(`${AI_BASE}`, payload),
 
-export async function startIngest(payload: {
-  docId: string
-  conversationId: string
-  chunks: Array<{
-    id: string
-    docId: string
-    vectorId: string
-    prevId?: string | null
-    nextId?: string | null
-    chunkContent: string
-    chunkIndex: number
-    pageNumber?: number | null
-    tokenCount: number
-  }>
-}) {
-  const { data } = await http.post(`${AI_BASE}`, payload)
-  return data
-}
-
-export async function getDocuments(conversationId?: string) {
-  const query = conversationId ? `?conversationId=${encodeURIComponent(conversationId)}` : ''
-  const { data } = await http.get(`${AI_BASE}/documents${query}`)
-  return data.documents as Array<{
-    id: string
-    conversationId: string
-    fileName: string
-    fileType: string
-    sourceUrl: string
-    checksum: string
-    status: string
-    totalChunks: number
-    uploadedChunks?: number
-    currentVectorId: string | null
-    embeddingModel: string
-    ingestLogs?: string[]
-    uploadedAt?: string
-    updatedAt?: string
-    errorMessage?: string | null
-  }>
+  getDocuments: (conversationId?: string) => {
+    const query = conversationId ? `?conversationId=${encodeURIComponent(conversationId)}` : ''
+    return http.get<ApiResponse<GetDocumentsResponse>>(`${AI_BASE}/documents${query}`)
+  }
 }

@@ -19,9 +19,7 @@ export function AiWelcomeScreen({ avatarUrl, onSelect }: { avatarUrl?: string; o
         />
       </div>
       <h2 className='text-xl font-bold text-foreground mb-2'>{text.aiWindow.title}</h2>
-      <p className='text-muted-foreground text-sm max-w-xs mb-6'>
-        {text.aiWindow.welcomeDescription}
-      </p>
+      <p className='text-muted-foreground text-sm max-w-xs mb-6'>{text.aiWindow.welcomeDescription}</p>
       <div className='flex flex-col gap-2 w-full max-w-sm'>
         {welcomeSuggestions.map(({ id, emoji, text: suggestionText }) => (
           <button

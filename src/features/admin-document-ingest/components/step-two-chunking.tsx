@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ChunkListSchema, type IngestState, type Chunk } from '../schemas/ingest-document.schema'
-import { chunkPreview } from '../api/ingest.api'
+import { useChunkPreviewMutation } from '../queries/use-mutations'
 import { ChunkingConfigPanel } from './step-two/chunking-config-panel'
 import { ChunkListPanel } from './step-two/chunk-list-panel'
 
@@ -12,6 +12,7 @@ interface StepTwoChunkingProps {
 
 export function StepTwoChunking({ state, onUpdate, onNext }: StepTwoChunkingProps) {
   const [isProcessing, setIsProcessing] = useState(false)
+  const chunkPreviewMutation = useChunkPreviewMutation()
   const activeDocument = state.uploadedDocuments[0]
   const activeEmbeddingModel = activeDocument?.embeddingModel ?? 'text-embedding-3-small'
 
@@ -22,7 +23,7 @@ export function StepTwoChunking({ state, onUpdate, onNext }: StepTwoChunkingProp
 
     setIsProcessing(true)
     try {
-      const response = await chunkPreview({
+      const response = await chunkPreviewMutation.mutateAsync({
         docId: activeDocument.id,
         conversationId: state.conversationId,
         rawContent: state.rawContent,
@@ -33,7 +34,7 @@ export function StepTwoChunking({ state, onUpdate, onNext }: StepTwoChunkingProp
         overlap: state.overlap
       })
 
-      const parsedChunks = ChunkListSchema.safeParse(response.chunks as Chunk[])
+      const parsedChunks = ChunkListSchema.safeParse(response.data.data.chunks as Chunk[])
       if (!parsedChunks.success) {
         return
       }

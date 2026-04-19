@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { IngestDocumentStatus } from '@/constants/enum'
-import { getDocuments, startIngest } from '../api/ingest.api'
 import type { IngestState } from '../schemas/ingest-document.schema'
+import { useStartIngestMutation } from '../queries/use-mutations'
+import { useIngestDocumentsQuery } from '../queries/use-queries'
 import { StepThreeProgressCard } from './step-three/step-three-progress-card'
 import { StepThreeTerminalView } from './step-three/step-three-terminal-view'
 import { StepThreeActions } from './step-three/step-three-actions'
@@ -24,7 +25,14 @@ export function StepThreeStatus({ state, onUpdate }: StepThreeStatusProps) {
   const [uploadedChunks, setUploadedChunks] = useState(0)
   const [totalChunks, setTotalChunks] = useState(0)
   const [currentVectorId, setCurrentVectorId] = useState<string | null>(null)
+  const { refetch: refetchDocuments } = useIngestDocumentsQuery(state.conversationId, false)
+  const { mutateAsync: startIngest } = useStartIngestMutation()
   const activePollingDocIdRef = useRef<string | null>(null)
+  const latestUploadedDocumentsRef = useRef(state.uploadedDocuments)
+  const activeChunksRef = useRef<IngestState['chunks']>([])
+  const refetchDocumentsRef = useRef(refetchDocuments)
+  const startIngestRef = useRef(startIngest)
+  const onUpdateRef = useRef(onUpdate)
   const [terminalLines, setTerminalLines] = useState<string[]>([])
 
   const activeDocId = useMemo(
@@ -32,27 +40,42 @@ export function StepThreeStatus({ state, onUpdate }: StepThreeStatusProps) {
     [state.chunks, state.uploadedDocuments]
   )
 
-  const activeDocument = useMemo(() => {
-    if (!activeDocId) {
-      return state.uploadedDocuments[0]
-    }
-    return state.uploadedDocuments.find((doc) => doc.id === activeDocId) ?? null
-  }, [activeDocId, state.uploadedDocuments])
-
   const activeChunks = useMemo(
     () => (activeDocId ? state.chunks.filter((chunk) => chunk.docId === activeDocId) : state.chunks),
     [activeDocId, state.chunks]
   )
 
   useEffect(() => {
-    if (!activeDocument || activeChunks.length === 0) {
+    latestUploadedDocumentsRef.current = state.uploadedDocuments
+  }, [state.uploadedDocuments])
+
+  useEffect(() => {
+    activeChunksRef.current = activeChunks
+  }, [activeChunks])
+
+  useEffect(() => {
+    refetchDocumentsRef.current = refetchDocuments
+  }, [refetchDocuments])
+
+  useEffect(() => {
+    startIngestRef.current = startIngest
+  }, [startIngest])
+
+  useEffect(() => {
+    onUpdateRef.current = onUpdate
+  }, [onUpdate])
+
+  useEffect(() => {
+    const frozenChunks = activeChunksRef.current
+
+    if (!activeDocId || frozenChunks.length === 0) {
       return
     }
 
-    if (activePollingDocIdRef.current === activeDocument.id) {
+    if (activePollingDocIdRef.current === activeDocId) {
       return
     }
-    activePollingDocIdRef.current = activeDocument.id
+    activePollingDocIdRef.current = activeDocId
 
     let cancelled = false
 
@@ -64,7 +87,7 @@ export function StepThreeStatus({ state, onUpdate }: StepThreeStatusProps) {
       ingestLogs?: string[]
       errorMessage?: string | null
     }) => {
-      const serverTotalChunks = Math.max(doc.totalChunks ?? 0, activeChunks.length)
+      const serverTotalChunks = Math.max(doc.totalChunks ?? 0, frozenChunks.length)
       const serverUploadedChunks = doc.uploadedChunks ?? (doc.status === 'COMPLETED' ? serverTotalChunks : 0)
 
       setTotalChunks(serverTotalChunks)
@@ -99,13 +122,14 @@ export function StepThreeStatus({ state, onUpdate }: StepThreeStatusProps) {
           return [runtimeStartingText]
         })
 
-        const initialDocs = await getDocuments(state.conversationId)
-        const initialCurrent = initialDocs.find((doc) => doc.id === activeDocument.id)
+        const initialDocsResponse = await refetchDocumentsRef.current()
+        const initialDocs = initialDocsResponse.data ?? []
+        const initialCurrent = initialDocs.find((doc) => doc.id === activeDocId)
         let shouldStartIngest = true
         if (initialCurrent) {
           syncProgressFromServer(initialCurrent)
           const initialServerTotalChunks = initialCurrent.totalChunks ?? 0
-          const initialTotalChunks = Math.max(initialCurrent.totalChunks ?? 0, activeChunks.length)
+          const initialTotalChunks = Math.max(initialCurrent.totalChunks ?? 0, frozenChunks.length)
           const initialUploadedChunks = initialCurrent.uploadedChunks ?? 0
           const initialReachedChunkTarget =
             initialTotalChunks > 0 &&
@@ -135,10 +159,10 @@ export function StepThreeStatus({ state, onUpdate }: StepThreeStatusProps) {
         }
 
         if (shouldStartIngest) {
-          await startIngest({
-            docId: activeDocument.id,
+          await startIngestRef.current({
+            docId: activeDocId,
             conversationId: state.conversationId,
-            chunks: activeChunks.map((chunk) => ({
+            chunks: frozenChunks.map((chunk) => ({
               id: chunk.id,
               docId: chunk.docId,
               vectorId: chunk.vectorId,
@@ -160,8 +184,9 @@ export function StepThreeStatus({ state, onUpdate }: StepThreeStatusProps) {
             return
           }
 
-          const docs = await getDocuments(state.conversationId)
-          const current = docs.find((doc) => doc.id === activeDocument.id)
+          const docsResponse = await refetchDocumentsRef.current()
+          const docs = docsResponse.data ?? []
+          const current = docs.find((doc) => doc.id === activeDocId)
           if (!current) {
             await new Promise((resolve) => setTimeout(resolve, 1200))
             continue
@@ -183,7 +208,7 @@ export function StepThreeStatus({ state, onUpdate }: StepThreeStatusProps) {
             lastProgressSignature = progressSignature
           }
 
-          const resolvedTotalChunks = Math.max(current.totalChunks ?? 0, activeChunks.length)
+          const resolvedTotalChunks = Math.max(current.totalChunks ?? 0, frozenChunks.length)
           const resolvedUploadedChunks = current.uploadedChunks ?? 0
           const reachedChunkTarget =
             resolvedTotalChunks > 0 &&
@@ -195,13 +220,13 @@ export function StepThreeStatus({ state, onUpdate }: StepThreeStatusProps) {
             setProgress(100)
             setUploadedChunks(Math.max(current.uploadedChunks ?? 0, resolvedTotalChunks))
             setTotalChunks(resolvedTotalChunks)
-            onUpdate({
-              uploadedDocuments: state.uploadedDocuments.map((doc) =>
-                doc.id === activeDocument.id
+            onUpdateRef.current({
+              uploadedDocuments: latestUploadedDocumentsRef.current.map((doc) =>
+                doc.id === activeDocId
                   ? {
                       ...doc,
                       status: IngestDocumentStatus.Completed,
-                      totalChunks: current.totalChunks ?? activeChunks.length
+                      totalChunks: current.totalChunks ?? frozenChunks.length
                     }
                   : doc
               )
@@ -211,9 +236,9 @@ export function StepThreeStatus({ state, onUpdate }: StepThreeStatusProps) {
 
           if (current?.status === 'FAILED') {
             setIngestStatus('failed')
-            onUpdate({
-              uploadedDocuments: state.uploadedDocuments.map((doc) =>
-                doc.id === activeDocument.id ? { ...doc, status: IngestDocumentStatus.Failed } : doc
+            onUpdateRef.current({
+              uploadedDocuments: latestUploadedDocumentsRef.current.map((doc) =>
+                doc.id === activeDocId ? { ...doc, status: IngestDocumentStatus.Failed } : doc
               )
             })
             return
@@ -242,20 +267,17 @@ export function StepThreeStatus({ state, onUpdate }: StepThreeStatusProps) {
 
     return () => {
       cancelled = true
-      if (activePollingDocIdRef.current === activeDocument.id) {
+      if (activePollingDocIdRef.current === activeDocId) {
         activePollingDocIdRef.current = null
       }
     }
   }, [
-    activeChunks,
-    activeDocument,
-    onUpdate,
+    activeDocId,
+    state.conversationId,
     runtimeNoProgressText,
     runtimeStartFailedText,
     runtimeStartingText,
-    runtimeTimeoutText,
-    state.conversationId,
-    state.uploadedDocuments
+    runtimeTimeoutText
   ])
 
   const statusLabel =

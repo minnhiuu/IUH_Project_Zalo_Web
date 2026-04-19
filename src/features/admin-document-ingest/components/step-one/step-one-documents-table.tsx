@@ -93,9 +93,7 @@ export function StepOneDocumentsTable({
             {paginatedDocuments.length === 0 ? (
               <TableRow className='h-14'>
                 <TableCell colSpan={5} className='px-6 text-center text-muted-foreground font-medium'>
-                  {uploadedDocumentsCount === 0
-                    ? text.stepOne.table.emptyNoUpload
-                    : text.stepOne.table.emptyFiltered}
+                  {uploadedDocumentsCount === 0 ? text.stepOne.table.emptyNoUpload : text.stepOne.table.emptyFiltered}
                 </TableCell>
               </TableRow>
             ) : (

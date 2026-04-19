@@ -51,9 +51,7 @@ export function IngestDocument() {
           </Button>
           <div className='flex flex-col gap-0.5'>
             <h1 className='text-3xl font-bold tracking-tight text-foreground uppercase'>{text.page.title}</h1>
-            <p className='text-muted-foreground font-medium text-[14px] leading-tight'>
-              {text.page.subtitle}
-            </p>
+            <p className='text-muted-foreground font-medium text-[14px] leading-tight'>{text.page.subtitle}</p>
           </div>
         </div>
       </div>

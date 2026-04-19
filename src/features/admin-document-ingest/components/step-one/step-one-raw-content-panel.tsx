@@ -14,7 +14,9 @@ export function StepOneRawContentPanel({ isParsing, rawContent, onNext }: StepOn
   return (
     <div className='bg-dashboard-card-bg rounded-xl border border-border/40 shadow-sm flex flex-col overflow-hidden'>
       <div className='h-12 border-b border-section-divider px-6 flex items-center justify-between shrink-0 bg-dashboard-card-header-bg'>
-        <span className='text-[10px] font-bold text-muted-foreground uppercase tracking-widest'>{text.stepOne.raw.title}</span>
+        <span className='text-[10px] font-bold text-muted-foreground uppercase tracking-widest'>
+          {text.stepOne.raw.title}
+        </span>
         {isParsing && <Loader2 className='w-3.5 h-3.5 text-brand-blue animate-spin' />}
       </div>
 

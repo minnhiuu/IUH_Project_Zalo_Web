@@ -58,10 +58,14 @@ export function ChunkingConfigPanel({
           <div className='h-8 w-8 rounded-lg bg-dashboard-icon-bg text-brand-blue border border-brand-blue-hover/30 flex items-center justify-center'>
             <Settings2 size={16} />
           </div>
-          <h3 className='text-lg font-bold text-dashboard-header-text uppercase tracking-tight'>{text.stepTwo.config.title}</h3>
+          <h3 className='text-lg font-bold text-dashboard-header-text uppercase tracking-tight'>
+            {text.stepTwo.config.title}
+          </h3>
         </div>
 
-        <p className='text-[10px] font-bold text-muted-foreground uppercase tracking-widest'>{text.stepTwo.config.strategy}</p>
+        <p className='text-[10px] font-bold text-muted-foreground uppercase tracking-widest'>
+          {text.stepTwo.config.strategy}
+        </p>
         <div className='grid grid-cols-1 gap-2'>
           {strategies.map((item) => {
             const isSelected = strategy === item.id
@@ -109,7 +113,9 @@ export function ChunkingConfigPanel({
       <div className='flex-1 overflow-y-auto p-6 space-y-6'>
         <div className='grid grid-cols-2 gap-4'>
           <div className='space-y-2'>
-            <p className='text-[10px] font-bold text-muted-foreground uppercase tracking-widest'>{text.stepTwo.config.chunkSize}</p>
+            <p className='text-[10px] font-bold text-muted-foreground uppercase tracking-widest'>
+              {text.stepTwo.config.chunkSize}
+            </p>
             <Input
               type='number'
               value={chunkSize}
@@ -118,7 +124,9 @@ export function ChunkingConfigPanel({
             />
           </div>
           <div className='space-y-2'>
-            <p className='text-[10px] font-bold text-muted-foreground uppercase tracking-widest'>{text.stepTwo.config.overlap}</p>
+            <p className='text-[10px] font-bold text-muted-foreground uppercase tracking-widest'>
+              {text.stepTwo.config.overlap}
+            </p>
             <Input
               type='number'
               value={overlap}

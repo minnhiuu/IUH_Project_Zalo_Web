@@ -74,8 +74,12 @@ export function StepOneFilters({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value='all'>{text.stepOne.filters.statusOptions.all}</SelectItem>
-                <SelectItem value={IngestDocumentStatus.Ingesting}>{text.stepOne.filters.statusOptions.ingesting}</SelectItem>
-                <SelectItem value={IngestDocumentStatus.Completed}>{text.stepOne.filters.statusOptions.completed}</SelectItem>
+                <SelectItem value={IngestDocumentStatus.Ingesting}>
+                  {text.stepOne.filters.statusOptions.ingesting}
+                </SelectItem>
+                <SelectItem value={IngestDocumentStatus.Completed}>
+                  {text.stepOne.filters.statusOptions.completed}
+                </SelectItem>
                 <SelectItem value={IngestDocumentStatus.Failed}>{text.stepOne.filters.statusOptions.failed}</SelectItem>
               </SelectContent>
             </Select>

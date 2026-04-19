@@ -69,9 +69,7 @@ export function StepOneUploadDialog({
                 </Badge>
               </div>
             ) : (
-              <p className='text-xs text-muted-foreground font-medium'>
-                {text.stepOne.upload.noFile}
-              </p>
+              <p className='text-xs text-muted-foreground font-medium'>{text.stepOne.upload.noFile}</p>
             )}
           </div>
 

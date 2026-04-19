@@ -14,7 +14,9 @@ export function StepThreeTerminalView({ terminalLines }: StepThreeTerminalViewPr
       <div className='px-6 py-3 border-b border-section-divider bg-dashboard-card-header-bg flex items-center justify-between'>
         <div className='flex items-center gap-2'>
           <Terminal size={15} className='text-brand-blue' />
-          <h3 className='text-lg font-bold text-dashboard-header-text uppercase tracking-tight'>{text.stepThree.terminal.title}</h3>
+          <h3 className='text-lg font-bold text-dashboard-header-text uppercase tracking-tight'>
+            {text.stepThree.terminal.title}
+          </h3>
         </div>
         <Badge
           variant='outline'

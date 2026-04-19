@@ -6,7 +6,8 @@ import {
   type IngestState,
   type IngestDocumentRecord
 } from '../schemas/ingest-document.schema'
-import { getDocuments, parseDocument, uploadIngestFile } from '../api/ingest.api'
+import { useParseDocumentMutation, useUploadIngestFileMutation } from '../queries/use-mutations'
+import { useIngestDocumentsQuery } from '../queries/use-queries'
 import { StepOneFilters } from './step-one/step-one-filters'
 import { StepOneDocumentsTable } from './step-one/step-one-documents-table'
 import { StepOneRawContentPanel } from './step-one/step-one-raw-content-panel'
@@ -30,6 +31,12 @@ export function StepOneParse({ state, onUpdate, onNext }: StepOneParseProps) {
   const [fileTypeFilter, setFileTypeFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState<'all' | IngestDocumentRecord['status']>('all')
   const pageSize = 6
+  const { data: documentsData, refetch: refetchDocuments } = useIngestDocumentsQuery(
+    state.conversationId,
+    !!state.conversationId
+  )
+  const uploadIngestFileMutation = useUploadIngestFileMutation()
+  const parseDocumentMutation = useParseDocumentMutation()
 
   const mapBackendStatus = (status: string): IngestDocumentRecord['status'] => {
     const normalizedStatus = status.toUpperCase()
@@ -51,48 +58,59 @@ export function StepOneParse({ state, onUpdate, onNext }: StepOneParseProps) {
   }
 
   useEffect(() => {
-    let mounted = true
+    if (!documentsData) {
+      return
+    }
 
-    const loadDocuments = async () => {
-      try {
-        const documents = await getDocuments(state.conversationId)
-
-        const mappedDocuments = documents
-          .map((doc) => {
-            const candidate: IngestDocumentRecord = {
-              id: doc.id,
-              checksum: doc.checksum ?? `doc:${doc.id}`,
-              fileName: doc.fileName ?? doc.id,
-              sourceUrl: doc.sourceUrl ?? `doc://${doc.id}`,
-              fileType: (doc.fileType ?? 'UNKNOWN').toUpperCase(),
-              status: mapBackendStatus(doc.status),
-              totalChunks: Math.max(0, doc.totalChunks ?? 0),
-              embeddingModel: doc.embeddingModel ?? 'text-embedding-3-small',
-              uploadedAt: toDisplayDateTime(doc.uploadedAt),
-              displaySize: undefined
-            }
-
-            const parsed = IngestDocumentRecordSchema.safeParse(candidate)
-            return parsed.success ? parsed.data : null
-          })
-          .filter((doc): doc is IngestDocumentRecord => doc !== null)
-
-        if (!mounted) {
-          return
+    const mappedDocuments = documentsData
+      .map((doc) => {
+        const candidate: IngestDocumentRecord = {
+          id: doc.id,
+          conversationId: doc.conversationId ?? state.conversationId,
+          checksum: doc.checksum ?? `doc:${doc.id}`,
+          fileName: doc.fileName ?? doc.id,
+          sourceUrl: doc.sourceUrl ?? `doc://${doc.id}`,
+          fileType: (doc.fileType ?? 'UNKNOWN').toUpperCase(),
+          status: mapBackendStatus(doc.status),
+          totalChunks: Math.max(0, doc.totalChunks ?? 0),
+          uploadedChunks: Math.max(0, doc.uploadedChunks ?? 0),
+          currentVectorId: doc.currentVectorId ?? null,
+          embeddingModel: doc.embeddingModel ?? 'text-embedding-3-small',
+          ingestLogs: doc.ingestLogs ?? [],
+          errorMessage: doc.errorMessage ?? null,
+          uploadedAt: toDisplayDateTime(doc.uploadedAt),
+          updatedAt: toDisplayDateTime(doc.updatedAt),
+          displaySize: undefined
         }
 
-        onUpdate({ uploadedDocuments: mappedDocuments })
-      } catch {
-        // Ignore fetch errors to avoid blocking local upload flow.
-      }
+        const parsed = IngestDocumentRecordSchema.safeParse(candidate)
+        return parsed.success ? parsed.data : null
+      })
+      .filter((doc): doc is IngestDocumentRecord => doc !== null)
+
+    const hasSameDocuments =
+      mappedDocuments.length === state.uploadedDocuments.length &&
+      mappedDocuments.every((doc, index) => {
+        const current = state.uploadedDocuments[index]
+        if (!current) {
+          return false
+        }
+
+        return (
+          doc.id === current.id &&
+          doc.status === current.status &&
+          doc.totalChunks === current.totalChunks &&
+          doc.uploadedChunks === current.uploadedChunks &&
+          (doc.updatedAt ?? '') === (current.updatedAt ?? '')
+        )
+      })
+
+    if (hasSameDocuments) {
+      return
     }
 
-    void loadDocuments()
-
-    return () => {
-      mounted = false
-    }
-  }, [onUpdate, state.conversationId])
+    onUpdate({ uploadedDocuments: mappedDocuments })
+  }, [documentsData, onUpdate, state.conversationId, state.uploadedDocuments])
 
   const getFileType = (fileName: string) => {
     const extension = fileName.split('.').pop()?.toLowerCase() || 'other'
@@ -170,7 +188,11 @@ export function StepOneParse({ state, onUpdate, onNext }: StepOneParseProps) {
     let nextUploadedDocuments = state.uploadedDocuments
 
     try {
-      const uploaded = await uploadIngestFile(pendingUploadFile, state.conversationId)
+      const uploadedResponse = await uploadIngestFileMutation.mutateAsync({
+        file: pendingUploadFile,
+        conversationId: state.conversationId
+      })
+      const uploaded = uploadedResponse.data.data
       uploadedDocId = uploaded.docId
 
       const fileType = uploaded.fileName.split('.').pop()?.toUpperCase() || 'UNKNOWN'
@@ -178,15 +200,21 @@ export function StepOneParse({ state, onUpdate, onNext }: StepOneParseProps) {
 
       const newDocCandidate: IngestDocumentRecord = {
         id: uploaded.docId,
+        conversationId: state.conversationId,
         checksum: `s3:${uploaded.key}`,
         fileName: uploaded.fileName,
         sourceUrl: uploaded.key,
         fileType,
         status: IngestDocumentStatus.Ingesting,
         totalChunks: 0,
+        uploadedChunks: 0,
+        currentVectorId: null,
         embeddingModel: 'text-embedding-3-small',
+        ingestLogs: [],
+        errorMessage: null,
         displaySize: uploaded.size ? (uploaded.size / (1024 * 1024)).toFixed(1) + ' MB' : undefined,
-        uploadedAt
+        uploadedAt,
+        updatedAt: uploadedAt
       }
 
       const parsedDoc = IngestDocumentRecordSchema.safeParse(newDocCandidate)
@@ -196,12 +224,13 @@ export function StepOneParse({ state, onUpdate, onNext }: StepOneParseProps) {
 
       nextUploadedDocuments = [parsedDoc.data, ...state.uploadedDocuments]
 
-      const parsed = await parseDocument({
+      const parsedResponse = await parseDocumentMutation.mutateAsync({
         docId: uploaded.docId,
         conversationId: state.conversationId,
         s3Key: uploaded.key,
         fileName: uploaded.fileName
       })
+      const parsed = parsedResponse.data.data
 
       onUpdate({
         uploadedDocuments: nextUploadedDocuments.map((item) =>
@@ -214,6 +243,7 @@ export function StepOneParse({ state, onUpdate, onNext }: StepOneParseProps) {
       setSelectedFileId(uploaded.docId)
       setCurrentPage(1)
       setPendingUploadFile(null)
+      await refetchDocuments()
     } catch {
       if (uploadedDocId) {
         onUpdate({
@@ -290,12 +320,13 @@ export function StepOneParse({ state, onUpdate, onNext }: StepOneParseProps) {
     setSelectedFileId(doc.id)
     setIsParsing(true)
     try {
-      const parsed = await parseDocument({
+      const parsedResponse = await parseDocumentMutation.mutateAsync({
         docId: doc.id,
         conversationId: state.conversationId,
         s3Key: doc.sourceUrl,
         fileName: doc.fileName
       })
+      const parsed = parsedResponse.data.data
 
       onUpdate({
         rawContent: parsed.rawContent ?? '',

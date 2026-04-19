@@ -16,7 +16,9 @@ export function ChunkListPanel({ chunks, activeEmbeddingModel, onNext }: ChunkLi
   return (
     <section className='xl:col-span-2 bg-dashboard-card-bg rounded-xl border border-border/40 shadow-sm overflow-hidden flex flex-col'>
       <div className='px-6 py-3 border-b border-section-divider bg-dashboard-card-header-bg flex items-center justify-between gap-4'>
-        <h3 className='text-lg font-bold text-dashboard-header-text uppercase tracking-tight'>{text.stepTwo.list.title}</h3>
+        <h3 className='text-lg font-bold text-dashboard-header-text uppercase tracking-tight'>
+          {text.stepTwo.list.title}
+        </h3>
         <div className='flex items-center gap-2'>
           <Badge
             variant='outline'

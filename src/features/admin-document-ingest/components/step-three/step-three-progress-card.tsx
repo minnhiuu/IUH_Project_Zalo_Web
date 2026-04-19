@@ -28,7 +28,9 @@ export function StepThreeProgressCard({
   return (
     <div className='bg-dashboard-card-bg rounded-xl border border-border/40 shadow-sm overflow-hidden'>
       <div className='px-6 py-3 border-b border-section-divider bg-dashboard-card-header-bg flex items-center justify-between'>
-        <h3 className='text-lg font-bold text-dashboard-header-text uppercase tracking-tight'>{text.stepThree.progress.title}</h3>
+        <h3 className='text-lg font-bold text-dashboard-header-text uppercase tracking-tight'>
+          {text.stepThree.progress.title}
+        </h3>
         <Badge
           variant='outline'
           className={cn(
@@ -71,9 +73,7 @@ export function StepThreeProgressCard({
               {ingestStatus === 'success' ? text.stepThree.progress.readyTitle : text.stepThree.progress.ingestingTitle}
             </h2>
             <p className='text-muted-foreground font-medium leading-relaxed'>
-              {ingestStatus === 'success'
-                ? text.stepThree.progress.readyDesc
-                : text.stepThree.progress.ingestingDesc}
+              {ingestStatus === 'success' ? text.stepThree.progress.readyDesc : text.stepThree.progress.ingestingDesc}
             </p>
           </div>
         </div>
