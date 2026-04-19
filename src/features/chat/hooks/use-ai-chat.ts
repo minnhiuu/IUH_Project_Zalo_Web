@@ -262,57 +262,61 @@ export function useAiChat(conversationId: string) {
     [mutation]
   )
 
+  const handleSummarize = useCallback(
+    async (snapshotId: string) => {
+      if (!snapshotId || !conversationId) return
+      setIsSummarizing(true)
+      setSummaryResult('')
 
-  const handleSummarize = useCallback(async (snapshotId: string) => {
-    if (!snapshotId || !conversationId) return
-    setIsSummarizing(true)
-    setSummaryResult('')
+      try {
+        const token = getAccessToken()
+        const response = await fetch(`${AI_BASE_URL}/v1/ai/summarize`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'text/event-stream',
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+          },
+          body: JSON.stringify({ conversationId, sinceMessageId: snapshotId })
+        })
 
-    try {
-      const token = getAccessToken()
-      const response = await fetch(`${AI_BASE_URL}/v1/ai/summarize`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'text/event-stream',
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
-        },
-        body: JSON.stringify({ conversationId, sinceMessageId: snapshotId })
-      })
+        if (!response.ok || !response.body) throw new Error(`HTTP ${response.status}`)
 
-      if (!response.ok || !response.body) throw new Error(`HTTP ${response.status}`)
+        const reader = response.body.getReader()
+        const decoder = new TextDecoder()
+        let buffer = ''
 
-      const reader = response.body.getReader()
-      const decoder = new TextDecoder()
-      let buffer = ''
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
 
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
+          buffer += decoder.decode(value, { stream: true })
+          const lines = buffer.split('\n')
+          buffer = lines.pop() ?? ''
 
-        buffer += decoder.decode(value, { stream: true })
-        const lines = buffer.split('\n')
-        buffer = lines.pop() ?? ''
-
-        for (const line of lines) {
-          const trimmed = line.trim()
-          if (!trimmed.startsWith('data:')) continue
-          const rawJson = trimmed.slice('data:'.length).trim()
-          try {
-            const event = JSON.parse(rawJson)
-            if (event.content) {
-              setSummaryResult((prev) => (prev || '') + event.content)
+          for (const line of lines) {
+            const trimmed = line.trim()
+            if (!trimmed.startsWith('data:')) continue
+            const rawJson = trimmed.slice('data:'.length).trim()
+            try {
+              const event = JSON.parse(rawJson)
+              if (event.content) {
+                setSummaryResult((prev) => (prev || '') + event.content)
+              }
+            } catch {
+              /* ignore */
             }
-          } catch { /* ignore */ }
+          }
         }
+      } catch (err) {
+        console.error('[AiChat] Summarize failed:', err)
+        setSummaryResult(null)
+      } finally {
+        setIsSummarizing(false)
       }
-    } catch (err) {
-      console.error('[AiChat] Summarize failed:', err)
-      setSummaryResult(null)
-    } finally {
-      setIsSummarizing(false)
-    }
-  }, [conversationId])
+    },
+    [conversationId]
+  )
 
   const clearSummary = useCallback(() => setSummaryResult(null), [])
 

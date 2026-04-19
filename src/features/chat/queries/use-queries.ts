@@ -43,13 +43,10 @@ export const useGroupMembersInfinite = (conversationId: string, query: string, e
           // Chỉ hiện AI nếu không search, hoặc tên search match với 'Bondhub AI'
           const lowerQuery = query.toLowerCase()
           if (!lowerQuery || BONDHUB_AI.fullName.toLowerCase().includes(lowerQuery)) {
-             return {
-               ...page,
-               data: [
-                 { ...BONDHUB_AI, isFriend: false, isCurrentUser: false }, 
-                 ...page.data
-               ]
-             }
+            return {
+              ...page,
+              data: [{ ...BONDHUB_AI, isFriend: false, isCurrentUser: false }, ...page.data]
+            }
           }
         }
         return page

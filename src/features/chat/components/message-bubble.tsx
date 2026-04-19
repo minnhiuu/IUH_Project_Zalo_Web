@@ -76,40 +76,46 @@ export function MessageBubble({
   const spamIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const spamEmojiRef = useRef<string>('👍')
 
-  const fireReaction = useCallback((emoji: string) => {
-    if (message.id.startsWith('temp-') || !conversationId || !user?.id) return
-    toggleReactionMutate({ messageId: message.id, emoji })
-    const uid = user.id
-    queryClient.setQueryData(
-      chatKeys.messages(conversationId),
-      (oldData: InfiniteData<PageResponse<MessageResponse>> | undefined) => {
-        if (!oldData) return oldData
-        return {
-          ...oldData,
-          pages: oldData.pages.map((page: PageResponse<MessageResponse>) => ({
-            ...page,
-            data: page.data.map((m: MessageResponse) => {
-              if (m.id !== message.id) return m
-              const reactions: Record<string, string[]> = JSON.parse(JSON.stringify(m.reactions || {}))
-              reactions[emoji] = [...(reactions[emoji] || []), uid]
-              return { ...m, reactions }
-            })
-          }))
+  const fireReaction = useCallback(
+    (emoji: string) => {
+      if (message.id.startsWith('temp-') || !conversationId || !user?.id) return
+      toggleReactionMutate({ messageId: message.id, emoji })
+      const uid = user.id
+      queryClient.setQueryData(
+        chatKeys.messages(conversationId),
+        (oldData: InfiniteData<PageResponse<MessageResponse>> | undefined) => {
+          if (!oldData) return oldData
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page: PageResponse<MessageResponse>) => ({
+              ...page,
+              data: page.data.map((m: MessageResponse) => {
+                if (m.id !== message.id) return m
+                const reactions: Record<string, string[]> = JSON.parse(JSON.stringify(m.reactions || {}))
+                reactions[emoji] = [...(reactions[emoji] || []), uid]
+                return { ...m, reactions }
+              })
+            }))
+          }
         }
-      }
-    )
-  }, [message.id, conversationId, user?.id, toggleReactionMutate, queryClient])
+      )
+    },
+    [message.id, conversationId, user?.id, toggleReactionMutate, queryClient]
+  )
 
-  const startSpam = useCallback((emoji: string) => {
-    if (message.id.startsWith('temp-') || !conversationId) return
-    spamEmojiRef.current = emoji
-    fireReaction(emoji)
-    setSpamCount(1)
-    spamIntervalRef.current = setInterval(() => {
-      fireReaction(spamEmojiRef.current)
-      setSpamCount((c) => c + 1)
-    }, 200)
-  }, [fireReaction, message.id, conversationId])
+  const startSpam = useCallback(
+    (emoji: string) => {
+      if (message.id.startsWith('temp-') || !conversationId) return
+      spamEmojiRef.current = emoji
+      fireReaction(emoji)
+      setSpamCount(1)
+      spamIntervalRef.current = setInterval(() => {
+        fireReaction(spamEmojiRef.current)
+        setSpamCount((c) => c + 1)
+      }, 200)
+    },
+    [fireReaction, message.id, conversationId]
+  )
 
   const stopSpam = useCallback(() => {
     if (spamIntervalRef.current) {
@@ -120,7 +126,12 @@ export function MessageBubble({
   }, [])
 
   // Cleanup on unmount
-  useEffect(() => () => { if (spamIntervalRef.current) clearInterval(spamIntervalRef.current) }, [])
+  useEffect(
+    () => () => {
+      if (spamIntervalRef.current) clearInterval(spamIntervalRef.current)
+    },
+    []
+  )
 
   // Serialize only MY reactions as a stable string — only changes when content truly changes,
   // not on every re-render (avoids stale object reference resetting emoji state)
@@ -210,44 +221,41 @@ export function MessageBubble({
               </div>
             )}
 
-            {message.replyTo && (() => {
-              const replyImageUrl =
-                message.replyTo.type === MessageType.Image
-                  ? message.replyTo.thumbnailUrl ||
-                    (message.replyTo.content && /^https?:\/\//.test(message.replyTo.content)
-                      ? message.replyTo.content
-                      : null)
-                  : null
-              return (
-                <div className='mb-1.5 px-3 py-1.5 border-l-2 border-[#1972F5] bg-[#CDE2FF]/50 rounded-sm select-none'>
-                  <div className='flex items-start gap-2'>
-                    <div className='flex-1 min-w-0'>
-                      <div className='font-semibold text-[#0068FF] text-[13px]'>{message.replyTo.senderName}</div>
-                      <div className='text-[13px] text-black/70 truncate'>
-                        {message.replyTo.content === null ? (
-                          <span className='italic opacity-60'>{mb.revoked}</span>
-                        ) : message.replyTo.type === MessageType.Image ? (
-                          mb.image
-                        ) : message.replyTo.type === MessageType.File ? (
-                          mb.file
-                        ) : message.replyTo.type === MessageType.Video ? (
-                          '🎥 Video'
-                        ) : (
-                          stripMentionsForPreview(message.replyTo.content)
-                        )}
+            {message.replyTo &&
+              (() => {
+                const replyImageUrl =
+                  message.replyTo.type === MessageType.Image
+                    ? message.replyTo.thumbnailUrl ||
+                      (message.replyTo.content && /^https?:\/\//.test(message.replyTo.content)
+                        ? message.replyTo.content
+                        : null)
+                    : null
+                return (
+                  <div className='mb-1.5 px-3 py-1.5 border-l-2 border-[#1972F5] bg-[#CDE2FF]/50 rounded-sm select-none'>
+                    <div className='flex items-start gap-2'>
+                      <div className='flex-1 min-w-0'>
+                        <div className='font-semibold text-[#0068FF] text-[13px]'>{message.replyTo.senderName}</div>
+                        <div className='text-[13px] text-black/70 truncate'>
+                          {message.replyTo.content === null ? (
+                            <span className='italic opacity-60'>{mb.revoked}</span>
+                          ) : message.replyTo.type === MessageType.Image ? (
+                            mb.image
+                          ) : message.replyTo.type === MessageType.File ? (
+                            mb.file
+                          ) : message.replyTo.type === MessageType.Video ? (
+                            '🎥 Video'
+                          ) : (
+                            stripMentionsForPreview(message.replyTo.content)
+                          )}
+                        </div>
                       </div>
+                      {replyImageUrl && (
+                        <img src={replyImageUrl} alt='' className='w-10 h-10 rounded object-cover shrink-0' />
+                      )}
                     </div>
-                    {replyImageUrl && (
-                      <img
-                        src={replyImageUrl}
-                        alt=''
-                        className='w-10 h-10 rounded object-cover shrink-0'
-                      />
-                    )}
                   </div>
-                </div>
-              )
-            })()}
+                )
+              })()}
 
             <span>
               {isRevoked ? (
@@ -263,15 +271,17 @@ export function MessageBubble({
                   <MessageMediaContent message={message} />
                   {shouldShowAttachmentCaption && (
                     <div>
-                      {parseMentionsForRender(message.content).map(({ isMention, text, key }) => (
+                      {parseMentionsForRender(message.content).map(({ isMention, text, key }) =>
                         isMention ? (
                           <span key={key} className='text-[#005AE0] dark:text-[#3B82F6] cursor-pointer hover:underline'>
                             {text}
                           </span>
                         ) : (
-                          <span key={key} className='whitespace-pre-wrap'>{text}</span>
+                          <span key={key} className='whitespace-pre-wrap'>
+                            {text}
+                          </span>
                         )
-                      ))}
+                      )}
                     </div>
                   )}
                 </div>
@@ -280,15 +290,17 @@ export function MessageBubble({
                   <MessageFileContent message={message} />
                   {shouldShowAttachmentCaption && (
                     <div>
-                      {parseMentionsForRender(message.content).map(({ isMention, text, key }) => (
+                      {parseMentionsForRender(message.content).map(({ isMention, text, key }) =>
                         isMention ? (
                           <span key={key} className='text-[#005AE0] dark:text-[#3B82F6] cursor-pointer hover:underline'>
                             {text}
                           </span>
                         ) : (
-                          <span key={key} className='whitespace-pre-wrap'>{text}</span>
+                          <span key={key} className='whitespace-pre-wrap'>
+                            {text}
+                          </span>
                         )
-                      ))}
+                      )}
                     </div>
                   )}
                 </div>
@@ -676,7 +688,9 @@ function MessageFileContent({ message }: { message: MessageResponse }) {
         {['ZIP', 'RAR', '7Z'].includes(ext) ? (
           <Archive size={18} className='text-white' />
         ) : (
-          <span className='text-white text-[10px] font-bold tracking-tight leading-none text-center px-0.5'>{label}</span>
+          <span className='text-white text-[10px] font-bold tracking-tight leading-none text-center px-0.5'>
+            {label}
+          </span>
         )}
       </div>
       <div className='flex flex-col min-w-0 flex-1'>

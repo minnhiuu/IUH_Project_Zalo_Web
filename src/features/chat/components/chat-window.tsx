@@ -48,15 +48,15 @@ import { TypingIndicator } from './typing-indicator'
 const OPEN_GROUP_MANAGEMENT_EVENT = 'chat:open-group-management'
 const OPEN_GROUP_INFO_EVENT = 'chat:open-group-info'
 
-export function ChatWindow({ 
-  conversation, 
-  snapshotId, 
+export function ChatWindow({
+  conversation,
+  snapshotId,
   capturedUnreadCount,
   onClearSnapshot
-}: { 
-  conversation: ConversationResponse, 
-  snapshotId: string | null,
-  capturedUnreadCount: number,
+}: {
+  conversation: ConversationResponse
+  snapshotId: string | null
+  capturedUnreadCount: number
   onClearSnapshot: () => void
 }) {
   const { user } = useAuth()
@@ -356,8 +356,8 @@ export function ChatWindow({
             className={cn(
               'flex items-center space-x-3 min-w-0 flex-1',
               !isGroup &&
-              !isCloudConversation &&
-              'cursor-pointer hover:bg-black/5 p-1.5 -ml-1.5 rounded-lg transition-colors'
+                !isCloudConversation &&
+                'cursor-pointer hover:bg-black/5 p-1.5 -ml-1.5 rounded-lg transition-colors'
             )}
             onClick={() => {
               if (!isGroup && !isCloudConversation) {
@@ -371,10 +371,10 @@ export function ChatWindow({
                 onClick={
                   conversation.isGroup && !isAiConversation
                     ? (e: React.MouseEvent) => {
-                      e.stopPropagation()
-                      setInfoDialogStep('info')
-                      setIsInfoDialogOpen(true)
-                    }
+                        e.stopPropagation()
+                        setInfoDialogStep('info')
+                        setIsInfoDialogOpen(true)
+                      }
                     : undefined
                 }
                 className={cn(
@@ -523,11 +523,11 @@ export function ChatWindow({
               const isNewestVisible = index === 0
 
               const isAiMessage = msg.senderId === BONDHUB_AI.userId && msg.type !== 'SYSTEM'
-              
+
               if (isAiMessage) {
                 const { cleanContent, suggestions } = parseAiSuggestions(msg.content)
                 const { cleanContent: finalContent, isClarification } = parseAiQuestion(cleanContent)
-                
+
                 const aiMsg = {
                   id: msg.id,
                   role: 'ai' as const,

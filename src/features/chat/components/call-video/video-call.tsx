@@ -23,7 +23,7 @@ export function OutgoingCallScreen({ callData, onCancel, onConnect }: OutgoingCa
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setDots(prev => (prev.length >= 3 ? '' : prev + '.'))
+      setDots((prev) => (prev.length >= 3 ? '' : prev + '.'))
     }, 500)
     return () => clearInterval(interval)
   }, [])
@@ -38,7 +38,7 @@ export function OutgoingCallScreen({ callData, onCancel, onConnect }: OutgoingCa
           videoRef.current.srcObject = stream
           streamRef.current = stream
         } else {
-          stream.getTracks().forEach(t => t.stop())
+          stream.getTracks().forEach((t) => t.stop())
         }
       } catch {
         // Camera not available
@@ -47,28 +47,28 @@ export function OutgoingCallScreen({ callData, onCancel, onConnect }: OutgoingCa
     if (isCameraOn) {
       startCamera()
     } else {
-      streamRef.current?.getTracks().forEach(t => t.stop())
+      streamRef.current?.getTracks().forEach((t) => t.stop())
       streamRef.current = null
       if (videoRef.current) videoRef.current.srcObject = null
     }
     return () => {
       mounted = false
-      streamRef.current?.getTracks().forEach(t => t.stop())
+      streamRef.current?.getTracks().forEach((t) => t.stop())
     }
   }, [isCameraOn])
 
   const handleCancel = () => {
-    streamRef.current?.getTracks().forEach(t => t.stop())
+    streamRef.current?.getTracks().forEach((t) => t.stop())
     onCancel()
   }
 
   const handleConnect = () => {
-    streamRef.current?.getTracks().forEach(t => t.stop())
+    streamRef.current?.getTracks().forEach((t) => t.stop())
     onConnect()
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-[#1a1a2e] overflow-hidden">
+    <div className='fixed inset-0 z-50 flex flex-col bg-[#1a1a2e] overflow-hidden'>
       {/* Camera preview / dark background */}
       {isCameraOn ? (
         <video
@@ -76,68 +76,59 @@ export function OutgoingCallScreen({ callData, onCancel, onConnect }: OutgoingCa
           autoPlay
           playsInline
           muted
-          className="absolute inset-0 w-full h-full object-cover blur-sm opacity-40"
+          className='absolute inset-0 w-full h-full object-cover blur-sm opacity-40'
         />
       ) : (
-        <div className="absolute inset-0 bg-[#1a1a2e]" />
+        <div className='absolute inset-0 bg-[#1a1a2e]' />
       )}
 
       {/* Content overlay */}
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-center">
+      <div className='relative z-10 flex-1 flex flex-col items-center justify-center'>
         {/* Avatar */}
-        <div className="relative mb-5">
+        <div className='relative mb-5'>
           <img
             src={callData.receiverAvatar || '/images/default-avatar.png'}
             alt={callData.receiverName}
-            className="w-24 h-24 rounded-full object-cover border-[3px] border-white/30 shadow-2xl"
+            className='w-24 h-24 rounded-full object-cover border-[3px] border-white/30 shadow-2xl'
           />
         </div>
 
         {/* Status text */}
-        <p className="text-white/80 text-[15px]">
-          Đang nối máy đến {callData.receiverName}{dots}
+        <p className='text-white/80 text-[15px]'>
+          Đang nối máy đến {callData.receiverName}
+          {dots}
         </p>
       </div>
 
       {/* Bottom controls bar — matches Zalo layout */}
-      <div className="relative z-10 pb-8 pt-4">
-        <div className="flex items-center justify-center gap-6">
+      <div className='relative z-10 pb-8 pt-4'>
+        <div className='flex items-center justify-center gap-6'>
           {/* Camera toggle */}
-          <button
-            onClick={() => setIsCameraOn(prev => !prev)}
-            className="flex flex-col items-center gap-1.5"
-          >
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
-              isCameraOn ? 'bg-white/20' : 'bg-white/10'
-            }`}>
-              {isCameraOn ? (
-                <Video className="w-5 h-5 text-white" />
-              ) : (
-                <VideoOff className="w-5 h-5 text-white/50" />
-              )}
+          <button onClick={() => setIsCameraOn((prev) => !prev)} className='flex flex-col items-center gap-1.5'>
+            <div
+              className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
+                isCameraOn ? 'bg-white/20' : 'bg-white/10'
+              }`}
+            >
+              {isCameraOn ? <Video className='w-5 h-5 text-white' /> : <VideoOff className='w-5 h-5 text-white/50' />}
             </div>
           </button>
 
           {/* Hangup */}
-          <button onClick={handleCancel} className="mx-3">
-            <div className="w-14 h-14 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center transition-all shadow-lg shadow-red-500/40">
-              <PhoneOff className="w-6 h-6 text-white" />
+          <button onClick={handleCancel} className='mx-3'>
+            <div className='w-14 h-14 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center transition-all shadow-lg shadow-red-500/40'>
+              <PhoneOff className='w-6 h-6 text-white' />
             </div>
           </button>
 
           {/* Mic toggle */}
-          <button
-            onClick={() => setIsMicOn(prev => !prev)}
-            className="flex flex-col items-center gap-1.5"
-          >
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
-              isMicOn ? 'bg-white/20' : 'bg-white/10'
-            }`}>
-              {isMicOn ? (
-                <Mic className="w-5 h-5 text-white" />
-              ) : (
-                <MicOff className="w-5 h-5 text-white/50" />
-              )}
+          <button onClick={() => setIsMicOn((prev) => !prev)} className='flex flex-col items-center gap-1.5'>
+            <div
+              className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
+                isMicOn ? 'bg-white/20' : 'bg-white/10'
+              }`}
+            >
+              {isMicOn ? <Mic className='w-5 h-5 text-white' /> : <MicOff className='w-5 h-5 text-white/50' />}
             </div>
           </button>
         </div>
@@ -145,7 +136,7 @@ export function OutgoingCallScreen({ callData, onCancel, onConnect }: OutgoingCa
         {/* Debug: Connect directly (for testing) */}
         <button
           onClick={handleConnect}
-          className="mt-4 mx-auto block text-white/40 text-xs hover:text-white/70 transition-colors"
+          className='mt-4 mx-auto block text-white/40 text-xs hover:text-white/70 transition-colors'
         >
           [Vào phòng trực tiếp]
         </button>
@@ -182,7 +173,7 @@ export function VideoCallRoom({ callData, onCallEnd }: VideoCallRoomProps) {
     zp.joinRoom({
       container: containerRef.current,
       scenario: {
-        mode: ZegoUIKitPrebuilt.OneONoneCall,
+        mode: ZegoUIKitPrebuilt.OneONoneCall
       },
       turnOnMicrophoneWhenJoining: true,
       turnOnCameraWhenJoining: true,
@@ -200,7 +191,7 @@ export function VideoCallRoom({ callData, onCallEnd }: VideoCallRoomProps) {
       showLayoutButton: false,
       onLeaveRoom: () => {
         handleEndCall()
-      },
+      }
     })
 
     return () => {
@@ -214,7 +205,11 @@ export function VideoCallRoom({ callData, onCallEnd }: VideoCallRoomProps) {
     } catch {
       // ignore
     } finally {
-      try { zpRef.current?.destroy() } catch { /* ignore */ }
+      try {
+        zpRef.current?.destroy()
+      } catch {
+        /* ignore */
+      }
       zpRef.current = null
       onCallEnd()
     }
@@ -225,7 +220,11 @@ export function VideoCallRoom({ callData, onCallEnd }: VideoCallRoomProps) {
     const handler = (e: Event) => {
       const signal = (e as CustomEvent).detail as { sessionId: string; signal: string }
       if (signal.signal === 'ENDED' && signal.sessionId === callData.sessionId) {
-        try { zpRef.current?.destroy() } catch { /* ignore */ }
+        try {
+          zpRef.current?.destroy()
+        } catch {
+          /* ignore */
+        }
         zpRef.current = null
         onCallEnd()
       }
@@ -235,8 +234,8 @@ export function VideoCallRoom({ callData, onCallEnd }: VideoCallRoomProps) {
   }, [callData.sessionId, onCallEnd])
 
   return (
-    <div className="fixed inset-0 z-50 bg-black">
-      <div ref={containerRef} className="w-full h-full" />
+    <div className='fixed inset-0 z-50 bg-black'>
+      <div ref={containerRef} className='w-full h-full' />
     </div>
   )
 }
@@ -255,7 +254,7 @@ export function IncomingCallDialog({
   callerAvatar,
   sessionId,
   onAccept,
-  onReject,
+  onReject
 }: IncomingCallDialogProps) {
   const [isLoading, setIsLoading] = useState(false)
 
@@ -272,45 +271,43 @@ export function IncomingCallDialog({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-[#1a1a2e]">
+    <div className='fixed inset-0 z-50 flex flex-col bg-[#1a1a2e]'>
       {/* Content */}
-      <div className="flex-1 flex flex-col items-center justify-center">
-        <div className="relative mb-5">
-          <div className="absolute -inset-3 rounded-full border-2 border-white/15 animate-ping" style={{ animationDuration: '2s' }} />
-          <div className="absolute -inset-6 rounded-full border border-white/8 animate-ping" style={{ animationDuration: '2.5s' }} />
+      <div className='flex-1 flex flex-col items-center justify-center'>
+        <div className='relative mb-5'>
+          <div
+            className='absolute -inset-3 rounded-full border-2 border-white/15 animate-ping'
+            style={{ animationDuration: '2s' }}
+          />
+          <div
+            className='absolute -inset-6 rounded-full border border-white/8 animate-ping'
+            style={{ animationDuration: '2.5s' }}
+          />
           <img
             src={callerAvatar || '/images/default-avatar.png'}
             alt={callerName}
-            className="relative w-24 h-24 rounded-full object-cover border-[3px] border-white/30 shadow-2xl"
+            className='relative w-24 h-24 rounded-full object-cover border-[3px] border-white/30 shadow-2xl'
           />
         </div>
 
-        <h2 className="text-white text-xl font-semibold mb-1">{callerName}</h2>
-        <p className="text-white/50 text-sm">BondHub — Cuộc gọi video đến</p>
+        <h2 className='text-white text-xl font-semibold mb-1'>{callerName}</h2>
+        <p className='text-white/50 text-sm'>BondHub — Cuộc gọi video đến</p>
       </div>
 
       {/* Bottom action buttons */}
-      <div className="pb-10 flex items-center justify-center gap-16">
-        <button
-          onClick={onReject}
-          disabled={isLoading}
-          className="flex flex-col items-center gap-2 group"
-        >
-          <div className="w-14 h-14 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center transition-all shadow-lg shadow-red-500/30 group-active:scale-95">
-            <PhoneOff className="w-6 h-6 text-white" />
+      <div className='pb-10 flex items-center justify-center gap-16'>
+        <button onClick={onReject} disabled={isLoading} className='flex flex-col items-center gap-2 group'>
+          <div className='w-14 h-14 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center transition-all shadow-lg shadow-red-500/30 group-active:scale-95'>
+            <PhoneOff className='w-6 h-6 text-white' />
           </div>
-          <span className="text-white/70 text-xs">Từ chối</span>
+          <span className='text-white/70 text-xs'>Từ chối</span>
         </button>
 
-        <button
-          onClick={handleAccept}
-          disabled={isLoading}
-          className="flex flex-col items-center gap-2 group"
-        >
-          <div className="w-14 h-14 rounded-full bg-green-500 hover:bg-green-600 flex items-center justify-center transition-all shadow-lg shadow-green-500/30 group-active:scale-95">
-            <Phone className="w-6 h-6 text-white" />
+        <button onClick={handleAccept} disabled={isLoading} className='flex flex-col items-center gap-2 group'>
+          <div className='w-14 h-14 rounded-full bg-green-500 hover:bg-green-600 flex items-center justify-center transition-all shadow-lg shadow-green-500/30 group-active:scale-95'>
+            <Phone className='w-6 h-6 text-white' />
           </div>
-          <span className="text-white/70 text-xs">Trả lời</span>
+          <span className='text-white/70 text-xs'>Trả lời</span>
         </button>
       </div>
     </div>
@@ -330,7 +327,7 @@ export function useVideoCall() {
   }>({
     phase: 'idle',
     callData: null,
-    incoming: null,
+    incoming: null
   })
 
   const ringingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -347,7 +344,7 @@ export function useVideoCall() {
     const handler = (e: Event) => {
       const signal = (e as CustomEvent).detail as { sessionId: string; signal: string; roomId?: string }
 
-      setCallState(prev => {
+      setCallState((prev) => {
         // ACCEPTED: receiver accepted → caller joins room
         if (signal.signal === 'ACCEPTED' && prev.phase === 'ringing' && prev.callData?.sessionId === signal.sessionId) {
           clearRingingTimer()
@@ -381,27 +378,35 @@ export function useVideoCall() {
 
     // Auto-cancel after 30 seconds if no answer
     ringingTimerRef.current = setTimeout(async () => {
-      try { await cancelCallApi(callData.sessionId) } catch { /* ignore */ }
+      try {
+        await cancelCallApi(callData.sessionId)
+      } catch {
+        /* ignore */
+      }
       setCallState({ phase: 'idle', callData: null, incoming: null })
     }, 30_000)
   }, [])
 
   const connectCall = useCallback(() => {
     clearRingingTimer()
-    setCallState(prev => ({ ...prev, phase: 'active' }))
+    setCallState((prev) => ({ ...prev, phase: 'active' }))
   }, [clearRingingTimer])
 
   const cancelOutgoing = useCallback(async () => {
     clearRingingTimer()
     const data = callState.callData
     if (data) {
-      try { await cancelCallApi(data.sessionId) } catch { /* ignore */ }
+      try {
+        await cancelCallApi(data.sessionId)
+      } catch {
+        /* ignore */
+      }
     }
     setCallState({ phase: 'idle', callData: null, incoming: null })
   }, [callState.callData, clearRingingTimer])
 
   const handleIncomingCall = useCallback((data: { sessionId: string; callerName: string; callerAvatar: string }) => {
-    setCallState(prev => ({ ...prev, incoming: data }))
+    setCallState((prev) => ({ ...prev, incoming: data }))
   }, [])
 
   const acceptIncoming = useCallback((callData: CallResponse) => {
@@ -409,7 +414,7 @@ export function useVideoCall() {
   }, [])
 
   const rejectIncoming = useCallback(() => {
-    setCallState(prev => ({ ...prev, incoming: null }))
+    setCallState((prev) => ({ ...prev, incoming: null }))
   }, [])
 
   const endCall = useCallback(() => {
@@ -429,6 +434,6 @@ export function useVideoCall() {
     handleIncomingCall,
     acceptIncoming,
     rejectIncoming,
-    endCall,
+    endCall
   }
 }

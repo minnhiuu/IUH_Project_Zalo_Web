@@ -59,7 +59,7 @@ export const useChatWebSocket = () => {
         // ────────── /queue/messages ──────────
         client.subscribe('/user/queue/messages', (payload) => {
           const rawMsg = JSON.parse(payload.body)
-          
+
           if (rawMsg.senderId === BONDHUB_AI.userId) {
             console.log('>>> [DEBUG WS] Nhận tin nhắn AI hoàn chỉnh từ server:', rawMsg)
           }
@@ -76,7 +76,7 @@ export const useChatWebSocket = () => {
           const isOwnMessage = msg.isFromMe === true || msg.senderId === user.id
 
           // --- AI STREAMING DEDUPLICATION / SYNC ---
-          // Khi nhận tin nhắn hoàn chỉnh từ AI qua WebSocket, ta ưu tiên lưu vào cache 
+          // Khi nhận tin nhắn hoàn chỉnh từ AI qua WebSocket, ta ưu tiên lưu vào cache
           // để lấy ID thật từ MongoDB, đồng thời tắt trạng thái streaming tự tạo của FE.
           if (msg.senderId === BONDHUB_AI.userId && aiStreamingRegistry.isStreaming(conversationId)) {
             console.log('[WebSocket] Nhận tin nhắn hoàn tất từ AI, thay thế stream tự tạo bằng tin nhắn thật:', msg.id)
@@ -356,10 +356,10 @@ export const useChatWebSocket = () => {
                     data: page.data.map((m: MessageResponse) =>
                       m.id === update.messageId
                         ? {
-                          ...m,
-                          reactions:
-                            update.reactions && Object.keys(update.reactions).length ? update.reactions : undefined
-                        }
+                            ...m,
+                            reactions:
+                              update.reactions && Object.keys(update.reactions).length ? update.reactions : undefined
+                          }
                         : m
                     )
                   }))
@@ -560,7 +560,13 @@ export const useChatWebSocket = () => {
 
   // ────────── sendMessage: conversationId thay vì recipientId ──────────
   const sendMessage = useCallback(
-    (conversationId: string, content: string, replyTo?: ReplyMetadata | null, isForwarded: boolean = false, attachments?: ChatMessageRequest['attachments']) => {
+    (
+      conversationId: string,
+      content: string,
+      replyTo?: ReplyMetadata | null,
+      isForwarded: boolean = false,
+      attachments?: ChatMessageRequest['attachments']
+    ) => {
       if (!stompClientRef.current?.connected || (!content.trim() && !isForwarded)) return
 
       const clientMessageId = `temp-${Date.now()}`
@@ -702,12 +708,7 @@ export const useChatWebSocket = () => {
   )
 
   const sendFileMessage = useCallback(
-    async (
-      conversationId: string,
-      files: FileAttachment[],
-      content: string = '',
-      replyTo?: ReplyMetadata | null
-    ) => {
+    async (conversationId: string, files: FileAttachment[], content: string = '', replyTo?: ReplyMetadata | null) => {
       if (!stompClientRef.current?.connected || files.length === 0) return
 
       const isFake = conversationId.startsWith('fake_')
@@ -760,9 +761,12 @@ export const useChatWebSocket = () => {
           }
         )
 
-        const mediaPreview = trimmedContent ||
+        const mediaPreview =
+          trimmedContent ||
           (mediaFiles.length === 1
-            ? (allVideo ? '[Video]' : '[Hình ảnh]')
+            ? allVideo
+              ? '[Video]'
+              : '[Hình ảnh]'
             : `[${mediaFiles.length} ${allVideo ? 'video' : 'ảnh'}]`)
         queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
           if (!oldData) return oldData

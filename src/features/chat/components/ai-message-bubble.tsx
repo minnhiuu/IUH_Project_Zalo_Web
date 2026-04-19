@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils'
 import type { AiMessage } from '../hooks/use-ai-chat'
 import { useChatText } from '../i18n/use-chat-text'
 import { AiSuggestionChips } from './ai-suggestion-chips'
+import ReactMarkdown from 'react-markdown'
 
 export function AiMessageBubble({
   msg,
@@ -63,18 +64,23 @@ export function AiMessageBubble({
                 <span>{statusLabel}</span>
               </div>
             )}
-            <span className='whitespace-pre-wrap'>
-              {msg.content.split(/(\*\*.*?\*\*)/g).map((part, i) => {
-                if (part.startsWith('**') && part.endsWith('**') && part.length >= 4) {
-                  return (
-                    <strong key={i} className='font-bold'>
-                      {part.slice(2, -2)}
-                    </strong>
-                  )
-                }
-                return <span key={i}>{part}</span>
-              })}
-            </span>
+
+            <div className='markdown-content prose prose-sm dark:prose-invert max-w-none text-[15px] leading-relaxed'>
+              <ReactMarkdown
+                components={{
+                  h2: ({ ...props }) => <h2 className='text-lg font-bold mt-2 mb-1' {...props} />,
+                  h3: ({ ...props }) => <h3 className='text-base font-bold mt-2 mb-1' {...props} />,
+                  p: ({ ...props }) => <p className='mb-1.5 last:mb-0' {...props} />,
+                  ul: ({ ...props }) => <ul className='list-disc ml-5 mb-1.5' {...props} />,
+                  ol: ({ ...props }) => <ol className='list-decimal ml-5 mb-1.5' {...props} />,
+                  li: ({ ...props }) => <li className='mb-0.5' {...props} />,
+                  strong: ({ ...props }) => <strong className='font-bold dark:text-blue-300' {...props} />
+                }}
+              >
+                {msg.content}
+              </ReactMarkdown>
+            </div>
+
             {msg.isStreaming && !msg.processingStatus && (
               <span className='inline-block w-0.5 h-4 ml-0.5 bg-blue-500 animate-pulse align-middle' />
             )}

@@ -299,7 +299,11 @@ export function ForwardDialog({
                           </div>
                         </>
                       ) : (
-                        <img src={att.url} alt={att.originalFileName || 'image'} className='w-full h-full object-cover' />
+                        <img
+                          src={att.url}
+                          alt={att.originalFileName || 'image'}
+                          className='w-full h-full object-cover'
+                        />
                       )}
                     </div>
                   )

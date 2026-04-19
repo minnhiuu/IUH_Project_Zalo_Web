@@ -32,7 +32,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
   const handleSelectChat = (chat: ConversationResponse) => {
     const unreadCount = chat.unreadCount ?? 0
     console.log(`[ChatSidebar] Selecting chat: ${chat.id}, unreadCount: ${unreadCount}`)
-    
+
     let capturedSnapshotId: string | null = null
     if (unreadCount > 0) {
       const myMember = chat.members?.find((m) => m.userId === user?.id)
@@ -41,7 +41,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
     }
 
     onSelectChat(chat, capturedSnapshotId, unreadCount)
-    
+
     if (unreadCount > 0) {
       markAsRead(chat.id)
     }

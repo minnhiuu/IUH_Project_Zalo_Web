@@ -1,5 +1,16 @@
 import { useState, useRef, useEffect, useCallback, useMemo, type FormEvent, type KeyboardEvent } from 'react'
-import { SendHorizonal, Smile, Paperclip, ImageIcon, X, Quote, ThumbsUp, FileIcon, Loader2, Sparkles } from 'lucide-react'
+import {
+  SendHorizonal,
+  Smile,
+  Paperclip,
+  ImageIcon,
+  X,
+  Quote,
+  ThumbsUp,
+  FileIcon,
+  Loader2,
+  Sparkles
+} from 'lucide-react'
 import { useAiChat } from '../hooks/use-ai-chat'
 import type { MessageResponse } from '../schemas/chat.schema'
 import { MessageType } from '@/constants/enum'
@@ -138,7 +149,7 @@ export function ChatInput({
         // Clear old content and insert @Bondhub AI + suggestion
         inputRef.current.clear()
         inputRef.current.insertMention(aiMember.fullName, aiMember.userId)
-        
+
         // Use a small timeout to ensure mention span is inserted before plain text
         setTimeout(() => {
           const el = document.querySelector('[contenteditable="true"]') as HTMLDivElement
@@ -243,20 +254,20 @@ export function ChatInput({
 
     const replyMetadata = replyTo
       ? {
-        messageId: replyTo.id,
-        senderId: replyTo.senderId,
-        senderName: replyTo.senderName || '',
-        content:
-          (replyTo.type === MessageType.Image || replyTo.type === MessageType.Video) && !replyTo.content
-            ? replyTo.attachments?.[0]?.url || ''
-            : replyTo.content || '',
-        type: replyTo.type,
-        thumbnailUrl: replyTo.attachments?.[0]?.url || null
-      }
+          messageId: replyTo.id,
+          senderId: replyTo.senderId,
+          senderName: replyTo.senderName || '',
+          content:
+            (replyTo.type === MessageType.Image || replyTo.type === MessageType.Video) && !replyTo.content
+              ? replyTo.attachments?.[0]?.url || ''
+              : replyTo.content || '',
+          type: replyTo.type,
+          thumbnailUrl: replyTo.attachments?.[0]?.url || null
+        }
       : null
 
     const sendText = extractSendContent().trim()
-    console.log("sendText", sendText);
+    console.log('sendText', sendText)
 
     // Gửi file/ảnh/video
     if (fileAttachments.length > 0) {
@@ -286,10 +297,10 @@ export function ChatInput({
 
     sendMessage(conversationId, sendText, replyMetadata)
 
-    console.log("isAiMentioned", isAiMentioned(sendText));
+    console.log('isAiMentioned', isAiMentioned(sendText))
 
     if (isAiMentioned(sendText)) {
-      console.log("sendAiMessage (mention mode)");
+      console.log('sendAiMessage (mention mode)')
       sendAiMessage(sendText, true) // QUAN TRỌNG: pass true cho isMention
     }
 
@@ -351,86 +362,96 @@ export function ChatInput({
     e.stopPropagation()
   }, [])
 
-  const handleDrop = useCallback(async (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDragging(false)
-    dragCounterRef.current = 0
+  const handleDrop = useCallback(
+    async (e: React.DragEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      setIsDragging(false)
+      dragCounterRef.current = 0
 
-    const droppedFiles = e.dataTransfer.files
-    if (!droppedFiles || droppedFiles.length === 0) return
+      const droppedFiles = e.dataTransfer.files
+      if (!droppedFiles || droppedFiles.length === 0) return
 
-    const hasMedia = Array.from(droppedFiles).some(
-      (f) => f.type.startsWith('image/') || f.type.startsWith('video/')
-    )
-    const isAllMedia = Array.from(droppedFiles).every(
-      (f) => f.type.startsWith('image/') || f.type.startsWith('video/')
-    )
-
-    if (isAllMedia) {
-      // Ảnh/video → thêm vào preview
-      const newAttachments: FileAttachment[] = []
-      for (let i = 0; i < droppedFiles.length; i++) {
-        const file = droppedFiles[i]
-        if (file.size > MAX_FILE_SIZE) {
-          alert(`File "${file.name}" vượt quá 50MB`)
-          continue
-        }
-        const previewUrl = URL.createObjectURL(file)
-        newAttachments.push({ file, previewUrl })
-      }
-      if (newAttachments.length > 0) {
-        if (attachmentType === 'file') clearAttachments()
-        setFileAttachments((prev) => [...prev, ...newAttachments])
-        setAttachmentType('image')
-      }
-    } else {
-      // File thường → gửi trực tiếp
-      const fileOnly = Array.from(droppedFiles).filter(
-        (f) => !f.type.startsWith('image/') && !f.type.startsWith('video/')
+      const hasMedia = Array.from(droppedFiles).some((f) => f.type.startsWith('image/') || f.type.startsWith('video/'))
+      const isAllMedia = Array.from(droppedFiles).every(
+        (f) => f.type.startsWith('image/') || f.type.startsWith('video/')
       )
-      const attachments: FileAttachment[] = []
-      for (const file of fileOnly) {
-        if (file.size > MAX_FILE_SIZE) {
-          alert(`File "${file.name}" vượt quá 50MB`)
-          continue
+
+      if (isAllMedia) {
+        // Ảnh/video → thêm vào preview
+        const newAttachments: FileAttachment[] = []
+        for (let i = 0; i < droppedFiles.length; i++) {
+          const file = droppedFiles[i]
+          if (file.size > MAX_FILE_SIZE) {
+            alert(`File "${file.name}" vượt quá 50MB`)
+            continue
+          }
+          const previewUrl = URL.createObjectURL(file)
+          newAttachments.push({ file, previewUrl })
         }
-        attachments.push({ file })
-      }
-      if (attachments.length > 0) {
-        setIsSending(true)
-        try {
-          const replyMetadata = replyTo
-            ? { messageId: replyTo.id, senderId: replyTo.senderId, senderName: replyTo.senderName || '', content: replyTo.content || '', type: replyTo.type }
-            : null
-          await sendFileMessage(conversationId, attachments, '', replyMetadata)
-          onCancelReply?.()
-        } finally {
-          setIsSending(false)
-        }
-      }
-      // Nếu có cả ảnh lẫn file, thêm ảnh vào preview
-      if (hasMedia) {
-        const mediaOnly = Array.from(droppedFiles).filter(
-          (f) => f.type.startsWith('image/') || f.type.startsWith('video/')
-        )
-        const mediaAttachments: FileAttachment[] = []
-        for (const file of mediaOnly) {
-          if (file.size > MAX_FILE_SIZE) continue
-          mediaAttachments.push({ file, previewUrl: URL.createObjectURL(file) })
-        }
-        if (mediaAttachments.length > 0) {
+        if (newAttachments.length > 0) {
           if (attachmentType === 'file') clearAttachments()
-          setFileAttachments((prev) => [...prev, ...mediaAttachments])
+          setFileAttachments((prev) => [...prev, ...newAttachments])
           setAttachmentType('image')
         }
+      } else {
+        // File thường → gửi trực tiếp
+        const fileOnly = Array.from(droppedFiles).filter(
+          (f) => !f.type.startsWith('image/') && !f.type.startsWith('video/')
+        )
+        const attachments: FileAttachment[] = []
+        for (const file of fileOnly) {
+          if (file.size > MAX_FILE_SIZE) {
+            alert(`File "${file.name}" vượt quá 50MB`)
+            continue
+          }
+          attachments.push({ file })
+        }
+        if (attachments.length > 0) {
+          setIsSending(true)
+          try {
+            const replyMetadata = replyTo
+              ? {
+                  messageId: replyTo.id,
+                  senderId: replyTo.senderId,
+                  senderName: replyTo.senderName || '',
+                  content: replyTo.content || '',
+                  type: replyTo.type
+                }
+              : null
+            await sendFileMessage(conversationId, attachments, '', replyMetadata)
+            onCancelReply?.()
+          } finally {
+            setIsSending(false)
+          }
+        }
+        // Nếu có cả ảnh lẫn file, thêm ảnh vào preview
+        if (hasMedia) {
+          const mediaOnly = Array.from(droppedFiles).filter(
+            (f) => f.type.startsWith('image/') || f.type.startsWith('video/')
+          )
+          const mediaAttachments: FileAttachment[] = []
+          for (const file of mediaOnly) {
+            if (file.size > MAX_FILE_SIZE) continue
+            mediaAttachments.push({ file, previewUrl: URL.createObjectURL(file) })
+          }
+          if (mediaAttachments.length > 0) {
+            if (attachmentType === 'file') clearAttachments()
+            setFileAttachments((prev) => [...prev, ...mediaAttachments])
+            setAttachmentType('image')
+          }
+        }
       }
-    }
-  }, [attachmentType, clearAttachments, conversationId, onCancelReply, replyTo, sendFileMessage])
+    },
+    [attachmentType, clearAttachments, conversationId, onCancelReply, replyTo, sendFileMessage]
+  )
 
   return (
     <div
-      className={cn('bg-background border-t border-border flex flex-col p-0 gap-0 relative', isDragging && 'ring-2 ring-primary ring-inset')}
+      className={cn(
+        'bg-background border-t border-border flex flex-col p-0 gap-0 relative',
+        isDragging && 'ring-2 ring-primary ring-inset'
+      )}
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
@@ -479,7 +500,20 @@ export function ChatInput({
           if (attachments.length > 0) {
             setIsSending(true)
             try {
-              await sendFileMessage(conversationId, attachments, '', replyTo ? { messageId: replyTo.id, senderId: replyTo.senderId, senderName: replyTo.senderName || '', content: replyTo.content || '', type: replyTo.type } : null)
+              await sendFileMessage(
+                conversationId,
+                attachments,
+                '',
+                replyTo
+                  ? {
+                      messageId: replyTo.id,
+                      senderId: replyTo.senderId,
+                      senderName: replyTo.senderName || '',
+                      content: replyTo.content || '',
+                      type: replyTo.type
+                    }
+                  : null
+              )
               onCancelReply?.()
             } finally {
               setIsSending(false)
@@ -577,7 +611,19 @@ export function ChatInput({
             </button>
           </div>
           <div className='p-5 overflow-y-auto custom-scrollbar prose prose-sm dark:prose-invert max-w-none text-foreground/90'>
-            <ReactMarkdown>{summaryResult}</ReactMarkdown>
+            <ReactMarkdown
+              components={{
+                h2: ({ ...props }) => <h2 className='text-lg font-bold mt-2 mb-1' {...props} />,
+                h3: ({ ...props }) => <h3 className='text-base font-bold mt-2 mb-1' {...props} />,
+                p: ({ ...props }) => <p className='mb-1.5 last:mb-0' {...props} />,
+                ul: ({ ...props }) => <ul className='list-disc ml-5 mb-1.5' {...props} />,
+                ol: ({ ...props }) => <ol className='list-decimal ml-5 mb-1.5' {...props} />,
+                li: ({ ...props }) => <li className='mb-0.5' {...props} />,
+                strong: ({ ...props }) => <strong className='font-bold dark:text-blue-300' {...props} />
+              }}
+            >
+              {summaryResult}
+            </ReactMarkdown>
           </div>
           <div className='px-4 py-3 border-t border-border bg-muted/30 flex justify-end shrink-0'>
             <button
@@ -599,11 +645,7 @@ export function ChatInput({
           <div className='flex items-center justify-between bg-muted px-3 py-2 rounded-md border-l-2 border-primary gap-2'>
             <div className='flex items-center gap-2 flex-1 min-w-0'>
               {replyTo.type === MessageType.Image && replyTo.attachments?.[0]?.url ? (
-                <img
-                  src={replyTo.attachments[0].url}
-                  alt=''
-                  className='w-10 h-10 rounded object-cover shrink-0'
-                />
+                <img src={replyTo.attachments[0].url} alt='' className='w-10 h-10 rounded object-cover shrink-0' />
               ) : (
                 <Quote size={14} className='text-muted-foreground shrink-0' />
               )}

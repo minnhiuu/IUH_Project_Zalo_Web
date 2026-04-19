@@ -135,9 +135,9 @@ export function ChatLayout({
         }
 
         return selectedChat ? (
-          <ChatWindow 
-            conversation={selectedChat} 
-            snapshotId={currentSnapshotId} 
+          <ChatWindow
+            conversation={selectedChat}
+            snapshotId={currentSnapshotId}
             capturedUnreadCount={capturedUnreadCount}
             onClearSnapshot={handleClearSnapshot}
           />

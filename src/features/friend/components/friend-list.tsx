@@ -116,8 +116,7 @@ export function FriendList({ searchQuery = '' }: FriendListProps) {
             <div className='flex items-center justify-center h-full'>
               <SearchEmpty title={text.contactList.noFriendsMessage} />
             </div>
-          ) : searchQuery &&
-            Object.keys(processedFriends.groupedFriends).length === 0 ? (
+          ) : searchQuery && Object.keys(processedFriends.groupedFriends).length === 0 ? (
             <div className='flex items-center justify-center h-full'>
               <SearchEmpty title={text.search.noResult} />
             </div>

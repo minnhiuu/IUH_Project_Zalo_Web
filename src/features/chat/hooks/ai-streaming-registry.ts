@@ -71,7 +71,8 @@ export function useAiStreamingStore(conversationId: string) {
 
 export const aiStreamingRegistry = {
   isStreaming: (conversationId: string) => store.isStreaming(conversationId),
-  setStreaming: (conversationId: string, isStreaming: boolean, messageId?: string) => store.setStreaming(conversationId, isStreaming, messageId),
-  updateStream: (conversationId: string, content: string, status?: string) => store.updateStream(conversationId, content, status)
+  setStreaming: (conversationId: string, isStreaming: boolean, messageId?: string) =>
+    store.setStreaming(conversationId, isStreaming, messageId),
+  updateStream: (conversationId: string, content: string, status?: string) =>
+    store.updateStream(conversationId, content, status)
 }
-
