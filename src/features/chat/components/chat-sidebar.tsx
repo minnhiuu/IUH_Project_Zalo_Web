@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { chatKeys } from '../queries/keys'
-import { UserPlus, Users, Filter, MoreHorizontal, Megaphone } from 'lucide-react'
+import { UserPlus, Users, Filter, MoreHorizontal, Megaphone, Trash2, Clock3, FolderTree, BellOff, Flag } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useConversationsQuery } from '../queries/use-queries'
 import { useAuth } from '@/features/auth'
@@ -18,6 +18,10 @@ import { getConversationDisplayName } from '../utils/group-name'
 import { stripMentionsForPreview } from '../utils/mention'
 import { SearchAndActions, type SearchAction } from '@/components/common/search-and-actions'
 import { AddFriendSearchDialog } from '@/features/friend'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { useClearConversationHistoryMutation, useDeleteConversationMutation } from '../queries/use-mutations'
+import { ConversationHistoryConfirmDialog } from './conversation-history-confirm-dialog'
+import { showSimpleToast } from '@/utils/toast'
 
 interface ChatSidebarProps {
   selectedChatId?: string
@@ -27,10 +31,14 @@ interface ChatSidebarProps {
 export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) {
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false)
   const [isAddFriendModalOpen, setIsAddFriendModalOpen] = useState(false)
+  const [clearTarget, setClearTarget] = useState<ConversationResponse | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<ConversationResponse | null>(null)
   const { text, t, i18n } = useChatText()
   const { user } = useAuth()
   const { data: conversations, isLoading, isError } = useConversationsQuery()
   const queryClient = useQueryClient()
+  const { mutate: clearHistory, isPending: isClearing } = useClearConversationHistoryMutation()
+  const { mutate: deleteConversation, isPending: isDeleting } = useDeleteConversationMutation()
 
   const handleSelectChat = (chat: ConversationResponse) => {
     // Immediately zero out unread badge so bold/dot disappears on click
@@ -217,14 +225,119 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
 
               {/* Hover Actions */}
               <div className='absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-background/90 rounded-md p-0.5 shadow-sm border border-border/40'>
-                <button className='p-1.5 hover:bg-muted rounded transition-colors'>
-                  <MoreHorizontal className='w-4 h-4 text-text-secondary' />
-                </button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      className='p-1.5 hover:bg-muted rounded transition-colors'
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <MoreHorizontal className='w-4 h-4 text-text-secondary' />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align='end' className='w-56 rounded-xl'>
+                    <DropdownMenuItem className='text-[14px]' onClick={(e) => e.preventDefault()}>
+                      Ghim hội thoại
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className='text-[14px]' onClick={(e) => e.preventDefault()}>
+                      <FolderTree className='w-4 h-4 mr-2' />
+                      Phân loại
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className='text-[14px]' onClick={(e) => e.preventDefault()}>
+                      Đánh dấu chưa đọc
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className='text-[14px]' onClick={(e) => e.preventDefault()}>
+                      <Users className='w-4 h-4 mr-2' />
+                      Thêm vào nhóm
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className='text-[14px]' onClick={(e) => e.preventDefault()}>
+                      <BellOff className='w-4 h-4 mr-2' />
+                      Tắt thông báo
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className='text-[14px]' onClick={(e) => e.preventDefault()}>
+                      <Clock3 className='w-4 h-4 mr-2' />
+                      Tin nhắn tự xóa
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      className='text-[14px]'
+                      onClick={(e) => {
+                        e.preventDefault()
+                        setClearTarget(chat)
+                      }}
+                    >
+                      <Trash2 className='w-4 h-4 mr-2' />
+                      Xóa lịch sử chat
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className='text-[14px] text-destructive focus:text-destructive'
+                      onClick={(e) => {
+                        e.preventDefault()
+                        setDeleteTarget(chat)
+                      }}
+                    >
+                      <Trash2 className='w-4 h-4 mr-2' />
+                      Xóa hội thoại
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className='text-[14px]' onClick={(e) => e.preventDefault()}>
+                      <Flag className='w-4 h-4 mr-2' />
+                      Báo xấu
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           )
         })}
       </div>
+
+      <ConversationHistoryConfirmDialog
+        open={!!clearTarget}
+        onOpenChange={(open) => {
+          if (!open) setClearTarget(null)
+        }}
+        title='Xóa lịch sử chat'
+        description={`Bạn có chắc muốn xóa lịch sử chat với ${clearTarget ? getConversationDisplayName(clearTarget, 'Người dùng', undefined, user?.id) : ''}?`}
+        confirmLabel='Xóa'
+        cancelLabel='Hủy'
+        isPending={isClearing}
+        onConfirm={() => {
+          if (!clearTarget) return
+          clearHistory(clearTarget.id, {
+            onSuccess: () => {
+              showSimpleToast('Đã xóa lịch sử chat')
+              setClearTarget(null)
+            }
+          })
+        }}
+      />
+
+      <ConversationHistoryConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null)
+        }}
+        title='Xóa hội thoại'
+        description='Bạn sẽ không còn thấy hội thoại này trong danh sách. Hành động này chỉ áp dụng với tài khoản của bạn.'
+        confirmLabel='Xóa hội thoại'
+        cancelLabel='Hủy'
+        isPending={isDeleting}
+        destructive
+        onConfirm={() => {
+          if (!deleteTarget) return
+          const deletedId = deleteTarget.id
+          deleteConversation(deletedId, {
+            onSuccess: () => {
+              showSimpleToast('Đã xóa hội thoại')
+              setDeleteTarget(null)
+              if (selectedChatId === deletedId) {
+                queryClient.removeQueries({ queryKey: chatKeys.messages(deletedId) })
+              }
+            }
+          })
+        }}
+      />
 
       <CreateGroupDialog isOpen={isCreateGroupModalOpen} onClose={() => setIsCreateGroupModalOpen(false)} />
       <AddFriendSearchDialog open={isAddFriendModalOpen} onOpenChange={setIsAddFriendModalOpen} />

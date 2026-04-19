@@ -1,5 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-// test
+import { useMutation, useQueryClient, type InfiniteData } from '@tanstack/react-query'
 import {
   markAsRead,
   sendMessageApi,
@@ -14,6 +13,7 @@ import {
   updateGroupAvatarApi,
   updateGroupSettingsApi,
   deleteConversationApi,
+  clearConversationHistoryApi,
   leaveGroupApi,
   addMembersToGroupApi,
   removeMemberFromGroupApi,
@@ -33,7 +33,14 @@ import {
   updateJoinQuestionApi
 } from '../api/chat.api'
 import { chatKeys } from './keys'
-import type { ConversationResponse, ChatMessageRequest, GroupSettings, LeaveGroupRequest } from '../schemas/chat.schema'
+import type { PageResponse } from '@/shared/api'
+import type {
+  ConversationResponse,
+  ChatMessageRequest,
+  GroupSettings,
+  LeaveGroupRequest,
+  MessageResponse
+} from '../schemas/chat.schema'
 
 export const useMarkAsReadMutation = () => {
   const queryClient = useQueryClient()
@@ -211,6 +218,41 @@ export const useDeleteConversationMutation = () => {
     },
     onError: (error) => {
       console.error('Failed to delete conversation', error)
+    }
+  })
+}
+
+export const useClearConversationHistoryMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (conversationId: string) => clearConversationHistoryApi(conversationId),
+    onSuccess: (_, conversationId) => {
+      // Update sidebar preview immediately without waiting for refetch.
+      queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
+        if (!oldData) return []
+        return oldData.map((conv) => {
+          if (conv.id !== conversationId) return conv
+          return {
+            ...conv,
+            unreadCount: 0,
+            lastMessage: null
+          }
+        })
+      })
+
+      // Flush current chat window immediately.
+      queryClient.setQueryData<InfiniteData<PageResponse<MessageResponse>>>(chatKeys.messages(conversationId), {
+        pages: [],
+        pageParams: [0]
+      })
+
+      queryClient.invalidateQueries({ queryKey: chatKeys.messages(conversationId) })
+      queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+      queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'media', conversationId] })
+    },
+    onError: (error) => {
+      console.error('Failed to clear conversation history', error)
     }
   })
 }

@@ -182,6 +182,10 @@ export const deleteConversationApi = async (conversationId: string): Promise<voi
   await http.delete(`/messages/conversations/${conversationId}`)
 }
 
+export const clearConversationHistoryApi = async (conversationId: string): Promise<void> => {
+  await http.patch(`/messages/conversations/${conversationId}/clear-history`)
+}
+
 export const leaveGroupApi = async (conversationId: string, request: LeaveGroupRequest): Promise<void> => {
   await http.delete(`/messages/conversations/${conversationId}/leave`, {
     data: request
