@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo, type FormEvent, type KeyboardEvent } from 'react'
 import { SendHorizonal, Smile, Paperclip, ImageIcon, X, Quote, ThumbsUp, FileIcon, Loader2, Sparkles } from 'lucide-react'
+import { useAiChat } from '../hooks/use-ai-chat'
 import type { MessageResponse } from '../schemas/chat.schema'
 import { MessageType } from '@/constants/enum'
 import { useChatContext, type FileAttachment } from '../context/chat-context'
@@ -28,14 +29,14 @@ interface ChatInputProps {
   onClearSnapshot: () => void
 }
 
-export function ChatInput({ 
-  conversationId, 
-  isGroup, 
-  replyTo, 
-  onCancelReply, 
-  unreadCount = 0, 
+export function ChatInput({
+  conversationId,
+  isGroup,
+  replyTo,
+  onCancelReply,
+  unreadCount = 0,
   snapshotId,
-  onClearSnapshot 
+  onClearSnapshot
 }: ChatInputProps) {
   const { sendMessage, sendFileMessage, sendTyping } = useChatContext()
   const { text } = useChatText()
@@ -45,26 +46,13 @@ export function ChatInput({
   const [fileAttachments, setFileAttachments] = useState<FileAttachment[]>([])
   const [attachmentType, setAttachmentType] = useState<'image' | 'file' | null>(null)
   const [isSending, setIsSending] = useState(false)
-  
-  const [isSummarizing, setIsSummarizing] = useState(false)
-  const [summaryResult, setSummaryResult] = useState<string | null>(null)
 
-  const handleSummarize = async () => {
-    if (!snapshotId) return
-    setIsSummarizing(true)
-    try {
-      const response = await http.post('/v1/ai/summarize', {
-        conversationId: conversationId,
-        sinceMessageId: snapshotId
-      })
-      setSummaryResult(response.data.summary)
-    } catch (error) {
-      console.error('Failed to summarize:', error)
-      showErrorToast('Không thể kết nối với AI. Vui lòng thử lại sau.')
-    } finally {
-      setIsSummarizing(false)
-    }
-  }
+  const {
+    isSummarizing,
+    summaryResult,
+    handleSummarize,
+    clearSummary
+  } = useAiChat(conversationId)
 
   // ── AI Summarize Auto-hide logic (5 seconds) ──
   useEffect(() => {
@@ -217,16 +205,16 @@ export function ChatInput({
 
     const replyMetadata = replyTo
       ? {
-          messageId: replyTo.id,
-          senderId: replyTo.senderId,
-          senderName: replyTo.senderName || '',
-          content:
-            (replyTo.type === MessageType.Image || replyTo.type === MessageType.Video) && !replyTo.content
-              ? replyTo.attachments?.[0]?.url || ''
-              : replyTo.content || '',
-          type: replyTo.type,
-          thumbnailUrl: replyTo.attachments?.[0]?.url || null
-        }
+        messageId: replyTo.id,
+        senderId: replyTo.senderId,
+        senderName: replyTo.senderName || '',
+        content:
+          (replyTo.type === MessageType.Image || replyTo.type === MessageType.Video) && !replyTo.content
+            ? replyTo.attachments?.[0]?.url || ''
+            : replyTo.content || '',
+        type: replyTo.type,
+        thumbnailUrl: replyTo.attachments?.[0]?.url || null
+      }
       : null
 
     const sendText = extractSendContent().trim()
@@ -474,8 +462,8 @@ export function ChatInput({
           <Paperclip size={20} />
         </button>
         <div className='w-[1px] h-4 bg-border mx-1' />
-        <button 
-          type='button' 
+        <button
+          type='button'
           onClick={() => {
             inputRef.current?.insertText('@')
             inputRef.current?.focus()
@@ -494,7 +482,7 @@ export function ChatInput({
         <div className='absolute bottom-full left-0 right-0 flex justify-center pb-4 z-40 pointer-events-none'>
           <button
             type='button'
-            onClick={handleSummarize}
+            onClick={() => snapshotId && handleSummarize(snapshotId)}
             disabled={isSummarizing}
             className='pointer-events-auto flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-zinc-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-full text-[13px] font-bold border border-blue-200 dark:border-blue-800 transition-all shadow-xl hover:shadow-blue-200 animate-in slide-in-from-bottom-4 zoom-in-95 duration-300'
           >
@@ -522,7 +510,7 @@ export function ChatInput({
             </div>
             <button
               onClick={() => {
-                setSummaryResult(null)
+                clearSummary()
                 onClearSnapshot()
               }}
               className='p-1.5 hover:bg-black/5 rounded-full transition-colors'
@@ -536,7 +524,7 @@ export function ChatInput({
           <div className='px-4 py-3 border-t border-border bg-muted/30 flex justify-end shrink-0'>
             <button
               onClick={() => {
-                setSummaryResult(null)
+                clearSummary()
                 onClearSnapshot()
               }}
               className='px-4 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-medium hover:opacity-90 transition-opacity'
