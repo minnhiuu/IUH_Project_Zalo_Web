@@ -5,6 +5,7 @@ import AdminLayout from '@/layouts/admin-layout'
 import AdminElasticsearchPage from '@/pages/admin/elasticsearch.page'
 import AdminFailedEventsPage from '@/pages/admin/failed-events.page'
 import UserManagementPage from '@/pages/admin/user-management-page'
+import IngestDocumentPage from '@/pages/admin/ingest-document.page'
 
 export const adminRoutes: RouteObject = {
   element: <PrivateRoute requireAuth requireAdmin />,
@@ -21,6 +22,10 @@ export const adminRoutes: RouteObject = {
         {
           path: PATHS.ADMIN.FAILED_EVENTS,
           element: <AdminFailedEventsPage />
+        },
+        {
+          path: PATHS.ADMIN.INGEST_DOCUMENT,
+          element: <IngestDocumentPage />
         }
       ]
     }

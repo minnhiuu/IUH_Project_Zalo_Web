@@ -29,6 +29,7 @@ export const PATHS = {
     DASHBOARD: '/admin',
     USERS: '/admin/users',
     ELASTICSEARCH: '/admin/elasticsearch',
-    FAILED_EVENTS: '/admin/elasticsearch/failed-events'
+    FAILED_EVENTS: '/admin/elasticsearch/failed-events',
+    INGEST_DOCUMENT: '/admin/ingest-document'
   }
 } as const
