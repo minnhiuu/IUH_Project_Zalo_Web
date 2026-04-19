@@ -18,13 +18,21 @@ interface AuthContextType {
   logoutLocal: () => void
   updateUser: (user: UserResponse) => void
   refetchUser: () => Promise<void>
-  loginSuccess: (accessToken: string) => Promise<UserResponse>
+  loginSuccess: (accessToken: string, refreshTokenExpirationMs?: number) => Promise<UserResponse>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<UserResponse | null>(() => storage.get(STORAGE_KEYS.USER_PROFILE))
+  const [user, setUser] = useState<UserResponse | null>(() => {
+    const expiration = storage.get<number>(STORAGE_KEYS.REFRESH_TOKEN_EXPIRATION)
+    if (expiration && Date.now() > expiration) {
+      clearAccessToken()
+      storage.remove(STORAGE_KEYS.USER_PROFILE)
+      return null
+    }
+    return storage.get(STORAGE_KEYS.USER_PROFILE)
+  })
   const queryClient = useQueryClient()
 
   const setAuthUser = useCallback((userData: UserResponse | null) => {
@@ -40,6 +48,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     clearAccessToken()
     setUser(null)
     storage.remove(STORAGE_KEYS.USER_PROFILE)
+    storage.remove(STORAGE_KEYS.FCM_TOKEN)
     queryClient.clear()
   }, [queryClient])
 
@@ -51,8 +60,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const refetchUser = useCallback(async () => {
     if (!getAccessToken()) return
     try {
-      const userData = await queryClient.fetchQuery(getMyProfileQueryOptions())
-      if (userData) {
+      const rawUser = await queryClient.fetchQuery(getMyProfileQueryOptions())
+      if (rawUser) {
+        let userData = rawUser
+        if (!userData.role) {
+          try {
+            const token = getAccessToken()!
+            const payload = JSON.parse(atob(token.split('.')[1]))
+            if (payload.role) {
+              userData = { ...rawUser, role: payload.role }
+            }
+          } catch {
+            // ignore decode errors
+          }
+        }
         setAuthUser(userData)
       }
     } catch (error) {
@@ -61,10 +82,26 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, [setAuthUser, queryClient])
 
   const loginSuccess = useCallback(
-    async (accessToken: string) => {
-      setAccessToken(accessToken)
+    async (accessToken: string, refreshTokenExpirationMs?: number) => {
+      setAccessToken(accessToken, refreshTokenExpirationMs)
       await new Promise((resolve) => setTimeout(resolve, 800))
-      const userData = await queryClient.fetchQuery(getMyProfileQueryOptions())
+      // Invalidate cache để đảm bảo fetch fresh data
+      await queryClient.invalidateQueries({ queryKey: ['users', 'me'] })
+      const rawUser = await queryClient.fetchQuery(getMyProfileQueryOptions())
+      let userData = rawUser
+      // Decode role from JWT if API response doesn't include it
+      if (!userData.role) {
+        try {
+          const payload = JSON.parse(atob(accessToken.split('.')[1]))
+          console.log('[Auth] JWT payload:', payload)
+          if (payload.role) {
+            userData = { ...rawUser, role: payload.role }
+          }
+        } catch {
+          // ignore decode errors
+        }
+      }
+      console.log('[Auth] Final userData.role:', userData.role)
       setAuthUser(userData)
       return userData
     },

@@ -31,6 +31,8 @@
       "confirm": "Confirm",
       "edit": "Edit",
       "updating": "Updating...",
+      "phoneLabel": "Phone number",
+      "phonePlaceholder": "Enter phone number",
       "bio": "Bio",
       "bioLabel": "Bio",
       "bioPlaceholder": "Enter bio",
@@ -52,14 +54,18 @@
       "mutualGroups": "Mutual groups ({{count}})",
       "shareContact": "Share contact card",
       "block": "Block messages and calls",
+      "editBlock": "Block settings",
       "report": "Report",
       "deleteFriend": "Remove from friends list"
     },
     "validation": {
       "fullNameRequired": "Display name is required",
+      "phoneRequired": "Phone number is required",
       "dobInvalid": "Birthday cannot be in the future",
       "genderRequired": "Please select a gender",
-      "bioTooLong": "Bio cannot exceed 150 characters"
+      "bioTooLong": "Bio cannot exceed 150 characters",
+      "phoneInvalid": "Invalid phone number",
+      "phoneAlreadyUsed": "This phone number is already in use"
     },
     "settings": {
       "title": "Settings",
@@ -243,6 +249,43 @@
           "activeStatus": "Active now",
           "activeDevices": "Active Devices",
           "inactiveDevices": "Other Devices"
+        },
+        "blockedUsers": {
+          "title": "Blocked list",
+          "description": "These people cannot send messages to you",
+          "showAllButton": "View blocked list",
+          "unblockConfirm": "Are you sure you want to unblock {{name}}?",
+          "unblockSuccess": "Unblocked {{name}}",
+          "unblockError": "Could not unblock this user",
+          "unblocking": "Unblocking...",
+          "unblockButton": "Unblock",
+          "blockDate": "Blocked on: {{date}}",
+          "empty": "No blocked users",
+          "emptyDescription": "Users you block will appear here",
+          "types": {
+            "message": "Messages",
+            "call": "Calls",
+            "story": "Stories"
+          }
+        },
+        "blockModal": {
+          "title": "Block User",
+          "editTitle": "Block Settings",
+          "description": "Choose what you want to block from {{name}}",
+          "editDescription": "Customize how you block {{name}}",
+          "blockMessage": "Block messages",
+          "blockCall": "Block calls",
+          "blockStory": "Block stories",
+          "confirmButton": "Block",
+          "updateButton": "Update",
+          "cancelButton": "Cancel",
+          "unblockButton": "Unblock",
+          "blockSuccess": "Blocked {{name}}",
+          "blockError": "Could not block this user",
+          "updateSuccess": "Block settings updated",
+          "updateError": "Could not update settings",
+          "unblockSuccess": "Unblocked {{name}}",
+          "unblockError": "Could not unblock this user"
         }
       }
     }

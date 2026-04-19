@@ -6,10 +6,15 @@ export const STORAGE_KEYS = {
   THEME: `${APP_PREFIX}theme`,
   ACCESS_TOKEN: `${APP_PREFIX}access_token`,
   REFRESH_TOKEN: `${APP_PREFIX}refresh_token`,
+  REFRESH_TOKEN_EXPIRATION: `${APP_PREFIX}refresh_token_expiration`,
   USER_PROFILE: `${APP_PREFIX}user_profile`,
+
   SETTINGS: `${APP_PREFIX}settings`,
   DEVICE_ID: `${APP_PREFIX}device_id`,
-  LOCALE: `${APP_PREFIX}locale`
+  LOCALE: `${APP_PREFIX}locale`,
+  RECENT_SEARCHES: `${APP_PREFIX}recent_searches`,
+  FCM_TOKEN: `${APP_PREFIX}fcm_token`,
+  FCM_REGISTERED_USER_ID: `${APP_PREFIX}fcm_registered_user_id`
 } as const
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS]

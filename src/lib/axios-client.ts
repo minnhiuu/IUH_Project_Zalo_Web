@@ -1,16 +1,27 @@
 import axios, { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
+import { showErrorToast } from '@/utils/toast'
 import { getDeviceId } from '../utils/device'
 import { storage, STORAGE_KEYS } from '@/utils/local-storage'
+import i18n from '@/lib/i18n'
 
 export const getAccessToken = (): string | null => storage.get(STORAGE_KEYS.ACCESS_TOKEN)
 
-export const setAccessToken = (token: string | null): void => {
-  if (token) storage.set(STORAGE_KEYS.ACCESS_TOKEN, token)
-  else storage.remove(STORAGE_KEYS.ACCESS_TOKEN)
+export const setAccessToken = (token: string | null, refreshTokenExpirationMs?: number): void => {
+  if (token) {
+    storage.set(STORAGE_KEYS.ACCESS_TOKEN, token)
+    if (refreshTokenExpirationMs) {
+      const expiryTimestamp = Date.now() + refreshTokenExpirationMs
+      storage.set(STORAGE_KEYS.REFRESH_TOKEN_EXPIRATION, expiryTimestamp)
+    }
+  } else {
+    storage.remove(STORAGE_KEYS.ACCESS_TOKEN)
+    storage.remove(STORAGE_KEYS.REFRESH_TOKEN_EXPIRATION)
+  }
 }
 
 export const clearAccessToken = (): void => {
   storage.remove(STORAGE_KEYS.ACCESS_TOKEN)
+  storage.remove(STORAGE_KEYS.REFRESH_TOKEN_EXPIRATION)
 }
 
 const http = axios.create({
@@ -43,7 +54,15 @@ const refreshAccessToken = async (): Promise<string | null> => {
     const newToken = response.data?.data?.accessToken ?? null
     setAccessToken(newToken)
     return newToken
-  } catch {
+  } catch (err) {
+    const code = (err as AxiosError<{ code?: number }>)?.response?.data?.code
+    if (code === 1013) {
+      clearAccessToken()
+      showErrorToast('Tài khoản của bạn đã bị cấm', 4000)
+      setTimeout(() => {
+        window.location.href = '/login'
+      }, 2000)
+    }
     return null
   }
 }
@@ -51,6 +70,7 @@ const refreshAccessToken = async (): Promise<string | null> => {
 http.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const locale = storage.get(STORAGE_KEYS.LOCALE) || 'vi'
   config.headers['Accept-Language'] = locale
+  config.headers['X-Device-Id'] = getDeviceId()
   const isAuthEndpoint =
     config.url?.includes('/auth/login') ||
     config.url?.includes('/auth/register') ||
@@ -71,8 +91,26 @@ http.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as (InternalAxiosRequestConfig & { _retry?: boolean }) | undefined
+    const responseData = error.response?.data as { code?: number } | undefined
 
-    if (!originalRequest || error.response?.status !== 401) {
+    // Account banned — show message then redirect
+    if (responseData?.code === 1013) {
+      clearAccessToken()
+      showErrorToast('Tài khoản của bạn đã bị cấm', 4000)
+      if (!window.location.pathname.includes('/login')) {
+        setTimeout(() => {
+          window.location.href = '/login'
+        }, 2000)
+      }
+      return Promise.reject(error)
+    }
+
+    if (!originalRequest || (error.response?.status !== 401 && (error.response?.status ?? 0) < 500)) {
+      return Promise.reject(error)
+    }
+
+    if (error.response && error.response.status >= 500) {
+      showErrorToast(i18n.t('common:errorDefault'))
       return Promise.reject(error)
     }
 

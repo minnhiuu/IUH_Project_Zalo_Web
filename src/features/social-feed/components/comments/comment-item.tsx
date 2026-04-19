@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { Button } from '@/components/ui/button'
-import { Reply, ThumbsUp } from 'lucide-react'
+import { Reply, ThumbsUp, Flag } from 'lucide-react'
 import { REACTIONS, ReactionPicker, type ReactionType } from '../post/reaction-picker'
 import { ReactionPeopleModal } from '../post/reaction-people-modal'
 import { useSocialText } from '../../i18n/use-social-text'
@@ -12,6 +12,7 @@ import { formatRelativeTime } from '@/utils/date'
 import { useSocialCommentReplies } from '../../queries/use-queries'
 import { commentApi } from '../../api/comment.api'
 import { socialFeedCommentKeys } from '../../queries/keys'
+import { ReportContentDialog } from '@/features/report/components/report-content-dialog'
 
 interface CommentItemProps {
   comment: SocialFeedComment
@@ -46,6 +47,7 @@ export function CommentItem({
   const [isEditing, setIsEditing] = useState(false)
   const [draftContent, setDraftContent] = useState(comment.content)
   const [showReplies, setShowReplies] = useState(false)
+  const [reportDialogOpen, setReportDialogOpen] = useState(false)
   const hasReplies = (comment.replyCount ?? 0) > 0
   const repliesQuery = useSocialCommentReplies(postId, comment.id, showReplies && hasReplies)
   const replies = repliesQuery.data ?? []
@@ -126,7 +128,9 @@ export function CommentItem({
               {comment.authorName}
             </p>
             {comment.isEdited ? (
-              <span className='text-[11px] font-medium text-zinc-500/80 dark:text-zinc-500'>{text.commentItem.edited}</span>
+              <span className='text-[11px] font-medium text-zinc-500/80 dark:text-zinc-500'>
+                {text.commentItem.edited}
+              </span>
             ) : null}
           </div>
           {isEditing ? (
@@ -247,18 +251,24 @@ export function CommentItem({
                 {text.commentItem.delete}
               </button>
             </>
-          ) : null}
+          ) : (
+            <button
+              type='button'
+              disabled={isMutating}
+              onClick={() => setReportDialogOpen(true)}
+              className='inline-flex items-center gap-1 text-[12px] font-bold text-zinc-500 transition-colors hover:text-red-600 disabled:text-zinc-400 dark:text-zinc-400 dark:hover:text-red-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/50'
+            >
+              <Flag className='h-3 w-3' />
+              Report
+            </button>
+          )}
         </div>
         {showReplies ? (
           <div className='relative mt-3 space-y-3 pl-4 before:absolute before:bottom-0 before:left-0 before:top-0 before:w-px before:bg-zinc-200 dark:before:bg-white/10'>
             {repliesQuery.isLoading ? (
-              <p className='text-xs text-zinc-500 dark:text-zinc-400'>
-                {text.commentItem.loadingReplies}
-              </p>
+              <p className='text-xs text-zinc-500 dark:text-zinc-400'>{text.commentItem.loadingReplies}</p>
             ) : repliesQuery.isError ? (
-              <p className='text-xs text-red-500'>
-                {text.commentItem.loadRepliesError}
-              </p>
+              <p className='text-xs text-red-500'>{text.commentItem.loadRepliesError}</p>
             ) : replies.length > 0 ? (
               replies.map((reply) => (
                 <CommentItem
@@ -275,9 +285,7 @@ export function CommentItem({
                 />
               ))
             ) : (
-              <p className='text-xs text-zinc-500 dark:text-zinc-400'>
-                {text.commentItem.noReplies}
-              </p>
+              <p className='text-xs text-zinc-500 dark:text-zinc-400'>{text.commentItem.noReplies}</p>
             )}
           </div>
         ) : null}
@@ -286,6 +294,12 @@ export function CommentItem({
       <ReactionPeopleModal
         open={showReactionModal}
         onOpenChange={setShowReactionModal}
+        targetId={comment.id}
+        targetType='COMMENT'
+      />
+      <ReportContentDialog
+        open={reportDialogOpen}
+        onOpenChange={setReportDialogOpen}
         targetId={comment.id}
         targetType='COMMENT'
       />

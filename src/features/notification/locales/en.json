@@ -1,0 +1,38 @@
+{
+  "notification": {
+    "title": "Notifications",
+    "filter": {
+      "all": "All",
+      "unread": "Unread"
+    },
+    "group": {
+      "newest": "Newest",
+      "today": "Today",
+      "previous": "Previous"
+    },
+    "empty": {
+      "title": "No notifications yet",
+      "description": "You'll see activity here when it happens.",
+      "placeholder": "Check back later for new updates"
+    },
+    "action": {
+      "accept": "Accept",
+      "decline": "Decline",
+      "accepted": "Accepted friend invitation",
+      "declined": "Declined friend invitation",
+      "viewProfile": "View Profile",
+      "followers": "{{count}} followers"
+    },
+    "menu": {
+      "markAllAsRead": "Mark all as read",
+      "settings": "Notification settings",
+      "open": "Open notifications"
+    },
+    "validation": {
+      "receiverIdRequired": "Receiver ID is required",
+      "senderIdRequired": "Sender ID is required",
+      "senderNameRequired": "Sender name is required",
+      "requestIdRequired": "Request ID is required"
+    }
+  }
+}

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
-import { Eye, Globe, MessageCircle, MoreHorizontal, Share2, ThumbsUp, Users, EyeOff } from 'lucide-react'
+import { Eye, Flag, Globe, MessageCircle, MoreHorizontal, Share2, ThumbsUp, Users, EyeOff } from 'lucide-react'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
@@ -17,6 +17,7 @@ import { formatRelativeTime } from '@/utils/date'
 import { useViewTracker } from '../../hooks/use-view-tracker'
 import { commentApi } from '../../api/comment.api'
 import { useDislikePostMutation } from '../../queries/use-mutations'
+import { ReportContentDialog } from '@/features/report/components/report-content-dialog'
 import { toast } from 'sonner'
 
 export interface SocialPostMedia {
@@ -78,6 +79,7 @@ export function PostCard({ post }: PostCardProps) {
     media: post.media ?? []
   })
   const [isExpanded, setIsExpanded] = useState(false)
+  const [reportDialogOpen, setReportDialogOpen] = useState(false)
 
   const VisibilityIcon = post.visibility === 'Public' ? Globe : post.visibility === 'Friends' ? Users : Globe
   const activeReaction = selectedReaction ? REACTIONS.find((reaction) => reaction.type === selectedReaction) : null
@@ -192,6 +194,13 @@ export function PostCard({ post }: PostCardProps) {
             <DropdownMenuItem onClick={handleNotInterested} className='gap-2 text-[13.5px]'>
               <EyeOff className='h-4 w-4' />
               Not interested
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => setReportDialogOpen(true)}
+              className='gap-2 text-[13.5px] text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400'
+            >
+              <Flag className='h-4 w-4' />
+              Report post
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -371,6 +380,12 @@ export function PostCard({ post }: PostCardProps) {
         />
       )}
       {shareModalOpen && <SharePostModal open={shareModalOpen} onOpenChange={setShareModalOpen} post={post} />}
+      <ReportContentDialog
+        open={reportDialogOpen}
+        onOpenChange={setReportDialogOpen}
+        targetId={post.id}
+        targetType='POST'
+      />
       {mediaModalState.open && (
         <PostMediaModal
           open={mediaModalState.open}

@@ -2,8 +2,12 @@ import { type RouteObject } from 'react-router'
 import { PATHS } from '@/constants/path'
 import UserLayout from '@/layouts/user-layout'
 import ChatPage from '@/pages/user/chat/chat-page'
+import CloudPage from '@/pages/user/cloud/cloud-page'
+import SettingsPage from '@/pages/user/settings/settings-page'
 import SocialFeedPage from '@/pages/user/social-feed/social-feed-page'
 import { PrivateRoute } from './private-route'
+import ContactPage from '@/pages/user/contacts/contact-page'
+import JoinGroupPage from '@/pages/user/join/join-group-page'
 
 export const userRoutes: RouteObject = {
   element: <PrivateRoute requireAuth />,
@@ -11,7 +15,13 @@ export const userRoutes: RouteObject = {
     {
       element: <UserLayout />,
       children: [
-        { path: PATHS.HOME, element: <ChatPage /> }
+        { path: PATHS.HOME, element: <ChatPage /> },
+        { path: PATHS.CHAT.CONVERSATION, element: <ChatPage /> },
+        { path: PATHS.CHAT.USER, element: <ChatPage /> },
+        { path: PATHS.JOIN_GROUP, element: <JoinGroupPage /> },
+        { path: PATHS.CLOUD, element: <CloudPage /> },
+        { path: PATHS.CONTACTS, element: <ContactPage /> },
+        { path: PATHS.USER.SETTINGS, element: <SettingsPage /> }
       ]
     },
     { path: PATHS.SOCIAL_FEED, element: <SocialFeedPage /> }

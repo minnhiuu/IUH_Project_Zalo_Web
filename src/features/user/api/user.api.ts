@@ -1,6 +1,7 @@
 import type { UserResponse, UserUpdateRequest, UserImageResponse } from '@/features/user/schemas/user.schema'
+import type { AuditLog } from '@/features/user/schemas/audit-log.schema'
 import http from '@/lib/axios-client'
-import type { ApiResponse } from '@/shared/api'
+import type { ApiResponse, PageResponse } from '@/shared/api'
 
 export const userApi = {
   getMyProfile: () => http.get<ApiResponse<UserResponse>>('/users/me'),
@@ -9,7 +10,15 @@ export const userApi = {
   updateBackground: (body: FormData) => http.patch<ApiResponse<UserImageResponse>>('/users/profile/background', body),
   updateBackgroundPosition: (y: number) =>
     http.patch<ApiResponse<UserImageResponse>>(`/users/profile/background/position?y=${y}`),
+  updateBio: (body: { bio: string }) => http.put<ApiResponse<UserResponse>>('/users/profile/bio', body),
 
   getUserById: (id: string) => http.get<ApiResponse<UserResponse>>(`/users/${id}`),
-  getAuthorProfileById: (id: string) => http.get<ApiResponse<UserResponse>>(`/users/${id}`)
+  getAuthorProfileById: (id: string) => http.get<ApiResponse<UserResponse>>(`/users/${id}`),
+
+  // Audit Logs
+  getMyAuditLogs: (params?: { page?: number; size?: number }) =>
+    http.get<ApiResponse<PageResponse<AuditLog>>>('/audit-logs', { params }),
+
+  getUserAuditLogs: (userId: string, params?: { page?: number; size?: number }) =>
+    http.get<ApiResponse<PageResponse<AuditLog>>>(`/audit-logs/${userId}`, { params })
 }

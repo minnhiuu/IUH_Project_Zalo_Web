@@ -6,7 +6,7 @@ import axios from 'axios'
 
 import { type LoginRequest, loginRequestSchema } from '@/features/auth/schemas/auth.schema'
 import { useLoginMutation } from '@/features/auth/queries/use-mutations'
-import { DeviceType, PATHS } from '@/constants'
+import { DeviceType, PATHS, Role } from '@/constants'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { getDeviceId } from '@/utils/device'
 import { handleErrorApi, getErrorMessage } from '@/utils/error-handler'
@@ -41,13 +41,20 @@ export default function LoginForm({ onSwitchToQR }: { onSwitchToQR: () => void }
     setIsLoggingIn(true)
     try {
       const result = await loginMutation.mutateAsync(data)
-      const { accessToken } = result.data.data!
-      await loginSuccess(accessToken)
-      navigate(PATHS.HOME)
+      const { accessToken, refreshTokenExpirationMs } = result.data.data!
+      const user = await loginSuccess(accessToken, refreshTokenExpirationMs)
+      if (user.role === Role.Admin) {
+        navigate(PATHS.ADMIN.DASHBOARD)
+      } else {
+        navigate(PATHS.HOME)
+      }
     } catch (error) {
       setIsLoggingIn(false)
       if (axios.isAxiosError(error)) {
         const code = error.response?.data?.code
+        if (code === 1013) {
+          return // interceptor already showed the toast
+        }
         if (code === 1006 || code === 2006) {
           form.setError('password', {
             type: 'server',

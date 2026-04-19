@@ -5,8 +5,16 @@ export const PATHS = {
   SEARCH: '/search',
   CONTACTS: '/contacts',
   TODO: '/todo',
+  NOTIFICATIONS: '/notifications',
   CLOUD: '/cloud',
   BUSINESS: '/business',
+
+  CHAT: {
+    CONVERSATION: '/chat/c/:id',
+    USER: '/chat/u/:id'
+  },
+
+  JOIN_GROUP: '/g/:token',
 
   AUTH: {
     LOGIN: '/login',
@@ -21,6 +29,10 @@ export const PATHS = {
 
   ADMIN: {
     DASHBOARD: '/admin',
-    USERS: '/admin/users'
+    USERS: '/admin/users',
+    REPORTS: '/admin/reports',
+    REPORT_DETAIL: '/admin/reports/:targetType/:targetId',
+    ELASTICSEARCH: '/admin/elasticsearch',
+    FAILED_EVENTS: '/admin/elasticsearch/failed-events'
   }
 } as const

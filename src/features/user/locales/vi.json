@@ -31,6 +31,8 @@
       "confirm": "Xác nhận",
       "edit": "Chỉnh sửa",
       "updating": "Đang cập nhật...",
+      "phoneLabel": "Số điện thoại",
+      "phonePlaceholder": "Nhập số điện thoại",
       "bio": "Giới thiệu",
       "bioLabel": "Bio",
       "bioPlaceholder": "Nhập giới thiệu bản thân",
@@ -52,14 +54,18 @@
       "mutualGroups": "Nhóm chung ({{count}})",
       "shareContact": "Chia sẻ danh thiếp",
       "block": "Chặn tin nhắn và cuộc gọi",
+      "editBlock": "Cài đặt chặn",
       "report": "Báo xấu",
       "deleteFriend": "Xóa khỏi danh sách bạn bè"
     },
     "validation": {
       "fullNameRequired": "Tên hiển thị không được để trống",
+      "phoneRequired": "Số điện thoại không được để trống",
       "dobInvalid": "Ngày sinh không được lớn hơn ngày hiện tại",
       "genderRequired": "Vui lòng chọn giới tính",
-      "bioTooLong": "Tiểu sử không được vượt quá 150 ký tự"
+      "bioTooLong": "Tiểu sử không được vượt quá 150 ký tự",
+      "phoneInvalid": "Số điện thoại không hợp lệ",
+      "phoneAlreadyUsed": "Số điện thoại này đã được sử dụng"
     },
     "settings": {
       "title": "Cài đặt",
@@ -243,6 +249,43 @@
           "activeStatus": "Đang hoạt động",
           "activeDevices": "Thiết bị đang hoạt động",
           "inactiveDevices": "Thiết bị khác"
+        },
+        "blockedUsers": {
+          "title": "Danh sách chặn",
+          "description": "Những người này không thể gửi tin nhắn cho bạn",
+          "showAllButton": "Xem danh sách chặn",
+          "unblockConfirm": "Bạn có chắc muốn bỏ chặn {{name}}?",
+          "unblockSuccess": "Đã bỏ chặn {{name}}",
+          "unblockError": "Không thể bỏ chặn người dùng này",
+          "unblocking": "Đang bỏ chặn...",
+          "unblockButton": "Bỏ chặn",
+          "blockDate": "Đã chặn: {{date}}",
+          "empty": "Bạn chưa chặn ai",
+          "emptyDescription": "Khi bạn chặn người dùng, họ sẽ xuất hiện ở đây",
+          "types": {
+            "message": "Tin nhắn",
+            "call": "Cuộc gọi",
+            "story": "Nhật ký"
+          }
+        },
+        "blockModal": {
+          "title": "Chặn người dùng",
+          "editTitle": "Cài đặt chặn",
+          "description": "Chọn những gì bạn muốn chặn từ {{name}}",
+          "editDescription": "Tùy chỉnh cách bạn chặn {{name}}",
+          "blockMessage": "Chặn tin nhắn",
+          "blockCall": "Chặn cuộc gọi",
+          "blockStory": "Chặn nhật ký",
+          "confirmButton": "Chặn",
+          "updateButton": "Cập nhật",
+          "cancelButton": "Hủy",
+          "unblockButton": "Bỏ chặn",
+          "blockSuccess": "Đã chặn {{name}}",
+          "blockError": "Không thể chặn người dùng này",
+          "updateSuccess": "Đã cập nhật cài đặt chặn",
+          "updateError": "Không thể cập nhật cài đặt",
+          "unblockSuccess": "Đã bỏ chặn {{name}}",
+          "unblockError": "Không thể bỏ chặn người dùng này"
         }
       }
     }

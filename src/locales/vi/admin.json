@@ -1,0 +1,254 @@
+{
+  "brand": "BONDHUB",
+  "panel": "Admin Panel",
+  "systemAdmin": "System Admin",
+  "menu": {
+    "dashboard": "Tổng quan",
+    "users": "Người dùng",
+    "elasticsearch": "Elasticsearch",
+    "logout": "Đăng xuất",
+    "profile": "Hồ sơ cá nhân",
+    "changePassword": "Đổi mật khẩu",
+    "myAccount": "Tài khoản của tôi",
+    "language": "Ngôn ngữ",
+    "appearance": "Giao diện",
+    "themeLight": "Sáng",
+    "themeDark": "Tối",
+    "themeSystem": "Hệ thống"
+  },
+  "header": {
+    "searchPlaceholder": "Nhấn / để tìm kiếm..."
+  },
+  "elasticsearch": {
+    "modules": {
+      "users": "Người dùng",
+      "messages": "Tin nhắn",
+      "groups": "Nhóm chat"
+    }
+  },
+  "userManagement": {
+    "title": "Quản lý người dùng",
+    "description": "Quản lý tất cả người dùng trong hệ thống",
+    "search": "Tìm kiếm",
+    "searchPlaceholder": "Tên, email, số điện thoại...",
+    "filter": "Bộ lọc",
+    "reset": "Đặt lại",
+    "status": "Trạng thái",
+    "role": "Vai trò",
+    "allStatus": "Tất cả",
+    "active": "Hoạt động",
+    "banned": "Đã cấm",
+    "allRoles": "Tất cả",
+    "user": "Người dùng",
+    "admin": "Quản trị viên",
+    "table": {
+      "no": "#",
+      "userName": "Người dùng",
+      "email": "Email",
+      "phone": "Số điện thoại",
+      "role": "Vai trò",
+      "status": "Trạng thái",
+      "createdAt": "Ngày tạo",
+      "lastLogin": "Đăng nhập cuối",
+      "actions": "Hành động",
+      "noData": "Không tìm thấy người dùng nào"
+    },
+    "stats": {
+      "totalUsers": "Tổng số người dùng",
+      "activeUsers": "Đang hoạt động",
+      "bannedUsers": "Đã cấm",
+      "totalPages": "Tổng số trang"
+    },
+    "pagination": {
+      "showing": "Hiển thị",
+      "of": "trong tổng số",
+      "users": "người dùng",
+      "page": "Trang",
+      "previous": "Trước",
+      "next": "Sau",
+      "pageOf": "Trang {{current}} / {{total}}"
+    },
+    "actions": {
+      "view": "Xem chi tiết",
+      "ban": "Cấm người dùng",
+      "unban": "Bỏ cấm người dùng",
+      "update": "Cập nhật"
+    },
+    "tabs": {
+      "active": "Đang hoạt động",
+      "banned": "Đã bị cấm"
+    },
+    "filters": {
+      "name": "Tên",
+      "namePlaceholder": "Tìm theo tên...",
+      "phone": "Số điện thoại",
+      "phonePlaceholder": "Số điện thoại chính xác...",
+      "email": "Email",
+      "emailPlaceholder": "Email chính xác...",
+      "search": "Tìm",
+      "reset": "Đặt lại"
+    },
+    "banDialog": {
+      "title": "Cấm người dùng",
+      "description": "Bạn đang cấm người dùng",
+      "reason": "Lý do cấm",
+      "reasonRequired": "Lý do cấm không được để trống",
+      "reasonPlaceholder": "Nhập lý do cấm người dùng...",
+      "cancel": "Hủy",
+      "confirm": "Xác nhận cấm",
+      "success": "Đã cấm người dùng {{name}}",
+      "error": "Không thể cấm người dùng"
+    },
+    "unbanDialog": {
+      "title": "Bỏ cấm người dùng",
+      "description": "Bạn có chắc chắn muốn bỏ cấm người dùng",
+      "banReason": "Lý do cấm",
+      "cancel": "Hủy",
+      "confirm": "Xác nhận bỏ cấm",
+      "success": "Đã bỏ cấm người dùng {{name}}",
+      "error": "Không thể bỏ cấm người dùng"
+    },
+    "viewDialog": {
+      "title": "Chi tiết người dùng",
+      "personalInfo": "Thông tin cá nhân",
+      "contactInfo": "Thông tin liên hệ",
+      "accountHistory": "Lịch sử tài khoản",
+      "banInfo": "Thông tin cấm",
+      "email": "Email",
+      "phone": "Số điện thoại",
+      "dob": "Ngày sinh",
+      "gender": "Giới tính",
+      "male": "Nam",
+      "female": "Nữ",
+      "bio": "Giới thiệu",
+      "role": "Vai trò",
+      "status": "Trạng thái",
+      "createdAt": "Ngày tạo",
+      "updatedAt": "Cập nhật lần cuối",
+      "lastLogin": "Đăng nhập lần cuối",
+      "userId": "ID người dùng",
+      "banReason": "Lý do",
+      "verified": "Đã xác minh"
+    }
+  },
+  "reportManagement": {
+    "page": {
+      "title": "Quản lý kiểm duyệt báo cáo",
+      "description": "Theo dõi và xử lý các báo cáo nội dung vi phạm từ người dùng.",
+      "statusViewing": "Trạng thái đang xem",
+      "activeStatus": "Trạng thái hiện tại",
+      "reportListTitle": "Danh sách báo cáo",
+      "loadingStats": "Đang tải số liệu...",
+      "reportsCount": "{{count}} báo cáo",
+      "backToReports": "Quay lại danh sách"
+    },
+    "tabs": {
+      "pending": "Chờ xử lý",
+      "resolved": "Đã xử lý",
+      "dismissed": "Đã bác bỏ",
+      "all": "Tất cả"
+    },
+    "summaries": {
+      "pending": "Cần xử lý ngay",
+      "resolved": "Đã có quyết định",
+      "dismissed": "Không vi phạm",
+      "all": "Toàn bộ báo cáo"
+    },
+    "status": {
+      "PENDING": "Chờ xử lý",
+      "RESOLVED": "Đã xử lý",
+      "DISMISSED": "Đã bác bỏ"
+    },
+    "reasons": {
+      "SPAM": "Spam",
+      "HARASSMENT": "Quấy rối",
+      "HATE_SPEECH": "Ngôn từ thù ghét",
+      "VIOLENCE": "Bạo lực",
+      "NUDITY": "Nội dung khiêu dâm",
+      "MISINFORMATION": "Thông tin sai lệch",
+      "OTHER": "Khác"
+    },
+    "targetTypes": {
+      "POST": "Bài viết",
+      "COMMENT": "Bình luận"
+    },
+    "adminActions": {
+      "DELETE_CONTENT": {
+        "label": "Xóa nội dung",
+        "description": "Xóa vĩnh viễn nội dung vi phạm"
+      },
+      "HIDE_CONTENT": {
+        "label": "Ẩn nội dung",
+        "description": "Ẩn nội dung khỏi hiển thị công khai"
+      },
+      "WARN_USER": {
+        "label": "Cảnh báo người dùng",
+        "description": "Gửi cảnh báo tới tác giả nội dung"
+      },
+      "DISMISS_REPORT": {
+        "label": "Bác bỏ báo cáo",
+        "description": "Bác bỏ báo cáo vì không vi phạm"
+      }
+    },
+    "table": {
+      "no": "#",
+      "reporter": "Người báo cáo",
+      "targetType": "Loại",
+      "reason": "Lý do",
+      "content": "Nội dung bị báo cáo",
+      "status": "Trạng thái",
+      "createdAt": "Ngày tạo",
+      "actions": "Hành động",
+      "emptyTitle": "Không có báo cáo nào",
+      "emptySubtitle": "Hệ thống chưa ghi nhận báo cáo phù hợp với bộ lọc hiện tại.",
+      "noTextContent": "Không có nội dung văn bản",
+      "noContent": "-",
+      "anonymous": "Ẩn danh",
+      "authorPrefix": "Tác giả",
+      "byPrefix": "bởi",
+      "showingRange": "Hiển thị {{start}}-{{end}} / {{total}} báo cáo",
+      "processAction": "Xử lý",
+      "viewWarningsAction": "Xem cảnh báo người dùng",
+      "viewDetailAction": "Xem chi tiết",
+      "reports": "Báo cáo",
+      "latestReport": "Báo cáo gần nhất"
+    },
+    "processDialog": {
+      "titlePending": "Xử lý báo cáo",
+      "titleResolved": "Chi tiết báo cáo",
+      "reportCode": "Báo cáo #{{code}}",
+      "createdAt": "Tạo lúc {{date}}",
+      "reporterLabel": "Người báo cáo",
+      "contentAuthorLabel": "Tác giả nội dung",
+      "additionalDetails": "Chi tiết bổ sung",
+      "reportedContent": "Nội dung bị báo cáo",
+      "media": "Media ({{count}})",
+      "mediaPreviewAlt": "media-{{index}}",
+      "resultTitle": "Kết quả xử lý",
+      "actionLabel": "Hành động:",
+      "adminNoteLabel": "Ghi chú admin:",
+      "actionRequiredLabel": "Hành động xử lý *",
+      "noteOptionalLabel": "Ghi chú (tùy chọn)",
+      "notePlaceholder": "Nhập ghi chú cho hành động này...",
+      "cancelButton": "Hủy",
+      "closeButton": "Đóng",
+      "confirmButton": "Xác nhận",
+      "confirmWithAction": "Xác nhận: {{action}}",
+      "processingButton": "Đang xử lý...",
+      "successToast": "Đã xử lý báo cáo thành công",
+      "reportersTitle": "Người báo cáo",
+      "reportCount": "{{count}} tổng cộng",
+      "loadingReports": "Không tìm thấy người báo cáo"
+    },
+    "warningsDialog": {
+      "title": "Lịch sử cảnh báo",
+      "user": "Người dùng: {{id}}...",
+      "totalWarnings": "Tổng số cảnh báo",
+      "latest": "Gần nhất",
+      "noneYet": "Chưa có",
+      "empty": "Người dùng này chưa có cảnh báo nào",
+      "warningIndex": "#{{index}} - {{date}}",
+      "reportCode": "Report: {{code}}..."
+    }
+  }
+}

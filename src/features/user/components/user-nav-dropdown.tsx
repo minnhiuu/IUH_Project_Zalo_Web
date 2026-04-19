@@ -113,6 +113,7 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
 
         <LogoutConfirmDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog} />
         <OwnerProfileDialog open={showProfileDialog} onOpenChange={setShowProfileDialog} />
+        <SettingsDialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog} />
       </DropdownMenu>
     </>
   )
