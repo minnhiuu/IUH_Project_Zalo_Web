@@ -5,6 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { PaginationCustom } from '@/components/ui/pagination-custom'
 import { cn } from '@/lib/utils'
 import type { IngestDocumentRecord } from '../../schemas/ingest-document.schema'
+import { useIngestText } from '../../i18n/use-ingest-text'
 
 interface StepOneDocumentsTableProps {
   paginatedDocuments: IngestDocumentRecord[]
@@ -43,11 +44,13 @@ export function StepOneDocumentsTable({
   onDeleteSelectedDocuments,
   onPageChange
 }: StepOneDocumentsTableProps) {
+  const { text } = useIngestText()
+
   return (
     <div className='bg-dashboard-card-bg rounded-xl border border-border/40 shadow-sm overflow-hidden flex flex-col'>
       <div className='px-6 py-5 border-b border-section-divider flex items-center justify-between gap-4 bg-dashboard-card-header-bg'>
         <h3 className='text-lg font-bold text-dashboard-header-text uppercase tracking-tight shrink-0'>
-          Danh sách tài liệu đã tải
+          {text.stepOne.table.title}
         </h3>
         {hasSelectedDocuments ? (
           <Button
@@ -56,7 +59,7 @@ export function StepOneDocumentsTable({
             onClick={onDeleteSelectedDocuments}
           >
             <Trash2 className='w-3.5 h-3.5 mr-1.5' />
-            Xóa ({selectedDocumentsCount})
+            {text.stepOne.table.deleteSelected(selectedDocumentsCount)}
           </Button>
         ) : null}
       </div>
@@ -69,20 +72,20 @@ export function StepOneDocumentsTable({
                 <Checkbox
                   checked={allCurrentPageSelected}
                   onCheckedChange={(checked) => onToggleSelectAllCurrentPage(checked === true)}
-                  aria-label='Chọn tất cả tài liệu trên trang'
+                  aria-label={text.stepOne.table.selectAllAria}
                 />
               </TableHead>
               <TableHead className='font-bold text-foreground text-[15px] uppercase tracking-wide pl-6'>
-                Tên tệp
+                {text.stepOne.table.fileName}
               </TableHead>
               <TableHead className='font-bold text-foreground text-[15px] uppercase tracking-wide text-center'>
-                Trạng thái
+                {text.stepOne.table.status}
               </TableHead>
               <TableHead className='font-bold text-foreground text-[15px] uppercase tracking-wide text-right'>
-                Kích thước
+                {text.stepOne.table.size}
               </TableHead>
               <TableHead className='font-bold text-foreground text-[15px] uppercase tracking-wide text-right pr-6'>
-                Hành động
+                {text.stepOne.table.action}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -91,8 +94,8 @@ export function StepOneDocumentsTable({
               <TableRow className='h-14'>
                 <TableCell colSpan={5} className='px-6 text-center text-muted-foreground font-medium'>
                   {uploadedDocumentsCount === 0
-                    ? 'Chưa có tài liệu nào được tải lên'
-                    : 'Không có tài liệu phù hợp với bộ lọc'}
+                    ? text.stepOne.table.emptyNoUpload
+                    : text.stepOne.table.emptyFiltered}
                 </TableCell>
               </TableRow>
             ) : (
@@ -108,7 +111,7 @@ export function StepOneDocumentsTable({
                     <Checkbox
                       checked={selectedDocumentIds.includes(doc.id)}
                       onCheckedChange={(checked) => onToggleSelectDocument(doc.id, checked === true)}
-                      aria-label={`Chọn ${doc.fileName}`}
+                      aria-label={`${text.stepOne.table.fileName}: ${doc.fileName}`}
                     />
                   </TableCell>
                   <TableCell className='pl-6 py-4'>
@@ -144,7 +147,7 @@ export function StepOneDocumentsTable({
                         size='icon'
                         className='h-8 w-8 text-brand-blue hover:text-brand-blue-dark hover:bg-brand-blue-light/50'
                         onClick={() => onStartParsing(doc)}
-                        title='Trích xuất'
+                        title={text.stepOne.table.extractAction}
                       >
                         <PlayCircle size={16} />
                       </Button>
@@ -153,7 +156,7 @@ export function StepOneDocumentsTable({
                         size='icon'
                         className='h-8 w-8 text-destructive hover:text-destructive-solid hover:bg-destructive-subtle'
                         onClick={() => onDeleteDocument(doc.id)}
-                        title='Xóa'
+                        title={text.stepOne.table.deleteAction}
                       >
                         <Trash2 size={16} />
                       </Button>
@@ -168,7 +171,7 @@ export function StepOneDocumentsTable({
 
       <div className='px-6 py-3 border-t border-section-divider bg-dashboard-card-header-bg flex items-center justify-between gap-4'>
         <span className='font-bold text-[10px] uppercase tracking-widest text-muted-foreground'>
-          Trang {safeCurrentPage} / {totalPages}
+          {text.stepOne.table.page(safeCurrentPage, totalPages)}
         </span>
         <PaginationCustom currentPage={safeCurrentPage} totalPages={totalPages} onPageChange={onPageChange} />
       </div>

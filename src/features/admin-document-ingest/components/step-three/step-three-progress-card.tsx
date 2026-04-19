@@ -2,6 +2,7 @@ import { CheckCircle2, Database, Loader2, ShieldCheck, Activity, Globe } from 'l
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
+import { useIngestText } from '../../i18n/use-ingest-text'
 
 interface StepThreeProgressCardProps {
   ingestStatus: 'vectorizing' | 'finalizing' | 'success' | 'failed'
@@ -22,10 +23,12 @@ export function StepThreeProgressCard({
   activeChunksLength,
   currentVectorId
 }: StepThreeProgressCardProps) {
+  const { text } = useIngestText()
+
   return (
     <div className='bg-dashboard-card-bg rounded-xl border border-border/40 shadow-sm overflow-hidden'>
       <div className='px-6 py-3 border-b border-section-divider bg-dashboard-card-header-bg flex items-center justify-between'>
-        <h3 className='text-lg font-bold text-dashboard-header-text uppercase tracking-tight'>Visual Progress Card</h3>
+        <h3 className='text-lg font-bold text-dashboard-header-text uppercase tracking-tight'>{text.stepThree.progress.title}</h3>
         <Badge
           variant='outline'
           className={cn(
@@ -65,12 +68,12 @@ export function StepThreeProgressCard({
 
           <div className='space-y-1'>
             <h2 className='text-2xl font-bold tracking-tight text-foreground uppercase'>
-              {ingestStatus === 'success' ? 'Dữ liệu đã sẵn sàng' : 'Đang nạp dữ liệu vào hệ thống'}
+              {ingestStatus === 'success' ? text.stepThree.progress.readyTitle : text.stepThree.progress.ingestingTitle}
             </h2>
             <p className='text-muted-foreground font-medium leading-relaxed'>
               {ingestStatus === 'success'
-                ? 'Tài liệu đã được chuyển đổi thành mã nhúng và đồng bộ thành công vào cụm chỉ mục tìm kiếm.'
-                : 'Hệ thống đang vector hóa dữ liệu, chuẩn hóa metadata và tạo chỉ mục để phục vụ truy vấn nhanh.'}
+                ? text.stepThree.progress.readyDesc
+                : text.stepThree.progress.ingestingDesc}
             </p>
           </div>
         </div>
@@ -78,22 +81,42 @@ export function StepThreeProgressCard({
         <div className='space-y-3'>
           <div className='flex items-center justify-between'>
             <span className='text-[10px] font-bold text-muted-foreground uppercase tracking-widest'>
-              Tiến trình đồng bộ
+              {text.stepThree.progress.syncProgress}
             </span>
             <span className='text-sm font-bold text-brand-blue'>{Math.min(progress, 100)}%</span>
           </div>
           <Progress value={Math.min(progress, 100)} className='h-2.5 bg-muted' />
           <p className='text-xs text-muted-foreground font-medium'>
-            Da upload {uploadedChunks} tren tong {Math.max(totalChunks, activeChunksLength)} chunks
-            {currentVectorId ? ` | Dang upload chunk ${currentVectorId}` : ''}
+            {currentVectorId
+              ? text.stepThree.progress.uploadedSummaryWithCurrent(
+                  uploadedChunks,
+                  Math.max(totalChunks, activeChunksLength),
+                  currentVectorId
+                )
+              : text.stepThree.progress.uploadedSummary(uploadedChunks, Math.max(totalChunks, activeChunksLength))}
           </p>
         </div>
 
         <div className='grid grid-cols-1 md:grid-cols-3 gap-3'>
           {[
-            { icon: ShieldCheck, label: 'Security', val: 'AES-256', color: 'text-brand-blue' },
-            { icon: Activity, label: 'Performance', val: '0.4s ingest', color: 'text-success-text' },
-            { icon: Globe, label: 'CDN Sync', val: 'Global node', color: 'text-primary' }
+            {
+              icon: ShieldCheck,
+              label: text.stepThree.progress.stats.securityLabel,
+              val: text.stepThree.progress.stats.securityValue,
+              color: 'text-brand-blue'
+            },
+            {
+              icon: Activity,
+              label: text.stepThree.progress.stats.performanceLabel,
+              val: text.stepThree.progress.stats.performanceValue,
+              color: 'text-success-text'
+            },
+            {
+              icon: Globe,
+              label: text.stepThree.progress.stats.cdnLabel,
+              val: text.stepThree.progress.stats.cdnValue,
+              color: 'text-primary'
+            }
           ].map((stat, i) => (
             <div
               key={i}

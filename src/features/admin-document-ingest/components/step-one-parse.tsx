@@ -11,6 +11,7 @@ import { StepOneFilters } from './step-one/step-one-filters'
 import { StepOneDocumentsTable } from './step-one/step-one-documents-table'
 import { StepOneRawContentPanel } from './step-one/step-one-raw-content-panel'
 import { StepOneUploadDialog } from './step-one/step-one-upload-dialog'
+import { useIngestText } from '../i18n/use-ingest-text'
 
 interface StepOneParseProps {
   state: IngestState
@@ -19,6 +20,7 @@ interface StepOneParseProps {
 }
 
 export function StepOneParse({ state, onUpdate, onNext }: StepOneParseProps) {
+  const { text } = useIngestText()
   const [isParsing, setIsParsing] = useState(false)
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null)
   const [pendingUploadFile, setPendingUploadFile] = useState<File | null>(null)
@@ -317,7 +319,7 @@ export function StepOneParse({ state, onUpdate, onNext }: StepOneParseProps) {
       case IngestDocumentStatus.Completed:
         return (
           <Badge className='bg-success-solid text-white border-none text-[10px] font-bold px-2 h-5 rounded uppercase tracking-tighter shadow-sm'>
-            Đã trích xuất
+            {text.stepOne.statusBadge.completed}
           </Badge>
         )
       case IngestDocumentStatus.Ingesting:
@@ -326,13 +328,13 @@ export function StepOneParse({ state, onUpdate, onNext }: StepOneParseProps) {
             variant='outline'
             className='text-[10px] font-bold px-2 h-5 rounded uppercase text-muted-foreground border-border/60 bg-dashboard-badge-bg'
           >
-            Đang nạp
+            {text.stepOne.statusBadge.ingesting}
           </Badge>
         )
       case IngestDocumentStatus.Failed:
         return (
           <Badge className='bg-destructive-subtle text-destructive-text border-destructive-border text-[10px] font-bold px-2 h-5 rounded uppercase tracking-tighter shadow-none'>
-            Lỗi
+            {text.stepOne.statusBadge.failed}
           </Badge>
         )
     }

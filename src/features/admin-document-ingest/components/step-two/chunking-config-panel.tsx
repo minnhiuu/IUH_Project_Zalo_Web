@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/lib/utils'
 import type { ChunkingStrategy } from '../../schemas/ingest-document.schema'
+import { useIngestText } from '../../i18n/use-ingest-text'
 
 interface ChunkingConfigPanelProps {
   strategy: ChunkingStrategy
@@ -16,13 +17,6 @@ interface ChunkingConfigPanelProps {
   onProcess: () => void
 }
 
-const STRATEGIES: { id: ChunkingStrategy; label: string; desc: string }[] = [
-  { id: 'fixed', label: 'Fixed-size', desc: 'Chia văn bản theo độ dài cứng nhắc' },
-  { id: 'recursive', label: 'Recursive', desc: 'Phân tách thông minh theo cấu trúc câu' },
-  { id: 'semantic', label: 'Semantic', desc: 'Sử dụng AI để nhóm theo ngữ nghĩa' },
-  { id: 'excel_row', label: 'Excel Row', desc: 'Mỗi dòng bảng tính là một chunk độc lập' }
-]
-
 export function ChunkingConfigPanel({
   strategy,
   chunkSize,
@@ -33,6 +27,30 @@ export function ChunkingConfigPanel({
   onOverlapChange,
   onProcess
 }: ChunkingConfigPanelProps) {
+  const { text } = useIngestText()
+  const strategies: { id: ChunkingStrategy; label: string; desc: string }[] = [
+    {
+      id: 'fixed',
+      label: text.stepTwo.config.strategies.fixed.label,
+      desc: text.stepTwo.config.strategies.fixed.desc
+    },
+    {
+      id: 'recursive',
+      label: text.stepTwo.config.strategies.recursive.label,
+      desc: text.stepTwo.config.strategies.recursive.desc
+    },
+    {
+      id: 'semantic',
+      label: text.stepTwo.config.strategies.semantic.label,
+      desc: text.stepTwo.config.strategies.semantic.desc
+    },
+    {
+      id: 'excel_row',
+      label: text.stepTwo.config.strategies.excelRow.label,
+      desc: text.stepTwo.config.strategies.excelRow.desc
+    }
+  ]
+
   return (
     <aside className='xl:col-span-1 bg-dashboard-card-bg rounded-xl border border-border/40 shadow-sm overflow-hidden flex flex-col'>
       <div className='px-6 py-4 border-b border-section-divider bg-dashboard-card-header-bg space-y-4'>
@@ -40,12 +58,12 @@ export function ChunkingConfigPanel({
           <div className='h-8 w-8 rounded-lg bg-dashboard-icon-bg text-brand-blue border border-brand-blue-hover/30 flex items-center justify-center'>
             <Settings2 size={16} />
           </div>
-          <h3 className='text-lg font-bold text-dashboard-header-text uppercase tracking-tight'>Cấu hình phân đoạn</h3>
+          <h3 className='text-lg font-bold text-dashboard-header-text uppercase tracking-tight'>{text.stepTwo.config.title}</h3>
         </div>
 
-        <p className='text-[10px] font-bold text-muted-foreground uppercase tracking-widest'>Chiến lược phân đoạn</p>
+        <p className='text-[10px] font-bold text-muted-foreground uppercase tracking-widest'>{text.stepTwo.config.strategy}</p>
         <div className='grid grid-cols-1 gap-2'>
-          {STRATEGIES.map((item) => {
+          {strategies.map((item) => {
             const isSelected = strategy === item.id
 
             return (
@@ -75,7 +93,7 @@ export function ChunkingConfigPanel({
                     }
                   }}
                   onClick={(e) => e.stopPropagation()}
-                  aria-label={`Chọn chiến lược ${item.label}`}
+                  aria-label={`${text.stepTwo.config.strategy}: ${item.label}`}
                   className='mt-0.5 data-checked:bg-brand-blue-light data-checked:text-brand-blue data-checked:border-brand-blue'
                 />
                 <div className='flex flex-col items-start'>
@@ -91,7 +109,7 @@ export function ChunkingConfigPanel({
       <div className='flex-1 overflow-y-auto p-6 space-y-6'>
         <div className='grid grid-cols-2 gap-4'>
           <div className='space-y-2'>
-            <p className='text-[10px] font-bold text-muted-foreground uppercase tracking-widest'>Chunk Size</p>
+            <p className='text-[10px] font-bold text-muted-foreground uppercase tracking-widest'>{text.stepTwo.config.chunkSize}</p>
             <Input
               type='number'
               value={chunkSize}
@@ -100,7 +118,7 @@ export function ChunkingConfigPanel({
             />
           </div>
           <div className='space-y-2'>
-            <p className='text-[10px] font-bold text-muted-foreground uppercase tracking-widest'>Overlap (%)</p>
+            <p className='text-[10px] font-bold text-muted-foreground uppercase tracking-widest'>{text.stepTwo.config.overlap}</p>
             <Input
               type='number'
               value={overlap}
@@ -112,9 +130,7 @@ export function ChunkingConfigPanel({
 
         <div className='p-4 bg-brand-blue-light/20 rounded-lg flex gap-3 border border-brand-blue-hover/25'>
           <Info size={16} className='text-brand-blue shrink-0 mt-0.5' />
-          <p className='text-[11px] text-muted-foreground font-medium leading-relaxed'>
-            Kích thước đoạn đề xuất cho RAG thường là <b>512</b> hoặc <b>1024</b> tokens để đảm bảo đủ ngữ cảnh.
-          </p>
+          <p className='text-[11px] text-muted-foreground font-medium leading-relaxed'>{text.stepTwo.config.hint}</p>
         </div>
       </div>
 
@@ -126,11 +142,11 @@ export function ChunkingConfigPanel({
         >
           {isProcessing ? (
             <>
-              Xử lý dữ liệu... <Loader2 className='ml-2 w-4 h-4 animate-spin' />
+              {text.stepTwo.config.processing} <Loader2 className='ml-2 w-4 h-4 animate-spin' />
             </>
           ) : (
             <>
-              Phân tách Chunks <Layers className='ml-2 w-4 h-4' />
+              {text.stepTwo.config.process} <Layers className='ml-2 w-4 h-4' />
             </>
           )}
         </Button>

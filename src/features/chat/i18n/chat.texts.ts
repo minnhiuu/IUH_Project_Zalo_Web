@@ -398,5 +398,19 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     if (!status) return t(CHAT_KEYS.aiStatus.DEFAULT)
     const key = CHAT_KEYS.aiStatus[status as keyof typeof CHAT_KEYS.aiStatus]
     return key ? t(key) : t(CHAT_KEYS.aiStatus.DEFAULT)
+  },
+  aiWindow: {
+    title: t(CHAT_KEYS.aiWindow.title),
+    assistantTag: t(CHAT_KEYS.aiWindow.assistantTag),
+    newConversation: t(CHAT_KEYS.aiWindow.newConversation),
+    inputPlaceholder: t(CHAT_KEYS.aiWindow.inputPlaceholder),
+    clarificationNeeded: t(CHAT_KEYS.aiWindow.clarificationNeeded),
+    welcomeDescription: t(CHAT_KEYS.aiWindow.welcomeDescription),
+    errorFallback: t(CHAT_KEYS.aiWindow.errorFallback),
+    suggestions: {
+      profile: t(CHAT_KEYS.aiWindow.suggestions.profile),
+      friends: t(CHAT_KEYS.aiWindow.suggestions.friends),
+      internet: t(CHAT_KEYS.aiWindow.suggestions.internet)
+    }
   }
 })

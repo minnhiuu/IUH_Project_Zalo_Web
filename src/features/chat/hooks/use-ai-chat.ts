@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { getAccessToken } from '@/lib/axios-client'
+import i18n from '@/lib/i18n'
 import { getMessages } from '../api/chat.api'
 import type { MessageResponse } from '../schemas/chat.schema'
 import type { AiProcessingStatus } from '@/constants/enum'
@@ -238,7 +239,7 @@ export function useAiChat(conversationId: string) {
             m.id === aiMsgId
               ? {
                   ...m,
-                  content: 'Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại.',
+                  content: i18n.t('chat:ai.window.errorFallback'),
                   isStreaming: false,
                   processingStatus: undefined
                 }

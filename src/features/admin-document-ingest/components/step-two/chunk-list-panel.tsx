@@ -2,6 +2,7 @@ import { Layers, Search, Clock, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import type { Chunk } from '../../schemas/ingest-document.schema'
+import { useIngestText } from '../../i18n/use-ingest-text'
 
 interface ChunkListPanelProps {
   chunks: Chunk[]
@@ -10,16 +11,18 @@ interface ChunkListPanelProps {
 }
 
 export function ChunkListPanel({ chunks, activeEmbeddingModel, onNext }: ChunkListPanelProps) {
+  const { text } = useIngestText()
+
   return (
     <section className='xl:col-span-2 bg-dashboard-card-bg rounded-xl border border-border/40 shadow-sm overflow-hidden flex flex-col'>
       <div className='px-6 py-3 border-b border-section-divider bg-dashboard-card-header-bg flex items-center justify-between gap-4'>
-        <h3 className='text-lg font-bold text-dashboard-header-text uppercase tracking-tight'>Danh sách phân đoạn</h3>
+        <h3 className='text-lg font-bold text-dashboard-header-text uppercase tracking-tight'>{text.stepTwo.list.title}</h3>
         <div className='flex items-center gap-2'>
           <Badge
             variant='outline'
             className='font-bold text-[10px] px-3 py-1 bg-dashboard-badge-bg text-muted-foreground border-border/60 rounded-lg shrink-0'
           >
-            {chunks.length} đoạn
+            {text.stepTwo.list.count(chunks.length)}
           </Badge>
         </div>
       </div>
@@ -38,7 +41,7 @@ export function ChunkListPanel({ chunks, activeEmbeddingModel, onNext }: ChunkLi
                       #{chunk.chunkIndex.toString().padStart(2, '0')}
                     </span>
                     <span className='text-[10px] font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-1.5'>
-                      <Clock size={12} /> {chunk.tokenCount} tokens
+                      <Clock size={12} /> {chunk.tokenCount} {text.stepTwo.list.tokenSuffix}
                     </span>
                   </div>
                   <Button variant='ghost' className='h-8 w-8 p-0 rounded-lg hover:bg-muted text-muted-foreground'>
@@ -52,7 +55,7 @@ export function ChunkListPanel({ chunks, activeEmbeddingModel, onNext }: ChunkLi
                   </p>
                   <div className='mt-3 flex justify-end'>
                     <span className='text-[10px] font-bold uppercase tracking-widest text-muted-foreground'>
-                      pageNumber: {chunk.pageNumber} | {activeEmbeddingModel}
+                      {text.stepTwo.list.pageNumber}: {chunk.pageNumber} | {activeEmbeddingModel}
                     </span>
                   </div>
                 </div>
@@ -65,7 +68,7 @@ export function ChunkListPanel({ chunks, activeEmbeddingModel, onNext }: ChunkLi
               <Layers size={32} strokeWidth={1.5} />
             </div>
             <p className='text-[11px] font-bold text-muted-foreground uppercase tracking-widest text-center max-w-65 leading-relaxed'>
-              Bắt đầu phân tách văn bản để kiểm tra các khối dữ liệu trước khi nạp
+              {text.stepTwo.list.empty}
             </p>
           </div>
         )}
@@ -77,7 +80,7 @@ export function ChunkListPanel({ chunks, activeEmbeddingModel, onNext }: ChunkLi
             onClick={onNext}
             className='h-10 px-6 bg-brand-blue hover:bg-brand-blue-dark text-white font-bold text-xs uppercase tracking-widest rounded-lg group'
           >
-            Tiếp theo
+            {text.stepTwo.list.next}
             <ChevronRight className='w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform' />
           </Button>
         </div>

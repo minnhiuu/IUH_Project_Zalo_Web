@@ -47,7 +47,7 @@ export function AiMessageBubble({
             {msg.isClarification && (
               <div className='flex items-center gap-1.5 text-amber-600 dark:text-amber-400 text-[13px] font-semibold mb-1.5'>
                 <HelpCircle size={14} />
-                <span>Cần thêm thông tin</span>
+                <span>{text.aiWindow.clarificationNeeded}</span>
               </div>
             )}
             {!isUser && msg.isStreaming && !!msg.processingStatus && (

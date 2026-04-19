@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { IngestDocumentStatus } from '@/constants/enum'
 import type { IngestDocumentRecord } from '../../schemas/ingest-document.schema'
+import { useIngestText } from '../../i18n/use-ingest-text'
 
 interface StepOneFiltersProps {
   fileTypeFilter: string
@@ -28,13 +29,15 @@ export function StepOneFilters({
   onResetFilters,
   onUploadClick
 }: StepOneFiltersProps) {
+  const { text } = useIngestText()
+
   return (
     <div className='mb-4 bg-dashboard-card-bg border border-border/40 rounded-xl p-4'>
       <div className='flex flex-col xl:flex-row xl:items-end xl:justify-between gap-4'>
         <div className='flex flex-wrap items-end gap-3'>
           <div className='w-40'>
             <label className='block text-[10px] font-bold text-muted-foreground uppercase mb-2 tracking-wider'>
-              Loại tệp
+              {text.stepOne.filters.fileType}
             </label>
             <Select
               value={fileTypeFilter}
@@ -43,22 +46,22 @@ export function StepOneFilters({
               }}
             >
               <SelectTrigger className='w-full h-10 bg-muted border-border text-sm rounded-lg'>
-                <SelectValue placeholder='Tất cả' />
+                <SelectValue placeholder={text.stepOne.filters.fileTypeOptions.all} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='all'>Tất cả</SelectItem>
-                <SelectItem value='pdf'>PDF</SelectItem>
-                <SelectItem value='docx'>DOCX</SelectItem>
-                <SelectItem value='txt'>TXT</SelectItem>
-                <SelectItem value='xlsx'>XLSX</SelectItem>
-                <SelectItem value='other'>Khác</SelectItem>
+                <SelectItem value='all'>{text.stepOne.filters.fileTypeOptions.all}</SelectItem>
+                <SelectItem value='pdf'>{text.stepOne.filters.fileTypeOptions.pdf}</SelectItem>
+                <SelectItem value='docx'>{text.stepOne.filters.fileTypeOptions.docx}</SelectItem>
+                <SelectItem value='txt'>{text.stepOne.filters.fileTypeOptions.txt}</SelectItem>
+                <SelectItem value='xlsx'>{text.stepOne.filters.fileTypeOptions.xlsx}</SelectItem>
+                <SelectItem value='other'>{text.stepOne.filters.fileTypeOptions.other}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className='w-40'>
             <label className='block text-[10px] font-bold text-muted-foreground uppercase mb-2 tracking-wider'>
-              Trạng thái
+              {text.stepOne.filters.status}
             </label>
             <Select
               value={statusFilter}
@@ -67,20 +70,20 @@ export function StepOneFilters({
               }}
             >
               <SelectTrigger className='w-full h-10 bg-muted border-border text-sm rounded-lg'>
-                <SelectValue placeholder='Tất cả' />
+                <SelectValue placeholder={text.stepOne.filters.statusOptions.all} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='all'>Tất cả</SelectItem>
-                <SelectItem value={IngestDocumentStatus.Ingesting}>Đang nạp</SelectItem>
-                <SelectItem value={IngestDocumentStatus.Completed}>Hoàn tất</SelectItem>
-                <SelectItem value={IngestDocumentStatus.Failed}>Lỗi</SelectItem>
+                <SelectItem value='all'>{text.stepOne.filters.statusOptions.all}</SelectItem>
+                <SelectItem value={IngestDocumentStatus.Ingesting}>{text.stepOne.filters.statusOptions.ingesting}</SelectItem>
+                <SelectItem value={IngestDocumentStatus.Completed}>{text.stepOne.filters.statusOptions.completed}</SelectItem>
+                <SelectItem value={IngestDocumentStatus.Failed}>{text.stepOne.filters.statusOptions.failed}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className='w-64'>
             <label className='block text-[10px] font-bold text-muted-foreground uppercase mb-2 tracking-wider'>
-              Tìm kiếm
+              {text.stepOne.filters.search}
             </label>
             <div className='relative'>
               <Search className='h-4 w-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none' />
@@ -90,7 +93,7 @@ export function StepOneFilters({
                   onSearchChange(e.target.value)
                 }}
                 className='pl-9 h-10 bg-muted border-border rounded-lg text-sm'
-                placeholder='Nhập tên tệp...'
+                placeholder={text.stepOne.filters.searchPlaceholder}
               />
             </div>
           </div>
@@ -104,13 +107,13 @@ export function StepOneFilters({
             disabled={!hasActiveFilters}
           >
             <FilterX className='w-4 h-4 mr-2' />
-            Xóa bộ lọc
+            {text.stepOne.filters.reset}
           </Button>
           <Button
             onClick={onUploadClick}
             className='h-10 px-5 bg-brand-blue hover:bg-brand-blue-dark text-white font-bold rounded-lg shadow-sm gap-2'
           >
-            <Plus size={16} /> Thêm tài liệu
+            <Plus size={16} /> {text.stepOne.filters.addDocument}
           </Button>
         </div>
       </div>

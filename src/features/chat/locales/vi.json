@@ -507,6 +507,20 @@
     "error": "Không thể thực hiện cuộc gọi"
   },
   "ai": {
+    "window": {
+      "title": "Bondhub AI",
+      "assistantTag": "Trợ lý AI",
+      "newConversation": "Cuộc hội thoại mới",
+      "inputPlaceholder": "Hỏi Bondhub AI bất cứ điều gì...",
+      "clarificationNeeded": "Cần thêm thông tin",
+      "welcomeDescription": "Trợ lý AI thông minh tích hợp dữ liệu hội thoại của bạn. Hỏi bất cứ điều gì!",
+      "errorFallback": "Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại.",
+      "suggestions": {
+        "profile": "Hồ sơ của tôi là gì?",
+        "friends": "Danh sách bạn bè của tôi",
+        "internet": "Tìm kiếm thông tin trên Internet"
+      }
+    },
     "status": {
       "ANALYZING_INTENT": "Đang phân tích ý định của bạn...",
       "RETRIEVING_VECTOR": "Đang lục tìm trong bộ nhớ nội bộ...",

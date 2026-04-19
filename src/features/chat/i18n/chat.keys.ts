@@ -69,6 +69,20 @@ export const CHAT_KEYS = {
     GENERATING_ANSWER: 'ai.status.GENERATING_ANSWER',
     DEFAULT: 'ai.status.DEFAULT'
   },
+  aiWindow: {
+    title: 'ai.window.title',
+    assistantTag: 'ai.window.assistantTag',
+    newConversation: 'ai.window.newConversation',
+    inputPlaceholder: 'ai.window.inputPlaceholder',
+    clarificationNeeded: 'ai.window.clarificationNeeded',
+    welcomeDescription: 'ai.window.welcomeDescription',
+    errorFallback: 'ai.window.errorFallback',
+    suggestions: {
+      profile: 'ai.window.suggestions.profile',
+      friends: 'ai.window.suggestions.friends',
+      internet: 'ai.window.suggestions.internet'
+    }
+  },
   pinBoard: {
     title: 'chat.pinBoard.title',
     copy: 'chat.pinBoard.copy',

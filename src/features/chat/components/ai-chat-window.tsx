@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils'
 import { Textarea } from '@/components/ui/textarea'
 import { useAiChat } from '../hooks/use-ai-chat'
 import type { ConversationResponse } from '../schemas/chat.schema'
+import { useChatText } from '../i18n/use-chat-text'
 
 interface AiChatWindowProps {
   conversation: ConversationResponse
@@ -16,6 +17,7 @@ import { AiWelcomeScreen } from './ai-welcome-screen'
 // ── Main AI Chat Window ────────────────────────────────────────────────────────
 export function AiChatWindow({ conversation }: AiChatWindowProps) {
   const { messages, isLoading, sendMessage, clearHistory } = useAiChat(conversation.id)
+  const { text } = useChatText()
   const [content, setContent] = useState('')
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -60,21 +62,21 @@ export function AiChatWindow({ conversation }: AiChatWindowProps) {
           <div className='w-10 h-10'>
             <img
               src={conversation.avatar || `https://api.dicebear.com/7.x/identicon/svg?seed=ai-assistant-001`}
-              alt='Bondhub AI'
+              alt={text.aiWindow.title}
               className='w-full h-full rounded-full object-cover shadow-md border border-black/5'
             />
           </div>
           <div>
-            <h2 className='text-[16px] font-semibold text-foreground/90 leading-tight'>Bondhub AI</h2>
+            <h2 className='text-[16px] font-semibold text-foreground/90 leading-tight'>{text.aiWindow.title}</h2>
             <p className='text-[12px] text-blue-500 dark:text-blue-400 mt-0.5 leading-tight flex items-center gap-1'>
               <span className='inline-block w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse' />
-              Trợ lý AI
+              {text.aiWindow.assistantTag}
             </p>
           </div>
         </div>
         <button
           onClick={clearHistory}
-          title='Cuộc hội thoại mới'
+          title={text.aiWindow.newConversation}
           className='p-2 hover:bg-muted rounded-full transition-colors text-muted-foreground cursor-pointer'
         >
           <RotateCcw size={18} />
@@ -112,7 +114,7 @@ export function AiChatWindow({ conversation }: AiChatWindowProps) {
               value={content}
               onChange={(e) => setContent(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder='Hỏi Bondhub AI bất cứ điều gì...'
+              placeholder={text.aiWindow.inputPlaceholder}
               disabled={isLoading}
               className='min-h-11 max-h-30 bg-transparent border-none focus-visible:ring-0 shadow-none resize-none py-2.5 px-4 text-[16px] wrap-break-word disabled:opacity-50'
               rows={1}

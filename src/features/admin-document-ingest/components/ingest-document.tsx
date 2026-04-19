@@ -8,9 +8,11 @@ import { StepOneParse } from './step-one-parse'
 import { StepTwoChunking } from './step-two-chunking'
 import { StepThreeStatus } from './step-three-status'
 import { INITIAL_INGEST_STATE, type IngestState, type IngestStep } from '../schemas/ingest-document.schema'
+import { useIngestText } from '../i18n/use-ingest-text'
 
 export function IngestDocument() {
   const [state, setState] = useState<IngestState>(INITIAL_INGEST_STATE)
+  const { text } = useIngestText()
 
   const updateState = useCallback((update: Partial<IngestState>) => {
     setState((prev) => ({ ...prev, ...update }))
@@ -29,9 +31,9 @@ export function IngestDocument() {
   }
 
   const STEPS = [
-    { id: 1, label: 'TRÍCH XUẤT', icon: BrainCircuit },
-    { id: 2, label: 'PHÂN ĐOẠN', icon: Activity },
-    { id: 3, label: 'LƯU TRỮ', icon: Database }
+    { id: 1, label: text.page.steps.extract, icon: BrainCircuit },
+    { id: 2, label: text.page.steps.chunk, icon: Activity },
+    { id: 3, label: text.page.steps.store, icon: Database }
   ]
 
   return (
@@ -48,9 +50,9 @@ export function IngestDocument() {
             <ChevronLeft size={18} className='text-muted-foreground' />
           </Button>
           <div className='flex flex-col gap-0.5'>
-            <h1 className='text-3xl font-bold tracking-tight text-foreground uppercase'>Cổng nạp liệu AI</h1>
+            <h1 className='text-3xl font-bold tracking-tight text-foreground uppercase'>{text.page.title}</h1>
             <p className='text-muted-foreground font-medium text-[14px] leading-tight'>
-              Quản lý kho tài liệu thô và cấu hình trích xuất nội dung cho hệ thống Knowledge Base.
+              {text.page.subtitle}
             </p>
           </div>
         </div>
@@ -80,7 +82,7 @@ export function IngestDocument() {
           variant='outline'
           className='font-bold text-[10px] px-3 py-1 bg-dashboard-badge-bg text-muted-foreground border-border/60 rounded-lg uppercase'
         >
-          Bước {state.step} / 3
+          {text.page.stepLabel(state.step, 3)}
         </Badge>
       </div>
 

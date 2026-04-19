@@ -3,6 +3,7 @@ import { Upload, Loader2 } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { useIngestText } from '../../i18n/use-ingest-text'
 
 interface StepOneUploadDialogProps {
   open: boolean
@@ -25,13 +26,15 @@ export function StepOneUploadDialog({
   onCancel,
   onConfirmUpload
 }: StepOneUploadDialogProps) {
+  const { text } = useIngestText()
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-150 rounded-xl border border-border shadow-2xl p-8'>
         <DialogHeader className='mb-6'>
-          <DialogTitle className='text-xl font-bold text-foreground'>Nạp tài liệu mới</DialogTitle>
+          <DialogTitle className='text-xl font-bold text-foreground'>{text.stepOne.upload.title}</DialogTitle>
           <DialogDescription className='text-[14px] text-muted-foreground leading-relaxed'>
-            Hệ thống sẽ tự động quét nội dung và chuẩn bị cho quá trình Embeddings.
+            {text.stepOne.upload.description}
           </DialogDescription>
         </DialogHeader>
 
@@ -46,9 +49,9 @@ export function StepOneUploadDialog({
             <div className='w-14 h-14 rounded-xl bg-dashboard-icon-bg flex items-center justify-center mb-4 text-brand-blue group-hover:scale-105 transition-transform'>
               <Upload size={32} />
             </div>
-            <h4 className='text-base font-bold text-foreground mb-1'>Thả tệp vào đây</h4>
+            <h4 className='text-base font-bold text-foreground mb-1'>{text.stepOne.upload.dropTitle}</h4>
             <p className='text-[11px] text-muted-foreground font-bold uppercase tracking-widest'>
-              PDF, DOCX, TXT, XLSX (Tối đa 50MB)
+              {text.stepOne.upload.dropHint} - {text.stepOne.upload.formats}
             </p>
           </div>
 
@@ -62,12 +65,12 @@ export function StepOneUploadDialog({
                   </p>
                 </div>
                 <Badge variant='outline' className='shrink-0 text-[10px] uppercase'>
-                  Đã chọn
+                  {text.stepOne.upload.selected}
                 </Badge>
               </div>
             ) : (
               <p className='text-xs text-muted-foreground font-medium'>
-                Chưa có tệp nào được chọn. Vui lòng chọn tệp trước khi xác nhận.
+                {text.stepOne.upload.noFile}
               </p>
             )}
           </div>
@@ -79,7 +82,7 @@ export function StepOneUploadDialog({
               onClick={onCancel}
               disabled={isParsing}
             >
-              Hủy bỏ
+              {text.stepOne.upload.cancel}
             </Button>
             <Button
               className='flex-1 h-10 bg-brand-blue hover:bg-brand-blue-dark text-white font-bold rounded-lg shadow-sm disabled:opacity-60'
@@ -87,7 +90,7 @@ export function StepOneUploadDialog({
               disabled={!pendingUploadFile || isParsing}
             >
               {isParsing ? <Loader2 className='w-4 h-4 mr-2 animate-spin' /> : null}
-              {isParsing ? 'Đang tải lên...' : 'Xác nhận tải lên'}
+              {isParsing ? text.stepOne.upload.uploading : text.stepOne.upload.confirm}
             </Button>
           </div>
         </div>

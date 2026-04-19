@@ -507,6 +507,20 @@
     "error": "Cannot make a call"
   },
   "ai": {
+    "window": {
+      "title": "Bondhub AI",
+      "assistantTag": "AI Assistant",
+      "newConversation": "New conversation",
+      "inputPlaceholder": "Ask Bondhub AI anything...",
+      "clarificationNeeded": "Need more information",
+      "welcomeDescription": "Smart AI assistant integrated with your conversation data. Ask anything!",
+      "errorFallback": "Sorry, something went wrong. Please try again.",
+      "suggestions": {
+        "profile": "What is my profile?",
+        "friends": "My friend list",
+        "internet": "Search information on the Internet"
+      }
+    },
     "status": {
       "ANALYZING_INTENT": "Analyzing your intent...",
       "RETRIEVING_VECTOR": "Searching internal memory...",

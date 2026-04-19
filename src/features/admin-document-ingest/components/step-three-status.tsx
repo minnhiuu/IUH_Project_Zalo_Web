@@ -5,6 +5,7 @@ import type { IngestState } from '../schemas/ingest-document.schema'
 import { StepThreeProgressCard } from './step-three/step-three-progress-card'
 import { StepThreeTerminalView } from './step-three/step-three-terminal-view'
 import { StepThreeActions } from './step-three/step-three-actions'
+import { useIngestText } from '../i18n/use-ingest-text'
 
 interface StepThreeStatusProps {
   state: IngestState
@@ -12,6 +13,12 @@ interface StepThreeStatusProps {
 }
 
 export function StepThreeStatus({ state, onUpdate }: StepThreeStatusProps) {
+  const { text } = useIngestText()
+  const runtimeStartingText = text.stepThree.runtime.systemStarting
+  const runtimeNoProgressText = text.stepThree.runtime.noProgress
+  const runtimeTimeoutText = text.stepThree.runtime.timeout
+  const runtimeStartFailedText = text.stepThree.runtime.startFailed
+
   const [ingestStatus, setIngestStatus] = useState<'vectorizing' | 'finalizing' | 'success' | 'failed'>('vectorizing')
   const [progress, setProgress] = useState(0)
   const [uploadedChunks, setUploadedChunks] = useState(0)
@@ -89,7 +96,7 @@ export function StepThreeStatus({ state, onUpdate }: StepThreeStatusProps) {
           if (prev.length > 0) {
             return prev
           }
-          return ['[SYSTEM] Khoi dong ingest pipeline...']
+          return [runtimeStartingText]
         })
 
         const initialDocs = await getDocuments(state.conversationId)
@@ -216,7 +223,7 @@ export function StepThreeStatus({ state, onUpdate }: StepThreeStatusProps) {
 
           if (stagnantRounds >= 15) {
             setIngestStatus('failed')
-            setTerminalLines((prev) => [...prev, '[ERROR] No ingest progress detected. Please retry start ingest.'])
+            setTerminalLines((prev) => [...prev, runtimeNoProgressText])
             return
           }
 
@@ -224,10 +231,10 @@ export function StepThreeStatus({ state, onUpdate }: StepThreeStatusProps) {
         }
 
         setIngestStatus('failed')
-        setTerminalLines((prev) => [...prev, '[ERROR] Timeout while waiting for ingest completion'])
+        setTerminalLines((prev) => [...prev, runtimeTimeoutText])
       } catch {
         setIngestStatus('failed')
-        setTerminalLines((prev) => [...prev, '[ERROR] Failed to start ingest job'])
+        setTerminalLines((prev) => [...prev, runtimeStartFailedText])
       }
     }
 
@@ -239,16 +246,26 @@ export function StepThreeStatus({ state, onUpdate }: StepThreeStatusProps) {
         activePollingDocIdRef.current = null
       }
     }
-  }, [activeChunks, activeDocument, onUpdate, state.conversationId, state.uploadedDocuments])
+  }, [
+    activeChunks,
+    activeDocument,
+    onUpdate,
+    runtimeNoProgressText,
+    runtimeStartFailedText,
+    runtimeStartingText,
+    runtimeTimeoutText,
+    state.conversationId,
+    state.uploadedDocuments
+  ])
 
   const statusLabel =
     ingestStatus === 'success'
-      ? 'Hoàn tất'
+      ? text.stepThree.status.success
       : ingestStatus === 'failed'
-        ? 'Thất bại'
+        ? text.stepThree.status.failed
         : ingestStatus === 'finalizing'
-          ? 'Đang hoàn tất'
-          : 'Đang vector hóa'
+          ? text.stepThree.status.finalizing
+          : text.stepThree.status.vectorizing
 
   return (
     <div className='flex flex-col gap-6 w-full animate-in fade-in duration-500'>
