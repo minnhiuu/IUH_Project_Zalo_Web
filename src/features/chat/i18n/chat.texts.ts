@@ -152,6 +152,25 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     forwardMessage: t(CHAT_KEYS['forward-dialog'].forwardMessage),
     addDescription: t(CHAT_KEYS['forward-dialog'].addDescription)
   },
+  businessCard: {
+    open: t(CHAT_KEYS.businessCard.open),
+    title: t(CHAT_KEYS.businessCard.title),
+    searchPlaceholder: t(CHAT_KEYS.businessCard.searchPlaceholder),
+    chipAll: t(CHAT_KEYS.businessCard.chipAll),
+    chipCustomer: t(CHAT_KEYS.businessCard.chipCustomer),
+    chipFamily: t(CHAT_KEYS.businessCard.chipFamily),
+    chipWork: t(CHAT_KEYS.businessCard.chipWork),
+    chipFriends: t(CHAT_KEYS.businessCard.chipFriends),
+    chipLater: t(CHAT_KEYS.businessCard.chipLater),
+    selectedTitle: t(CHAT_KEYS.businessCard.selectedTitle),
+    includePhone: t(CHAT_KEYS.businessCard.includePhone),
+    cancel: t(CHAT_KEYS.businessCard.cancel),
+    send: t(CHAT_KEYS.businessCard.send),
+    empty: t(CHAT_KEYS.businessCard.empty),
+    call: t(CHAT_KEYS.businessCard.call),
+    message: t(CHAT_KEYS.businessCard.message),
+    preview: t(CHAT_KEYS.businessCard.preview)
+  },
   system: {
     add_members: {
       single_self: t(CHAT_KEYS.system.add_members.single_self),

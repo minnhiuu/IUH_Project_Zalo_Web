@@ -15,6 +15,7 @@ import { MessageMoreMenu } from './message-more-menu'
 import { MessageInfoDialog } from './message-info-dialog'
 import { AdminDeleteMessageDialog } from './admin-delete-message-dialog'
 import { JoinLinkCard } from './join-link-card'
+import { BusinessCardMessage } from './business-card-message'
 import {
   useRevokeMessageMutation,
   useToggleReactionMutation,
@@ -27,6 +28,7 @@ import type { PageResponse } from '@/shared/api'
 import { chatKeys } from '../queries/keys'
 import { parseMentionsForRender, stripMentionsForPreview } from '../utils/mention'
 import { useSeenMembersQuery } from '../queries/use-queries'
+import { parseBusinessCardContent } from '../utils/business-card'
 
 export function MessageBubble({
   message,
@@ -110,6 +112,8 @@ export function MessageBubble({
   }, [user?.id, message.reactions])
 
   const isImageMessage = !isUnavailable && (message.type === MessageType.Image || message.type === MessageType.Video)
+  const businessCard = !isUnavailable ? parseBusinessCardContent(message.content) : null
+  const isBusinessCardMessage = !!businessCard
   const hasReactions = !isUnavailable && !!message.reactions && Object.keys(message.reactions).length > 0
 
   if (message.type === MessageType.System) {
@@ -149,7 +153,7 @@ export function MessageBubble({
           <div
             className={cn(
               'max-w-md wrap-break-word text-[15px] shadow-sm flex flex-col relative rounded-lg',
-              isImageMessage ? 'p-1' : isUnavailable ? 'px-3 py-1.5' : 'p-5',
+              isBusinessCardMessage ? 'p-0 bg-transparent shadow-none border-none' : isImageMessage ? 'p-1' : isUnavailable ? 'px-3 py-1.5' : 'p-5',
               isOwn && !isUnavailable
                 ? 'bg-blue-message text-black dark:text-primary-foreground'
                 : 'bg-white-message text-foreground',
@@ -208,6 +212,8 @@ export function MessageBubble({
                   url={message.linkPreview!.url}
                   cachedPreview={message.linkPreview!}
                 />
+              ) : businessCard ? (
+                <BusinessCardMessage payload={businessCard} />
               ) : message.type === MessageType.Image || message.type === MessageType.Video ? (
                 <MessageMediaContent message={message} />
               ) : message.type === MessageType.File ? (
@@ -579,14 +585,14 @@ function MessageMediaContent({ message }: { message: MessageResponse }) {
     const att = atts[0]
     if (!att.url) return <span className='text-muted-foreground italic'>{text.loading}</span>
     if (att.contentType.startsWith('video/')) {
-      return <video src={att.url} controls className='max-w-xs max-h-[300px] rounded-md' preload='metadata' />
+      return <video src={att.url} controls className='max-w-xs max-h-75 rounded-md' preload='metadata' />
     }
     return (
       <a href={att.url} target='_blank' rel='noopener noreferrer'>
         <img
           src={att.url}
           alt={att.originalFileName || 'image'}
-          className='max-w-xs max-h-[300px] rounded-md object-contain cursor-pointer hover:opacity-90 transition-opacity'
+          className='max-w-xs max-h-75 rounded-md object-contain cursor-pointer hover:opacity-90 transition-opacity'
           loading='lazy'
         />
       </a>
@@ -596,7 +602,7 @@ function MessageMediaContent({ message }: { message: MessageResponse }) {
   const gridClass = atts.length === 2 ? 'grid-cols-2' : 'grid-cols-3'
 
   return (
-    <div className={cn('grid gap-0.5 rounded-md overflow-hidden w-[240px]', gridClass)}>
+    <div className={cn('grid gap-0.5 rounded-md overflow-hidden w-60', gridClass)}>
       {atts.map((att, i) => {
         const isVideo = att.contentType.startsWith('video/')
         return (
@@ -649,12 +655,12 @@ function MessageFileContent({ message }: { message: MessageResponse }) {
   }
 
   return (
-    <div className='flex items-center gap-3 min-w-[200px]'>
+    <div className='flex items-center gap-3 min-w-50'>
       <div className={cn('w-10 h-10 rounded-lg bg-muted flex items-center justify-center shrink-0', getExtColor())}>
         <FileIcon size={22} />
       </div>
       <div className='flex flex-col min-w-0 flex-1'>
-        <span className='text-[14px] font-medium truncate max-w-[200px]'>{fileName}</span>
+        <span className='text-[14px] font-medium truncate max-w-50'>{fileName}</span>
         <span className='text-[12px] text-muted-foreground'>
           {fileSize ? formatFileSize(fileSize) : ''}
           {contentType ? ` · ${ext}` : ''}
@@ -734,12 +740,12 @@ function ReactionModal({
   if (!open) return null
 
   return (
-    <div className='fixed inset-0 z-[100] flex items-center justify-center'>
+    <div className='fixed inset-0 z-100 flex items-center justify-center'>
       {/* Transparent click-away backdrop */}
       <div className='absolute inset-0' onClick={onClose} />
 
       {/* Modal card */}
-      <div className='relative bg-background border rounded-xl shadow-2xl ring-1 ring-foreground/10 w-[520px] max-h-[520px] overflow-hidden flex flex-col z-10'>
+      <div className='relative bg-background border rounded-xl shadow-2xl ring-1 ring-foreground/10 w-130 max-h-130 overflow-hidden flex flex-col z-10'>
         {/* Header */}
         <div className='flex items-center justify-between px-5 py-3 border-b shrink-0'>
           <h3 className='text-[15px] font-semibold'>{mb.reactionModalTitle}</h3>

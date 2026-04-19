@@ -289,6 +289,25 @@
       "forwardMessage": "Forward message",
       "addDescription": "Add description..."
     },
+    "businessCard": {
+      "open": "Send business card",
+      "title": "Send business card",
+      "searchPlaceholder": "Search cards by name",
+      "chipAll": "All",
+      "chipCustomer": "Customers",
+      "chipFamily": "Family",
+      "chipWork": "Work",
+      "chipFriends": "Friends",
+      "chipLater": "Reply later",
+      "selectedTitle": "Selected",
+      "includePhone": "Include phone number",
+      "cancel": "Cancel",
+      "send": "Send business card",
+      "empty": "No contacts found",
+      "call": "Call",
+      "message": "Message",
+      "preview": "[Business card] {{name}}"
+    },
     "join-link-card": {
       "group_label": "Group",
       "default_name": "Group chat",

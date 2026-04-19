@@ -1,4 +1,5 @@
 import { MessageType, MessageStatus } from '@/constants/enum'
+import { parseBusinessCardContent } from './business-card'
 
 interface PreviewData {
   content?: string | null
@@ -15,6 +16,7 @@ export const formatPreview = (
     user: string
     type: { image: string; file: string; link: string }
     messageBubble: { revoked: string }
+    businessCard: { preview: string }
   }
 ) => {
   if (!data.status && !data.content && !data.type) return ''
@@ -27,12 +29,17 @@ export const formatPreview = (
   let displayContent = data.content || ''
   if (isRevoked) {
     displayContent = text.messageBubble.revoked
-  } else if (data.type === MessageType.Image || data.content === '[IMAGE]') {
-    displayContent = text.type.image
-  } else if (data.type === MessageType.File || data.content === '[FILE]') {
-    displayContent = text.type.file
-  } else if (data.type === MessageType.Link || data.content === '[LINK]') {
-    displayContent = text.type.link
+  } else {
+    const businessCard = parseBusinessCardContent(data.content)
+    if (businessCard) {
+      displayContent = text.businessCard.preview.replace('{{name}}', businessCard.name)
+    } else if (data.type === MessageType.Image || data.content === '[IMAGE]') {
+      displayContent = text.type.image
+    } else if (data.type === MessageType.File || data.content === '[FILE]') {
+      displayContent = text.type.file
+    } else if (data.type === MessageType.Link || data.content === '[LINK]') {
+      displayContent = text.type.link
+    }
   }
 
   return isRevoked ? displayContent : `${prefix}: ${displayContent}`

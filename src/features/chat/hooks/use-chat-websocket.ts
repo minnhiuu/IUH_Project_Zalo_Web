@@ -598,7 +598,7 @@ export const useChatWebSocket = () => {
     (conversationId: string, content: string, replyTo?: ReplyMetadata | null, isForwarded: boolean = false) => {
       if (!stompClientRef.current?.connected || (!content.trim() && !isForwarded)) return
 
-      const clientMessageId = `temp-${Date.now()}`
+      const clientMessageId = `temp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
       const isFake = conversationId.startsWith('fake_')
       const chatMessage: ChatMessageRequest = {
         conversationId: isFake ? null : conversationId,
@@ -634,6 +634,10 @@ export const useChatWebSocket = () => {
         (oldData: InfiniteData<PageResponse<MessageResponse>> | undefined) => {
           if (!oldData) return oldData
           const firstPage = oldData.pages[0]
+          const existsOptimistic = firstPage.data.some(
+            (m: MessageResponse) => m.clientMessageId === clientMessageId || m.id === clientMessageId
+          )
+          if (existsOptimistic) return oldData
           return {
             ...oldData,
             pages: [{ ...firstPage, data: [optimisticMsg, ...firstPage.data] }, ...oldData.pages.slice(1)]

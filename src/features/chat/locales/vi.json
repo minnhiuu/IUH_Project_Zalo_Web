@@ -289,6 +289,25 @@
       "forwardMessage": "Nội dung chuyển tiếp",
       "addDescription": "Thêm lời nhắn..."
     },
+    "businessCard": {
+      "open": "Gửi danh thiếp",
+      "title": "Gửi danh thiếp",
+      "searchPlaceholder": "Tìm danh thiếp theo tên",
+      "chipAll": "Tất cả",
+      "chipCustomer": "Khách hàng",
+      "chipFamily": "Gia đình",
+      "chipWork": "Công việc",
+      "chipFriends": "Bạn bè",
+      "chipLater": "Trả lời sau",
+      "selectedTitle": "Đã chọn",
+      "includePhone": "Gửi kèm số điện thoại",
+      "cancel": "Hủy",
+      "send": "Gửi danh thiếp",
+      "empty": "Không tìm thấy liên hệ",
+      "call": "Gọi Điện",
+      "message": "Nhắn Tin",
+      "preview": "[Danh thiếp] {{name}}"
+    },
     "join-link-card": {
       "group_label": "Nhóm",
       "default_name": "Nhóm chat",

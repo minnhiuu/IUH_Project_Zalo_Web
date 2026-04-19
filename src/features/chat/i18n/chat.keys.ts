@@ -409,6 +409,25 @@ export const CHAT_KEYS = {
     forwardMessage: 'chat.forward-dialog.forwardMessage',
     addDescription: 'chat.forward-dialog.addDescription'
   },
+  businessCard: {
+    open: 'chat.businessCard.open',
+    title: 'chat.businessCard.title',
+    searchPlaceholder: 'chat.businessCard.searchPlaceholder',
+    chipAll: 'chat.businessCard.chipAll',
+    chipCustomer: 'chat.businessCard.chipCustomer',
+    chipFamily: 'chat.businessCard.chipFamily',
+    chipWork: 'chat.businessCard.chipWork',
+    chipFriends: 'chat.businessCard.chipFriends',
+    chipLater: 'chat.businessCard.chipLater',
+    selectedTitle: 'chat.businessCard.selectedTitle',
+    includePhone: 'chat.businessCard.includePhone',
+    cancel: 'chat.businessCard.cancel',
+    send: 'chat.businessCard.send',
+    empty: 'chat.businessCard.empty',
+    call: 'chat.businessCard.call',
+    message: 'chat.businessCard.message',
+    preview: 'chat.businessCard.preview'
+  },
   'join-group-dialog': {
     title: 'chat.join-group-dialog.title',
     members_and_creator: 'chat.join-group-dialog.members_and_creator',
