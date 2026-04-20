@@ -762,12 +762,12 @@ input[type='radio']:checked {
 }
 
 /* ── Highlight message (scroll-to) ── */
-@keyframes highlight-flash {
+@keyframes highlight-fade {
   0% {
-    background-color: rgba(0, 104, 255, 0.18);
+    background-color: rgba(0, 104, 255, 0.25);
   }
-  60% {
-    background-color: rgba(0, 104, 255, 0.18);
+  70% {
+    background-color: rgba(0, 104, 255, 0.25);
   }
   100% {
     background-color: transparent;
@@ -775,7 +775,7 @@ input[type='radio']:checked {
 }
 
 .highlight-message {
-  animation: highlight-flash 1.2s ease-out forwards;
+  animation: highlight-fade 2s ease-out forwards;
   border-radius: 10px;
 }
 

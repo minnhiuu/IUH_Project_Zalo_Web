@@ -12,7 +12,10 @@ import type {
   GroupSettings,
   JoinGroupPreviewResponse,
   PinnedMessageInfo,
-  JoinRequestResponse
+  PinnedMessageInfo,
+  JoinRequestResponse,
+  MessageCursorParams,
+  CursorPageResponse
 } from '../schemas/chat.schema'
 
 export const getConversations = async (page = 0, size = 20): Promise<PageResponse<ConversationResponse>> => {
@@ -54,6 +57,17 @@ export const getMessages = async (
   const response = await http.get<ApiResponse<PageResponse<MessageResponse>>>(
     `/messages/conversations/${conversationId}/messages`,
     { params: { page, size } }
+  )
+  return response.data.data
+}
+
+export const getMessagesV2 = async (
+  conversationId: string,
+  params: MessageCursorParams
+): Promise<CursorPageResponse<MessageResponse>> => {
+  const response = await http.get<ApiResponse<CursorPageResponse<MessageResponse>>>(
+    `/messages/v2/conversations/${conversationId}/messages`,
+    { params }
   )
   return response.data.data
 }
