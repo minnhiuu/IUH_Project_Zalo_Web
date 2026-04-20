@@ -13,7 +13,8 @@ import { rejectCallApi } from '../api/call.api'
 import {
   useMarkAsReadMutation,
   useUpdateGroupNameMutation,
-  useUpdateGroupAvatarMutation
+  useUpdateGroupAvatarMutation,
+  useSendMessageMutation
 } from '../queries/use-mutations'
 import { useEffect, useRef, useMemo, useState, useCallback, Fragment } from 'react'
 import type { ConversationResponse, MessageResponse } from '../schemas/chat.schema'
@@ -58,6 +59,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
     suppressFetchRef
   })
   const { mutate: markAsRead } = useMarkAsReadMutation()
+  const { mutate: sendMsgMutate } = useSendMessageMutation()
   const lastMessageRef = useRef<HTMLDivElement>(null)
   const lastReadSentId = useRef<string | null>(null)
 
@@ -733,6 +735,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
                       conversation={conversation}
                       onReply={() => setReplyTo(msg)}
                       onForward={() => setForwardingMessage(msg)}
+                      onScrollToMessage={scrollToMessage}
                       onAvatarClick={(userId) => {
                         if (userId === user?.id) {
                           setIsOwnerProfileOpen(true)
@@ -809,10 +812,29 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             onClose={() => setForwardingMessage(null)}
             onConfirm={(selectedConvIds, description) => {
               selectedConvIds.forEach((convId) => {
+                const isFake = convId.startsWith('fake_')
+                const hasAttachments = (forwardingMessage.attachments?.length ?? 0) > 0
                 const finalContent = description
-                  ? `${forwardingMessage.content}\n---\n${description}`
+                  ? `${forwardingMessage.content || ''}\n---\n${description}`.trim()
                   : forwardingMessage.content || ''
-                sendMessage(convId, finalContent, null, true)
+                if (hasAttachments) {
+                  sendMsgMutate({
+                    conversationId: isFake ? null : convId,
+                    recipientId: isFake ? convId.replace('fake_', '') : null,
+                    content: finalContent,
+                    isForwarded: true,
+                    attachments: forwardingMessage.attachments!.map((a) => ({
+                      key: a.key,
+                      url: a.url,
+                      fileName: a.fileName,
+                      originalFileName: a.originalFileName,
+                      contentType: a.contentType,
+                      size: a.size
+                    }))
+                  })
+                } else {
+                  sendMessage(convId, finalContent, null, true)
+                }
               })
             }}
           />
