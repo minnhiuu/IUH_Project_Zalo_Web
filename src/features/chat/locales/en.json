@@ -544,6 +544,7 @@
       "removeFromGroupConfirmTitle": "Confirm",
       "removeFromGroupConfirmDesc": "Remove this member from group?",
       "blockFromGroupDesc": "Block this one from rejoining",
+      "confirmAccept": "Accept",
       "close": "Close"
     },
     "mediaStorage": {

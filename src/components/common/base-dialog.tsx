@@ -55,17 +55,23 @@ export function BaseDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogPortal>
-        <DialogOverlay className='bg-black/45 backdrop-blur-none! duration-200 fixed inset-0 z-50' />
+        <DialogOverlay className='bg-black/45 backdrop-blur-none! duration-200 fixed inset-0 z-110' />
         <DialogContent
           showCloseButton={false}
           className={cn(
-            'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50',
+            'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-111',
             'w-100 max-w-[95vw] p-0 gap-0 rounded-md overflow-hidden border border-border shadow-2xl bg-background outline-none',
             'animate-in zoom-in-95 duration-200',
             className
           )}
         >
-          <div className={cn('flex items-center justify-between px-4', compact ? 'h-10' : 'h-11', !hideHeaderBorder && 'border-b border-border')}>
+          <div
+            className={cn(
+              'flex items-center justify-between px-4',
+              compact ? 'h-10' : 'h-11',
+              !hideHeaderBorder && 'border-b border-border'
+            )}
+          >
             <div className='flex items-center min-w-0 gap-1'>
               {headerLeft}
               <DialogTitle className='text-[15px] font-bold text-foreground truncate mr-2'>{title}</DialogTitle>

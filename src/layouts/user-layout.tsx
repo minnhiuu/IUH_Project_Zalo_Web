@@ -109,7 +109,6 @@ export default function UserLayout() {
                   src={user?.avatar}
                   name={user?.fullName || 'User'}
                   className='h-10 w-10 border border-zinc-200 dark:border-white/10'
-                  fallbackClassName='bg-primary text-white text-sm'
                 />
               </div>
             </div>

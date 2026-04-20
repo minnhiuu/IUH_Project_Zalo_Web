@@ -210,7 +210,7 @@ export function CreateGroupDialog({
           onClose()
           resetState()
           navigate(`/chat/c/${conversation.id}`)
-          if (isDuplicate) showSimpleToast(tg.groupAlreadyExists)
+          //if (isDuplicate) showSimpleToast(tg.groupAlreadyExists)
           if (pendingFile && conversation.id && !isDuplicate) {
             updateAvatarMutation.mutate({ id: conversation.id, file: pendingFile })
           }
