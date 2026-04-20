@@ -1,7 +1,18 @@
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { chatKeys } from '../queries/keys'
-import { UserPlus, Users, Filter, MoreHorizontal, Megaphone, Trash2, Clock3, FolderTree, BellOff, Flag } from 'lucide-react'
+import {
+  UserPlus,
+  Users,
+  Filter,
+  MoreHorizontal,
+  Megaphone,
+  Trash2,
+  Clock3,
+  FolderTree,
+  BellOff,
+  Flag
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useConversationsQuery } from '../queries/use-queries'
 import { useAuth } from '@/features/auth'
@@ -18,7 +29,13 @@ import { getConversationDisplayName } from '../utils/group-name'
 import { stripMentionsForPreview } from '../utils/mention'
 import { SearchAndActions, type SearchAction } from '@/components/common/search-and-actions'
 import { AddFriendSearchDialog } from '@/features/friend'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
 import {
   useClearConversationHistoryMutation,
   useDeleteConversationMutation,
@@ -253,10 +270,16 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
               <div
                 className={cn(
                   'absolute right-2 top-1/2 -translate-y-1/2 transition-opacity bg-background/90 rounded-md p-0.5 shadow-sm border border-border/40 z-10',
-                  isSelected || isMenuOpen ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'
+                  isSelected || isMenuOpen
+                    ? 'opacity-100'
+                    : 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'
                 )}
               >
-                <DropdownMenu modal={false} open={isMenuOpen} onOpenChange={(open) => setOpenMenuChatId(open ? chat.id : null)}>
+                <DropdownMenu
+                  modal={false}
+                  open={isMenuOpen}
+                  onOpenChange={(open) => setOpenMenuChatId(open ? chat.id : null)}
+                >
                   <DropdownMenuTrigger asChild>
                     <button
                       className='p-1.5 hover:bg-muted rounded transition-colors'
