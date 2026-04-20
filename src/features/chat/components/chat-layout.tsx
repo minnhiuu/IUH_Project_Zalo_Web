@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router'
 import { Status } from '@/constants/enum'
 import { useUserById } from '@/features/user/queries/use-queries'
 import { JoinGroupDialog } from './group/dialogs/join-group-dialog'
+import { BONDHUB_AI } from '@/constants/system'
 
 export function ChatLayout({
   defaultPartnerId,
@@ -85,7 +86,12 @@ export function ChatLayout({
   // ── Document title theo unread count ──
   const totalUnread = useMemo(() => {
     if (!conversations) return 0
-    return conversations.reduce((sum: number, c: ConversationResponse) => sum + (c.unreadCount || 0), 0)
+
+    return conversations.reduce((sum: number, c: ConversationResponse) => {
+      const isAiConversation = c.members?.some((m) => m.userId === BONDHUB_AI.userId) ?? false
+      if (isAiConversation) return sum
+      return sum + (c.unreadCount || 0)
+    }, 0)
   }, [conversations])
 
   useEffect(() => {

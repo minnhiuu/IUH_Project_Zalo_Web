@@ -186,12 +186,13 @@ export function useAiChat(conversationId: string) {
                 )
               } else if (event.type === 'CLARIFICATION') {
                 isClarification = true
+                const { cleanContent: clarificationContent } = parseAiQuestion(event.content || '')
                 setMessages((prev) =>
                   prev.map((m) =>
                     m.id === aiMsgId
                       ? {
                           ...m,
-                          content: event.content,
+                          content: clarificationContent,
                           isClarification: true,
                           isStreaming: false,
                           processingStatus: undefined
@@ -221,13 +222,16 @@ export function useAiChat(conversationId: string) {
         setMessages((prev) =>
           prev.map((m) => {
             if (m.id !== aiMsgId) return m
-            const { cleanContent, suggestions } = parseAiSuggestions(m.content)
+            const { cleanContent: contentWithoutQuestion, isClarification: parsedClarification } = parseAiQuestion(
+              m.content
+            )
+            const { cleanContent, suggestions } = parseAiSuggestions(contentWithoutQuestion)
             return {
               ...m,
               content: cleanContent,
               suggestions,
               isStreaming: false,
-              isClarification,
+              isClarification: isClarification || parsedClarification || !!m.isClarification,
               processingStatus: undefined
             }
           })

@@ -1,4 +1,5 @@
 import { BONDHUB_AI } from '@/constants/system'
+import { stripAiControlTags } from './ai-parser'
 
 export const MENTION_REGEX = /(@<mention>.*?<\/mention>)/g
 
@@ -22,7 +23,8 @@ export function isAiMentioned(content: string): boolean {
  */
 export function stripMentionsForPreview(content: string | undefined | null): string {
   if (!content) return ''
-  return content.replace(/@<mention>(.*?)<\/mention>/g, '@$1')
+  const withoutMentions = content.replace(/@<mention>(.*?)<\/mention>/g, '@$1')
+  return stripAiControlTags(withoutMentions)
 }
 
 /**

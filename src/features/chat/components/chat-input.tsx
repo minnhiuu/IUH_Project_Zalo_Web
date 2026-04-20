@@ -12,7 +12,7 @@ import {
   Sparkles
 } from 'lucide-react'
 import { useAiChat } from '../hooks/use-ai-chat'
-import type { MessageResponse } from '../schemas/chat.schema'
+import type { GroupMemberListItemResponse, MessageResponse } from '../schemas/chat.schema'
 import { MessageType } from '@/constants/enum'
 import { useChatContext, type FileAttachment } from '../context/chat-context'
 import { useChatText } from '../i18n/use-chat-text'
@@ -99,9 +99,29 @@ export function ChatInput({
   }, [htmlContent])
 
   const availableMembers = useMemo(() => {
-    return (membersData?.pages ?? [])
+    const baseMembers = (membersData?.pages ?? [])
       .flatMap((p) => p.data)
       .filter((m) => !m.isCurrentUser && !alreadyMentionedIds.has(m.userId))
+
+    if (alreadyMentionedIds.has(BONDHUB_AI.userId)) {
+      return baseMembers
+    }
+
+    const aiMember: GroupMemberListItemResponse = {
+      userId: BONDHUB_AI.userId,
+      fullName: BONDHUB_AI.fullName,
+      avatar: BONDHUB_AI.avatar,
+      phoneNumber: null,
+      role: null,
+      joinedAt: null,
+      isFriend: false,
+      isCurrentUser: false,
+      joinMethod: null,
+      addedBy: null,
+      addedByName: null
+    }
+
+    return [aiMember, ...baseMembers.filter((member) => member.userId !== BONDHUB_AI.userId)]
   }, [membersData, alreadyMentionedIds])
 
   // Parse current @ trigger from selection
