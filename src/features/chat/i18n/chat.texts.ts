@@ -2,6 +2,8 @@ import type { TFunction } from 'i18next'
 import { CHAT_KEYS } from './chat.keys'
 import type { AiProcessingStatus } from '@/constants/enum'
 
+export type ChatTexts = ReturnType<typeof createChatTexts>
+
 export const createChatTexts = (t: TFunction<'chat'>) => ({
   title: t(CHAT_KEYS.title),
   searchPlaceholder: t(CHAT_KEYS.searchPlaceholder),
@@ -17,6 +19,7 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     minutesAgo: (count: number) => t(CHAT_KEYS.status.minutesAgo, { count }),
     hoursAgo: (count: number) => t(CHAT_KEYS.status.hoursAgo, { count }),
     daysAgo: (count: number) => t(CHAT_KEYS.status.daysAgo, { count }),
+    yesterday: t(CHAT_KEYS.status.yesterday),
     onDate: (date: string) => t(CHAT_KEYS.status.onDate, { date }),
     sending: t(CHAT_KEYS.status.sending),
     sent: t(CHAT_KEYS.status.sent),
@@ -24,7 +27,9 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
   },
   errors: {
     loadConversations: t(CHAT_KEYS.errors.loadConversations),
-    loadMessages: t(CHAT_KEYS.errors.loadMessages)
+    loadMessages: t(CHAT_KEYS.errors.loadMessages),
+    revokeTimeExceeded: t(CHAT_KEYS.errors.revokeTimeExceeded),
+    adminDeleteTimeExceeded: t(CHAT_KEYS.errors.adminDeleteTimeExceeded)
   },
   you: t(CHAT_KEYS.you),
   you_lower: t(CHAT_KEYS.you_lower),
@@ -36,7 +41,8 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
   },
   mentionDropdown: {
     instruction: t(CHAT_KEYS.mentionDropdown.instruction),
-    notifyAll: t(CHAT_KEYS.mentionDropdown.notifyAll)
+    notifyAll: t(CHAT_KEYS.mentionDropdown.notifyAll),
+    all: t(CHAT_KEYS.mentionDropdown.all)
   },
   messageBubble: {
     reply: t(CHAT_KEYS.messageBubble.reply),
@@ -62,7 +68,27 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     reactionModalTitle: t(CHAT_KEYS.messageBubble.reactionModalTitle),
     reactionModalAll: t(CHAT_KEYS.messageBubble.reactionModalAll),
     reactionModalYou: t(CHAT_KEYS.messageBubble.reactionModalYou),
-    reactionModalEmpty: t(CHAT_KEYS.messageBubble.reactionModalEmpty)
+    reactionModalEmpty: t(CHAT_KEYS.messageBubble.reactionModalEmpty),
+    removeAllMyReactions: t(CHAT_KEYS.messageBubble.removeAllMyReactions),
+    download: t(CHAT_KEYS.messageBubble.download),
+    deletedByAdmin: (name: string) => t(CHAT_KEYS.messageBubble.deletedByAdmin, { name }),
+    deletedByAdminSelf: t(CHAT_KEYS.messageBubble.deletedByAdminSelf),
+    replyUnavailable: t(CHAT_KEYS.messageBubble.replyUnavailable),
+    adminDeleteDialog: {
+      title: t(CHAT_KEYS.messageBubble.adminDeleteDialog.title),
+      cancel: t(CHAT_KEYS.messageBubble.adminDeleteDialog.cancel),
+      optionForMe: t(CHAT_KEYS.messageBubble.adminDeleteDialog.optionForMe),
+      optionForAll: t(CHAT_KEYS.messageBubble.adminDeleteDialog.optionForAll),
+      confirm: t(CHAT_KEYS.messageBubble.adminDeleteDialog.confirm),
+      confirmForMe: t(CHAT_KEYS.messageBubble.adminDeleteDialog.confirmForMe)
+    },
+    adminDeleteConfirm: {
+      title: t(CHAT_KEYS.messageBubble.adminDeleteConfirm.title),
+      description: t(CHAT_KEYS.messageBubble.adminDeleteConfirm.description),
+      descriptionBold: t(CHAT_KEYS.messageBubble.adminDeleteConfirm.descriptionBold),
+      cancel: t(CHAT_KEYS.messageBubble.adminDeleteConfirm.cancel),
+      confirm: t(CHAT_KEYS.messageBubble.adminDeleteConfirm.confirm)
+    }
   },
   pinBoard: {
     title: t(CHAT_KEYS.pinBoard.title),
@@ -98,7 +124,16 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     alreadyJoined: t(CHAT_KEYS['create-group-dialog'].alreadyJoined),
     alreadyAdmin: t(CHAT_KEYS['create-group-dialog'].alreadyAdmin),
     noResultsFound: t(CHAT_KEYS['create-group-dialog'].noResultsFound),
-    noFriendsFound: t(CHAT_KEYS['create-group-dialog'].noFriendsFound)
+    noFriendsFound: t(CHAT_KEYS['create-group-dialog'].noFriendsFound),
+    groupAlreadyExists: t(CHAT_KEYS['create-group-dialog'].groupAlreadyExists),
+    addMemberFailed: (count: number) => t(CHAT_KEYS['create-group-dialog'].addMemberFailed, { count }),
+    avatarAlt: t(CHAT_KEYS['create-group-dialog'].avatarAlt),
+    notAvailable: t(CHAT_KEYS['create-group-dialog'].notAvailable),
+    confirmSelection: t(CHAT_KEYS['create-group-dialog'].confirmSelection),
+    confirmCancelTitle: t(CHAT_KEYS['create-group-dialog'].confirmCancelTitle),
+    confirmCancelDescription: t(CHAT_KEYS['create-group-dialog'].confirmCancelDescription),
+    yes: t(CHAT_KEYS['create-group-dialog'].yes),
+    no: t(CHAT_KEYS['create-group-dialog'].no)
   },
   'forward-dialog': {
     title: t(CHAT_KEYS['forward-dialog'].title),
@@ -144,6 +179,7 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
       by_actor: t(CHAT_KEYS.system.block_member.by_actor)
     },
     blocked_from_joining: t(CHAT_KEYS.system.blocked_from_joining),
+    add_members_failed: t(CHAT_KEYS.system.add_members_failed),
     self_blocked_from_joining: {
       with_link: t(CHAT_KEYS.system.self_blocked_from_joining.with_link),
       without_link: t(CHAT_KEYS.system.self_blocked_from_joining.without_link),
@@ -330,6 +366,9 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     createGroup: t(CHAT_KEYS.sidebarInfo.createGroup),
     ownerRole: t(CHAT_KEYS.sidebarInfo.ownerRole),
     adminRole: t(CHAT_KEYS.sidebarInfo.adminRole),
+    joinedByLink: t(CHAT_KEYS.sidebarInfo.joinedByLink),
+    addedBy: (name: string) => t(CHAT_KEYS.sidebarInfo.addedBy, { name }),
+    addedByYou: t(CHAT_KEYS.sidebarInfo.addedByYou),
     addDeputy: t(CHAT_KEYS.sidebarInfo.addDeputy),
     removeFromGroup: t(CHAT_KEYS.sidebarInfo.removeFromGroup),
     searchMemberPlaceholder: t(CHAT_KEYS.sidebarInfo.searchMemberPlaceholder),
@@ -342,7 +381,12 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     groupJoinLink: t(CHAT_KEYS.sidebarInfo.groupJoinLink),
     copied: t(CHAT_KEYS.sidebarInfo.copied),
     generating: t(CHAT_KEYS.sidebarInfo.generating),
-    createInviteLink: t(CHAT_KEYS.sidebarInfo.createInviteLink)
+    createInviteLink: t(CHAT_KEYS.sidebarInfo.createInviteLink),
+    removeFromGroupConfirmTitle: t(CHAT_KEYS.sidebarInfo.removeFromGroupConfirmTitle),
+    removeFromGroupConfirmDesc: t(CHAT_KEYS.sidebarInfo.removeFromGroupConfirmDesc),
+    blockFromGroupDesc: t(CHAT_KEYS.sidebarInfo.blockFromGroupDesc),
+    confirmAccept: t(CHAT_KEYS.sidebarInfo.confirmAccept),
+    closeDialog: t(CHAT_KEYS.sidebarInfo.close)
   },
   'join-group-dialog': {
     title: t(CHAT_KEYS['join-group-dialog'].title),
@@ -390,7 +434,72 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     noFiles: t(CHAT_KEYS.mediaStorage.noFiles),
     noLinks: t(CHAT_KEYS.mediaStorage.noLinks),
     downloadedLocally: t(CHAT_KEYS.mediaStorage.downloadedLocally),
-    dateLabel: (day: number, month: number) => t(CHAT_KEYS.mediaStorage.dateLabel, { day, month })
+    dateLabel: (day: number, month: number) => t(CHAT_KEYS.mediaStorage.dateLabel, { day, month }),
+    fromDate: t(CHAT_KEYS.mediaStorage.fromDate),
+    toDate: t(CHAT_KEYS.mediaStorage.toDate),
+    clear: t(CHAT_KEYS.mediaStorage.clear),
+    apply: t(CHAT_KEYS.mediaStorage.apply)
+  },
+  'message-info-dialog': {
+    title: t(CHAT_KEYS['message-info-dialog'].title),
+    today: t(CHAT_KEYS['message-info-dialog'].today),
+    sender: t(CHAT_KEYS['message-info-dialog'].sender),
+    seen: (count: number) => t(CHAT_KEYS['message-info-dialog'].seen, { count }),
+    noOneSeen: t(CHAT_KEYS['message-info-dialog'].noOneSeen),
+    voiceCall: t(CHAT_KEYS['message-info-dialog'].voiceCall),
+    videoCall: t(CHAT_KEYS['message-info-dialog'].videoCall)
+  },
+  'stranger-banner': {
+    sendRequestHint: t(CHAT_KEYS['stranger-banner'].sendRequestHint),
+    sentRequestTo: (name: string) => t(CHAT_KEYS['stranger-banner'].sentRequestTo, { name }),
+    receivedRequest: t(CHAT_KEYS['stranger-banner'].receivedRequest),
+    sendRequest: t(CHAT_KEYS['stranger-banner'].sendRequest),
+    cancelRequest: t(CHAT_KEYS['stranger-banner'].cancelRequest),
+    acceptRequest: t(CHAT_KEYS['stranger-banner'].acceptRequest)
+  },
+  'chat-window': {
+    cloudSyncDesc: t(CHAT_KEYS['chat-window'].cloudSyncDesc),
+    stranger: t(CHAT_KEYS['chat-window'].stranger),
+    commonGroups: (count: number) => t(CHAT_KEYS['chat-window'].commonGroups, { count }),
+    voiceCall: t(CHAT_KEYS['chat-window'].voiceCall),
+    videoCall: t(CHAT_KEYS['chat-window'].videoCall),
+    zaloMember: t(CHAT_KEYS['chat-window'].zaloMember),
+    unreadMessages: t(CHAT_KEYS['chat-window'].unreadMessages)
+  },
+  'cloud-sidebar': {
+    title: t(CHAT_KEYS['cloud-sidebar'].title),
+    description: t(CHAT_KEYS['cloud-sidebar'].description),
+    storageLabel: t(CHAT_KEYS['cloud-sidebar'].storageLabel),
+    image: t(CHAT_KEYS['cloud-sidebar'].image),
+    video: t(CHAT_KEYS['cloud-sidebar'].video),
+    file: t(CHAT_KEYS['cloud-sidebar'].file),
+    other: t(CHAT_KEYS['cloud-sidebar'].other),
+    cleanupAction: t(CHAT_KEYS['cloud-sidebar'].cleanupAction),
+    upgradeTitle: t(CHAT_KEYS['cloud-sidebar'].upgradeTitle),
+    upgradeDesc: t(CHAT_KEYS['cloud-sidebar'].upgradeDesc),
+    upgradeAction: t(CHAT_KEYS['cloud-sidebar'].upgradeAction),
+    reminderList: t(CHAT_KEYS['cloud-sidebar'].reminderList)
+  },
+  searchSidebar: {
+    title: t(CHAT_KEYS.searchSidebar.title),
+    placeholder: t(CHAT_KEYS.searchSidebar.placeholder),
+    filterLabel: t(CHAT_KEYS.searchSidebar.filterLabel),
+    filterSender: t(CHAT_KEYS.searchSidebar.filterSender),
+    filterDate: t(CHAT_KEYS.searchSidebar.filterDate),
+    filterTime: t(CHAT_KEYS.searchSidebar.filterTime),
+    emptyStateText: t(CHAT_KEYS.searchSidebar.emptyStateText),
+    emptyStateSearch: t(CHAT_KEYS.searchSidebar.emptyStateSearch),
+    timeSuggestion: t(CHAT_KEYS.searchSidebar.timeSuggestion),
+    last7Days: t(CHAT_KEYS.searchSidebar.last7Days),
+    last30Days: t(CHAT_KEYS.searchSidebar.last30Days),
+    last3Months: t(CHAT_KEYS.searchSidebar.last3Months),
+    chooseTimeRange: t(CHAT_KEYS.searchSidebar.chooseTimeRange),
+    fromDate: t(CHAT_KEYS.searchSidebar.fromDate),
+    toDate: t(CHAT_KEYS.searchSidebar.toDate),
+    loadMore: t(CHAT_KEYS.searchSidebar.loadMore),
+    clear: t(CHAT_KEYS.searchSidebar.clear),
+    confirm: t(CHAT_KEYS.searchSidebar.confirm),
+    cancel: t(CHAT_KEYS.searchSidebar.cancel)
   },
   /** Trả về label dịch cho trạng thái pipeline AI theo ngôn ngữ hiện tại */
   aiStatusLabel: (status?: AiProcessingStatus): string => {

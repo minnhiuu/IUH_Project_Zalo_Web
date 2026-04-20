@@ -30,6 +30,8 @@ export const USER_KEYS = {
     confirm: 'user.profile.confirm',
     edit: 'user.profile.edit',
     updating: 'user.profile.updating',
+    phoneLabel: 'user.profile.phoneLabel',
+    phonePlaceholder: 'user.profile.phonePlaceholder',
     bioLabel: 'user.profile.bioLabel',
     bioPlaceholder: 'user.profile.bioPlaceholder',
     bio: 'user.profile.bio',
@@ -59,7 +61,10 @@ export const USER_KEYS = {
     fullNameRequired: 'user.validation.fullNameRequired',
     dobInvalid: 'user.validation.dobInvalid',
     genderRequired: 'user.validation.genderRequired',
-    bioTooLong: 'user.validation.bioTooLong'
+    bioTooLong: 'user.validation.bioTooLong',
+    phoneRequired: 'user.validation.phoneRequired',
+    phoneInvalid: 'user.validation.phoneInvalid',
+    phoneAlreadyUsed: 'user.validation.phoneAlreadyUsed'
   },
   settings: {
     title: 'user.settings.title',

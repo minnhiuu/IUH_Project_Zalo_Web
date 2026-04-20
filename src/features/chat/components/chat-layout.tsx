@@ -3,18 +3,20 @@ import { ChatSidebar } from './chat-sidebar'
 import { ChatWindow } from './chat-window'
 import { useChatText } from '../i18n/use-chat-text'
 import { useConversationsQuery } from '../queries/use-queries'
-import { useMarkAsReadMutation } from '../queries/use-mutations'
 import type { ConversationResponse } from '../schemas/chat.schema'
 import { useNavigate } from 'react-router'
 import { Status } from '@/constants/enum'
 import { useUserById } from '@/features/user/queries/use-queries'
+import { JoinGroupDialog } from './group/dialogs/join-group-dialog'
 
 export function ChatLayout({
   defaultPartnerId,
-  defaultConversationId
+  defaultConversationId,
+  defaultJoinToken
 }: {
   defaultPartnerId?: string
   defaultConversationId?: string
+  defaultJoinToken?: string
 }) {
   const navigate = useNavigate()
   const { text } = useChatText()
@@ -22,7 +24,6 @@ export function ChatLayout({
   const [userSelectedChatId, setUserSelectedChatId] = useState<string | null>(null)
 
   const { data: conversations } = useConversationsQuery()
-  const { mutate: markAsRead } = useMarkAsReadMutation()
 
   // ── Tìm conversation trong cache theo partnerId (member matching) ──
   const cachedConvForPartner = useMemo(() => {
@@ -89,23 +90,6 @@ export function ChatLayout({
     document.title = totalUnread > 0 ? `(${totalUnread}) Tin nhắn mới | Zalo Web` : 'Zalo Web - PC'
   }, [totalUnread])
 
-  // ── Auto mark-as-read khi mở / tab visible ──
-  useEffect(() => {
-    const tryMarkRead = () => {
-      if (document.visibilityState === 'visible' && selectedChat) {
-        const activeConv = conversations?.find((c: ConversationResponse) => c.id === selectedChat.id)
-        if (activeConv && activeConv.unreadCount && activeConv.unreadCount > 0) {
-          markAsRead(selectedChat.id)
-        }
-      }
-    }
-
-    document.addEventListener('visibilitychange', tryMarkRead)
-    tryMarkRead() // run immediately on mount / conversation change
-
-    return () => document.removeEventListener('visibilitychange', tryMarkRead)
-  }, [selectedChat, conversations, markAsRead])
-
   return (
     <div className='flex w-full h-full overflow-hidden'>
       <ChatSidebar
@@ -165,6 +149,14 @@ export function ChatLayout({
           </div>
         )
       })()}
+
+      <JoinGroupDialog
+        open={!!defaultJoinToken}
+        onOpenChange={(open) => {
+          if (!open) navigate('/', { replace: true })
+        }}
+        token={defaultJoinToken || null}
+      />
     </div>
   )
 }

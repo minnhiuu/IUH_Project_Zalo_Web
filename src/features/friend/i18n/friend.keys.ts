@@ -171,6 +171,7 @@ export const FRIEND_KEYS = {
     },
     sortOptions: {
       nameAZ: 'friend.contactsFilter.sortOptions.nameAZ',
+      nameZA: 'friend.contactsFilter.sortOptions.nameZA',
       recent: 'friend.contactsFilter.sortOptions.recent',
       online: 'friend.contactsFilter.sortOptions.online'
     },
@@ -198,5 +199,25 @@ export const FRIEND_KEYS = {
   mutualFriends: 'friend.mutualFriends',
   viewMore: 'friend.viewMore',
   loading: 'friend.loading',
-  error: 'friend.error'
+  error: 'friend.error',
+
+  groupList: {
+    title: 'friend.groupList.title',
+    count: 'friend.groupList.count',
+    searchPlaceholder: 'friend.groupList.searchPlaceholder',
+    sortOptions: {
+      activityNewest: 'friend.groupList.sortOptions.activityNewest',
+      activityOldest: 'friend.groupList.sortOptions.activityOldest',
+      nameAsc: 'friend.groupList.sortOptions.nameAsc',
+      nameDesc: 'friend.groupList.sortOptions.nameDesc'
+    },
+    filterOptions: {
+      all: 'friend.groupList.filterOptions.all',
+      owner: 'friend.groupList.filterOptions.owner'
+    },
+    memberCount: 'friend.groupList.memberCount',
+    noGroups: 'friend.groupList.noGroups',
+    noResults: 'friend.groupList.noResults',
+    openChat: 'friend.groupList.openChat'
+  }
 } as const

@@ -23,7 +23,7 @@ export function FriendListItem({ friend, onMessage, onViewProfile, onUnfriend }:
       <UserAvatar src={friend.userAvatar} name={friend.userName} className='w-10 h-10 shrink-0' />
 
       <div className='flex-1 min-w-0'>
-        <h4 className='text-sm font-medium text-foreground truncate'>{friend.userName}</h4>
+        <h4 className='text-sm font-semibold text-text-primary truncate'>{friend.userName}</h4>
       </div>
 
       <DropdownMenu>
@@ -36,7 +36,7 @@ export function FriendListItem({ friend, onMessage, onViewProfile, onUnfriend }:
               'focus:opacity-100 focus:outline-none'
             )}
           >
-            <MoreHorizontal className='w-4 h-4 text-muted-foreground' />
+            <MoreHorizontal className='w-4 h-4 text-text-secondary' />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end' className='w-48' onClick={(e) => e.stopPropagation()}>

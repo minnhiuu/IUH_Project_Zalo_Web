@@ -1,2 +1,5 @@
 export * from './components/chat-layout'
 export * from './context/chat-context'
+export * from './components/group/dialogs/create-group-dialog'
+export * from './components/group/dialogs/leave-group-dialog'
+export * from './components/group/dialogs/transfer-owner-dialog'

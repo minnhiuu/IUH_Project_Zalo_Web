@@ -5,7 +5,7 @@ import { chatOptions } from '../queries/options'
 import { Users } from 'lucide-react'
 import { JoinGroupDialog } from './group/dialogs/join-group-dialog'
 import { useChatText } from '../i18n/use-chat-text'
-import { GroupAvatar } from './group/group-avatar'
+import { GroupAvatar } from '@/components/common/group-avatar'
 import { showSimpleToast } from '@/utils/toast'
 
 interface LinkPreviewData {

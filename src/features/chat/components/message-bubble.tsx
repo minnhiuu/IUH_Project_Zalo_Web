@@ -12,6 +12,8 @@ import { UserAvatar } from '@/components/common/user-avatar'
 import { MessageSenderAvatar } from './message-sender-avatar'
 import { MessageIconButton } from './message-icon-button'
 import { MessageMoreMenu } from './message-more-menu'
+import { MessageInfoDialog } from './message-info-dialog'
+import { AdminDeleteMessageDialog } from './admin-delete-message-dialog'
 import { JoinLinkCard } from './join-link-card'
 import {
   useRevokeMessageMutation,
@@ -24,6 +26,7 @@ import { useQueryClient, type InfiniteData } from '@tanstack/react-query'
 import type { PageResponse } from '@/shared/api'
 import { chatKeys } from '../queries/keys'
 import { parseMentionsForRender, stripMentionsForPreview } from '../utils/mention'
+import { useSeenMembersQuery } from '../queries/use-queries'
 
 export function MessageBubble({
   message,
@@ -35,7 +38,8 @@ export function MessageBubble({
   onReply,
   onForward,
   onAvatarClick,
-  onRecall
+  onRecall,
+  highlightKeyword
 }: {
   message: MessageResponse
   isOwn: boolean
@@ -47,6 +51,7 @@ export function MessageBubble({
   onForward?: () => void
   onAvatarClick?: (userId: string) => void
   onRecall?: (receiverId: string) => void
+  highlightKeyword?: string | null
 }) {
   const { text } = useChatText()
   const { deleteMessageForMe } = useChatContext()
@@ -59,6 +64,8 @@ export function MessageBubble({
   const mb = text.messageBubble
 
   const isRevoked = message.status === MessageStatus.REVOKED
+  const isDeletedByAdmin = message.status === MessageStatus.DELETED_BY_ADMIN
+  const isUnavailable = isRevoked || isDeletedByAdmin
   const conversationId = message.conversationId
 
   const isJoinLink = message.type === MessageType.Link && !!message.linkPreview
@@ -69,9 +76,31 @@ export function MessageBubble({
   const isOwner = senderRole === 'OWNER'
   const highlightEnabled = conversation?.isGroup && conversation?.settings?.highlightAdminMessages && isAdminOrOwner
   const isGroup = conversation?.isGroup
+
+  const currentUserMember = conversation?.members?.find((m) => m.userId === String(user?.id))
+  const currentUserRole = currentUserMember?.role?.toUpperCase()
+  const currentUserIsOwner = currentUserRole === 'OWNER'
+  const currentUserIsAdmin = currentUserRole === 'ADMIN'
+  const canAdminDelete = !!isGroup && !isOwn && (currentUserIsOwner || currentUserIsAdmin)
+  // Admin can delete for everyone unless the sender is the owner
+  const canDeleteMsgForAll = currentUserIsOwner || (currentUserIsAdmin && senderRole !== 'OWNER')
+
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false)
   const [isLikeHovered, setIsLikeHovered] = useState(false)
   const [reactionModalOpen, setReactionModalOpen] = useState(false)
+  // seenDialogOpen: true = show full BaseDialog (both newest & previous messages)
+  const [seenDialogOpen, setSeenDialogOpen] = useState(false)
+  // showInlineSeen: previous own group messages — click bubble to toggle seen list inline
+  const [showInlineSeen, setShowInlineSeen] = useState(false)
+  const [adminDeleteOpen, setAdminDeleteOpen] = useState(false)
+
+  const isPreviousOwnGroup = isOwn && !isNewest && !!isGroup && !isUnavailable
+  const { data: seenMembers, isLoading: seenLoading } = useSeenMembersQuery(
+    conversationId!,
+    message.id,
+    (seenDialogOpen || showInlineSeen) && isPreviousOwnGroup
+  )
+
   // Per-message quick react: show the last emoji the user reacted on THIS message, or 👍
   const quickReactEmoji = useMemo(() => {
     if (!user?.id || !message.reactions) return '👍'
@@ -82,9 +111,49 @@ export function MessageBubble({
     return myEmojis.length > 0 ? myEmojis[myEmojis.length - 1] : '👍'
   }, [user?.id, message.reactions])
 
-  const isImageMessage = !isRevoked && (message.type === MessageType.Image || message.type === MessageType.Video)
-  const isFileMessage = !isRevoked && message.type === MessageType.File
-  const hasReactions = !isRevoked && !!message.reactions && Object.keys(message.reactions).length > 0
+  const isImageMessage = !isUnavailable && (message.type === MessageType.Image || message.type === MessageType.Video)
+  const hasReactions = !isUnavailable && !!message.reactions && Object.keys(message.reactions).length > 0
+
+  const removeAccents = (str: string) => {
+    return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+  }
+
+  const highlightText = (content: string, keyword: string | null) => {
+    if (!keyword || !content) return content
+    
+    const normalizedKeyword = removeAccents(keyword)
+    if (!normalizedKeyword) return content
+
+    // Tìm tất cả các vị trí khớp (không phân biệt dấu và hoa thường)
+    const result: (string | JSX.Element)[] = []
+    let lastIndex = 0
+    
+    // Tạm thời dùng regex đơn giản cho keyword gốc + tìm kiếm vị trí dựa trên bản đã clear dấu
+    const normalizedContent = removeAccents(content)
+    let matchIndex = normalizedContent.indexOf(normalizedKeyword)
+    
+    if (matchIndex === -1) return content
+
+    while (matchIndex !== -1) {
+      // Thêm phần text trước match
+      result.push(content.substring(lastIndex, matchIndex))
+      
+      // Thêm phần text khớp (lấy từ content gốc để giữ đúng dấu/hoa thường)
+      const matchText = content.substring(matchIndex, matchIndex + keyword.length)
+      result.push(
+        <mark key={matchIndex} className='bg-yellow-300 dark:bg-yellow-600/50 text-black dark:text-white px-0.5 rounded-sm'>
+          {matchText}
+        </mark>
+      )
+      
+      lastIndex = matchIndex + keyword.length
+      matchIndex = normalizedContent.indexOf(normalizedKeyword, lastIndex)
+    }
+    
+    // Thêm phần còn lại
+    result.push(content.substring(lastIndex))
+    return result
+  }
 
   if (message.type === MessageType.System) {
     return <SystemMessage message={message} conversation={conversation} />
@@ -123,11 +192,15 @@ export function MessageBubble({
           <div
             className={cn(
               'max-w-md wrap-break-word text-[15px] shadow-sm flex flex-col relative rounded-lg',
-              isImageMessage ? 'p-1' : 'p-5',
-              isOwn ? 'bg-blue-message text-black dark:text-primary-foreground' : 'bg-white-message text-foreground',
-              isRevoked && 'pointer-events-none select-none opacity-80',
-              highlightEnabled && 'border border-border-highlight'
+              isImageMessage ? 'p-1' : isUnavailable ? 'px-3 py-1.5' : 'p-5',
+              isOwn && !isUnavailable
+                ? 'bg-blue-message text-black dark:text-primary-foreground'
+                : 'bg-white-message text-foreground',
+              isUnavailable && 'pointer-events-none select-none border border-black/5 shadow-none',
+              highlightEnabled && 'border border-border-highlight',
+              isPreviousOwnGroup && 'cursor-pointer'
             )}
+            onClick={isPreviousOwnGroup ? () => setShowInlineSeen((v) => !v) : undefined}
           >
             {isGroup && !isOwn && isFirst && (
               <span className='text-[11px] font-medium text-text-secondary mb-1 truncate max-w-md'>
@@ -145,18 +218,33 @@ export function MessageBubble({
               <div className='mb-1.5 px-3 py-1.5 border-l-2 border-[#1972F5] bg-[#CDE2FF]/50 rounded-sm select-none'>
                 <div className='font-semibold text-[#0068FF] text-[13px]'>{message.replyTo.senderName}</div>
                 <div className='text-[13px] text-black/70 truncate'>
-                  {message.replyTo.type === 'IMAGE'
-                    ? mb.image
-                    : message.replyTo.type === 'FILE'
-                      ? mb.file
-                      : stripMentionsForPreview(message.replyTo.content)}
+                  {message.replyTo.content === null ? (
+                    <span className='italic'>{mb.replyUnavailable}</span>
+                  ) : message.replyTo.type === 'IMAGE' ? (
+                    mb.image
+                  ) : message.replyTo.type === 'FILE' ? (
+                    mb.file
+                  ) : (
+                    stripMentionsForPreview(message.replyTo.content)
+                  )}
                 </div>
               </div>
             )}
 
             <span>
-              {isRevoked ? (
-                <span className='italic text-muted-foreground/60'>{mb.revoked}</span>
+              {isUnavailable ? (
+                <span className='text-muted-foreground/50 font-normal'>
+                  {isDeletedByAdmin
+                    ? message.deletedByAdminId === String(user?.id)
+                      ? mb.deletedByAdminSelf
+                      : mb.deletedByAdmin(
+                          conversation?.members?.find((m) => m.userId === message.deletedByAdminId)?.fullName ??
+                            'Quản trị viên'
+                        )
+                    : isOwn
+                      ? 'Bạn đã thu hồi tin nhắn'
+                      : mb.revoked}
+                </span>
               ) : isJoinLink ? (
                 <JoinLinkCard
                   token={message.linkPreview!.token}
@@ -168,15 +256,17 @@ export function MessageBubble({
               ) : message.type === MessageType.File ? (
                 <MessageFileContent message={message} />
               ) : (
-                parseMentionsForRender(message.content).map(({ isMention, text, key }) => (
+                parseMentionsForRender(message.content).map(({ isMention, text, key }) =>
                   isMention ? (
                     <span key={key} className='text-[#005AE0] dark:text-[#3B82F6] cursor-pointer hover:underline'>
                       {text}
                     </span>
                   ) : (
-                    <span key={key} className="whitespace-pre-wrap">{text}</span>
+                    <span key={key} className='whitespace-pre-wrap'>
+                      {highlightText(text, highlightKeyword ?? null)}
+                    </span>
                   )
-                ))
+                )
               )}
             </span>
 
@@ -195,12 +285,9 @@ export function MessageBubble({
               </div>
             )}
 
-            {!isRevoked && (
+            {!isUnavailable && (
               <div
-                className={cn(
-                  'absolute -bottom-2 right-0.5 z-10 group/like cursor-pointer',
-                  'hidden group-hover:flex'
-                )}
+                className={cn('absolute -bottom-2 right-0.5 z-10 group/like cursor-pointer', 'hidden group-hover:flex')}
                 onMouseEnter={() => setIsLikeHovered(true)}
                 onMouseLeave={() => setIsLikeHovered(false)}
               >
@@ -259,7 +346,7 @@ export function MessageBubble({
                     ) && (
                       <button
                         type='button'
-                        title='Xóa tất cả cảm xúc của bạn'
+                        title={mb.removeAllMyReactions}
                         className='w-6 h-6 flex items-center justify-center rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors shrink-0'
                         onClick={async () => {
                           if (!conversationId || message.id.startsWith('temp-') || !user?.id) return
@@ -300,7 +387,7 @@ export function MessageBubble({
                 </div>
 
                 <MessageIconButton
-                  className='h-7 w-7 bg-background border-border/80 text-icon-secondary hover:text-icon-secondary hover:bg-background cursor-pointer!'
+                  className='h-6 w-6 bg-background border-border/80 text-icon-secondary hover:text-icon-secondary hover:bg-background cursor-pointer!'
                   aria-label={mb.like}
                   icon={
                     quickReactEmoji !== '👍' ? (
@@ -367,13 +454,8 @@ export function MessageBubble({
               })()}
           </div>
 
-          {!isRevoked && (
-            <div
-              className={cn(
-                'msg-actions',
-                isLikeHovered ? 'is-hidden' : isMoreMenuOpen ? 'is-open' : ''
-              )}
-            >
+          {!isUnavailable && (
+            <div className={cn('msg-actions', isLikeHovered ? 'is-hidden' : isMoreMenuOpen ? 'is-open' : '')}>
               <MessageIconButton
                 onClick={onReply}
                 title={mb.reply}
@@ -403,6 +485,7 @@ export function MessageBubble({
                   onDeleteForMe={() => conversationId && deleteMessageForMe(message.id, conversationId)}
                   onPin={() => conversationId && pinMessageMutate({ conversationId, messageId: message.id })}
                   onRevoke={() => revokeMessage(message.id)}
+                  onAdminDelete={canAdminDelete ? () => setAdminDeleteOpen(true) : undefined}
                 />
               </DropdownMenu>
             </div>
@@ -418,75 +501,126 @@ export function MessageBubble({
           currentUser={user ? { id: user.id, fullName: user.fullName, avatar: user.avatar ?? undefined } : undefined}
         />
 
+        {/* ── Newest own message: always show seen avatars, click → dialog ── */}
         {isOwn &&
+          isNewest &&
           (() => {
             const readers =
               conversation?.members?.filter((m: ConversationMemberResponse) => m.lastReadMessageId === message.id) || []
             const hasReaders = readers.length > 0
-            const hasContent = hasReaders || isNewest
-            if (!hasContent) return null
+            const MAX_AVATARS = 5
+            const visibleReaders = readers.slice(0, MAX_AVATARS)
+            const extraCount = readers.length - MAX_AVATARS
             return (
               <div className='flex flex-col items-end mt-1'>
-                {(() => {
-                  return (
-                    <>
-                      {!hasReaders && isNewest && (
-                        <span className='text-[11px] text-muted-foreground px-1 select-none'>
-                          {message.id.startsWith('temp-') ? text.status.sending : text.status.sent}
-                        </span>
-                      )}
-
-                      {/* Read Receipts Avatars */}
-                      {hasReaders && (
-                        <div className='flex -space-x-1 items-center mt-1 pr-1'>
-                          {(() => {
-                            const MAX_AVATARS = 3
-                            const visibleReaders = readers.slice(0, MAX_AVATARS)
-                            const extraCount = readers.length - MAX_AVATARS
-
-                            return (
-                              <>
-                                {visibleReaders.map((reader: ConversationMemberResponse) => (
-                                  <UserAvatar
-                                    key={reader.userId}
-                                    src={reader.avatar}
-                                    name={reader.fullName || 'User'}
-                                    className='w-3 h-3 border border-background shadow-sm'
-                                    fallbackClassName='text-[6px]'
-                                    // title={`Đã xem bởi ${reader.fullName}`}
-                                  />
-                                ))}
-                                {extraCount > 0 && (
-                                  <div className='w-3 h-3 rounded-full bg-muted border border-background flex items-center justify-center'>
-                                    <span className='text-[6px] font-bold'>+{extraCount}</span>
-                                  </div>
-                                )}
-                              </>
-                            )
-                          })()}
-                        </div>
-                      )}
-                    </>
-                  )
-                })()}
+                {!hasReaders && (
+                  <span className='text-[11px] text-muted-foreground px-1 select-none'>
+                    {message.id.startsWith('temp-') ? text.status.sending : text.status.sent}
+                  </span>
+                )}
+                {hasReaders && (
+                  <button
+                    type='button'
+                    onClick={() => setSeenDialogOpen(true)}
+                    className='flex -space-x-1 items-center mt-1 pr-1 cursor-pointer'
+                  >
+                    {visibleReaders.map((reader: ConversationMemberResponse) => (
+                      <UserAvatar
+                        key={reader.userId}
+                        src={reader.avatar}
+                        name={reader.fullName || 'User'}
+                        className='w-3 h-3 border border-background shadow-sm'
+                        fallbackClassName='text-[6px]'
+                      />
+                    ))}
+                    {extraCount > 0 && (
+                      <div className='w-3 h-3 rounded-full bg-muted border border-background flex items-center justify-center'>
+                        <span className='text-[6px] font-bold'>+{extraCount}</span>
+                      </div>
+                    )}
+                  </button>
+                )}
+                {/* Dialog for newest own message */}
+                <MessageInfoDialog
+                  open={seenDialogOpen}
+                  onOpenChange={setSeenDialogOpen}
+                  message={message}
+                  seenMembers={readers.map((r) => ({
+                    userId: r.userId,
+                    fullName: r.fullName || null,
+                    avatar: r.avatar || null
+                  }))}
+                  loading={false}
+                />
               </div>
             )
           })()}
+
+        {/* ── Previous own group messages: click bubble → show seen inline ── */}
+        {isPreviousOwnGroup && showInlineSeen && (
+          <div className='flex flex-col items-end mt-1'>
+            {seenLoading ? (
+              <span className='text-[11px] text-muted-foreground pr-1'>{text.loading}</span>
+            ) : !seenMembers || seenMembers.length === 0 ? (
+              <span className='text-[11px] text-muted-foreground pr-1'>{text['message-info-dialog'].noOneSeen}</span>
+            ) : (
+              <button
+                type='button'
+                onClick={() => setSeenDialogOpen(true)}
+                className='flex -space-x-1 items-center mt-0.5 pr-1 cursor-pointer'
+              >
+                {seenMembers.slice(0, 5).map((m) => (
+                  <UserAvatar
+                    key={m.userId}
+                    src={m.avatar}
+                    name={m.fullName || 'User'}
+                    className='w-3 h-3 border border-background shadow-sm'
+                    fallbackClassName='text-[6px]'
+                  />
+                ))}
+                {seenMembers.length > 5 && (
+                  <div className='w-3 h-3 rounded-full bg-muted border border-background flex items-center justify-center'>
+                    <span className='text-[6px] font-bold'>+{seenMembers.length - 5}</span>
+                  </div>
+                )}
+              </button>
+            )}
+            {/* Dialog for previous own group messages */}
+            <MessageInfoDialog
+              open={seenDialogOpen}
+              onOpenChange={setSeenDialogOpen}
+              message={message}
+              seenMembers={seenMembers ?? []}
+              loading={seenLoading}
+            />
+          </div>
+        )}
+
+        {canAdminDelete && (
+          <AdminDeleteMessageDialog
+            open={adminDeleteOpen}
+            onOpenChange={setAdminDeleteOpen}
+            message={message}
+            conversationId={conversationId}
+            canDeleteMsgForAll={canDeleteMsgForAll}
+          />
+        )}
       </div>
     </div>
   )
 }
 
 function MessageMediaContent({ message }: { message: MessageResponse }) {
+  const { text } = useChatText()
   const atts = message.attachments || []
 
   if (atts.length === 0) {
-    return <span className='text-muted-foreground italic'>Đang tải...</span>
+    return <span className='text-muted-foreground italic'>{text.loading}</span>
   }
 
   if (atts.length === 1) {
     const att = atts[0]
-    if (!att.url) return <span className='text-muted-foreground italic'>Đang tải...</span>
+    if (!att.url) return <span className='text-muted-foreground italic'>{text.loading}</span>
     if (att.contentType.startsWith('video/')) {
       return <video src={att.url} controls className='max-w-xs max-h-[300px] rounded-md' preload='metadata' />
     }
@@ -537,6 +671,8 @@ function MessageMediaContent({ message }: { message: MessageResponse }) {
 }
 
 function MessageFileContent({ message }: { message: MessageResponse }) {
+  const { text } = useChatText()
+  const mb = text.messageBubble
   const att = message.attachments?.[0]
   const fileUrl = att?.url
   const fileName = att?.originalFileName || att?.fileName || 'File'
@@ -574,7 +710,7 @@ function MessageFileContent({ message }: { message: MessageResponse }) {
           target='_blank'
           rel='noopener noreferrer'
           className='p-1.5 hover:bg-muted rounded-full transition-colors shrink-0'
-          title='Tải xuống'
+          title={mb.download}
         >
           <Download size={18} className='text-muted-foreground' />
         </a>

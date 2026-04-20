@@ -1,6 +1,6 @@
 import type { TFunction } from 'i18next'
-import type { ConversationMemberResponse } from '../../../schemas/chat.schema'
-import type { SystemMetadata } from '../../../utils/system-message-label'
+import type { ConversationMemberResponse } from '../../schemas/chat.schema'
+import type { SystemMetadata } from '../../utils/system-message-label'
 
 export interface ActionContext {
   metadata: SystemMetadata

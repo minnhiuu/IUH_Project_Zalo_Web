@@ -5,9 +5,11 @@ import {
   sendMessageApi,
   revokeMessageApi,
   deleteMessageForMeApi,
+  deleteGroupMemberMessageApi,
   toggleReactionApi,
   removeAllMyReactionsApi,
   createGroupConversation,
+  sendGroupInvitesApi,
   updateGroupNameApi,
   updateGroupAvatarApi,
   updateGroupSettingsApi,
@@ -37,10 +39,9 @@ export const useMarkAsReadMutation = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (conversationId: string) => markAsRead(conversationId),
-    onMutate: async (conversationId) => {
-      // Vì hook này k nhận context user, ta lấy từ query cache or pass từ ngoài
-      // Tuy nhiên ta có thể update lastReadMessageId dựa trên lastMessage.id của conv đó
+    mutationFn: ({ conversationId, lastReadMessageId }: { conversationId: string; lastReadMessageId?: string }) =>
+      markAsRead(conversationId, lastReadMessageId),
+    onMutate: async ({ conversationId }) => {
       await queryClient.cancelQueries({ queryKey: chatKeys.conversations() })
       const previousConversations = queryClient.getQueryData<ConversationResponse[]>(chatKeys.conversations())
 
@@ -52,8 +53,6 @@ export const useMarkAsReadMutation = () => {
               return {
                 ...conv,
                 unreadCount: 0,
-                // Cập nhật optimistic lastReadMessageId cho tất cả members (hoặc ít nhất là chính mình)
-                // Phía FE detect unread dựa trên lastReadMessageId của chính mình
                 members: conv.members?.map((m) => ({
                   ...m,
                   lastReadMessageId: conv.lastMessage?.id || m.lastReadMessageId
@@ -67,7 +66,7 @@ export const useMarkAsReadMutation = () => {
 
       return { previousConversations }
     },
-    onError: (error, _conversationId, context) => {
+    onError: (error, _vars, context) => {
       console.error('Error marking conversation as read:', error)
       if (context?.previousConversations) {
         queryClient.setQueryData(chatKeys.conversations(), context.previousConversations)
@@ -106,6 +105,16 @@ export const useDeleteMessageForMeMutation = () => {
   })
 }
 
+export const useDeleteGroupMemberMessageMutation = () => {
+  return useMutation({
+    mutationFn: ({ conversationId, messageId }: { conversationId: string; messageId: string }) =>
+      deleteGroupMemberMessageApi(conversationId, messageId),
+    onError: (error) => {
+      console.error('Failed to delete group member message', error)
+    }
+  })
+}
+
 export const useCreateGroupMutation = () => {
   const queryClient = useQueryClient()
 
@@ -117,9 +126,20 @@ export const useCreateGroupMutation = () => {
         return [newConversation, ...oldData]
       })
       queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+      queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'my-groups'] })
     },
     onError: (error) => {
       console.error('Failed to create group conversation', error)
+    }
+  })
+}
+
+export const useSendGroupInvitesMutation = () => {
+  return useMutation({
+    mutationFn: ({ conversationId, userIds }: { conversationId: string; userIds: string[] }) =>
+      sendGroupInvitesApi(conversationId, userIds),
+    onError: (error) => {
+      console.error('Failed to send group invites', error)
     }
   })
 }
@@ -187,6 +207,7 @@ export const useDeleteConversationMutation = () => {
         return oldData.filter((conv) => conv.id !== conversationId)
       })
       queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+      queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'my-groups'] })
     },
     onError: (error) => {
       console.error('Failed to delete conversation', error)
@@ -200,7 +221,6 @@ export const useLeaveGroupMutation = () => {
   return useMutation({
     mutationFn: ({
       conversationId,
-      navigateDelayMs: _,
       ...request
     }: LeaveGroupRequest & {
       conversationId: string
@@ -221,6 +241,8 @@ export const useLeaveGroupMutation = () => {
           return oldData.filter((conv) => conv.id !== conversationId)
         })
         queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+        // Also invalidate my-groups to update the group list in the Friends tab
+        queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'my-groups'] })
         queryClient.removeQueries({ queryKey: chatKeys.messages(conversationId) })
       }, delay)
     },
@@ -278,14 +300,23 @@ export const useRemoveMemberFromGroupMutation = () => {
   }
 
   return useMutation({
-    mutationFn: ({ conversationId, targetUserId }: { conversationId: string; targetUserId: string }) =>
-      removeMemberFromGroupApi(conversationId, targetUserId),
+    mutationFn: ({
+      conversationId,
+      targetUserId,
+      blockFromGroup
+    }: {
+      conversationId: string
+      targetUserId: string
+      blockFromGroup?: boolean
+    }) => removeMemberFromGroupApi(conversationId, targetUserId, blockFromGroup),
     onSuccess: (updatedConv, variables) => {
       updateConversationInList(updatedConv)
       queryClient.invalidateQueries({ queryKey: chatKeys.messages(variables.conversationId) })
       queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'group-members', variables.conversationId] })
       queryClient.invalidateQueries({ queryKey: chatKeys.groupAdmins(variables.conversationId) })
       queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'admin-candidates'] })
+      queryClient.invalidateQueries({ queryKey: chatKeys.blockedMembers(variables.conversationId) })
+      queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'block-candidates'] })
     },
     onError: (error) => {
       console.error('Failed to remove member from group', error)
@@ -552,16 +583,10 @@ export const useCancelJoinRequestMutation = () => {
 }
 
 export const useToggleReactionMutation = () => {
-  const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: ({ messageId, emoji }: { messageId: string; emoji: string }) => toggleReactionApi(messageId, emoji),
     onError: (error) => {
       console.error('Failed to toggle reaction', error)
-    },
-    onSuccess: (_data, { messageId, emoji }, context) => {
-      // Optimistic update was done before mutation, nothing needed here.
-      // If needed, we can invalidate but WS will push the update.
     }
   })
 }

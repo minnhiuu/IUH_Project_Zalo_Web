@@ -8,6 +8,7 @@ import type {
   LeaveGroupRequest,
   SearchMemberResponse,
   GroupMemberListItemResponse,
+  ConversationParticipantResponse,
   AdminMemberResponse,
   GroupSettings,
   JoinGroupPreviewResponse,
@@ -38,6 +39,10 @@ export const createGroupConversation = async (
   return response.data.data
 }
 
+export const sendGroupInvitesApi = async (conversationId: string, userIds: string[]): Promise<void> => {
+  await http.post(`/messages/conversations/groups/${conversationId}/invites`, { userIds })
+}
+
 /**
  * Lấy tin nhắn theo conversationId (MongoDB ObjectId).
  * Endpoint mới: /messages/conversations/{conversationId}/messages
@@ -54,8 +59,41 @@ export const getMessages = async (
   return response.data.data
 }
 
-export const markAsRead = async (conversationId: string): Promise<void> => {
-  await http.put(`/messages/conversations/${conversationId}/read`)
+export const markAsRead = async (conversationId: string, lastReadMessageId?: string): Promise<void> => {
+  await http.put(
+    `/messages/conversations/${conversationId}/read`,
+    lastReadMessageId ? { lastReadMessageId } : undefined
+  )
+}
+
+export interface UnreadAnchorResponse {
+  firstUnreadMessageId: string | null
+  unreadCount: number
+}
+
+export const getUnreadAnchorApi = async (conversationId: string): Promise<UnreadAnchorResponse> => {
+  const response = await http.get<ApiResponse<UnreadAnchorResponse>>(
+    `/messages/conversations/${conversationId}/unread-anchor`
+  )
+  return response.data.data
+}
+
+export interface MessageContextResponse {
+  page: number         // page index (0-based) chứa message đó
+  size: number         // page size đã dùng để tính
+  totalElements: number
+}
+
+export const getMessageContextApi = async (
+  conversationId: string,
+  messageId: string,
+  size = 20
+): Promise<MessageContextResponse> => {
+  const response = await http.get<ApiResponse<MessageContextResponse>>(
+    `/messages/conversations/${conversationId}/messages/${messageId}/context`,
+    { params: { size } }
+  )
+  return response.data.data
 }
 
 export const getMediaMessagesApi = async (
@@ -75,7 +113,6 @@ export const sendMessageApi = async (data: ChatMessageRequest): Promise<void> =>
   const { conversationId, ...requestBody } = data
   await http.post(`/messages/conversations/${conversationId}/messages`, requestBody)
 }
-
 
 // ────────────────────────────────────────────────────────────────
 // File Upload → S3 via file-service
@@ -107,12 +144,29 @@ export const deleteMessageForMeApi = async (messageId: string): Promise<void> =>
   await http.delete(`/messages/messages/${messageId}/me`)
 }
 
+export const deleteGroupMemberMessageApi = async (conversationId: string, messageId: string): Promise<void> => {
+  await http.delete(`/messages/conversations/${conversationId}/messages/${messageId}/admin`)
+}
+
 export const toggleReactionApi = async (messageId: string, emoji: string): Promise<void> => {
   await http.post(`/messages/messages/${messageId}/reactions`, { emoji })
 }
 
 export const removeAllMyReactionsApi = async (messageId: string): Promise<void> => {
   await http.delete(`/messages/messages/${messageId}/reactions/me`)
+}
+
+export interface MessageSeenResponse {
+  userId: string
+  fullName: string | null
+  avatar: string | null
+}
+
+export const getSeenMembersApi = async (conversationId: string, messageId: string): Promise<MessageSeenResponse[]> => {
+  const response = await http.get<ApiResponse<MessageSeenResponse[]>>(
+    `/messages/conversations/${conversationId}/messages/${messageId}/seen-members`
+  )
+  return response.data.data
 }
 
 export const updateGroupNameApi = async (conversationId: string, name: string): Promise<ConversationResponse> => {
@@ -208,12 +262,35 @@ export const getGroupMembersApi = async (
   return response.data.data
 }
 
+export const getConversationParticipantsApi = async (
+  conversationId: string,
+  params?: {
+    query?: string
+    page?: number
+    size?: number
+  }
+): Promise<PageResponse<ConversationParticipantResponse>> => {
+  const response = await http.get<ApiResponse<PageResponse<ConversationParticipantResponse>>>(
+    `/messages/conversations/${conversationId}/participants`,
+    {
+      params: {
+        query: params?.query,
+        page: params?.page ?? 0,
+        size: params?.size ?? 50
+      }
+    }
+  )
+  return response.data.data
+}
+
 export const removeMemberFromGroupApi = async (
   conversationId: string,
-  targetUserId: string
+  targetUserId: string,
+  blockFromGroup = false
 ): Promise<ConversationResponse> => {
   const response = await http.delete<ApiResponse<ConversationResponse>>(
-    `/messages/conversations/${conversationId}/members/${targetUserId}`
+    `/messages/conversations/${conversationId}/members/${targetUserId}`,
+    { params: { blockFromGroup } }
   )
   return response.data.data
 }
@@ -380,6 +457,23 @@ export const getBlockCandidatesApi = async (
   const response = await http.get<ApiResponse<PageResponse<SearchMemberResponse>>>(
     `/messages/conversations/${conversationId}/block-candidates`,
     { params: { query, page, size } }
+  )
+  return response.data.data
+}
+
+export type GroupSortOption = 'activity_newest' | 'activity_oldest' | 'name_asc' | 'name_desc'
+export type GroupFilterOption = 'all' | 'owner'
+
+export const getMyGroupConversationsApi = async (params: {
+  query?: string
+  sort?: GroupSortOption
+  filter?: GroupFilterOption
+  page?: number
+  size?: number
+}): Promise<PageResponse<ConversationResponse>> => {
+  const response = await http.get<ApiResponse<PageResponse<ConversationResponse>>>(
+    '/messages/conversations/groups/mine',
+    { params: { ...params, page: params.page ?? 0, size: params.size ?? 20 } }
   )
   return response.data.data
 }

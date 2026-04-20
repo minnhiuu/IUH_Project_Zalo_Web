@@ -30,9 +30,19 @@ interface MessageMoreMenuProps {
   onDeleteForMe: () => void
   onPin?: () => void
   onRevoke?: () => void
+  onAdminDelete?: () => void
 }
 
-export function MessageMoreMenu({ side, text, messageContent, isOwn, onDeleteForMe, onPin, onRevoke }: MessageMoreMenuProps) {
+export function MessageMoreMenu({
+  side,
+  text,
+  messageContent,
+  isOwn,
+  onDeleteForMe,
+  onPin,
+  onRevoke,
+  onAdminDelete
+}: MessageMoreMenuProps) {
   return (
     <DropdownMenuContent side={side} align='start' sideOffset={4} className='w-62 rounded-xl '>
       <ActionMenuItem icon={<Copy />} label={text.copy} onClick={() => navigator.clipboard.writeText(messageContent)} />
@@ -61,7 +71,7 @@ export function MessageMoreMenu({ side, text, messageContent, isOwn, onDeleteFor
         label={isOwn ? text.deleteForMe : text.delete}
         variant='destructive'
         showDivider={!isOwn}
-        onClick={onDeleteForMe}
+        onClick={!isOwn && onAdminDelete ? onAdminDelete : onDeleteForMe}
       />
     </DropdownMenuContent>
   )

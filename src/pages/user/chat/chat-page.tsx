@@ -1,16 +1,19 @@
 import { useParams, useLocation } from 'react-router'
-import { ChatLayout } from '@/features/chat'
+import { ChatLayout, ChatProvider } from '@/features/chat'
 
 export default function ChatPage() {
-  const { id } = useParams<{ id: string }>()
+  const { id, token } = useParams<{ id: string; token: string }>()
   const location = useLocation()
 
   const isUserRoute = location.pathname.startsWith('/chat/u/')
 
   return (
-    <ChatLayout
-      defaultPartnerId={isUserRoute ? id : undefined}
-      defaultConversationId={!isUserRoute ? id : undefined}
-    />
+    <ChatProvider>
+      <ChatLayout
+        defaultPartnerId={isUserRoute ? id : undefined}
+        defaultConversationId={!isUserRoute && !token ? id : undefined}
+        defaultJoinToken={token}
+      />
+    </ChatProvider>
   )
 }

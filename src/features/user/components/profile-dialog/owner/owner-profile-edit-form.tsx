@@ -23,6 +23,7 @@ export function OwnerProfileEditForm({ user, onCancel }: OwnerProfileEditFormPro
   const updateProfileMutation = useUpdateProfileMutation()
 
   const [fullName, setFullName] = useState(user.fullName)
+  const [phoneNumber, setPhoneNumber] = useState(user.phoneNumber || '')
   const [gender, setGender] = useState<Gender>(user.gender)
   const [bio, setBio] = useState(user.bio || '')
 
@@ -35,6 +36,7 @@ export function OwnerProfileEditForm({ user, onCancel }: OwnerProfileEditFormPro
     const dob = `${year}-${month}-${day}`
     const updateData = {
       fullName,
+      phoneNumber,
       gender,
       dob,
       bio
@@ -49,6 +51,15 @@ export function OwnerProfileEditForm({ user, onCancel }: OwnerProfileEditFormPro
     updateProfileMutation.mutate(updateData, {
       onSuccess: () => {
         onCancel()
+      },
+      onError: (error: unknown) => {
+        const axiosError = error as { response?: { data?: { code?: number } } }
+        const errorCode = axiosError.response?.data?.code
+        if (errorCode === 2001) {
+          toast.error(text.validation.phoneAlreadyUsed)
+        } else {
+          toast.error(text.profile.update + ' thất bại')
+        }
       }
     })
   }
@@ -78,120 +89,136 @@ export function OwnerProfileEditForm({ user, onCancel }: OwnerProfileEditFormPro
   const years = Array.from({ length: 100 }, (_, i) => (new Date().getFullYear() - i).toString())
 
   return (
-    <div className='p-4 pt-6 space-y-6'>
-      <div className='space-y-2'>
-        <Label htmlFor='fullName' className='text-sm font-medium'>
-          {text.profile.fullNameLabel}
-        </Label>
-        <Input
-          id='fullName'
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
-          className='h-10 rounded-md border-border'
-          placeholder={text.profile.fullNamePlaceholder}
-        />
-        <p className='text-xs text-muted-foreground'>{text.profile.fullNameNote}</p>
-      </div>
-      <div className='space-y-2'>
-        <div className='flex justify-between items-center'>
-          <Label htmlFor='bio' className='text-sm font-medium'>
-            {text.profile.bioLabel}
+    <div className='flex-1 flex flex-col overflow-hidden'>
+      <div className='flex-1 overflow-y-auto custom-scrollbar p-4 pt-6 space-y-6'>
+        <div className='space-y-2'>
+          <Label htmlFor='fullName' className='text-sm font-medium'>
+            {text.profile.fullNameLabel}
           </Label>
-          <span className={cn('text-xs', bio.length > 150 ? 'text-destructive font-bold' : 'text-muted-foreground')}>
-            {bio.length}/150
-          </span>
-        </div>
-        <Textarea
-          id='bio'
-          value={bio}
-          onChange={(e) => setBio(e.target.value)}
-          className='min-h-[80px] resize-none text-sm rounded-md border-border'
-          placeholder={text.profile.bioPlaceholder}
-        />
-      </div>
-
-      <div className='space-y-4'>
-        <h4 className='text-sm font-medium'>{text.profile.personalInfo}</h4>
-        <div className='flex items-center gap-8'>
-          <label className='flex items-center gap-2 cursor-pointer'>
-            <input
-              type='radio'
-              name='gender'
-              value={Gender.Male}
-              checked={gender === Gender.Male}
-              onChange={() => setGender(Gender.Male)}
-              className='w-4 h-4 accent-primary cursor-pointer'
-            />
-            <span className='text-sm'>{text.profile.male}</span>
-          </label>
-          <label className='flex items-center gap-2 cursor-pointer'>
-            <input
-              type='radio'
-              name='gender'
-              value={Gender.Female}
-              checked={gender === Gender.Female}
-              onChange={() => setGender(Gender.Female)}
-              className='w-4 h-4 accent-primary cursor-pointer'
-            />
-            <span className='text-sm'>{text.profile.female}</span>
-          </label>
+          <Input
+            id='fullName'
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            className='h-10 rounded-md border-border'
+            placeholder={text.profile.fullNamePlaceholder}
+          />
+          <p className='text-xs text-muted-foreground'>{text.profile.fullNameNote}</p>
         </div>
 
         <div className='space-y-2'>
-          <Label className='text-sm text-foreground/60'>{text.profile.dob}</Label>
-          <div className='grid grid-cols-3 gap-3'>
-            <Select value={day} onValueChange={setDay}>
-              <SelectTrigger className='w-full h-9 border-border'>
-                <SelectValue placeholder={text.profile.day} />
-              </SelectTrigger>
-              <SelectContent
-                position='popper'
-                className='max-h-[180px] bg-background shadow-[0_4px_16px_rgba(0,0,0,0.12)] border-border'
-              >
-                {days.map((d) => (
-                  <SelectItem key={d} value={d} className='cursor-pointer focus:bg-secondary focus:text-primary'>
-                    {d}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <Label htmlFor='phoneNumber' className='text-sm font-medium'>
+            {text.profile.phoneLabel}
+          </Label>
+          <Input
+            id='phoneNumber'
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            className='h-10 rounded-md border-border'
+            placeholder={text.profile.phonePlaceholder}
+          />
+        </div>
 
-            <Select value={month} onValueChange={handleMonthChange}>
-              <SelectTrigger className='w-full h-9 border-border'>
-                <SelectValue placeholder={text.profile.month} />
-              </SelectTrigger>
-              <SelectContent
-                position='popper'
-                className='max-h-[180px] bg-background shadow-[0_4px_16px_rgba(0,0,0,0.12)] border-border'
-              >
-                {months.map((m) => (
-                  <SelectItem key={m} value={m} className='cursor-pointer focus:bg-secondary focus:text-primary'>
-                    {m}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        <div className='space-y-2'>
+          <div className='flex justify-between items-center'>
+            <Label htmlFor='bio' className='text-sm font-medium'>
+              {text.profile.bioLabel}
+            </Label>
+            <span className={cn('text-xs', bio.length > 150 ? 'text-destructive font-bold' : 'text-muted-foreground')}>
+              {bio.length}/150
+            </span>
+          </div>
+          <Textarea
+            id='bio'
+            value={bio}
+            onChange={(e) => setBio(e.target.value)}
+            className='min-h-[80px] resize-none text-sm rounded-md border-border'
+            placeholder={text.profile.bioPlaceholder}
+          />
+        </div>
 
-            <Select value={year} onValueChange={handleYearChange}>
-              <SelectTrigger className='w-full h-9 border-border'>
-                <SelectValue placeholder={text.profile.year} />
-              </SelectTrigger>
-              <SelectContent
-                position='popper'
-                className='max-h-[180px] bg-background shadow-[0_4px_16px_rgba(0,0,0,0.12)] border-border'
-              >
-                {years.map((y) => (
-                  <SelectItem key={y} value={y} className='cursor-pointer focus:bg-secondary focus:text-primary'>
-                    {y}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        <div className='space-y-4'>
+          <h4 className='text-sm font-medium'>{text.profile.personalInfo}</h4>
+          <div className='flex items-center gap-8'>
+            <label className='flex items-center gap-2 cursor-pointer'>
+              <input
+                type='radio'
+                name='gender'
+                value={Gender.Male}
+                checked={gender === Gender.Male}
+                onChange={() => setGender(Gender.Male)}
+                className='w-4 h-4 accent-primary cursor-pointer'
+              />
+              <span className='text-sm'>{text.profile.male}</span>
+            </label>
+            <label className='flex items-center gap-2 cursor-pointer'>
+              <input
+                type='radio'
+                name='gender'
+                value={Gender.Female}
+                checked={gender === Gender.Female}
+                onChange={() => setGender(Gender.Female)}
+                className='w-4 h-4 accent-primary cursor-pointer'
+              />
+              <span className='text-sm'>{text.profile.female}</span>
+            </label>
+          </div>
+
+          <div className='space-y-2'>
+            <Label className='text-sm text-foreground/60'>{text.profile.dob}</Label>
+            <div className='grid grid-cols-3 gap-3'>
+              <Select value={day} onValueChange={setDay}>
+                <SelectTrigger className='w-full h-9 border-border'>
+                  <SelectValue placeholder={text.profile.day} />
+                </SelectTrigger>
+                <SelectContent
+                  position='popper'
+                  className='max-h-[180px] bg-background shadow-[0_4px_16px_rgba(0,0,0,0.12)] border-border'
+                >
+                  {days.map((d) => (
+                    <SelectItem key={d} value={d} className='cursor-pointer focus:bg-secondary focus:text-primary'>
+                      {d}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={month} onValueChange={handleMonthChange}>
+                <SelectTrigger className='w-full h-9 border-border'>
+                  <SelectValue placeholder={text.profile.month} />
+                </SelectTrigger>
+                <SelectContent
+                  position='popper'
+                  className='max-h-[180px] bg-background shadow-[0_4px_16px_rgba(0,0,0,0.12)] border-border'
+                >
+                  {months.map((m) => (
+                    <SelectItem key={m} value={m} className='cursor-pointer focus:bg-secondary focus:text-primary'>
+                      {m}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={year} onValueChange={handleYearChange}>
+                <SelectTrigger className='w-full h-9 border-border'>
+                  <SelectValue placeholder={text.profile.year} />
+                </SelectTrigger>
+                <SelectContent
+                  position='popper'
+                  className='max-h-[180px] bg-background shadow-[0_4px_16px_rgba(0,0,0,0.12)] border-border'
+                >
+                  {years.map((y) => (
+                    <SelectItem key={y} value={y} className='cursor-pointer focus:bg-secondary focus:text-primary'>
+                      {y}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className='flex justify-end gap-3 pt-4 border-t border-border'>
+      <div className='flex justify-end gap-3 p-4 border-t border-border bg-background shrink-0'>
         <Button variant='secondary' onClick={onCancel}>
           {text.profile.cancel}
         </Button>

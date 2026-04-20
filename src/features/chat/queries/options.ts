@@ -10,7 +10,11 @@ import {
   searchMembersToAdd,
   getJoinPreviewApi,
   getBlockedMembersApi,
-  getBlockCandidatesApi
+  getBlockCandidatesApi,
+  getMyGroupConversationsApi,
+  getConversationParticipantsApi,
+  type GroupSortOption,
+  type GroupFilterOption
 } from '../api/chat.api'
 import type { PageResponse } from '@/shared/api'
 import { chatKeys } from './keys'
@@ -114,6 +118,22 @@ export const chatOptions = {
       ...QUERY_POLICIES.LIST,
       queryKey: chatKeys.blockCandidates(conversationId, query),
       queryFn: ({ pageParam = 0 }) => getBlockCandidatesApi(conversationId, query, pageParam as number, size),
+      initialPageParam: 0,
+      getNextPageParam: (lastPage) => (lastPage.page + 1 < lastPage.totalPages ? lastPage.page + 1 : undefined),
+      enabled: !!conversationId
+    }),
+  myGroups: (query: string, sort: GroupSortOption, filter: GroupFilterOption, page: number, size = 20) =>
+    queryOptions({
+      ...QUERY_POLICIES.LIST,
+      queryKey: chatKeys.myGroups(query, sort, filter, page),
+      queryFn: () => getMyGroupConversationsApi({ query, sort, filter, page, size })
+    }),
+  conversationParticipants: (conversationId: string, query: string, size = 50) =>
+    infiniteQueryOptions({
+      ...QUERY_POLICIES.LIST,
+      queryKey: chatKeys.conversationParticipants(conversationId, query),
+      queryFn: ({ pageParam = 0 }) =>
+        getConversationParticipantsApi(conversationId, { query, page: pageParam as number, size }),
       initialPageParam: 0,
       getNextPageParam: (lastPage) => (lastPage.page + 1 < lastPage.totalPages ? lastPage.page + 1 : undefined),
       enabled: !!conversationId

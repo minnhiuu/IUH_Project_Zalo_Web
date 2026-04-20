@@ -56,14 +56,14 @@ export function AddFriendAcceptDialog({
           <div className='flex items-center gap-3'>
             <UserAvatar src={user.avatar} name={user.fullName} className='w-12 h-12 shrink-0' />
             <div className='flex-1 min-w-0'>
-              <h3 className='text-sm font-semibold text-foreground'>{user.fullName}</h3>
-              <p className='text-xs text-muted-foreground mt-0.5'>{text.dialogs.addFriendAccept.subtitle}</p>
+              <h3 className='text-sm font-semibold text-text-primary'>{user.fullName}</h3>
+              <p className='text-xs text-text-secondary mt-0.5'>{text.dialogs.addFriendAccept.subtitle}</p>
             </div>
           </div>
 
           {/* Block Diary Toggle */}
           <div className='flex items-center justify-between py-2'>
-            <span className='text-sm text-foreground'>{text.addFriend.blockDiary}</span>
+            <span className='text-sm text-text-primary'>{text.addFriend.blockDiary}</span>
             <Switch checked={blockDiary} onCheckedChange={setBlockDiary} />
           </div>
         </div>
