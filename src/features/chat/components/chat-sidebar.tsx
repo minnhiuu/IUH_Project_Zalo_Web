@@ -4,7 +4,6 @@ import { chatKeys } from '../queries/keys'
 import { UserPlus, Users, Filter, MoreHorizontal, Megaphone } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useConversationsQuery } from '../queries/use-queries'
-import { useMarkAsReadMutation } from '../queries/use-mutations'
 import { useAuth } from '@/features/auth'
 import { MessageType, MessageStatus } from '@/constants/enum'
 import { useChatText } from '../i18n/use-chat-text'
@@ -31,7 +30,6 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
   const { text, t, i18n } = useChatText()
   const { user } = useAuth()
   const { data: conversations, isLoading, isError } = useConversationsQuery()
-  const { mutate: markAsRead } = useMarkAsReadMutation()
   const queryClient = useQueryClient()
 
   const handleSelectChat = (chat: ConversationResponse) => {
@@ -46,10 +44,6 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
     }
 
     onSelectChat(chat, capturedSnapshotId, unreadCount)
-
-    if (unreadCount > 0) {
-      markAsRead({ conversationId: chat.id })
-    }
   }
 
   const getPreviewDisplay = (chat: ConversationResponse) => {

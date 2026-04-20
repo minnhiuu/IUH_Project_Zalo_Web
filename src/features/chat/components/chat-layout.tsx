@@ -3,7 +3,6 @@ import { ChatSidebar } from './chat-sidebar'
 import { ChatWindow } from './chat-window'
 import { useChatText } from '../i18n/use-chat-text'
 import { useConversationsQuery } from '../queries/use-queries'
-import { useMarkAsReadMutation } from '../queries/use-mutations'
 import type { ConversationResponse } from '../schemas/chat.schema'
 import { useNavigate } from 'react-router'
 import { Status } from '@/constants/enum'
@@ -27,7 +26,6 @@ export function ChatLayout({
   const [capturedUnreadCount, setCapturedUnreadCount] = useState<number>(0)
 
   const { data: conversations } = useConversationsQuery()
-  const { mutate: markAsRead } = useMarkAsReadMutation()
 
   // ── Tìm conversation trong cache theo partnerId (member matching) ──
   const cachedConvForPartner = useMemo(() => {
@@ -93,23 +91,6 @@ export function ChatLayout({
   useEffect(() => {
     document.title = totalUnread > 0 ? `(${totalUnread}) Tin nhắn mới | Zalo Web` : 'Zalo Web - PC'
   }, [totalUnread])
-
-  // ── Auto mark-as-read khi mở / tab visible ──
-  useEffect(() => {
-    const tryMarkRead = () => {
-      if (document.visibilityState === 'visible' && selectedChat) {
-        const activeConv = conversations?.find((c: ConversationResponse) => c.id === selectedChat.id)
-        if (activeConv && activeConv.unreadCount && activeConv.unreadCount > 0) {
-          markAsRead({ conversationId: selectedChat.id })
-        }
-      }
-    }
-
-    document.addEventListener('visibilitychange', tryMarkRead)
-    tryMarkRead() // run immediately on mount / conversation change
-
-    return () => document.removeEventListener('visibilitychange', tryMarkRead)
-  }, [selectedChat, conversations, markAsRead])
 
   const handleClearSnapshot = () => {
     setCurrentSnapshotId(null)
