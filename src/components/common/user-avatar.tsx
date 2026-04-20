@@ -34,6 +34,7 @@ export const getNameColor = (name: string) => {
 
 export const UserAvatar = ({ name, src, className, fallbackClassName }: UserAvatarProps) => {
   const bgColor = getNameColor(name)
+  const hasExplicitFallbackBg = Boolean(fallbackClassName && /\b(?:dark:)?bg-[^\s]+/.test(fallbackClassName))
   const [loadedSrc, setLoadedSrc] = useState<string | undefined>(src ?? undefined)
 
   useEffect(() => {
@@ -61,8 +62,8 @@ export const UserAvatar = ({ name, src, className, fallbackClassName }: UserAvat
       {displaySrc && <AvatarImage src={displaySrc} alt={name} className='object-cover' />}
       <AvatarFallback
         delayMs={300}
-        className={cn('text-white font-bold text-[11px]', fallbackClassName)}
-        style={{ backgroundColor: bgColor }}
+        className={cn('text-center leading-none text-white font-bold text-[11px]', fallbackClassName)}
+        style={hasExplicitFallbackBg ? undefined : { backgroundColor: bgColor }}
       >
         {getInitials(name)}
       </AvatarFallback>

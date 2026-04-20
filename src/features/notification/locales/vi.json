@@ -28,6 +28,22 @@
       "settings": "Cài đặt thông báo",
       "open": "Mở thông báo"
     },
+    "dropdown": {
+      "trigger": "Thông báo",
+      "viewAll": "Xem tất cả thông báo",
+      "unreadBadge": "{{count}} chưa đọc"
+    },
+    "list": {
+      "newUpdates": "Có thông báo mới",
+      "loading": "Đang tải...",
+      "loadPrevious": "Xem thông báo trước đó"
+    },
+    "toast": {
+      "acceptSuccess": "Đã chấp nhận lời mời kết bạn",
+      "acceptError": "Không thể chấp nhận lời mời",
+      "declineSuccess": "Đã từ chối lời mời kết bạn",
+      "declineError": "Không thể từ chối lời mời"
+    },
     "validation": {
       "receiverIdRequired": "ID người nhận là bắt buộc",
       "senderIdRequired": "ID người gửi là bắt buộc",

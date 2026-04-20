@@ -1,0 +1,190 @@
+{
+  "reactions": {
+    "like": "Like",
+    "love": "Love",
+    "haha": "Haha",
+    "wow": "Wow",
+    "sad": "Sad",
+    "angry": "Angry",
+    "react": "React"
+  },
+  "composer": {
+    "me": "You",
+    "visibilityPublic": "Public",
+    "placeholder": "What are you thinking? Share something interesting...",
+    "image": "Image",
+    "video": "Video",
+    "feeling": "Feeling",
+    "post": "Post"
+  },
+  "launcher": {
+    "prompt": "What are you thinking?",
+    "dialogTitle": "Create post",
+    "dialogDescription": "Open a full-screen composer for a new post.",
+    "createPost": "Create a new post",
+    "draft": "Draft"
+  },
+  "search": {
+    "placeholder": "Search posts by author or content...",
+    "noResults": "No matching posts found."
+  },
+  "stories": {
+    "title": "Stories",
+    "create": "Create story",
+    "empty": "No active stories yet.",
+    "itemAlt": "Story from {{author}}"
+  },
+  "storyComposer": {
+    "title": "Create Story",
+    "mediaLabel": "Media",
+    "captionLabel": "Caption",
+    "captionPlaceholder": "Add a caption to your story...",
+    "pickMediaTitle": "Choose your media",
+    "pickMediaSubtitle": "Upload a photo or video to get started",
+    "addImage": "Photo",
+    "addVideo": "Video",
+    "addMusic": "Add background music",
+    "addMusicHint": "Only available for photos",
+    "nowPlaying": "Now previewing",
+    "musicSearchPlaceholder": "Search songs or artists…",
+    "musicNoResults": "No tracks match your search.",
+    "musicLoadError": "Failed to load tracks",
+    "share": "Share to Story",
+    "expiresHint": "Your story will expire after 24 hours",
+    "successToast": "Story shared!",
+    "errorToast": "Failed to share story. Please try again."
+  },
+  "reels": {
+    "title": "Reels",
+    "empty": "No reels available right now.",
+    "loadFailed": "Failed to load reels.",
+    "copyLink": "Copy link",
+    "retry": "Retry",
+    "noVideo": "No reel video available.",
+    "videoFailed": "Video failed to load",
+    "muteAriaLabel": "Mute reel",
+    "unmuteAriaLabel": "Unmute reel",
+    "playAriaLabel": "Play reel",
+    "pauseAriaLabel": "Pause reel",
+    "seekAriaLabel": "Seek reel"
+  },
+  "reelComposer": {
+    "title": "Create Reel",
+    "dialogDescription": "Open a full-screen reel composer.",
+    "subtitle": "Upload one video, write a caption, and publish.",
+    "createAction": "Create Reel",
+    "previewEmpty": "Your reel preview will appear here.",
+    "pickVideo": "Choose video",
+    "replaceVideo": "Replace video",
+    "removeVideo": "Remove video",
+    "videoHint": "Only one video is allowed for a reel.",
+    "captionPlaceholder": "Write a caption for your reel...",
+    "publish": "Publish reel",
+    "publishing": "Publishing...",
+    "videoRequired": "Please choose a video before publishing.",
+    "invalidVideo": "Please choose a valid video file.",
+    "successToast": "Reel created successfully.",
+    "errorToast": "Failed to create reel. Please try again."
+  },
+  "post": {
+    "attachmentAlt": "Post attachment from {{author}}",
+    "commentCount": "{{count}} comments",
+    "shareCount": "{{count}} shares",
+    "comment": "Comment",
+    "share": "Share",
+    "visibilityPublic": "Public",
+    "visibilityFriends": "Friends",
+    "visibilityPrivate": "Private",
+    "sharedAPost": "shared a post",
+    "justNow": "Just now",
+    "readMore": "Read more",
+    "showLess": "Show less"
+  },
+  "commentsModal": {
+    "title": "Post comments",
+    "subtitle": "{{author}} - {{count}} comments",
+    "mediaAlt": "Media from {{author}}'s post",
+    "empty": "No comments yet.",
+    "inputPlaceholder": "Write a comment...",
+    "closeAriaLabel": "Close comments",
+    "commentCount": "{{count}} comments",
+    "loadingComments": "Loading comments...",
+    "loadError": "Unable to load comments.",
+    "beFirstToComment": "Be the first to share your thoughts!",
+    "sortBy": "Sort by",
+    "sortNewest": "Newest",
+    "sortMostReacted": "Most reacted",
+    "sample": {
+      "author1": "Nhat Minh",
+      "author2": "Linh Tran",
+      "createdAt1": "4 min",
+      "createdAt2": "2 min",
+      "content1": "Great post. The new UI looks much more modern.",
+      "content2": "The comments modal feels smooth. Reading comments is much easier now."
+    }
+  },
+  "reactionsModal": {
+    "title": "Reactions",
+    "subtitle": "{{count}} people reacted to this post.",
+    "loading": "Loading reactions...",
+    "loadError": "Unable to load reactions.",
+    "emptyByType": "No reactions for this type yet.",
+    "unknownUser": "Unknown user"
+  },
+  "commentItem": {
+    "reply": "Reply",
+    "edited": "(edited)",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "hideReplies": "Hide replies",
+    "viewReplies": "View replies ({{count}})",
+    "loadingReplies": "Loading replies...",
+    "loadRepliesError": "Unable to load replies.",
+    "noReplies": "No replies yet."
+  },
+  "commentInput": {
+    "replyingTo": "Replying to {{author}}",
+    "cancel": "Cancel",
+    "uploadPhoto": "Upload Photo",
+    "uploadVideo": "Upload Video",
+    "invalidMedia": "Please select valid image or video files",
+    "uploadFailed": "Failed to upload media. Please try again."
+  },
+  "shareModal": {
+    "title": "Share Post",
+    "captionPlaceholder": "Say something about this...",
+    "shareNow": "Share Now",
+    "shareSuccess": "Post shared successfully",
+    "shareFailed": "Failed to share post",
+    "unknownUser": "Unknown user"
+  },
+  "sidebar": {
+    "account": "Your account",
+    "friends": "Friends",
+    "groups": "Groups",
+    "reels": "Reels",
+    "saved": "Saved",
+    "memories": "Memories"
+  },
+  "suggested": {
+    "title": "People you may know",
+    "seeAll": "See all",
+    "mutualCount": "{{count}} mutual friends",
+    "addFriend": "Add friend",
+    "footerPrivacy": "Privacy",
+    "footerTerms": "Terms",
+    "footerAds": "Ads",
+    "footerCookie": "Cookies",
+    "footerBrand": "Zalo Web © {{year}}"
+  },
+  "mockPosts": {
+    "postedAt1": "5 minutes ago",
+    "postedAt2": "1 hour ago",
+    "postedAt3": "Yesterday",
+    "content1": "Today I am finishing the Social Feed for Zalo Web. The base UI is done, and now it's time to refine UX for reactions and comments.",
+    "content2": "Progress update:\n- Improved search bar interactions\n- Added Social Feed menu in the sidebar\n- Preparing API integration for real posts",
+    "content3": "Just finished designing a new feed card set. Next step is connecting this UI with backend endpoints to fetch real data."
+  }
+}

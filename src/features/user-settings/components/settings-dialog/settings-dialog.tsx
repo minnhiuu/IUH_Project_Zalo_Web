@@ -1,5 +1,5 @@
 import { X } from 'lucide-react'
-import { AlertDialog, AlertDialogContent, AlertDialogOverlay, AlertDialogPortal } from '@/components/ui/alert-dialog'
+import { AlertDialog, AlertDialogContent } from '@/components/ui/alert-dialog'
 import { cn } from '@/lib/utils'
 import { useUserText } from '@/features/user/i18n/use-user-text'
 import { SettingsContent } from './settings-content'
@@ -14,11 +14,9 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogPortal>
-        <AlertDialogOverlay className='bg-foreground/45 backdrop-blur-none! duration-200 fixed inset-0 z-50' />
-        <AlertDialogContent
-          className={cn(
-            'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50',
+      <AlertDialogContent
+        overlayClassName='bg-foreground/45 backdrop-blur-none! duration-200'
+        className={cn(
             'w-[94vw]! max-w-[94vw]! h-[82vh]!',
             'sm:w-130! sm:max-w-130! sm:h-140!',
             'md:w-175! md:max-w-175! md:h-155!',
@@ -42,8 +40,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           <div className='flex-1 overflow-hidden bg-muted'>
             <SettingsContent />
           </div>
-        </AlertDialogContent>
-      </AlertDialogPortal>
+      </AlertDialogContent>
     </AlertDialog>
   )
 }

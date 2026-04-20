@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router'
 import { useQueryClient } from '@tanstack/react-query'
 import { chatOptions } from '../queries/options'
+import { joinByLinkApi } from '../api/chat.api'
 import { Users } from 'lucide-react'
 import { JoinGroupDialog } from './group/dialogs/join-group-dialog'
 import { useChatText } from '../i18n/use-chat-text'
@@ -40,14 +41,31 @@ export function JoinLinkCard({ token, url, cachedPreview }: JoinLinkCardProps) {
   })()
 
   const queryClient = useQueryClient()
+
+  const resolvedToken = token || (() => {
+    const match = String(url || '').match(/\/g\/([A-Za-z0-9]+)/i)
+    return match?.[1] || ''
+  })()
+
   const handleClick = useCallback(async () => {
     if (isChecking) return
+    if (!resolvedToken) {
+      showSimpleToast(t('chat.join-link-card.link_not_exist'), 2000)
+      return
+    }
     setIsChecking(true)
     try {
-      const freshPreview = await queryClient.fetchQuery(chatOptions.joinPreview(token))
+      const freshPreview = await queryClient.fetchQuery(chatOptions.joinPreview(resolvedToken))
 
       if (freshPreview.isAlreadyMember && freshPreview.conversationId) {
         navigate(`/chat/c/${freshPreview.conversationId}`)
+      } else if (!freshPreview.membershipApprovalEnabled && !freshPreview.hasPendingRequest) {
+        const joinedConversation = await joinByLinkApi(resolvedToken)
+        if (joinedConversation?.id) {
+          navigate(`/chat/c/${joinedConversation.id}`)
+        } else {
+          setDialogOpen(true)
+        }
       } else {
         setDialogOpen(true)
       }
@@ -56,7 +74,7 @@ export function JoinLinkCard({ token, url, cachedPreview }: JoinLinkCardProps) {
     } finally {
       setIsChecking(false)
     }
-  }, [token, navigate, t, isChecking, queryClient])
+  }, [resolvedToken, navigate, t, isChecking, queryClient])
 
   return (
     <>
@@ -111,7 +129,7 @@ export function JoinLinkCard({ token, url, cachedPreview }: JoinLinkCardProps) {
         </div>
       </div>
 
-      <JoinGroupDialog open={dialogOpen} onOpenChange={setDialogOpen} token={token} />
+      <JoinGroupDialog open={dialogOpen} onOpenChange={setDialogOpen} token={resolvedToken} />
     </>
   )
 }

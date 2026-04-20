@@ -4,6 +4,9 @@ import type { AiProcessingStatus } from '@/constants/enum'
 
 export type ChatTexts = ReturnType<typeof createChatTexts>
 
+const translateDynamic = (t: TFunction<'chat'>, key: string, options?: Record<string, unknown>) =>
+  (t as unknown as (k: string, o?: Record<string, unknown>) => string)(key, options)
+
 export const createChatTexts = (t: TFunction<'chat'>) => ({
   title: t(CHAT_KEYS.title),
   searchPlaceholder: t(CHAT_KEYS.searchPlaceholder),
@@ -36,8 +39,20 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
   user: t(CHAT_KEYS.user),
   type: {
     image: t(CHAT_KEYS.type.image),
+    video: t(CHAT_KEYS.type.video),
     file: t(CHAT_KEYS.type.file),
     link: t(CHAT_KEYS.type.link)
+  },
+  input: {
+    dropFilesHint: t(CHAT_KEYS.input.dropFilesHint),
+    sendImageVideoTitle: t(CHAT_KEYS.input.sendImageVideoTitle),
+    attachFileTitle: t(CHAT_KEYS.input.attachFileTitle),
+    summarizeNewMessages: t(CHAT_KEYS.input.summarizeNewMessages),
+    summarizingMessages: t(CHAT_KEYS.input.summarizingMessages),
+    summaryTitle: t(CHAT_KEYS.input.summaryTitle),
+    closeSummary: t(CHAT_KEYS.input.closeSummary),
+    videoBadge: t(CHAT_KEYS.input.videoBadge),
+    fileTooLarge: (name: string, maxSizeMb: number) => t(CHAT_KEYS.input.fileTooLarge, { name, maxSizeMb })
   },
   mentionDropdown: {
     instruction: t(CHAT_KEYS.mentionDropdown.instruction),
@@ -96,7 +111,7 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     unpin: t(CHAT_KEYS.pinBoard.unpin),
     collapse: t(CHAT_KEYS.pinBoard.collapse),
     extraPins: (count: number) => t(CHAT_KEYS.pinBoard.extraPins, { count }),
-    header: (count: number) => t(CHAT_KEYS.pinBoard.header, { count })
+    header: (count: number) => translateDynamic(t, CHAT_KEYS.pinBoard.header, { count })
   },
   sidebar: {
     all: t(CHAT_KEYS.sidebar.all),
@@ -113,7 +128,7 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     selected: t(CHAT_KEYS['create-group-dialog'].selected),
     cancel: t(CHAT_KEYS['create-group-dialog'].cancel),
     create: t(CHAT_KEYS['create-group-dialog'].create),
-    noSelected: t(CHAT_KEYS['create-group-dialog'].noSelected),
+    noSelected: translateDynamic(t, CHAT_KEYS['create-group-dialog'].noSelected),
     andOthers: (count: number) => t(CHAT_KEYS['create-group-dialog'].andOthers, { count }),
     updateAvatarTitle: t(CHAT_KEYS['create-group-dialog'].updateAvatarTitle),
     confirm: t(CHAT_KEYS['create-group-dialog'].confirm),
@@ -504,5 +519,19 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     if (!status) return t(CHAT_KEYS.aiStatus.DEFAULT)
     const key = CHAT_KEYS.aiStatus[status as keyof typeof CHAT_KEYS.aiStatus]
     return key ? t(key) : t(CHAT_KEYS.aiStatus.DEFAULT)
+  },
+  aiWindow: {
+    title: t(CHAT_KEYS.aiWindow.title),
+    assistantTag: t(CHAT_KEYS.aiWindow.assistantTag),
+    newConversation: t(CHAT_KEYS.aiWindow.newConversation),
+    inputPlaceholder: t(CHAT_KEYS.aiWindow.inputPlaceholder),
+    clarificationNeeded: t(CHAT_KEYS.aiWindow.clarificationNeeded),
+    welcomeDescription: t(CHAT_KEYS.aiWindow.welcomeDescription),
+    errorFallback: t(CHAT_KEYS.aiWindow.errorFallback),
+    suggestions: {
+      profile: t(CHAT_KEYS.aiWindow.suggestions.profile),
+      friends: t(CHAT_KEYS.aiWindow.suggestions.friends),
+      internet: t(CHAT_KEYS.aiWindow.suggestions.internet)
+    }
   }
 })

@@ -5,9 +5,22 @@ import { getDeviceId } from '../utils/device'
 import { storage, STORAGE_KEYS } from '@/utils/local-storage'
 
 export const getAccessToken = (): string | null => storage.get(STORAGE_KEYS.ACCESS_TOKEN)
+let isLoggingOut = false
+
+const logLogoutDebug = (message: string, meta?: Record<string, unknown>): void => {
+  if (meta) {
+    console.info(`[LogoutDebug] ${message}`, meta)
+    return
+  }
+  console.info(`[LogoutDebug] ${message}`)
+}
 
 export const setAccessToken = (token: string | null, refreshTokenExpirationMs?: number): void => {
   if (token) {
+    if (isLoggingOut) {
+      logLogoutDebug('Access token set while logout flag was active. Clearing logout flag.')
+    }
+    isLoggingOut = false
     storage.set(STORAGE_KEYS.ACCESS_TOKEN, token)
     if (refreshTokenExpirationMs) {
       const expiryTimestamp = Date.now() + refreshTokenExpirationMs
@@ -22,6 +35,17 @@ export const setAccessToken = (token: string | null, refreshTokenExpirationMs?: 
 export const clearAccessToken = (): void => {
   storage.remove(STORAGE_KEYS.ACCESS_TOKEN)
   storage.remove(STORAGE_KEYS.REFRESH_TOKEN_EXPIRATION)
+}
+
+export const startLogoutFlow = (): void => {
+  logLogoutDebug('Starting local logout flow', {
+    hasAccessToken: !!storage.get(STORAGE_KEYS.ACCESS_TOKEN),
+    isRefreshing
+  })
+  isLoggingOut = true
+  clearAccessToken()
+  notifyRefreshSubscribers(null)
+  isRefreshing = false
 }
 
 const http = axios.create({
@@ -42,6 +66,11 @@ const notifyRefreshSubscribers = (token: string | null) => {
 }
 
 const refreshAccessToken = async (): Promise<string | null> => {
+  if (isLoggingOut) {
+    logLogoutDebug('Skipped refresh because logout is in progress')
+    return null
+  }
+
   try {
     const response = await axios.post(
       `${import.meta.env.VITE_API_BASE_URL}/auth/refresh`,
@@ -50,6 +79,11 @@ const refreshAccessToken = async (): Promise<string | null> => {
       },
       { withCredentials: true }
     )
+
+    if (isLoggingOut) {
+      logLogoutDebug('Refresh response received after logout started. Ignoring new token.')
+      return null
+    }
 
     const newToken = response.data?.data?.accessToken ?? null
     setAccessToken(newToken)
@@ -75,7 +109,8 @@ http.interceptors.request.use((config: InternalAxiosRequestConfig) => {
     config.url?.includes('/auth/login') ||
     config.url?.includes('/auth/register') ||
     config.url?.includes('/auth/refresh') ||
-    config.url?.includes('/auth/qr')
+    config.url?.includes('/auth/qr') ||
+    config.url?.includes('/auth/logout')
 
   if (isAuthEndpoint) return config
 
@@ -92,6 +127,15 @@ http.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as (InternalAxiosRequestConfig & { _retry?: boolean }) | undefined
     const responseData = error.response?.data as { code?: number } | undefined
+
+    if (isLoggingOut) {
+      logLogoutDebug('Interceptor rejected request because logout is in progress', {
+        url: originalRequest?.url,
+        method: originalRequest?.method,
+        status: error.response?.status
+      })
+      return Promise.reject(error)
+    }
 
     // Account banned — show message then redirect
     if (responseData?.code === 1013) {
@@ -127,7 +171,8 @@ http.interceptors.response.use(
       originalRequest.url?.includes('/auth/login') ||
       originalRequest.url?.includes('/auth/register') ||
       originalRequest.url?.includes('/auth/refresh') ||
-      originalRequest.url?.includes('/auth/qr')
+      originalRequest.url?.includes('/auth/qr') ||
+      originalRequest.url?.includes('/auth/logout')
 
     if (isAuthEndpoint) {
       return Promise.reject(error)
@@ -156,9 +201,19 @@ http.interceptors.response.use(
 
     try {
       const newToken = await refreshAccessToken()
+
+      if (isLoggingOut || !newToken) {
+        logLogoutDebug('Refresh retry stopped', {
+          reason: isLoggingOut ? 'logout-in-progress' : 'no-new-token',
+          url: originalRequest.url
+        })
+        notifyRefreshSubscribers(null)
+        return Promise.reject(error)
+      }
+
       notifyRefreshSubscribers(newToken)
 
-      if (newToken && originalRequest.headers) {
+      if (originalRequest.headers) {
         originalRequest.headers.Authorization = `Bearer ${newToken}`
       }
 

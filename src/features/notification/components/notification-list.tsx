@@ -43,7 +43,7 @@ export const NotificationList = ({ filter }: NotificationListProps) => {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useMyNotificationsQuery(10, filter)
   const { mutate: markAsRead } = useMarkAsReadMutation()
   const { ref, inView } = useInView({ rootMargin: '400px', threshold: 0 })
-  const { group, empty, filter: localeFilter } = useNotificationText()
+  const { group, empty, filter: localeFilter, list } = useNotificationText()
 
   const handleMarkAsRead = useCallback(
     (id: string) => {
@@ -181,7 +181,7 @@ export const NotificationList = ({ filter }: NotificationListProps) => {
           className='rounded-full shadow-xl bg-brand-blue hover:bg-brand-blue/90 text-white px-5 h-10 flex items-center gap-2 border-none ring-4 ring-background animate-in fade-in slide-in-from-top-4 duration-300'
         >
           <ChevronUp className='w-4 h-4' />
-          <span className='text-[14px] font-bold'>Có thông báo mới</span>
+          <span className='text-[14px] font-bold'>{list.newUpdates}</span>
         </Button>
       </div>
 
@@ -231,7 +231,7 @@ export const NotificationList = ({ filter }: NotificationListProps) => {
                   onClick={() => fetchNextPage()}
                   disabled={isFetchingNextPage}
                 >
-                  {isFetchingNextPage ? 'Đang tải...' : 'Xem thông báo trước đó'}
+                  {isFetchingNextPage ? list.loading : list.loadPrevious}
                 </Button>
               ) : (
                 isFetchingNextPage && (

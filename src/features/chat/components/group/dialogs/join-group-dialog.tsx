@@ -50,10 +50,15 @@ export function JoinGroupDialog({ open, onOpenChange, token }: JoinGroupDialogPr
       return
     }
 
-    if (preview?.hasPendingRequest) {
+    const effectivePendingRequest = !!preview?.membershipApprovalEnabled && !!preview?.hasPendingRequest
+
+    if (effectivePendingRequest) {
       cancelRequest(preview.conversationId!, {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: chatKeys.joinPreview(token!) })
+        },
+        onError: () => {
+          showWarningToast(text.error)
         }
       })
       return
@@ -89,6 +94,9 @@ export function JoinGroupDialog({ open, onOpenChange, token }: JoinGroupDialogPr
             onOpenChange(false)
             queryClient.invalidateQueries({ queryKey: chatKeys.joinPreview(token!) })
           }
+        },
+        onError: () => {
+          showWarningToast(text.error)
         }
       }
     )
@@ -104,6 +112,7 @@ export function JoinGroupDialog({ open, onOpenChange, token }: JoinGroupDialogPr
   const errorCode = (error as { response?: { data?: { code?: number } } })?.response?.data?.code
   const isInvalid = errorCode === 4021
   const isDisabled = errorCode === 4020
+  const canGoToChat = preview?.isAlreadyMember && !!preview?.conversationId
 
   // Animation variants
   const variants = {
@@ -176,9 +185,9 @@ export function JoinGroupDialog({ open, onOpenChange, token }: JoinGroupDialogPr
       }
       cancelText={isQuestionStep ? undefined : text.close}
       confirmText={
-        preview.isAlreadyMember
+        canGoToChat
           ? text.go_to_chat
-          : preview.hasPendingRequest
+          : (!!preview.membershipApprovalEnabled && !!preview.hasPendingRequest)
             ? isCanceling
               ? text.canceling
               : text.cancel_request
@@ -188,10 +197,10 @@ export function JoinGroupDialog({ open, onOpenChange, token }: JoinGroupDialogPr
                 ? text.send_request
                 : text.join
       }
-      onConfirm={preview.isAlreadyMember ? handleGoToChat : handleAction}
+      onConfirm={canGoToChat ? handleGoToChat : handleAction}
       isPending={isJoining || isCanceling}
       confirmDisabled={isQuestionStep && !joinAnswer.trim()}
-      variant={preview.hasPendingRequest ? 'danger' : 'primary'}
+      variant={(!!preview.membershipApprovalEnabled && !!preview.hasPendingRequest) ? 'danger' : 'primary'}
       className='overflow-hidden sm:max-w-[560px]'
     >
       <motion.div

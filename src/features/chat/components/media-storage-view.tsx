@@ -170,7 +170,8 @@ export function MediaStorageView({ conversationId, members, defaultTab = 'media'
     for (const { items: msgs } of groupedMedia) {
       for (const m of msgs) {
         const att = m.attachments?.[0]
-        if (att?.url) items.push({ url: att.url, contentType: att.contentType || '', originalFileName: att.originalFileName })
+        if (att?.url)
+          items.push({ url: att.url, contentType: att.contentType || '', originalFileName: att.originalFileName })
       }
     }
     return items
@@ -325,7 +326,7 @@ export function MediaStorageView({ conversationId, members, defaultTab = 'media'
             </div>
 
             {/* Filters row */}
-              <div className='flex flex-wrap gap-2 mb-4'>
+            <div className='flex flex-wrap gap-2 mb-4'>
               {/* Loại file dropdown */}
               <div className='relative'>
                 <button
@@ -388,7 +389,9 @@ export function MediaStorageView({ conversationId, members, defaultTab = 'media'
                               getExtColor(ext)
                             )}
                           >
-                            <span className='text-[10px] font-bold leading-none tracking-tight'>{getExtLabel(ext)}</span>
+                            <span className='text-[10px] font-bold leading-none tracking-tight'>
+                              {getExtLabel(ext)}
+                            </span>
                           </div>
                           <div className='flex-1 min-w-0'>
                             <p className='text-[13px] font-medium truncate group-hover:text-primary transition-colors'>
@@ -510,10 +513,7 @@ function StorageLightbox({
   const item = items[index]
   const isVideo = item?.contentType?.startsWith('video/')
   return (
-    <div
-      className='fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center'
-      onClick={onClose}
-    >
+    <div className='fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center' onClick={onClose}>
       <button
         className='absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors'
         onClick={onClose}
@@ -523,15 +523,15 @@ function StorageLightbox({
       {index > 0 && (
         <button
           className='absolute left-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors'
-          onClick={(e) => { e.stopPropagation(); onPrev() }}
+          onClick={(e) => {
+            e.stopPropagation()
+            onPrev()
+          }}
         >
           <ChevronLeft size={28} />
         </button>
       )}
-      <div
-        className='max-w-[90vw] max-h-[90vh] flex items-center justify-center'
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className='max-w-[90vw] max-h-[90vh] flex items-center justify-center' onClick={(e) => e.stopPropagation()}>
         {isVideo ? (
           <video src={item.url} controls autoPlay className='max-w-full max-h-[90vh] rounded-md' />
         ) : (
@@ -546,7 +546,10 @@ function StorageLightbox({
       {index < items.length - 1 && (
         <button
           className='absolute right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors'
-          onClick={(e) => { e.stopPropagation(); onNext() }}
+          onClick={(e) => {
+            e.stopPropagation()
+            onNext()
+          }}
         >
           <ChevronRight size={28} />
         </button>
@@ -683,7 +686,10 @@ function DateFilter({ value, onChange, label }: DateFilterProps) {
   const [from, setFrom] = useState(value?.from ?? '')
   const [to, setTo] = useState(value?.to ?? '')
   const ref = useRef<HTMLDivElement>(null)
-  useOutsideClick(ref, () => { setOpen(false); setShowShortcuts(false) })
+  useOutsideClick(ref, () => {
+    setOpen(false)
+    setShowShortcuts(false)
+  })
   const isActive = !!value
   const today = new Date().toISOString().split('T')[0]
 
@@ -711,7 +717,10 @@ function DateFilter({ value, onChange, label }: DateFilterProps) {
     <div ref={ref} className='relative'>
       <button
         type='button'
-        onClick={() => { setOpen((v) => !v); setShowShortcuts(false) }}
+        onClick={() => {
+          setOpen((v) => !v)
+          setShowShortcuts(false)
+        }}
         className={cn(
           'flex min-w-0 max-w-32 items-center gap-1 px-3 py-1.5 text-[13px] border rounded-full transition-colors',
           isActive ? 'bg-primary/10 border-primary text-primary' : 'hover:bg-muted'
@@ -721,7 +730,14 @@ function DateFilter({ value, onChange, label }: DateFilterProps) {
           {isActive ? `${value!.from || '...'} → ${value!.to || '...'}` : label}
         </span>
         {isActive ? (
-          <X size={12} onClick={(e) => { e.stopPropagation(); clear() }} className='shrink-0 cursor-pointer' />
+          <X
+            size={12}
+            onClick={(e) => {
+              e.stopPropagation()
+              clear()
+            }}
+            className='shrink-0 cursor-pointer'
+          />
         ) : (
           <ChevronDown size={13} className='shrink-0' />
         )}

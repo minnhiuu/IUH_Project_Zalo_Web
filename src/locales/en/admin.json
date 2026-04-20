@@ -130,5 +130,125 @@
       "banReason": "Ban Reason",
       "verified": "Verified"
     }
+  },
+  "reportManagement": {
+    "page": {
+      "title": "Report Moderation Management",
+      "description": "Monitor and process user reports for violating content.",
+      "statusViewing": "Viewing status",
+      "activeStatus": "Active status",
+      "reportListTitle": "Report list",
+      "loadingStats": "Loading metrics...",
+      "reportsCount": "{{count}} reports",
+      "backToReports": "Back to reports"
+    },
+    "tabs": {
+      "pending": "Pending",
+      "resolved": "Resolved",
+      "dismissed": "Dismissed",
+      "all": "All"
+    },
+    "summaries": {
+      "pending": "Need immediate review",
+      "resolved": "Decision completed",
+      "dismissed": "No violation",
+      "all": "All reports"
+    },
+    "status": {
+      "PENDING": "Pending",
+      "RESOLVED": "Resolved",
+      "DISMISSED": "Dismissed"
+    },
+    "reasons": {
+      "SPAM": "Spam",
+      "HARASSMENT": "Harassment",
+      "HATE_SPEECH": "Hate speech",
+      "VIOLENCE": "Violence",
+      "NUDITY": "Nudity",
+      "MISINFORMATION": "Misinformation",
+      "OTHER": "Other"
+    },
+    "targetTypes": {
+      "POST": "Post",
+      "COMMENT": "Comment"
+    },
+    "adminActions": {
+      "DELETE_CONTENT": {
+        "label": "Delete content",
+        "description": "Permanently remove violating content"
+      },
+      "HIDE_CONTENT": {
+        "label": "Hide content",
+        "description": "Hide content from public view"
+      },
+      "WARN_USER": {
+        "label": "Warn user",
+        "description": "Send a warning to the content author"
+      },
+      "DISMISS_REPORT": {
+        "label": "Dismiss report",
+        "description": "Dismiss report because no violation was found"
+      }
+    },
+    "table": {
+      "no": "#",
+      "reporter": "Reporter",
+      "targetType": "Type",
+      "reason": "Reason",
+      "content": "Reported content",
+      "status": "Status",
+      "createdAt": "Created at",
+      "actions": "Actions",
+      "emptyTitle": "No reports found",
+      "emptySubtitle": "The system has no reports matching the current filters.",
+      "noTextContent": "No text content",
+      "noContent": "-",
+      "anonymous": "Anonymous",
+      "authorPrefix": "Author",
+      "byPrefix": "by",
+      "showingRange": "Showing {{start}}-{{end}} / {{total}} reports",
+      "processAction": "Process",
+      "viewWarningsAction": "View user warnings",
+      "viewDetailAction": "View details",
+      "reports": "Reports",
+      "latestReport": "Latest report"
+    },
+    "processDialog": {
+      "titlePending": "Process report",
+      "titleResolved": "Report details",
+      "reportCode": "Report #{{code}}",
+      "createdAt": "Created at {{date}}",
+      "reporterLabel": "Reporter",
+      "contentAuthorLabel": "Content author",
+      "additionalDetails": "Additional details",
+      "reportedContent": "Reported content",
+      "media": "Media ({{count}})",
+      "mediaPreviewAlt": "media-{{index}}",
+      "resultTitle": "Processing result",
+      "actionLabel": "Action:",
+      "adminNoteLabel": "Admin note:",
+      "actionRequiredLabel": "Processing action *",
+      "noteOptionalLabel": "Note (optional)",
+      "notePlaceholder": "Enter a note for this action...",
+      "cancelButton": "Cancel",
+      "closeButton": "Close",
+      "confirmButton": "Confirm",
+      "confirmWithAction": "Confirm: {{action}}",
+      "processingButton": "Processing...",
+      "successToast": "Report processed successfully",
+      "reportersTitle": "Reporters",
+      "reportCount": "{{count}} total",
+      "loadingReports": "No reporters found"
+    },
+    "warningsDialog": {
+      "title": "Warning history",
+      "user": "User: {{id}}...",
+      "totalWarnings": "Total warnings",
+      "latest": "Latest",
+      "noneYet": "None",
+      "empty": "This user has no warnings yet",
+      "warningIndex": "#{{index}} - {{date}}",
+      "reportCode": "Report: {{code}}..."
+    }
   }
 }
