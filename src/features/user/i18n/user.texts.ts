@@ -58,7 +58,11 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
     block: t(USER_KEYS.profile.block),
     editBlock: t(USER_KEYS.profile.editBlock),
     report: t(USER_KEYS.profile.report),
-    deleteFriend: t(USER_KEYS.profile.deleteFriend)
+    deleteFriend: t(USER_KEYS.profile.deleteFriend),
+    deactivatedTitle: t(USER_KEYS.profile.deactivatedTitle),
+    deactivatedDescription: t(USER_KEYS.profile.deactivatedDescription),
+    deactivatedOwnerDescription: t(USER_KEYS.profile.deactivatedOwnerDescription),
+    goToSettings: t(USER_KEYS.profile.goToSettings)
   },
   validation: {
     fullNameRequired: t(USER_KEYS.validation.fullNameRequired),
@@ -273,6 +277,24 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
           call: t(USER_KEYS.settings.accountPrivacy.blockedUsers.types.call),
           story: t(USER_KEYS.settings.accountPrivacy.blockedUsers.types.story)
         }
+      },
+      accountActivation: {
+        title: t(USER_KEYS.settings.accountPrivacy.accountActivation.title),
+        activeDescription: t(USER_KEYS.settings.accountPrivacy.accountActivation.activeDescription),
+        inactiveDescription: t(USER_KEYS.settings.accountPrivacy.accountActivation.inactiveDescription),
+        deactivateButton: t(USER_KEYS.settings.accountPrivacy.accountActivation.deactivateButton),
+        activateButton: t(USER_KEYS.settings.accountPrivacy.accountActivation.activateButton),
+        deactivateConfirmTitle: t(USER_KEYS.settings.accountPrivacy.accountActivation.deactivateConfirmTitle),
+        deactivateConfirmDescription: t(
+          USER_KEYS.settings.accountPrivacy.accountActivation.deactivateConfirmDescription
+        ),
+        activateConfirmTitle: t(USER_KEYS.settings.accountPrivacy.accountActivation.activateConfirmTitle),
+        activateConfirmDescription: t(USER_KEYS.settings.accountPrivacy.accountActivation.activateConfirmDescription),
+        deactivating: t(USER_KEYS.settings.accountPrivacy.accountActivation.deactivating),
+        activating: t(USER_KEYS.settings.accountPrivacy.accountActivation.activating),
+        deactivateSuccess: t(USER_KEYS.settings.accountPrivacy.accountActivation.deactivateSuccess),
+        activateSuccess: t(USER_KEYS.settings.accountPrivacy.accountActivation.activateSuccess),
+        error: t(USER_KEYS.settings.accountPrivacy.accountActivation.error)
       },
       blockModal: {
         title: t(USER_KEYS.settings.accountPrivacy.blockModal.title),

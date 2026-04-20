@@ -11,6 +11,8 @@ export const userApi = {
   updateBackgroundPosition: (y: number) =>
     http.patch<ApiResponse<UserImageResponse>>(`/users/profile/background/position?y=${y}`),
   updateBio: (body: { bio: string }) => http.put<ApiResponse<UserResponse>>('/users/profile/bio', body),
+  deactivateMyAccount: () => http.post<ApiResponse<UserResponse>>('/users/me/deactivate'),
+  activateMyAccount: () => http.post<ApiResponse<UserResponse>>('/users/me/activate'),
 
   getUserById: (id: string) => http.get<ApiResponse<UserResponse>>(`/users/${id}`),
   getAuthorProfileById: (id: string) => http.get<ApiResponse<UserResponse>>(`/users/${id}`),

@@ -55,7 +55,11 @@ export const USER_KEYS = {
     block: 'user.profile.block',
     editBlock: 'user.profile.editBlock',
     report: 'user.profile.report',
-    deleteFriend: 'user.profile.deleteFriend'
+    deleteFriend: 'user.profile.deleteFriend',
+    deactivatedTitle: 'user.profile.deactivatedTitle',
+    deactivatedDescription: 'user.profile.deactivatedDescription',
+    deactivatedOwnerDescription: 'user.profile.deactivatedOwnerDescription',
+    goToSettings: 'user.profile.goToSettings'
   },
   validation: {
     fullNameRequired: 'user.validation.fullNameRequired',
@@ -266,6 +270,22 @@ export const USER_KEYS = {
           call: 'user.settings.accountPrivacy.blockedUsers.types.call',
           story: 'user.settings.accountPrivacy.blockedUsers.types.story'
         }
+      },
+      accountActivation: {
+        title: 'user.settings.accountPrivacy.accountActivation.title',
+        activeDescription: 'user.settings.accountPrivacy.accountActivation.activeDescription',
+        inactiveDescription: 'user.settings.accountPrivacy.accountActivation.inactiveDescription',
+        deactivateButton: 'user.settings.accountPrivacy.accountActivation.deactivateButton',
+        activateButton: 'user.settings.accountPrivacy.accountActivation.activateButton',
+        deactivateConfirmTitle: 'user.settings.accountPrivacy.accountActivation.deactivateConfirmTitle',
+        deactivateConfirmDescription: 'user.settings.accountPrivacy.accountActivation.deactivateConfirmDescription',
+        activateConfirmTitle: 'user.settings.accountPrivacy.accountActivation.activateConfirmTitle',
+        activateConfirmDescription: 'user.settings.accountPrivacy.accountActivation.activateConfirmDescription',
+        deactivating: 'user.settings.accountPrivacy.accountActivation.deactivating',
+        activating: 'user.settings.accountPrivacy.accountActivation.activating',
+        deactivateSuccess: 'user.settings.accountPrivacy.accountActivation.deactivateSuccess',
+        activateSuccess: 'user.settings.accountPrivacy.accountActivation.activateSuccess',
+        error: 'user.settings.accountPrivacy.accountActivation.error'
       },
       blockModal: {
         title: 'user.settings.accountPrivacy.blockModal.title',
