@@ -30,6 +30,7 @@ export const PATHS = {
   ADMIN: {
     DASHBOARD: '/admin',
     USERS: '/admin/users',
+    SEEDING: '/admin/seeding',
     REPORTS: '/admin/reports',
     REPORT_DETAIL: '/admin/reports/:targetType/:targetId',
     ELASTICSEARCH: '/admin/elasticsearch',
