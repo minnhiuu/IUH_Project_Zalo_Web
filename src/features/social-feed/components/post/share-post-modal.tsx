@@ -75,12 +75,14 @@ export function SharePostModal({ open, onOpenChange, post }: SharePostModalProps
 
         <div className='p-5 space-y-4 max-h-[70vh] overflow-y-auto no-scrollbar'>
           <div className='flex items-center gap-3'>
-            <UserAvatar
-              name={profileName}
-              src={profileAvatar}
-              className='h-10 w-10 shrink-0 border border-zinc-200 shadow-sm ring-2 ring-transparent transition-all dark:border-white/5'
-              fallbackClassName='bg-indigo-500/10 text-indigo-500'
-            />
+            <div className='h-10 w-10 shrink-0 ring-2 ring-transparent'>
+              <UserAvatar
+                name={profileName}
+                src={profileAvatar}
+                className='w-full h-full border border-background'
+                fallbackClassName='bg-primary text-white'
+              />
+            </div>
             <div className='min-w-0'>
               <p className='truncate text-[14.5px] font-semibold text-zinc-900 dark:text-[#ececec]'>{profileName}</p>
               <DropdownMenu modal={false}>
@@ -122,15 +124,15 @@ export function SharePostModal({ open, onOpenChange, post }: SharePostModalProps
 
           <div className='rounded-xl border border-zinc-200 bg-white p-3 dark:border-white/10 dark:bg-zinc-900/40 opacity-80 pointer-events-none'>
             <div className='mb-2 flex items-center gap-2'>
-              <UserAvatar
-                name={displayAuthorName || text.shareModal.unknownUser}
-                src={displayAuthorAvatar}
-                className='h-8 w-8 border border-zinc-200 dark:border-white/10'
-                fallbackClassName='bg-primary/10 text-primary text-xs font-semibold'
-              />
-              <span className='text-[13px] font-semibold text-zinc-800 dark:text-zinc-200'>
-                {displayAuthorName}
-              </span>
+              <div className='h-8 w-8'>
+                <UserAvatar
+                  name={displayAuthorName || text.shareModal.unknownUser}
+                  src={displayAuthorAvatar}
+                  className='w-full h-full border border-background'
+                  fallbackClassName='bg-primary text-white text-xs font-semibold'
+                />
+              </div>
+              <span className='text-[13px] font-semibold text-zinc-800 dark:text-zinc-200'>{displayAuthorName}</span>
             </div>
 
             {displayContent ? (

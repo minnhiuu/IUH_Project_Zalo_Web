@@ -56,12 +56,14 @@ export function StoryCard({
 
       <div className='absolute left-3 top-3'>
         <div className='rounded-full border-[2.5px] border-indigo-500 p-[2px] shadow-md transition-transform duration-300 group-hover:scale-105'>
-          <UserAvatar
-            name={authorName}
-            src={authorAvatar}
-            className='h-8 w-8 border border-white/20 bg-white/95 shadow-sm backdrop-blur-md dark:bg-zinc-900/95'
-            fallbackClassName='bg-indigo-500/20 text-indigo-500 font-semibold text-xs'
-          />
+          <div className='h-8 w-8'>
+            <UserAvatar
+              name={authorName}
+              src={authorAvatar}
+              className='w-full h-full border border-background'
+              fallbackClassName='bg-primary text-white font-semibold text-xs'
+            />
+          </div>
         </div>
       </div>
 

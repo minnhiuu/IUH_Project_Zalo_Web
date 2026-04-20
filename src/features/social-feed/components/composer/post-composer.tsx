@@ -18,6 +18,25 @@ import { VisibilityDropdown, type VisibilityType } from './visibility-dropdown'
 type SelectedMedia = { file: File; type: 'IMAGE' | 'VIDEO' }
 const IMAGE_MIME_PREFIX = 'image/'
 const VIDEO_MIME_PREFIX = 'video/'
+const HASHTAG_REGEX = /(^|\s)#([\p{L}\p{N}_]+)/gu
+
+const extractHashtags = (value: string): string[] => {
+  const hashtags: string[] = []
+  const seen = new Set<string>()
+
+  for (const match of value.matchAll(HASHTAG_REGEX)) {
+    const rawTag = match[2]?.trim()
+    if (!rawTag) continue
+
+    const normalizedTag = rawTag.toLowerCase()
+    if (seen.has(normalizedTag)) continue
+
+    seen.add(normalizedTag)
+    hashtags.push(`#${rawTag}`)
+  }
+
+  return hashtags
+}
 
 interface PostComposerProps {
   inModal?: boolean
@@ -174,8 +193,7 @@ function ComposerBody({
   const currentUserLabel = text.composer.me
   const { data: myProfile } = useMyProfile()
   const profileName = myProfile?.fullName?.trim() || currentUserLabel
-  const profileAvatar =
-    myProfile?.avatar || `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(profileName)}`
+  const profileAvatar = myProfile?.avatar || ''
 
   const [content, setContent] = useState('')
   const [selectedMedia, setSelectedMedia] = useState<SelectedMedia[]>([])
@@ -212,6 +230,9 @@ function ComposerBody({
     if (!content.trim() && selectedMedia.length === 0) return
 
     try {
+      const trimmedContent = content.trim()
+      const hashtags = extractHashtags(trimmedContent)
+
       const uploadedMedia = await Promise.all(
         selectedMedia.map(async (item) => {
           const response = await fileApi.upload(item.file)
@@ -227,7 +248,8 @@ function ComposerBody({
       await createPost({
         postType: 'FEED',
         visibility,
-        caption: content.trim() || undefined,
+        caption: trimmedContent || undefined,
+        hashtags: hashtags.length > 0 ? hashtags : undefined,
         media: uploadedMedia.length > 0 ? uploadedMedia : undefined
       })
 
@@ -266,7 +288,8 @@ function ComposerBody({
     resetInputValue(event)
   }
 
-  const mediaButtonClassName = 'group h-9 rounded-full bg-zinc-100/80 px-4 text-zinc-600 transition-all dark:bg-zinc-800/50 dark:text-zinc-300'
+  const mediaButtonClassName =
+    'group h-9 rounded-full bg-zinc-100/80 px-4 text-zinc-600 transition-all dark:bg-zinc-800/50 dark:text-zinc-300'
 
   return (
     <>
@@ -282,12 +305,14 @@ function ComposerBody({
 
       <div className='flex items-center justify-between gap-3'>
         <div className='flex items-center gap-3'>
-          <UserAvatar
-            name={profileName}
-            src={profileAvatar}
-            className='h-11 w-11 shrink-0 border border-zinc-200 shadow-sm ring-2 ring-transparent transition-all dark:border-white/5'
-            fallbackClassName='bg-indigo-500/10 text-indigo-500'
-          />
+          <div className='h-11 w-11 shrink-0 ring-2 ring-transparent'>
+            <UserAvatar
+              name={profileName}
+              src={profileAvatar}
+              className='w-full h-full border border-background'
+              fallbackClassName='bg-primary text-white'
+            />
+          </div>
           <div className='min-w-0'>
             <p className='truncate text-[14.5px] font-semibold text-zinc-900 dark:text-[#ececec]'>{profileName}</p>
             <VisibilityDropdown

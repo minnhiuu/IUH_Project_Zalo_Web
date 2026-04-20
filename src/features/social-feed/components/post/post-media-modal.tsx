@@ -28,7 +28,6 @@ import { ReactionPeopleModal } from './reaction-people-modal'
 import { SharePostModal } from './share-post-modal'
 import { commentApi } from '../../api/comment.api'
 
-
 interface PostMediaModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -41,7 +40,6 @@ export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, med
   const { text, language } = useSocialText()
   const { user } = useAuthContext()
 
-  
   const commentsQuery = useSocialFeedComments(post.id, 0, 20)
   const createCommentMutation = useCreateSocialCommentMutation(post.id)
   const updateCommentMutation = useUpdateSocialCommentMutation(post.id)
@@ -67,8 +65,7 @@ export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, med
     (hadReactionOnLoad && !selectedReaction ? -1 : 0)
 
   const toggleMutation = useMutation({
-    mutationFn: (type: ReactionType) =>
-      commentApi.toggleReaction({ targetId: post.id, targetType: 'POST', type })
+    mutationFn: (type: ReactionType) => commentApi.toggleReaction({ targetId: post.id, targetType: 'POST', type })
   })
 
   const deleteMutation = useMutation({
@@ -132,7 +129,7 @@ export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, med
   const visibilityLabel = text.post.visibility[post.visibility]
   const defaultPostedAtLabel = language.startsWith('vi') ? 'Vừa xong' : 'Just now'
   const postedAtLabel = formatRelativeTime(post.postedAt, language) || defaultPostedAtLabel
-  
+
   const displayedTopReactions =
     selectedReaction && !post.topReactions?.includes(selectedReaction)
       ? [selectedReaction, ...(post.topReactions ?? []).slice(0, 2)]
@@ -201,11 +198,14 @@ export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, med
           {/* Header */}
           <div className='flex items-center justify-between px-5 py-4 border-b border-zinc-200 dark:border-white/10'>
             <div className='flex items-center gap-3'>
-              <UserAvatar
-                name={post.authorName}
-                src={post.authorAvatar}
-                className='h-10 w-10 border border-zinc-200 dark:border-white/5 shadow-sm'
-              />
+              <div className='h-10 w-10'>
+                <UserAvatar
+                  name={post.authorName}
+                  src={post.authorAvatar}
+                  className='w-full h-full border border-background'
+                  fallbackClassName='bg-primary'
+                />
+              </div>
               <div>
                 <div className='text-[14.5px] font-semibold text-zinc-900 dark:text-[#ececec] hover:underline cursor-pointer'>
                   {post.authorName}
@@ -315,9 +315,9 @@ export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, med
               variant='ghost'
               className='h-9 flex-1 gap-2 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-indigo-500 dark:hover:text-indigo-400'
               onClick={() => {
-                const commentInput = document.querySelector('textarea');
+                const commentInput = document.querySelector('textarea')
                 if (commentInput) {
-                  commentInput.focus();
+                  commentInput.focus()
                 }
               }}
             >
@@ -407,9 +407,7 @@ export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, med
             initialReactionType={topReactionOptions[0]?.type ?? 'LIKE'}
           />
         )}
-        {shareModalOpen && (
-          <SharePostModal open={shareModalOpen} onOpenChange={setShareModalOpen} post={post} />
-        )}
+        {shareModalOpen && <SharePostModal open={shareModalOpen} onOpenChange={setShareModalOpen} post={post} />}
       </DialogContent>
     </Dialog>
   )

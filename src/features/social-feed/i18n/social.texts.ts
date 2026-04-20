@@ -80,6 +80,25 @@ export const createSocialTexts = (t: TFunction<'social'>) => ({
     seekAriaLabel: t(SOCIAL_KEYS.reels.seekAriaLabel)
   },
 
+  reelComposer: {
+    title: t(SOCIAL_KEYS.reelComposer.title),
+    dialogDescription: t(SOCIAL_KEYS.reelComposer.dialogDescription),
+    subtitle: t(SOCIAL_KEYS.reelComposer.subtitle),
+    createAction: t(SOCIAL_KEYS.reelComposer.createAction),
+    previewEmpty: t(SOCIAL_KEYS.reelComposer.previewEmpty),
+    pickVideo: t(SOCIAL_KEYS.reelComposer.pickVideo),
+    replaceVideo: t(SOCIAL_KEYS.reelComposer.replaceVideo),
+    removeVideo: t(SOCIAL_KEYS.reelComposer.removeVideo),
+    videoHint: t(SOCIAL_KEYS.reelComposer.videoHint),
+    captionPlaceholder: t(SOCIAL_KEYS.reelComposer.captionPlaceholder),
+    publish: t(SOCIAL_KEYS.reelComposer.publish),
+    publishing: t(SOCIAL_KEYS.reelComposer.publishing),
+    videoRequired: t(SOCIAL_KEYS.reelComposer.videoRequired),
+    invalidVideo: t(SOCIAL_KEYS.reelComposer.invalidVideo),
+    successToast: t(SOCIAL_KEYS.reelComposer.successToast),
+    errorToast: t(SOCIAL_KEYS.reelComposer.errorToast)
+  },
+
   post: {
     attachmentAlt: (author: string) => t(SOCIAL_KEYS.post.attachmentAlt, { author }),
     commentCount: (count: number) => t(SOCIAL_KEYS.post.commentCount, { count }),

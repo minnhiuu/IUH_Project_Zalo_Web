@@ -87,19 +87,22 @@ function ReelViewportItem({
   return (
     <div className='relative flex h-full w-full items-center justify-center bg-transparent px-0 md:px-6 transition-colors duration-500'>
       <div className='relative flex w-full max-w-7xl items-end justify-center md:gap-6 lg:gap-12 h-full md:h-auto'>
-        
         {/* Left: Author & Content (Desktop only, overlayed on mobile) */}
         <div className='hidden md:flex flex-1 flex-col items-end pb-4'>
           <div className='pointer-events-auto w-full max-w-[20rem] rounded-2xl border border-zinc-200 bg-white/90 dark:border-white/10 dark:bg-black/40 p-5 shadow-xl backdrop-blur-xl transition hover:bg-white dark:hover:bg-black/50'>
             <div className='mb-3 flex items-center gap-3'>
-              <UserAvatar
-                name={reel.authorName}
-                src={reel.authorAvatar}
-                className='h-11 w-11 border-2 border-zinc-200 bg-white dark:border-white/20 dark:bg-black/50'
-                fallbackClassName='bg-zinc-100 text-zinc-900 dark:bg-white/10 dark:text-white text-xs font-semibold'
-              />
+              <div className='h-11 w-11'>
+                <UserAvatar
+                  name={reel.authorName}
+                  src={reel.authorAvatar}
+                  className='w-full h-full border border-background'
+                  fallbackClassName='bg-primary text-white text-xs font-semibold'
+                />
+              </div>
               <div>
-                <p className='text-[15px] font-semibold tracking-wide drop-shadow-sm leading-tight text-zinc-900 dark:text-white'>{reel.authorName}</p>
+                <p className='text-[15px] font-semibold tracking-wide drop-shadow-sm leading-tight text-zinc-900 dark:text-white'>
+                  {reel.authorName}
+                </p>
               </div>
             </div>
 
@@ -116,12 +119,14 @@ function ReelViewportItem({
           {/* Mobile Overlay: Text (Hidden on desktop) */}
           <div className='absolute bottom-0 left-0 right-16 z-20 flex flex-col justify-end bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 pt-12 md:hidden'>
             <div className='mb-2 flex items-center gap-2'>
-              <UserAvatar
-                name={reel.authorName}
-                src={reel.authorAvatar}
-                className='h-9 w-9 border border-white/20 bg-black/50'
-                fallbackClassName='bg-white/10 text-white text-[10px]'
-              />
+              <div className='h-9 w-9'>
+                <UserAvatar
+                  name={reel.authorName}
+                  src={reel.authorAvatar}
+                  className='w-full h-full border border-background'
+                  fallbackClassName='bg-primary text-white text-[10px]'
+                />
+              </div>
               <p className='text-sm font-semibold tracking-wide drop-shadow-md'>{reel.authorName}</p>
             </div>
             <p className='line-clamp-3 whitespace-pre-line text-[13px] leading-relaxed text-white/90 drop-shadow-md'>
@@ -167,7 +172,6 @@ function ReelViewportItem({
             <span className='text-[11px] md:text-xs font-bold drop-shadow-md'>{shareCount}</span>
           </button>
         </div>
-
       </div>
     </div>
   )
@@ -205,11 +209,7 @@ export function ReelsFeed({
       const clampedIndex = Math.max(0, Math.min(reels.length - 1, nextIndex))
       setActiveIndex(clampedIndex)
 
-      if (
-        clampedIndex >= stateRef.current.length - 2 &&
-        stateRef.current.hasMore &&
-        !stateRef.current.isLoadingMore
-      ) {
+      if (clampedIndex >= stateRef.current.length - 2 && stateRef.current.hasMore && !stateRef.current.isLoadingMore) {
         stateRef.current.onLoadMore?.()
       }
     }

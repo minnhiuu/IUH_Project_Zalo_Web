@@ -26,7 +26,6 @@ import { REACTIONS, ReactionPicker, type ReactionType } from './reaction-picker'
 import { useAuthContext } from '@/features/auth/context/auth-context'
 import { commentApi } from '../../api/comment.api'
 
-
 type CommentSortBy = 'NEWEST' | 'MOST_REACTED'
 
 const PAGE_SIZE = 10
@@ -41,7 +40,6 @@ export function PostCommentsModal({ open, onOpenChange, post }: PostCommentsModa
   const { text } = useSocialText()
   const { user } = useAuthContext()
 
-
   const [sortBy, setSortBy] = useState<CommentSortBy>('NEWEST')
   const [page, setPage] = useState(0)
   const [accumulatedComments, setAccumulatedComments] = useState<SocialFeedComment[]>([])
@@ -51,7 +49,11 @@ export function PostCommentsModal({ open, onOpenChange, post }: PostCommentsModa
 
   const sortOptions = [
     { value: 'NEWEST' as const, label: text.commentsModal.sortNewest, icon: <Clock className='h-3.5 w-3.5' /> },
-    { value: 'MOST_REACTED' as const, label: text.commentsModal.sortMostReacted, icon: <ArrowUpRight className='h-3.5 w-3.5' /> }
+    {
+      value: 'MOST_REACTED' as const,
+      label: text.commentsModal.sortMostReacted,
+      icon: <ArrowUpRight className='h-3.5 w-3.5' />
+    }
   ]
 
   // Always enabled — the modal itself is lazy-mounted so this only runs when the user opens it
@@ -90,8 +92,7 @@ export function PostCommentsModal({ open, onOpenChange, post }: PostCommentsModa
     .filter((reaction): reaction is (typeof REACTIONS)[number] => Boolean(reaction))
 
   const toggleMutation = useMutation({
-    mutationFn: (type: ReactionType) =>
-      commentApi.toggleReaction({ targetId: post.id, targetType: 'POST', type })
+    mutationFn: (type: ReactionType) => commentApi.toggleReaction({ targetId: post.id, targetType: 'POST', type })
   })
 
   const deleteMutation = useMutation({
@@ -134,14 +135,17 @@ export function PostCommentsModal({ open, onOpenChange, post }: PostCommentsModa
   }, [commentsQuery.data, page])
 
   // Reset accumulated state when sort changes
-  const handleSortChange = useCallback((newSort: CommentSortBy) => {
-    if (newSort === sortBy) return
-    setSortBy(newSort)
-    setPage(0)
-    setAccumulatedComments([])
-    setHasMore(true)
-    initialLoadDone.current = false
-  }, [sortBy])
+  const handleSortChange = useCallback(
+    (newSort: CommentSortBy) => {
+      if (newSort === sortBy) return
+      setSortBy(newSort)
+      setPage(0)
+      setAccumulatedComments([])
+      setHasMore(true)
+      initialLoadDone.current = false
+    },
+    [sortBy]
+  )
 
   function handleMediaClick(index: number, mediaSource?: SocialPostMedia[]) {
     setInitialSlide(index)
@@ -208,16 +212,18 @@ export function PostCommentsModal({ open, onOpenChange, post }: PostCommentsModa
           <div className='overflow-y-auto custom-scrollbar'>
             <div className='border-b border-zinc-200 px-4 py-3 sm:px-5 sm:py-4 dark:border-white/10'>
               <p className='text-[14.5px] leading-relaxed text-zinc-700 dark:text-zinc-300'>{post.content}</p>
-              
+
               {post.postType === 'SHARE' && post.sharedPost ? (
                 <div className='mt-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3 dark:border-white/10 dark:bg-zinc-900/40'>
                   <div className='mb-2 flex items-center gap-2'>
-                    <UserAvatar
-                      name={post.sharedPost.authorName}
-                      src={post.sharedPost.authorAvatar}
-                      className='h-8 w-8 border border-zinc-200 dark:border-white/10'
-                      fallbackClassName='bg-primary/10 text-primary text-xs font-semibold'
-                    />
+                    <div className='h-8 w-8'>
+                      <UserAvatar
+                        name={post.sharedPost.authorName}
+                        src={post.sharedPost.authorAvatar}
+                        className='w-full h-full border border-background'
+                        fallbackClassName='bg-primary text-white text-xs font-semibold'
+                      />
+                    </div>
                     <span className='text-[13px] font-semibold text-zinc-800 dark:text-zinc-200'>
                       {post.sharedPost.authorName}
                     </span>
@@ -336,9 +342,9 @@ export function PostCommentsModal({ open, onOpenChange, post }: PostCommentsModa
                   variant='ghost'
                   className='h-11 flex-1 gap-2 rounded-xl text-zinc-500 dark:text-zinc-400 transition-all hover:bg-zinc-100 dark:hover:bg-white/[0.04] hover:text-indigo-500 dark:hover:text-indigo-400'
                   onClick={() => {
-                    const commentInput = document.querySelector('textarea');
+                    const commentInput = document.querySelector('textarea')
                     if (commentInput) {
-                      commentInput.focus();
+                      commentInput.focus()
                     }
                   }}
                 >
@@ -358,7 +364,9 @@ export function PostCommentsModal({ open, onOpenChange, post }: PostCommentsModa
 
             {/* Sort filter bar */}
             <div className='flex items-center gap-1.5 border-b border-zinc-200 px-4 py-2 sm:px-5 sm:py-2.5 dark:border-white/10'>
-              <span className='mr-1 text-[12px] font-medium text-zinc-400 dark:text-zinc-500'>{text.commentsModal.sortBy}</span>
+              <span className='mr-1 text-[12px] font-medium text-zinc-400 dark:text-zinc-500'>
+                {text.commentsModal.sortBy}
+              </span>
               {sortOptions.map((opt) => (
                 <button
                   key={opt.value}
@@ -454,11 +462,11 @@ export function PostCommentsModal({ open, onOpenChange, post }: PostCommentsModa
         </div>
       </DialogContent>
 
-      <PostMediaModal 
-        open={mediaModalOpen} 
-        onOpenChange={setMediaModalOpen} 
-        post={post} 
-        initialSlide={initialSlide} 
+      <PostMediaModal
+        open={mediaModalOpen}
+        onOpenChange={setMediaModalOpen}
+        post={post}
+        initialSlide={initialSlide}
         mediaOverride={mediaOverride.length > 0 ? mediaOverride : undefined}
       />
       {reactionPeopleModalOpen && (
@@ -470,9 +478,7 @@ export function PostCommentsModal({ open, onOpenChange, post }: PostCommentsModa
           initialReactionType={topReactionOptions[0]?.type ?? 'LIKE'}
         />
       )}
-      {shareModalOpen && (
-        <SharePostModal open={shareModalOpen} onOpenChange={setShareModalOpen} post={post} />
-      )}
+      {shareModalOpen && <SharePostModal open={shareModalOpen} onOpenChange={setShareModalOpen} post={post} />}
     </Dialog>
   )
 }

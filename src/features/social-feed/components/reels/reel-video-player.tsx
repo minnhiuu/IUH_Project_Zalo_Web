@@ -31,6 +31,14 @@ export function ReelVideoPlayer({
   const [duration, setDuration] = useState(0)
   const [hasError, setHasError] = useState(false)
 
+  useEffect(() => {
+    if (!import.meta.env.DEV) {
+      return
+    }
+
+    console.info('[ReelVideoPlayer] video source', { src, ariaLabel })
+  }, [src, ariaLabel])
+
   const safeProgress = useMemo(() => Math.max(0, Math.min(100, progressPercent)), [progressPercent])
 
   const formatTime = (timeInSeconds: number) => {
@@ -110,7 +118,12 @@ export function ReelVideoPlayer({
             setDuration(event.currentTarget.duration)
           }
         }}
-        onError={() => setHasError(true)}
+        onError={() => {
+          if (import.meta.env.DEV) {
+            console.error('[ReelVideoPlayer] failed to load video source', { src, ariaLabel })
+          }
+          setHasError(true)
+        }}
         onClick={handleTogglePlay}
       />
 

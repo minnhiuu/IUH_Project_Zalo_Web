@@ -28,11 +28,14 @@ export function SuggestedFriendsSidebar() {
             {SUGGESTED_FRIENDS.map((friend) => (
               <div key={friend.id} className='flex items-center justify-between group'>
                 <div className='flex items-center gap-3 cursor-pointer'>
-                  <UserAvatar
-                    name={friend.name}
-                    src={friend.avatar}
-                    className='h-10 w-10 border border-zinc-200 dark:border-white/5 transition-transform group-hover:scale-105'
-                  />
+                  <div className='h-10 w-10 transition-transform group-hover:scale-105'>
+                    <UserAvatar
+                      name={friend.name}
+                      src={friend.avatar}
+                      className='w-full h-full border border-background'
+                      fallbackClassName='bg-primary'
+                    />
+                  </div>
                   <div>
                     <p className='text-[14.5px] font-semibold text-zinc-800 dark:text-[#ececec] group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors'>
                       {friend.name}

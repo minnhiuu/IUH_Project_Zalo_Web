@@ -18,6 +18,7 @@ interface CommentItemProps {
   comment: SocialFeedComment
   postId: string
   currentUserId?: string
+  currentUserAvatar?: string | null
   isMutating?: boolean
   onReply?: (comment: SocialFeedComment) => void
   onDelete?: (commentId: string) => Promise<void>
@@ -30,6 +31,7 @@ export function CommentItem({
   comment,
   postId,
   currentUserId,
+  currentUserAvatar,
   isMutating = false,
   onReply,
   onDelete,
@@ -59,6 +61,7 @@ export function CommentItem({
     (!hadReactionOnLoad && selectedReaction ? 1 : 0) +
     (hadReactionOnLoad && !selectedReaction ? -1 : 0)
   const isOwner = Boolean(currentUserId) && currentUserId === comment.authorId
+  const effectiveAuthorAvatar = comment.authorAvatar ?? (isOwner ? (currentUserAvatar ?? null) : null)
   const defaultCreatedAtLabel = text.post.justNow
   const createdAtLabel = formatRelativeTime(comment.createdAt, language) || defaultCreatedAtLabel
 
@@ -115,12 +118,14 @@ export function CommentItem({
 
   return (
     <div className='group flex items-start gap-2.5 w-full py-1 transition-all'>
-      <UserAvatar
-        name={comment.authorName}
-        src={comment.authorAvatar}
-        className='mt-1 h-8 w-8 shrink-0 border border-zinc-200 shadow-sm dark:border-white/10 dark:shadow-none transition-transform duration-200 group-hover:scale-105'
-        fallbackClassName='bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[11px] font-semibold'
-      />
+      <div className='mt-1 h-8 w-8 shrink-0 transition-transform duration-200 group-hover:scale-105'>
+        <UserAvatar
+          name={comment.authorName}
+          src={effectiveAuthorAvatar}
+          className='w-full h-full border border-background'
+          fallbackClassName='bg-primary text-white text-[11px] font-semibold'
+        />
+      </div>
       <div className='min-w-0 flex-1 space-y-1'>
         <div className='relative inline-block max-w-[calc(100%-2rem)] rounded-2xl rounded-tl-sm bg-zinc-100 px-3.5 py-2 dark:bg-zinc-900 shadow-sm border border-transparent dark:border-white/5'>
           <div className='flex items-center gap-2 mb-0.5'>
@@ -276,6 +281,7 @@ export function CommentItem({
                   comment={reply}
                   postId={postId}
                   currentUserId={currentUserId}
+                  currentUserAvatar={currentUserAvatar}
                   isMutating={isMutating}
                   onReply={onReply}
                   onDelete={onDelete}

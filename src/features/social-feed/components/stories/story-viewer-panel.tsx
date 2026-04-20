@@ -85,11 +85,7 @@ export function StoryViewerPanel({
               onEnded={onVideoEnded}
             />
           ) : (
-            <img
-              src={mediaUrl}
-              alt={mediaAlt ?? caption ?? authorName}
-              className='h-full w-full object-contain'
-            />
+            <img src={mediaUrl} alt={mediaAlt ?? caption ?? authorName} className='h-full w-full object-contain' />
           )
         ) : emptyState ? (
           emptyState
@@ -104,16 +100,16 @@ export function StoryViewerPanel({
       {/* ── Header ───────────────────────────────────────────────────── */}
       <div className='absolute inset-x-0 top-0 z-10 px-4 pt-8 pb-4'>
         <div className='flex items-center gap-3'>
-          <UserAvatar
-            name={authorName}
-            src={authorAvatar}
-            className='h-10 w-10 border-2 border-white/20 bg-black/50 shadow-md backdrop-blur-md'
-            fallbackClassName='bg-white/10 text-white text-xs font-semibold'
-          />
+          <div className='h-10 w-10'>
+            <UserAvatar
+              name={authorName}
+              src={authorAvatar}
+              className='w-full h-full border border-background'
+              fallbackClassName='bg-primary text-white text-xs font-semibold'
+            />
+          </div>
           <div className='min-w-0 flex-1'>
-            <p className='text-sm font-semibold tracking-wide text-white drop-shadow-md leading-tight'>
-              {authorName}
-            </p>
+            <p className='text-sm font-semibold tracking-wide text-white drop-shadow-md leading-tight'>{authorName}</p>
             {/* Music badge — inline under author name */}
             {music?.title ? (
               <div className='mt-1 flex items-center gap-1.5'>
@@ -140,7 +136,6 @@ export function StoryViewerPanel({
           {/* Volume and Playback control — video or image-with-music */}
           {(mediaType === 'VIDEO' || music?.audioUrl) && onVolumeButtonClick && onVolumeChange ? (
             <div className='group ml-auto flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-2 py-1 text-white shadow-xl backdrop-blur-xl transition-all duration-300 hover:bg-black/60'>
-              
               {/* Play/Pause Button (Image + Music only) */}
               {mediaType !== 'VIDEO' && music?.audioUrl && onPlayPauseClick ? (
                 <button
@@ -176,7 +171,7 @@ export function StoryViewerPanel({
               />
             </div>
           ) : (
-            headerTrailing ?? null
+            (headerTrailing ?? null)
           )}
         </div>
       </div>
@@ -191,11 +186,7 @@ export function StoryViewerPanel({
       ) : null}
 
       {/* ── Footer slot ──────────────────────────────────────────────── */}
-      {footer && (
-        <div className='absolute inset-x-0 bottom-5 z-20 flex items-center justify-center'>
-          {footer}
-        </div>
-      )}
+      {footer && <div className='absolute inset-x-0 bottom-5 z-20 flex items-center justify-center'>{footer}</div>}
 
       {/* ── Overlay slot (nav arrows, remove button, etc.) ───────────── */}
       {overlay}

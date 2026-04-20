@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import type { SocialPost } from '../post/post-card'
 import { ReelVideoPlayer } from './reel-video-player'
 import { useSocialText } from '../../i18n/use-social-text'
@@ -14,6 +15,17 @@ function getFirstVideo(reel: SocialPost) {
 export function ReelCard({ reel, isActive }: ReelCardProps) {
   const { text } = useSocialText()
   const videoMedia = getFirstVideo(reel)
+
+  useEffect(() => {
+    if (!import.meta.env.DEV) {
+      return
+    }
+
+    console.info('[ReelCard] selected reel video source', {
+      reelId: reel.id,
+      source: videoMedia?.url ?? null
+    })
+  }, [reel.id, videoMedia?.url])
 
   return (
     <article

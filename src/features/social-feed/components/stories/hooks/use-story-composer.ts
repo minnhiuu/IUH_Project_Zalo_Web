@@ -60,8 +60,7 @@ export function useStoryComposer(open: boolean): StoryComposerState {
   const { mutateAsync: createPost, isPending } = useCreateSocialPostMutation()
 
   const profileName = myProfile?.fullName?.trim() || text.composer.me
-  const profileAvatar =
-    myProfile?.avatar || `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(profileName)}`
+  const profileAvatar = myProfile?.avatar || ''
 
   // ─── Media ────────────────────────────────────────────────────────────────
   const [mediaFile, setMediaFile] = useState<File | null>(null)
@@ -86,7 +85,11 @@ export function useStoryComposer(open: boolean): StoryComposerState {
   const isImage = mediaType === 'IMAGE'
 
   // ─── Jamendo ──────────────────────────────────────────────────────────────
-  const { data: jamendoData, isLoading: isLoadingTracks, isError: isTracksError } = useJamendoTracks({
+  const {
+    data: jamendoData,
+    isLoading: isLoadingTracks,
+    isError: isTracksError
+  } = useJamendoTracks({
     genre: genreFilter === 'All' ? undefined : genreFilter,
     limit: 20,
     enabled: showMusicPicker && isImage

@@ -30,7 +30,8 @@ const SEEDING_ENDPOINTS: SeedEndpointInfo[] = [
     servicePath: '/social/internal/seeder/seed/all',
     authorization: 'Internal endpoint is permitAll in service security',
     webAccessible: true,
-    notes: 'Runs full pipeline: fetch users, seed interests, posts, comments, reactions, interactions.'
+    notes:
+      'Destructive reseed: clears social-feed data (posts/comments/reactions/interactions/hashtags) before regenerating it.'
   },
   {
     key: 'user-seed-interests',
@@ -52,6 +53,12 @@ const formatExecutionTime = (isoDate: string): string => {
 export const SeedingDashboard = () => {
   const [accountCount, setAccountCount] = useState<number>(10)
   const [executions, setExecutions] = useState<SeedExecution[]>([])
+
+  const confirmSocialReseed = () => {
+    return window.confirm(
+      'This action will DELETE all existing social-feed seeded data and reseed from scratch. Continue?'
+    )
+  }
 
   const seedAuthAccountsMutation = useMutation({
     mutationFn: (count: number) => seedingApi.seedAuthAccounts(count),
@@ -91,7 +98,7 @@ export const SeedingDashboard = () => {
     mutationFn: () => seedingApi.seedSocialFeedAll(),
     onSuccess: (response) => {
       const data = response.data?.data
-      const message = response.data?.message || 'Seed social-feed successfully'
+      const message = response.data?.message || 'Reseed social-feed successfully'
       setExecutions((prev) => [
         {
           endpointKey: 'social-seed-all',
@@ -103,7 +110,7 @@ export const SeedingDashboard = () => {
         },
         ...prev
       ])
-      showSuccessToast('Social feed seeding finished')
+      showSuccessToast('Social feed reseeding finished')
     },
     onError: (error) => {
       const message = getErrorMessage(error)
@@ -127,6 +134,22 @@ export const SeedingDashboard = () => {
       await seedSocialFeedMutation.mutateAsync()
     }
   })
+
+  const handleTriggerSocialSeeding = () => {
+    if (!confirmSocialReseed()) {
+      return
+    }
+
+    seedSocialFeedMutation.mutate()
+  }
+
+  const handleRunFullPipeline = () => {
+    if (!confirmSocialReseed()) {
+      return
+    }
+
+    runFullPipelineMutation.mutate()
+  }
 
   const isBusy = useMemo(
     () => seedAuthAccountsMutation.isPending || seedSocialFeedMutation.isPending || runFullPipelineMutation.isPending,
@@ -244,23 +267,20 @@ export const SeedingDashboard = () => {
               Social Feed Seeder
             </CardTitle>
             <CardDescription>
-              Calls POST /api/social/internal/seeder/seed/all for full social-feed data seeding.
+              Calls POST /api/social/internal/seeder/seed/all for destructive social-feed reseeding.
             </CardDescription>
           </CardHeader>
           <CardContent className='space-y-4'>
-            <div className='rounded-md border border-border/70 bg-muted/20 p-3 text-sm text-muted-foreground'>
-              This seeder orchestrates user fetch and interest/post/comment/reaction/interaction generation in one run.
+            <div className='rounded-md border border-amber-300/70 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200'>
+              This endpoint deletes existing social-feed data before creating fresh
+              posts/comments/reactions/interactions.
             </div>
             <div className='flex flex-wrap gap-2'>
-              <Button onClick={() => seedSocialFeedMutation.mutate()} disabled={isBusy}>
+              <Button onClick={handleTriggerSocialSeeding} disabled={isBusy}>
                 {seedSocialFeedMutation.isPending && <Loader2 className='h-4 w-4 animate-spin' />}
-                Trigger Social Seeding
+                Trigger Social Reseeding
               </Button>
-              <Button
-                variant='outline'
-                onClick={() => runFullPipelineMutation.mutate()}
-                disabled={isBusy || accountCount < 1}
-              >
+              <Button variant='outline' onClick={handleRunFullPipeline} disabled={isBusy || accountCount < 1}>
                 {runFullPipelineMutation.isPending && <Loader2 className='h-4 w-4 animate-spin' />}
                 Run Full Pipeline
               </Button>
