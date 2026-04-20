@@ -35,7 +35,7 @@ import { showErrorToast } from '@/utils/toast'
 import { useChatText } from '../i18n/use-chat-text'
 import type { ConversationResponse, ChatMessageRequest, GroupSettings, LeaveGroupRequest } from '../schemas/chat.schema'
 
-export const useMarkAsReadMutation = () => {
+export const useMarkAsReadMutationV2 = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
