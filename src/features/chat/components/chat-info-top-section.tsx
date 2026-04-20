@@ -1,6 +1,6 @@
 import { BellOff, Pencil, Pin, Settings, UserPlus } from 'lucide-react'
 import { UserAvatar } from '@/components/common/user-avatar'
-import { GroupAvatar } from './group/group-avatar'
+import { GroupAvatar } from '@/components/common/group-avatar'
 import { ActionButton } from '@/components/common/action-button'
 import type { ConversationResponse } from '../schemas/chat.schema'
 import { cn } from '@/lib/utils'

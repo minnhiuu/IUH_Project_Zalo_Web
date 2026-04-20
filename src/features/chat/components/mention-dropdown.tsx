@@ -59,7 +59,7 @@ export function MentionDropdown({ members, query, onSelect, onClose, showAllMent
                 e.preventDefault()
                 onSelect({
                   userId: 'all',
-                  fullName: 'All',
+                  fullName: text.mentionDropdown.all,
                   avatar: null,
                   phoneNumber: null,
                   isFriend: false,

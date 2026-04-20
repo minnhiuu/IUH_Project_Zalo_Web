@@ -68,7 +68,7 @@ export function AddFriendConfirmDialog({ open, onOpenChange, user, onBack, onSuc
       <div className='flex-1 overflow-y-auto'>
         {/* Cover Image & Avatar */}
         <div className='relative'>
-          <div className='h-24 bg-linear-to-r from-blue-400 via-blue-500 to-cyan-400 overflow-hidden'>
+          <div className='h-24 bg-primary/20 overflow-hidden'>
             <img
               src={DEFAULT_COVER_IMAGE}
               alt='Cover'
@@ -86,9 +86,9 @@ export function AddFriendConfirmDialog({ open, onOpenChange, user, onBack, onSuc
         {/* User Info */}
         <div className='pt-11 px-4 pb-4'>
           <div className='flex items-center gap-2'>
-            <h3 className='text-base font-semibold text-foreground'>{user.fullName}</h3>
+            <h3 className='text-base font-semibold text-text-primary'>{user.fullName}</h3>
             <button className='p-1 hover:bg-muted rounded-full transition-colors'>
-              <Pencil className='w-4 h-4 text-muted-foreground' />
+              <Pencil className='w-4 h-4 text-text-secondary' />
             </button>
           </div>
         </div>
@@ -102,7 +102,7 @@ export function AddFriendConfirmDialog({ open, onOpenChange, user, onBack, onSuc
               placeholder={text.addFriend.messagePlaceholder}
               className='min-h-20 resize-none text-sm pr-14'
             />
-            <span className='absolute bottom-2 right-3 text-xs text-muted-foreground'>
+            <span className='absolute bottom-2 right-3 text-xs text-text-secondary'>
               {message.length}/{MAX_MESSAGE_LENGTH}
             </span>
           </div>
@@ -111,7 +111,7 @@ export function AddFriendConfirmDialog({ open, onOpenChange, user, onBack, onSuc
         {/* Block Diary Toggle */}
         <div className='px-4 pb-4'>
           <div className='flex items-center justify-between py-2'>
-            <span className='text-sm text-foreground'>{text.addFriend.blockDiary}</span>
+            <span className='text-sm text-text-primary'>{text.addFriend.blockDiary}</span>
             <Switch checked={blockDiary} onCheckedChange={setBlockDiary} />
           </div>
         </div>

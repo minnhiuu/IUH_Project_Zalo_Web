@@ -52,8 +52,9 @@ export function OwnerProfileEditForm({ user, onCancel }: OwnerProfileEditFormPro
       onSuccess: () => {
         onCancel()
       },
-      onError: (error: any) => {
-        const errorCode = error?.response?.data?.code
+      onError: (error: unknown) => {
+        const axiosError = error as { response?: { data?: { code?: number } } }
+        const errorCode = axiosError.response?.data?.code
         if (errorCode === 2001) {
           toast.error(text.validation.phoneAlreadyUsed)
         } else {

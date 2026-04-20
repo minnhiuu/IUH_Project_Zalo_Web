@@ -13,6 +13,7 @@ export const CHAT_KEYS = {
     minutesAgo: 'chat.status.minutesAgo',
     hoursAgo: 'chat.status.hoursAgo',
     daysAgo: 'chat.status.daysAgo',
+    yesterday: 'chat.status.yesterday',
     onDate: 'chat.status.onDate',
     sending: 'chat.status.sending',
     sent: 'chat.status.sent',
@@ -21,19 +22,33 @@ export const CHAT_KEYS = {
   errors: {
     loadConversations: 'chat.errors.loadConversations',
     loadMessages: 'chat.errors.loadMessages',
-    revokeTimeExceeded: 'chat.errors.revokeTimeExceeded'
+    revokeTimeExceeded: 'chat.errors.revokeTimeExceeded',
+    adminDeleteTimeExceeded: 'chat.errors.adminDeleteTimeExceeded'
   },
   you: 'chat.you',
   you_lower: 'chat.you_lower',
   user: 'chat.user',
   mentionDropdown: {
     instruction: 'chat.mentionDropdown.instruction',
-    notifyAll: 'chat.mentionDropdown.notifyAll'
+    notifyAll: 'chat.mentionDropdown.notifyAll',
+    all: 'chat.mentionDropdown.all'
   },
   type: {
     image: 'chat.type.image',
+    video: 'chat.type.video',
     file: 'chat.type.file',
     link: 'chat.type.link'
+  },
+  input: {
+    dropFilesHint: 'chat.input.dropFilesHint',
+    sendImageVideoTitle: 'chat.input.sendImageVideoTitle',
+    attachFileTitle: 'chat.input.attachFileTitle',
+    summarizeNewMessages: 'chat.input.summarizeNewMessages',
+    summarizingMessages: 'chat.input.summarizingMessages',
+    summaryTitle: 'chat.input.summaryTitle',
+    closeSummary: 'chat.input.closeSummary',
+    videoBadge: 'chat.input.videoBadge',
+    fileTooLarge: 'chat.input.fileTooLarge'
   },
   messageBubble: {
     reply: 'chat.messageBubble.reply',
@@ -59,7 +74,27 @@ export const CHAT_KEYS = {
     reactionModalTitle: 'chat.messageBubble.reactionModalTitle',
     reactionModalAll: 'chat.messageBubble.reactionModalAll',
     reactionModalYou: 'chat.messageBubble.reactionModalYou',
-    reactionModalEmpty: 'chat.messageBubble.reactionModalEmpty'
+    reactionModalEmpty: 'chat.messageBubble.reactionModalEmpty',
+    removeAllMyReactions: 'chat.messageBubble.removeAllMyReactions',
+    download: 'chat.messageBubble.download',
+    deletedByAdmin: 'chat.messageBubble.deletedByAdmin',
+    deletedByAdminSelf: 'chat.messageBubble.deletedByAdminSelf',
+    replyUnavailable: 'chat.messageBubble.replyUnavailable',
+    adminDeleteDialog: {
+      title: 'chat.messageBubble.adminDeleteDialog.title',
+      cancel: 'chat.messageBubble.adminDeleteDialog.cancel',
+      optionForMe: 'chat.messageBubble.adminDeleteDialog.optionForMe',
+      optionForAll: 'chat.messageBubble.adminDeleteDialog.optionForAll',
+      confirm: 'chat.messageBubble.adminDeleteDialog.confirm',
+      confirmForMe: 'chat.messageBubble.adminDeleteDialog.confirmForMe'
+    },
+    adminDeleteConfirm: {
+      title: 'chat.messageBubble.adminDeleteConfirm.title',
+      description: 'chat.messageBubble.adminDeleteConfirm.description',
+      descriptionBold: 'chat.messageBubble.adminDeleteConfirm.descriptionBold',
+      cancel: 'chat.messageBubble.adminDeleteConfirm.cancel',
+      confirm: 'chat.messageBubble.adminDeleteConfirm.confirm'
+    }
   },
   aiStatus: {
     ANALYZING_INTENT: 'ai.status.ANALYZING_INTENT',
@@ -118,7 +153,16 @@ export const CHAT_KEYS = {
     alreadyJoined: 'chat.create-group-dialog.alreadyJoined',
     alreadyAdmin: 'chat.create-group-dialog.alreadyAdmin',
     noResultsFound: 'chat.create-group-dialog.noResultsFound',
-    noFriendsFound: 'chat.create-group-dialog.noFriendsFound'
+    noFriendsFound: 'chat.create-group-dialog.noFriendsFound',
+    groupAlreadyExists: 'chat.create-group-dialog.groupAlreadyExists',
+    addMemberFailed: 'chat.create-group-dialog.addMemberFailed',
+    avatarAlt: 'chat.create-group-dialog.avatarAlt',
+    notAvailable: 'chat.create-group-dialog.notAvailable',
+    confirmSelection: 'chat.create-group-dialog.confirmSelection',
+    confirmCancelTitle: 'chat.create-group-dialog.confirmCancelTitle',
+    confirmCancelDescription: 'chat.create-group-dialog.confirmCancelDescription',
+    yes: 'chat.create-group-dialog.yes',
+    no: 'chat.create-group-dialog.no'
   },
   system: {
     add_members: {
@@ -147,6 +191,7 @@ export const CHAT_KEYS = {
       by_actor: 'chat.system.block_member.by_actor'
     },
     blocked_from_joining: 'chat.system.blocked_from_joining',
+    add_members_failed: 'chat.system.add_members_failed',
     self_blocked_from_joining: {
       with_link: 'chat.system.self_blocked_from_joining.with_link',
       without_link: 'chat.system.self_blocked_from_joining.without_link',
@@ -332,6 +377,9 @@ export const CHAT_KEYS = {
     createGroup: 'chat.sidebarInfo.createGroup',
     ownerRole: 'chat.sidebarInfo.ownerRole',
     adminRole: 'chat.sidebarInfo.adminRole',
+    joinedByLink: 'chat.sidebarInfo.joinedByLink',
+    addedBy: 'chat.sidebarInfo.addedBy',
+    addedByYou: 'chat.sidebarInfo.addedByYou',
     addDeputy: 'chat.sidebarInfo.addDeputy',
     removeFromGroup: 'chat.sidebarInfo.removeFromGroup',
     searchMemberPlaceholder: 'chat.sidebarInfo.searchMemberPlaceholder',
@@ -344,7 +392,12 @@ export const CHAT_KEYS = {
     groupJoinLink: 'chat.sidebarInfo.groupJoinLink',
     copied: 'chat.sidebarInfo.copied',
     generating: 'chat.sidebarInfo.generating',
-    createInviteLink: 'chat.sidebarInfo.createInviteLink'
+    createInviteLink: 'chat.sidebarInfo.createInviteLink',
+    removeFromGroupConfirmTitle: 'chat.sidebarInfo.removeFromGroupConfirmTitle',
+    removeFromGroupConfirmDesc: 'chat.sidebarInfo.removeFromGroupConfirmDesc',
+    blockFromGroupDesc: 'chat.sidebarInfo.blockFromGroupDesc',
+    confirmAccept: 'chat.sidebarInfo.confirmAccept',
+    close: 'chat.sidebarInfo.close'
   },
   mediaStorage: {
     title: 'chat.mediaStorage.title',
@@ -359,7 +412,11 @@ export const CHAT_KEYS = {
     noFiles: 'chat.mediaStorage.noFiles',
     noLinks: 'chat.mediaStorage.noLinks',
     downloadedLocally: 'chat.mediaStorage.downloadedLocally',
-    dateLabel: 'chat.mediaStorage.dateLabel'
+    dateLabel: 'chat.mediaStorage.dateLabel',
+    fromDate: 'chat.mediaStorage.fromDate',
+    toDate: 'chat.mediaStorage.toDate',
+    clear: 'chat.mediaStorage.clear',
+    apply: 'chat.mediaStorage.apply'
   },
   'forward-dialog': {
     title: 'chat.forward-dialog.title',
@@ -409,5 +466,45 @@ export const CHAT_KEYS = {
     blocked_from_group: 'chat.join-group-dialog.blocked_from_group',
     request_title: 'chat.join-group-dialog.request_title',
     approval_required_desc: 'chat.join-group-dialog.approval_required_desc'
+  },
+  'message-info-dialog': {
+    title: 'chat.message-info-dialog.title',
+    today: 'chat.message-info-dialog.today',
+    sender: 'chat.message-info-dialog.sender',
+    seen: 'chat.message-info-dialog.seen',
+    noOneSeen: 'chat.message-info-dialog.noOneSeen',
+    voiceCall: 'chat.message-info-dialog.voiceCall',
+    videoCall: 'chat.message-info-dialog.videoCall'
+  },
+  'stranger-banner': {
+    sendRequestHint: 'chat.stranger-banner.sendRequestHint',
+    sentRequestTo: 'chat.stranger-banner.sentRequestTo',
+    receivedRequest: 'chat.stranger-banner.receivedRequest',
+    sendRequest: 'chat.stranger-banner.sendRequest',
+    cancelRequest: 'chat.stranger-banner.cancelRequest',
+    acceptRequest: 'chat.stranger-banner.acceptRequest'
+  },
+  'chat-window': {
+    cloudSyncDesc: 'chat.chat-window.cloudSyncDesc',
+    stranger: 'chat.chat-window.stranger',
+    commonGroups: 'chat.chat-window.commonGroups',
+    voiceCall: 'chat.chat-window.voiceCall',
+    videoCall: 'chat.chat-window.videoCall',
+    zaloMember: 'chat.chat-window.zaloMember',
+    unreadMessages: 'chat.chat-window.unreadMessages'
+  },
+  'cloud-sidebar': {
+    title: 'chat.cloud-sidebar.title',
+    description: 'chat.cloud-sidebar.description',
+    storageLabel: 'chat.cloud-sidebar.storageLabel',
+    image: 'chat.cloud-sidebar.image',
+    video: 'chat.cloud-sidebar.video',
+    file: 'chat.cloud-sidebar.file',
+    other: 'chat.cloud-sidebar.other',
+    cleanupAction: 'chat.cloud-sidebar.cleanupAction',
+    upgradeTitle: 'chat.cloud-sidebar.upgradeTitle',
+    upgradeDesc: 'chat.cloud-sidebar.upgradeDesc',
+    upgradeAction: 'chat.cloud-sidebar.upgradeAction',
+    reminderList: 'chat.cloud-sidebar.reminderList'
   }
 } as const

@@ -1,11 +1,10 @@
-import { Search, X } from 'lucide-react'
+import { Search, X, Filter, ArrowUpDown } from 'lucide-react'
 import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useFriendText } from '../i18n/use-friend-text'
 
-type FilterType = 'all' | 'friends' | 'requests' | 'blocked'
-type SortType = 'name' | 'recent' | 'online'
+export type FilterType = 'all' | 'friends' | 'requests' | 'blocked'
+export type SortType = 'name_asc' | 'name_desc' | 'recent' | 'online'
 
 interface ContactsFilterProps {
   searchQuery: string
@@ -23,12 +22,11 @@ export function ContactsFilter({
   filterType,
   onFilterChange,
   sortType,
-  onSortChange,
-  totalCount = 0
+  onSortChange
 }: ContactsFilterProps) {
   const { text } = useFriendText()
 
-  const filterOptions: Array<{ value: FilterType; label: string; icon?: string }> = [
+  const filterOptions: Array<{ value: FilterType; label: string }> = [
     { value: 'all', label: text.contactsFilter.filterOptions.all },
     { value: 'friends', label: text.contactsFilter.filterOptions.friends },
     { value: 'requests', label: text.contactsFilter.filterOptions.requests },
@@ -36,110 +34,70 @@ export function ContactsFilter({
   ]
 
   const sortOptions: Array<{ value: SortType; label: string }> = [
-    { value: 'name', label: text.contactsFilter.sortOptions.nameAZ },
+    { value: 'name_asc', label: text.contactsFilter.sortOptions.nameAZ },
+    { value: 'name_desc', label: text.contactsFilter.sortOptions.nameZA },
     { value: 'recent', label: text.contactsFilter.sortOptions.recent },
     { value: 'online', label: text.contactsFilter.sortOptions.online }
   ]
 
-  const activeFilter = filterOptions.find((f) => f.value === filterType)
-  const activeSort = sortOptions.find((s) => s.value === sortType)
-
   return (
-    <div className='bg-background border-b border-border px-4 py-3 space-y-3'>
-      {/* Search Input */}
-      <div className='relative group'>
-        <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors' />
+    <div className='bg-background px-4 py-3 flex items-center gap-2'>
+      {/* Search Input - Compact Zalo Style */}
+      <div className='relative group flex-1'>
+        <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary/60 group-focus-within:text-primary transition-colors' />
         <Input
           type='text'
           placeholder={text.contactsFilter.searchPlaceholder}
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          className='pl-9 pr-8 h-9 w-full bg-muted border-none rounded-full text-sm focus-visible:ring-1 focus-visible:ring-primary/20'
+          className='pl-9 pr-8 h-[36px] w-full bg-(--input-field-bg-outline) border-border-(--input-field-bg-filled) rounded-[6px] text-sm placeholder:text-text-secondary/60 focus-visible:ring-1 focus-visible:ring-primary/20 transition-all'
         />
         {searchQuery && (
           <button
             onClick={() => onSearchChange('')}
-            className='absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors'
+            className='absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary transition-colors'
           >
             <X className='w-4 h-4' />
           </button>
         )}
       </div>
 
-      {/* Filters and Sort */}
-      <div className='flex items-center gap-2 flex-wrap'>
-        {/* Filter Dropdown */}
-        <Select value={filterType} onValueChange={(v) => onFilterChange(v as FilterType)}>
-          <SelectTrigger className='h-8 w-auto px-3 border-none bg-muted text-xs font-medium rounded-full hover:bg-muted/80 transition-colors'>
-            <SelectValue defaultValue={filterType} />
-          </SelectTrigger>
-          <SelectContent align='start'>
-            {filterOptions.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {/* Sort Dropdown */}
+      {/* Chips Area - Sort and Filter on the same row */}
+      <div className='flex items-center gap-2 shrink-0'>
+        {/* Sort Chip */}
         <Select value={sortType} onValueChange={(v) => onSortChange(v as SortType)}>
-          <SelectTrigger className='h-8 w-auto px-3 border-none bg-muted text-xs font-medium rounded-full hover:bg-muted/80 transition-colors'>
-            <SelectValue defaultValue={sortType} />
+          <SelectTrigger className='h-[36px] min-w-[160px] px-3 border border-border-(--input-field-bg-filled) bg-(--input-field-bg-outline) text-sm font-normal rounded-[6px] text-(--button-secondary-neutral-text) hover:bg-muted/30 transition-colors gap-2 shadow-none focus:ring-0'>
+            <ArrowUpDown className='w-4 h-4 shrink-0 opacity-70' />
+            <div className='truncate flex-1 text-left'>
+              <SelectValue />
+            </div>
           </SelectTrigger>
-          <SelectContent align='start'>
+          <SelectContent align='end'>
             {sortOptions.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
+              <SelectItem key={option.value} value={option.value} className='text-sm'>
                 {option.label}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
 
-        {/* Result Count */}
-        {totalCount > 0 && (
-          <Badge variant='secondary' className='ml-auto text-xs'>
-            {totalCount} {text.contactsFilter.resultsLabel}
-          </Badge>
-        )}
+        {/* Filter Chip */}
+        <Select value={filterType} onValueChange={(v) => onFilterChange(v as FilterType)}>
+          <SelectTrigger className='h-[36px] px-3 border border-border-(--input-field-bg-filled) bg-(--input-field-bg-outline) text-sm font-normal rounded-[6px] text-(--button-secondary-neutral-text) hover:bg-muted/30 transition-colors gap-2 shadow-none focus:ring-0'>
+            <Filter className='w-4 h-4 shrink-0 opacity-70' />
+            <div className='truncate max-w-[100px]'>
+              <SelectValue />
+            </div>
+          </SelectTrigger>
+          <SelectContent align='end'>
+            {filterOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value} className='text-sm'>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
-
-      {/* Active Filters Display */}
-      {(searchQuery || filterType !== 'all' || sortType !== 'name') && (
-        <div className='flex items-center gap-2 text-xs text-muted-foreground'>
-          <span>{text.contactsFilter.filtersLabel}</span>
-          {searchQuery && (
-            <Badge
-              variant='outline'
-              className='gap-1 cursor-pointer hover:bg-destructive/10'
-              onClick={() => onSearchChange('')}
-            >
-              {`"${searchQuery}"`}
-              <X className='w-3 h-3' />
-            </Badge>
-          )}
-          {filterType !== 'all' && (
-            <Badge
-              variant='outline'
-              className='gap-1 cursor-pointer hover:bg-destructive/10'
-              onClick={() => onFilterChange('all')}
-            >
-              {activeFilter?.label}
-              <X className='w-3 h-3' />
-            </Badge>
-          )}
-          {sortType !== 'name' && (
-            <Badge
-              variant='outline'
-              className='gap-1 cursor-pointer hover:bg-destructive/10'
-              onClick={() => onSortChange('name')}
-            >
-              {text.contactsFilter.sortLabel} {activeSort?.label}
-              <X className='w-3 h-3' />
-            </Badge>
-          )}
-        </div>
-      )}
     </div>
   )
 }

@@ -8,13 +8,16 @@ import type { ConversationResponse } from '../schemas/chat.schema'
 import { useNavigate } from 'react-router'
 import { Status } from '@/constants/enum'
 import { useUserById } from '@/features/user/queries/use-queries'
+import { JoinGroupDialog } from './group/dialogs/join-group-dialog'
 
 export function ChatLayout({
   defaultPartnerId,
-  defaultConversationId
+  defaultConversationId,
+  defaultJoinToken
 }: {
   defaultPartnerId?: string
   defaultConversationId?: string
+  defaultJoinToken?: string
 }) {
   const navigate = useNavigate()
   const { text } = useChatText()
@@ -97,7 +100,7 @@ export function ChatLayout({
       if (document.visibilityState === 'visible' && selectedChat) {
         const activeConv = conversations?.find((c: ConversationResponse) => c.id === selectedChat.id)
         if (activeConv && activeConv.unreadCount && activeConv.unreadCount > 0) {
-          markAsRead(selectedChat.id)
+          markAsRead({ conversationId: selectedChat.id })
         }
       }
     }
@@ -179,6 +182,14 @@ export function ChatLayout({
           </div>
         )
       })()}
+
+      <JoinGroupDialog
+        open={!!defaultJoinToken}
+        onOpenChange={(open) => {
+          if (!open) navigate('/', { replace: true })
+        }}
+        token={defaultJoinToken || null}
+      />
     </div>
   )
 }

@@ -7,7 +7,7 @@ import { useJoinByLinkMutation, useCancelJoinRequestMutation } from '../../../qu
 import { useChatText } from '../../../i18n/use-chat-text'
 import { BaseDialog } from '@/components/common/base-dialog'
 import { LinkIcon, AlertCircle, Loader2, ArrowLeft } from 'lucide-react'
-import { GroupAvatar } from '../group-avatar'
+import { GroupAvatar } from '@/components/common/group-avatar'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { showWarningToast, showSuccessToast } from '@/utils/toast'
 import { CharacterCounterTextarea } from '@/components/ui/character-counter-textarea'

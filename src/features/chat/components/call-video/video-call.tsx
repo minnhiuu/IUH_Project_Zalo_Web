@@ -156,6 +156,22 @@ export function VideoCallRoom({ callData, onCallEnd }: VideoCallRoomProps) {
   const zpRef = useRef<ReturnType<typeof ZegoUIKitPrebuilt.create> | null>(null)
   const { user } = useAuth()
 
+  const handleEndCall = useCallback(async () => {
+    try {
+      await endCallApi(callData.sessionId)
+    } catch {
+      // ignore
+    } finally {
+      try {
+        zpRef.current?.destroy()
+      } catch {
+        /* ignore */
+      }
+      zpRef.current = null
+      onCallEnd()
+    }
+  }, [callData.sessionId, onCallEnd])
+
   useEffect(() => {
     if (!containerRef.current || !user) return
 
@@ -197,23 +213,7 @@ export function VideoCallRoom({ callData, onCallEnd }: VideoCallRoomProps) {
     return () => {
       zpRef.current?.destroy()
     }
-  }, [callData, user])
-
-  const handleEndCall = useCallback(async () => {
-    try {
-      await endCallApi(callData.sessionId)
-    } catch {
-      // ignore
-    } finally {
-      try {
-        zpRef.current?.destroy()
-      } catch {
-        /* ignore */
-      }
-      zpRef.current = null
-      onCallEnd()
-    }
-  }, [callData.sessionId, onCallEnd])
+  }, [callData, user, handleEndCall])
 
   // Listen for ENDED signal from other party
   useEffect(() => {

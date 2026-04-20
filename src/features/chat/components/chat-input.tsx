@@ -29,6 +29,7 @@ import ReactMarkdown from 'react-markdown'
 const IMAGE_VIDEO_ACCEPT = 'image/*,video/*'
 const FILE_ACCEPT = '*/*'
 const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50MB
+const MAX_FILE_SIZE_MB = 50
 
 interface ChatInputProps {
   conversationId: string
@@ -128,9 +129,14 @@ export function ChatInput({
   }, [conversationId])
 
   // Cleanup blob URLs on unmount
+  const attachmentsRef = useRef(fileAttachments)
+  useEffect(() => {
+    attachmentsRef.current = fileAttachments
+  }, [fileAttachments])
+
   useEffect(() => {
     return () => {
-      fileAttachments.forEach((a) => {
+      attachmentsRef.current.forEach((a) => {
         if (a.previewUrl) URL.revokeObjectURL(a.previewUrl)
       })
     }
@@ -198,7 +204,7 @@ export function ChatInput({
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
       if (file.size > MAX_FILE_SIZE) {
-        alert(`File "${file.name}" vượt quá 50MB`)
+        alert(text.input.fileTooLarge(file.name, MAX_FILE_SIZE_MB))
         continue
       }
 
@@ -233,7 +239,7 @@ export function ChatInput({
     // Replace non-breaking spaces
     html = html.replace(/&nbsp;/g, ' ')
     // Replace divs/brs with newlines (for contentEditable multiline support)
-    html = html.replace(/<br\s*[\/]?>/gi, '\n')
+    html = html.replace(/<br\s*\/?>/gi, '\n')
     html = html.replace(/<\/div>/gi, '\n').replace(/<div(?:[^>]*)>/gi, '')
 
     // Strip remaining tags using textContent
@@ -286,7 +292,7 @@ export function ChatInput({
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
       if (isTypingRef.current) {
         isTypingRef.current = false
-        sendTyping(conversationId, false, user?.fullName || 'Người dùng')
+        sendTyping(conversationId, false, user?.fullName || text.user)
       }
       setTimeout(() => inputRef.current?.focus(), 0)
       return
@@ -311,7 +317,7 @@ export function ChatInput({
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
     if (isTypingRef.current) {
       isTypingRef.current = false
-      sendTyping(conversationId, false, user?.fullName || 'Người dùng')
+      sendTyping(conversationId, false, user?.fullName || text.user)
     }
     setTimeout(() => inputRef.current?.focus(), 0)
   }
@@ -383,7 +389,7 @@ export function ChatInput({
         for (let i = 0; i < droppedFiles.length; i++) {
           const file = droppedFiles[i]
           if (file.size > MAX_FILE_SIZE) {
-            alert(`File "${file.name}" vượt quá 50MB`)
+            alert(text.input.fileTooLarge(file.name, MAX_FILE_SIZE_MB))
             continue
           }
           const previewUrl = URL.createObjectURL(file)
@@ -402,7 +408,7 @@ export function ChatInput({
         const attachments: FileAttachment[] = []
         for (const file of fileOnly) {
           if (file.size > MAX_FILE_SIZE) {
-            alert(`File "${file.name}" vượt quá 50MB`)
+            alert(text.input.fileTooLarge(file.name, MAX_FILE_SIZE_MB))
             continue
           }
           attachments.push({ file })
@@ -443,7 +449,7 @@ export function ChatInput({
         }
       }
     },
-    [attachmentType, clearAttachments, conversationId, onCancelReply, replyTo, sendFileMessage]
+    [attachmentType, clearAttachments, conversationId, onCancelReply, replyTo, sendFileMessage, text.input]
   )
 
   return (
@@ -461,7 +467,7 @@ export function ChatInput({
         <div className='absolute inset-0 z-50 flex items-center justify-center bg-primary/10 backdrop-blur-[1px] pointer-events-none rounded'>
           <div className='flex flex-col items-center gap-2 text-primary'>
             <Paperclip size={32} />
-            <span className='text-sm font-medium'>Thả file vào đây</span>
+            <span className='text-sm font-medium'>{text.input.dropFilesHint}</span>
           </div>
         </div>
       )}
@@ -491,7 +497,7 @@ export function ChatInput({
           for (let i = 0; i < files.length; i++) {
             const file = files[i]
             if (file.size > MAX_FILE_SIZE) {
-              alert(`File "${file.name}" vượt quá 50MB`)
+              alert(text.input.fileTooLarge(file.name, MAX_FILE_SIZE_MB))
               continue
             }
             attachments.push({ file })
@@ -531,7 +537,7 @@ export function ChatInput({
           type='button'
           onClick={handleImageSelect}
           className='p-1.5 hover:bg-muted rounded text-muted-foreground transition-colors'
-          title='Gửi ảnh/video'
+          title={text.input.sendImageVideoTitle}
         >
           <ImageIcon size={20} />
         </button>
@@ -539,7 +545,7 @@ export function ChatInput({
           type='button'
           onClick={handleFileSelect}
           className='p-1.5 hover:bg-muted rounded text-muted-foreground transition-colors'
-          title='Đính kèm file'
+          title={text.input.attachFileTitle}
         >
           <Paperclip size={20} />
         </button>
@@ -581,12 +587,12 @@ export function ChatInput({
             {isSummarizing ? (
               <>
                 <Loader2 className='w-4 h-4 animate-spin' />
-                AI đang đọc tin nhắn...
+                {text.input.summarizingMessages}
               </>
             ) : (
               <>
                 <Sparkles className='w-4 h-4 text-amber-500' />
-                Tóm tắt {unreadCount} tin nhắn mới
+                {text.input.summarizeNewMessages}
               </>
             )}
           </button>
@@ -598,7 +604,7 @@ export function ChatInput({
         <div className='absolute bottom-full left-4 right-4 mb-4 bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-border overflow-hidden animate-in slide-in-from-bottom-4 duration-300 z-[60] max-h-[60vh] flex flex-col'>
           <div className='px-4 py-3 border-b border-border bg-blue-50/50 dark:bg-blue-900/10 flex items-center justify-between shrink-0'>
             <div className='flex items-center gap-2 text-primary font-bold text-sm'>
-              <span className='text-lg'>✨</span> Tóm tắt nội dung Catch-up
+              <span className='text-lg'>✨</span> {text.input.summaryTitle}
             </div>
             <button
               onClick={() => {
@@ -633,7 +639,7 @@ export function ChatInput({
               }}
               className='px-4 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-medium hover:opacity-90 transition-opacity'
             >
-              Đóng
+              {text.input.closeSummary}
             </button>
           </div>
         </div>
@@ -646,6 +652,20 @@ export function ChatInput({
             <div className='flex items-center gap-2 flex-1 min-w-0'>
               {replyTo.type === MessageType.Image && replyTo.attachments?.[0]?.url ? (
                 <img src={replyTo.attachments[0].url} alt='' className='w-10 h-10 rounded object-cover shrink-0' />
+              ) : replyTo.type === MessageType.Video && replyTo.attachments?.[0]?.url ? (
+                <div className='relative w-10 h-10 rounded overflow-hidden shrink-0 bg-muted'>
+                  <video
+                    src={replyTo.attachments[0].url}
+                    className='w-full h-full object-cover'
+                    preload='metadata'
+                    muted
+                  />
+                  <div className='absolute inset-0 flex items-center justify-center bg-black/40'>
+                    <svg width='14' height='14' viewBox='0 0 24 24' fill='white'>
+                      <polygon points='5,3 19,12 5,21' />
+                    </svg>
+                  </div>
+                </div>
               ) : (
                 <Quote size={14} className='text-muted-foreground shrink-0' />
               )}
@@ -653,9 +673,9 @@ export function ChatInput({
                 <span className='text-[13px] font-medium'>{text.replyingTo(replyTo.senderName || '')}</span>
                 <span className='truncate text-[13px] text-muted-foreground'>
                   {replyTo.type === MessageType.Image
-                    ? '[Hình ảnh]'
+                    ? text.type.image
                     : replyTo.type === MessageType.Video
-                      ? '[Video]'
+                      ? text.type.video
                       : stripMentionsForPreview(replyTo.content)}
                 </span>
               </div>
@@ -679,7 +699,7 @@ export function ChatInput({
                     <div className='relative w-20 h-20 rounded-lg overflow-hidden bg-muted'>
                       <video src={attachment.previewUrl} className='w-full h-full object-cover' muted />
                       <div className='absolute inset-0 flex items-center justify-center bg-black/30'>
-                        <span className='text-white text-xs font-medium'>VIDEO</span>
+                        <span className='text-white text-xs font-medium'>{text.input.videoBadge}</span>
                       </div>
                     </div>
                   ) : (
@@ -755,12 +775,12 @@ export function ChatInput({
               // Typing indicator
               if (!isTypingRef.current) {
                 isTypingRef.current = true
-                sendTyping(conversationId, true, user?.fullName || 'Người dùng')
+                sendTyping(conversationId, true, user?.fullName || text.user)
               }
               if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
               typingTimeoutRef.current = setTimeout(() => {
                 isTypingRef.current = false
-                sendTyping(conversationId, false, user?.fullName || 'Người dùng')
+                sendTyping(conversationId, false, user?.fullName || text.user)
               }, 2000)
             }}
             onKeyDown={handleKeyDown}

@@ -13,13 +13,26 @@
     "user": "User",
     "type": {
       "image": "[Image]",
+      "video": "[Video]",
       "file": "[File]",
       "link": "[Link]",
       "confirm": "Confirm"
     },
+    "input": {
+      "dropFilesHint": "Drop files here",
+      "sendImageVideoTitle": "Send image/video",
+      "attachFileTitle": "Attach file",
+      "summarizeNewMessages": "Summarize new messages",
+      "summarizingMessages": "AI is reading messages...",
+      "summaryTitle": "Conversation summary",
+      "closeSummary": "Close",
+      "videoBadge": "VIDEO",
+      "fileTooLarge": "File \"{{name}}\" exceeds {{maxSizeMb}}MB"
+    },
     "mentionDropdown": {
       "instruction": "Press ↑, ↓ to select and Enter to use.",
-      "notifyAll": "Notify all group members"
+      "notifyAll": "Notify all group members",
+      "all": "All"
     },
     "messageBubble": {
       "reply": "Reply",
@@ -45,7 +58,27 @@
       "reactionModalTitle": "Reactions",
       "reactionModalAll": "All",
       "reactionModalYou": "You",
-      "reactionModalEmpty": "No reactions yet"
+      "reactionModalEmpty": "No reactions yet",
+      "removeAllMyReactions": "Remove all your reactions",
+      "download": "Download",
+      "deletedByAdmin": "{{name}} deleted this message",
+      "deletedByAdminSelf": "You deleted this message",
+      "replyUnavailable": "Message deleted",
+      "adminDeleteDialog": {
+        "title": "Delete message",
+        "cancel": "Cancel",
+        "optionForMe": "Delete only for me",
+        "optionForAll": "Delete for everyone",
+        "confirm": "Delete",
+        "confirmForMe": "Delete (for me only)"
+      },
+      "adminDeleteConfirm": {
+        "title": "Confirm",
+        "description": "If deleted for everyone, they will not be able to see the content, but can still see who deleted the message.",
+        "descriptionBold": "Only admins have this option.",
+        "cancel": "Cancel",
+        "confirm": "Delete"
+      }
     },
     "pinBoard": {
       "title": "Message",
@@ -81,6 +114,7 @@
         "by_actor": "<bold>{{target}}</bold> was blocked from this group by <actorBold>{{actor}}</actorBold>"
       },
       "blocked_from_joining": "<bold>{{target}}</bold> is blocked by owner/admin to join group",
+      "add_members_failed": "Failed to add member({{count}}).",
       "self_blocked_from_joining": {
         "with_link": "Cannot add <bold>{{target}}</bold> to the group. They can only join via the group invite link.",
         "without_link": "Cannot add <bold>{{target}}</bold> to the group.",
@@ -202,6 +236,7 @@
       "minutesAgo": "{{count}} minutes ago",
       "hoursAgo": "{{count}} hours ago",
       "daysAgo": "{{count}} days ago",
+      "yesterday": "Yesterday",
       "onDate": "Accessed on {{date}}",
       "sending": "Sending...",
       "sent": "Sent",
@@ -217,7 +252,8 @@
     "errors": {
       "loadConversations": "Failed to load conversations.",
       "loadMessages": "Failed to load messages.",
-      "revokeTimeExceeded": "Revocation time limit exceeded (max 24 hours)"
+      "revokeTimeExceeded": "Revocation time limit exceeded (max 24 hours)",
+      "adminDeleteTimeExceeded": "You can only delete messages on the recipient's device within 24 hours"
     },
     "create-group-dialog": {
       "title": "Create Group",
@@ -237,7 +273,16 @@
       "alreadyJoined": "Joined group",
       "alreadyAdmin": "Already an admin",
       "noResultsFound": "No results found",
-      "noFriendsFound": "No friends found"
+      "noFriendsFound": "No friends found",
+      "groupAlreadyExists": "A group already exists",
+      "addMemberFailed": "Failed to add member({{count}}).",
+      "avatarAlt": "Avatar",
+      "notAvailable": "Not available",
+      "confirmSelection": "Confirm selection",
+      "confirmCancelTitle": "Confirm",
+      "confirmCancelDescription": "Do you want to cancel creating this group?",
+      "yes": "Yes",
+      "no": "No"
     },
     "forward-dialog": {
       "title": "Share",
@@ -458,6 +503,9 @@
       "createGroup": "Create group",
       "ownerRole": "Owner",
       "adminRole": "Admin",
+      "joinedByLink": "Joined via link",
+      "addedBy": "Added by {{name}}",
+      "addedByYou": "Added by you",
       "addDeputy": "Add admin",
       "removeDeputy": "Revoke admin privilege",
       "removeFromGroup": "Remove from group",
@@ -471,7 +519,11 @@
       "groupJoinLink": "Group join link",
       "copied": "Copied",
       "generating": "Generating...",
-      "createInviteLink": "Create invite link"
+      "createInviteLink": "Create invite link",
+      "removeFromGroupConfirmTitle": "Confirm",
+      "removeFromGroupConfirmDesc": "Remove this member from group?",
+      "blockFromGroupDesc": "Block this one from rejoining",
+      "close": "Close"
     },
     "mediaStorage": {
       "title": "Storage",
@@ -486,7 +538,51 @@
       "noFiles": "No files yet",
       "noLinks": "No links yet",
       "downloadedLocally": "✓ Saved locally",
-      "dateLabel": "{{month}}/{{day}}"
+      "dateLabel": "{{month}}/{{day}}",
+      "fromDate": "From date",
+      "toDate": "To date",
+      "clear": "Clear",
+      "apply": "Apply"
+    },
+    "message-info-dialog": {
+      "title": "Message info",
+      "today": "Today",
+      "sender": "Sender",
+      "seen": "Seen ({{count}})",
+      "noOneSeen": "No one has seen yet",
+      "voiceCall": "Voice call",
+      "videoCall": "Video call"
+    },
+    "stranger-banner": {
+      "sendRequestHint": "Send friend request to this person",
+      "sentRequestTo": "Friend request sent to {{name}}",
+      "receivedRequest": "This person sent you a friend request",
+      "sendRequest": "Add friend",
+      "cancelRequest": "Cancel",
+      "acceptRequest": "Accept"
+    },
+    "chat-window": {
+      "cloudSyncDesc": "Save and sync data between devices",
+      "stranger": "Stranger",
+      "commonGroups": "{{count}} common groups",
+      "voiceCall": "Voice call",
+      "videoCall": "Video call",
+      "zaloMember": "Zalo User",
+      "unreadMessages": "Unread messages"
+    },
+    "cloud-sidebar": {
+      "title": "Conversation Info",
+      "description": "Store and quickly access your important content right on Zalo",
+      "storageLabel": "Storage",
+      "image": "Photos",
+      "video": "Videos",
+      "file": "Files",
+      "other": "Others",
+      "cleanupAction": "View and clean up My Documents",
+      "upgradeTitle": "Upgrade My Documents storage",
+      "upgradeDesc": "Expand storage up to 100GB and automatically preserve chat data with zCloud.",
+      "upgradeAction": "Add storage",
+      "reminderList": "Reminder list"
     }
   },
   "call": {

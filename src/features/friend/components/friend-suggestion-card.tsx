@@ -96,20 +96,12 @@ export function FriendSuggestionCard({
     const hasGroups = (suggestion.sharedGroupsCount ?? 0) > 0
 
     // Priority: contact > mutual friends > shared groups
-    if (hasContact)
-      return {
-        label: text.source.phoneContact,
-        color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-      }
-    if (hasMutualFriends)
-      return {
-        label: text.source.friendSuggestion,
-        color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-      }
+    if (hasContact) return { label: text.source.phoneContact, color: 'bg-badge-emerald-bg text-badge-emerald-text' }
+    if (hasMutualFriends) return { label: text.source.friendSuggestion, color: 'bg-badge-blue-bg text-badge-blue-text' }
     if (hasGroups)
       return {
         label: text.source.mutualGroups(suggestion.sharedGroupsCount!),
-        color: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400'
+        color: 'bg-badge-violet-bg text-badge-violet-text'
       }
     return null
   }

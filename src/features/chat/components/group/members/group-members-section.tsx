@@ -6,16 +6,17 @@ import { UserAvatar } from '@/components/common/user-avatar'
 import { useGroupMembersInfinite } from '../../../queries/use-queries'
 import { useSendFriendRequest } from '@/features/friend/queries/use-mutations'
 import {
-  useRemoveMemberFromGroupMutation,
   usePromoteToAdminMutation,
   useDemoteFromAdminMutation
 } from '../../../queries/use-mutations'
 import { useChatText } from '../../../i18n/use-chat-text'
+import { useAuth } from '@/features/auth/hooks/use-auth'
 import { GroupMemberRole } from '@/constants/enum'
 import { useDebounce } from '@/hooks/use-debounce'
 import { MemberActionMenu } from './member-action-menu'
 import { MemberRoleBadge } from './member-role-badge'
 import type { GroupMemberListItemResponse } from '../../../schemas/chat.schema'
+import { RemoveMemberDialog } from './remove-member-dialog'
 
 interface GroupMembersSectionProps {
   conversationId: string
@@ -37,6 +38,8 @@ export function GroupMembersSection({
   onMemberClick
 }: GroupMembersSectionProps) {
   const { t } = useChatText()
+  const { user } = useAuth()
+  const currentUserId = user?.id ? String(user.id) : ''
   const [query, setQuery] = useState('')
   const debouncedQuery = useDebounce(query, 300)
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useGroupMembersInfinite(
@@ -45,9 +48,11 @@ export function GroupMembersSection({
     true
   )
   const sendFriendRequest = useSendFriendRequest()
-  const removeMemberMutation = useRemoveMemberFromGroupMutation()
   const promoteMutation = usePromoteToAdminMutation()
   const demoteMutation = useDemoteFromAdminMutation()
+
+  const [targetMember, setTargetMember] = useState<GroupMemberListItemResponse | null>(null)
+  const [removeOpen, setRemoveOpen] = useState(false)
 
   const members = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data])
 
@@ -56,7 +61,8 @@ export function GroupMembersSection({
     member: GroupMemberListItemResponse
   ) => {
     if (action === 'remove-member') {
-      removeMemberMutation.mutate({ conversationId, targetUserId: member.userId })
+      setTargetMember(member)
+      setRemoveOpen(true)
       return
     }
 
@@ -84,6 +90,19 @@ export function GroupMembersSection({
           ? String(t('chat.sidebarInfo.adminRole'))
           : null
 
+    const joinLabel =
+      member.joinMethod === 'JOIN_BY_LINK'
+        ? String(t('chat.sidebarInfo.joinedByLink'))
+        : member.joinMethod === 'ADDED_BY_MEMBER' && member.addedBy
+          ? member.addedBy === currentUserId
+            ? String(t('chat.sidebarInfo.addedByYou'))
+            : member.addedByName
+              ? String(t('chat.sidebarInfo.addedBy', { name: member.addedByName }))
+              : null
+          : null
+
+    const subtitleLabel = roleLabel ? roleLabel : joinLabel
+
     return (
       <div
         key={member.userId}
@@ -102,7 +121,7 @@ export function GroupMembersSection({
             <p className='text-[15px] font-semibold text-foreground truncate'>
               {member.isCurrentUser ? String(t('chat.you')) : member.fullName}
             </p>
-            {roleLabel && <p className='text-[12px] text-muted-foreground truncate'>{roleLabel}</p>}
+            {subtitleLabel && <p className='text-[12px] text-muted-foreground truncate'>{subtitleLabel}</p>}
           </div>
         </button>
 
@@ -173,6 +192,16 @@ export function GroupMembersSection({
             {isFetchingNextPage ? 'Đang tải...' : 'Xem thêm'}
           </Button>
         </div>
+      )}
+
+      {targetMember && (
+        <RemoveMemberDialog
+          open={removeOpen}
+          onOpenChange={setRemoveOpen}
+          conversationId={conversationId}
+          targetUserId={targetMember.userId}
+
+        />
       )}
     </div>
   )

@@ -30,6 +30,7 @@ interface MessageMoreMenuProps {
   onDeleteForMe: () => void
   onPin?: () => void
   onRevoke?: () => void
+  onAdminDelete?: () => void
 }
 
 export function MessageMoreMenu({
@@ -39,7 +40,8 @@ export function MessageMoreMenu({
   isOwn,
   onDeleteForMe,
   onPin,
-  onRevoke
+  onRevoke,
+  onAdminDelete
 }: MessageMoreMenuProps) {
   return (
     <DropdownMenuContent side={side} align='start' sideOffset={4} className='w-62 rounded-xl '>
@@ -69,7 +71,7 @@ export function MessageMoreMenu({
         label={isOwn ? text.deleteForMe : text.delete}
         variant='destructive'
         showDivider={!isOwn}
-        onClick={onDeleteForMe}
+        onClick={!isOwn && onAdminDelete ? onAdminDelete : onDeleteForMe}
       />
     </DropdownMenuContent>
   )

@@ -6,13 +6,15 @@ import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Checkbox } from '@/components/ui/checkbox'
 import { UserAvatar } from '@/components/common/user-avatar'
-import { useConversationsQuery } from '../queries/use-queries'
+import { useConversationsQuery, useMyGroupsQuery } from '../queries/use-queries'
+import { useMyFriendsInfinite } from '@/features/friend'
 import { useAuth } from '@/features/auth'
 import { getConversationDisplayName } from '../utils/group-name'
 import type { ConversationResponse, MessageResponse } from '../schemas/chat.schema'
 import { useChatText } from '../i18n/use-chat-text'
 import { MessageType } from '@/constants/enum'
 import { Play } from 'lucide-react'
+import { getExtColor, getExtLabel, formatFileSize } from './message-file-content'
 
 type TabType = 'recent' | 'groups' | 'friends'
 
@@ -44,47 +46,138 @@ export function ForwardDialog({
   const { text } = useChatText()
   const [description, setDescription] = useState('')
   const tf = text['forward-dialog']
-  const dialogTitle = title ?? tf.title
-  const confirmLabel = confirmText ?? tf.share
-  const cancelLabel = cancelText ?? tf.cancel
-
-  const { data: conversations } = useConversationsQuery()
-  const { user } = useAuth()
   const [search, setSearch] = useState('')
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [activeTab, setActiveTab] = useState<TabType>('recent')
 
-  const filteredConversations = useMemo(() => {
-    if (!conversations) return []
-    let filtered = conversations
-    if (activeTab === 'groups') {
-      filtered = filtered.filter((c) => c.isGroup)
-    } else if (activeTab === 'friends') {
-      filtered = filtered.filter((c) => !c.isGroup)
-    }
-    const q = search.toLowerCase().trim()
-    if (!q) return filtered
-    return filtered.filter((c) => {
-      const name = getConversationDisplayName(c, '', undefined, user?.id)
-      return name.toLowerCase().includes(q)
+  const dialogTitle = title ?? tf.title
+  const confirmLabel = confirmText ?? tf.share
+  const cancelLabel = cancelText ?? tf.cancel
+
+  const { data: conversations } = useConversationsQuery(open)
+  const { data: myGroupsPage } = useMyGroupsQuery(
+    activeTab === 'groups' ? search : '',
+    'activity_newest',
+    'all',
+    0,
+    100,
+    open && activeTab === 'groups'
+  )
+  const myGroups = useMemo(() => myGroupsPage?.data || [], [myGroupsPage])
+
+  const { data: myFriendsPage } = useMyFriendsInfinite(100, open && activeTab === 'friends')
+  const myFriends = useMemo(() => {
+    return myFriendsPage?.pages.flatMap((p) => p.data) || []
+  }, [myFriendsPage])
+
+  const { user } = useAuth()
+
+  // Map to find conversation by friend userId to avoid "fake" IDs if conversation already exists
+  const conversationByPartnerId = useMemo(() => {
+    const map = new Map<string, string>()
+    if (!conversations) return map
+    conversations.forEach((c) => {
+      if (!c.isGroup && c.recipientId) {
+        map.set(c.recipientId, c.id)
+      }
     })
-  }, [conversations, search, user?.id, activeTab])
+    return map
+  }, [conversations])
+
+  type ForwardEntry =
+    | ConversationResponse
+    | {
+        id: string
+        name: string
+        avatar?: string | null
+        lastMessage?: ConversationResponse['lastMessage']
+      }
+
+  const filteredConversations = useMemo(() => {
+    let baseItems: ForwardEntry[] = []
+
+    if (activeTab === 'groups') {
+      baseItems = myGroups || []
+    } else if (activeTab === 'friends') {
+      baseItems = myFriends.map((f) => {
+        const existingConvId = conversationByPartnerId.get(f.userId)
+        return {
+          id: existingConvId || `fake_${f.userId}`,
+          name: f.userName,
+          avatar: f.userAvatar
+        }
+      })
+    } else {
+      if (!conversations) return []
+      baseItems = conversations
+    }
+
+    const getEntryNameInternal = (item: ForwardEntry) => {
+      if ('name' in item && item.name) return item.name as string
+      return getConversationDisplayName(item as ConversationResponse, 'Conversation', undefined, user?.id)
+    }
+
+    const q = search.toLowerCase().trim()
+    const searchFiltered = q
+      ? baseItems.filter((c) => {
+          const name = getEntryNameInternal(c)
+          return name.toLowerCase().includes(q)
+        })
+      : baseItems
+
+    // Sort: Recent tab by activity, Friends tab by name
+    return [...searchFiltered].sort((a, b) => {
+      if (activeTab === 'friends') {
+        const nameA = getEntryNameInternal(a)
+        const nameB = getEntryNameInternal(b)
+        return nameA.localeCompare(nameB)
+      }
+      const timeA = a.lastMessage?.timestamp ? new Date(a.lastMessage.timestamp).getTime() : 0
+      const timeB = b.lastMessage?.timestamp ? new Date(b.lastMessage.timestamp).getTime() : 0
+      return timeB - timeA
+    })
+  }, [conversations, myGroups, myFriends, search, user?.id, activeTab, conversationByPartnerId])
 
   const selectedEntries = useMemo<SelectedConvEntry[]>(() => {
-    if (!conversations) return []
-    const map = new Map<string, ConversationResponse>(conversations.map((c) => [c.id, c]))
     const result: SelectedConvEntry[] = []
-    for (const id of selectedIds) {
-      const conv = map.get(id)
-      if (!conv) continue
-      result.push({
-        id: conv.id,
-        name: getConversationDisplayName(conv, 'Conversation', undefined, user?.id),
-        avatar: conv.avatar
+    const allItems = new Map<string, { name: string; avatar?: string | null }>()
+
+    // Add items from all sources to a flat map for lookup
+    conversations?.forEach((c) => {
+      allItems.set(c.id, {
+        name: getConversationDisplayName(c, 'Conversation', undefined, user?.id),
+        avatar: c.avatar
       })
+    })
+
+    myGroups?.forEach((g) => {
+      allItems.set(g.id, {
+        name: g.name || 'Group',
+        avatar: g.avatar
+      })
+    })
+
+    myFriends?.forEach((f) => {
+      const existingConvId = conversationByPartnerId.get(f.userId)
+      allItems.set(existingConvId || `fake_${f.userId}`, {
+        name: f.userName,
+        avatar: f.userAvatar
+      })
+    })
+
+    for (const id of selectedIds) {
+      const entry = allItems.get(id)
+      if (entry) {
+        result.push({ id, ...entry })
+      }
     }
     return result
-  }, [selectedIds, conversations, user?.id])
+  }, [selectedIds, conversations, myGroups, myFriends, user?.id, conversationByPartnerId])
+
+  const getEntryName = (item: ForwardEntry) => {
+    if ('name' in item && item.name) return item.name as string
+    return getConversationDisplayName(item as ConversationResponse, 'Conversation', undefined, user?.id)
+  }
 
   const handleToggle = (convId: string) => {
     setSelectedIds((prev) =>
@@ -171,27 +264,15 @@ export function ForwardDialog({
               </button>
             ))}
           </div>
-          <button className='flex items-center gap-1 text-[13px] text-foreground/80 hover:bg-muted/80 px-2 py-0.5 rounded transition-colors cursor-pointer outline-none'>
-            <span>{tf.labels || 'Labels'}</span>
-            <svg
-              className='w-3.5 h-3.5 mt-0.5'
-              fill='none'
-              stroke='currentColor'
-              viewBox='0 0 24 24'
-              xmlns='http://www.w3.org/2000/svg'
-            >
-              <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2.5' d='M19 9l-7 7-7-7'></path>
-            </svg>
-          </button>
         </div>
 
         {/* Content */}
-        <div className='flex-1 min-h-0 border-t bg-background overflow-hidden'>
-          <div className='flex h-full min-h-0'>
+        <div className='flex-1 min-h-0 min-w-0 border-t bg-background overflow-hidden'>
+          <div className='flex h-full min-h-0 min-w-0 overflow-hidden'>
             {/* Conversation list */}
-            <div className='flex flex-col flex-1 min-h-0 overflow-hidden'>
-              <ScrollArea className='h-full'>
-                <div className='p-0'>
+            <div className='flex flex-col flex-1 min-h-0 min-w-0 overflow-hidden border-r'>
+              <ScrollArea className='h-full w-full' viewportProps={{ className: 'min-w-0 overflow-x-hidden' }}>
+                <div className='p-0 min-w-0 overflow-hidden'>
                   {filteredConversations.length === 0 ? (
                     <div className='flex flex-col items-center justify-center p-12 text-center'>
                       <div className='w-16 h-16 bg-muted/30 rounded-full flex items-center justify-center mb-3'>
@@ -201,7 +282,7 @@ export function ForwardDialog({
                     </div>
                   ) : (
                     filteredConversations.map((conv) => {
-                      const name = getConversationDisplayName(conv, 'Conversation', undefined, user?.id)
+                      const name = getEntryName(conv)
                       const isSelected = selectedIds.includes(conv.id)
                       return (
                         <div
@@ -209,7 +290,7 @@ export function ForwardDialog({
                           onClick={() => handleToggle(conv.id)}
                           className={`flex items-center gap-3 px-4 py-2 hover:bg-muted/50 transition-colors cursor-pointer min-w-0 ${isSelected ? 'bg-muted/30' : ''}`}
                         >
-                          <div className='flex items-center justify-center w-5 h-5 shrink-0'>
+                          <div className='flex items-center justify-center shrink-0'>
                             <Checkbox
                               checked={isSelected}
                               onCheckedChange={() => handleToggle(conv.id)}
@@ -221,9 +302,19 @@ export function ForwardDialog({
                             src={conv.avatar}
                             className='w-10 h-10 shadow-sm border border-border/10 shrink-0'
                           />
-                          <span className='text-[14px] font-normal text-foreground flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap'>
-                            {name}
-                          </span>
+                          <div className='flex-1 min-w-0 overflow-hidden'>
+                            <p
+                              style={{
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                                display: 'block'
+                              }}
+                              className='text-[14px] font-medium text-foreground w-full'
+                            >
+                              {name}
+                            </p>
+                          </div>
                         </div>
                       )
                     })
@@ -235,7 +326,7 @@ export function ForwardDialog({
             {/* Selected sidebar */}
             {showSidebar && (
               <div className='w-[210px] h-full shrink-0 p-2.5 pb-2 pl-1 bg-background'>
-                <div className='flex flex-col border rounded-[8px] h-full overflow-hidden bg-background'>
+                <div className='flex flex-col border rounded-[8px] h-full overflow-hidden bg-background focus:outline-none'>
                   <div className='p-2.5 py-1.5 flex items-center gap-1.5 whitespace-nowrap overflow-hidden shrink-0'>
                     <span className='text-[11.5px] font-bold'>{tf.selected}</span>
                     <span className='text-[10.5px] text-primary font-medium'>{selectedIds.length}/100</span>
@@ -251,10 +342,22 @@ export function ForwardDialog({
                       {selectedEntries.map((entry) => (
                         <div
                           key={entry.id}
-                          className='flex items-center gap-2 p-1 px-2 rounded-full bg-background border border-border/50 group transition-colors w-full overflow-hidden min-w-0'
+                          className='flex items-center gap-2 p-1 px-2 rounded-full bg-background border border-border/50 group transition-colors w-full min-w-0 overflow-hidden shrink-0'
                         >
                           <UserAvatar name={entry.name} src={entry.avatar} className='w-6 h-6 shrink-0 shadow-sm' />
-                          <span className='flex-1 min-w-0 text-[12px] block truncate font-medium'>{entry.name}</span>
+                          <div className='flex-1 min-w-0'>
+                            <p
+                              style={{
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                                display: 'block'
+                              }}
+                              className='text-[12px] font-medium w-full'
+                            >
+                              {entry.name}
+                            </p>
+                          </div>
                           <button
                             onClick={(e) => {
                               e.stopPropagation()
@@ -305,6 +408,26 @@ export function ForwardDialog({
                           className='w-full h-full object-cover'
                         />
                       )}
+                    </div>
+                  )
+                })}
+              </div>
+            ) : message?.type === MessageType.File ? (
+              <div className='flex flex-col gap-1.5 py-0.5'>
+                {(message.attachments && message.attachments.length > 0 ? message.attachments : [{ originalFileName: message.content || 'File', size: 0, url: '' }]).map((att, idx) => {
+                  const fileName = att.originalFileName || 'File'
+                  const ext = fileName.split('.').pop()?.toUpperCase() || ''
+                  return (
+                    <div key={idx} className='flex items-center gap-2'>
+                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 text-white ${getExtColor(ext)}`}>
+                        <span className='text-[8px] font-bold leading-none tracking-tight'>{getExtLabel(ext)}</span>
+                      </div>
+                      <div className='flex flex-col min-w-0'>
+                        <span className='text-[13px] text-foreground font-medium truncate'>{fileName}</span>
+                        {att.size > 0 && (
+                          <span className='text-[11px] text-muted-foreground'>{formatFileSize(att.size)}</span>
+                        )}
+                      </div>
                     </div>
                   )
                 })}

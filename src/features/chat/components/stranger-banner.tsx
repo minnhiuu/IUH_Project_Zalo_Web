@@ -6,6 +6,7 @@ import {
   useCancelFriendRequest,
   useSendFriendRequest
 } from '@/features/friend/queries'
+import { useChatText } from '../i18n/use-chat-text'
 import { FriendStatus } from '@/features/friend/schemas/friend.schema'
 import { useAuthContext } from '@/features/auth/context/auth-context'
 
@@ -16,6 +17,7 @@ interface StrangerBannerProps {
 
 export function StrangerBanner({ partnerId, partnerName }: StrangerBannerProps) {
   const { user: currentUser } = useAuthContext()
+  const { text } = useChatText()
   const { data: friendshipStatus, isLoading } = useFriendshipStatus(partnerId)
 
   const sendRequestMutation = useSendFriendRequest()
@@ -33,12 +35,12 @@ export function StrangerBanner({ partnerId, partnerName }: StrangerBannerProps) 
         <UserPlus className='w-[16px] h-[16px] text-muted-foreground' />
         {(!friendshipStatus?.status ||
           friendshipStatus.status === FriendStatus.Declined ||
-          friendshipStatus.status === FriendStatus.Cancelled) && <span>Gửi yêu cầu kết bạn tới người này</span>}
+          friendshipStatus.status === FriendStatus.Cancelled) && <span>{text['stranger-banner'].sendRequestHint}</span>}
         {friendshipStatus?.status === FriendStatus.Pending && friendshipStatus.requestedBy === currentUser.id && (
-          <span>Đã gửi yêu cầu kết bạn tới {partnerName}</span>
+          <span>{text['stranger-banner'].sentRequestTo(partnerName)}</span>
         )}
         {friendshipStatus?.status === FriendStatus.Pending && friendshipStatus.requestedBy !== currentUser.id && (
-          <span>Người này đã gửi cho bạn yêu cầu kết bạn</span>
+          <span>{text['stranger-banner'].receivedRequest}</span>
         )}
       </div>
 
@@ -53,7 +55,7 @@ export function StrangerBanner({ partnerId, partnerName }: StrangerBannerProps) 
             onClick={() => sendRequestMutation.mutate({ receiverId: partnerId })}
             disabled={sendRequestMutation.isPending}
           >
-            Gửi kết bạn
+            {text['stranger-banner'].sendRequest}
           </Button>
         )}
 
@@ -65,7 +67,7 @@ export function StrangerBanner({ partnerId, partnerName }: StrangerBannerProps) 
             onClick={() => cancelRequestMutation.mutate(friendshipStatus.friendshipId || '')}
             disabled={cancelRequestMutation.isPending}
           >
-            <UserMinus className='w-[14px] h-[14px] mr-1.5' /> Thu hồi
+            <UserMinus className='w-[14px] h-[14px] mr-1.5' /> {text['stranger-banner'].cancelRequest}
           </Button>
         )}
 
@@ -77,7 +79,7 @@ export function StrangerBanner({ partnerId, partnerName }: StrangerBannerProps) 
             onClick={() => acceptRequestMutation.mutate(friendshipStatus.friendshipId || '')}
             disabled={acceptRequestMutation.isPending}
           >
-            <Check className='w-[14px] h-[14px] mr-1.5' /> Chấp nhận
+            <Check className='w-[14px] h-[14px] mr-1.5' /> {text['stranger-banner'].acceptRequest}
           </Button>
         )}
 
