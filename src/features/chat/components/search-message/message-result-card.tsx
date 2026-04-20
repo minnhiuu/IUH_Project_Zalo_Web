@@ -4,7 +4,7 @@ import { MessageType } from '@/constants/enum'
 import { cn } from '@/lib/utils'
 import { formatMessageTime } from '@/utils/date'
 import { formatFileSize } from '@/utils/file-size'
-import { Archive, Image as ImageIcon, Link as LinkIcon, Play } from 'lucide-react'
+import { Archive, Image as ImageIcon, Play } from 'lucide-react'
 import type { MessageSearchResponse } from '../../../../features/search/messages/schemas/message-search.schema'
 import { useChatText } from '../../i18n/use-chat-text'
 
@@ -47,17 +47,16 @@ export function MessageResultCard({ msg }: MessageResultCardProps) {
 }
 
 function renderMessageContent(msg: MessageSearchResponse, lang: string) {
-  const contentElement = msg.highlights ? (
-    <span dangerouslySetInnerHTML={{ __html: msg.highlights }} />
+  const contentElement = msg.displayHighlights ? (
+    <span dangerouslySetInnerHTML={{ __html: msg.displayHighlights }} />
   ) : (
-    <span>{msg.content || ''}</span>
+    <span>{msg.displayContent || ''}</span>
   )
 
   const type = msg.type?.toUpperCase()
   const isImage = type === MessageType.Image
   const isVideo = type === MessageType.Video
   const isFile = type === MessageType.File || (msg.hasAttachment && !isImage && !isVideo)
-  const isLink = type === MessageType.Link || msg.hasLink
 
   if (isImage || isVideo) {
     return (
@@ -76,7 +75,7 @@ function renderMessageContent(msg: MessageSearchResponse, lang: string) {
   }
 
   if (isFile) {
-    const fileName = msg.content || 'File'
+    const fileName = msg.displayContent || 'File'
     const ext = fileName.split('.').pop()?.toUpperCase() || ''
 
     const getFileStyle = (extension: string) => {
@@ -115,17 +114,6 @@ function renderMessageContent(msg: MessageSearchResponse, lang: string) {
             {msg.senderName ? ` - ${msg.senderName}` : ''}
           </div>
         </div>
-      </div>
-    )
-  }
-
-  if (isLink) {
-    return (
-      <div className='flex items-center gap-2 mt-1'>
-        <div className='w-8 h-8 rounded bg-primary/10 flex items-center justify-center shrink-0'>
-          <LinkIcon className='w-4 h-4 text-primary' />
-        </div>
-        <div className='truncate flex-1 min-w-0 text-[13px] text-primary/80'>{contentElement}</div>
       </div>
     )
   }
