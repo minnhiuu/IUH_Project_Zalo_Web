@@ -226,7 +226,10 @@ export const SeedingDashboard = () => {
               </p>
             </div>
             <div className='flex gap-2'>
-              <Button onClick={() => seedAuthAccountsMutation.mutate(accountCount)} disabled={isBusy || accountCount < 1}>
+              <Button
+                onClick={() => seedAuthAccountsMutation.mutate(accountCount)}
+                disabled={isBusy || accountCount < 1}
+              >
                 {seedAuthAccountsMutation.isPending && <Loader2 className='h-4 w-4 animate-spin' />}
                 Trigger Auth Seeding
               </Button>
@@ -240,7 +243,9 @@ export const SeedingDashboard = () => {
               <Sprout className='h-4 w-4' />
               Social Feed Seeder
             </CardTitle>
-            <CardDescription>Calls POST /api/social/internal/seeder/seed/all for full social-feed data seeding.</CardDescription>
+            <CardDescription>
+              Calls POST /api/social/internal/seeder/seed/all for full social-feed data seeding.
+            </CardDescription>
           </CardHeader>
           <CardContent className='space-y-4'>
             <div className='rounded-md border border-border/70 bg-muted/20 p-3 text-sm text-muted-foreground'>
@@ -275,7 +280,10 @@ export const SeedingDashboard = () => {
           ) : (
             <div className='space-y-4'>
               {executions.map((execution, index) => (
-                <div key={`${execution.executedAt}-${execution.endpointKey}-${index}`} className='rounded-lg border p-4'>
+                <div
+                  key={`${execution.executedAt}-${execution.endpointKey}-${index}`}
+                  className='rounded-lg border p-4'
+                >
                   <div className='flex flex-wrap items-center justify-between gap-2'>
                     <div className='flex items-center gap-2'>
                       {execution.success ? (
