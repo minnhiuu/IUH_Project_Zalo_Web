@@ -13,6 +13,7 @@ export const userApi = {
   updateBio: (body: { bio: string }) => http.put<ApiResponse<UserResponse>>('/users/profile/bio', body),
 
   getUserById: (id: string) => http.get<ApiResponse<UserResponse>>(`/users/${id}`),
+  getAuthorProfileById: (id: string) => http.get<ApiResponse<UserResponse>>(`/users/${id}`),
 
   // Audit Logs
   getMyAuditLogs: (params?: { page?: number; size?: number }) =>

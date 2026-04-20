@@ -4,6 +4,9 @@ import type { AiProcessingStatus } from '@/constants/enum'
 
 export type ChatTexts = ReturnType<typeof createChatTexts>
 
+const translateDynamic = (t: TFunction<'chat'>, key: string, options?: Record<string, unknown>) =>
+  (t as unknown as (k: string, o?: Record<string, unknown>) => string)(key, options)
+
 export const createChatTexts = (t: TFunction<'chat'>) => ({
   title: t(CHAT_KEYS.title),
   searchPlaceholder: t(CHAT_KEYS.searchPlaceholder),
@@ -96,7 +99,7 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     unpin: t(CHAT_KEYS.pinBoard.unpin),
     collapse: t(CHAT_KEYS.pinBoard.collapse),
     extraPins: (count: number) => t(CHAT_KEYS.pinBoard.extraPins, { count }),
-    header: (count: number) => t(CHAT_KEYS.pinBoard.header, { count })
+    header: (count: number) => translateDynamic(t, CHAT_KEYS.pinBoard.header, { count })
   },
   sidebar: {
     all: t(CHAT_KEYS.sidebar.all),
@@ -113,7 +116,7 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     selected: t(CHAT_KEYS['create-group-dialog'].selected),
     cancel: t(CHAT_KEYS['create-group-dialog'].cancel),
     create: t(CHAT_KEYS['create-group-dialog'].create),
-    noSelected: t(CHAT_KEYS['create-group-dialog'].noSelected),
+    noSelected: translateDynamic(t, CHAT_KEYS['create-group-dialog'].noSelected),
     andOthers: (count: number) => t(CHAT_KEYS['create-group-dialog'].andOthers, { count }),
     updateAvatarTitle: t(CHAT_KEYS['create-group-dialog'].updateAvatarTitle),
     confirm: t(CHAT_KEYS['create-group-dialog'].confirm),

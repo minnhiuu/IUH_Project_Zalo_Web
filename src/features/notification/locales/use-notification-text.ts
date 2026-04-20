@@ -31,6 +31,22 @@ export const useNotificationText = () => {
       markAllAsRead: t('notification.menu.markAllAsRead'),
       settings: t('notification.menu.settings'),
       open: t('notification.menu.open')
+    },
+    dropdown: {
+      trigger: t('notification.dropdown.trigger'),
+      viewAll: t('notification.dropdown.viewAll'),
+      unreadBadge: (count: number) => t('notification.dropdown.unreadBadge', { count })
+    },
+    list: {
+      newUpdates: t('notification.list.newUpdates'),
+      loading: t('notification.list.loading'),
+      loadPrevious: t('notification.list.loadPrevious')
+    },
+    toast: {
+      acceptSuccess: t('notification.toast.acceptSuccess'),
+      acceptError: t('notification.toast.acceptError'),
+      declineSuccess: t('notification.toast.declineSuccess'),
+      declineError: t('notification.toast.declineError')
     }
   }
 }
