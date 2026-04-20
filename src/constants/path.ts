@@ -1,5 +1,7 @@
 export const PATHS = {
   HOME: '/',
+  SOCIAL_FEED: '/social-feed',
+  REELS: '/reels',
   SEARCH: '/search',
   CONTACTS: '/contacts',
   TODO: '/todo',
@@ -28,6 +30,9 @@ export const PATHS = {
   ADMIN: {
     DASHBOARD: '/admin',
     USERS: '/admin/users',
+    SEEDING: '/admin/seeding',
+    REPORTS: '/admin/reports',
+    REPORT_DETAIL: '/admin/reports/:targetType/:targetId',
     ELASTICSEARCH: '/admin/elasticsearch',
     FAILED_EVENTS: '/admin/elasticsearch/failed-events',
     INGEST_DOCUMENT: '/admin/ingest-document'

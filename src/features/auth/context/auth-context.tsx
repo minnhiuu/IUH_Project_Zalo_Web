@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
-import { clearAccessToken, getAccessToken, setAccessToken } from '@/lib/axios-client'
+import { clearAccessToken, getAccessToken, setAccessToken, startLogoutFlow } from '@/lib/axios-client'
 import { storage } from '@/utils/local-storage'
 import { useQueryClient } from '@tanstack/react-query'
 import { handleErrorApi } from '@/utils/error-handler'
@@ -45,10 +45,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, [])
 
   const logoutLocal = useCallback(() => {
-    clearAccessToken()
+    console.info('[LogoutDebug] logoutLocal called', {
+      hadUser: !!user,
+      hadAccessToken: !!getAccessToken()
+    })
+    startLogoutFlow()
     setUser(null)
     storage.remove(STORAGE_KEYS.USER_PROFILE)
+    storage.remove(STORAGE_KEYS.REFRESH_TOKEN)
     storage.remove(STORAGE_KEYS.FCM_TOKEN)
+    storage.remove(STORAGE_KEYS.FCM_REGISTERED_USER_ID)
     queryClient.clear()
   }, [queryClient])
 

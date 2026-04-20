@@ -25,6 +25,9 @@ import friendEn from '@/features/friend/locales/en.json'
 import ingestVi from '@/features/admin-document-ingest/locales/vi.json'
 import ingestEn from '@/features/admin-document-ingest/locales/en.json'
 
+import socialVi from '@/features/social-feed/locales/vi.json'
+import socialEn from '@/features/social-feed/locales/en.json'
+
 export const resources = {
   vi: {
     common: commonVi,
@@ -32,6 +35,7 @@ export const resources = {
     user: userVi,
     chat: chatVi,
     search: searchVi,
+    social: socialVi,
     'admin-elasticsearch': adminEsVi,
     admin: adminVi,
     notification: notificationVi,
@@ -44,6 +48,7 @@ export const resources = {
     user: userEn,
     chat: chatEn,
     search: searchEn,
+    social: socialEn,
     'admin-elasticsearch': adminEsEn,
     admin: adminEn,
     notification: notificationEn,

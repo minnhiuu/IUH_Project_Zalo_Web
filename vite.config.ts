@@ -6,6 +6,9 @@ import { defineConfig } from 'vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  optimizeDeps: {
+    include: ['@vidstack/react', 'vidstack', 'maverick.js']
+  },
   css: {
     devSourcemap: true
   },

@@ -85,7 +85,8 @@
       "copy": "Copy",
       "unpin": "Unpin",
       "collapse": "Collapse",
-      "extraPins": "+{{count}} pin"
+      "extraPins": "+{{count}} pin",
+      "header": "Pinned messages ({{count}})"
     },
     "system": {
       "add_members": {
@@ -261,6 +262,7 @@
       "searchPlaceholder": "Search by name, phone number, etc.",
       "recentChats": "Recent chats",
       "selected": "Selected",
+      "noSelected": "None selected",
       "cancel": "Cancel",
       "create": "Create group",
       "andOthers": "and {{count}} others",
