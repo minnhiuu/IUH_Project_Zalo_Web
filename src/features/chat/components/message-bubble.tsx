@@ -98,7 +98,6 @@ export function MessageBubble({
     (seenDialogOpen || showInlineSeen) && isPreviousOwnGroup
   )
 
-
   const [quickReactEmoji, setQuickReactEmoji] = useState<string | null>(null)
 
   // Tra cứu attachment URL của tin gốc từ cache (dùng cho reply preview)
@@ -183,36 +182,45 @@ export function MessageBubble({
                 onClick={() => onScrollToMessage?.(message.replyTo!.messageId)}
               >
                 <div className='font-semibold text-[#0068FF] text-[13px]'>{message.replyTo.senderName}</div>
-                {(message.replyTo.type === 'IMAGE' || message.replyTo.type === 'VIDEO') ? (() => {
-                  // Ưu tiên: thumbnailUrl → content nếu là URL → lookup attachment từ cache (ảnh kèm caption)
-                  const mediaSrc = message.replyTo.thumbnailUrl ||
-                    (message.replyTo.content?.startsWith('http') ? message.replyTo.content : null) ||
-                    getReplyAttachmentUrl(message.replyTo.messageId)
-                  return (
-                    <div className='flex items-center gap-2 mt-0.5'>
-                      {mediaSrc && (
-                        <div className='relative w-10 h-10 rounded overflow-hidden shrink-0 bg-muted'>
-                          {message.replyTo.type === 'VIDEO' ? (
-                            <video src={mediaSrc} className='w-full h-full object-cover' preload='metadata' muted />
-                          ) : (
-                            <img
-                              src={mediaSrc}
-                              alt=''
-                              className='w-full h-full object-cover'
-                              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
-                            />
-                          )}
-                          {message.replyTo.type === 'VIDEO' && (
-                            <div className='absolute inset-0 flex items-center justify-center bg-black/40'>
-                              <svg width='12' height='12' viewBox='0 0 24 24' fill='white'><polygon points='5,3 19,12 5,21' /></svg>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                      <span className='text-[13px] text-black/70'>{message.replyTo.type === 'IMAGE' ? mb.image : '[Video]'}</span>
-                    </div>
-                  )
-                })() : (
+                {message.replyTo.type === 'IMAGE' || message.replyTo.type === 'VIDEO' ? (
+                  (() => {
+                    // Ưu tiên: thumbnailUrl → content nếu là URL → lookup attachment từ cache (ảnh kèm caption)
+                    const mediaSrc =
+                      message.replyTo.thumbnailUrl ||
+                      (message.replyTo.content?.startsWith('http') ? message.replyTo.content : null) ||
+                      getReplyAttachmentUrl(message.replyTo.messageId)
+                    return (
+                      <div className='flex items-center gap-2 mt-0.5'>
+                        {mediaSrc && (
+                          <div className='relative w-10 h-10 rounded overflow-hidden shrink-0 bg-muted'>
+                            {message.replyTo.type === 'VIDEO' ? (
+                              <video src={mediaSrc} className='w-full h-full object-cover' preload='metadata' muted />
+                            ) : (
+                              <img
+                                src={mediaSrc}
+                                alt=''
+                                className='w-full h-full object-cover'
+                                onError={(e) => {
+                                  ;(e.currentTarget as HTMLImageElement).style.display = 'none'
+                                }}
+                              />
+                            )}
+                            {message.replyTo.type === 'VIDEO' && (
+                              <div className='absolute inset-0 flex items-center justify-center bg-black/40'>
+                                <svg width='12' height='12' viewBox='0 0 24 24' fill='white'>
+                                  <polygon points='5,3 19,12 5,21' />
+                                </svg>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        <span className='text-[13px] text-black/70'>
+                          {message.replyTo.type === 'IMAGE' ? mb.image : '[Video]'}
+                        </span>
+                      </div>
+                    )
+                  })()
+                ) : (
                   <div className='text-[13px] text-black/70 truncate'>
                     {message.replyTo.content === null ? (
                       <span className='italic'>{mb.replyUnavailable}</span>
@@ -381,7 +389,6 @@ export function MessageBubble({
           currentUser={user ? { id: user.id, fullName: user.fullName, avatar: user.avatar ?? undefined } : undefined}
         />
 
-
         {isOwn &&
           isNewest &&
           (() => {
@@ -435,7 +442,6 @@ export function MessageBubble({
               </div>
             )
           })()}
-
 
         {isPreviousOwnGroup && showInlineSeen && (
           <div className='flex flex-col items-end mt-1'>

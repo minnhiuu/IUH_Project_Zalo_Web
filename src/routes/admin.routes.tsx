@@ -5,6 +5,7 @@ import AdminLayout from '@/layouts/admin-layout'
 import AdminElasticsearchPage from '@/pages/admin/elasticsearch.page'
 import AdminFailedEventsPage from '@/pages/admin/failed-events.page'
 import UserManagementPage from '@/pages/admin/user-management-page'
+import IngestDocumentPage from '@/pages/admin/ingest-document.page'
 import ReportsManagementPage from '@/pages/admin/reports-management-page'
 import ReportDetailPage from '@/pages/admin/report-detail-page'
 import AdminSeedingPage from '@/pages/admin/seeding.page'
@@ -27,6 +28,10 @@ export const adminRoutes: RouteObject = {
         {
           path: PATHS.ADMIN.FAILED_EVENTS,
           element: <AdminFailedEventsPage />
+        },
+        {
+          path: PATHS.ADMIN.INGEST_DOCUMENT,
+          element: <IngestDocumentPage />
         }
       ]
     }

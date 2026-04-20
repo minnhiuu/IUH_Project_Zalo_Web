@@ -1,0 +1,153 @@
+{
+  "ingest": {
+    "page": {
+      "title": "Document Ingest",
+      "subtitle": "3-step pipeline: Parse -> Chunk -> Upload vectors to OpenSearch",
+      "stepLabel": "Step {{step}}/{{total}}",
+      "steps": {
+        "extract": "Extract",
+        "chunk": "Chunking",
+        "store": "Store"
+      }
+    },
+    "stepOne": {
+      "filters": {
+        "fileType": "File type",
+        "status": "Status",
+        "search": "Search",
+        "searchPlaceholder": "Document name...",
+        "reset": "Reset",
+        "addDocument": "Add document",
+        "fileTypeOptions": {
+          "all": "All",
+          "pdf": "PDF",
+          "docx": "DOCX",
+          "txt": "TXT",
+          "xlsx": "XLSX",
+          "other": "Other"
+        },
+        "statusOptions": {
+          "all": "All",
+          "ingesting": "Ingesting",
+          "completed": "Completed",
+          "failed": "Failed"
+        }
+      },
+      "table": {
+        "title": "Documents",
+        "deleteSelected": "Delete {{count}} files",
+        "selectAllAria": "Select all",
+        "fileName": "File name",
+        "status": "Status",
+        "size": "Size",
+        "action": "Action",
+        "emptyNoUpload": "No files uploaded yet",
+        "emptyFiltered": "No files match the current filters",
+        "extractAction": "Extract",
+        "deleteAction": "Delete",
+        "page": "Page {{current}} / {{total}}"
+      },
+      "statusBadge": {
+        "completed": "Extracted",
+        "ingesting": "Ingesting",
+        "failed": "Failed"
+      },
+      "raw": {
+        "title": "Raw content",
+        "parsing": "Parsing...",
+        "selectPrompt": "Select a document to preview content",
+        "nextStep": "Go to chunking"
+      },
+      "upload": {
+        "title": "Upload document",
+        "description": "Select a file to add into the ingest pipeline",
+        "dropTitle": "Drag and drop your file here",
+        "dropHint": "or click to choose a file",
+        "formats": "PDF, DOCX, TXT, XLSX (max 50MB)",
+        "selected": "Selected:",
+        "noFile": "No file selected.",
+        "cancel": "Cancel",
+        "uploading": "Uploading...",
+        "confirm": "Upload"
+      }
+    },
+    "stepTwo": {
+      "config": {
+        "title": "Chunking Config",
+        "strategy": "Chunking Strategy",
+        "chunkSize": "Chunk Size",
+        "overlap": "Overlap",
+        "hint": "Tip: Larger chunk size keeps more context; higher overlap improves continuity across chunks.",
+        "process": "Run chunking",
+        "processing": "Processing...",
+        "strategies": {
+          "fixed": {
+            "label": "Fixed",
+            "desc": "Split by fixed character length"
+          },
+          "recursive": {
+            "label": "Recursive",
+            "desc": "Prefer paragraph and sentence boundaries"
+          },
+          "semantic": {
+            "label": "Semantic",
+            "desc": "Keep natural semantic groups"
+          },
+          "excelRow": {
+            "label": "Excel Row",
+            "desc": "One row per chunk"
+          }
+        }
+      },
+      "list": {
+        "title": "Chunk preview",
+        "count": "{{count}} segments",
+        "tokenSuffix": "tokens",
+        "pageNumber": "Page",
+        "empty": "No chunks yet. Please run chunking first.",
+        "next": "Go to ingest"
+      }
+    },
+    "stepThree": {
+      "status": {
+        "success": "Ingest succeeded",
+        "failed": "Ingest failed",
+        "finalizing": "Finalizing...",
+        "vectorizing": "Vectorizing..."
+      },
+      "runtime": {
+        "systemStarting": "[SYSTEM] Starting ingest...",
+        "noProgress": "[WARN] No progress payload received.",
+        "timeout": "[WARN] No progress output was received in time.",
+        "startFailed": "[ERROR] Failed to start ingest"
+      },
+      "progress": {
+        "title": "Ingest Progress",
+        "readyTitle": "Ready",
+        "ingestingTitle": "Ingesting...",
+        "readyDesc": "Ready to upload vectors to OpenSearch",
+        "ingestingDesc": "Processing data and syncing index...",
+        "syncProgress": "Data sync progress",
+        "uploadedSummary": "Uploaded {{uploaded}}/{{total}} vectors",
+        "uploadedSummaryWithCurrent": "Uploaded {{uploaded}}/{{total}} vectors (current: {{currentVectorId}})",
+        "stats": {
+          "securityLabel": "Security",
+          "securityValue": "SSL",
+          "performanceLabel": "Performance",
+          "performanceValue": "Fast",
+          "cdnLabel": "CDN",
+          "cdnValue": "Enabled"
+        }
+      },
+      "terminal": {
+        "title": "Terminal logs",
+        "logCount": "{{count}} log lines",
+        "waiting": "Waiting for ingest logs..."
+      },
+      "actions": {
+        "download": "Download report",
+        "backDashboard": "Back to dashboard"
+      }
+    }
+  }
+}

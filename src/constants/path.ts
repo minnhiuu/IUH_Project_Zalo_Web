@@ -34,6 +34,7 @@ export const PATHS = {
     REPORTS: '/admin/reports',
     REPORT_DETAIL: '/admin/reports/:targetType/:targetId',
     ELASTICSEARCH: '/admin/elasticsearch',
-    FAILED_EVENTS: '/admin/elasticsearch/failed-events'
+    FAILED_EVENTS: '/admin/elasticsearch/failed-events',
+    INGEST_DOCUMENT: '/admin/ingest-document'
   }
 } as const

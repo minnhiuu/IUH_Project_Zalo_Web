@@ -14,7 +14,7 @@ export function useCallNotification({ onIncomingCall }: UseCallNotificationOptio
         onIncomingCall({
           sessionId: data.sessionId,
           callerName: data.callerName || data.actorName || 'Unknown',
-          callerAvatar: data.callerAvatar || data.actorAvatar || '',
+          callerAvatar: data.callerAvatar || data.actorAvatar || ''
         })
       }
     })

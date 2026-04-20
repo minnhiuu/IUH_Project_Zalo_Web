@@ -13,9 +13,21 @@
     "user": "Người dùng",
     "type": {
       "image": "[Hình ảnh]",
+      "video": "[Video]",
       "file": "[Tệp]",
       "link": "[Liên kết]",
       "confirm": "Xác nhận"
+    },
+    "input": {
+      "dropFilesHint": "Thả file vào đây",
+      "sendImageVideoTitle": "Gửi ảnh/video",
+      "attachFileTitle": "Đính kèm file",
+      "summarizeNewMessages": "Tóm tắt tin nhắn mới",
+      "summarizingMessages": "AI đang đọc tin nhắn...",
+      "summaryTitle": "Tóm tắt nội dung",
+      "closeSummary": "Đóng",
+      "videoBadge": "VIDEO",
+      "fileTooLarge": "File \"{{name}}\" vượt quá {{maxSizeMb}}MB"
     },
     "mentionDropdown": {
       "instruction": "Sử dụng phím mũi tên lên, xuống để chọn. Nhấn phím Enter để sử dụng",
@@ -594,6 +606,20 @@
     "error": "Không thể thực hiện cuộc gọi"
   },
   "ai": {
+    "window": {
+      "title": "Bondhub AI",
+      "assistantTag": "Trợ lý AI",
+      "newConversation": "Cuộc hội thoại mới",
+      "inputPlaceholder": "Hỏi Bondhub AI bất cứ điều gì...",
+      "clarificationNeeded": "Cần thêm thông tin",
+      "welcomeDescription": "Trợ lý AI thông minh tích hợp dữ liệu hội thoại của bạn. Hỏi bất cứ điều gì!",
+      "errorFallback": "Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại.",
+      "suggestions": {
+        "profile": "Hồ sơ của tôi là gì?",
+        "friends": "Danh sách bạn bè của tôi",
+        "internet": "Tìm kiếm thông tin trên Internet"
+      }
+    },
     "status": {
       "ANALYZING_INTENT": "Đang phân tích ý định của bạn...",
       "RETRIEVING_VECTOR": "Đang lục tìm trong bộ nhớ nội bộ...",

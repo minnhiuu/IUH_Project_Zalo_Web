@@ -8,6 +8,7 @@ import adminEs from '@/features/admin-elasticsearch/locales/vi.json'
 import admin from '@/locales/vi/admin.json'
 import notification from '@/features/notification/locales/vi.json'
 import friend from '@/features/friend/locales/vi.json'
+import ingest from '@/features/admin-document-ingest/locales/vi.json'
 import social from '@/features/social-feed/locales/vi.json'
 
 declare module 'i18next' {
@@ -23,6 +24,7 @@ declare module 'i18next' {
       admin: typeof admin
       notification: typeof notification
       friend: typeof friend
+      ingest: typeof ingest
       social: typeof social
     }
   }

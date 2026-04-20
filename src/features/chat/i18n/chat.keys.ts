@@ -35,8 +35,20 @@ export const CHAT_KEYS = {
   },
   type: {
     image: 'chat.type.image',
+    video: 'chat.type.video',
     file: 'chat.type.file',
     link: 'chat.type.link'
+  },
+  input: {
+    dropFilesHint: 'chat.input.dropFilesHint',
+    sendImageVideoTitle: 'chat.input.sendImageVideoTitle',
+    attachFileTitle: 'chat.input.attachFileTitle',
+    summarizeNewMessages: 'chat.input.summarizeNewMessages',
+    summarizingMessages: 'chat.input.summarizingMessages',
+    summaryTitle: 'chat.input.summaryTitle',
+    closeSummary: 'chat.input.closeSummary',
+    videoBadge: 'chat.input.videoBadge',
+    fileTooLarge: 'chat.input.fileTooLarge'
   },
   messageBubble: {
     reply: 'chat.messageBubble.reply',
@@ -91,6 +103,20 @@ export const CHAT_KEYS = {
     WEB_SEARCHING: 'ai.status.WEB_SEARCHING',
     GENERATING_ANSWER: 'ai.status.GENERATING_ANSWER',
     DEFAULT: 'ai.status.DEFAULT'
+  },
+  aiWindow: {
+    title: 'ai.window.title',
+    assistantTag: 'ai.window.assistantTag',
+    newConversation: 'ai.window.newConversation',
+    inputPlaceholder: 'ai.window.inputPlaceholder',
+    clarificationNeeded: 'ai.window.clarificationNeeded',
+    welcomeDescription: 'ai.window.welcomeDescription',
+    errorFallback: 'ai.window.errorFallback',
+    suggestions: {
+      profile: 'ai.window.suggestions.profile',
+      friends: 'ai.window.suggestions.friends',
+      internet: 'ai.window.suggestions.internet'
+    }
   },
   pinBoard: {
     title: 'chat.pinBoard.title',
