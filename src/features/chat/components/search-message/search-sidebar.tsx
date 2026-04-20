@@ -13,11 +13,12 @@ import { SenderFilter } from './sender-filter'
 interface SearchSidebarProps {
   conversationId: string
   onClose: () => void
+  onNavigateToMessage: (messageId: string, keyword: string) => void
 }
 
 const INITIAL_SECTION_SIZE = 5
 
-export function SearchSidebar({ conversationId, onClose }: SearchSidebarProps) {
+export function SearchSidebar({ conversationId, onClose, onNavigateToMessage }: SearchSidebarProps) {
   const { text } = useChatText()
   const sText = text.searchSidebar
   const [memberQuery, setMemberQuery] = useState('')
@@ -179,7 +180,11 @@ export function SearchSidebar({ conversationId, onClose }: SearchSidebarProps) {
                 <section className='flex flex-col'>
                   <h3 className='px-3 pb-2 text-[15px] font-semibold text-text-primary'>Messages</h3>
                   {displayedMessages.map((msg) => (
-                    <MessageResultCard key={msg.messageId} msg={msg} />
+                    <MessageResultCard
+                      key={msg.messageId}
+                      msg={msg}
+                      onClick={() => onNavigateToMessage(msg.messageId, searchKeyword)}
+                    />
                   ))}
 
                   {expandedSections.messages && isLoadingMessages ? (
@@ -208,7 +213,11 @@ export function SearchSidebar({ conversationId, onClose }: SearchSidebarProps) {
                 <section className='flex flex-col'>
                   <h3 className='px-3 pb-2 text-[15px] font-semibold text-text-primary'>File</h3>
                   {displayedFiles.map((msg) => (
-                    <MessageResultCard key={msg.messageId} msg={msg} />
+                    <MessageResultCard
+                      key={msg.messageId}
+                      msg={msg}
+                      onClick={() => onNavigateToMessage(msg.messageId, searchKeyword)}
+                    />
                   ))}
 
                   {expandedSections.files && isLoadingFiles ? (

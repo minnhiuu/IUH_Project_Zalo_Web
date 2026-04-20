@@ -38,7 +38,8 @@ export function MessageBubble({
   onReply,
   onForward,
   onAvatarClick,
-  onRecall
+  onRecall,
+  highlightKeyword
 }: {
   message: MessageResponse
   isOwn: boolean
@@ -50,6 +51,7 @@ export function MessageBubble({
   onForward?: () => void
   onAvatarClick?: (userId: string) => void
   onRecall?: (receiverId: string) => void
+  highlightKeyword?: string | null
 }) {
   const { text } = useChatText()
   const { deleteMessageForMe } = useChatContext()
@@ -111,6 +113,47 @@ export function MessageBubble({
 
   const isImageMessage = !isUnavailable && (message.type === MessageType.Image || message.type === MessageType.Video)
   const hasReactions = !isUnavailable && !!message.reactions && Object.keys(message.reactions).length > 0
+
+  const removeAccents = (str: string) => {
+    return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+  }
+
+  const highlightText = (content: string, keyword: string | null) => {
+    if (!keyword || !content) return content
+    
+    const normalizedKeyword = removeAccents(keyword)
+    if (!normalizedKeyword) return content
+
+    // Tìm tất cả các vị trí khớp (không phân biệt dấu và hoa thường)
+    const result: (string | JSX.Element)[] = []
+    let lastIndex = 0
+    
+    // Tạm thời dùng regex đơn giản cho keyword gốc + tìm kiếm vị trí dựa trên bản đã clear dấu
+    const normalizedContent = removeAccents(content)
+    let matchIndex = normalizedContent.indexOf(normalizedKeyword)
+    
+    if (matchIndex === -1) return content
+
+    while (matchIndex !== -1) {
+      // Thêm phần text trước match
+      result.push(content.substring(lastIndex, matchIndex))
+      
+      // Thêm phần text khớp (lấy từ content gốc để giữ đúng dấu/hoa thường)
+      const matchText = content.substring(matchIndex, matchIndex + keyword.length)
+      result.push(
+        <mark key={matchIndex} className='bg-yellow-300 dark:bg-yellow-600/50 text-black dark:text-white px-0.5 rounded-sm'>
+          {matchText}
+        </mark>
+      )
+      
+      lastIndex = matchIndex + keyword.length
+      matchIndex = normalizedContent.indexOf(normalizedKeyword, lastIndex)
+    }
+    
+    // Thêm phần còn lại
+    result.push(content.substring(lastIndex))
+    return result
+  }
 
   if (message.type === MessageType.System) {
     return <SystemMessage message={message} conversation={conversation} />
@@ -220,7 +263,7 @@ export function MessageBubble({
                     </span>
                   ) : (
                     <span key={key} className='whitespace-pre-wrap'>
-                      {text}
+                      {highlightText(text, highlightKeyword ?? null)}
                     </span>
                   )
                 )

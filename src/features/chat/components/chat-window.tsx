@@ -10,6 +10,7 @@ import { useChatText } from '../i18n/use-chat-text'
 import { VideoCallRoom, IncomingCallDialog, OutgoingCallScreen, useVideoCall } from './call-video/video-call'
 import { useCallNotification } from '../hooks/use-call-notification'
 import { rejectCallApi } from '../api/call.api'
+import { getMessageContextApi } from '../api/chat.api'
 import {
   useMarkAsReadMutation,
   useUpdateGroupNameMutation,
@@ -113,6 +114,54 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   const [isOwnerProfileOpen, setIsOwnerProfileOpen] = useState(false)
   const [isSearchSidebarOpen, setIsSearchSidebarOpen] = useState(false)
   const [profileUserId, setProfileUserId] = useState<string | undefined>(undefined)
+
+  // ─── Jump-to-message (from search result) ───
+  const [jumpTargetMessageId, setJumpTargetMessageId] = useState<string | null>(null)
+  const [highlightKeyword, setHighlightKeyword] = useState<string | null>(null)
+  const pendingJumpRef = useRef(false)
+
+  /**
+   * Gọi khi user click vào một MessageResultCard.
+   * - Thử scroll ngay nếu message đã trong DOM.
+   * - Nếu chưa, đánh dấu pendingJumpRef → useEffect sẽ fetch thêm pages và retry.
+   */
+  const navigateToMessage = useCallback(
+    async (convId: string, msgId: string, keyword: string) => {
+      setHighlightKeyword(keyword)
+      // Bước 1: scroll ngay nếu message đã render trong DOM
+      const el = document.getElementById(`msg-${msgId}`)
+      if (el) {
+        setJumpTargetMessageId(msgId)
+        return
+      }
+
+      // Bước 2: gọi API lấy page index rồi fetch đủ pages
+      try {
+        const ctx = await getMessageContextApi(convId, msgId)
+        // Kích hoạt fetch pages cho đến khi đủ (page index lớn hơn thì load nhiều hơn)
+        const pagesLoaded = data?.pages.length ?? 0
+        const pagesNeeded = ctx.page + 1
+        if (pagesLoaded < pagesNeeded) {
+          pendingJumpRef.current = true
+          setJumpTargetMessageId(msgId)
+          // Fetch những pages còn thiếu
+          let remaining = pagesNeeded - pagesLoaded
+          while (remaining > 0 && hasNextPage && !isFetchingNextPage) {
+            fetchNextPage()
+            remaining--
+          }
+        } else {
+          // Pages đã load đủ nhưng element chưa render → chờ render xong
+          pendingJumpRef.current = true
+          setJumpTargetMessageId(msgId)
+        }
+      } catch {
+        // Nếu API lỗi, vẫn thử scroll (message có thể đã load)
+        setJumpTargetMessageId(msgId)
+      }
+    },
+    [data?.pages.length, hasNextPage, isFetchingNextPage, fetchNextPage]
+  )
 
   // Video Call
   const {
@@ -486,6 +535,31 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
     }
   }, [allMessages.length, isFetchingNextPage, firstUnreadId, hasNextPage, fetchNextPage])
 
+  // ─── Jump-to-message: scroll và highlight sau khi messages render ───
+  useEffect(() => {
+    if (!jumpTargetMessageId) return
+    const el = document.getElementById(`msg-${jumpTargetMessageId}`)
+    if (el) {
+      suppressFetchRef.current = true
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      el.classList.add('highlight-message')
+      setTimeout(() => el.classList.remove('highlight-message'), 1500)
+      setTimeout(() => {
+        suppressFetchRef.current = false
+        setHighlightKeyword(null)
+      }, 4000)
+      pendingJumpRef.current = false
+      setJumpTargetMessageId(null)
+    } else if (pendingJumpRef.current && hasNextPage && !isFetchingNextPage) {
+      // Message chưa trong DOM, còn page chưa load → fetch thêm
+      fetchNextPage()
+    } else if (!hasNextPage) {
+      // Đã load hết mà vẫn không thấy → message không visible (đã xoá phía user)
+      pendingJumpRef.current = false
+      setJumpTargetMessageId(null)
+    }
+  }, [allMessages, jumpTargetMessageId, hasNextPage, isFetchingNextPage, fetchNextPage])
+
   const isSameGroup = (msg1: MessageResponse, msg2: MessageResponse) => {
     if (!msg1 || !msg2) return false
     if (msg1.type === 'SYSTEM' || msg2.type === 'SYSTEM') return false
@@ -747,6 +821,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
                   <div id={`msg-${msg.id}`} ref={isNewestVisible ? lastMessageRef : null}>
                     <MessageBubble
                       message={msg}
+                      highlightKeyword={jumpTargetMessageId === msg.id ? highlightKeyword : null}
                       isOwn={msg.senderId === user?.id}
                       isFirst={isFirst}
                       isLast={isLast}
@@ -884,7 +959,14 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
               )}
             >
               {isSearchSidebarOpen ? (
-                <SearchSidebar conversationId={conversation.id} onClose={() => setIsSearchSidebarOpen(false)} />
+                <SearchSidebar
+                  conversationId={conversation.id}
+                  onClose={() => setIsSearchSidebarOpen(false)}
+                  onNavigateToMessage={(msgId, keyword) => {
+                    setIsSearchSidebarOpen(false)
+                    void navigateToMessage(conversation.id, msgId, keyword)
+                  }}
+                />
               ) : (
                 <ChatInfoSidebar
                   conversation={conversation}

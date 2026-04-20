@@ -78,6 +78,24 @@ export const getUnreadAnchorApi = async (conversationId: string): Promise<Unread
   return response.data.data
 }
 
+export interface MessageContextResponse {
+  page: number         // page index (0-based) chứa message đó
+  size: number         // page size đã dùng để tính
+  totalElements: number
+}
+
+export const getMessageContextApi = async (
+  conversationId: string,
+  messageId: string,
+  size = 20
+): Promise<MessageContextResponse> => {
+  const response = await http.get<ApiResponse<MessageContextResponse>>(
+    `/messages/conversations/${conversationId}/messages/${messageId}/context`,
+    { params: { size } }
+  )
+  return response.data.data
+}
+
 export const getMediaMessagesApi = async (
   conversationId: string,
   types: string[],

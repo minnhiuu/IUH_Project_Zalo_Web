@@ -10,9 +10,10 @@ import { useChatText } from '../../i18n/use-chat-text'
 
 interface MessageResultCardProps {
   msg: MessageSearchResponse
+  onClick?: () => void
 }
 
-export function MessageResultCard({ msg }: MessageResultCardProps) {
+export function MessageResultCard({ msg, onClick }: MessageResultCardProps) {
   const { i18n } = useChatText()
   const type = msg.type?.toUpperCase()
   const isImage = type === MessageType.Image
@@ -22,6 +23,7 @@ export function MessageResultCard({ msg }: MessageResultCardProps) {
   return (
     <div
       key={msg.messageId}
+      onClick={onClick}
       className='flex items-start gap-3 p-3 hover:bg-(--layer-background-hover) cursor-pointer transition-colors border-b border-(--divider) last:border-none group'
     >
       {!isFile && (
