@@ -1,4 +1,20 @@
+import { BONDHUB_AI } from '@/constants/system'
+import { stripAiControlTags } from './ai-parser'
+
 export const MENTION_REGEX = /(@<mention>.*?<\/mention>)/g
+
+/**
+ * Kiểm tra xem người dùng có mention AI hay không.
+ * Quét chuỗi an toàn bỏ qua các khoảng trắng thừa ngầm.
+ */
+export function isAiMentioned(content: string): boolean {
+  if (!content) return false
+
+  // Regex linh hoạt hơn: bắt @<mention>Bondhub AI</mention> hoặc biến thể khoảng trắng
+  const pattern = `@<mention>\\s*${BONDHUB_AI.fullName.replace(/\s+/g, '\\s*')}\\s*<\\/mention>`
+  const aiRegex = new RegExp(pattern, 'i')
+  return aiRegex.test(content)
+}
 
 /**
  * Strips HTML mention tags to plain text.
@@ -7,7 +23,8 @@ export const MENTION_REGEX = /(@<mention>.*?<\/mention>)/g
  */
 export function stripMentionsForPreview(content: string | undefined | null): string {
   if (!content) return ''
-  return content.replace(/@<mention>(.*?)<\/mention>/g, '@$1')
+  const withoutMentions = content.replace(/@<mention>(.*?)<\/mention>/g, '@$1')
+  return stripAiControlTags(withoutMentions)
 }
 
 /**

@@ -1,0 +1,153 @@
+{
+  "ingest": {
+    "page": {
+      "title": "Ingest Tài Liệu",
+      "subtitle": "Pipeline 3 bước: Parse -> Chunk -> Upload vector vào OpenSearch",
+      "stepLabel": "Bước {{step}}/{{total}}",
+      "steps": {
+        "extract": "Trích xuất",
+        "chunk": "Chunking",
+        "store": "Lưu trữ"
+      }
+    },
+    "stepOne": {
+      "filters": {
+        "fileType": "Loại file",
+        "status": "Trạng thái",
+        "search": "Tìm kiếm",
+        "searchPlaceholder": "Tên tài liệu...",
+        "reset": "Reset",
+        "addDocument": "Thêm tài liệu",
+        "fileTypeOptions": {
+          "all": "Tất cả",
+          "pdf": "PDF",
+          "docx": "DOCX",
+          "txt": "TXT",
+          "xlsx": "XLSX",
+          "other": "Khác"
+        },
+        "statusOptions": {
+          "all": "Tất cả",
+          "ingesting": "Đang ingest",
+          "completed": "Hoàn thành",
+          "failed": "Lỗi"
+        }
+      },
+      "table": {
+        "title": "Tài liệu",
+        "deleteSelected": "Xóa {{count}} file",
+        "selectAllAria": "Chọn tất cả",
+        "fileName": "Tên file",
+        "status": "Trạng thái",
+        "size": "Dung lượng",
+        "action": "Thao tác",
+        "emptyNoUpload": "Chưa có file nào được tải lên",
+        "emptyFiltered": "Không có file nào phù hợp bộ lọc",
+        "extractAction": "Trích xuất",
+        "deleteAction": "Xóa",
+        "page": "Trang {{current}} / {{total}}"
+      },
+      "statusBadge": {
+        "completed": "Đã trích xuất",
+        "ingesting": "Đang ingest",
+        "failed": "Lỗi"
+      },
+      "raw": {
+        "title": "Nội dung raw",
+        "parsing": "Đang parse...",
+        "selectPrompt": "Chọn một tài liệu để xem nội dung",
+        "nextStep": "Sang bước chunking"
+      },
+      "upload": {
+        "title": "Upload tài liệu",
+        "description": "Chọn file để thêm vào pipeline ingest",
+        "dropTitle": "Kéo thả file vào đây",
+        "dropHint": "hoặc click để chọn file",
+        "formats": "PDF, DOCX, TXT, XLSX (tối đa 50MB)",
+        "selected": "Đã chọn:",
+        "noFile": "Chưa chọn file nào.",
+        "cancel": "Hủy",
+        "uploading": "Đang upload...",
+        "confirm": "Upload"
+      }
+    },
+    "stepTwo": {
+      "config": {
+        "title": "Chunking Config",
+        "strategy": "Chunking Strategy",
+        "chunkSize": "Chunk Size",
+        "overlap": "Overlap",
+        "hint": "Tip: Chunk size lớn hơn sẽ giữ được nhiều ngữ cảnh, overlap cao hơn giúp tăng độ liên kết giữa các chunk.",
+        "process": "Xử lý chunking",
+        "processing": "Đang xử lý...",
+        "strategies": {
+          "fixed": {
+            "label": "Fixed",
+            "desc": "Chia đều theo số ký tự"
+          },
+          "recursive": {
+            "label": "Recursive",
+            "desc": "Ưu tiên theo đoạn và câu"
+          },
+          "semantic": {
+            "label": "Semantic",
+            "desc": "Giữ cụm nghĩa tự nhiên"
+          },
+          "excelRow": {
+            "label": "Excel Row",
+            "desc": "Mỗi dòng là 1 chunk"
+          }
+        }
+      },
+      "list": {
+        "title": "Chunks preview",
+        "count": "{{count}} đoạn",
+        "tokenSuffix": "tokens",
+        "pageNumber": "Trang",
+        "empty": "Chưa có chunk nào. Vui lòng xử lý chunking.",
+        "next": "Sang bước ingest"
+      }
+    },
+    "stepThree": {
+      "status": {
+        "success": "Ingest thành công",
+        "failed": "Ingest thất bại",
+        "finalizing": "Đang hoàn tất...",
+        "vectorizing": "Đang vector hóa..."
+      },
+      "runtime": {
+        "systemStarting": "[HỆ THỐNG] Bắt đầu ingest...",
+        "noProgress": "[WARN] Không có dữ liệu tiến trình nào được trả về.",
+        "timeout": "[WARN] Hệ thống chưa trả dữ liệu tiến trình kịp thời.",
+        "startFailed": "[ERROR] Không thể bắt đầu ingest"
+      },
+      "progress": {
+        "title": "Ingest Progress",
+        "readyTitle": "Ready",
+        "ingestingTitle": "Ingesting...",
+        "readyDesc": "Sẵn sàng upload vector lên OpenSearch",
+        "ingestingDesc": "Đang xử lý dữ liệu và đồng bộ index...",
+        "syncProgress": "Đồng bộ dữ liệu",
+        "uploadedSummary": "Đã upload {{uploaded}}/{{total}} vectors",
+        "uploadedSummaryWithCurrent": "Đã upload {{uploaded}}/{{total}} vectors (current: {{currentVectorId}})",
+        "stats": {
+          "securityLabel": "Security",
+          "securityValue": "SSL",
+          "performanceLabel": "Performance",
+          "performanceValue": "Fast",
+          "cdnLabel": "CDN",
+          "cdnValue": "Enabled"
+        }
+      },
+      "terminal": {
+        "title": "Terminal logs",
+        "logCount": "{{count}} dòng log",
+        "waiting": "Đang chờ log ingest..."
+      },
+      "actions": {
+        "download": "Tải báo cáo",
+        "backDashboard": "Quay lại dashboard"
+      }
+    }
+  }
+}

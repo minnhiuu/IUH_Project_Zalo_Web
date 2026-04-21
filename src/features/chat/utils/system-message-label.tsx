@@ -77,12 +77,13 @@ export function getSystemMessageLabel(
     return resolved.directLabel
   }
 
-  const i18nKey = resolved.i18nKey || ''
+  const i18nKey = resolved.i18nKey
   const values: Record<string, string | number> = {
     actor: actorNameLower,
     ...(resolved.values || {})
   }
   const clickableTargetIds = resolved.clickableTargetIds || []
+  const translateDynamic = translate as unknown as (key: string, options?: Record<string, unknown>) => string
 
   if (i18nKey) {
     if (isMainChat) {
@@ -147,7 +148,7 @@ export function getSystemMessageLabel(
           )}
           <Trans
             ns='chat'
-            i18nKey={i18nKey}
+            i18nKey={i18nKey as never}
             values={values}
             components={{
               bold: <ClickableTargets />,
@@ -158,7 +159,7 @@ export function getSystemMessageLabel(
       )
     }
 
-    const plainText = translate(i18nKey, { ns: 'chat', ...values }) as string
+    const plainText = translateDynamic(i18nKey, values)
     return plainText.replace(/<[^>]*>/g, '')
   }
 

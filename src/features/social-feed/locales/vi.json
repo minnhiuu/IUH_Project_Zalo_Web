@@ -1,0 +1,190 @@
+{
+  "reactions": {
+    "like": "Thích",
+    "love": "Yêu thích",
+    "haha": "Haha",
+    "wow": "Wow",
+    "sad": "Buồn",
+    "angry": "Phẫn nộ",
+    "react": "Phản ứng"
+  },
+  "composer": {
+    "me": "Bạn",
+    "visibilityPublic": "Công khai",
+    "placeholder": "Bạn đang nghĩ gì thế? Chia sẻ điều gì đó thú vị...",
+    "image": "Ảnh",
+    "video": "Video",
+    "feeling": "Cảm xúc",
+    "post": "Đăng"
+  },
+  "launcher": {
+    "prompt": "Bạn đang nghĩ gì thế?",
+    "dialogTitle": "Tạo bài viết",
+    "dialogDescription": "Mở trình soạn thảo toàn màn hình cho bài viết mới.",
+    "createPost": "Tạo bài viết mới",
+    "draft": "Bản nháp"
+  },
+  "search": {
+    "placeholder": "Tìm bài viết theo tên hoặc nội dung...",
+    "noResults": "Không tìm thấy bài viết phù hợp."
+  },
+  "stories": {
+    "title": "Tin",
+    "create": "Tạo tin",
+    "empty": "Chưa có tin nào đang hoạt động.",
+    "itemAlt": "Tin của {{author}}"
+  },
+  "storyComposer": {
+    "title": "Tạo Tin",
+    "mediaLabel": "Phương tiện",
+    "captionLabel": "Chú thích",
+    "captionPlaceholder": "Thêm chú thích cho tin của bạn...",
+    "pickMediaTitle": "Chọn phương tiện",
+    "pickMediaSubtitle": "Tải ảnh hoặc video để bắt đầu",
+    "addImage": "Ảnh",
+    "addVideo": "Video",
+    "addMusic": "Thêm nhạc nền",
+    "addMusicHint": "Chỉ có thể dùng với ảnh",
+    "nowPlaying": "Đang phát thử",
+    "musicSearchPlaceholder": "Tìm bài hát hoặc nghệ sĩ…",
+    "musicNoResults": "Không tìm thấy bài hát nào.",
+    "musicLoadError": "Không thể tải danh sách bài hát",
+    "share": "Chia sẻ lên Tin",
+    "expiresHint": "Tin của bạn sẽ hết hạn sau 24 giờ",
+    "successToast": "Đã chia sẻ tin!",
+    "errorToast": "Chia sẻ tin thất bại. Vui lòng thử lại."
+  },
+  "reels": {
+    "title": "Reels",
+    "empty": "Hiện chưa có reels.",
+    "loadFailed": "Không thể tải reels.",
+    "copyLink": "Sao chép liên kết",
+    "retry": "Thử lại",
+    "noVideo": "Không có video reel.",
+    "videoFailed": "Video không thể tải",
+    "muteAriaLabel": "Tắt tiếng reel",
+    "unmuteAriaLabel": "Bật tiếng reel",
+    "playAriaLabel": "Phát reel",
+    "pauseAriaLabel": "Tạm dừng reel",
+    "seekAriaLabel": "Tua reel"
+  },
+  "reelComposer": {
+    "title": "Tạo Reel",
+    "dialogDescription": "Mở trình tạo reel toàn màn hình.",
+    "subtitle": "Tải lên một video, thêm chú thích và đăng.",
+    "createAction": "Tạo Reel",
+    "previewEmpty": "Bản xem trước reel sẽ hiển thị ở đây.",
+    "pickVideo": "Chọn video",
+    "replaceVideo": "Thay video",
+    "removeVideo": "Xóa video",
+    "videoHint": "Mỗi reel chỉ được phép một video.",
+    "captionPlaceholder": "Viết chú thích cho reel của bạn...",
+    "publish": "Đăng reel",
+    "publishing": "Đang đăng...",
+    "videoRequired": "Vui lòng chọn video trước khi đăng.",
+    "invalidVideo": "Vui lòng chọn tệp video hợp lệ.",
+    "successToast": "Tạo reel thành công.",
+    "errorToast": "Tạo reel thất bại. Vui lòng thử lại."
+  },
+  "post": {
+    "attachmentAlt": "Tệp đính kèm bài viết của {{author}}",
+    "commentCount": "{{count}} bình luận",
+    "shareCount": "{{count}} chia sẻ",
+    "comment": "Bình luận",
+    "share": "Chia sẻ",
+    "visibilityPublic": "Công khai",
+    "visibilityFriends": "Bạn bè",
+    "visibilityPrivate": "Riêng tư",
+    "sharedAPost": "đã chia sẻ một bài viết",
+    "justNow": "Vừa xong",
+    "readMore": "Xem thêm",
+    "showLess": "Ẩn bớt"
+  },
+  "commentsModal": {
+    "title": "Bình luận bài viết",
+    "subtitle": "{{author}} - {{count}} bình luận",
+    "mediaAlt": "Hình ảnh từ bài viết của {{author}}",
+    "empty": "Chưa có bình luận nào.",
+    "inputPlaceholder": "Viết bình luận...",
+    "closeAriaLabel": "Đóng bình luận",
+    "commentCount": "{{count}} bình luận",
+    "loadingComments": "Đang tải bình luận...",
+    "loadError": "Không thể tải bình luận.",
+    "beFirstToComment": "Hãy là người đầu tiên chia sẻ cảm nghĩ!",
+    "sortBy": "Sắp xếp theo",
+    "sortNewest": "Mới nhất",
+    "sortMostReacted": "Nhiều cảm xúc nhất",
+    "sample": {
+      "author1": "Nhật Minh",
+      "author2": "Linh Trần",
+      "createdAt1": "4 phút",
+      "createdAt2": "2 phút",
+      "content1": "Bài viết quá chất lượng. UI mới nhìn hiện đại hơn hẳn.",
+      "content2": "Phần modal bình luận rất mượt, đọc comment dễ hơn trước nhiều."
+    }
+  },
+  "reactionsModal": {
+    "title": "Lượt cảm xúc",
+    "subtitle": "{{count}} người đã bày tỏ cảm xúc với bài viết này.",
+    "loading": "Đang tải lượt cảm xúc...",
+    "loadError": "Không thể tải danh sách cảm xúc.",
+    "emptyByType": "Chưa có cảm xúc thuộc loại này.",
+    "unknownUser": "Người dùng không xác định"
+  },
+  "commentItem": {
+    "reply": "Trả lời",
+    "edited": "(đã chỉnh sửa)",
+    "cancel": "Hủy",
+    "save": "Lưu",
+    "edit": "Chỉnh sửa",
+    "delete": "Xóa",
+    "hideReplies": "Ẩn phản hồi",
+    "viewReplies": "Xem phản hồi ({{count}})",
+    "loadingReplies": "Đang tải phản hồi...",
+    "loadRepliesError": "Không thể tải phản hồi.",
+    "noReplies": "Chưa có phản hồi nào."
+  },
+  "commentInput": {
+    "replyingTo": "Đang trả lời {{author}}",
+    "cancel": "Hủy",
+    "uploadPhoto": "Tải ảnh lên",
+    "uploadVideo": "Tải video lên",
+    "invalidMedia": "Vui lòng chọn file ảnh hoặc video hợp lệ",
+    "uploadFailed": "Tải media thất bại. Vui lòng thử lại."
+  },
+  "shareModal": {
+    "title": "Chia sẻ bài viết",
+    "captionPlaceholder": "Nói gì đó về bài này...",
+    "shareNow": "Chia sẻ ngay",
+    "shareSuccess": "Chia sẻ bài viết thành công",
+    "shareFailed": "Chia sẻ bài viết thất bại",
+    "unknownUser": "Người dùng không rõ"
+  },
+  "sidebar": {
+    "account": "Tài khoản của bạn",
+    "friends": "Bạn bè",
+    "groups": "Nhóm",
+    "reels": "Reels",
+    "saved": "Đã lưu",
+    "memories": "Kỷ niệm"
+  },
+  "suggested": {
+    "title": "Gợi ý kết bạn",
+    "seeAll": "Xem tất cả",
+    "mutualCount": "{{count}} bạn chung",
+    "addFriend": "Kết bạn",
+    "footerPrivacy": "Quyền riêng tư",
+    "footerTerms": "Điều khoản",
+    "footerAds": "Quảng cáo",
+    "footerCookie": "Cookie",
+    "footerBrand": "Zalo Web © {{year}}"
+  },
+  "mockPosts": {
+    "postedAt1": "5 phút trước",
+    "postedAt2": "1 giờ trước",
+    "postedAt3": "Hôm qua",
+    "content1": "Hôm nay đang hoàn thiện phần Bảng tin (Social Feed) cho Zalo Web. Giao diện cơ bản đã xong, giờ là lúc tinh chỉnh UX cho các tương tác thích và bình luận.",
+    "content2": "Cập nhật tiến độ:\n- Cải thiện tương tác thanh tìm kiếm\n- Thêm menu Bảng tin ở sidebar\n- Đang chuẩn bị tích hợp API cho bài viết thực tế",
+    "content3": "Vừa thiết kế xong bộ card mới cho bản tin. Bước tiếp theo là kết nối UI này với các endpoint backend để lấy dữ liệu thực."
+  }
+}

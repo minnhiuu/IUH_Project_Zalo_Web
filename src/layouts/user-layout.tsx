@@ -1,12 +1,12 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { Outlet, Link, useLocation } from 'react-router'
-import { Contact2, CheckSquare, Settings, Cloud, Briefcase, MessageCircle, Search, Bell } from 'lucide-react'
+import { Contact2, CheckSquare, Settings, Cloud, Briefcase, MessageCircle, Search, Bell, Newspaper } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { PATHS } from '@/constants/path'
 import { UserNavDropdown } from '@/features/user'
 import { useAuthContext } from '@/features/auth/context/auth-context'
 import { UserAvatar } from '@/components/common/user-avatar'
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { SearchPanel } from '@/features/search-user'
 import { useCommonText } from '@/locales/common/use-common-text'
 import { useFCM } from '@/hooks/use-fcm'
@@ -16,6 +16,10 @@ import { useNotificationStateQuery } from '@/features/notification/queries/use-q
 import { useMarkHistoryAsCheckedMutation } from '@/features/notification/queries/use-mutations'
 import { useNotificationBadge } from '@/hooks/use-notification-badge'
 import { ChatProvider } from '@/features/chat'
+import { socialFeedKeys } from '@/features/social-feed/queries/keys'
+import { showWarningToast } from '@/utils/toast'
+import type { SocialPost } from '@/features/social-feed/components/post/post-card'
+import type { InfiniteData } from '@tanstack/react-query'
 
 export default function UserLayout() {
   const location = useLocation()
@@ -33,7 +37,46 @@ export default function UserLayout() {
 
   const { text: commonText } = useCommonText()
 
-  useFCM(undefined, () => {
+  const handleFCMMessage = useCallback(
+    (payload: unknown) => {
+      const data = (payload as { data?: Record<string, string> })?.data
+      const type = data?.type
+
+      if (type === 'CONTENT_REMOVED' || type === 'CONTENT_HIDDEN') {
+        const postId = data?.referenceId
+        if (postId) {
+          queryClient.setQueriesData<InfiniteData<SocialPost[]>>({ queryKey: socialFeedKeys.all }, (old) => {
+            if (!old?.pages) return old
+            return {
+              ...old,
+              pages: old.pages.map((page) => page.filter((post) => post.id !== postId))
+            }
+          })
+        }
+        showWarningToast(
+          data?.body ||
+            (type === 'CONTENT_REMOVED'
+              ? 'Your content was removed for violating community guidelines.'
+              : 'Your content was hidden for violating community guidelines.'),
+          6000
+        )
+      } else if (type === 'USER_WARNED') {
+        const targetType = data?.targetType
+        const adminNote = data?.adminNote
+        let message = data?.body || 'You received a warning from an administrator.'
+        if (targetType && !data?.body) {
+          message = `You received a warning about your ${targetType} from an administrator.`
+        }
+        if (adminNote) {
+          message += ` Note: ${adminNote}`
+        }
+        showWarningToast(message, 8000)
+      }
+    },
+    [queryClient]
+  )
+
+  useFCM(handleFCMMessage, () => {
     setIsNotificationOpen(true)
     setIsSearchOpen(false)
     markAsChecked()
@@ -42,6 +85,7 @@ export default function UserLayout() {
 
   const navItems = [
     { icon: MessageCircle, path: PATHS.HOME, label: commonText.nav.messages },
+    { icon: Newspaper, path: PATHS.SOCIAL_FEED, label: commonText.nav.socialFeed },
     { icon: Search, path: PATHS.SEARCH, label: commonText.nav.search },
     { icon: Contact2, path: PATHS.CONTACTS, label: commonText.nav.contacts },
     { icon: CheckSquare, path: PATHS.TODO, label: commonText.nav.todo },
@@ -64,7 +108,7 @@ export default function UserLayout() {
                 <UserAvatar
                   src={user?.avatar}
                   name={user?.fullName || 'User'}
-                  className='w-10 h-10 border border-white/20 transition-transform group-hover:scale-105 active:scale-95'
+                  className='h-10 w-10 border border-zinc-200 dark:border-white/10'
                   fallbackClassName='bg-primary text-white text-sm'
                 />
               </div>

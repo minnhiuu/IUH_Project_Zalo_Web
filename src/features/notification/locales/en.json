@@ -28,6 +28,22 @@
       "settings": "Notification settings",
       "open": "Open notifications"
     },
+    "dropdown": {
+      "trigger": "Notifications",
+      "viewAll": "View all notifications",
+      "unreadBadge": "{{count}} unread"
+    },
+    "list": {
+      "newUpdates": "New notifications",
+      "loading": "Loading...",
+      "loadPrevious": "View previous notifications"
+    },
+    "toast": {
+      "acceptSuccess": "Accepted friend invitation",
+      "acceptError": "Unable to accept invitation",
+      "declineSuccess": "Declined friend invitation",
+      "declineError": "Unable to decline invitation"
+    },
     "validation": {
       "receiverIdRequired": "Receiver ID is required",
       "senderIdRequired": "Sender ID is required",

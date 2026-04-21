@@ -2,6 +2,7 @@ import type { MessageResponse } from '../schemas/chat.schema'
 import { useAuth } from '@/features/auth'
 import { useChatText } from '../i18n/use-chat-text'
 import { cn } from '@/lib/utils'
+import type { TFunction } from 'i18next'
 
 interface CallMetadata {
   callAction: 'ended' | 'missed' | 'rejected'
@@ -12,7 +13,7 @@ interface CallMetadata {
   receiverName: string
 }
 
-function formatDuration(seconds: number, t: (key: string, opts?: Record<string, unknown>) => string): string {
+function formatDuration(seconds: number, t: TFunction<'chat'>): string {
   if (seconds < 60) return t('call.duration_seconds', { count: seconds })
   const minutes = Math.floor(seconds / 60)
   const remaining = seconds % 60

@@ -14,7 +14,8 @@ import { getMessageContextApi } from '../api/chat.api'
 import {
   useMarkAsReadMutation,
   useUpdateGroupNameMutation,
-  useUpdateGroupAvatarMutation
+  useUpdateGroupAvatarMutation,
+  useSendMessageMutation
 } from '../queries/use-mutations'
 import { useEffect, useRef, useMemo, useState, useCallback, Fragment } from 'react'
 import type { ConversationResponse, MessageResponse } from '../schemas/chat.schema'
@@ -30,6 +31,10 @@ import { GroupAvatar } from '@/components/common/group-avatar'
 import { ImageCropperDialog } from '@/components/common/image-cropper-dialog'
 import { getCroppedImg } from '@/utils/image-crop'
 import { cn } from '@/lib/utils'
+import { BONDHUB_AI } from '@/constants/system'
+import { useAiStreamingStore } from '../hooks/ai-streaming-registry'
+import { AiMessageBubble } from './ai-message-bubble'
+import { parseAiSuggestions, parseAiQuestion, AI_SUGGESTION_EVENT } from '../utils/ai-parser'
 import { GroupIntroCard } from './group/cards/group-intro-card'
 import { getConversationDisplayName } from '../utils/group-name'
 import { GroupInfoDialog } from './group/dialogs/group-info-dialog'
@@ -46,7 +51,17 @@ import { TypingIndicator } from './typing-indicator'
 const OPEN_GROUP_MANAGEMENT_EVENT = 'chat:open-group-management'
 const OPEN_GROUP_INFO_EVENT = 'chat:open-group-info'
 
-export function ChatWindow({ conversation }: { conversation: ConversationResponse }) {
+export function ChatWindow({
+  conversation,
+  snapshotId,
+  capturedUnreadCount,
+  onClearSnapshot
+}: {
+  conversation: ConversationResponse
+  snapshotId: string | null
+  capturedUnreadCount: number
+  onClearSnapshot: () => void
+}) {
   const { user } = useAuth()
   const { sendMessage, typingUsers } = useChatContext()
   const { t, text } = useChatText()
@@ -60,6 +75,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
     suppressFetchRef
   })
   const { mutate: markAsRead } = useMarkAsReadMutation()
+  const { mutate: sendMsgMutate } = useSendMessageMutation()
   const lastMessageRef = useRef<HTMLDivElement>(null)
   const lastReadSentId = useRef<string | null>(null)
 
@@ -323,7 +339,29 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
     )
   }
 
-  const allMessages = useMemo(() => data?.pages.flatMap((page) => page.data) || [], [data])
+  const aiStream = useAiStreamingStore(conversation.id)
+
+  const allMessages = useMemo(() => {
+    const rawMessages = data?.pages.flatMap((page) => page.data) || []
+    if (aiStream && aiStream.isStreaming) {
+      const syntheticMsg = {
+        id: aiStream.messageId || `temp-ai-${Date.now()}`,
+        senderId: BONDHUB_AI.userId,
+        senderName: BONDHUB_AI.fullName,
+        senderAvatar: BONDHUB_AI.avatar,
+        content: aiStream.content,
+        processingStatus: aiStream.processingStatus,
+        isStreaming: true,
+        type: 'TEXT' as const,
+        status: 'NORMAL' as const,
+        conversationId: conversation.id,
+        createdAt: new Date().toISOString(),
+        isFromMe: false
+      } as any // ép kiểu để bỏ qua một số field không dùng tới trong preview
+      return [syntheticMsg, ...rawMessages]
+    }
+    return rawMessages
+  }, [data, aiStream, conversation.id])
 
   const latestMessageId = allMessages[0]?.id
   const latestMessageSenderId = allMessages[0]?.senderId
@@ -385,6 +423,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
 
   useEffect(() => {
     if (isCurrentUserRemovedFromGroup) return
+    if (!latestMessageId || !conversation.id || (conversation.unreadCount ?? 0) === 0) return
     // Only handle new incoming messages when there's no unread divider (divider handles its own case)
     if (!latestMessageId || !conversation.id || conversation.unreadCount === 0) return
     if (latestMessageSenderId === user?.id) return
@@ -413,6 +452,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
     conversation.id,
     conversation.unreadCount,
     firstUnreadId,
+    // conversation.unreadCount ?? 0,
     markAsRead,
     user?.id
   ])
@@ -816,6 +856,38 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
               const isFirst = !isSameGroup(msg, prevMsg)
               const isLast = !isSameGroup(msg, nextMsg)
               const isNewestVisible = index === 0
+
+              const isAiMessage = msg.senderId === BONDHUB_AI.userId && msg.type !== 'SYSTEM'
+
+              if (isAiMessage) {
+                const { cleanContent, suggestions } = parseAiSuggestions(msg.content)
+                const { cleanContent: finalContent, isClarification } = parseAiQuestion(cleanContent)
+
+                const aiMsg = {
+                  id: msg.id,
+                  role: 'ai' as const,
+                  content: finalContent,
+                  suggestions,
+                  isClarification,
+                  isStreaming: !!msg.isStreaming, // from synthetic msg
+                  processingStatus: msg.processingStatus, // from synthetic msg
+                  timestamp: new Date(msg.createdAt)
+                }
+
+                return (
+                  <div key={msg.id} id={`msg-${msg.id}`} ref={isNewestVisible ? lastMessageRef : null}>
+                    <AiMessageBubble
+                      msg={aiMsg}
+                      avatarUrl={msg.senderAvatar || BONDHUB_AI.avatar}
+                      isLoading={false}
+                      onSuggestionClick={(text) => {
+                        window.dispatchEvent(new CustomEvent(AI_SUGGESTION_EVENT, { detail: { text } }))
+                      }}
+                    />
+                  </div>
+                )
+              }
+
               return (
                 <Fragment key={msg.id}>
                   <div id={`msg-${msg.id}`} ref={isNewestVisible ? lastMessageRef : null}>
@@ -829,6 +901,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
                       conversation={conversation}
                       onReply={() => setReplyTo(msg)}
                       onForward={() => setForwardingMessage(msg)}
+                      onScrollToMessage={scrollToMessage}
                       onAvatarClick={(userId) => {
                         if (userId === user?.id) {
                           setIsOwnerProfileOpen(true)
@@ -895,7 +968,10 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             conversationId={conversation.id}
             isGroup={conversation.isGroup}
             replyTo={replyTo}
+            unreadCount={capturedUnreadCount}
+            snapshotId={snapshotId}
             onCancelReply={() => setReplyTo(null)}
+            onClearSnapshot={onClearSnapshot}
           />
         )}
         {forwardingMessage && (
@@ -905,10 +981,29 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             onClose={() => setForwardingMessage(null)}
             onConfirm={(selectedConvIds, description) => {
               selectedConvIds.forEach((convId) => {
+                const isFake = convId.startsWith('fake_')
+                const hasAttachments = (forwardingMessage.attachments?.length ?? 0) > 0
                 const finalContent = description
-                  ? `${forwardingMessage.content}\n---\n${description}`
+                  ? `${forwardingMessage.content || ''}\n---\n${description}`.trim()
                   : forwardingMessage.content || ''
-                sendMessage(convId, finalContent, null, true)
+                if (hasAttachments) {
+                  sendMsgMutate({
+                    conversationId: isFake ? null : convId,
+                    recipientId: isFake ? convId.replace('fake_', '') : null,
+                    content: finalContent,
+                    isForwarded: true,
+                    attachments: forwardingMessage.attachments!.map((a) => ({
+                      key: a.key,
+                      url: a.url,
+                      fileName: a.fileName,
+                      originalFileName: a.originalFileName,
+                      contentType: a.contentType,
+                      size: a.size
+                    }))
+                  })
+                } else {
+                  sendMessage(convId, finalContent, null, true)
+                }
               })
             }}
           />

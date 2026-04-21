@@ -1,15 +1,19 @@
 import { Outlet, Link, useLocation } from 'react-router'
-import { Users, LogOut } from 'lucide-react'
+import { Users, LogOut, Flag, Sprout, Database, Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthContext } from '@/features/auth/context/auth-context'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { UserNavDropdown } from '@/features/user'
 import { LogoutConfirmDialog } from '@/features/auth'
 import { useState } from 'react'
+import { PATHS } from '@/constants/path'
 
 const navItems = [
-  { icon: Users, path: '/admin/users', label: 'User' },
-  { icon: Users, path: '/admin/elasticsearch', label: 'Elasticsearch' }
+  { icon: Users, path: PATHS.ADMIN.USERS, label: 'User' },
+  { icon: Search, path: PATHS.ADMIN.ELASTICSEARCH, label: 'Elasticsearch' },
+  { icon: Database, path: PATHS.ADMIN.INGEST_DOCUMENT, label: 'Document Ingest' }
+  { icon: Sprout, path: '/admin/seeding', label: 'Seeding' },
+  { icon: Flag, path: '/admin/reports', label: 'Reports' },
 ]
 
 export default function AdminLayout() {
@@ -70,7 +74,7 @@ export default function AdminLayout() {
         </div>
       </nav>
 
-      <main className='flex-1 overflow-y-auto bg-background py-8 px-10 mx-auto  '>
+      <main className='flex-1 overflow-y-auto bg-background py-8 px-8'>
         <Outlet />
       </main>
 

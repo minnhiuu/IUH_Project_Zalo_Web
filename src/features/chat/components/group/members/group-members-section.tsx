@@ -5,15 +5,12 @@ import { Button } from '@/components/ui/button'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { useGroupMembersInfinite } from '../../../queries/use-queries'
 import { useSendFriendRequest } from '@/features/friend/queries/use-mutations'
-import {
-  useRemoveMemberFromGroupMutation,
-  usePromoteToAdminMutation,
-  useDemoteFromAdminMutation
-} from '../../../queries/use-mutations'
+import { usePromoteToAdminMutation, useDemoteFromAdminMutation } from '../../../queries/use-mutations'
 import { useChatText } from '../../../i18n/use-chat-text'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { GroupMemberRole } from '@/constants/enum'
 import { useDebounce } from '@/hooks/use-debounce'
+import { BONDHUB_AI } from '@/constants/system'
 import { MemberActionMenu } from './member-action-menu'
 import { MemberRoleBadge } from './member-role-badge'
 import type { GroupMemberListItemResponse } from '../../../schemas/chat.schema'
@@ -55,7 +52,10 @@ export function GroupMembersSection({
   const [targetMember, setTargetMember] = useState<GroupMemberListItemResponse | null>(null)
   const [removeOpen, setRemoveOpen] = useState(false)
 
-  const members = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data])
+  const members = useMemo(
+    () => (data?.pages.flatMap((page) => page.data) ?? []).filter((member) => member.userId !== BONDHUB_AI.userId),
+    [data]
+  )
 
   const handleMenuAction = (
     action: 'leave' | 'add-deputy' | 'remove-deputy' | 'remove-member',
@@ -201,7 +201,6 @@ export function GroupMembersSection({
           onOpenChange={setRemoveOpen}
           conversationId={conversationId}
           targetUserId={targetMember.userId}
-          targetUserName={targetMember.fullName}
         />
       )}
     </div>

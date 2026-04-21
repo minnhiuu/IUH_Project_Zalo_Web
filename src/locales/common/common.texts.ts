@@ -4,6 +4,7 @@ import { COMMON_KEYS } from './common.keys'
 export const createCommonTexts = (t: TFunction<'common'>) => ({
   nav: {
     messages: t(COMMON_KEYS.nav.messages),
+    socialFeed: t(COMMON_KEYS.nav.socialFeed),
     search: t(COMMON_KEYS.nav.search),
     contacts: t(COMMON_KEYS.nav.contacts),
     todo: t(COMMON_KEYS.nav.todo),

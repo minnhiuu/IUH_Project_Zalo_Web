@@ -1,4 +1,4 @@
-import { User, Settings, Globe, Check } from 'lucide-react'
+import { User, Settings, Globe, Check, Newspaper } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +12,9 @@ import {
 import { useLogoutMutation, LogoutConfirmDialog } from '@/features/auth'
 import { useUserText, OwnerProfileDialog, SettingsDialog } from '@/features/user'
 import { useMySettings, useUpdateGeneralSettings } from '@/features/user-settings'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router'
+import { PATHS } from '@/constants/path'
 
 import { useLocale } from '@/lib/i18n'
 
@@ -30,6 +32,16 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
   const [showSettingsDialog, setShowSettingsDialog] = useState(false)
   const { text } = useUserText()
   const { locale: language, changeLocale: setLocale, languages } = useLocale()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (settings?.generalSettings.languageEn === undefined) return
+
+    const settingsLang = settings.generalSettings.languageEn ? 'en' : 'vi'
+    if (settingsLang !== language) {
+      setLocale(settingsLang)
+    }
+  }, [settings?.generalSettings.languageEn, language, setLocale])
 
   const handleLanguageChange = (nextLang: (typeof languages)[number]['code']) => {
     if (nextLang === language || updateGeneralSettings.isPending) return
@@ -43,7 +55,7 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
 
   return (
     <>
-      <DropdownMenu>
+      <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
         <DropdownMenuContent
           align='end'
@@ -58,6 +70,14 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
           >
             <User className='w-[17px] h-[17px]' />
             <span className='flex-1 font-medium'>{text.menu.profile}</span>
+          </DropdownMenuItem>
+
+          <DropdownMenuItem
+            onClick={() => navigate(PATHS.USER.PROFILE)}
+            className='flex items-center gap-3 py-2 px-3 cursor-pointer hover:bg-muted focus:bg-muted rounded-md text-[14px] transition-colors outline-none'
+          >
+            <Newspaper className='w-[17px] h-[17px]' />
+            <span className='flex-1 font-medium'>My Profile</span>
           </DropdownMenuItem>
 
           <DropdownMenuItem
@@ -109,12 +129,11 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
             </span>
           </DropdownMenuItem>
         </DropdownMenuContent>
-        <SettingsDialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog} />
-
-        <LogoutConfirmDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog} />
-        <OwnerProfileDialog open={showProfileDialog} onOpenChange={setShowProfileDialog} />
-        <SettingsDialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog} />
       </DropdownMenu>
+
+      <LogoutConfirmDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog} />
+      <OwnerProfileDialog open={showProfileDialog} onOpenChange={setShowProfileDialog} />
+      <SettingsDialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog} />
     </>
   )
 }

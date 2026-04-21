@@ -18,10 +18,11 @@ import { getConversationDisplayName } from '../utils/group-name'
 import { stripMentionsForPreview } from '../utils/mention'
 import { SearchAndActions, type SearchAction } from '@/components/common/search-and-actions'
 import { AddFriendSearchDialog } from '@/features/friend'
+import { BONDHUB_AI } from '@/constants/system'
 
 interface ChatSidebarProps {
   selectedChatId?: string
-  onSelectChat: (chat: ConversationResponse) => void
+  onSelectChat: (chat: ConversationResponse, snapshotId?: string | null, unreadCount?: number) => void
 }
 
 export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) {
@@ -32,12 +33,31 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
   const { data: conversations, isLoading, isError } = useConversationsQuery()
   const queryClient = useQueryClient()
 
+  const isAiConversation = (chat: ConversationResponse) => {
+    return chat.members?.some((member) => member.userId === BONDHUB_AI.userId) ?? false
+  }
+
+  const getEffectiveUnreadCount = (chat: ConversationResponse) => {
+    if (isAiConversation(chat)) return 0
+    return chat.unreadCount ?? 0
+  }
+
   const handleSelectChat = (chat: ConversationResponse) => {
-    // Immediately zero out unread badge so bold/dot disappears on click
-    queryClient.setQueryData(chatKeys.conversations(), (old: ConversationResponse[] | undefined) =>
-      old?.map((c) => (c.id === chat.id ? { ...c, unreadCount: 0 } : c))
-    )
-    onSelectChat(chat)
+    const unreadCount = getEffectiveUnreadCount(chat)
+    console.log(`[ChatSidebar] Selecting chat: ${chat.id}, unreadCount: ${unreadCount}`)
+
+    let capturedSnapshotId: string | null = null
+    if (unreadCount > 0) {
+      const myMember = chat.members?.find((m) => m.userId === user?.id)
+      capturedSnapshotId = myMember?.lastReadMessageId || null
+      console.log(`[ChatSidebar] Snapshot captured before markAsRead: ${capturedSnapshotId}`)
+    }
+
+    onSelectChat(chat, capturedSnapshotId, unreadCount)
+
+    if (unreadCount > 0) {
+      markAsRead({ conversationId: chat.id, lastReadMessageId: chat.lastMessage?.id || undefined })
+    }
   }
 
   const getPreviewDisplay = (chat: ConversationResponse) => {
@@ -118,6 +138,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
         {conversations?.map((chat: ConversationResponse) => {
           const previewDisplay = getPreviewDisplay(chat)
           const isSelected = selectedChatId === chat.id
+          const effectiveUnreadCount = getEffectiveUnreadCount(chat)
 
           return (
             <div
@@ -161,7 +182,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
                   <span
                     className={cn(
                       'text-xs text-text-secondary whitespace-nowrap ml-2',
-                      chat.unreadCount && chat.unreadCount > 0 ? 'font-semibold' : 'font-normal'
+                      effectiveUnreadCount > 0 ? 'font-semibold' : 'font-normal'
                     )}
                   >
                     {chat.lastMessage?.timestamp ? formatMessageTime(chat.lastMessage.timestamp, i18n.language) : ''}
@@ -172,9 +193,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
                   <p
                     className={cn(
                       'text-sm flex items-center gap-1 min-w-0 pr-4 truncate',
-                      chat.unreadCount && chat.unreadCount > 0
-                        ? 'text-text-primary font-medium'
-                        : 'text-text-secondary font-normal'
+                      effectiveUnreadCount > 0 ? 'text-text-primary font-medium' : 'text-text-secondary font-normal'
                     )}
                   >
                     {previewDisplay.showPromoteTargetIcon && (
@@ -183,7 +202,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
                     <span className='truncate'>{previewDisplay.text}</span>
                   </p>
 
-                  {!!chat.unreadCount && chat.unreadCount > 0 && (
+                  {effectiveUnreadCount > 0 && (
                     <div className='flex items-center gap-1 shrink-0'>
                       {(() => {
                         const meta = chat.lastMessage?.metadata as Record<string, unknown> | null
@@ -201,7 +220,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
                             )}
                             {!isSystem && (
                               <div className='bg-destructive text-white text-[10px] font-bold px-1.5 min-w-[18px] h-[18px] rounded-full flex items-center justify-center'>
-                                {chat.unreadCount > 5 ? '5+' : chat.unreadCount}
+                                {effectiveUnreadCount > 5 ? '5+' : effectiveUnreadCount}
                               </div>
                             )}
                             {isSystem && !isNegativeSysAction && (

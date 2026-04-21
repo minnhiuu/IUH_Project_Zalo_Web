@@ -112,26 +112,26 @@ export function FriendList({ searchQuery: initialSearchQuery = '' }: FriendListP
 
   return (
     <>
-    <ContactPageLayout
-      title={text.contactList.title}
-      icon={Users}
-      categoryTitle={text.header.friendCount(totalCount)}
-    >
-      <div className='flex flex-col bg-background rounded-xl border border-divider-bold overflow-hidden mb-4 shrink-0'>
-        {/* Filter is now inside the same container as the list */}
-        <div className='bg-background border-b border-divider'>
-          <ContactsFilter
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            filterType={filterType}
-            onFilterChange={setFilterType}
-            sortType={sortType}
-            onSortChange={setSortType}
-            totalCount={safeFriends.length}
-          />
-        </div>
-        
-        <div className='flex flex-col'>
+      <ContactPageLayout
+        title={text.contactList.title}
+        icon={Users}
+        categoryTitle={text.header.friendCount(totalCount)}
+      >
+        <div className='flex flex-col bg-background rounded-xl border border-divider-bold overflow-hidden mb-4 shrink-0'>
+          {/* Filter is now inside the same container as the list */}
+          <div className='bg-background border-b border-divider'>
+            <ContactsFilter
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              filterType={filterType}
+              onFilterChange={setFilterType}
+              sortType={sortType}
+              onSortChange={setSortType}
+              totalCount={safeFriends.length}
+            />
+          </div>
+
+          <div className='flex flex-col'>
             {isLoading ? (
               <div className='p-4 space-y-3'>
                 {Array.from({ length: 15 }).map((_, i) => (

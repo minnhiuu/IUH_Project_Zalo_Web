@@ -1,0 +1,52 @@
+.bondhub-video-shell {
+  --vjs-primary: #4f46e5;
+  --vjs-control-bg: rgba(9, 9, 11, 0.72);
+}
+
+.bondhub-video-shell .video-js {
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+  border-radius: inherit;
+  font-family: inherit;
+}
+
+.bondhub-video-fit-cover .vjs-tech {
+  object-fit: cover;
+}
+
+.bondhub-video-fit-contain .vjs-tech {
+  object-fit: contain;
+}
+
+.bondhub-video-shell .vjs-control-bar {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, var(--vjs-control-bg) 100%);
+  backdrop-filter: blur(6px);
+}
+
+.bondhub-video-shell .vjs-big-play-button {
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background-color: rgba(0, 0, 0, 0.55);
+  border-radius: 9999px;
+  width: 3.5rem;
+  height: 3.5rem;
+  line-height: 3.5rem;
+}
+
+.bondhub-video-shell .vjs-play-progress,
+.bondhub-video-shell .vjs-volume-level {
+  background-color: var(--vjs-primary);
+}
+
+.bondhub-video-shell .vjs-slider-bar,
+.bondhub-video-shell .vjs-load-progress,
+.bondhub-video-shell .vjs-load-progress div {
+  border-radius: 9999px;
+}
+
+.bondhub-video-shell .vjs-time-control,
+.bondhub-video-shell .vjs-remaining-time,
+.bondhub-video-shell .vjs-current-time,
+.bondhub-video-shell .vjs-duration {
+  font-size: 0.72rem;
+}
