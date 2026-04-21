@@ -12,13 +12,14 @@ import {
   getBlockedMembersApi,
   getBlockCandidatesApi,
   getMyGroupConversationsApi,
+  getMessagesV2,
   type GroupSortOption,
   type GroupFilterOption
 } from '../api/chat.api'
 import type { PageResponse } from '@/shared/api'
 import { chatKeys } from './keys'
 import { QUERY_POLICIES } from '@/constants/query-policies'
-import type { MessageResponse } from '../schemas/chat.schema'
+import type { MessageResponse, MessageCursorParams, CursorPageResponse } from '../schemas/chat.schema'
 
 export const chatOptions = {
   conversations: () =>
@@ -46,6 +47,21 @@ export const chatOptions = {
         }
         return undefined
       }
+    }),
+  messagesV2: (conversationId: string) =>
+    infiniteQueryOptions({
+      ...QUERY_POLICIES.REALTIME,
+      queryKey: chatKeys.messages(conversationId),
+      queryFn: ({ pageParam }) => getMessagesV2(conversationId, pageParam as MessageCursorParams),
+      initialPageParam: { limit: 20, direction: 'OLDER', cursor: null } as MessageCursorParams,
+      getNextPageParam: (lastPage: CursorPageResponse<MessageResponse>): MessageCursorParams | undefined =>
+        lastPage.hasMoreOlder
+          ? { cursor: lastPage.olderCursor, direction: 'OLDER', limit: 20 }
+          : undefined,
+      getPreviousPageParam: (firstPage: CursorPageResponse<MessageResponse>): MessageCursorParams | undefined =>
+        firstPage.hasMoreNewer
+          ? { cursor: firstPage.newerCursor, direction: 'NEWER', limit: 20 }
+          : undefined
     }),
   friendsDirectory: (conversationId?: string | null) =>
     queryOptions({

@@ -13,7 +13,7 @@ import { showSimpleToast } from '@/utils/toast'
 import { ForwardDialog } from '../components/forward-dialog'
 import { useChatContext } from '../context/chat-context'
 import { JoinRequestApprovalDialog } from '../components/group/dialogs/join-request-approval-dialog'
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import { UserAvatar } from '@/components/common/user-avatar'
 import { stripMentionsForPreview } from './mention'
 
 export { getSystemMessageLabel } from './system-message-label'
@@ -220,12 +220,12 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
       (metadata.originalContent || metadata.contentSnapshot) ? (
         <div className='flex justify-center w-full my-2.5 px-4'>
           <div className='system-msg flex items-center gap-2 py-1.5 px-3.5 max-w-[95%]'>
-            <Avatar className='w-5 h-5 shrink-0'>
-              <AvatarImage src={String(metadata.originalSenderAvatar || '')} />
-              <AvatarFallback className='text-[10px] bg-primary/10 text-primary font-semibold'>
-                {String(metadata.originalSenderName || t('chat.user'))[0].toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
+            <UserAvatar 
+              name={String(metadata.originalSenderName || t('chat.user'))}
+              src={metadata.originalSenderAvatar ? String(metadata.originalSenderAvatar) : undefined}
+              className='w-5 h-5 shrink-0'
+              fallbackClassName='text-[10px]'
+            />
             <div className='flex-1 text-[12.5px] leading-relaxed text-left flex items-center gap-1 overflow-hidden'>
               <span className='font-semibold shrink-0'>{String(metadata.originalSenderName || t('chat.user'))}</span>
               <span className='shrink-0'>
