@@ -5,12 +5,13 @@ import { toast } from 'sonner'
 import type { AxiosError } from 'axios'
 import type { ApiResponse } from '@/shared/api'
 import { useElasticsearchText } from '../i18n/use-elasticsearch-text'
+import { SearchIndexType } from '@/constants/enum'
 
-export const useReindexUsers = () => {
+export const useReindex = () => {
   const { text: t } = useElasticsearchText()
 
   return useMutation({
-    mutationFn: () => elasticsearchApi.reindexUsers().then((res) => res.data.data),
+    mutationFn: (type: SearchIndexType) => elasticsearchApi.reindex(type).then((res) => res.data.data),
     onSuccess: (data) => {
       console.log('Reindex task started:', data.taskId)
     },
@@ -31,11 +32,34 @@ export const useUpdateFailedEventResolved = () => {
     onSuccess: (data) => {
       toast.success(data.message)
       queryClient.invalidateQueries({ queryKey: elasticsearchKeys.failedEvents() })
-      queryClient.invalidateQueries({ queryKey: elasticsearchKeys.summary() })
+      // We might need to invalidate specific summaries if we know which one, 
+      // but for simplicity we can invalidate all for now or just generic keys if they don't include type
+      queryClient.invalidateQueries({ queryKey: elasticsearchKeys.all })
     },
     onError: (error) => {
       const axiosError = error as AxiosError<ApiResponse>
       toast.error(axiosError.response?.data?.message || t.errors.updateStatus)
+    }
+  })
+}
+
+export const useSwitchAlias = () => {
+  const queryClient = useQueryClient()
+  const { text: t } = useElasticsearchText()
+
+  return useMutation({
+    mutationFn: ({ type, indexName }: { type: SearchIndexType; indexName: string }) =>
+      elasticsearchApi.switchAlias(type, indexName).then((res) => res.data.data),
+    onSuccess: (data) => {
+      toast.success(data.message)
+      queryClient.invalidateQueries({
+        queryKey: elasticsearchKeys.all,
+        exact: false
+      })
+    },
+    onError: (error) => {
+      const axiosError = error as AxiosError<ApiResponse>
+      toast.error(axiosError.response?.data?.message || t.messages.errorSwitchAlias)
     }
   })
 }
@@ -57,44 +81,18 @@ export const useReindexUser = () => {
   })
 }
 
-export const useSwitchAlias = () => {
-  const queryClient = useQueryClient()
-  const { text: t } = useElasticsearchText()
-
-  return useMutation({
-    mutationFn: (indexName: string) => elasticsearchApi.switchAlias(indexName).then((res) => res.data.data),
-    onSuccess: (data) => {
-      toast.success(data.message)
-      queryClient.invalidateQueries({
-        queryKey: elasticsearchKeys.all,
-        exact: false,
-        type: 'active'
-      })
-      setTimeout(() => {
-        queryClient.refetchQueries({ queryKey: elasticsearchKeys.all })
-      }, 300)
-    },
-    onError: (error) => {
-      const axiosError = error as AxiosError<ApiResponse>
-      toast.error(axiosError.response?.data?.message || t.messages.errorSwitchAlias)
-    }
-  })
-}
-
 export const useDeleteIndex = () => {
   const queryClient = useQueryClient()
   const { text: t } = useElasticsearchText()
 
   return useMutation({
-    mutationFn: (indexName: string) => elasticsearchApi.deleteIndex(indexName).then((res) => res.data.data),
+    mutationFn: (indexName: string) => elasticsearchApi.deletePhysicalIndex(indexName).then((res) => res.data.data),
     onSuccess: (data) => {
       toast.success(data.message)
       queryClient.invalidateQueries({
         queryKey: elasticsearchKeys.all,
-        exact: false,
-        type: 'active'
+        exact: false
       })
-      queryClient.refetchQueries({ queryKey: elasticsearchKeys.all })
     },
     onError: (error) => {
       const axiosError = error as AxiosError<ApiResponse>
@@ -112,7 +110,7 @@ export const useRetryFailedEvent = () => {
     onSuccess: (data) => {
       toast.success(data.message)
       queryClient.invalidateQueries({ queryKey: elasticsearchKeys.failedEvents() })
-      queryClient.invalidateQueries({ queryKey: elasticsearchKeys.summary() })
+      queryClient.invalidateQueries({ queryKey: elasticsearchKeys.all })
     },
     onError: (error) => {
       const axiosError = error as AxiosError<ApiResponse>
@@ -126,11 +124,11 @@ export const useRetryAllFailedEvents = () => {
   const { text: t } = useElasticsearchText()
 
   return useMutation({
-    mutationFn: () => elasticsearchApi.retryAllFailedEvents().then((res) => res.data.data),
+    mutationFn: (type?: SearchIndexType) => elasticsearchApi.retryAllFailedEvents(type).then((res) => res.data.data),
     onSuccess: (data) => {
       toast.success(data.message)
       queryClient.invalidateQueries({ queryKey: elasticsearchKeys.failedEvents() })
-      queryClient.invalidateQueries({ queryKey: elasticsearchKeys.summary() })
+      queryClient.invalidateQueries({ queryKey: elasticsearchKeys.all })
     },
     onError: (error) => {
       const axiosError = error as AxiosError<ApiResponse>
@@ -148,7 +146,7 @@ export const useRetryFailedEventsByDuration = () => {
     onSuccess: (data) => {
       toast.success(data.message)
       queryClient.invalidateQueries({ queryKey: elasticsearchKeys.failedEvents() })
-      queryClient.invalidateQueries({ queryKey: elasticsearchKeys.summary() })
+      queryClient.invalidateQueries({ queryKey: elasticsearchKeys.all })
     },
     onError: (error) => {
       const axiosError = error as AxiosError<ApiResponse>
@@ -156,6 +154,7 @@ export const useRetryFailedEventsByDuration = () => {
     }
   })
 }
+
 export const useRetryFailedEventsBulk = () => {
   const queryClient = useQueryClient()
   const { text: t } = useElasticsearchText()
@@ -165,7 +164,7 @@ export const useRetryFailedEventsBulk = () => {
     onSuccess: (data) => {
       toast.success(data.message)
       queryClient.invalidateQueries({ queryKey: elasticsearchKeys.failedEvents() })
-      queryClient.invalidateQueries({ queryKey: elasticsearchKeys.summary() })
+      queryClient.invalidateQueries({ queryKey: elasticsearchKeys.all })
     },
     onError: (error) => {
       const axiosError = error as AxiosError<ApiResponse>
