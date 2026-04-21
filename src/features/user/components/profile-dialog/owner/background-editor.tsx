@@ -5,6 +5,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useUserText } from '@/features/user/i18n/use-user-text'
 import { useUpdateBackgroundMutation, useUpdateBackgroundPositionMutation } from '../../../queries/use-mutations'
 import { toast } from 'sonner'
+import { getBatchPresignedUrls } from '@/features/chat/api/chat.api'
+import { uploadToS3 } from '@/utils/s3-upload'
 
 interface BackgroundEditorProps {
   backgroundUrl?: string
@@ -64,22 +66,48 @@ export function BackgroundEditor({ backgroundUrl, backgroundY = 50 }: Background
     setIsDraggingBg(false)
   }
 
-  const handleBgSave = () => {
+  const handleBgSave = async () => {
     if (bgPreview) {
-      const formData = new FormData()
-      formData.append('file', bgPreview.file)
-      formData.append('y', tempBgY.toFixed(2))
+      try {
+        // 1. Get Presigned URL
+        const presignInfos = await getBatchPresignedUrls([
+          {
+            fileName: bgPreview.file.name,
+            contentType: bgPreview.file.type,
+            size: bgPreview.file.size,
+            folder: 'backgrounds'
+          }
+        ])
+        const presignInfo = presignInfos[0]
 
-      updateBackgroundMutation.mutate(formData, {
-        onSuccess: () => {
-          toast.success(text.profile.updateBackgroundSuccess)
-          setIsEditingBg(false)
-          setBgPreview(null)
-        },
-        onError: () => {
-          toast.error(text.profile.selectImageError)
-        }
-      })
+        // 2. Upload directly to S3
+        await uploadToS3({
+          url: presignInfo.presignedUrl,
+          file: bgPreview.file,
+          contentType: bgPreview.file.type
+        })
+
+        // 3. Update Profile with imageKey
+        updateBackgroundMutation.mutate(
+          {
+            imageKey: presignInfo.key,
+            y: Number(tempBgY.toFixed(2))
+          },
+          {
+            onSuccess: () => {
+              toast.success(text.profile.updateBackgroundSuccess)
+              setIsEditingBg(false)
+              setBgPreview(null)
+            },
+            onError: () => {
+              toast.error(text.profile.selectImageError)
+            }
+          }
+        )
+      } catch (e) {
+        console.error('Background upload failed', e)
+        toast.error(text.profile.selectImageError)
+      }
     } else {
       updateBackgroundPositionMutation.mutate(tempBgY, {
         onSuccess: () => {

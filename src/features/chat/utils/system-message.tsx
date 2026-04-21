@@ -217,10 +217,10 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
   return (
     <>
       {(metadata?.action === 'PIN_MESSAGE' || metadata?.action === 'UNPIN_MESSAGE') &&
-      (metadata.originalContent || metadata.contentSnapshot) ? (
+        (metadata.originalContent || metadata.contentSnapshot) ? (
         <div className='flex justify-center w-full my-2.5 px-4'>
           <div className='system-msg flex items-center gap-2 py-1.5 px-3.5 max-w-[95%]'>
-            <UserAvatar 
+            <UserAvatar
               name={String(metadata.originalSenderName || t('chat.user'))}
               src={metadata.originalSenderAvatar ? String(metadata.originalSenderAvatar) : undefined}
               className='w-5 h-5 shrink-0'
