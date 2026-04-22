@@ -170,6 +170,24 @@ export const ChatMessageRequestSchema = z.object({
 
 export type ChatMessageRequest = z.infer<typeof ChatMessageRequestSchema>
 
+// ─────────────────────────── V2 Pagination ───────────────────────────
+
+export interface MessageCursorParams {
+  cursor?: string | null
+  limit?: number
+  direction?: 'OLDER' | 'NEWER'
+  aroundMessageId?: string
+}
+
+export interface CursorPageResponse<T> {
+  data: T[]
+  olderCursor: string | null
+  newerCursor: string | null
+  hasMoreOlder: boolean
+  hasMoreNewer: boolean
+  isJumpResult: boolean
+}
+
 export const GroupConversationCreateRequestSchema = z.object({
   name: z.string().min(1),
   avatar: z.string().nullable().optional(),

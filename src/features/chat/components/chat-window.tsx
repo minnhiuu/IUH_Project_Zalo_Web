@@ -2,6 +2,8 @@ import { Phone, Video, Search, PanelsTopLeft, Users, Pencil } from 'lucide-react
 import { useMessagesInfiniteQuery, useUnreadAnchorQuery } from '../queries/use-queries'
 import { useAuth } from '@/features/auth'
 import { useChatContext } from '../context/chat-context'
+import { useQueryClient } from '@tanstack/react-query'
+import { chatKeys } from '../queries/keys'
 import { MessageBubble } from './message-bubble'
 import { ChatInput } from './chat-input'
 import { ChatInputRestricted } from './chat-input-restricted'
@@ -65,13 +67,32 @@ export function ChatWindow({
   const { user } = useAuth()
   const { sendMessage, typingUsers } = useChatContext()
   const { t, text } = useChatText()
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useMessagesInfiniteQuery(conversation.id)
+  const queryClient = useQueryClient()
+  const [jumpTargetId, setJumpTargetId] = useState<string | null>(null)
+
+  const { 
+    data, 
+    fetchNextPage, 
+    hasNextPage, 
+    isFetchingNextPage, 
+    fetchPreviousPage,
+    hasPreviousPage,
+    isFetchingPreviousPage,
+    isLoading, 
+    isFetching 
+  } = useMessagesInfiniteQuery(
+    conversation.id,
+    jumpTargetId
+  )
 
   const suppressFetchRef = useRef(false)
   const { scrollRef, handleScroll, isAtBottom, scrollToBottom } = useChatScroll({
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    fetchPreviousPage,
+    hasPreviousPage,
+    isFetchingPreviousPage,
     suppressFetchRef
   })
   const { mutate: markAsRead } = useMarkAsReadMutation()
@@ -79,15 +100,48 @@ export function ChatWindow({
   const lastMessageRef = useRef<HTMLDivElement>(null)
   const lastReadSentId = useRef<string | null>(null)
 
+  const prevLatestIdRef = useRef<string | null>(null)
+
+  
   const scrollToMessage = useCallback((messageId: string) => {
     const el = document.getElementById(`msg-${messageId}`)
     if (!el) return
     el.scrollIntoView({ behavior: 'smooth', block: 'center' })
     el.classList.add('highlight-message')
-    setTimeout(() => el.classList.remove('highlight-message'), 1200)
+    setTimeout(() => el.classList.remove('highlight-message'), 2000)
   }, [])
 
-  // ΓöÇΓöÇΓöÇ Unread anchor ΓöÇΓöÇΓöÇ
+  const jumpToMessage = useCallback(
+    (messageId: string) => {
+      const el = document.getElementById(`msg-${messageId}`)
+      if (el) {
+        scrollToMessage(messageId)
+      } else {
+        setJumpTargetId(messageId)
+        // Ensure UI perceives this as a brand new fetch cycle logic-wise
+        queryClient.removeQueries({ queryKey: chatKeys.messages(conversation.id) })
+        // React Query will automatically mount and fetch again since the component is still mounted
+        // and its active query was removed. It will use the NEW initialPageParam with jumpTargetId.
+      }
+    },
+    [conversation.id, queryClient, scrollToMessage]
+  )
+
+  useEffect(() => {
+    if (jumpTargetId && !isFetching) {
+      const el = document.getElementById(`msg-${jumpTargetId}`)
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        el.classList.add('highlight-message')
+        setTimeout(() => {
+          el.classList.remove('highlight-message')
+          setJumpTargetId(null)
+        }, 2000)
+      }
+    }
+  }, [data, isFetching, jumpTargetId])
+
+  // ─── Unread anchor ───
   const { data: unreadAnchor } = useUnreadAnchorQuery(conversation.id)
   const [firstUnreadId, setFirstUnreadId] = useState<string | null>(null)
   const [unreadDisplayCount, setUnreadDisplayCount] = useState(0)
@@ -98,9 +152,8 @@ export function ChatWindow({
   const latestMessageIdRef = useRef<string | undefined>(undefined)
   const markAsReadRef = useRef(markAsRead)
 
-  // ΓöÇΓöÇΓöÇ New message button state (populated after latestMessageId is known) ΓöÇΓöÇΓöÇ
+  // ─── New message button state (populated after latestMessageId is known) ───
   const [newMsgCount, setNewMsgCount] = useState(0)
-  const prevLatestIdRef = useRef<string | null>(null)
 
   const scrollToUnread = useCallback(() => {
     if (!firstUnreadId) return
@@ -626,8 +679,8 @@ export function ChatWindow({
             className={cn(
               'flex items-center space-x-3 min-w-0 flex-1',
               !isGroup &&
-                !isCloudConversation &&
-                'cursor-pointer hover:bg-black/5 p-1.5 -ml-1.5 rounded-lg transition-colors'
+              !isCloudConversation &&
+              'cursor-pointer hover:bg-black/5 p-1.5 -ml-1.5 rounded-lg transition-colors'
             )}
             onClick={() => {
               if (!isGroup && !isCloudConversation) {
@@ -641,10 +694,10 @@ export function ChatWindow({
                 onClick={
                   conversation.isGroup && !isAiConversation
                     ? (e: React.MouseEvent) => {
-                        e.stopPropagation()
-                        setInfoDialogStep('info')
-                        setIsInfoDialogOpen(true)
-                      }
+                      e.stopPropagation()
+                      setInfoDialogStep('info')
+                      setIsInfoDialogOpen(true)
+                    }
                     : undefined
                 }
                 className={cn(
@@ -780,7 +833,7 @@ export function ChatWindow({
         <div className='flex-1 relative flex flex-col min-h-0'>
           {/* Pin Board */}
           {!isCloudConversation && !isAiConversation && (
-            <PinBoard conversationId={conversation.id} onScrollToMessage={scrollToMessage} />
+            <PinBoard conversationId={conversation.id} onScrollToMessage={jumpToMessage} />
           )}
 
           {/* Floating Unread Button */}
@@ -849,6 +902,9 @@ export function ChatWindow({
           >
             {isLoading && (
               <div className='flex items-center justify-center flex-1 text-sm text-primary py-8'>{text.loading}</div>
+            )}
+            {isFetchingPreviousPage && (
+              <div className='py-4 text-center text-sm text-muted-foreground'>{text.loading}</div>
             )}
             {allMessages.map((msg, index) => {
               const prevMsg = allMessages[index + 1]

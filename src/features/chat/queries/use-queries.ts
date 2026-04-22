@@ -12,9 +12,19 @@ export const useConversationsQuery = (enabled: boolean = true) => {
   })
 }
 
-export const useMessagesInfiniteQuery = (conversationId: string) => {
+export const useMessagesInfiniteQuery = (conversationId: string, jumpTargetId?: string | null) => {
   return useInfiniteQuery({
-    ...chatOptions.messages(conversationId),
+    ...chatOptions.messagesV2(conversationId),
+    initialPageParam: (jumpTargetId
+      ? { limit: 20, aroundMessageId: jumpTargetId }
+      : { limit: 20, direction: 'OLDER', cursor: null }) as any, // ép kiểu an toàn
+    enabled: !!conversationId
+  })
+}
+
+export const useChatMessagesV2 = (conversationId: string) => {
+  return useInfiniteQuery({
+    ...chatOptions.messagesV2(conversationId),
     enabled: !!conversationId
   })
 }

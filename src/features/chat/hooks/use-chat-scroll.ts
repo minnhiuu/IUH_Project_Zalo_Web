@@ -4,11 +4,17 @@ export const useChatScroll = ({
   fetchNextPage,
   hasNextPage,
   isFetchingNextPage,
+  fetchPreviousPage,
+  hasPreviousPage,
+  isFetchingPreviousPage,
   suppressFetchRef
 }: {
   fetchNextPage: () => void
   hasNextPage: boolean
   isFetchingNextPage: boolean
+  fetchPreviousPage?: () => void
+  hasPreviousPage?: boolean
+  isFetchingPreviousPage?: boolean
   suppressFetchRef?: RefObject<boolean>
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -25,12 +31,26 @@ export const useChatScroll = ({
     const distanceFromBottom = Math.abs(scrollTop)
     setIsAtBottom(distanceFromBottom < 80)
 
+    if (distanceFromBottom < 100) {
+      if (hasPreviousPage && !isFetchingPreviousPage && fetchPreviousPage) {
+        fetchPreviousPage()
+      }
+    }
+
     if (Math.abs(scrollTop) >= scrollHeight - clientHeight - 100) {
       if (hasNextPage && !isFetchingNextPage) {
         fetchNextPage()
       }
     }
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage, suppressFetchRef])
+  }, [
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchPreviousPage,
+    hasPreviousPage,
+    isFetchingPreviousPage,
+    suppressFetchRef
+  ])
 
   const scrollToBottom = useCallback(() => {
     if (!scrollRef.current) return
