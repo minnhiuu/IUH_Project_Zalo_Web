@@ -14,10 +14,7 @@ export const useConversationsQuery = (enabled: boolean = true) => {
 
 export const useMessagesInfiniteQuery = (conversationId: string, jumpTargetId?: string | null) => {
   return useInfiniteQuery({
-    ...chatOptions.messagesV2(conversationId),
-    initialPageParam: (jumpTargetId
-      ? { limit: 20, aroundMessageId: jumpTargetId }
-      : { limit: 20, direction: 'OLDER', cursor: null }) as any, // ép kiểu an toàn
+    ...chatOptions.messagesV2(conversationId, jumpTargetId),
     enabled: !!conversationId
   })
 }
@@ -143,8 +140,8 @@ export const useUnreadAnchorQuery = (conversationId: string, enabled: boolean = 
     queryKey: chatKeys.unreadAnchor(conversationId),
     queryFn: () => getUnreadAnchorApi(conversationId),
     enabled: enabled && !!conversationId,
-    staleTime: 0,
-    gcTime: 0
+    staleTime: 10_000,
+    gcTime: 30_000
   })
 }
 

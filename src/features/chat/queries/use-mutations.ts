@@ -74,6 +74,8 @@ export const useMarkAsReadMutation = () => {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+      // Không invalidate unreadAnchor ở đây vì ta đã xử lý ẩn divider bằng local state trong ChatWindow
+      // Việc invalidate sẽ làm phát sinh thêm 1 request API dư thừa mỗi lần Read
     }
   })
 }

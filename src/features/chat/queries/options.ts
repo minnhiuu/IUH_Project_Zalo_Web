@@ -36,7 +36,7 @@ export const chatOptions = {
   messages: (conversationId: string) =>
     infiniteQueryOptions({
       ...QUERY_POLICIES.REALTIME,
-      queryKey: chatKeys.messages(conversationId),
+      queryKey: chatKeys.legacyMessages(conversationId),
       queryFn: async ({ pageParam = 0 }) => {
         const response = await getMessages(conversationId, pageParam as number)
         return response
@@ -49,12 +49,14 @@ export const chatOptions = {
         return undefined
       }
     }),
-  messagesV2: (conversationId: string) =>
+  messagesV2: (conversationId: string, jumpTargetId?: string | null) =>
     infiniteQueryOptions({
       ...QUERY_POLICIES.REALTIME,
       queryKey: chatKeys.messages(conversationId),
       queryFn: ({ pageParam }) => getMessagesV2(conversationId, pageParam as MessageCursorParams),
-      initialPageParam: { limit: 20, direction: 'OLDER', cursor: null } as MessageCursorParams,
+      initialPageParam: (jumpTargetId
+        ? { limit: 20, aroundMessageId: jumpTargetId }
+        : { limit: 20, direction: 'OLDER', cursor: null }) as MessageCursorParams,
       getNextPageParam: (lastPage: CursorPageResponse<MessageResponse>): MessageCursorParams | undefined =>
         lastPage.hasMoreOlder ? { cursor: lastPage.olderCursor, direction: 'OLDER', limit: 20 } : undefined,
       getPreviousPageParam: (firstPage: CursorPageResponse<MessageResponse>): MessageCursorParams | undefined =>

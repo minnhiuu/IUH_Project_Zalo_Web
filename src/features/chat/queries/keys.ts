@@ -1,7 +1,8 @@
 export const chatKeys = {
   all: () => ['chat'] as const,
   conversations: () => [...chatKeys.all(), 'conversations'] as const,
-  messages: (conversationId: string) => [...chatKeys.all(), 'messages', conversationId] as const,
+  messages: (conversationId: string) => [...chatKeys.all(), 'messages-v2', conversationId] as const,
+  legacyMessages: (conversationId: string) => [...chatKeys.all(), 'messages', conversationId] as const,
   media: (conversationId: string, types: string[]) =>
     [...chatKeys.all(), 'media', conversationId, types.join(',')] as const,
   friendsDirectory: (conversationId?: string | null) =>
