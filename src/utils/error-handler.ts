@@ -16,10 +16,8 @@ type BaseErrorResponse = {
   error?: {
     message?: string
   }
-  data?: Record<string, string> | { message?: string } | null
-  errors?: Array<{
-    message?: string
-  }>
+  data?: Record<string, unknown> | null
+  errors?: Record<string, string> | Array<{ message?: string }> | null
 }
 
 const pickFirstMessage = (...values: Array<unknown>): string | undefined => {
@@ -31,19 +29,24 @@ const pickFirstMessage = (...values: Array<unknown>): string | undefined => {
 
 const getValidationFieldErrors = (error: AxiosError<BaseErrorResponse>): Array<{ field: string; message: string }> => {
   const payload = error.response?.data
-  const data = payload?.data
+  
+  // Prefer payload.errors from new backend structure, fallback to payload.data for legacy
+  const errorsObj = payload?.errors && typeof payload.errors === 'object' && !Array.isArray(payload.errors)
+    ? payload.errors
+    : (payload?.data && typeof payload.data === 'object' && !Array.isArray(payload.data) ? payload.data : null)
 
-  if (!data || Array.isArray(data) || typeof data !== 'object') {
+  if (!errorsObj) {
     return []
   }
 
-  if ('message' in data) {
+  // Legacy check: if it's just { message: '...' } in data, don't treat it as field errors
+  if ('message' in errorsObj && Object.keys(errorsObj).length === 1) {
     return []
   }
 
-  return Object.entries(data)
+  return Object.entries(errorsObj)
     .filter(([field, message]) => Boolean(field) && typeof message === 'string' && message.trim().length > 0)
-    .map(([field, message]) => ({ field, message: message.trim() }))
+    .map(([field, message]) => ({ field, message: (message as string).trim() }))
 }
 
 export class EntityError extends Error {
@@ -60,11 +63,22 @@ export class EntityError extends Error {
 export const getErrorMessage = (error: unknown): string => {
   if (axios.isAxiosError(error)) {
     const data = error.response?.data as BaseErrorResponse | undefined
+    
+    let firstArrayErrorMessage: string | undefined
+    if (Array.isArray(data?.errors) && data.errors.length > 0) {
+      firstArrayErrorMessage = data.errors[0]?.message
+    } else if (data?.errors && typeof data.errors === 'object' && !Array.isArray(data.errors)) {
+      const values = Object.values(data.errors)
+      if (values.length > 0 && typeof values[0] === 'string') {
+        firstArrayErrorMessage = values[0]
+      }
+    }
+
     const backendMessage = pickFirstMessage(
       data?.message,
       data?.error?.message,
       data?.data?.message,
-      data?.errors?.[0]?.message,
+      firstArrayErrorMessage,
       error.message
     )
 

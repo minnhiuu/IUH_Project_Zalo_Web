@@ -180,39 +180,33 @@
   --accent-blue-text: #66a6ff;
   --bg-message-info: hsla(0, 0%, 100%, 0.05);
 
-  --accent-blue-border: #66a6ff;
-  --accent-blue-text: #66a6ff;
-  --bg-message-info: hsla(0, 0%, 100%, 0.05);
+  --background: #22262b;
+  --foreground: #dfe2e7;
 
-  --background: #09090b;
-  --foreground: #ececec;
+  --vibrant-blue: #0190f3;
+  --vibrant-blue-hover: #0078cc;
 
-  --vibrant-blue: #6366f1;
-  --vibrant-blue-hover: #4f46e5;
+  --card: #22262b;
+  --card-foreground: #ffffff;
 
-  --card: #09090b;
-  --card-foreground: #ececec;
+  --popover: #22262b;
+  --popover-foreground: #ffffff;
 
-  --popover: #09090b;
-  --popover-foreground: #ececec;
-
-  --primary: #6366f1;
+  --primary: #0068ff;
   --primary-foreground: #ffffff;
-  --primary-hover: #4f46e5;
+  --primary-hover: #005ae0;
 
-  --secondary: #27272a;
-  --secondary-foreground: #ececec;
-  --secondary-hover: #3f3f46;
+  --secondary: #2c323a;
+  --secondary-foreground: #dfe2e7;
+  --secondary-hover: #38404a;
 
-  --muted: #18181b;
-  --muted-foreground: #a1a1aa;
+  --muted: #3e444a;
+  --muted-foreground: #b6c1cf;
 
-  --accent: #27272a;
+  --accent: #3e444a;
   --accent-foreground: #ffffff;
 
-  --accent-hover: #3e444a;
-
-  --section-divider: #18181b;
+  --section-divider: #121416;
 
   --destructive: #9a1313;
   --destructive-foreground: #dfe2e7;
@@ -221,7 +215,7 @@
   --destructive-hover: #c31818;
   --destructive-hover-foreground: #dfe2e7;
 
-  --border: hsla(0, 0%, 100%, 0.05);
+  --border: hsla(0, 0%, 100%, 0.1);
   --input: #1a1d21;
   --ring: #0068ff;
 
@@ -797,64 +791,4 @@ input[type='radio']:checked {
 
 .msg-actions.is-hidden {
   display: none !important;
-}
-
-.custom-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: var(--scrollbar-thumb) transparent;
-}
-
-.custom-scrollbar::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: var(--scrollbar-thumb);
-  border: 2px solid transparent;
-  background-clip: content-box;
-  border-radius: 9999px;
-  transition: background-color 0.2s ease;
-}
-
-.custom-scrollbar:hover::-webkit-scrollbar-thumb {
-  background-color: var(--scrollbar-thumb-hover);
-}
-
-.custom-scrollbar::-webkit-scrollbar-corner {
-  background: transparent;
-}
-
-.hide-scrollbar {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.hide-scrollbar::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-  display: none;
-}
-
-@keyframes shimmer {
-  0% {
-    transform: skewX(-12deg) translateX(-120%);
-  }
-  100% {
-    transform: skewX(-12deg) translateX(220%);
-  }
-}
-
-:root {
-  --scrollbar-thumb: color-mix(in srgb, var(--brand-blue) 65%, transparent);
-  --scrollbar-thumb-hover: color-mix(in srgb, var(--brand-blue-dark) 75%, transparent);
-}
-
-.dark {
-  --scrollbar-thumb: color-mix(in srgb, var(--vibrant-blue) 55%, transparent);
-  --scrollbar-thumb-hover: color-mix(in srgb, var(--vibrant-blue-hover) 70%, transparent);
 }

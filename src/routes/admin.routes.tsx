@@ -9,6 +9,7 @@ import IngestDocumentPage from '@/pages/admin/ingest-document.page'
 import ReportsManagementPage from '@/pages/admin/reports-management-page'
 import ReportDetailPage from '@/pages/admin/report-detail-page'
 import AdminSeedingPage from '@/pages/admin/seeding.page'
+import AdminVectorStorePage from '@/pages/admin/vector-store.page'
 
 export const adminRoutes: RouteObject = {
   element: <PrivateRoute requireAuth requireAdmin />,
@@ -32,6 +33,10 @@ export const adminRoutes: RouteObject = {
         {
           path: PATHS.ADMIN.INGEST_DOCUMENT,
           element: <IngestDocumentPage />
+        },
+        {
+          path: PATHS.ADMIN.VECTOR_STORE,
+          element: <AdminVectorStorePage />
         }
       ]
     }
