@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Sparkles } from 'lucide-react'
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel'
 import { useMyProfile } from '@/features/user/queries/use-queries'
@@ -28,6 +28,12 @@ export interface SocialStory {
     duration?: number | null
     albumName?: string | null
   } | null
+  stats?: {
+    viewCount?: number
+    reactionCount?: number
+    topReactions?: string[]
+  } | null
+  currentUserReaction?: string | null
 }
 
 /** All stories from a single user, grouped together. */
@@ -53,6 +59,16 @@ export function StoriesStrip({ stories, isLoading = false }: StoriesStripProps) 
   const currentUserName = myProfile?.fullName?.trim() || text.composer.me
   const currentUserAvatar = myProfile?.avatar || undefined
 
+  const sortedStories = useMemo(() => {
+    if (!myProfile?.id || !stories) return stories
+    const myGroup = stories.find((g) => g.authorId === myProfile.id)
+    const others = stories.filter((g) => g.authorId !== myProfile.id)
+    if (myGroup) {
+      return [myGroup, ...others]
+    }
+    return stories
+  }, [stories, myProfile?.id])
+
   return (
     <section className='relative overflow-hidden w-full'>
 
@@ -76,22 +92,25 @@ export function StoriesStrip({ stories, isLoading = false }: StoriesStripProps) 
             </CarouselItem>
 
             {/* One card per user group */}
-            {stories.map((group, index) => (
-              <CarouselItem key={group.authorId} className='basis-auto pl-0'>
-                <StoryCard
-                  authorName={group.authorName}
-                  authorAvatar={group.authorAvatar}
-                  mediaUrl={group.stories[0]?.mediaUrl}
-                  mediaType={group.stories[0]?.mediaType}
-                  caption={group.stories[0]?.caption}
-                  mediaAlt={text.stories.itemAlt(group.authorName)}
-                  onClick={() => {
-                    setSelectedGroupIndex(index)
-                    setIsViewerOpen(true)
-                  }}
-                />
-              </CarouselItem>
-            ))}
+            {sortedStories.map((group, index) => {
+              const isMyStory = group.authorId === myProfile?.id
+              return (
+                <CarouselItem key={group.authorId} className='basis-auto pl-0'>
+                  <StoryCard
+                    authorName={isMyStory ? 'Your Story' : group.authorName}
+                    authorAvatar={group.authorAvatar}
+                    mediaUrl={group.stories[0]?.mediaUrl}
+                    mediaType={group.stories[0]?.mediaType}
+                    caption={group.stories[0]?.caption}
+                    mediaAlt={text.stories.itemAlt(group.authorName)}
+                    onClick={() => {
+                      setSelectedGroupIndex(index)
+                      setIsViewerOpen(true)
+                    }}
+                  />
+                </CarouselItem>
+              )
+            })}
           </CarouselContent>
 
           <CarouselPrevious className='-left-3 h-11 w-11 rounded-full border border-zinc-200/80 bg-white/95 text-zinc-700 shadow-lg backdrop-blur-md transition-all hover:scale-105 hover:bg-zinc-50 hover:text-zinc-900 dark:border-white/10 dark:bg-zinc-900/95 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white' />
@@ -100,7 +119,7 @@ export function StoriesStrip({ stories, isLoading = false }: StoriesStripProps) 
       )}
 
       <StoryViewerModal
-        groups={stories}
+        groups={sortedStories}
         open={isViewerOpen}
         initialGroupIndex={selectedGroupIndex}
         onOpenChange={setIsViewerOpen}

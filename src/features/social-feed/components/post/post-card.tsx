@@ -306,34 +306,38 @@ export function PostCard({ post }: PostCardProps) {
         )}
 
         <div className='flex items-center justify-between pt-3 text-[13px] font-medium text-zinc-500 dark:text-zinc-400'>
-          <button
-            type='button'
-            onClick={() => setReactionPeopleModalOpen(true)}
-            className='flex items-center gap-2.5 rounded-md transition-colors hover:text-indigo-500 dark:hover:text-indigo-400'
-          >
-            {topReactionOptions.length > 0 ? (
-              <div className='flex items-center'>
-                {topReactionOptions.map((reaction, index) => (
-                  <div
-                    key={`${reaction.type}-${index}`}
-                    className={`flex h-6 w-6 items-center justify-center rounded-full border border-white bg-zinc-100 text-[13px] leading-none dark:border-zinc-900 dark:bg-zinc-800 ${index > 0 ? '-ml-2' : ''}`}
-                    title={text.reactions.labels[reaction.type]}
-                  >
-                    <reaction.Icon size={16} />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className='flex h-6 w-6 items-center justify-center rounded-full bg-indigo-500/10 dark:bg-indigo-500/20'>
-                {activeReaction ? (
-                  <activeReaction.Icon size={16} />
-                ) : (
-                  <ThumbsUp className='h-3.5 w-3.5 fill-indigo-500 text-indigo-500' />
-                )}
-              </div>
-            )}
-            <span className='text-[15px] font-semibold text-zinc-700 dark:text-zinc-200'>{reactionsCount}</span>
-          </button>
+          {reactionsCount > 0 ? (
+            <button
+              type='button'
+              onClick={() => setReactionPeopleModalOpen(true)}
+              className='flex items-center gap-2.5 rounded-md transition-colors hover:text-indigo-500 dark:hover:text-indigo-400'
+            >
+              {topReactionOptions.length > 0 ? (
+                <div className='flex items-center'>
+                  {topReactionOptions.map((reaction, index) => (
+                    <div
+                      key={`${reaction.type}-${index}`}
+                      className={`flex h-6 w-6 items-center justify-center rounded-full border border-white bg-zinc-100 text-[13px] leading-none dark:border-zinc-900 dark:bg-zinc-800 ${index > 0 ? '-ml-2' : ''}`}
+                      title={text.reactions.labels[reaction.type]}
+                    >
+                      <reaction.Icon size={16} />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className='flex h-6 w-6 items-center justify-center rounded-full bg-indigo-500/10 dark:bg-indigo-500/20'>
+                  {activeReaction ? (
+                    <activeReaction.Icon size={16} />
+                  ) : (
+                    <ThumbsUp className='h-3.5 w-3.5 fill-indigo-500 text-indigo-500' />
+                  )}
+                </div>
+              )}
+              <span className='text-[15px] font-semibold text-zinc-700 dark:text-zinc-200'>{reactionsCount}</span>
+            </button>
+          ) : (
+            <div />
+          )}
           <div className='flex items-center gap-3'>
             <button
               type='button'

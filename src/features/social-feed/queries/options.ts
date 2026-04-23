@@ -60,7 +60,7 @@ const toContent = (post: BackendPostResponse): string => {
     sections.push(hashtags)
   }
 
-  return sections.join('\n\n') || 'No content'
+  return sections.join('\n\n') || ''
 }
 
 const getFallbackAuthorName = () => 'Unknown user'
@@ -171,7 +171,9 @@ const mapPostToSocialStory = (post: BackendPostResponse): SocialStory => {
     mediaType: (firstMedia?.type ?? '').toUpperCase() === 'VIDEO' ? 'VIDEO' : 'IMAGE',
     caption: toContent(post),
     expiresAt: post.expiresAt ?? null,
-    music: post.music ?? null
+    music: post.music ?? null,
+    stats: post.stats ?? null,
+    currentUserReaction: post.currentUserReaction ?? null
   }
 }
 

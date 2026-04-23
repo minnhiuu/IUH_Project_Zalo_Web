@@ -1,10 +1,13 @@
 import { useState, useRef, useEffect } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Eye } from 'lucide-react'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { StoryViewerPanel } from './story-viewer-panel'
 import { REACTIONS, type ReactionType } from '../post/reaction-picker'
 import { useSocialText } from '../../i18n/use-social-text'
 import { useRecordStoryViewMutation, useToggleStoryReactionMutation, useDeleteStoryReactionMutation } from '../../queries/use-mutations'
+import { useMyProfile } from '@/features/user/queries/use-queries'
+import { StoryReactionsModal } from './story-reactions-modal'
+import { StoryViewersModal } from './story-viewers-modal'
 import type { SocialStory, StoryGroup } from './stories-strip'
 
 interface StoryViewerModalProps {
@@ -30,9 +33,13 @@ export function StoryViewerModal({ groups, open, initialGroupIndex, onOpenChange
   const progressAnimationRef = useRef<number | null>(null)
 
   const { text } = useSocialText()
+  const { data: myProfile } = useMyProfile()
   const recordViewMutation = useRecordStoryViewMutation()
   const toggleReactionMutation = useToggleStoryReactionMutation()
   const deleteReactionMutation = useDeleteStoryReactionMutation()
+
+  const [showReactionsModal, setShowReactionsModal] = useState(false)
+  const [showViewersModal, setShowViewersModal] = useState(false)
 
   // Sync when the modal opens or the initial group changes
   const [prevOpen, setPrevOpen] = useState(open)
@@ -227,6 +234,8 @@ export function StoryViewerModal({ groups, open, initialGroupIndex, onOpenChange
     if (normalizedVolume > 0) setLastNonZeroVolume(normalizedVolume)
   }
 
+  const isMyStory = currentStory?.authorId === myProfile?.id
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -260,22 +269,61 @@ export function StoryViewerModal({ groups, open, initialGroupIndex, onOpenChange
             onVideoEnded={() => goForward()}
 
             footer={
-              <div className='flex items-center gap-3 rounded-full border border-white/10 bg-black/40 px-4 py-2.5 shadow-xl backdrop-blur-xl transition-all hover:bg-black/50'>
-                {REACTIONS.map((reaction) => {
-                  const isActive = selectedReaction === reaction.type
-                  return (
-                    <button
-                      key={reaction.type}
-                      type='button'
-                      onClick={() => handleReactionSelect(reaction.type)}
-                      title={text.reactions.labels[reaction.type]}
-                      className={`flex h-10 w-10 items-center justify-center rounded-full text-2xl leading-none transition-all duration-300 ${isActive ? 'scale-125 bg-white/20 ring-1 ring-white/50' : 'hover:scale-125 hover:bg-white/10'}`}
-                    >
-                      <reaction.Icon size={28} />
-                    </button>
-                  )
-                })}
-              </div>
+              isMyStory ? (
+                <div className='flex items-center gap-6 rounded-full border border-white/10 bg-black/40 px-6 py-2.5 shadow-xl backdrop-blur-xl transition-all hover:bg-black/50'>
+                  <div
+                    className='flex items-center gap-2 cursor-pointer transition-colors hover:text-white/80'
+                    title='Views'
+                    onClick={() => setShowViewersModal(true)}
+                  >
+                    <Eye className='h-5 w-5 text-white/90' />
+                    <span className='text-[15px] font-semibold tracking-wide text-white'>
+                      {currentStory.stats?.viewCount || 0}
+                    </span>
+                  </div>
+                  <div className='h-4 w-px bg-white/20' />
+                  <div
+                    className='flex items-center gap-2 cursor-pointer transition-colors hover:text-white/80'
+                    title='Reactions'
+                    onClick={() => setShowReactionsModal(true)}
+                  >
+                    {currentStory.stats?.topReactions && currentStory.stats.topReactions.length > 0 && (
+                      <div className='flex -space-x-1 mr-1'>
+                        {currentStory.stats.topReactions.slice(0, 3).map((reactionType, i) => {
+                          const ReactionDef = REACTIONS.find((r) => r.type === reactionType)
+                          if (!ReactionDef) return null
+                          return (
+                            <div key={i} className='rounded-full border border-black/20 bg-black/40 p-[2px] z-10'>
+                              <ReactionDef.Icon size={14} />
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )}
+                    <span className='text-[15px] font-semibold tracking-wide text-white'>
+                      {currentStory.stats?.reactionCount || 0}
+                    </span>
+                    <span className='text-[13px] font-medium text-white/80'>reactions</span>
+                  </div>
+                </div>
+              ) : (
+                <div className='flex items-center gap-3 rounded-full border border-white/10 bg-black/40 px-4 py-2.5 shadow-xl backdrop-blur-xl transition-all hover:bg-black/50'>
+                  {REACTIONS.map((reaction) => {
+                    const isActive = selectedReaction === reaction.type
+                    return (
+                      <button
+                        key={reaction.type}
+                        type='button'
+                        onClick={() => handleReactionSelect(reaction.type)}
+                        title={text.reactions.labels[reaction.type]}
+                        className={`flex h-10 w-10 items-center justify-center rounded-full text-2xl leading-none transition-all duration-300 ${isActive ? 'scale-125 bg-white/20 ring-1 ring-white/50' : 'hover:scale-125 hover:bg-white/10'}`}
+                      >
+                        <reaction.Icon size={28} />
+                      </button>
+                    )
+                  })}
+                </div>
+              )
             }
             overlay={
               <>
@@ -333,6 +381,23 @@ export function StoryViewerModal({ groups, open, initialGroupIndex, onOpenChange
           />
         </div>
       </DialogContent>
+      {showReactionsModal && currentStory && (
+        <StoryReactionsModal
+          open={showReactionsModal}
+          onOpenChange={setShowReactionsModal}
+          targetId={currentStory.id}
+          targetType='POST'
+          initialReactionType={(currentStory.stats?.topReactions?.[0] as ReactionType) || 'LIKE'}
+        />
+      )}
+
+      {showViewersModal && currentStory && (
+        <StoryViewersModal
+          open={showViewersModal}
+          onOpenChange={setShowViewersModal}
+          targetId={currentStory.id}
+        />
+      )}
     </Dialog>
   )
 }
