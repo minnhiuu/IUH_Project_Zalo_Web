@@ -12,7 +12,9 @@ import type {
   GroupSettings,
   JoinGroupPreviewResponse,
   PinnedMessageInfo,
-  JoinRequestResponse
+  JoinRequestResponse,
+  MessageCursorParams,
+  CursorPageResponse
 } from '../schemas/chat.schema'
 
 export const getConversations = async (page = 0, size = 20): Promise<PageResponse<ConversationResponse>> => {
@@ -54,6 +56,17 @@ export const getMessages = async (
   const response = await http.get<ApiResponse<PageResponse<MessageResponse>>>(
     `/messages/conversations/${conversationId}/messages`,
     { params: { page, size } }
+  )
+  return response.data.data
+}
+
+export const getMessagesV2 = async (
+  conversationId: string,
+  params: MessageCursorParams
+): Promise<CursorPageResponse<MessageResponse>> => {
+  const response = await http.get<ApiResponse<CursorPageResponse<MessageResponse>>>(
+    `/messages/v2/conversations/${conversationId}/messages`,
+    { params }
   )
   return response.data.data
 }
@@ -107,6 +120,23 @@ export interface FileUploadResult {
   size: number
 }
 
+export interface PresignFileRequest {
+  fileName: string
+  contentType: string
+  size: number
+  folder: string
+}
+
+export interface PresignedUploadResponse {
+  key: string
+  presignedUrl: string
+  publicUrl: string
+  contentType: string
+  originalFileName: string
+  size: number
+  expiresAt: string
+}
+
 export const uploadFileApi = async (file: File, folder: string): Promise<FileUploadResult> => {
   const formData = new FormData()
   formData.append('file', file)
@@ -114,6 +144,11 @@ export const uploadFileApi = async (file: File, folder: string): Promise<FileUpl
     params: { folder },
     headers: { 'Content-Type': 'multipart/form-data' }
   })
+  return response.data.data
+}
+
+export const getBatchPresignedUrls = async (requests: PresignFileRequest[]): Promise<PresignedUploadResponse[]> => {
+  const response = await http.post<ApiResponse<PresignedUploadResponse[]>>('/files/presign/batch', requests)
   return response.data.data
 }
 

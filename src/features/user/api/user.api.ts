@@ -6,8 +6,10 @@ import type { ApiResponse, PageResponse } from '@/shared/api'
 export const userApi = {
   getMyProfile: () => http.get<ApiResponse<UserResponse>>('/users/me'),
   updateMyProfile: (body: UserUpdateRequest) => http.put<ApiResponse<UserResponse>>('/users/me', body),
-  updateAvatar: (body: FormData) => http.patch<ApiResponse<UserImageResponse>>('/users/profile/avatar', body),
-  updateBackground: (body: FormData) => http.patch<ApiResponse<UserImageResponse>>('/users/profile/background', body),
+  updateAvatar: (body: FormData | { imageKey: string }) =>
+    http.patch<ApiResponse<UserImageResponse>>('/users/profile/avatar', body),
+  updateBackground: (body: FormData | { imageKey: string; y: number }) =>
+    http.patch<ApiResponse<UserImageResponse>>('/users/profile/background', body),
   updateBackgroundPosition: (y: number) =>
     http.patch<ApiResponse<UserImageResponse>>(`/users/profile/background/position?y=${y}`),
   updateBio: (body: { bio: string }) => http.put<ApiResponse<UserResponse>>('/users/profile/bio', body),

@@ -19,8 +19,7 @@ export function PostComposerLauncher() {
   const currentUserLabel = text.composer.me
   const { data: myProfile } = useMyProfile()
   const profileName = myProfile?.fullName?.trim() || currentUserLabel
-  const profileAvatar =
-    myProfile?.avatar || `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(profileName)}`
+  const profileAvatar = myProfile?.avatar || ''
 
   const [open, setOpen] = useState(false)
 
@@ -31,12 +30,14 @@ export function PostComposerLauncher() {
           type='button'
           className='group flex w-full items-center gap-3 rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-left shadow-sm transition-all hover:border-indigo-300 hover:shadow-md dark:border-white/5 dark:bg-zinc-950/50 dark:hover:border-indigo-500/30'
         >
-          <UserAvatar
-            name={profileName}
-            src={profileAvatar}
-            className='h-10 w-10 shrink-0 border border-zinc-200 dark:border-white/5'
-            fallbackClassName='bg-indigo-500/10 text-indigo-500'
-          />
+          <div className='h-10 w-10 shrink-0'>
+            <UserAvatar
+              name={profileName}
+              src={profileAvatar}
+              className='w-full h-full border border-background'
+              fallbackClassName='bg-primary text-white'
+            />
+          </div>
           <div className='min-w-0 flex-1'>
             <p className='truncate rounded-full border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-[14.5px] font-medium text-zinc-500 transition-colors group-hover:border-indigo-300 group-hover:text-zinc-700 dark:border-white/10 dark:bg-zinc-900 dark:text-zinc-400 dark:group-hover:border-indigo-500/40 dark:group-hover:text-zinc-200'>
               {text.launcher.prompt}

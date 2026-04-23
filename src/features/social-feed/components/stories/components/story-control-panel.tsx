@@ -11,11 +11,7 @@ import type { TrackDisplay } from '../types'
 // ─── Section Label ─────────────────────────────────────────────────────────────
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <p className='text-[10.5px] font-bold uppercase tracking-[0.12em] text-muted-foreground/70'>
-      {children}
-    </p>
-  )
+  return <p className='text-[10.5px] font-bold uppercase tracking-[0.12em] text-muted-foreground/70'>{children}</p>
 }
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -96,16 +92,17 @@ export function StoryControlPanel({
 
   return (
     <div className='flex w-[340px] shrink-0 flex-col border-l border-border bg-card lg:w-[372px]'>
-
       {/* ── Header ──────────────────────────────────────────────────────── */}
       <div className='flex items-center gap-3 border-b border-border px-5 py-4'>
         <div className='rounded-full border-2 border-indigo-500/50 p-[2px] shadow-sm shadow-indigo-500/20'>
-          <UserAvatar
-            name={profileName}
-            src={profileAvatar}
-            className='h-8 w-8'
-            fallbackClassName='bg-indigo-500/20 text-indigo-300 text-xs font-semibold'
-          />
+          <div className='h-8 w-8'>
+            <UserAvatar
+              name={profileName}
+              src={profileAvatar}
+              className='w-full h-full border border-background'
+              fallbackClassName='bg-primary text-white text-xs font-semibold'
+            />
+          </div>
         </div>
         <div className='flex-1 min-w-0'>
           <p className='text-[13.5px] font-bold text-foreground truncate'>{profileName}</p>
@@ -116,7 +113,6 @@ export function StoryControlPanel({
 
       {/* ── Scrollable body ─────────────────────────────────────────────── */}
       <div className='flex flex-1 flex-col gap-5 overflow-y-auto px-5 py-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'>
-
         {/* Media type buttons */}
         <div className='space-y-2.5'>
           <SectionLabel>{text.storyComposer.mediaLabel}</SectionLabel>
@@ -131,7 +127,9 @@ export function StoryControlPanel({
                   : 'border-border bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground'
               )}
             >
-              <ImageIcon className={cn('h-5 w-5', mediaType === 'IMAGE' ? 'text-emerald-500' : 'text-muted-foreground')} />
+              <ImageIcon
+                className={cn('h-5 w-5', mediaType === 'IMAGE' ? 'text-emerald-500' : 'text-muted-foreground')}
+              />
               {text.storyComposer.addImage}
             </button>
             <button
@@ -162,8 +160,14 @@ export function StoryControlPanel({
               maxLength={200}
             />
             <div className='flex justify-end px-4 pb-3'>
-              <span className={cn('text-[11px] tabular-nums transition-colors', caption.length > 160 ? 'text-amber-500' : 'text-muted-foreground/50')}>
-                {caption.length}<span className='text-muted-foreground/40'>/200</span>
+              <span
+                className={cn(
+                  'text-[11px] tabular-nums transition-colors',
+                  caption.length > 160 ? 'text-amber-500' : 'text-muted-foreground/50'
+                )}
+              >
+                {caption.length}
+                <span className='text-muted-foreground/40'>/200</span>
               </span>
             </div>
           </div>

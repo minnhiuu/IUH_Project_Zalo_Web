@@ -68,6 +68,24 @@
     "pauseAriaLabel": "Pause reel",
     "seekAriaLabel": "Seek reel"
   },
+  "reelComposer": {
+    "title": "Create Reel",
+    "dialogDescription": "Open a full-screen reel composer.",
+    "subtitle": "Upload one video, write a caption, and publish.",
+    "createAction": "Create Reel",
+    "previewEmpty": "Your reel preview will appear here.",
+    "pickVideo": "Choose video",
+    "replaceVideo": "Replace video",
+    "removeVideo": "Remove video",
+    "videoHint": "Only one video is allowed for a reel.",
+    "captionPlaceholder": "Write a caption for your reel...",
+    "publish": "Publish reel",
+    "publishing": "Publishing...",
+    "videoRequired": "Please choose a video before publishing.",
+    "invalidVideo": "Please choose a valid video file.",
+    "successToast": "Reel created successfully.",
+    "errorToast": "Failed to create reel. Please try again."
+  },
   "post": {
     "attachmentAlt": "Post attachment from {{author}}",
     "commentCount": "{{count}} comments",

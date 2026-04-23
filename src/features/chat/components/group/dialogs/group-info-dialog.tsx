@@ -101,7 +101,7 @@ export function GroupInfoDialog({
             {step === 'management'
               ? tg.managementTitle
               : step === 'blocked'
-                ? tg.blockedMembersTitle || tg.actions.removeMembers
+                ? tg.actions.removeMembers
                 : step === 'admins'
                   ? tg.actions.ownerAndDeputy
                   : step === 'members'

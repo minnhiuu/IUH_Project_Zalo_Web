@@ -16,6 +16,8 @@ const VIDEO_MIME_PREFIX = 'video/'
 interface CommentInputProps {
   placeholder?: string
   isSubmitting?: boolean
+  currentUserName?: string
+  currentUserAvatar?: string | null
   replyTarget?: {
     id: string
     authorName: string
@@ -27,6 +29,8 @@ interface CommentInputProps {
 export function CommentInput({
   placeholder,
   isSubmitting = false,
+  currentUserName,
+  currentUserAvatar,
   replyTarget = null,
   onCancelReply,
   onSubmit
@@ -38,9 +42,12 @@ export function CommentInput({
   const [isUploadingMedia, setIsUploadingMedia] = useState(false)
   const imageInputRef = useRef<HTMLInputElement | null>(null)
   const videoInputRef = useRef<HTMLInputElement | null>(null)
-  
-  const currentUserLabel = user?.fullName || text.composer.me
-  const currentUserAvatar = user?.avatar || `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(currentUserLabel)}`
+
+  const currentUserLabel = currentUserName?.trim() || user?.fullName || text.composer.me
+  const resolvedCurrentUserAvatar =
+    currentUserAvatar !== undefined
+      ? currentUserAvatar
+      : user?.avatar || `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(currentUserLabel)}`
 
   const trimmedComment = commentText.trim()
 
@@ -108,16 +115,20 @@ export function CommentInput({
 
   return (
     <div className='flex items-start gap-3'>
-      <UserAvatar
-        name={currentUserLabel}
-        src={currentUserAvatar}
-        className='mt-1 h-9 w-9 shrink-0 border border-zinc-200 dark:border-white/10'
-        fallbackClassName='bg-indigo-500/10 text-indigo-500 text-xs font-semibold'
-      />
+      <div className='mt-1 h-9 w-9 shrink-0'>
+        <UserAvatar
+          name={currentUserLabel}
+          src={resolvedCurrentUserAvatar}
+          className='w-full h-full border border-background'
+          fallbackClassName='bg-primary text-white text-xs font-semibold'
+        />
+      </div>
       <div className='relative flex-1'>
         {replyTarget ? (
           <div className='mb-2 flex items-center justify-between rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-white/10 dark:bg-zinc-900'>
-            <p className='text-xs font-medium text-zinc-600 dark:text-zinc-300'>{text.commentInput.replyingTo(replyTarget.authorName)}</p>
+            <p className='text-xs font-medium text-zinc-600 dark:text-zinc-300'>
+              {text.commentInput.replyingTo(replyTarget.authorName)}
+            </p>
             <button
               type='button'
               onClick={onCancelReply}
@@ -159,7 +170,7 @@ export function CommentInput({
           placeholder={placeholder ?? text.commentsModal.inputPlaceholder}
           className='min-h-[44px] resize-none rounded-2xl border-zinc-200 bg-zinc-50 py-3 pr-[104px] text-[14px] shadow-none transition-colors focus-visible:ring-indigo-500/30 dark:border-white/10 dark:bg-zinc-900'
         />
-        
+
         <input
           ref={imageInputRef}
           type='file'
@@ -168,14 +179,7 @@ export function CommentInput({
           className='hidden'
           onChange={onPickImage}
         />
-        <input
-          ref={videoInputRef}
-          type='file'
-          accept='video/*'
-          multiple
-          className='hidden'
-          onChange={onPickVideo}
-        />
+        <input ref={videoInputRef} type='file' accept='video/*' multiple className='hidden' onChange={onPickVideo} />
 
         <div className='absolute right-1.5 bottom-1.5 flex items-center gap-0.5'>
           <Button

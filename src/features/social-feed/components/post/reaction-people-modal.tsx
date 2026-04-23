@@ -66,11 +66,14 @@ export function ReactionPeopleModal({
             const response = await commentApi.searchReactions(targetType, reactionType)
             const postReactions = response.data.data.filter((reaction) => reaction.targetId === targetId)
 
-            const profiles = postReactions.map((reaction) => ({
-              authorId: reaction.authorInfo?.id ?? '',
-              name: reaction.authorInfo?.fullName?.trim() || text.reactionsModal.unknownUser,
-              avatar: reaction.authorInfo?.avatar ?? null
-            } satisfies ReactorProfile))
+            const profiles = postReactions.map(
+              (reaction) =>
+                ({
+                  authorId: reaction.authorInfo?.id ?? '',
+                  name: reaction.authorInfo?.fullName?.trim() || text.reactionsModal.unknownUser,
+                  avatar: reaction.authorInfo?.avatar ?? null
+                }) satisfies ReactorProfile
+            )
 
             return [reactionType, profiles] as const
           })
@@ -200,12 +203,14 @@ export function ReactionPeopleModal({
                   style={{ animationFillMode: 'both', animationDelay: `${i * 30}ms` }}
                 >
                   <div className='flex min-w-0 items-center gap-3.5'>
-                    <UserAvatar
-                      name={reactor.name}
-                      src={reactor.avatar}
-                      className='h-10 w-10 ring-1 ring-zinc-200/50 dark:ring-white/10 transition-transform duration-200 group-hover:scale-105'
-                      fallbackClassName='bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[13px] font-semibold'
-                    />
+                    <div className='h-10 w-10 ring-1 ring-zinc-200/50 transition-transform duration-200 group-hover:scale-105 dark:ring-white/10'>
+                      <UserAvatar
+                        name={reactor.name}
+                        src={reactor.avatar}
+                        className='w-full h-full border border-background'
+                        fallbackClassName='bg-primary text-white text-[13px] font-semibold'
+                      />
+                    </div>
                     <span className='truncate text-[15px] font-medium text-zinc-900 dark:text-zinc-100 transition-colors group-hover:text-indigo-600 dark:group-hover:text-indigo-400'>
                       {reactor.name}
                     </span>

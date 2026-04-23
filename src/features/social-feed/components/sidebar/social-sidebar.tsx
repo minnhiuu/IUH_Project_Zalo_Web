@@ -10,8 +10,7 @@ export function SocialSidebar() {
   const { data: myProfile } = useMyProfile()
   const currentUserLabel = text.composer.me
   const profileName = myProfile?.fullName?.trim() || currentUserLabel
-  const profileAvatar =
-    myProfile?.avatar || `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(profileName)}`
+  const profileAvatar = myProfile?.avatar || undefined
 
   const shortcuts = [
     { icon: Users, label: text.sidebar.friends, color: 'text-blue-500', bg: 'bg-blue-500/10' },
@@ -24,15 +23,20 @@ export function SocialSidebar() {
   return (
     <aside className='hidden w-70 shrink-0 xl:block'>
       <div className='sticky top-0 space-y-4 pb-10'>
-        <div className='flex cursor-pointer items-center gap-3 rounded-xl p-2 transition-colors hover:bg-zinc-200/50 dark:hover:bg-zinc-900/50'>
-          <UserAvatar
-            name={profileName}
-            src={profileAvatar}
-            className='h-10 w-10 border border-zinc-200 dark:border-white/5'
-            fallbackClassName='bg-indigo-500/10 text-indigo-500'
-          />
+        <Link
+          to={PATHS.USER.PROFILE}
+          className='flex cursor-pointer items-center gap-3 rounded-xl p-2 transition-colors hover:bg-zinc-200/50 dark:hover:bg-zinc-900/50'
+        >
+          <div className='h-10 w-10'>
+            <UserAvatar
+              name={profileName}
+              src={profileAvatar}
+              className='w-full h-full border border-background'
+              fallbackClassName='bg-primary text-white text-sm'
+            />
+          </div>
           <span className='text-[15px] font-semibold text-zinc-900 dark:text-[#ececec]'>{profileName}</span>
-        </div>
+        </Link>
 
         <div className='grid gap-1 pt-2'>
           {shortcuts.map((item, i) => {

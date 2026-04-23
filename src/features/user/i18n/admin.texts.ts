@@ -1,8 +1,7 @@
 import type { TFunction } from 'i18next'
 import { ADMIN_KEYS } from './admin.keys'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const createAdminTexts = (t: TFunction<any>) => ({
+export const createAdminTexts = (t: TFunction<'admin'>) => ({
   userManagement: {
     title: t(ADMIN_KEYS.userManagement.title),
     description: t(ADMIN_KEYS.userManagement.description),

@@ -51,8 +51,7 @@ export function StoriesStrip({ stories, isLoading = false }: StoriesStripProps) 
   const [selectedGroupIndex, setSelectedGroupIndex] = useState(0)
 
   const currentUserName = myProfile?.fullName?.trim() || text.composer.me
-  const currentUserAvatar =
-    myProfile?.avatar || `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(currentUserName)}`
+  const currentUserAvatar = myProfile?.avatar || undefined
 
   return (
     <section className='relative overflow-hidden rounded-[28px] border border-zinc-200/60 bg-white/60 p-5 shadow-sm backdrop-blur-xl transition-all duration-500 hover:border-zinc-300/60 hover:shadow-md dark:border-white/5 dark:bg-zinc-950/40 dark:hover:border-white/10'>
@@ -117,10 +116,7 @@ export function StoriesStrip({ stories, isLoading = false }: StoriesStripProps) 
         onOpenChange={setIsViewerOpen}
       />
 
-      <StoryComposerModal
-        open={isComposerOpen}
-        onOpenChange={setIsComposerOpen}
-      />
+      <StoryComposerModal open={isComposerOpen} onOpenChange={setIsComposerOpen} />
     </section>
   )
 }

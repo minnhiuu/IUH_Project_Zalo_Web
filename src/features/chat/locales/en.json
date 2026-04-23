@@ -13,9 +13,21 @@
     "user": "User",
     "type": {
       "image": "[Image]",
+      "video": "[Video]",
       "file": "[File]",
       "link": "[Link]",
       "confirm": "Confirm"
+    },
+    "input": {
+      "dropFilesHint": "Drop files here",
+      "sendImageVideoTitle": "Send image/video",
+      "attachFileTitle": "Attach file",
+      "summarizeNewMessages": "Summarize new messages",
+      "summarizingMessages": "AI is reading messages...",
+      "summaryTitle": "Conversation summary",
+      "closeSummary": "Close",
+      "videoBadge": "VIDEO",
+      "fileTooLarge": "File \"{{name}}\" exceeds {{maxSizeMb}}MB"
     },
     "mentionDropdown": {
       "instruction": "Press ↑, ↓ to select and Enter to use.",
@@ -73,7 +85,8 @@
       "copy": "Copy",
       "unpin": "Unpin",
       "collapse": "Collapse",
-      "extraPins": "+{{count}} pin"
+      "extraPins": "+{{count}} pin",
+      "header": "Pinned messages ({{count}})"
     },
     "system": {
       "add_members": {
@@ -249,6 +262,7 @@
       "searchPlaceholder": "Search by name, phone number, etc.",
       "recentChats": "Recent chats",
       "selected": "Selected",
+      "noSelected": "None selected",
       "cancel": "Cancel",
       "create": "Create group",
       "andOthers": "and {{count}} others",
@@ -591,6 +605,20 @@
     "error": "Cannot make a call"
   },
   "ai": {
+    "window": {
+      "title": "Bondhub AI",
+      "assistantTag": "AI Assistant",
+      "newConversation": "New conversation",
+      "inputPlaceholder": "Ask Bondhub AI anything...",
+      "clarificationNeeded": "Need more information",
+      "welcomeDescription": "Smart AI assistant integrated with your conversation data. Ask anything!",
+      "errorFallback": "Sorry, something went wrong. Please try again.",
+      "suggestions": {
+        "profile": "What is my profile?",
+        "friends": "My friend list",
+        "internet": "Search information on the Internet"
+      }
+    },
     "status": {
       "ANALYZING_INTENT": "Analyzing your intent...",
       "RETRIEVING_VECTOR": "Searching internal memory...",

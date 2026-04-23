@@ -2,16 +2,21 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDown, ChevronUp, Loader2 } from 'lucide-react'
 import { ReelsFeed, useInfiniteSocialReels } from '@/features/social-feed'
 import { ReelCommentsSidebar } from '@/features/social-feed/components/reels/reel-comments-sidebar'
+import { ReelComposerModal } from '@/features/social-feed/components/reels/reel-composer-modal'
 import type { SocialPost } from '@/features/social-feed'
-
+import { Button } from '@/components/ui/button'
+import { useSocialText } from '@/features/social-feed'
 
 export default function ReelsPage({ query = '' }: { query?: string }) {
+  const { text } = useSocialText()
   const [canScrollUp, setCanScrollUp] = useState(false)
   const [canScrollDown, setCanScrollDown] = useState(false)
   const [selectedCommentReel, setSelectedCommentReel] = useState<SocialPost | null>(null)
+  const [isComposerOpen, setIsComposerOpen] = useState(false)
   const reelsScrollContainerRef = useRef<HTMLDivElement | null>(null)
   const lastClickTimeRef = useRef(0)
-  const { data, isLoading, isError, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteSocialReels(20)
+  const { data, isLoading, isError, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useInfiniteSocialReels(20)
   const reels = useMemo(() => data?.pages.flat() ?? [], [data])
 
   const filteredReels = useMemo(() => {
@@ -80,7 +85,6 @@ export default function ReelsPage({ query = '' }: { query?: string }) {
 
   return (
     <section className='relative h-full w-full overflow-hidden bg-transparent'>
-
       <div className='pointer-events-none absolute inset-0 z-0'>
         <div className='absolute -left-24 top-28 h-72 w-72 rounded-full bg-cyan-500/12 blur-3xl' />
         <div className='absolute right-0 bottom-10 h-80 w-80 rounded-full bg-indigo-500/14 blur-3xl' />
@@ -88,7 +92,15 @@ export default function ReelsPage({ query = '' }: { query?: string }) {
 
       <div className='relative z-10 h-[calc(100dvh-4.5rem)] w-full'>
         <div className='relative flex h-full min-w-0 w-full flex-col'>
-
+          <div className='pointer-events-none absolute left-3 top-3 z-50 md:left-6 md:top-6'>
+            <Button
+              type='button'
+              onClick={() => setIsComposerOpen(true)}
+              className='pointer-events-auto h-10 rounded-full bg-white/95 px-4 text-sm font-semibold text-zinc-900 shadow-md backdrop-blur hover:bg-white dark:bg-zinc-900/90 dark:text-zinc-100 dark:hover:bg-zinc-900'
+            >
+              {text.reelComposer.createAction}
+            </Button>
+          </div>
 
           <ReelsFeed
             reels={filteredReels}
@@ -129,6 +141,8 @@ export default function ReelsPage({ query = '' }: { query?: string }) {
           {selectedCommentReel ? (
             <ReelCommentsSidebar post={selectedCommentReel} onClose={() => setSelectedCommentReel(null)} />
           ) : null}
+
+          <ReelComposerModal open={isComposerOpen} onOpenChange={setIsComposerOpen} />
         </div>
       </div>
     </section>

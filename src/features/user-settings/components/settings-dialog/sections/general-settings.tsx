@@ -1,4 +1,3 @@
-import { useTranslation } from 'react-i18next'
 import { Loader2 } from 'lucide-react'
 import { useUserText } from '@/features/user/i18n/use-user-text'
 import { Separator } from '@/components/ui/separator'
@@ -16,6 +15,7 @@ export function GeneralSettings() {
 
   const handleLanguageChange = (lang: 'en' | 'vi') => {
     const languageEn = lang === 'en'
+    changeLocale(lang)
     changeLocale(lang)
     updateGeneralSettings({
       showAllFriends: settings?.generalSettings.showAllFriends ?? false,

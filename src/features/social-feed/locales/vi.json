@@ -68,6 +68,24 @@
     "pauseAriaLabel": "Tạm dừng reel",
     "seekAriaLabel": "Tua reel"
   },
+  "reelComposer": {
+    "title": "Tạo Reel",
+    "dialogDescription": "Mở trình tạo reel toàn màn hình.",
+    "subtitle": "Tải lên một video, thêm chú thích và đăng.",
+    "createAction": "Tạo Reel",
+    "previewEmpty": "Bản xem trước reel sẽ hiển thị ở đây.",
+    "pickVideo": "Chọn video",
+    "replaceVideo": "Thay video",
+    "removeVideo": "Xóa video",
+    "videoHint": "Mỗi reel chỉ được phép một video.",
+    "captionPlaceholder": "Viết chú thích cho reel của bạn...",
+    "publish": "Đăng reel",
+    "publishing": "Đang đăng...",
+    "videoRequired": "Vui lòng chọn video trước khi đăng.",
+    "invalidVideo": "Vui lòng chọn tệp video hợp lệ.",
+    "successToast": "Tạo reel thành công.",
+    "errorToast": "Tạo reel thất bại. Vui lòng thử lại."
+  },
   "post": {
     "attachmentAlt": "Tệp đính kèm bài viết của {{author}}",
     "commentCount": "{{count}} bình luận",

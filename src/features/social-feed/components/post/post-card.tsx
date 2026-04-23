@@ -157,12 +157,14 @@ export function PostCard({ post }: PostCardProps) {
       <CardHeader className='flex flex-row items-start justify-between px-4 sm:px-6 py-4 sm:py-5'>
         <div className='flex items-center gap-4'>
           <button className='transition-transform hover:scale-105 active:scale-95'>
-            <UserAvatar
-              name={post.authorName}
-              src={post.authorAvatar}
-              className='h-11 w-11 border border-zinc-200 dark:border-white/5 shadow-sm'
-              fallbackClassName='bg-primary/10 text-primary text-sm font-semibold'
-            />
+            <div className='h-11 w-11'>
+              <UserAvatar
+                name={post.authorName}
+                src={post.authorAvatar}
+                className='w-full h-full border border-background'
+                fallbackClassName='bg-primary'
+              />
+            </div>
           </button>
           <div>
             <button className='text-[15px] font-semibold text-zinc-900 dark:text-[#ececec] tracking-tight hover:text-indigo-500 dark:hover:text-indigo-400 hover:underline'>
@@ -226,12 +228,14 @@ export function PostCard({ post }: PostCardProps) {
         {post.postType === 'SHARE' && post.sharedPost ? (
           <div className='rounded-xl border border-zinc-200 bg-zinc-50 p-3 dark:border-white/10 dark:bg-zinc-900/40'>
             <div className='mb-2 flex items-center gap-2'>
-              <UserAvatar
-                name={post.sharedPost.authorName}
-                src={post.sharedPost.authorAvatar}
-                className='h-8 w-8 border border-zinc-200 dark:border-white/10'
-                fallbackClassName='bg-primary/10 text-primary text-xs font-semibold'
-              />
+              <div className='h-8 w-8'>
+                <UserAvatar
+                  name={post.sharedPost.authorName}
+                  src={post.sharedPost.authorAvatar}
+                  className='w-full h-full border border-background'
+                  fallbackClassName='bg-primary text-white text-xs font-semibold'
+                />
+              </div>
               <span className='text-[13px] font-semibold text-zinc-800 dark:text-zinc-200'>
                 {post.sharedPost.authorName}
               </span>

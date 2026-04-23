@@ -30,7 +30,7 @@ export const useUpdateAvatarMutation = () => {
   const { updateUser, user } = useAuthContext()
 
   return useMutation({
-    mutationFn: (formData: FormData) => userApi.updateAvatar(formData),
+    mutationFn: (data: FormData | { imageKey: string }) => userApi.updateAvatar(data),
     onSuccess: (response) => {
       const { url } = response.data.data
 
@@ -62,7 +62,7 @@ export const useUpdateBackgroundMutation = () => {
   const { updateUser, user } = useAuthContext()
 
   return useMutation({
-    mutationFn: (formData: FormData) => userApi.updateBackground(formData),
+    mutationFn: (data: FormData | { imageKey: string; y: number }) => userApi.updateBackground(data),
     onSuccess: (response) => {
       const { url, y } = response.data.data
 

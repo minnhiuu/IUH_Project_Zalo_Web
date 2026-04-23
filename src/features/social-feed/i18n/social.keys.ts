@@ -75,6 +75,25 @@ export const SOCIAL_KEYS = {
     seekAriaLabel: 'reels.seekAriaLabel'
   },
 
+  reelComposer: {
+    title: 'reelComposer.title',
+    dialogDescription: 'reelComposer.dialogDescription',
+    subtitle: 'reelComposer.subtitle',
+    createAction: 'reelComposer.createAction',
+    previewEmpty: 'reelComposer.previewEmpty',
+    pickVideo: 'reelComposer.pickVideo',
+    replaceVideo: 'reelComposer.replaceVideo',
+    removeVideo: 'reelComposer.removeVideo',
+    videoHint: 'reelComposer.videoHint',
+    captionPlaceholder: 'reelComposer.captionPlaceholder',
+    publish: 'reelComposer.publish',
+    publishing: 'reelComposer.publishing',
+    videoRequired: 'reelComposer.videoRequired',
+    invalidVideo: 'reelComposer.invalidVideo',
+    successToast: 'reelComposer.successToast',
+    errorToast: 'reelComposer.errorToast'
+  },
+
   post: {
     attachmentAlt: 'post.attachmentAlt',
     commentCount: 'post.commentCount',

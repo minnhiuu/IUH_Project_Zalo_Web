@@ -15,6 +15,7 @@ import {
 import type { SocialFeedComment, CommentMediaRequest } from '../../schemas/comment.schema'
 import type { ReactionType } from '../post/reaction-picker'
 import { useAuthContext } from '@/features/auth/context/auth-context'
+import { useMyProfile } from '@/features/user/queries/use-queries'
 
 interface ReelCommentsSidebarProps {
   post: SocialPost
@@ -24,6 +25,7 @@ interface ReelCommentsSidebarProps {
 export function ReelCommentsSidebar({ post, onClose }: ReelCommentsSidebarProps) {
   const { text } = useSocialText()
   const { user } = useAuthContext()
+  const { data: myProfile } = useMyProfile()
   const commentsQuery = useSocialFeedComments(post.id, 0, 20)
   const createCommentMutation = useCreateSocialCommentMutation(post.id)
   const updateCommentMutation = useUpdateSocialCommentMutation(post.id)
@@ -33,6 +35,8 @@ export function ReelCommentsSidebar({ post, onClose }: ReelCommentsSidebarProps)
 
   const comments = commentsQuery.data?.comments ?? []
   const [replyTarget, setReplyTarget] = useState<SocialFeedComment | null>(null)
+  const currentUserLabel = myProfile?.fullName?.trim() || user?.fullName || text.composer.me
+  const currentUserAvatar = myProfile?.avatar || ''
 
   const isMutating =
     createCommentMutation.isPending ||
@@ -132,6 +136,7 @@ export function ReelCommentsSidebar({ post, onClose }: ReelCommentsSidebarProps)
                     comment={comment}
                     postId={post.id}
                     currentUserId={user?.id}
+                    currentUserAvatar={currentUserAvatar}
                     isMutating={isMutating}
                     onReply={(selectedComment) => {
                       setReplyTarget(selectedComment)
@@ -162,6 +167,8 @@ export function ReelCommentsSidebar({ post, onClose }: ReelCommentsSidebarProps)
           <CommentInput
             placeholder={text.commentsModal.inputPlaceholder}
             isSubmitting={createCommentMutation.isPending}
+            currentUserName={currentUserLabel}
+            currentUserAvatar={currentUserAvatar}
             replyTarget={replyTarget ? { id: replyTarget.id, authorName: replyTarget.authorName } : null}
             onCancelReply={() => setReplyTarget(null)}
             onSubmit={handleCreateComment}

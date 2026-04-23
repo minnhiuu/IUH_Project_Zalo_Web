@@ -76,7 +76,16 @@ export default function UserLayout() {
           6000
         )
       } else if (type === 'USER_WARNED') {
-        showWarningToast(data?.body || 'You received a warning from an administrator.', 6000)
+        const targetType = data?.targetType
+        const adminNote = data?.adminNote
+        let message = data?.body || 'You received a warning from an administrator.'
+        if (targetType && !data?.body) {
+          message = `You received a warning about your ${targetType} from an administrator.`
+        }
+        if (adminNote) {
+          message += ` Note: ${adminNote}`
+        }
+        showWarningToast(message, 8000)
       } else if (type === 'NEW_DEVICE_LOGIN') {
         const payloadData = data?.payload ? JSON.parse(data.payload) : data
         window.dispatchEvent(
@@ -126,7 +135,7 @@ export default function UserLayout() {
                 <UserAvatar
                   src={user?.avatar}
                   name={user?.fullName || 'User'}
-                  className='w-10 h-10 border border-white/20 transition-transform group-hover:scale-105 active:scale-95'
+                  className='h-10 w-10 border border-zinc-200 dark:border-white/10'
                   fallbackClassName='bg-primary text-white text-sm'
                 />
               </div>

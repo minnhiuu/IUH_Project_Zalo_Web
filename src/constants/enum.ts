@@ -69,6 +69,14 @@ export const ReindexTaskStatus = {
 
 export type ReindexTaskStatus = (typeof ReindexTaskStatus)[keyof typeof ReindexTaskStatus]
 
+export const IngestDocumentStatus = {
+  Ingesting: 'INGESTING',
+  Failed: 'FAILED',
+  Completed: 'COMPLETED'
+} as const
+
+export type IngestDocumentStatus = (typeof IngestDocumentStatus)[keyof typeof IngestDocumentStatus]
+
 export const IndexStatus = {
   Active: 'ACTIVE',
   Standby: 'STANDBY'
@@ -127,6 +135,7 @@ export const NotificationType = {
   CALL: 'CALL',
   POST_LIKE: 'POST_LIKE',
   POST_COMMENT: 'POST_COMMENT',
+  POST_PUBLISHED: 'POST_PUBLISHED',
   COMMENT_LIKE: 'COMMENT_LIKE',
   COMMENT_REPLY: 'COMMENT_REPLY',
   POST_TAG: 'POST_TAG',

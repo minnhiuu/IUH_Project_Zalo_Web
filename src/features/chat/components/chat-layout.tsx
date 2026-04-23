@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router'
 import { Status } from '@/constants/enum'
 import { useUserById } from '@/features/user/queries/use-queries'
 import { JoinGroupDialog } from './group/dialogs/join-group-dialog'
+import { BONDHUB_AI } from '@/constants/system'
 
 export function ChatLayout({
   defaultPartnerId,
@@ -22,6 +23,8 @@ export function ChatLayout({
   const { text } = useChatText()
 
   const [userSelectedChatId, setUserSelectedChatId] = useState<string | null>(null)
+  const [currentSnapshotId, setCurrentSnapshotId] = useState<string | null>(null)
+  const [capturedUnreadCount, setCapturedUnreadCount] = useState<number>(0)
 
   const { data: conversations } = useConversationsQuery()
 
@@ -83,19 +86,31 @@ export function ChatLayout({
   // ── Document title theo unread count ──
   const totalUnread = useMemo(() => {
     if (!conversations) return 0
-    return conversations.reduce((sum: number, c: ConversationResponse) => sum + (c.unreadCount || 0), 0)
+
+    return conversations.reduce((sum: number, c: ConversationResponse) => {
+      const isAiConversation = c.members?.some((m) => m.userId === BONDHUB_AI.userId) ?? false
+      if (isAiConversation) return sum
+      return sum + (c.unreadCount || 0)
+    }, 0)
   }, [conversations])
 
   useEffect(() => {
     document.title = totalUnread > 0 ? `(${totalUnread}) Tin nhắn mới | Zalo Web` : 'Zalo Web - PC'
   }, [totalUnread])
 
+  const handleClearSnapshot = () => {
+    setCurrentSnapshotId(null)
+    setCapturedUnreadCount(0)
+  }
+
   return (
     <div className='flex w-full h-full overflow-hidden'>
       <ChatSidebar
         selectedChatId={selectedChatId || undefined}
-        onSelectChat={(chat: ConversationResponse) => {
+        onSelectChat={(chat: ConversationResponse, snapshotId, unreadCount) => {
           setUserSelectedChatId(chat.id)
+          setCurrentSnapshotId(snapshotId || null)
+          setCapturedUnreadCount(unreadCount || 0)
           navigate(`/chat/c/${chat.id}`)
         }}
       />
@@ -110,7 +125,12 @@ export function ChatLayout({
         }
 
         return selectedChat ? (
-          <ChatWindow conversation={selectedChat} />
+          <ChatWindow
+            conversation={selectedChat}
+            snapshotId={currentSnapshotId}
+            capturedUnreadCount={capturedUnreadCount}
+            onClearSnapshot={handleClearSnapshot}
+          />
         ) : (
           <div className='flex-1 flex flex-col items-center justify-center bg-background p-8 text-center'>
             <div className='max-w-[500px] space-y-8 animate-in fade-in zoom-in duration-700'>

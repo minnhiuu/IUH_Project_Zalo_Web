@@ -18,17 +18,26 @@ import { useAuthContext } from '@/features/auth/context/auth-context'
 import { getAccessToken } from '@/lib/axios-client'
 import { PATHS } from '@/constants/path'
 import { MessageStatus, MessageType } from '@/constants/enum'
+import { BONDHUB_AI } from '@/constants/system'
+import { aiStreamingRegistry } from './ai-streaming-registry'
 import {
   useSendMessageMutation,
   useRevokeMessageMutation,
   useDeleteMessageForMeMutation
 } from '../queries/use-mutations'
-import { uploadFileApi } from '../api/chat.api'
+import { toast } from 'sonner'
+import {
+  sendMessageApi,
+  getBatchPresignedUrls,
+  revokeMessageApi,
+  deleteMessageForMeApi
+} from '../api/chat.api'
+import { uploadToS3, uploadBatchToS3 } from '@/utils/s3-upload'
 import type { FileAttachment } from '../context/chat-context'
+import { normalizeDateTime } from '../utils/date-utils'
 
 const WS_URL = import.meta.env.VITE_WS_URL || 'http://localhost:8080/ws'
 
-import { normalizeDateTime } from '../utils/date-utils'
 const JOIN_LINK_REGEX = /^https?:\/\/[^/]+\/g\/[a-zA-Z0-9_-]+$/
 
 export const useChatWebSocket = () => {
@@ -62,6 +71,11 @@ export const useChatWebSocket = () => {
         // ────────── /queue/messages ──────────
         client.subscribe('/user/queue/messages', (payload) => {
           const rawMsg = JSON.parse(payload.body)
+
+          if (rawMsg.senderId === BONDHUB_AI.userId) {
+            console.log('>>> [DEBUG WS] Nhận tin nhắn AI hoàn chỉnh từ server:', rawMsg)
+          }
+
           const msg: MessageResponse = {
             ...rawMsg,
             createdAt: normalizeDateTime(rawMsg.createdAt || rawMsg.timestamp),
@@ -72,6 +86,15 @@ export const useChatWebSocket = () => {
           if (!conversationId) return
 
           const isOwnMessage = msg.isFromMe === true || msg.senderId === user.id
+
+          // --- AI STREAMING DEDUPLICATION / SYNC ---
+          // Khi nhận tin nhắn hoàn chỉnh từ AI qua WebSocket, ta ưu tiên lưu vào cache
+          // để lấy ID thật từ MongoDB, đồng thời tắt trạng thái streaming tự tạo của FE.
+          if (msg.senderId === BONDHUB_AI.userId && aiStreamingRegistry.isStreaming(conversationId)) {
+            console.log('[WebSocket] Nhận tin nhắn hoàn tất từ AI, thay thế stream tự tạo bằng tin nhắn thật:', msg.id)
+            aiStreamingRegistry.setStreaming(conversationId, false)
+            // Không return, cho phép cập nhật vào Messages Cache!
+          }
 
           // 1. Update Messages Cache (key = conversationId)
           if (isOwnMessage) {
@@ -371,10 +394,10 @@ export const useChatWebSocket = () => {
                     data: page.data.map((m: MessageResponse) =>
                       m.id === update.messageId
                         ? {
-                            ...m,
-                            reactions:
-                              update.reactions && Object.keys(update.reactions).length ? update.reactions : undefined
-                          }
+                          ...m,
+                          reactions:
+                            update.reactions && Object.keys(update.reactions).length ? update.reactions : undefined
+                        }
                         : m
                     )
                   }))
@@ -759,7 +782,7 @@ export const useChatWebSocket = () => {
   )
 
   const sendFileMessage = useCallback(
-    async (conversationId: string, files: FileAttachment[], content?: string, replyTo?: ReplyMetadata | null) => {
+    async (conversationId: string, files: FileAttachment[], content: string = '', replyTo?: ReplyMetadata | null) => {
       if (!stompClientRef.current?.connected || files.length === 0) return
 
       const isFake = conversationId.startsWith('fake_')
@@ -775,12 +798,13 @@ export const useChatWebSocket = () => {
         const now = new Date().toISOString()
         const allVideo = mediaFiles.every((a) => a.file.type.startsWith('video/'))
         const msgType = allVideo ? MessageType.Video : MessageType.Image
+        const trimmedContent = content.trim()
 
         const optimisticMsg: MessageResponse = {
           id: clientMessageId,
           clientMessageId,
           senderId: user?.id || '',
-          content: content || '',
+          content: trimmedContent || '',
           type: msgType,
           status: MessageStatus.NORMAL,
           createdAt: now,
@@ -812,11 +836,12 @@ export const useChatWebSocket = () => {
         )
 
         const mediaPreview =
-          mediaFiles.length === 1
+          trimmedContent ||
+          (mediaFiles.length === 1
             ? allVideo
               ? '[Video]'
               : '[Hình ảnh]'
-            : `[${mediaFiles.length} ${allVideo ? 'video' : 'ảnh'}]`
+            : `[${mediaFiles.length} ${allVideo ? 'video' : 'ảnh'}]`)
         queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
           if (!oldData) return oldData
           const idx = oldData.findIndex((c) => c.id === conversationId)
@@ -841,17 +866,34 @@ export const useChatWebSocket = () => {
         })
 
         try {
-          const uploadResults = await Promise.all(mediaFiles.map((a) => uploadFileApi(a.file, folder)))
+          const presignRequests = mediaFiles.map((a) => ({
+            fileName: a.file.name,
+            contentType: a.file.type,
+            size: a.file.size,
+            folder
+          }))
+          const presignInfos = await getBatchPresignedUrls(presignRequests)
+
+          const uploadItems = mediaFiles.map((a, i) => ({
+            url: presignInfos[i].presignedUrl,
+            file: a.file,
+            contentType: a.file.type
+          }))
+
+          await uploadBatchToS3(uploadItems, (totalPercent) => {
+            console.log(`[Batch Upload] Total Progress: ${totalPercent}%`)
+          })
+
           sendMsgMutate({
             conversationId: isFake ? null : conversationId,
             recipientId: isFake ? conversationId.replace('fake_', '') : null,
             content: content || '',
             clientMessageId,
             replyTo: replyTo || undefined,
-            attachments: uploadResults.map((r) => ({
+            attachments: presignInfos.map((r) => ({
               key: r.key,
-              url: r.url,
-              fileName: r.fileName,
+              url: r.publicUrl,
+              fileName: r.originalFileName,
               originalFileName: r.originalFileName,
               contentType: r.contentType,
               size: r.size
@@ -942,7 +984,22 @@ export const useChatWebSocket = () => {
         })
 
         try {
-          const uploadResult = await uploadFileApi(file, folder)
+          const presignInfos = await getBatchPresignedUrls([
+            {
+              fileName: file.name,
+              contentType: file.type,
+              size: file.size,
+              folder
+            }
+          ])
+          const presignInfo = presignInfos[0]
+
+          await uploadToS3({
+            url: presignInfo.presignedUrl,
+            file,
+            contentType: file.type
+          })
+
           sendMsgMutate({
             conversationId: isFake ? null : conversationId,
             recipientId: isFake ? conversationId.replace('fake_', '') : null,
@@ -951,12 +1008,12 @@ export const useChatWebSocket = () => {
             replyTo: replyTo || undefined,
             attachments: [
               {
-                key: uploadResult.key,
-                url: uploadResult.url,
-                fileName: uploadResult.fileName,
-                originalFileName: uploadResult.originalFileName,
-                contentType: uploadResult.contentType,
-                size: uploadResult.size
+                key: presignInfo.key,
+                url: presignInfo.publicUrl,
+                fileName: presignInfo.originalFileName,
+                originalFileName: presignInfo.originalFileName,
+                contentType: presignInfo.contentType,
+                size: presignInfo.size
               }
             ]
           })

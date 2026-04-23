@@ -2,6 +2,8 @@ import { Phone, Video, Search, PanelsTopLeft, Users, Pencil } from 'lucide-react
 import { useMessagesInfiniteQuery, useUnreadAnchorQuery } from '../queries/use-queries'
 import { useAuth } from '@/features/auth'
 import { useChatContext } from '../context/chat-context'
+import { useQueryClient } from '@tanstack/react-query'
+import { chatKeys } from '../queries/keys'
 import { MessageBubble } from './message-bubble'
 import { ChatInput } from './chat-input'
 import { ChatInputRestricted } from './chat-input-restricted'
@@ -13,7 +15,8 @@ import { rejectCallApi } from '../api/call.api'
 import {
   useMarkAsReadMutation,
   useUpdateGroupNameMutation,
-  useUpdateGroupAvatarMutation
+  useUpdateGroupAvatarMutation,
+  useSendMessageMutation
 } from '../queries/use-mutations'
 import { useEffect, useRef, useMemo, useState, useCallback, Fragment } from 'react'
 import type { ConversationResponse, MessageResponse } from '../schemas/chat.schema'
@@ -28,6 +31,10 @@ import { GroupAvatar } from '@/components/common/group-avatar'
 import { ImageCropperDialog } from '@/components/common/image-cropper-dialog'
 import { getCroppedImg } from '@/utils/image-crop'
 import { cn } from '@/lib/utils'
+import { BONDHUB_AI } from '@/constants/system'
+import { useAiStreamingStore } from '../hooks/ai-streaming-registry'
+import { AiMessageBubble } from './ai-message-bubble'
+import { parseAiSuggestions, parseAiQuestion, AI_SUGGESTION_EVENT } from '../utils/ai-parser'
 import { GroupIntroCard } from './group/cards/group-intro-card'
 import { getConversationDisplayName } from '../utils/group-name'
 import { GroupInfoDialog } from './group/dialogs/group-info-dialog'
@@ -44,32 +51,95 @@ import { TypingIndicator } from './typing-indicator'
 const OPEN_GROUP_MANAGEMENT_EVENT = 'chat:open-group-management'
 const OPEN_GROUP_INFO_EVENT = 'chat:open-group-info'
 
-export function ChatWindow({ conversation }: { conversation: ConversationResponse }) {
+export function ChatWindow({
+  conversation,
+  snapshotId,
+  capturedUnreadCount,
+  onClearSnapshot
+}: {
+  conversation: ConversationResponse
+  snapshotId: string | null
+  capturedUnreadCount: number
+  onClearSnapshot: () => void
+}) {
   const { user } = useAuth()
   const { sendMessage, typingUsers } = useChatContext()
   const { t, text } = useChatText()
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useMessagesInfiniteQuery(conversation.id)
+  const queryClient = useQueryClient()
+  const [jumpTargetId, setJumpTargetId] = useState<string | null>(null)
+
+  const { 
+    data, 
+    fetchNextPage, 
+    hasNextPage, 
+    isFetchingNextPage, 
+    fetchPreviousPage,
+    hasPreviousPage,
+    isFetchingPreviousPage,
+    isLoading, 
+    isFetching 
+  } = useMessagesInfiniteQuery(
+    conversation.id,
+    jumpTargetId
+  )
 
   const suppressFetchRef = useRef(false)
   const { scrollRef, handleScroll, isAtBottom, scrollToBottom } = useChatScroll({
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    fetchPreviousPage,
+    hasPreviousPage,
+    isFetchingPreviousPage,
     suppressFetchRef
   })
   const { mutate: markAsRead } = useMarkAsReadMutation()
+  const { mutate: sendMsgMutate } = useSendMessageMutation()
   const lastMessageRef = useRef<HTMLDivElement>(null)
   const lastReadSentId = useRef<string | null>(null)
 
+  const prevLatestIdRef = useRef<string | null>(null)
+
+  
   const scrollToMessage = useCallback((messageId: string) => {
     const el = document.getElementById(`msg-${messageId}`)
     if (!el) return
     el.scrollIntoView({ behavior: 'smooth', block: 'center' })
     el.classList.add('highlight-message')
-    setTimeout(() => el.classList.remove('highlight-message'), 1200)
+    setTimeout(() => el.classList.remove('highlight-message'), 2000)
   }, [])
 
-  // ΓöÇΓöÇΓöÇ Unread anchor ΓöÇΓöÇΓöÇ
+  const jumpToMessage = useCallback(
+    (messageId: string) => {
+      const el = document.getElementById(`msg-${messageId}`)
+      if (el) {
+        scrollToMessage(messageId)
+      } else {
+        setJumpTargetId(messageId)
+        // Ensure UI perceives this as a brand new fetch cycle logic-wise
+        queryClient.removeQueries({ queryKey: chatKeys.messages(conversation.id) })
+        // React Query will automatically mount and fetch again since the component is still mounted
+        // and its active query was removed. It will use the NEW initialPageParam with jumpTargetId.
+      }
+    },
+    [conversation.id, queryClient, scrollToMessage]
+  )
+
+  useEffect(() => {
+    if (jumpTargetId && !isFetching) {
+      const el = document.getElementById(`msg-${jumpTargetId}`)
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        el.classList.add('highlight-message')
+        setTimeout(() => {
+          el.classList.remove('highlight-message')
+          setJumpTargetId(null)
+        }, 2000)
+      }
+    }
+  }, [data, isFetching, jumpTargetId])
+
+  // ─── Unread anchor ───
   const { data: unreadAnchor } = useUnreadAnchorQuery(conversation.id)
   const [firstUnreadId, setFirstUnreadId] = useState<string | null>(null)
   const [unreadDisplayCount, setUnreadDisplayCount] = useState(0)
@@ -80,9 +150,8 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
   const latestMessageIdRef = useRef<string | undefined>(undefined)
   const markAsReadRef = useRef(markAsRead)
 
-  // ΓöÇΓöÇΓöÇ New message button state (populated after latestMessageId is known) ΓöÇΓöÇΓöÇ
+  // ─── New message button state (populated after latestMessageId is known) ───
   const [newMsgCount, setNewMsgCount] = useState(0)
-  const prevLatestIdRef = useRef<string | null>(null)
 
   const scrollToUnread = useCallback(() => {
     if (!firstUnreadId) return
@@ -260,7 +329,29 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
     )
   }
 
-  const allMessages = useMemo(() => data?.pages.flatMap((page) => page.data) || [], [data])
+  const aiStream = useAiStreamingStore(conversation.id)
+
+  const allMessages = useMemo(() => {
+    const rawMessages = data?.pages.flatMap((page) => page.data) || []
+    if (aiStream && aiStream.isStreaming) {
+      const syntheticMsg = {
+        id: aiStream.messageId || `temp-ai-${Date.now()}`,
+        senderId: BONDHUB_AI.userId,
+        senderName: BONDHUB_AI.fullName,
+        senderAvatar: BONDHUB_AI.avatar,
+        content: aiStream.content,
+        processingStatus: aiStream.processingStatus,
+        isStreaming: true,
+        type: 'TEXT' as const,
+        status: 'NORMAL' as const,
+        conversationId: conversation.id,
+        createdAt: new Date().toISOString(),
+        isFromMe: false
+      } as any // ép kiểu để bỏ qua một số field không dùng tới trong preview
+      return [syntheticMsg, ...rawMessages]
+    }
+    return rawMessages
+  }, [data, aiStream, conversation.id])
 
   const latestMessageId = allMessages[0]?.id
   const latestMessageSenderId = allMessages[0]?.senderId
@@ -322,6 +413,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
 
   useEffect(() => {
     if (isCurrentUserRemovedFromGroup) return
+    if (!latestMessageId || !conversation.id || (conversation.unreadCount ?? 0) === 0) return
     // Only handle new incoming messages when there's no unread divider (divider handles its own case)
     if (!latestMessageId || !conversation.id || conversation.unreadCount === 0) return
     if (latestMessageSenderId === user?.id) return
@@ -350,6 +442,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
     conversation.id,
     conversation.unreadCount,
     firstUnreadId,
+    // conversation.unreadCount ?? 0,
     markAsRead,
     user?.id
   ])
@@ -497,8 +590,8 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             className={cn(
               'flex items-center space-x-3 min-w-0 flex-1',
               !isGroup &&
-                !isCloudConversation &&
-                'cursor-pointer hover:bg-black/5 p-1.5 -ml-1.5 rounded-lg transition-colors'
+              !isCloudConversation &&
+              'cursor-pointer hover:bg-black/5 p-1.5 -ml-1.5 rounded-lg transition-colors'
             )}
             onClick={() => {
               if (!isGroup && !isCloudConversation) {
@@ -512,10 +605,10 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
                 onClick={
                   conversation.isGroup && !isAiConversation
                     ? (e: React.MouseEvent) => {
-                        e.stopPropagation()
-                        setInfoDialogStep('info')
-                        setIsInfoDialogOpen(true)
-                      }
+                      e.stopPropagation()
+                      setInfoDialogStep('info')
+                      setIsInfoDialogOpen(true)
+                    }
                     : undefined
                 }
                 className={cn(
@@ -645,7 +738,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
         <div className='flex-1 relative flex flex-col min-h-0'>
           {/* Pin Board */}
           {!isCloudConversation && !isAiConversation && (
-            <PinBoard conversationId={conversation.id} onScrollToMessage={scrollToMessage} />
+            <PinBoard conversationId={conversation.id} onScrollToMessage={jumpToMessage} />
           )}
 
           {/* Floating Unread Button */}
@@ -715,12 +808,47 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             {isLoading && (
               <div className='flex items-center justify-center flex-1 text-sm text-primary py-8'>{text.loading}</div>
             )}
+            {isFetchingPreviousPage && (
+              <div className='py-4 text-center text-sm text-muted-foreground'>{text.loading}</div>
+            )}
             {allMessages.map((msg, index) => {
               const prevMsg = allMessages[index + 1]
               const nextMsg = allMessages[index - 1]
               const isFirst = !isSameGroup(msg, prevMsg)
               const isLast = !isSameGroup(msg, nextMsg)
               const isNewestVisible = index === 0
+
+              const isAiMessage = msg.senderId === BONDHUB_AI.userId && msg.type !== 'SYSTEM'
+
+              if (isAiMessage) {
+                const { cleanContent, suggestions } = parseAiSuggestions(msg.content)
+                const { cleanContent: finalContent, isClarification } = parseAiQuestion(cleanContent)
+
+                const aiMsg = {
+                  id: msg.id,
+                  role: 'ai' as const,
+                  content: finalContent,
+                  suggestions,
+                  isClarification,
+                  isStreaming: !!msg.isStreaming, // from synthetic msg
+                  processingStatus: msg.processingStatus, // from synthetic msg
+                  timestamp: new Date(msg.createdAt)
+                }
+
+                return (
+                  <div key={msg.id} id={`msg-${msg.id}`} ref={isNewestVisible ? lastMessageRef : null}>
+                    <AiMessageBubble
+                      msg={aiMsg}
+                      avatarUrl={msg.senderAvatar || BONDHUB_AI.avatar}
+                      isLoading={false}
+                      onSuggestionClick={(text) => {
+                        window.dispatchEvent(new CustomEvent(AI_SUGGESTION_EVENT, { detail: { text } }))
+                      }}
+                    />
+                  </div>
+                )
+              }
+
               return (
                 <Fragment key={msg.id}>
                   <div id={`msg-${msg.id}`} ref={isNewestVisible ? lastMessageRef : null}>
@@ -733,6 +861,7 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
                       conversation={conversation}
                       onReply={() => setReplyTo(msg)}
                       onForward={() => setForwardingMessage(msg)}
+                      onScrollToMessage={scrollToMessage}
                       onAvatarClick={(userId) => {
                         if (userId === user?.id) {
                           setIsOwnerProfileOpen(true)
@@ -799,7 +928,10 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             conversationId={conversation.id}
             isGroup={conversation.isGroup}
             replyTo={replyTo}
+            unreadCount={capturedUnreadCount}
+            snapshotId={snapshotId}
             onCancelReply={() => setReplyTo(null)}
+            onClearSnapshot={onClearSnapshot}
           />
         )}
         {forwardingMessage && (
@@ -809,10 +941,29 @@ export function ChatWindow({ conversation }: { conversation: ConversationRespons
             onClose={() => setForwardingMessage(null)}
             onConfirm={(selectedConvIds, description) => {
               selectedConvIds.forEach((convId) => {
+                const isFake = convId.startsWith('fake_')
+                const hasAttachments = (forwardingMessage.attachments?.length ?? 0) > 0
                 const finalContent = description
-                  ? `${forwardingMessage.content}\n---\n${description}`
+                  ? `${forwardingMessage.content || ''}\n---\n${description}`.trim()
                   : forwardingMessage.content || ''
-                sendMessage(convId, finalContent, null, true)
+                if (hasAttachments) {
+                  sendMsgMutate({
+                    conversationId: isFake ? null : convId,
+                    recipientId: isFake ? convId.replace('fake_', '') : null,
+                    content: finalContent,
+                    isForwarded: true,
+                    attachments: forwardingMessage.attachments!.map((a) => ({
+                      key: a.key,
+                      url: a.url,
+                      fileName: a.fileName,
+                      originalFileName: a.originalFileName,
+                      contentType: a.contentType,
+                      size: a.size
+                    }))
+                  })
+                } else {
+                  sendMessage(convId, finalContent, null, true)
+                }
               })
             }}
           />

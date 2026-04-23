@@ -6,7 +6,9 @@ import {
   getSocialReelsQueryOptions,
   getSocialStoriesQueryOptions,
   getInfiniteSocialFeedPostsQueryOptions,
-  getInfiniteSocialReelsQueryOptions
+  getInfiniteSocialReelsQueryOptions,
+  getInfiniteMyPostsQueryOptions,
+  getPostByIdQueryOptions
 } from './options'
 
 export const useSocialFeedPosts = (page = 0, size = 20) => {
@@ -41,4 +43,12 @@ export const useSocialReels = (page = 0, size = 20) => {
 
 export const useInfiniteSocialReels = (size = 20) => {
   return useInfiniteQuery(getInfiniteSocialReelsQueryOptions(size))
+}
+
+export const useInfiniteMyPosts = (size = 20) => {
+  return useInfiniteQuery(getInfiniteMyPostsQueryOptions(size))
+}
+
+export const usePostById = (postId: string) => {
+  return useQuery(getPostByIdQueryOptions(postId))
 }

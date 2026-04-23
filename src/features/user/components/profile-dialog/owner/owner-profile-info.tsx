@@ -11,6 +11,8 @@ import { ProfileInfoBase } from '../shared/profile-info-base'
 import { BackgroundEditor } from './background-editor'
 import { UpdateImageDialog } from './update-image-dialog'
 import { DeactivatedProfileState } from '../shared/deactivated-profile-state'
+import { getBatchPresignedUrls } from '@/features/chat/api/chat.api'
+import { uploadToS3 } from '@/utils/s3-upload'
 
 interface OwnerProfileInfoProps {
   user: UserResponse
@@ -51,19 +53,38 @@ export function OwnerProfileInfo({ user, onEdit }: OwnerProfileInfoProps) {
   }) => {
     if (!selectedImage) return
 
-    const formData = new FormData()
-
     try {
       const croppedBlob = await getCroppedImg(selectedImage.url, data.pixels)
       if (!croppedBlob) return
 
-      formData.append('file', croppedBlob, 'avatar.jpg')
-      updateAvatarMutation.mutate(formData, {
-        onSuccess: () => {
-          toast.success(text.profile.updateAvatarSuccess)
-          setSelectedImage(null)
+      // 1. Get Presigned URL
+      const presignInfos = await getBatchPresignedUrls([
+        {
+          fileName: 'avatar.jpg',
+          contentType: 'image/jpeg',
+          size: croppedBlob.size,
+          folder: 'avatars'
         }
+      ])
+      const presignInfo = presignInfos[0]
+
+      // 2. Upload directly to S3
+      await uploadToS3({
+        url: presignInfo.presignedUrl,
+        file: croppedBlob,
+        contentType: 'image/jpeg'
       })
+
+      // 3. Update Profile with imageKey
+      updateAvatarMutation.mutate(
+        { imageKey: presignInfo.key },
+        {
+          onSuccess: () => {
+            toast.success(text.profile.updateAvatarSuccess)
+            setSelectedImage(null)
+          }
+        }
+      )
     } catch (e) {
       console.error('Crop failed', e)
       toast.error(text.profile.selectImageError)
