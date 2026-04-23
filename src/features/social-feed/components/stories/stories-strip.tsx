@@ -54,27 +54,17 @@ export function StoriesStrip({ stories, isLoading = false }: StoriesStripProps) 
   const currentUserAvatar = myProfile?.avatar || undefined
 
   return (
-    <section className='relative overflow-hidden rounded-[28px] border border-zinc-200/60 bg-white/60 p-5 shadow-sm backdrop-blur-xl transition-all duration-500 hover:border-zinc-300/60 hover:shadow-md dark:border-white/5 dark:bg-zinc-950/40 dark:hover:border-white/10'>
-      <div className='mb-5 flex items-center justify-between px-2'>
-        <div className='flex items-center gap-2.5'>
-          <div className='flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 text-indigo-600 ring-1 ring-indigo-500/20 dark:from-indigo-500/30 dark:to-purple-500/30 dark:text-indigo-400'>
-            <Sparkles className='h-4.5 w-4.5' />
-          </div>
-          <h3 className='text-[15px] font-semibold tracking-tight text-zinc-900 dark:text-zinc-100'>
-            {text.stories.title}
-          </h3>
-        </div>
-      </div>
+    <section className='relative overflow-hidden w-full'>
 
       {isLoading ? (
-        <div className='flex gap-3 overflow-hidden pb-1 px-1'>
+        <div className='flex gap-2 overflow-hidden pb-1'>
           {Array.from({ length: 6 }).map((_, index) => (
             <StorySkeleton key={index} />
           ))}
         </div>
       ) : (
-        <Carousel opts={{ align: 'start' }} className='w-full px-2'>
-          <CarouselContent className='ml-0 gap-3'>
+        <Carousel opts={{ align: 'start' }} className='w-full'>
+          <CarouselContent className='ml-0 gap-2'>
             {/* Create card always first */}
             <CarouselItem className='basis-auto pl-0'>
               <StoryCreateCard

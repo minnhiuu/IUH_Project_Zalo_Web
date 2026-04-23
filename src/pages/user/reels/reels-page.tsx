@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ChevronDown, ChevronUp, Loader2 } from 'lucide-react'
+import { ChevronDown, ChevronUp, Loader2, Star, Users } from 'lucide-react'
 import { ReelsFeed, useInfiniteSocialReels } from '@/features/social-feed'
 import { ReelCommentsSidebar } from '@/features/social-feed/components/reels/reel-comments-sidebar'
 import { ReelComposerModal } from '@/features/social-feed/components/reels/reel-composer-modal'
@@ -85,57 +85,56 @@ export default function ReelsPage({ query = '' }: { query?: string }) {
 
   return (
     <section className='relative h-full w-full overflow-hidden bg-transparent'>
-      <div className='pointer-events-none absolute inset-0 z-0'>
-        <div className='absolute -left-24 top-28 h-72 w-72 rounded-full bg-cyan-500/12 blur-3xl' />
-        <div className='absolute right-0 bottom-10 h-80 w-80 rounded-full bg-indigo-500/14 blur-3xl' />
-      </div>
-
       <div className='relative z-10 h-[calc(100dvh-4.5rem)] w-full'>
-        <div className='relative flex h-full min-w-0 w-full flex-col'>
-          <div className='pointer-events-none absolute left-3 top-3 z-50 md:left-6 md:top-6'>
-            <Button
-              type='button'
-              onClick={() => setIsComposerOpen(true)}
-              className='pointer-events-auto h-10 rounded-full bg-white/95 px-4 text-sm font-semibold text-zinc-900 shadow-md backdrop-blur hover:bg-white dark:bg-zinc-900/90 dark:text-zinc-100 dark:hover:bg-zinc-900'
-            >
-              {text.reelComposer.createAction}
-            </Button>
-          </div>
+        <div className='relative flex h-full min-w-0 w-full flex-row'>
+          {/* Main Content Area */}
+          <div className='relative flex flex-1 h-full min-w-0 flex-col'>
+            <div className='pointer-events-none absolute left-3 top-3 z-50 md:left-6 md:top-6 flex flex-col items-start gap-4'>
+              <h1 className='text-2xl font-bold text-zinc-900 dark:text-white drop-shadow-sm'>{text.reels?.title || 'Reels'}</h1>
+              <Button
+                type='button'
+                onClick={() => setIsComposerOpen(true)}
+                className='pointer-events-auto h-10 rounded-full border border-zinc-200 bg-white/95 px-4 text-sm font-semibold text-zinc-900 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-zinc-900/90 dark:text-zinc-100 dark:hover:bg-zinc-900'
+              >
+                {text.reelComposer.createAction}
+              </Button>
+            </div>
 
-          <ReelsFeed
-            reels={filteredReels}
-            isLoading={isLoading}
-            isError={isError}
-            onRetry={() => refetch()}
-            scrollContainerRef={reelsScrollContainerRef}
-            onCommentClick={(reel) => setSelectedCommentReel(reel)}
-            onLoadMore={() => {
-              if (hasNextPage && !isFetchingNextPage) void fetchNextPage()
-            }}
-            hasMore={hasNextPage}
-            isLoadingMore={isFetchingNextPage}
-          />
+            <ReelsFeed
+              reels={filteredReels}
+              isLoading={isLoading}
+              isError={isError}
+              onRetry={() => refetch()}
+              scrollContainerRef={reelsScrollContainerRef}
+              onCommentClick={(reel) => setSelectedCommentReel(reel)}
+              onLoadMore={() => {
+                if (hasNextPage && !isFetchingNextPage) void fetchNextPage()
+              }}
+              hasMore={hasNextPage}
+              isLoadingMore={isFetchingNextPage}
+            />
 
-          <div className='pointer-events-none absolute right-3 top-1/2 z-40 flex -translate-y-1/2 flex-col gap-2 md:right-6'>
-            <button
-              type='button'
-              onClick={() => scrollOneReel('up')}
-              disabled={!canScrollUp}
-              className='pointer-events-auto inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/25 bg-zinc-900/75 text-white shadow-lg backdrop-blur-md transition hover:bg-zinc-800/90 disabled:cursor-not-allowed disabled:opacity-30'
-              aria-label='Previous reel'
-            >
-              <ChevronUp className='h-5 w-5' />
-            </button>
+            <div className='pointer-events-none absolute right-3 top-1/2 z-40 flex -translate-y-1/2 flex-col gap-2 md:right-6'>
+              <button
+                type='button'
+                onClick={() => scrollOneReel('up')}
+                disabled={!canScrollUp}
+                className='pointer-events-auto inline-flex h-11 w-11 items-center justify-center rounded-full border border-zinc-200 bg-white/75 dark:border-white/25 dark:bg-zinc-900/75 text-zinc-900 dark:text-white shadow-lg backdrop-blur-md transition hover:bg-white/90 dark:hover:bg-zinc-800/90 disabled:cursor-not-allowed disabled:opacity-30'
+                aria-label='Previous reel'
+              >
+                <ChevronUp className='h-5 w-5' />
+              </button>
 
-            <button
-              type='button'
-              onClick={handleScrollDown}
-              disabled={(!canScrollDown && !hasNextPage) || isFetchingNextPage}
-              className='pointer-events-auto inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/25 bg-zinc-900/75 text-white shadow-lg backdrop-blur-md transition hover:bg-zinc-800/90 disabled:cursor-not-allowed disabled:opacity-30'
-              aria-label='Next reel'
-            >
-              {isFetchingNextPage ? <Loader2 className='h-5 w-5 animate-spin' /> : <ChevronDown className='h-5 w-5' />}
-            </button>
+              <button
+                type='button'
+                onClick={handleScrollDown}
+                disabled={(!canScrollDown && !hasNextPage) || isFetchingNextPage}
+                className='pointer-events-auto inline-flex h-11 w-11 items-center justify-center rounded-full border border-zinc-200 bg-white/75 dark:border-white/25 dark:bg-zinc-900/75 text-zinc-900 dark:text-white shadow-lg backdrop-blur-md transition hover:bg-white/90 dark:hover:bg-zinc-800/90 disabled:cursor-not-allowed disabled:opacity-30'
+                aria-label='Next reel'
+              >
+                {isFetchingNextPage ? <Loader2 className='h-5 w-5 animate-spin' /> : <ChevronDown className='h-5 w-5' />}
+              </button>
+            </div>
           </div>
 
           {selectedCommentReel ? (

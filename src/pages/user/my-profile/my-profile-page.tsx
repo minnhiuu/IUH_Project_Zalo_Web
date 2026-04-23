@@ -104,7 +104,7 @@ export default function MyProfilePage() {
                     src={user?.avatar}
                     name={user?.fullName || 'User'}
                     className='h-full w-full'
-                    fallbackClassName='text-4xl font-bold'
+                    fallbackClassName='text-4xl font-bold bg-primary'
                   />
                 </div>
               </div>

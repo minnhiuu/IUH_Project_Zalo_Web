@@ -30,6 +30,7 @@ export interface SocialPostMedia {
 
 interface SharedPostPreview {
   postId: string
+  authorId?: string | null
   authorName: string
   authorAvatar?: string | null
   content: string
@@ -151,6 +152,16 @@ export function PostCard({ post }: PostCardProps) {
     }
   }
 
+  function handleSharedAuthorClick(e: React.MouseEvent) {
+    e.stopPropagation()
+    if (!post.sharedPost?.authorId) return
+    if (me?.id && post.sharedPost.authorId === me.id) {
+      navigate(PATHS.USER.PROFILE)
+    } else {
+      navigate(PATHS.USER.OTHER_PROFILE.replace(':userId', post.sharedPost.authorId))
+    }
+  }
+
   if (isHidden) {
     return (
       <Card className='gap-0 py-0 overflow-visible rounded-none sm:rounded-2xl border-x-0 sm:border-x border-y border-zinc-200 dark:border-white/[0.08] bg-white dark:bg-[#09090b]/80'>
@@ -249,17 +260,25 @@ export function PostCard({ post }: PostCardProps) {
         {post.postType === 'SHARE' && post.sharedPost ? (
           <div className='rounded-xl border border-zinc-200 bg-zinc-50 p-3 dark:border-white/10 dark:bg-zinc-900/40'>
             <div className='mb-2 flex items-center gap-2'>
-              <div className='h-8 w-8'>
+              <button
+                onClick={handleSharedAuthorClick}
+                disabled={!post.sharedPost.authorId}
+                className={`h-8 w-8 ${post.sharedPost.authorId ? 'transition-transform hover:scale-105 active:scale-95' : ''}`}
+              >
                 <UserAvatar
                   name={post.sharedPost.authorName}
                   src={post.sharedPost.authorAvatar}
                   className='w-full h-full border border-background'
                   fallbackClassName='bg-primary text-white text-xs font-semibold'
                 />
-              </div>
-              <span className='text-[13px] font-semibold text-zinc-800 dark:text-zinc-200'>
+              </button>
+              <button
+                onClick={handleSharedAuthorClick}
+                disabled={!post.sharedPost.authorId}
+                className={`text-[13px] font-semibold text-zinc-800 dark:text-zinc-200 ${post.sharedPost.authorId ? 'hover:text-indigo-500 dark:hover:text-indigo-400 hover:underline' : ''}`}
+              >
                 {post.sharedPost.authorName}
-              </span>
+              </button>
             </div>
 
             {post.sharedPost.content ? (

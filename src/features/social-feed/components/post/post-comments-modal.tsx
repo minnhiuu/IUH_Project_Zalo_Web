@@ -26,6 +26,9 @@ import { REACTIONS, ReactionPicker, type ReactionType } from './reaction-picker'
 import { useAuthContext } from '@/features/auth/context/auth-context'
 import { commentApi } from '../../api/comment.api'
 
+import { useNavigate } from 'react-router'
+import { PATHS } from '@/constants/path'
+
 type CommentSortBy = 'NEWEST' | 'MOST_REACTED'
 
 const PAGE_SIZE = 10
@@ -42,6 +45,7 @@ interface PostCommentsModalProps {
 export function PostCommentsModal({ open, onOpenChange, post, currentReaction, onReactionChange }: PostCommentsModalProps) {
   const { text } = useSocialText()
   const { user } = useAuthContext()
+  const navigate = useNavigate()
 
   const [sortBy, setSortBy] = useState<CommentSortBy>('NEWEST')
   const [page, setPage] = useState(0)
@@ -165,6 +169,17 @@ export function PostCommentsModal({ open, onOpenChange, post, currentReaction, o
     setMediaModalOpen(true)
   }
 
+  function handleSharedAuthorClick(e: React.MouseEvent) {
+    e.stopPropagation()
+    if (!post.sharedPost?.authorId) return
+    onOpenChange(false)
+    if (user?.id && post.sharedPost.authorId === user.id) {
+      navigate(PATHS.USER.PROFILE)
+    } else {
+      navigate(PATHS.USER.OTHER_PROFILE.replace(':userId', post.sharedPost.authorId))
+    }
+  }
+
   async function handleCreateComment(content: string, parentId?: string, media?: CommentMediaRequest[]) {
     await createCommentMutation.mutateAsync({
       content,
@@ -224,17 +239,25 @@ export function PostCommentsModal({ open, onOpenChange, post, currentReaction, o
               {post.postType === 'SHARE' && post.sharedPost ? (
                 <div className='mt-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3 dark:border-white/10 dark:bg-zinc-900/40'>
                   <div className='mb-2 flex items-center gap-2'>
-                    <div className='h-8 w-8'>
+                    <button
+                      onClick={handleSharedAuthorClick}
+                      disabled={!post.sharedPost.authorId}
+                      className={`h-8 w-8 ${post.sharedPost.authorId ? 'transition-transform hover:scale-105 active:scale-95' : ''}`}
+                    >
                       <UserAvatar
                         name={post.sharedPost.authorName}
                         src={post.sharedPost.authorAvatar}
                         className='w-full h-full border border-background'
                         fallbackClassName='bg-primary text-white text-xs font-semibold'
                       />
-                    </div>
-                    <span className='text-[13px] font-semibold text-zinc-800 dark:text-zinc-200'>
+                    </button>
+                    <button
+                      onClick={handleSharedAuthorClick}
+                      disabled={!post.sharedPost.authorId}
+                      className={`text-[13px] font-semibold text-zinc-800 dark:text-zinc-200 ${post.sharedPost.authorId ? 'hover:text-indigo-500 dark:hover:text-indigo-400 hover:underline' : ''}`}
+                    >
                       {post.sharedPost.authorName}
-                    </span>
+                    </button>
                   </div>
 
                   {post.sharedPost.content ? (

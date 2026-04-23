@@ -133,13 +133,9 @@ export const useDeleteStoryReactionMutation = () => {
  * Toggle a reaction on a Reel post (POST targetType). Invalidates reel list queries on success.
  */
 export const useToggleReelReactionMutation = () => {
-  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({ postId, type }: { postId: string; type: ReactionType }) =>
-      reactionApi.toggleReaction({ targetId: postId, targetType: 'POST', type }),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: socialReelKeys.all })
-    }
+      reactionApi.toggleReaction({ targetId: postId, targetType: 'POST', type })
   })
 }
 
@@ -147,11 +143,7 @@ export const useToggleReelReactionMutation = () => {
  * Delete a reaction from a Reel post. Invalidates reel list queries on success.
  */
 export const useDeleteReelReactionMutation = () => {
-  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (postId: string) => reactionApi.deleteReaction(postId, 'POST'),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: socialReelKeys.all })
-    }
+    mutationFn: (postId: string) => reactionApi.deleteReaction(postId, 'POST')
   })
 }

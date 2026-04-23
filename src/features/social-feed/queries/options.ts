@@ -130,6 +130,7 @@ const mapSharedPreview = (preview: BackendSharedPostPreview): SocialPost['shared
 
   return {
     postId: preview.postId,
+    authorId: preview.authorInfo?.id ?? null,
     authorName: preview.authorInfo?.fullName?.trim() || getFallbackAuthorName(),
     authorAvatar: preview.authorInfo?.avatar ?? null,
     content: sections.join('\n\n') || '',
@@ -218,6 +219,7 @@ export const getSocialFeedPostsQueryOptions = (page = 0, size = 20) =>
             ...mappedPost,
             sharedPost: {
               postId: post.sharedPostId,
+              authorId: null,
               authorName: 'Original post unavailable',
               authorAvatar: null,
               content: '',
@@ -259,6 +261,7 @@ export const getInfiniteSocialFeedPostsQueryOptions = (size = 20) =>
             ...mappedPost,
             sharedPost: {
               postId: post.sharedPostId,
+              authorId: null,
               authorName: 'Original post unavailable',
               authorAvatar: null,
               content: '',
@@ -367,6 +370,7 @@ export const getInfiniteMyPostsQueryOptions = (size = 20) =>
             ...mappedPost,
             sharedPost: {
               postId: post.sharedPostId,
+              authorId: null,
               authorName: 'Original post unavailable',
               authorAvatar: null,
               content: '',
@@ -431,6 +435,7 @@ export const getInfiniteUserPostsQueryOptions = (userId: string, size = 20) =>
             ...mappedPost,
             sharedPost: {
               postId: post.sharedPostId,
+              authorId: null,
               authorName: 'Original post unavailable',
               authorAvatar: null,
               content: '',

@@ -131,7 +131,7 @@ export default function OtherProfilePage() {
                       src={profileUser?.avatar}
                       name={profileUser?.fullName || 'User'}
                       className='h-full w-full'
-                      fallbackClassName='text-4xl font-bold'
+                      fallbackClassName='text-4xl font-bold bg-primary'
                     />
                   )}
                 </div>

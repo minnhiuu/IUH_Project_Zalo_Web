@@ -112,21 +112,21 @@ export default function SocialFeedPage() {
     <section
       ref={scrollContainerRef}
       onScroll={handleScrollObject}
-      className={`custom-scrollbar flex flex-col h-[100dvh] w-full bg-zinc-50/50 dark:bg-zinc-950/50 ${isReels ? 'overflow-hidden' : 'overflow-y-auto'}`}
+      className={`custom-scrollbar flex flex-col h-[100dvh] w-full ${isReels ? 'bg-white dark:bg-black overflow-hidden' : 'bg-[#f0f2f5] dark:bg-[#18191a] overflow-y-auto'}`}
     >
       <SocialFeedHeader query={query} onQueryChange={setQuery} placeholder={text.search.placeholder} />
 
       {isReels ? (
         <ReelsPage query={query} />
       ) : (
-        <div className='mx-auto flex w-full max-w-7xl items-start justify-center gap-6 px-4 pb-8 md:px-8 lg:gap-8 pt-6'>
+        <div className='mx-auto flex w-full max-w-[1920px] justify-between gap-4 px-2 pb-8 md:px-4 lg:gap-8 pt-6'>
           {/* Left Sidebar */}
           <div className='sticky top-24 self-start'>
             <SocialSidebar />
           </div>
 
           {/* Center: Main Feed */}
-          <div className='mx-auto flex min-w-0 w-full max-w-180 flex-1 flex-col space-y-6 pt-4 pb-10'>
+          <div className='mx-auto flex min-w-0 w-full max-w-[590px] xl:max-w-[680px] flex-1 flex-col space-y-4 pt-4 pb-10'>
             {/* Post Composer */}
             <PostComposerLauncher />
 
