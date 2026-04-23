@@ -1,9 +1,15 @@
 import { useState } from 'react'
+<<<<<<< HEAD
 import { useQueryClient } from '@tanstack/react-query'
 import { chatKeys } from '../queries/keys'
 import { UserPlus, Users, Filter, MoreHorizontal, Megaphone, Trash2, Clock3, FolderTree, BellOff, Flag } from 'lucide-react'
+=======
+import { UserPlus, Users, Filter, MoreHorizontal, Megaphone } from 'lucide-react'
+>>>>>>> 61ff73b6918883769d96313105706373ab2d8c76
 import { cn } from '@/lib/utils'
+import { getUnreadAnchorApi, type UnreadAnchorResponse } from '../api/chat.api'
 import { useConversationsQuery } from '../queries/use-queries'
+import { useMarkAsReadMutation } from '../queries/use-mutations'
 import { useAuth } from '@/features/auth'
 import { MessageType, MessageStatus } from '@/constants/enum'
 import { useChatText } from '../i18n/use-chat-text'
@@ -27,17 +33,21 @@ import { BONDHUB_AI } from '@/constants/system'
 interface ChatSidebarProps {
   selectedChatId?: string
   onSelectChat: (chat: ConversationResponse, snapshotId?: string | null, unreadCount?: number) => void
+  onCaptureUnreadAnchor?: (conversationId: string, unreadAnchor: UnreadAnchorResponse) => void
 }
 
-export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) {
+export function ChatSidebar({ selectedChatId, onSelectChat, onCaptureUnreadAnchor }: ChatSidebarProps) {
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false)
   const [isAddFriendModalOpen, setIsAddFriendModalOpen] = useState(false)
+<<<<<<< HEAD
   const [clearTarget, setClearTarget] = useState<ConversationResponse | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<ConversationResponse | null>(null)
+=======
+  const { mutate: markAsRead } = useMarkAsReadMutation()
+>>>>>>> 61ff73b6918883769d96313105706373ab2d8c76
   const { text, t, i18n } = useChatText()
   const { user } = useAuth()
   const { data: conversations, isLoading, isError } = useConversationsQuery()
-  const queryClient = useQueryClient()
 
   const isAiConversation = (chat: ConversationResponse) => {
     return chat.members?.some((member) => member.userId === BONDHUB_AI.userId) ?? false
@@ -45,6 +55,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
 
   const getEffectiveUnreadCount = (chat: ConversationResponse) => {
     if (isAiConversation(chat)) return 0
+    if (selectedChatId === chat.id) return 0
     return chat.unreadCount ?? 0
   }
   const { mutate: clearHistory, isPending: isClearing } = useClearConversationHistoryMutation()
@@ -52,19 +63,25 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
 
   const handleSelectChat = (chat: ConversationResponse) => {
     const unreadCount = getEffectiveUnreadCount(chat)
-    console.log(`[ChatSidebar] Selecting chat: ${chat.id}, unreadCount: ${unreadCount}`)
-
     let capturedSnapshotId: string | null = null
     if (unreadCount > 0) {
       const myMember = chat.members?.find((m) => m.userId === user?.id)
       capturedSnapshotId = myMember?.lastReadMessageId || null
-      console.log(`[ChatSidebar] Snapshot captured before markAsRead: ${capturedSnapshotId}`)
     }
 
     onSelectChat(chat, capturedSnapshotId, unreadCount)
 
     if (unreadCount > 0) {
-      markAsRead({ conversationId: chat.id, lastReadMessageId: chat.lastMessage?.id || undefined })
+      void getUnreadAnchorApi(chat.id)
+        .then((unreadAnchor) => {
+          onCaptureUnreadAnchor?.(chat.id, unreadAnchor)
+        })
+        .catch((error) => {
+          console.error('Failed to fetch unread anchor:', error)
+        })
+        .finally(() => {
+          markAsRead({ conversationId: chat.id, lastReadMessageId: chat.lastMessage?.id ?? undefined })
+        })
     }
   }
 
@@ -182,7 +199,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
                   <h3
                     className={cn(
                       'text-base truncate text-text-primary',
-                      chat.unreadCount && chat.unreadCount > 0 ? 'font-semibold' : 'font-normal'
+                      effectiveUnreadCount > 0 ? 'font-semibold' : 'font-normal'
                     )}
                   >
                     {getConversationDisplayName(chat, 'Group', undefined, user?.id)}

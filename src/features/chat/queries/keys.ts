@@ -1,7 +1,8 @@
 export const chatKeys = {
   all: () => ['chat'] as const,
   conversations: () => [...chatKeys.all(), 'conversations'] as const,
-  messages: (conversationId: string) => [...chatKeys.all(), 'messages', conversationId] as const,
+  messages: (conversationId: string) => [...chatKeys.all(), 'messages-v2', conversationId] as const,
+  legacyMessages: (conversationId: string) => [...chatKeys.all(), 'messages', conversationId] as const,
   media: (conversationId: string, types: string[]) =>
     [...chatKeys.all(), 'media', conversationId, types.join(',')] as const,
   friendsDirectory: (conversationId?: string | null) =>
@@ -23,5 +24,7 @@ export const chatKeys = {
     [...chatKeys.all(), 'my-groups', query, sort, filter, page] as const,
   seenMembers: (conversationId: string, messageId: string) =>
     [...chatKeys.all(), 'seen-members', conversationId, messageId] as const,
-  unreadAnchor: (conversationId: string) => [...chatKeys.all(), 'unread-anchor', conversationId] as const
+  unreadAnchor: (conversationId: string) => [...chatKeys.all(), 'unread-anchor', conversationId] as const,
+  conversationParticipants: (conversationId: string, query: string) =>
+    [...chatKeys.all(), 'conversation-participants', conversationId, query] as const
 }

@@ -71,16 +71,27 @@ export function ChatInput({
     handleSummarize,
     clearSummary,
     sendMessage: sendAiMessage
-  } = useAiChat(conversationId)
+  } = useAiChat(conversationId, { loadHistory: false })
 
-  // ── AI Summarize Auto-hide logic (5 seconds) ──
+  // ── AI Summarize Auto-hide logic ──
   useEffect(() => {
-    if (snapshotId && unreadCount > 0 && !isSummarizing && !summaryResult) {
+    // Nếu không có snapshot hoặc đã tóm tắt xong thì không cần chạy timer
+    if (!snapshotId || isSummarizing || summaryResult) return
+
+    // TRƯỜNG HỢP 1: Nếu thực sự đã đọc hết (unreadCount về 0)
+    if (unreadCount === 0) {
+      // Cho nút hiện thêm 3 giây "vớt vát" sau khi đọc xong để người dùng kịp nhấn
       const timer = setTimeout(() => {
         onClearSnapshot()
-      }, 5000)
+      }, 3000)
       return () => clearTimeout(timer)
     }
+
+    // TRƯỜNG HỢP 2: Nếu vẫn còn tin chưa đọc, cho nó hiện tối đa 15s rồi tự ẩn cho đỡ vướng
+    const timer = setTimeout(() => {
+      onClearSnapshot()
+    }, 15000)
+    return () => clearTimeout(timer)
   }, [snapshotId, unreadCount, isSummarizing, summaryResult, onClearSnapshot])
 
   const [businessCardOpen, setBusinessCardOpen] = useState(false)
@@ -643,7 +654,7 @@ export function ChatInput({
       </div>
 
       {/* Floating AI Summarize Button Case */}
-      {unreadCount > 0 && snapshotId && !summaryResult && (
+      {snapshotId && !summaryResult && (
         <div className='absolute bottom-full left-0 right-0 flex justify-center pb-4 z-40 pointer-events-none'>
           <button
             type='button'

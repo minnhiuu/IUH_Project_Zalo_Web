@@ -197,3 +197,10 @@ export const SystemActionType = {
 } as const
 
 export type SystemActionType = (typeof SystemActionType)[keyof typeof SystemActionType]
+
+export const SearchIndexType = {
+  USER: 'USER',
+  MESSAGE: 'MESSAGE'
+} as const
+
+export type SearchIndexType = (typeof SearchIndexType)[keyof typeof SearchIndexType]

@@ -1,8 +1,8 @@
-﻿import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import type { ConversationResponse, ConversationMemberResponse, MessageResponse } from '../schemas/chat.schema'
 import { useChatText } from '../i18n/use-chat-text'
 import { Quote, Forward, MoreHorizontal } from 'lucide-react'
-import { useState } from 'react'
+import { useState, type JSX } from 'react'
 import { DropdownMenu, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useChatContext } from '../context/chat-context'
 import { MessageStatus, MessageType } from '@/constants/enum'
@@ -40,7 +40,9 @@ export function MessageBubble({
   onForward,
   onAvatarClick,
   onRecall,
-  onScrollToMessage
+  onScrollToMessage,
+  highlightKeyword,
+  isHighlighted
 }: {
   message: MessageResponse
   isOwn: boolean
@@ -53,6 +55,8 @@ export function MessageBubble({
   onAvatarClick?: (userId: string) => void
   onRecall?: (receiverId: string) => void
   onScrollToMessage?: (messageId: string) => void
+  highlightKeyword?: string | null
+  isHighlighted?: boolean
 }) {
   const { text } = useChatText()
   const { deleteMessageForMe } = useChatContext()
@@ -121,6 +125,53 @@ export function MessageBubble({
   const isBusinessCardMessage = !!businessCard
   const hasReactions = !isUnavailable && !!message.reactions && Object.keys(message.reactions).length > 0
 
+  const removeAccents = (str: string) => {
+    return str
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+  }
+
+  const highlightText = (content: string, keyword: string | null) => {
+    if (!keyword || !content) return content
+
+    const normalizedKeyword = removeAccents(keyword)
+    if (!normalizedKeyword) return content
+
+    // Tìm tất cả các vị trí khớp (không phân biệt dấu và hoa thường)
+    const result: (string | JSX.Element)[] = []
+    let lastIndex = 0
+
+    // Tạm thời dùng regex đơn giản cho keyword gốc + tìm kiếm vị trí dựa trên bản đã clear dấu
+    const normalizedContent = removeAccents(content)
+    let matchIndex = normalizedContent.indexOf(normalizedKeyword)
+
+    if (matchIndex === -1) return content
+
+    while (matchIndex !== -1) {
+      // Thêm phần text trước match
+      result.push(content.substring(lastIndex, matchIndex))
+
+      // Thêm phần text khớp (lấy từ content gốc để giữ đúng dấu/hoa thường)
+      const matchText = content.substring(matchIndex, matchIndex + keyword.length)
+      result.push(
+        <mark
+          key={matchIndex}
+          className='bg-yellow-300 dark:bg-yellow-600/50 text-black dark:text-white px-0.5 rounded-sm'
+        >
+          {matchText}
+        </mark>
+      )
+
+      lastIndex = matchIndex + keyword.length
+      matchIndex = normalizedContent.indexOf(normalizedKeyword, lastIndex)
+    }
+
+    // Thêm phần còn lại
+    result.push(content.substring(lastIndex))
+    return result
+  }
+
   if (message.type === MessageType.System) {
     return <SystemMessage message={message} conversation={conversation} />
   }
@@ -163,7 +214,8 @@ export function MessageBubble({
                 ? 'bg-blue-message text-black dark:text-primary-foreground'
                 : 'bg-white-message text-foreground',
               isUnavailable && 'pointer-events-none select-none border border-black/5 shadow-none',
-              highlightEnabled && 'border border-border-highlight',
+              highlightEnabled && !isHighlighted && 'border border-border-highlight',
+              isHighlighted && 'ring-[3px] ring-(--text-mention) z-10',
               isPreviousOwnGroup && 'cursor-pointer'
             )}
             onClick={isPreviousOwnGroup ? () => setShowInlineSeen((v) => !v) : undefined}
@@ -289,7 +341,7 @@ export function MessageBubble({
                     </span>
                   ) : (
                     <span key={key} className='whitespace-pre-wrap'>
-                      {text}
+                      {highlightText(text, highlightKeyword ?? null)}
                     </span>
                   )
                 )

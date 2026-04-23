@@ -22,12 +22,13 @@ import {
   useRevokeMessageMutation,
   useDeleteMessageForMeMutation
 } from '../queries/use-mutations'
-import { uploadFileApi } from '../api/chat.api'
+import { getBatchPresignedUrls } from '../api/chat.api'
+import { uploadToS3, uploadBatchToS3 } from '@/utils/s3-upload'
 import type { FileAttachment } from '../context/chat-context'
+import { normalizeDateTime } from '../utils/date-utils'
 
 const WS_URL = import.meta.env.VITE_WS_URL || 'http://localhost:8080/ws'
 
-import { normalizeDateTime } from '../utils/date-utils'
 const JOIN_LINK_REGEX = /^https?:\/\/[^/]+\/g\/[a-zA-Z0-9_-]+$/
 
 export const useChatWebSocket = () => {
@@ -134,6 +135,13 @@ export const useChatWebSocket = () => {
                   pages: [{ ...firstPage, data: [msg, ...firstPage.data] }, ...oldData.pages.slice(1)]
                 }
               }
+            )
+            // Emit instant event for ChatWindow to increment new-msg badge without
+            // waiting for React Query cache → re-render → useEffect pipeline.
+            window.dispatchEvent(
+              new CustomEvent('chat:incoming-message', {
+                detail: { conversationId, messageId: msg.id, senderId: msg.senderId }
+              })
             )
           }
 
@@ -830,17 +838,34 @@ export const useChatWebSocket = () => {
         })
 
         try {
-          const uploadResults = await Promise.all(mediaFiles.map((a) => uploadFileApi(a.file, folder)))
+          const presignRequests = mediaFiles.map((a) => ({
+            fileName: a.file.name,
+            contentType: a.file.type,
+            size: a.file.size,
+            folder
+          }))
+          const presignInfos = await getBatchPresignedUrls(presignRequests)
+
+          const uploadItems = mediaFiles.map((a, i) => ({
+            url: presignInfos[i].presignedUrl,
+            file: a.file,
+            contentType: a.file.type
+          }))
+
+          await uploadBatchToS3(uploadItems, (totalPercent) => {
+            console.log(`[Batch Upload] Total Progress: ${totalPercent}%`)
+          })
+
           sendMsgMutate({
             conversationId: isFake ? null : conversationId,
             recipientId: isFake ? conversationId.replace('fake_', '') : null,
             content: content || '',
             clientMessageId,
             replyTo: replyTo || undefined,
-            attachments: uploadResults.map((r) => ({
+            attachments: presignInfos.map((r) => ({
               key: r.key,
-              url: r.url,
-              fileName: r.fileName,
+              url: r.publicUrl,
+              fileName: r.originalFileName,
               originalFileName: r.originalFileName,
               contentType: r.contentType,
               size: r.size
@@ -931,7 +956,22 @@ export const useChatWebSocket = () => {
         })
 
         try {
-          const uploadResult = await uploadFileApi(file, folder)
+          const presignInfos = await getBatchPresignedUrls([
+            {
+              fileName: file.name,
+              contentType: file.type,
+              size: file.size,
+              folder
+            }
+          ])
+          const presignInfo = presignInfos[0]
+
+          await uploadToS3({
+            url: presignInfo.presignedUrl,
+            file,
+            contentType: file.type
+          })
+
           sendMsgMutate({
             conversationId: isFake ? null : conversationId,
             recipientId: isFake ? conversationId.replace('fake_', '') : null,
@@ -940,12 +980,12 @@ export const useChatWebSocket = () => {
             replyTo: replyTo || undefined,
             attachments: [
               {
-                key: uploadResult.key,
-                url: uploadResult.url,
-                fileName: uploadResult.fileName,
-                originalFileName: uploadResult.originalFileName,
-                contentType: uploadResult.contentType,
-                size: uploadResult.size
+                key: presignInfo.key,
+                url: presignInfo.publicUrl,
+                fileName: presignInfo.originalFileName,
+                originalFileName: presignInfo.originalFileName,
+                contentType: presignInfo.contentType,
+                size: presignInfo.size
               }
             ]
           })

@@ -9,6 +9,11 @@ import { Status } from '@/constants/enum'
 import { useUserById } from '@/features/user/queries/use-queries'
 import { JoinGroupDialog } from './group/dialogs/join-group-dialog'
 import { BONDHUB_AI } from '@/constants/system'
+import type { UnreadAnchorResponse } from '../api/chat.api'
+
+interface CapturedUnreadAnchor extends UnreadAnchorResponse {
+  conversationId: string
+}
 
 export function ChatLayout({
   defaultPartnerId,
@@ -25,6 +30,7 @@ export function ChatLayout({
   const [userSelectedChatId, setUserSelectedChatId] = useState<string | null>(null)
   const [currentSnapshotId, setCurrentSnapshotId] = useState<string | null>(null)
   const [capturedUnreadCount, setCapturedUnreadCount] = useState<number>(0)
+  const [capturedUnreadAnchor, setCapturedUnreadAnchor] = useState<CapturedUnreadAnchor | null>(null)
 
   const { data: conversations } = useConversationsQuery()
 
@@ -71,7 +77,12 @@ export function ChatLayout({
   // ── Tính selectedChatId theo thứ tự ưu tiên ──
   // defaultConversationId (từ URL) được ưu tiên cao nhất để navigate từ bên ngoài (vd: tạo nhóm) hoạt động
   const defaultChatId = cachedConvForPartner?.id || resolvedConversation?.id || null
-  const selectedChatId = defaultConversationId || userSelectedChatId || defaultChatId
+  const selectedChatId = userSelectedChatId || defaultConversationId || defaultChatId
+
+  useEffect(() => {
+    if (!defaultConversationId) return
+    setUserSelectedChatId((current) => (current === defaultConversationId ? current : defaultConversationId))
+  }, [defaultConversationId])
 
   const selectedChat = useMemo(() => {
     if (!selectedChatId) return null
@@ -101,16 +112,21 @@ export function ChatLayout({
   const handleClearSnapshot = () => {
     setCurrentSnapshotId(null)
     setCapturedUnreadCount(0)
+    setCapturedUnreadAnchor(null)
   }
 
   return (
     <div className='flex w-full h-full overflow-hidden'>
       <ChatSidebar
         selectedChatId={selectedChatId || undefined}
+        onCaptureUnreadAnchor={(conversationId, unreadAnchor) => {
+          setCapturedUnreadAnchor({ conversationId, ...unreadAnchor })
+        }}
         onSelectChat={(chat: ConversationResponse, snapshotId, unreadCount) => {
           setUserSelectedChatId(chat.id)
           setCurrentSnapshotId(snapshotId || null)
           setCapturedUnreadCount(unreadCount || 0)
+          setCapturedUnreadAnchor(null)
           navigate(`/chat/c/${chat.id}`)
         }}
       />
@@ -129,6 +145,7 @@ export function ChatLayout({
             conversation={selectedChat}
             snapshotId={currentSnapshotId}
             capturedUnreadCount={capturedUnreadCount}
+            capturedUnreadAnchor={capturedUnreadAnchor}
             onClearSnapshot={handleClearSnapshot}
           />
         ) : (
