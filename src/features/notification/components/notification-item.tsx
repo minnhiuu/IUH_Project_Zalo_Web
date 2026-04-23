@@ -61,6 +61,8 @@ const getBadgeConfig = (type: NotificationType) => {
       return { icon: EyeOff, color: 'bg-orange-500' }
     case 'USER_WARNED':
       return { icon: AlertCircle, color: 'bg-orange-500' }
+    case 'NEW_DEVICE_LOGIN':
+      return { icon: Shield, color: 'bg-orange-500' }
     default:
       return { icon: User, color: 'bg-gray-500' }
   }
@@ -76,6 +78,19 @@ export const NotificationItem = React.memo(({ notification, onMarkAsRead }: Noti
   const handleClick = () => {
     if (!notification.read) {
       onMarkAsRead(notification.id)
+    }
+
+    if (notification.type === 'NEW_DEVICE_LOGIN') {
+      window.dispatchEvent(
+        new CustomEvent('open-new-device-login-modal', {
+          detail: {
+            deviceName: notification.payload?.deviceName as string,
+            ipAddress: notification.payload?.ipAddress as string,
+            loginTime: notification.lastModifiedAt,
+            sessionId: notification.payload?.sessionId as string
+          }
+        })
+      )
     }
   }
 

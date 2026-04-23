@@ -6,11 +6,13 @@ import { PATHS } from '@/constants/path'
 import { UserNavDropdown } from '@/features/user'
 import { useAuthContext } from '@/features/auth/context/auth-context'
 import { UserAvatar } from '@/components/common/user-avatar'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { SearchPanel } from '@/features/search-user'
 import { useCommonText } from '@/locales/common/use-common-text'
 import { useFCM } from '@/hooks/use-fcm'
 import { NotificationPanel } from '@/features/notification'
+import { useMySettings } from '@/features/user-settings/queries/use-settings'
+import { NewDeviceLoginModal } from '@/features/notification/components/new-device-login-modal'
 import { notificationKeys } from '@/features/notification/queries/keys'
 import { useNotificationStateQuery } from '@/features/notification/queries/use-queries'
 import { useMarkHistoryAsCheckedMutation } from '@/features/notification/queries/use-mutations'
@@ -18,6 +20,7 @@ import { useNotificationBadge } from '@/hooks/use-notification-badge'
 import { ChatProvider } from '@/features/chat'
 import { socialFeedKeys } from '@/features/social-feed/queries/keys'
 import { showWarningToast } from '@/utils/toast'
+import { useLocale } from '@/lib/i18n/use-locale'
 import type { SocialPost } from '@/features/social-feed/components/post/post-card'
 import type { InfiniteData } from '@tanstack/react-query'
 
@@ -30,6 +33,18 @@ export default function UserLayout() {
 
   const { data: notificationState } = useNotificationStateQuery()
   const { mutate: markAsChecked } = useMarkHistoryAsCheckedMutation()
+  const { data: settings } = useMySettings()
+  const { locale, changeLocale } = useLocale()
+
+  // Sync language from user settings globally
+  useEffect(() => {
+    if (settings?.generalSettings?.languageEn !== undefined) {
+      const settingsLang = settings.generalSettings.languageEn ? 'en' : 'vi'
+      if (locale !== settingsLang) {
+        changeLocale(settingsLang)
+      }
+    }
+  }, [settings?.generalSettings?.languageEn, locale, changeLocale])
 
   const unreadCount = notificationState?.unreadCount ?? 0
 
@@ -62,6 +77,18 @@ export default function UserLayout() {
         )
       } else if (type === 'USER_WARNED') {
         showWarningToast(data?.body || 'You received a warning from an administrator.', 6000)
+      } else if (type === 'NEW_DEVICE_LOGIN') {
+        const payloadData = data?.payload ? JSON.parse(data.payload) : data
+        window.dispatchEvent(
+          new CustomEvent('open-new-device-login-modal', {
+            detail: {
+              deviceName: payloadData.deviceName || '',
+              ipAddress: payloadData.ipAddress || '',
+              loginTime: payloadData.loginTime || '',
+              sessionId: payloadData.sessionId || ''
+            }
+          })
+        )
       }
     },
     [queryClient]
@@ -241,6 +268,7 @@ export default function UserLayout() {
 
         <SearchPanel open={isSearchOpen} onOpenChange={setIsSearchOpen} />
         <NotificationPanel open={isNotificationOpen} onOpenChange={setIsNotificationOpen} />
+        <NewDeviceLoginModal />
       </div>
     </ChatProvider>
   )
