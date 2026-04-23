@@ -1,5 +1,5 @@
 import { Phone, Video, Search, PanelsTopLeft, Users, Pencil } from 'lucide-react'
-import { useMessagesInfiniteQuery, useUnreadAnchorQuery } from '../queries/use-queries'
+import { useMessagesInfiniteQuery } from '../queries/use-queries'
 import { useAuth } from '@/features/auth'
 import { useChatContext } from '../context/chat-context'
 import { useQueryClient } from '@tanstack/react-query'
@@ -12,7 +12,7 @@ import { useChatText } from '../i18n/use-chat-text'
 import { VideoCallRoom, IncomingCallDialog, OutgoingCallScreen, useVideoCall } from './call-video/video-call'
 import { useCallNotification } from '../hooks/use-call-notification'
 import { rejectCallApi } from '../api/call.api'
-import { getMessageContextApi } from '../api/chat.api'
+import { type UnreadAnchorResponse } from '../api/chat.api'
 import {
   useMarkAsReadMutation,
   useUpdateGroupNameMutation,
@@ -57,11 +57,13 @@ export function ChatWindow({
   conversation,
   snapshotId,
   capturedUnreadCount,
+  capturedUnreadAnchor,
   onClearSnapshot
 }: {
   conversation: ConversationResponse
   snapshotId: string | null
   capturedUnreadCount: number
+  capturedUnreadAnchor: (UnreadAnchorResponse & { conversationId: string }) | null
   onClearSnapshot: () => void
 }) {
   const { user } = useAuth()
@@ -70,23 +72,20 @@ export function ChatWindow({
   const queryClient = useQueryClient()
   const [jumpTargetId, setJumpTargetId] = useState<string | null>(null)
 
-  const { 
-    data, 
-    fetchNextPage, 
-    hasNextPage, 
-    isFetchingNextPage, 
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
     fetchPreviousPage,
     hasPreviousPage,
     isFetchingPreviousPage,
-    isLoading, 
-    isFetching 
-  } = useMessagesInfiniteQuery(
-    conversation.id,
-    jumpTargetId
-  )
+    isLoading,
+    isFetching
+  } = useMessagesInfiniteQuery(conversation.id, jumpTargetId)
 
   const suppressFetchRef = useRef(false)
-  const { scrollRef, handleScroll, isAtBottom, scrollToBottom } = useChatScroll({
+  const { scrollRef, handleScroll, scrollToBottom, resetToBottom } = useChatScroll({
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
@@ -97,12 +96,12 @@ export function ChatWindow({
   })
   const { mutate: markAsRead } = useMarkAsReadMutation()
   const { mutate: sendMsgMutate } = useSendMessageMutation()
+  const bottomSentinelRef = useRef<HTMLDivElement>(null)
   const lastMessageRef = useRef<HTMLDivElement>(null)
   const lastReadSentId = useRef<string | null>(null)
+  const newMsgClearTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [isBottomSentinelVisible, setIsBottomSentinelVisible] = useState(true)
 
-  const prevLatestIdRef = useRef<string | null>(null)
-
-  
   const scrollToMessage = useCallback((messageId: string) => {
     const el = document.getElementById(`msg-${messageId}`)
     if (!el) return
@@ -141,8 +140,6 @@ export function ChatWindow({
     }
   }, [data, isFetching, jumpTargetId])
 
-  // ─── Unread anchor ───
-  const { data: unreadAnchor } = useUnreadAnchorQuery(conversation.id)
   const [firstUnreadId, setFirstUnreadId] = useState<string | null>(null)
   const [unreadDisplayCount, setUnreadDisplayCount] = useState(0)
   const [unreadDividerEl, setUnreadDividerEl] = useState<HTMLDivElement | null>(null)
@@ -151,8 +148,19 @@ export function ChatWindow({
   const dividerVisibleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const latestMessageIdRef = useRef<string | undefined>(undefined)
   const markAsReadRef = useRef(markAsRead)
+  const initialUnreadCutoffRef = useRef<string | null>(conversation.lastMessage?.timestamp ?? null)
+  const [initialUnreadCount, setInitialUnreadCount] = useState(capturedUnreadCount)
+  const [visibleInitialUnreadCount, setVisibleInitialUnreadCount] = useState(0)
+  const [visibleLoadedUnreadCount, setVisibleLoadedUnreadCount] = useState(0)
+  const [unreadUiReady, setUnreadUiReady] = useState(capturedUnreadCount <= 0)
+  const [floatingUnreadReady, setFloatingUnreadReady] = useState(capturedUnreadCount <= 0)
+  const [isUnreadDividerVisible, setIsUnreadDividerVisible] = useState(false)
+  const [deferredUiReady, setDeferredUiReady] = useState(false)
+  const [showScrollToBottomButton, setShowScrollToBottomButton] = useState(false)
+  const seenInitialUnreadIdsRef = useRef<Set<string>>(new Set())
+  const seenLoadedUnreadIdsRef = useRef<Set<string>>(new Set())
 
-  // ─── New message button state (populated after latestMessageId is known) ───
+  // Bottom button state
   const [newMsgCount, setNewMsgCount] = useState(0)
 
   const scrollToUnread = useCallback(() => {
@@ -184,52 +192,28 @@ export function ChatWindow({
   const [isSearchSidebarOpen, setIsSearchSidebarOpen] = useState(false)
   const [profileUserId, setProfileUserId] = useState<string | undefined>(undefined)
 
-  // ─── Jump-to-message (from search result) ───
+  // Jump-to-message from search results
   const [jumpTargetMessageId, setJumpTargetMessageId] = useState<string | null>(null)
   const [highlightKeyword, setHighlightKeyword] = useState<string | null>(null)
   const pendingJumpRef = useRef(false)
 
-  /**
-   * Gọi khi user click vào một MessageResultCard.
-   * - Thử scroll ngay nếu message đã trong DOM.
-   * - Nếu chưa, đánh dấu pendingJumpRef → useEffect sẽ fetch thêm pages và retry.
-   */
   const navigateToMessage = useCallback(
-    async (convId: string, msgId: string, keyword: string) => {
+    (convId: string, msgId: string, keyword: string) => {
       setHighlightKeyword(keyword)
-      // Bước 1: scroll ngay nếu message đã render trong DOM
+      // Step 1: scroll immediately if the message is already rendered.
       const el = document.getElementById(`msg-${msgId}`)
       if (el) {
         setJumpTargetMessageId(msgId)
         return
       }
 
-      // Bước 2: gọi API lấy page index rồi fetch đủ pages
-      try {
-        const ctx = await getMessageContextApi(convId, msgId)
-        // Kích hoạt fetch pages cho đến khi đủ (page index lớn hơn thì load nhiều hơn)
-        const pagesLoaded = data?.pages.length ?? 0
-        const pagesNeeded = ctx.page + 1
-        if (pagesLoaded < pagesNeeded) {
-          pendingJumpRef.current = true
-          setJumpTargetMessageId(msgId)
-          // Fetch những pages còn thiếu
-          let remaining = pagesNeeded - pagesLoaded
-          while (remaining > 0 && hasNextPage && !isFetchingNextPage) {
-            fetchNextPage()
-            remaining--
-          }
-        } else {
-          // Pages đã load đủ nhưng element chưa render → chờ render xong
-          pendingJumpRef.current = true
-          setJumpTargetMessageId(msgId)
-        }
-      } catch {
-        // Nếu API lỗi, vẫn thử scroll (message có thể đã load)
-        setJumpTargetMessageId(msgId)
-      }
+      // Step 2: Use V2 API to jump directly to the message's page
+      setJumpTargetId(msgId)
+      setJumpTargetMessageId(msgId)
+      pendingJumpRef.current = true
+      queryClient.removeQueries({ queryKey: chatKeys.messages(convId) })
     },
-    [data?.pages.length, hasNextPage, isFetchingNextPage, fetchNextPage]
+    [queryClient]
   )
 
   // Video Call
@@ -410,7 +394,7 @@ export function ChatWindow({
         conversationId: conversation.id,
         createdAt: new Date().toISOString(),
         isFromMe: false
-      } as any // ép kiểu để bỏ qua một số field không dùng tới trong preview
+      } as any // Synthetic AI preview message
       return [syntheticMsg, ...rawMessages]
     }
     return rawMessages
@@ -422,23 +406,252 @@ export function ChatWindow({
   useEffect(() => {
     latestMessageIdRef.current = latestMessageId
   }, [latestMessageId])
+
+  // Accumulate newMsgCount instantly via custom DOM event from WebSocket handler.
+  // Using refs avoids stale closures and skips the React re-render pipeline entirely.
+  const isBottomSentinelVisibleRef = useRef(isBottomSentinelVisible)
+  isBottomSentinelVisibleRef.current = isBottomSentinelVisible
+  const userIdRef = useRef(user?.id)
+  userIdRef.current = user?.id
+  const conversationIdRef = useRef(conversation.id)
+  conversationIdRef.current = conversation.id
+
+  useEffect(() => {
+    const seenMsgIds = new Set<string>()
+    const handler = (e: Event) => {
+      const { conversationId: incomingConvId, messageId, senderId } = (e as CustomEvent).detail
+      // Only count messages for the currently active conversation
+      if (incomingConvId !== conversationIdRef.current) return
+      // Don't count own messages
+      if (senderId === userIdRef.current) return
+      // Deduplicate: each message ID is counted at most once
+      if (seenMsgIds.has(messageId)) return
+      seenMsgIds.add(messageId)
+      // Only accumulate when user is scrolled up
+      if (!isBottomSentinelVisibleRef.current) {
+        setNewMsgCount((prev) => prev + 1)
+      }
+    }
+    window.addEventListener('chat:incoming-message', handler)
+    return () => {
+      window.removeEventListener('chat:incoming-message', handler)
+      seenMsgIds.clear()
+    }
+  }, [conversation.id]) // re-subscribe + clear seen set when conversation changes
   useEffect(() => {
     markAsReadRef.current = markAsRead
   }, [markAsRead])
 
-  // ΓöÇΓöÇΓöÇ New message button: track new incoming messages while scrolled up ΓöÇΓöÇΓöÇ
   useEffect(() => {
-    if (!latestMessageId) return
-    if (prevLatestIdRef.current === null) {
-      prevLatestIdRef.current = latestMessageId
+    const container = scrollRef.current
+    const bottomSentinelEl = bottomSentinelRef.current
+
+    if (!container || !bottomSentinelEl) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        setIsBottomSentinelVisible(entries[0]?.isIntersecting ?? false)
+      },
+      {
+        root: container,
+        threshold: 0.6
+      }
+    )
+
+    observer.observe(bottomSentinelEl)
+    return () => observer.disconnect()
+  }, [conversation.id, latestMessageId, scrollRef])
+
+  const initialUnreadMessageIds = useMemo(() => {
+    if (initialUnreadCount <= 0) return []
+
+    const cutoffTime = initialUnreadCutoffRef.current
+      ? new Date(initialUnreadCutoffRef.current).getTime()
+      : Number.POSITIVE_INFINITY
+
+    return allMessages
+      .filter((msg) => {
+        if (!msg.createdAt) return true
+        return new Date(msg.createdAt).getTime() <= cutoffTime
+      })
+      .slice(0, initialUnreadCount)
+      .map((msg) => msg.id)
+  }, [allMessages, initialUnreadCount, conversation.id])
+  const loadedMessageIdSet = useMemo(() => new Set(allMessages.map((msg) => msg.id)), [allMessages])
+
+  const measureVisibleMessageIds = useCallback(
+    (messageIds: string[]) => {
+      const container = scrollRef.current
+      if (!container || messageIds.length === 0) {
+        return { visibleIds: [] as string[], missingCount: 0 }
+      }
+
+      const containerRect = container.getBoundingClientRect()
+      return messageIds.reduce(
+        (acc, messageId) => {
+          const messageLoaded = loadedMessageIdSet.has(messageId)
+          const el = document.getElementById(`msg-${messageId}`)
+          if (!el) {
+            if (messageLoaded) acc.missingCount += 1
+            return acc
+          }
+
+          const rect = el.getBoundingClientRect()
+          const isVisible = rect.bottom > containerRect.top && rect.top < containerRect.bottom
+          if (isVisible) acc.visibleIds.push(messageId)
+          return acc
+        },
+        { visibleIds: [] as string[], missingCount: 0 }
+      )
+    },
+    [loadedMessageIdSet, scrollRef]
+  )
+
+  const initializeUnreadUi = useCallback(
+    (anchorId: string, totalUnread: number, retry = 0) => {
+      const container = scrollRef.current
+      const el = document.getElementById(`msg-${anchorId}`)
+      const anchorLoaded = allMessages.some((msg) => msg.id === anchorId)
+      const hasAnyLoadedMessages = allMessages.length > 0
+
+      if (!hasAnyLoadedMessages && totalUnread > 0 && retry < 8) {
+        requestAnimationFrame(() => initializeUnreadUi(anchorId, totalUnread, retry + 1))
+        return
+      }
+
+      if (anchorLoaded && !el && retry < 8) {
+        requestAnimationFrame(() => initializeUnreadUi(anchorId, totalUnread, retry + 1))
+        return
+      }
+
+      if (container && el) {
+        const cr = container.getBoundingClientRect()
+        const mr = el.getBoundingClientRect()
+        const isInView = mr.bottom > cr.top && mr.top < cr.bottom
+        if (isInView) {
+          if (lastReadSentId.current !== latestMessageIdRef.current) {
+            lastReadSentId.current = latestMessageIdRef.current ?? null
+            markAsReadRef.current({ conversationId: conversation.id, lastReadMessageId: latestMessageIdRef.current })
+          }
+          setFloatingUnreadReady(true)
+          setUnreadUiReady(true)
+          return
+        }
+      }
+
+      const firstUnreadIndex = allMessages.findIndex((msg) => msg.id === anchorId)
+      let unreadIds: string[] = []
+      if (firstUnreadIndex >= 0) {
+        const startIndex = Math.max(0, firstUnreadIndex - totalUnread + 1)
+        unreadIds = allMessages.slice(startIndex, firstUnreadIndex + 1).map((msg) => msg.id)
+      } else {
+        unreadIds = allMessages.slice(0, totalUnread).map((msg) => msg.id)
+      }
+
+      if (unreadIds.length === 0 && totalUnread > 0 && retry < 8) {
+        requestAnimationFrame(() => initializeUnreadUi(anchorId, totalUnread, retry + 1))
+        return
+      }
+
+      const loadedUnreadMeasurement = measureVisibleMessageIds(unreadIds)
+      const initialUnreadMeasurement = measureVisibleMessageIds(initialUnreadMessageIds)
+
+      if ((loadedUnreadMeasurement.missingCount > 0 || initialUnreadMeasurement.missingCount > 0) && retry < 8) {
+        requestAnimationFrame(() => initializeUnreadUi(anchorId, totalUnread, retry + 1))
+        return
+      }
+
+      loadedUnreadMeasurement.visibleIds.forEach((id) => seenLoadedUnreadIdsRef.current.add(id))
+      initialUnreadMeasurement.visibleIds.forEach((id) => seenInitialUnreadIdsRef.current.add(id))
+
+      setVisibleLoadedUnreadCount(seenLoadedUnreadIdsRef.current.size)
+      setVisibleInitialUnreadCount(seenInitialUnreadIdsRef.current.size)
+      setFirstUnreadId(anchorId)
+      setUnreadDisplayCount(totalUnread)
+      setFloatingUnreadReady(true)
+      setUnreadUiReady(true)
+    },
+    [allMessages, conversation.id, initialUnreadMessageIds, measureVisibleMessageIds]
+  )
+
+  const syncVisibleInitialUnreadCount = useCallback(() => {
+    if (initialUnreadCount <= 0 || initialUnreadMessageIds.length === 0) {
+      setVisibleInitialUnreadCount(0)
       return
     }
-    if (prevLatestIdRef.current === latestMessageId) return
-    prevLatestIdRef.current = latestMessageId
-    if (!isAtBottom && latestMessageSenderId !== user?.id) {
-      setNewMsgCount((c) => c + 1)
+    const { visibleIds } = measureVisibleMessageIds(initialUnreadMessageIds)
+    if (visibleIds.length > 0) {
+      let newlySeen = false
+      visibleIds.forEach((id) => {
+        if (!seenInitialUnreadIdsRef.current.has(id)) {
+          seenInitialUnreadIdsRef.current.add(id)
+          newlySeen = true
+        }
+      })
+      if (newlySeen) {
+        setVisibleInitialUnreadCount(seenInitialUnreadIdsRef.current.size)
+      }
     }
-  }, [latestMessageId, latestMessageSenderId, isAtBottom, user?.id])
+  }, [measureVisibleMessageIds, initialUnreadCount, initialUnreadMessageIds])
+
+  const unreadAnchorForConversation =
+    capturedUnreadAnchor?.conversationId === conversation.id ? capturedUnreadAnchor : null
+  const loadedUnreadMessageIds = useMemo(() => {
+    if (unreadDisplayCount <= 0) return []
+
+    const firstUnreadIndex = firstUnreadId ? allMessages.findIndex((msg) => msg.id === firstUnreadId) : -1
+    if (firstUnreadIndex >= 0) {
+      const startIndex = Math.max(0, firstUnreadIndex - unreadDisplayCount + 1)
+      return allMessages.slice(startIndex, firstUnreadIndex + 1).map((msg) => msg.id)
+    }
+
+    return allMessages.slice(0, unreadDisplayCount).map((msg) => msg.id)
+  }, [allMessages, firstUnreadId, unreadDisplayCount])
+  const syncVisibleLoadedUnreadCount = useCallback(() => {
+    const container = scrollRef.current
+    if (!container || loadedUnreadMessageIds.length === 0) {
+      return
+    }
+    const containerRect = container.getBoundingClientRect()
+
+    let minTop = Number.POSITIVE_INFINITY
+    let topmostVisibleIndex = -1
+    let foundVisible = false
+
+    for (let i = 0; i < loadedUnreadMessageIds.length; i++) {
+      const messageId = loadedUnreadMessageIds[i]
+      const el = document.getElementById(`msg-${messageId}`)
+      if (el) {
+        const rect = el.getBoundingClientRect()
+        const isVisible = rect.bottom > containerRect.top && rect.top < containerRect.bottom
+        if (isVisible) {
+          foundVisible = true
+          if (rect.top < minTop) {
+            minTop = rect.top
+            topmostVisibleIndex = i
+          }
+        }
+      }
+    }
+
+    if (foundVisible) {
+      setVisibleLoadedUnreadCount(topmostVisibleIndex + 1)
+    } else {
+      const newestUnreadId = loadedUnreadMessageIds[0]
+      const newestEl = document.getElementById(`msg-${newestUnreadId}`)
+      if (newestEl) {
+        const rect = newestEl.getBoundingClientRect()
+        if (rect.top >= containerRect.bottom) {
+          setVisibleLoadedUnreadCount(loadedUnreadMessageIds.length)
+        } else if (rect.bottom <= containerRect.top) {
+          setVisibleLoadedUnreadCount(0)
+        }
+      }
+    }
+  }, [loadedUnreadMessageIds, scrollRef])
+  const floatingUnreadCount = Math.max(0, unreadDisplayCount - visibleLoadedUnreadCount)
+
+  // (newMsgCount accumulation is handled by the latestMessageId effect above)
 
   const isCloudConversation =
     !conversation.isGroup && (conversation.name === 'My Documents' || (conversation.avatar ?? '').includes('cloud.png'))
@@ -510,75 +723,125 @@ export function ChatWindow({
     user?.id
   ])
 
-  // ΓöÇΓöÇΓöÇ Reset unread state when switching conversations ΓöÇΓöÇΓöÇ
+  // Reset unread state when switching conversations
   useEffect(() => {
+    resetToBottom()
+  }, [conversation.id, resetToBottom])
+
+  useEffect(() => {
+    lastReadSentId.current = capturedUnreadCount > 0 ? (conversation.lastMessage?.id ?? null) : null
+    setDeferredUiReady(false)
     setFirstUnreadId(null)
     setUnreadDisplayCount(0)
     setNewMsgCount(0)
-    prevLatestIdRef.current = null
+    setIsBottomSentinelVisible(true)
+    setShowScrollToBottomButton(false)
+    setInitialUnreadCount(capturedUnreadCount)
+    setVisibleInitialUnreadCount(0)
+    setVisibleLoadedUnreadCount(0)
+    setFloatingUnreadReady(capturedUnreadCount <= 0)
+    setIsUnreadDividerVisible(false)
+    setUnreadUiReady(capturedUnreadCount <= 0)
+    initialUnreadCutoffRef.current = conversation.lastMessage?.timestamp ?? null
     anchorInitialized.current = false
     pendingScrollToUnread.current = false
+    seenInitialUnreadIdsRef.current.clear()
+    seenLoadedUnreadIdsRef.current.clear()
     setIsSearchSidebarOpen(false)
+    if (newMsgClearTimerRef.current) {
+      clearTimeout(newMsgClearTimerRef.current)
+      newMsgClearTimerRef.current = null
+    }
     if (dividerVisibleTimerRef.current) {
       clearTimeout(dividerVisibleTimerRef.current)
       dividerVisibleTimerRef.current = null
     }
-  }, [conversation.id])
+  }, [conversation.id]) // Intentionally omit capturedUnreadCount so we don't reset UI when mark-as-read completes
 
   useEffect(() => {
-    if (isAtBottom && newMsgCount > 0) setNewMsgCount(0)
-  }, [isAtBottom, newMsgCount])
-
-  // ΓöÇΓöÇΓöÇ Initialise from query ΓÇö only once per conversation ΓöÇΓöÇΓöÇ
-  useEffect(() => {
-    if (!unreadAnchor || anchorInitialized.current) return
-    const anchorId = unreadAnchor.firstUnreadMessageId
-    if (!anchorId) {
-      anchorInitialized.current = true
-      return
-    }
-    const msgEl = document.getElementById(`msg-${anchorId}`)
-    if (!msgEl) {
-      // Element not in DOM yet — if the message is already in the loaded list,
-      // wait for the next render (effect will re-run via allMessages dependency).
-      if (allMessages.some((m) => m.id === anchorId)) return
-      // Message not loaded yet (will be fetched) → show divider now.
-      anchorInitialized.current = true
-      setFirstUnreadId(anchorId)
-      setUnreadDisplayCount(unreadAnchor.unreadCount)
-      return
-    }
-    // Element is in the DOM — defer check to after browser layout/paint.
-    anchorInitialized.current = true
-    const capturedAnchorId = anchorId
-    const capturedUnreadCount = unreadAnchor.unreadCount
-    requestAnimationFrame(() => {
-      const container = scrollRef.current
-      const el = document.getElementById(`msg-${capturedAnchorId}`)
-      if (container && el) {
-        const cr = container.getBoundingClientRect()
-        const mr = el.getBoundingClientRect()
-        const isInView = mr.bottom > cr.top && mr.top < cr.bottom
-        if (isInView) {
-          markAsReadRef.current({ conversationId: conversation.id, lastReadMessageId: latestMessageIdRef.current })
-          return
-        }
-      }
-      setFirstUnreadId(capturedAnchorId)
-      setUnreadDisplayCount(capturedUnreadCount)
+    if (isLoading) return
+    const rafId = requestAnimationFrame(() => {
+      setDeferredUiReady(true)
     })
-  }, [unreadAnchor, conversation.id, scrollRef, allMessages])
+    return () => cancelAnimationFrame(rafId)
+  }, [conversation.id, isLoading])
+
+  useEffect(() => {
+    if (!unreadUiReady) return
+    if (!isBottomSentinelVisible || newMsgCount > 0) {
+      setShowScrollToBottomButton(true)
+      return
+    }
+    if (isBottomSentinelVisible) {
+      setShowScrollToBottomButton(false)
+    }
+  }, [unreadUiReady, isBottomSentinelVisible, newMsgCount])
+
+  useEffect(() => {
+    if (!isBottomSentinelVisible) return
+    if (newMsgClearTimerRef.current) {
+      clearTimeout(newMsgClearTimerRef.current)
+    }
+    newMsgClearTimerRef.current = setTimeout(() => {
+      setNewMsgCount(0)
+      if (initialUnreadCount > 0) {
+        setInitialUnreadCount(0)
+        setVisibleInitialUnreadCount(0)
+      }
+      newMsgClearTimerRef.current = null
+    }, 180)
+    return () => {
+      if (newMsgClearTimerRef.current) {
+        clearTimeout(newMsgClearTimerRef.current)
+        newMsgClearTimerRef.current = null
+      }
+    }
+  }, [isBottomSentinelVisible, newMsgCount, initialUnreadCount])
+
+  // Initialize unread state from the sidebar snapshot and V2 messages once per conversation.
+  useEffect(() => {
+    if (anchorInitialized.current) return
+
+    if (unreadAnchorForConversation) {
+      if (allMessages.length === 0) return
+      const anchorId = unreadAnchorForConversation.firstUnreadMessageId
+      if (!anchorId) {
+        anchorInitialized.current = true
+        setFloatingUnreadReady(true)
+        setUnreadUiReady(true)
+        return
+      }
+
+      anchorInitialized.current = true
+      requestAnimationFrame(() => initializeUnreadUi(anchorId, unreadAnchorForConversation.unreadCount))
+      return
+    }
+
+    if (capturedUnreadCount <= 0) {
+      anchorInitialized.current = true
+      setFloatingUnreadReady(true)
+      setUnreadUiReady(true)
+      return
+    }
+  }, [allMessages.length, capturedUnreadCount, conversation.id, initializeUnreadUi, unreadAnchorForConversation])
 
   // getBoundingClientRect: debounced markAsRead when divider enters viewport
   const checkDividerVisibility = useCallback(() => {
-    if (!unreadDividerEl || !scrollRef.current) return
+    if (!unreadDividerEl || !scrollRef.current) {
+      setIsUnreadDividerVisible(false)
+      return
+    }
     const dividerRect = unreadDividerEl.getBoundingClientRect()
     const containerRect = scrollRef.current.getBoundingClientRect()
     const isVisible = dividerRect.bottom > containerRect.top && dividerRect.top < containerRect.bottom
+    setIsUnreadDividerVisible(isVisible)
     if (isVisible && document.visibilityState === 'visible') {
       if (!dividerVisibleTimerRef.current) {
         dividerVisibleTimerRef.current = setTimeout(() => {
-          markAsReadRef.current({ conversationId: conversation.id, lastReadMessageId: latestMessageIdRef.current })
+          if (lastReadSentId.current !== latestMessageIdRef.current) {
+            lastReadSentId.current = latestMessageIdRef.current ?? null
+            markAsReadRef.current({ conversationId: conversation.id, lastReadMessageId: latestMessageIdRef.current })
+          }
           setUnreadDisplayCount(0)
           dividerVisibleTimerRef.current = null
         }, 500)
@@ -592,7 +855,7 @@ export function ChatWindow({
   }, [unreadDividerEl, scrollRef, conversation.id])
 
   useEffect(() => {
-    if (!unreadDividerEl) return
+    if (!unreadUiReady || !unreadDividerEl) return
     requestAnimationFrame(() => checkDividerVisibility())
     return () => {
       if (dividerVisibleTimerRef.current) {
@@ -600,19 +863,61 @@ export function ChatWindow({
         dividerVisibleTimerRef.current = null
       }
     }
-  }, [unreadDividerEl, allMessages, checkDividerVisibility])
+  }, [unreadUiReady, unreadDividerEl, allMessages, checkDividerVisibility])
 
   useEffect(() => {
     const el = scrollRef.current
-    if (!el || !firstUnreadId || !unreadDisplayCount) return
+    if (!unreadUiReady || !el || !firstUnreadId || !unreadDisplayCount) return
     const onScroll = () => {
       requestAnimationFrame(() => checkDividerVisibility())
     }
     el.addEventListener('scroll', onScroll, { passive: true })
     return () => el.removeEventListener('scroll', onScroll)
-  }, [firstUnreadId, unreadDisplayCount, checkDividerVisibility, scrollRef])
+  }, [unreadUiReady, firstUnreadId, unreadDisplayCount, checkDividerVisibility, scrollRef])
 
-  // ΓöÇΓöÇΓöÇ Retry scroll once pending page loads ΓöÇΓöÇΓöÇ
+  useEffect(() => {
+    if (!unreadUiReady || initialUnreadCount <= 0) return
+    requestAnimationFrame(syncVisibleInitialUnreadCount)
+  }, [unreadUiReady, allMessages, initialUnreadCount, syncVisibleInitialUnreadCount])
+
+  useEffect(() => {
+    if (!unreadUiReady || unreadDisplayCount <= 0 || !firstUnreadId) return
+    requestAnimationFrame(syncVisibleLoadedUnreadCount)
+  }, [unreadUiReady, allMessages, unreadDisplayCount, firstUnreadId, syncVisibleLoadedUnreadCount])
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!unreadUiReady || !el || initialUnreadCount <= 0) return
+
+    const onScroll = () => requestAnimationFrame(syncVisibleInitialUnreadCount)
+    const onResize = () => requestAnimationFrame(syncVisibleInitialUnreadCount)
+
+    el.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onResize)
+
+    return () => {
+      el.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onResize)
+    }
+  }, [unreadUiReady, conversation.id, initialUnreadCount, scrollRef, syncVisibleInitialUnreadCount])
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!unreadUiReady || !el || unreadDisplayCount <= 0 || !firstUnreadId) return
+
+    const onScroll = () => requestAnimationFrame(syncVisibleLoadedUnreadCount)
+    const onResize = () => requestAnimationFrame(syncVisibleLoadedUnreadCount)
+
+    el.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onResize)
+
+    return () => {
+      el.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onResize)
+    }
+  }, [unreadUiReady, conversation.id, unreadDisplayCount, firstUnreadId, scrollRef, syncVisibleLoadedUnreadCount])
+
+  // Retry the scroll once pending pages finish loading
   useEffect(() => {
     if (!pendingScrollToUnread.current || !firstUnreadId || isFetchingNextPage) return
     const el = document.getElementById(`msg-${firstUnreadId}`)
@@ -628,7 +933,7 @@ export function ChatWindow({
     }
   }, [allMessages.length, isFetchingNextPage, firstUnreadId, hasNextPage, fetchNextPage])
 
-  // ─── Jump-to-message: scroll và highlight sau khi messages render ───
+  // Scroll and highlight after jump-to-message renders
   useEffect(() => {
     if (!jumpTargetMessageId) return
     const el = document.getElementById(`msg-${jumpTargetMessageId}`)
@@ -640,18 +945,16 @@ export function ChatWindow({
       setTimeout(() => {
         suppressFetchRef.current = false
         setHighlightKeyword(null)
+        setJumpTargetId(null) // Clear jump target after successful jump
       }, 4000)
       pendingJumpRef.current = false
       setJumpTargetMessageId(null)
-    } else if (pendingJumpRef.current && hasNextPage && !isFetchingNextPage) {
-      // Message chưa trong DOM, còn page chưa load → fetch thêm
-      fetchNextPage()
-    } else if (!hasNextPage) {
-      // Đã load hết mà vẫn không thấy → message không visible (đã xoá phía user)
+    } else if (pendingJumpRef.current && !isFetchingNextPage && !isLoading && !isFetching) {
+      // If we finished fetching the V2 page but the message is still not found, stop waiting.
       pendingJumpRef.current = false
       setJumpTargetMessageId(null)
     }
-  }, [allMessages, jumpTargetMessageId, hasNextPage, isFetchingNextPage, fetchNextPage])
+  }, [allMessages, jumpTargetMessageId, isFetchingNextPage, isLoading, isFetching])
 
   const isSameGroup = (msg1: MessageResponse, msg2: MessageResponse) => {
     if (!msg1 || !msg2) return false
@@ -679,8 +982,8 @@ export function ChatWindow({
             className={cn(
               'flex items-center space-x-3 min-w-0 flex-1',
               !isGroup &&
-              !isCloudConversation &&
-              'cursor-pointer hover:bg-black/5 p-1.5 -ml-1.5 rounded-lg transition-colors'
+                !isCloudConversation &&
+                'cursor-pointer hover:bg-black/5 p-1.5 -ml-1.5 rounded-lg transition-colors'
             )}
             onClick={() => {
               if (!isGroup && !isCloudConversation) {
@@ -694,10 +997,10 @@ export function ChatWindow({
                 onClick={
                   conversation.isGroup && !isAiConversation
                     ? (e: React.MouseEvent) => {
-                      e.stopPropagation()
-                      setInfoDialogStep('info')
-                      setIsInfoDialogOpen(true)
-                    }
+                        e.stopPropagation()
+                        setInfoDialogStep('info')
+                        setIsInfoDialogOpen(true)
+                      }
                     : undefined
                 }
                 className={cn(
@@ -832,46 +1135,52 @@ export function ChatWindow({
         {/* Pin Board & Messages Wrapper */}
         <div className='flex-1 relative flex flex-col min-h-0'>
           {/* Pin Board */}
-          {!isCloudConversation && !isAiConversation && (
+          {deferredUiReady && !isCloudConversation && !isAiConversation && (
             <PinBoard conversationId={conversation.id} onScrollToMessage={jumpToMessage} />
           )}
 
           {/* Floating Unread Button */}
-          {firstUnreadId && unreadDisplayCount > 0 && (
-            <div className='absolute top-4 right-4 z-20'>
-              <button
-                type='button'
-                onClick={scrollToUnread}
-                className='relative flex flex-col items-center justify-center w-11 h-11 bg-white dark:bg-zinc-800 border border-border rounded-full shadow-lg hover:shadow-xl active:scale-95 transition-all cursor-pointer'
-              >
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  className='w-5 h-5 text-foreground'
-                  viewBox='0 0 24 24'
-                  fill='none'
-                  stroke='currentColor'
-                  strokeWidth='2.5'
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
+          {unreadUiReady &&
+            floatingUnreadReady &&
+            !isUnreadDividerVisible &&
+            firstUnreadId &&
+            floatingUnreadCount > 0 && (
+              <div className='absolute top-4 right-4 z-20'>
+                <button
+                  type='button'
+                  onClick={scrollToUnread}
+                  className='relative flex flex-col items-center justify-center w-11 h-11 bg-white dark:bg-zinc-800 border border-border rounded-full shadow-lg hover:shadow-xl active:scale-95 transition-all cursor-pointer'
                 >
-                  <polyline points='17 11 12 6 7 11' />
-                  <polyline points='17 18 12 13 7 18' />
-                </svg>
-                <span className='absolute -top-2 -right-2 min-w-[20px] h-5 px-1 flex items-center justify-center bg-primary text-white text-[10px] font-bold rounded-full leading-none'>
-                  {unreadDisplayCount > 99 ? '99+' : unreadDisplayCount}
-                </span>
-              </button>
-            </div>
-          )}
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    className='w-5 h-5 text-foreground'
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    stroke='currentColor'
+                    strokeWidth='2.5'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                  >
+                    <polyline points='17 11 12 6 7 11' />
+                    <polyline points='17 18 12 13 7 18' />
+                  </svg>
+                  <span className='absolute -top-2 -right-2 min-w-[20px] h-5 px-1 flex items-center justify-center bg-primary text-white text-[10px] font-bold rounded-full leading-none'>
+                    {floatingUnreadCount > 99 ? '99+' : floatingUnreadCount}
+                  </span>
+                </button>
+              </div>
+            )}
 
-          {/* Scroll-to-bottom button ΓÇö new incoming messages while scrolled up */}
-          {!isAtBottom && newMsgCount > 0 && (
+          {/* Scroll-to-bottom button */}
+          {unreadUiReady && showScrollToBottomButton && (
             <div className='absolute bottom-4 right-4 z-20'>
               <button
                 type='button'
                 onClick={() => {
                   scrollToBottom()
                   setNewMsgCount(0)
+                  setInitialUnreadCount(0)
+                  setVisibleInitialUnreadCount(0)
                 }}
                 className='relative flex flex-col items-center justify-center w-11 h-11 bg-white dark:bg-zinc-800 border border-border rounded-full shadow-lg hover:shadow-xl active:scale-95 transition-all cursor-pointer'
               >
@@ -888,9 +1197,11 @@ export function ChatWindow({
                   <polyline points='7 13 12 18 17 13' />
                   <polyline points='7 6 12 11 17 6' />
                 </svg>
-                <span className='absolute -top-2 -right-2 min-w-5 h-5 px-1 flex items-center justify-center bg-primary text-white text-[10px] font-bold rounded-full leading-none'>
-                  {newMsgCount > 99 ? '99+' : newMsgCount}
-                </span>
+                {newMsgCount > 0 && (
+                  <span className='absolute -top-2 -right-2 min-w-5 h-5 px-1 flex items-center justify-center bg-primary text-white text-[10px] font-bold rounded-full leading-none'>
+                    {newMsgCount > 99 ? '99+' : newMsgCount}
+                  </span>
+                )}
               </button>
             </div>
           )}
@@ -899,7 +1210,14 @@ export function ChatWindow({
             ref={scrollRef}
             onScroll={handleScroll}
             className='flex-1 overflow-y-auto px-4 py-4 flex flex-col-reverse custom-scrollbar'
+            style={{ overflowAnchor: 'auto' }}
           >
+            <div
+              ref={bottomSentinelRef}
+              className='h-px w-full shrink-0'
+              style={{ overflowAnchor: 'none' }}
+              aria-hidden='true'
+            />
             {isLoading && (
               <div className='flex items-center justify-center flex-1 text-sm text-primary py-8'>{text.loading}</div>
             )}
@@ -1012,7 +1330,9 @@ export function ChatWindow({
                 />
               )}
           </div>
-          <TypingIndicator typingUsers={typingUsers.filter((u) => u.conversationId === conversation.id)} />
+          {deferredUiReady && (
+            <TypingIndicator typingUsers={typingUsers.filter((u) => u.conversationId === conversation.id)} />
+          )}
         </div>
 
         {conversation.isDisbanded || isCurrentUserRemovedFromGroup ? (
@@ -1092,6 +1412,7 @@ export function ChatWindow({
           onAvatarClick={triggerFileInput}
         />
       ) : (
+        (deferredUiReady || isSearchSidebarOpen) &&
         (isInfoSidebarOpen || isSearchSidebarOpen) && (
           <>
             {(isInfoSidebarOpen || isSearchSidebarOpen) && (

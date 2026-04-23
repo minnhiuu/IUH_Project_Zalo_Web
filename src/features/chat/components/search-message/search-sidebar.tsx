@@ -9,6 +9,7 @@ import { DateFilter } from './date-filter'
 import { EmptyState } from './empty-state'
 import { MessageResultCard, MessageResultSkeleton } from './message-result-card'
 import { SenderFilter } from './sender-filter'
+import { Button } from '@/components/ui/button'
 
 interface SearchSidebarProps {
   conversationId: string
@@ -159,7 +160,13 @@ export function SearchSidebar({ conversationId, onClose, onNavigateToMessage }: 
               text={text}
             />
 
-            <DateFilter fromDate={fromDate} toDate={toDate} setFromDate={setFromDate} setToDate={setToDate} sText={sText} />
+            <DateFilter
+              fromDate={fromDate}
+              toDate={toDate}
+              setFromDate={setFromDate}
+              setToDate={setToDate}
+              sText={sText}
+            />
           </div>
         </div>
 
@@ -194,17 +201,18 @@ export function SearchSidebar({ conversationId, onClose, onNavigateToMessage }: 
                       ))}
                     </div>
                   ) : canLoadMoreMessages ? (
-                    <button
+                    <Button
+                      variant={'secondary'}
                       onClick={handleMessageLoadMore}
                       disabled={isFetchingNextMessagesPage}
-                      className='mx-3 mt-3 py-3 text-[13px] font-medium text-text-primary bg-(--layer-background-secondary) hover:bg-(--layer-background-hover) rounded-[6px] transition-colors disabled:opacity-50'
+                      className='mx-3 mt-3 py-3 text-[13px] font-medium'
                     >
                       {isFetchingNextMessagesPage ? (
                         <Loader2 className='w-4 h-4 animate-spin mx-auto' />
                       ) : (
                         sText.loadMore || 'View more'
                       )}
-                    </button>
+                    </Button>
                   ) : null}
                 </section>
               )}

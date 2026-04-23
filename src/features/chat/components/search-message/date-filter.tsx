@@ -73,7 +73,7 @@ export function DateFilter({ fromDate, toDate, setFromDate, setToDate, sText }: 
             'flex-1 flex h-[24px] !min-h-[24px] !max-h-[24px] px-1.5 text-[13px] font-normal leading-none rounded-[3px] transition-colors items-center justify-center gap-1 outline-none border-none cursor-pointer overflow-hidden',
             fromDate || toDate
               ? 'bg-(--button-tertiary-neutral-focus-bg) text-(--button-tertiary-neutral-focus-text)'
-              : 'bg-button-secondary-neutral-normal text-button-secondary-neutral-text hover:bg-button-secondary-neutral-hover'
+              : 'bg-(--button-secondary-neutral-normal) text-(--button-secondary-neutral-text) hover:opacity-80'
           )}
         >
           <CalendarIcon className={cn('w-3.5 h-3.5 shrink-0', fromDate || toDate ? 'text-current' : 'opacity-60')} />

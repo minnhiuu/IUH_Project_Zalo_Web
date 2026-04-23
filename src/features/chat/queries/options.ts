@@ -88,10 +88,12 @@ export const chatOptions = {
     }),
   pins: (conversationId: string) =>
     queryOptions({
-      ...QUERY_POLICIES.REALTIME,
+      ...QUERY_POLICIES.DETAIL,
       queryKey: chatKeys.pins(conversationId),
       queryFn: () => getPinsApi(conversationId),
-      enabled: !!conversationId
+      enabled: !!conversationId,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false
     }),
   groupAdmins: (conversationId: string, size = 20) =>
     infiniteQueryOptions({

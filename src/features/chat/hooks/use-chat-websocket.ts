@@ -22,13 +22,7 @@ import {
   useRevokeMessageMutation,
   useDeleteMessageForMeMutation
 } from '../queries/use-mutations'
-import { toast } from 'sonner'
-import {
-  sendMessageApi,
-  getBatchPresignedUrls,
-  revokeMessageApi,
-  deleteMessageForMeApi
-} from '../api/chat.api'
+import { getBatchPresignedUrls } from '../api/chat.api'
 import { uploadToS3, uploadBatchToS3 } from '@/utils/s3-upload'
 import type { FileAttachment } from '../context/chat-context'
 import { normalizeDateTime } from '../utils/date-utils'
@@ -141,6 +135,13 @@ export const useChatWebSocket = () => {
                   pages: [{ ...firstPage, data: [msg, ...firstPage.data] }, ...oldData.pages.slice(1)]
                 }
               }
+            )
+            // Emit instant event for ChatWindow to increment new-msg badge without
+            // waiting for React Query cache → re-render → useEffect pipeline.
+            window.dispatchEvent(
+              new CustomEvent('chat:incoming-message', {
+                detail: { conversationId, messageId: msg.id, senderId: msg.senderId }
+              })
             )
           }
 
@@ -389,10 +390,10 @@ export const useChatWebSocket = () => {
                     data: page.data.map((m: MessageResponse) =>
                       m.id === update.messageId
                         ? {
-                          ...m,
-                          reactions:
-                            update.reactions && Object.keys(update.reactions).length ? update.reactions : undefined
-                        }
+                            ...m,
+                            reactions:
+                              update.reactions && Object.keys(update.reactions).length ? update.reactions : undefined
+                          }
                         : m
                     )
                   }))

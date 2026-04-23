@@ -65,7 +65,7 @@ export function ChatInput({
     handleSummarize,
     clearSummary,
     sendMessage: sendAiMessage
-  } = useAiChat(conversationId)
+  } = useAiChat(conversationId, { loadHistory: false })
 
   // ── AI Summarize Auto-hide logic ──
   useEffect(() => {

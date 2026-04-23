@@ -24,10 +24,10 @@ export const useChatScroll = ({
     if (!scrollRef.current) return
     if (suppressFetchRef?.current) return
     const { scrollTop, scrollHeight, clientHeight } = scrollRef.current
+    const scrollableDistance = scrollHeight - clientHeight
 
     // In a flex-col-reverse container, scrollTop starts at 0 (bottom).
     // When scrolling up, it goes negative (or positive in some browsers but mostly negative in standard scrolling).
-    // The distance from the "top" of the actual content is measured by `scrollHeight - clientHeight - Math.abs(scrollTop)`.
     const distanceFromBottom = Math.abs(scrollTop)
     setIsAtBottom(distanceFromBottom < 80)
 
@@ -37,7 +37,7 @@ export const useChatScroll = ({
       }
     }
 
-    if (Math.abs(scrollTop) >= scrollHeight - clientHeight - 100) {
+    if (scrollableDistance > 100 && Math.abs(scrollTop) >= scrollableDistance - 100) {
       if (hasNextPage && !isFetchingNextPage) {
         fetchNextPage()
       }
@@ -57,5 +57,11 @@ export const useChatScroll = ({
     scrollRef.current.scrollTo({ top: 0, behavior: 'smooth' })
   }, [])
 
-  return { scrollRef, handleScroll, isAtBottom, scrollToBottom }
+  const resetToBottom = useCallback(() => {
+    setIsAtBottom(true)
+    if (!scrollRef.current) return
+    scrollRef.current.scrollTo({ top: 0, behavior: 'auto' })
+  }, [])
+
+  return { scrollRef, handleScroll, isAtBottom, scrollToBottom, resetToBottom }
 }
