@@ -1,8 +1,8 @@
-﻿import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import type { ConversationResponse, ConversationMemberResponse, MessageResponse } from '../schemas/chat.schema'
 import { useChatText } from '../i18n/use-chat-text'
 import { Quote, Forward, MoreHorizontal } from 'lucide-react'
-import { useState } from 'react'
+import { useState, type JSX } from 'react'
 import { DropdownMenu, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useChatContext } from '../context/chat-context'
 import { MessageStatus, MessageType } from '@/constants/enum'
@@ -39,7 +39,8 @@ export function MessageBubble({
   onAvatarClick,
   onRecall,
   onScrollToMessage,
-  highlightKeyword
+  highlightKeyword,
+  isHighlighted
 }: {
   message: MessageResponse
   isOwn: boolean
@@ -53,6 +54,7 @@ export function MessageBubble({
   onRecall?: (receiverId: string) => void
   onScrollToMessage?: (messageId: string) => void
   highlightKeyword?: string | null
+  isHighlighted?: boolean
 }) {
   const { text } = useChatText()
   const { deleteMessageForMe } = useChatContext()
@@ -208,7 +210,8 @@ export function MessageBubble({
                 ? 'bg-blue-message text-black dark:text-primary-foreground'
                 : 'bg-white-message text-foreground',
               isUnavailable && 'pointer-events-none select-none border border-black/5 shadow-none',
-              highlightEnabled && 'border border-border-highlight',
+              highlightEnabled && !isHighlighted && 'border border-border-highlight',
+              isHighlighted && 'ring-[3px] ring-(--text-mention) z-10',
               isPreviousOwnGroup && 'cursor-pointer'
             )}
             onClick={isPreviousOwnGroup ? () => setShowInlineSeen((v) => !v) : undefined}

@@ -158,6 +158,12 @@
   --badge-violet-text: #6d28d9;
   --button-secondary-neutral-normal: #e5e7eb;
   --button-secondary-neutral-text: #081b3a;
+  --button-tertiary-neutral-focus-bg: #e5f1ff;
+  --button-tertiary-neutral-focus-text: #005ae0;
+  --text-mention: #0068ff;
+  --layer-background-selected: #e5f1ff;
+  --input-field-bg-filled: #f1f2f4;
+  --divider: rgba(0, 0, 0, 0.15);
 }
 
 @layer utilities {
@@ -305,6 +311,12 @@
   --badge-violet-text: #a78bfa;
   --button-secondary-neutral-normal: #2c323a;
   --button-secondary-neutral-text: #dfe2e7;
+  --button-tertiary-neutral-focus-bg: #002152;
+  --button-tertiary-neutral-focus-text: #66a6ff;
+  --text-mention: #0068ff;
+  --layer-background-selected: #1f344d;
+  --input-field-bg-filled: #16191d;
+  --divider: rgba(0, 0, 0, 0.15);
 }
 
 @theme inline {
@@ -759,21 +771,9 @@ input[type='radio']:checked {
 }
 
 /* ── Highlight message (scroll-to) ── */
-@keyframes highlight-flash {
-  0% {
-    background-color: rgba(0, 104, 255, 0.18);
-  }
-  60% {
-    background-color: rgba(0, 104, 255, 0.18);
-  }
-  100% {
-    background-color: transparent;
-  }
-}
-
 .highlight-message {
-  animation: highlight-flash 1.2s ease-out forwards;
-  border-radius: 10px;
+  background-color: var(--layer-background-selected);
+  border-radius: 4px;
 }
 
 /* ── Message bubble action buttons: show on group hover (Tailwind v4 fix) ── */

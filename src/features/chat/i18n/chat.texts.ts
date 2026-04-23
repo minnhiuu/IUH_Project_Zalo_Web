@@ -514,7 +514,9 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     loadMore: t(CHAT_KEYS.searchSidebar.loadMore),
     clear: t(CHAT_KEYS.searchSidebar.clear),
     confirm: t(CHAT_KEYS.searchSidebar.confirm),
-    cancel: t(CHAT_KEYS.searchSidebar.cancel)
+    cancel: t(CHAT_KEYS.searchSidebar.cancel),
+    messages: t(CHAT_KEYS.searchSidebar.messages),
+    files: t(CHAT_KEYS.searchSidebar.files)
   },
   /** Trả về label dịch cho trạng thái pipeline AI theo ngôn ngữ hiện tại */
   aiStatusLabel: (status?: AiProcessingStatus): string => {

@@ -191,25 +191,37 @@ export const formatMessageTime = (date: string | Date | number | null | undefine
   if (isNaN(d.getTime())) return ''
 
   const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const yesterday = new Date(today)
+  yesterday.setDate(yesterday.getDate() - 1)
+  
+  const checkDate = new Date(d.getFullYear(), d.getMonth(), d.getDate())
+
   const diffInSeconds = Math.floor((now.getTime() - d.getTime()) / 1000)
 
+  // Vài giây
   if (diffInSeconds < 60) {
     return lang === 'vi' ? 'Vài giây' : 'Few sec'
   }
 
-  // Dưới 1 giờ
+  // Phút
   const diffInMinutes = Math.floor(diffInSeconds / 60)
   if (diffInMinutes < 60) {
     return lang === 'vi' ? `${diffInMinutes} phút` : `${diffInMinutes} min${diffInMinutes > 1 ? 's' : ''}`
   }
 
-  // Dưới 1 ngày
+  // Giờ
   const diffInHours = Math.floor(diffInMinutes / 60)
-  if (diffInHours < 24) {
+  if (diffInHours < 24 && checkDate.getTime() === today.getTime()) {
     return lang === 'vi' ? `${diffInHours} giờ` : `${diffInHours} hour${diffInHours > 1 ? 's' : ''}`
   }
 
-  // Dưới 7 ngày
+  // Hôm qua
+  if (checkDate.getTime() === yesterday.getTime()) {
+    return lang === 'vi' ? 'Hôm qua' : 'Yesterday'
+  }
+
+  // Dưới 7 ngày (nhưng không phải hôm nay hay hôm qua)
   const diffInDays = Math.floor(diffInHours / 24)
   if (diffInDays < 7) {
     return lang === 'vi' ? `${diffInDays} ngày` : `${diffInDays} day${diffInDays > 1 ? 's' : ''}`

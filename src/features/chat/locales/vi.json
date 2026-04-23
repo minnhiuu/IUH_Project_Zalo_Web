@@ -606,7 +606,9 @@
       "loadMore": "Xem thêm",
       "clear": "Xóa",
       "confirm": "Xác nhận",
-      "cancel": "Hủy"
+      "cancel": "Hủy",
+      "messages": "Tin nhắn",
+      "files": "Tập tin"
     }
   },
   "call": {

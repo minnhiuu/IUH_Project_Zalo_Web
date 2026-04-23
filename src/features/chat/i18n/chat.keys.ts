@@ -525,6 +525,8 @@ export const CHAT_KEYS = {
     loadMore: 'chat.searchSidebar.loadMore',
     clear: 'chat.searchSidebar.clear',
     confirm: 'chat.searchSidebar.confirm',
-    cancel: 'chat.searchSidebar.cancel'
+    cancel: 'chat.searchSidebar.cancel',
+    messages: 'chat.searchSidebar.messages',
+    files: 'chat.searchSidebar.files'
   }
 } as const

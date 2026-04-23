@@ -24,6 +24,7 @@ export function SearchSidebar({ conversationId, onClose, onNavigateToMessage }: 
   const sText = text.searchSidebar
   const [memberQuery, setMemberQuery] = useState('')
   const [searchKeyword, setSearchKeyword] = useState('')
+  const [activeMessageId, setActiveMessageId] = useState<string | null>(null)
   const [selectedSenderId, setSelectedSenderId] = useState<string | null>(null)
   const [fromDate, setFromDate] = useState<Date>()
   const [toDate, setToDate] = useState<Date>()
@@ -122,8 +123,8 @@ export function SearchSidebar({ conversationId, onClose, onNavigateToMessage }: 
         </button>
       </div>
 
-      <div className='flex-1 flex flex-col p-4 overflow-y-auto custom-scrollbar overflow-x-hidden'>
-        <div className='grid grid-cols-[auto_1fr_auto] items-center h-8 relative bg-input-field-bg-outline px-3 border border-border-subtle rounded-[5px] transition-colors duration-80 group focus-within:border-primary'>
+      <div className='flex-1 flex flex-col py-4 overflow-y-auto custom-scrollbar overflow-x-hidden'>
+        <div className='mx-4 grid grid-cols-[auto_1fr_auto] items-center h-8 relative bg-(--input-field-bg-filled) px-3 rounded-[5px] transition-colors duration-80 group'>
           <Search className='w-4 h-4 text-text-primary transition-colors mr-2' />
           <input
             type='text'
@@ -143,7 +144,7 @@ export function SearchSidebar({ conversationId, onClose, onNavigateToMessage }: 
           )}
         </div>
 
-        <div className='flex items-center gap-2 py-[10px] shrink-0'>
+        <div className='mx-4 flex items-center gap-2 py-[10px] shrink-0'>
           <span className='text-text-secondary text-[13px] font-normal cursor-default whitespace-nowrap'>
             {sText.filterLabel}
           </span>
@@ -172,7 +173,9 @@ export function SearchSidebar({ conversationId, onClose, onNavigateToMessage }: 
 
         <div className='flex-1 flex flex-col mt-4 gap-6 overflow-y-auto custom-scrollbar'>
           {!hasFilters ? (
-            <EmptyState image='/images/search_empty_keyword_state.png' text={sText.emptyStateText} />
+            <div className='px-4'>
+              <EmptyState image='/images/search_empty_keyword_state.png' text={sText.emptyStateText} />
+            </div>
           ) : isLoadingOverview ? (
             <div className='flex flex-col'>
               {Array.from({ length: 6 }).map((_, i) => (
@@ -180,17 +183,23 @@ export function SearchSidebar({ conversationId, onClose, onNavigateToMessage }: 
               ))}
             </div>
           ) : !hasResults ? (
-            <EmptyState image='/images/search_empty_state.png' text={text.emptyStateSearch} />
+            <div className='px-4'>
+              <EmptyState image='/images/search_empty_state.png' text={text.emptyStateSearch} />
+            </div>
           ) : (
             <>
               {hasMessages && (
                 <section className='flex flex-col'>
-                  <h3 className='px-3 pb-2 text-[15px] font-semibold text-text-primary'>Messages</h3>
+                  <h3 className='px-4 pb-2 text-[15px] font-semibold text-text-primary'>{sText.messages}</h3>
                   {displayedMessages.map((msg) => (
                     <MessageResultCard
                       key={msg.messageId}
                       msg={msg}
-                      onClick={() => onNavigateToMessage(msg.messageId, searchKeyword)}
+                      isActive={activeMessageId === msg.messageId}
+                      onClick={() => {
+                        setActiveMessageId(msg.messageId)
+                        onNavigateToMessage(msg.messageId, searchKeyword)
+                      }}
                     />
                   ))}
 
@@ -202,10 +211,10 @@ export function SearchSidebar({ conversationId, onClose, onNavigateToMessage }: 
                     </div>
                   ) : canLoadMoreMessages ? (
                     <Button
-                      variant={'secondary'}
+                      variant='secondary'
                       onClick={handleMessageLoadMore}
                       disabled={isFetchingNextMessagesPage}
-                      className='mx-3 mt-3 py-3 text-[13px] font-medium'
+                      className='mx-3 mt-3 text-[13px]'
                     >
                       {isFetchingNextMessagesPage ? (
                         <Loader2 className='w-4 h-4 animate-spin mx-auto' />
@@ -219,33 +228,39 @@ export function SearchSidebar({ conversationId, onClose, onNavigateToMessage }: 
 
               {hasFiles && (
                 <section className='flex flex-col'>
-                  <h3 className='px-3 pb-2 text-[15px] font-semibold text-text-primary'>File</h3>
+                  <h3 className='px-4 pb-2 text-[15px] font-semibold text-text-primary'>{sText.files}</h3>
                   {displayedFiles.map((msg) => (
                     <MessageResultCard
                       key={msg.messageId}
                       msg={msg}
-                      onClick={() => onNavigateToMessage(msg.messageId, searchKeyword)}
+                      variant='file'
+                      isActive={activeMessageId === msg.messageId}
+                      onClick={() => {
+                        setActiveMessageId(msg.messageId)
+                        onNavigateToMessage(msg.messageId, searchKeyword)
+                      }}
                     />
                   ))}
 
                   {expandedSections.files && isLoadingFiles ? (
                     <div className='flex flex-col'>
                       {Array.from({ length: 3 }).map((_, i) => (
-                        <MessageResultSkeleton key={`files-loading-${i}`} />
+                        <MessageResultSkeleton key={`files-loading-${i}`} variant='file' />
                       ))}
                     </div>
                   ) : canLoadMoreFiles ? (
-                    <button
+                    <Button
+                      variant='secondary'
                       onClick={handleFileLoadMore}
                       disabled={isFetchingNextFilesPage}
-                      className='mx-3 mt-3 py-3 text-[13px] font-medium text-text-primary bg-(--layer-background-secondary) hover:bg-(--layer-background-hover) rounded-[6px] transition-colors disabled:opacity-50'
+                      className='mx-3 mt-3 text-[13px]'
                     >
                       {isFetchingNextFilesPage ? (
                         <Loader2 className='w-4 h-4 animate-spin mx-auto' />
                       ) : (
                         sText.loadMore || 'View more'
                       )}
-                    </button>
+                    </Button>
                   ) : null}
                 </section>
               )}

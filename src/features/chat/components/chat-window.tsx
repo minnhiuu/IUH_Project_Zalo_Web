@@ -150,7 +150,7 @@ export function ChatWindow({
   const markAsReadRef = useRef(markAsRead)
   const initialUnreadCutoffRef = useRef<string | null>(conversation.lastMessage?.timestamp ?? null)
   const [initialUnreadCount, setInitialUnreadCount] = useState(capturedUnreadCount)
-  const [visibleInitialUnreadCount, setVisibleInitialUnreadCount] = useState(0)
+  const [, setVisibleInitialUnreadCount] = useState(0)
   const [visibleLoadedUnreadCount, setVisibleLoadedUnreadCount] = useState(0)
   const [unreadUiReady, setUnreadUiReady] = useState(capturedUnreadCount <= 0)
   const [floatingUnreadReady, setFloatingUnreadReady] = useState(capturedUnreadCount <= 0)
@@ -936,25 +936,28 @@ export function ChatWindow({
   // Scroll and highlight after jump-to-message renders
   useEffect(() => {
     if (!jumpTargetMessageId) return
+
+    // Step 3: Once the element exists in DOM, scroll and flash it
     const el = document.getElementById(`msg-${jumpTargetMessageId}`)
     if (el) {
       suppressFetchRef.current = true
       el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      el.classList.add('highlight-message')
-      setTimeout(() => el.classList.remove('highlight-message'), 1500)
-      setTimeout(() => {
+
+      const timer = setTimeout(() => {
         suppressFetchRef.current = false
         setHighlightKeyword(null)
-        setJumpTargetId(null) // Clear jump target after successful jump
-      }, 4000)
+        setJumpTargetId(null)
+        setJumpTargetMessageId(null)
+      }, 1000)
+
       pendingJumpRef.current = false
-      setJumpTargetMessageId(null)
+      return () => clearTimeout(timer)
     } else if (pendingJumpRef.current && !isFetchingNextPage && !isLoading && !isFetching) {
-      // If we finished fetching the V2 page but the message is still not found, stop waiting.
+      // If we finished fetching but message still not found, stop waiting
       pendingJumpRef.current = false
       setJumpTargetMessageId(null)
     }
-  }, [allMessages, jumpTargetMessageId, isFetchingNextPage, isLoading, isFetching])
+  }, [jumpTargetMessageId, isFetchingNextPage, isLoading, isFetching, allMessages])
 
   const isSameGroup = (msg1: MessageResponse, msg2: MessageResponse) => {
     if (!msg1 || !msg2) return false
@@ -1264,10 +1267,15 @@ export function ChatWindow({
 
               return (
                 <Fragment key={msg.id}>
-                  <div id={`msg-${msg.id}`} ref={isNewestVisible ? lastMessageRef : null}>
+                  <div
+                    id={`msg-${msg.id}`}
+                    className={jumpTargetMessageId === msg.id ? 'highlight-message' : ''}
+                    ref={isNewestVisible ? lastMessageRef : null}
+                  >
                     <MessageBubble
                       message={msg}
                       highlightKeyword={jumpTargetMessageId === msg.id ? highlightKeyword : null}
+                      isHighlighted={jumpTargetMessageId === msg.id}
                       isOwn={msg.senderId === user?.id}
                       isFirst={isFirst}
                       isLast={isLast}
@@ -1435,8 +1443,9 @@ export function ChatWindow({
                   conversationId={conversation.id}
                   onClose={() => setIsSearchSidebarOpen(false)}
                   onNavigateToMessage={(msgId, keyword) => {
-                    setIsSearchSidebarOpen(false)
-                    void navigateToMessage(conversation.id, msgId, keyword)
+                    setTimeout(() => {
+                      void navigateToMessage(conversation.id, msgId, keyword)
+                    }, 300)
                   }}
                 />
               ) : (

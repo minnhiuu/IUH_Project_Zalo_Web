@@ -606,7 +606,9 @@
       "loadMore": "Load more",
       "clear": "Clear",
       "confirm": "Confirm",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "messages": "Messages",
+      "files": "Files"
     }
   },
   "call": {
