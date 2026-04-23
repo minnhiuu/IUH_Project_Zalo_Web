@@ -8,6 +8,7 @@ import type {
   LeaveGroupRequest,
   SearchMemberResponse,
   GroupMemberListItemResponse,
+  ConversationParticipantResponse,
   AdminMemberResponse,
   GroupSettings,
   JoinGroupPreviewResponse,
@@ -272,6 +273,27 @@ export const getGroupMembersApi = async (
         query: params?.query,
         page: params?.page ?? 0,
         size: params?.size ?? 20
+      }
+    }
+  )
+  return response.data.data
+}
+
+export const getConversationParticipantsApi = async (
+  conversationId: string,
+  params?: {
+    query?: string
+    page?: number
+    size?: number
+  }
+): Promise<PageResponse<ConversationParticipantResponse>> => {
+  const response = await http.get<ApiResponse<PageResponse<ConversationParticipantResponse>>>(
+    `/messages/conversations/${conversationId}/participants`,
+    {
+      params: {
+        query: params?.query,
+        page: params?.page ?? 0,
+        size: params?.size ?? 50
       }
     }
   )

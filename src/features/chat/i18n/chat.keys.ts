@@ -126,7 +126,6 @@ export const CHAT_KEYS = {
     extraPins: 'chat.pinBoard.extraPins',
     header: 'chat.pinBoard.header'
   },
-
   sidebar: {
     all: 'chat.sidebar.all',
     unread: 'chat.sidebar.unread',
@@ -506,5 +505,28 @@ export const CHAT_KEYS = {
     upgradeDesc: 'chat.cloud-sidebar.upgradeDesc',
     upgradeAction: 'chat.cloud-sidebar.upgradeAction',
     reminderList: 'chat.cloud-sidebar.reminderList'
+  },
+  searchSidebar: {
+    title: 'chat.searchSidebar.title',
+    placeholder: 'chat.searchSidebar.placeholder',
+    filterLabel: 'chat.searchSidebar.filterLabel',
+    filterSender: 'chat.searchSidebar.filterSender',
+    filterDate: 'chat.searchSidebar.filterDate',
+    filterTime: 'chat.searchSidebar.filterTime',
+    emptyStateText: 'chat.searchSidebar.emptyStateText',
+    emptyStateSearch: 'chat.searchSidebar.emptyStateSearch',
+    timeSuggestion: 'chat.searchSidebar.timeSuggestion',
+    last7Days: 'chat.searchSidebar.last7Days',
+    last30Days: 'chat.searchSidebar.last30Days',
+    last3Months: 'chat.searchSidebar.last3Months',
+    chooseTimeRange: 'chat.searchSidebar.chooseTimeRange',
+    fromDate: 'chat.searchSidebar.fromDate',
+    toDate: 'chat.searchSidebar.toDate',
+    loadMore: 'chat.searchSidebar.loadMore',
+    clear: 'chat.searchSidebar.clear',
+    confirm: 'chat.searchSidebar.confirm',
+    cancel: 'chat.searchSidebar.cancel',
+    messages: 'chat.searchSidebar.messages',
+    files: 'chat.searchSidebar.files'
   }
 } as const

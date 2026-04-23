@@ -13,7 +13,7 @@ const navItems = [
   { icon: Search, path: PATHS.ADMIN.ELASTICSEARCH, label: 'Elasticsearch' },
   { icon: Database, path: PATHS.ADMIN.INGEST_DOCUMENT, label: 'Document Ingest' },
   { icon: Sprout, path: '/admin/seeding', label: 'Seeding' },
-  { icon: Flag, path: '/admin/reports', label: 'Reports' },
+  { icon: Flag, path: '/admin/reports', label: 'Reports' }
 ]
 
 export default function AdminLayout() {

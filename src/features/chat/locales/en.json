@@ -234,9 +234,9 @@
     "status": {
       "online": "Active now",
       "justNow": "Just now",
-      "minutesAgo": "{{count}} minutes ago",
-      "hoursAgo": "{{count}} hours ago",
-      "daysAgo": "{{count}} days ago",
+      "minutesAgo": "{{count}} minutes",
+      "hoursAgo": "{{count}} hours",
+      "daysAgo": "{{count}} days",
       "yesterday": "Yesterday",
       "onDate": "Accessed on {{date}}",
       "sending": "Sending...",
@@ -525,6 +525,7 @@
       "removeFromGroupConfirmTitle": "Confirm",
       "removeFromGroupConfirmDesc": "Remove this member from group?",
       "blockFromGroupDesc": "Block this one from rejoining",
+      "confirmAccept": "Confirm",
       "close": "Close"
     },
     "mediaStorage": {
@@ -585,6 +586,29 @@
       "upgradeDesc": "Expand storage up to 100GB and automatically preserve chat data with zCloud.",
       "upgradeAction": "Add storage",
       "reminderList": "Reminder list"
+    },
+    "searchSidebar": {
+      "title": "Search messages",
+      "placeholder": "Search",
+      "filterLabel": "Filter by:",
+      "filterSender": "Sender",
+      "filterDate": "Sent date",
+      "filterTime": "Time",
+      "emptyStateText": "Enter a keyword to search for messages in this conversation",
+      "emptyStateSearch": "No results found",
+      "timeSuggestion": "Time suggestion",
+      "last7Days": "7 days ago",
+      "last30Days": "30 days ago",
+      "last3Months": "3 months ago",
+      "chooseTimeRange": "Choose time range",
+      "fromDate": "From date",
+      "toDate": "To date",
+      "loadMore": "Load more",
+      "clear": "Clear",
+      "confirm": "Confirm",
+      "cancel": "Cancel",
+      "messages": "Messages",
+      "files": "Files"
     }
   },
   "call": {

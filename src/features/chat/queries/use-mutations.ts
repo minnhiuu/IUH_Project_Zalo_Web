@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 // test
+import { useAuth } from '@/features/auth'
 import {
   markAsRead,
   sendMessageApi,
@@ -37,11 +38,12 @@ import type { ConversationResponse, ChatMessageRequest, GroupSettings, LeaveGrou
 
 export const useMarkAsReadMutation = () => {
   const queryClient = useQueryClient()
+  const { user } = useAuth()
 
   return useMutation({
     mutationFn: ({ conversationId, lastReadMessageId }: { conversationId: string; lastReadMessageId?: string }) =>
       markAsRead(conversationId, lastReadMessageId),
-    onMutate: async ({ conversationId }) => {
+    onMutate: async ({ conversationId, lastReadMessageId }) => {
       await queryClient.cancelQueries({ queryKey: chatKeys.conversations() })
       const previousConversations = queryClient.getQueryData<ConversationResponse[]>(chatKeys.conversations())
 
@@ -50,12 +52,15 @@ export const useMarkAsReadMutation = () => {
           chatKeys.conversations(),
           previousConversations.map((conv: ConversationResponse) => {
             if (conv.id === conversationId) {
+              const optimisticLastReadMessageId = lastReadMessageId ?? conv.lastMessage?.id ?? null
+
               return {
                 ...conv,
                 unreadCount: 0,
                 members: conv.members?.map((m) => ({
                   ...m,
-                  lastReadMessageId: conv.lastMessage?.id || m.lastReadMessageId
+                  lastReadMessageId:
+                    m.userId === user?.id && optimisticLastReadMessageId ? optimisticLastReadMessageId : m.lastReadMessageId
                 }))
               }
             }
@@ -73,7 +78,8 @@ export const useMarkAsReadMutation = () => {
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+      // Không invalidate unreadAnchor ở đây vì ta đã xử lý ẩn divider bằng local state trong ChatWindow
+      // Việc invalidate sẽ làm phát sinh thêm 1 request API dư thừa mỗi lần Read
     }
   })
 }

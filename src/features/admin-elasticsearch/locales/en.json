@@ -4,8 +4,8 @@
     "description": "Control center for monitoring and managing all search indexes.",
     "modules": {
       "users": "User Index",
-      "messages": "Message Index (Soon)",
-      "groups": "Group Index (Soon)"
+      "messages": "Message Index",
+      "groups": "Group Index"
     },
     "actions": {
       "reindexAll": "Restore All Data",
@@ -80,8 +80,8 @@
     "dashboard": {
       "headerTitle": "Search Management",
       "headerSubtitle": "Operational statistics and centralized Elasticsearch cluster control",
-      "messagesComingSoon": "Messages feature coming soon",
-      "groupsComingSoon": "Groups feature coming soon",
+      "messagesComingSoon": "Message index history and management",
+      "groupsComingSoon": "Group index feature coming soon",
       "noData": "No data",
       "primaryActive": "Primary active",
       "connecting": "Connecting...",
@@ -97,8 +97,8 @@
     "userTab": {
       "statusCardTitle": "Index Status",
       "badges": {
-        "sync": "SYNCED",
-        "diff": "DIFF",
+        "sync": "IN SYNC",
+        "diff": "DIFFERENCE",
         "match": "MATCHED",
         "missMatch": "MISMATCH",
         "active": "ACTIVE",
@@ -137,19 +137,32 @@
         "cancel": "Cancel"
       },
       "deadEventsLabel": "Fail Events (DLQ)",
-      "deadEventsTooltip": "{{count}} records failed to sync. Click for details."
+      "deadEventsTooltip": "{{count}} records failed to sync. Click for details.",
+      "tooltips": {
+        "totalDocs": "Total number of documents currently in Elasticsearch for this module.",
+        "storageSize": "Disk space consumed by these documents in the cluster.",
+        "currentIndex": "The actual (physical) identifier of the index receiving search data.",
+        "aliasName": "Named alias used for querying without worrying about physical index versions.",
+        "shards": "Number of data shards. Helps optimize search speed and data writing.",
+        "replicas": "Number of backups. Ensures the system stays operational if a node fails.",
+        "mongodbCount": "Total number of records currently in the MongoDB database.",
+        "esCount": "Total number of records successfully synchronized to Elasticsearch.",
+        "integrity": "The data discrepancy between MongoDB (Source) and Elasticsearch (Destination).",
+        "dlq": "Number of failed synchronization requests currently in the Kafka error queue."
+      }
     },
     "controlBar": {
       "inputPlaceholder": "User ID...",
-      "syncUser": "Sync",
+      "syncUser": "Sync User",
+      "syncMessage": "Sync Message",
       "reindexAll": "Sync All",
       "reindexMessages": "REINDEX MESSAGES",
       "reindexGroups": "REINDEX GROUPS",
       "retryDeadEvents": "Retry Failed Events (DLQ)",
       "dialog": {
         "reindexAll": {
-          "title": "Confirm Reindex Users",
-          "description": "Refresh all USERS index data. This action may momentarily interrupt search services."
+          "title": "Confirm Operational Sync",
+          "description": "Trigger a full data synchronization for the selected module. This action will refresh all relevant search records."
         },
         "cancel": "Cancel",
         "confirm": "Confirm"
@@ -242,7 +255,18 @@
         "timeLabel": "Time",
         "eventLabel": "Event"
       },
-      "unknownError": "Unknown connection error"
+      "unknownError": "Unknown connection error",
+      "bulk": {
+        "selectedCount": "Selected {{count}} records",
+        "retrySelected": "Retry Selected Items"
+      }
+    },
+    "errors": {
+      "updateStatus": "Error occurred while updating status",
+      "retrySingle": "Error occurred while retrying record",
+      "retryAll": "Error occurred while retrying all records",
+      "retryDuration": "Error occurred while retrying by duration",
+      "retryBulk": "Error occurred while retrying selected records"
     }
   }
 }
