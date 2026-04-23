@@ -2,19 +2,30 @@ import z from 'zod'
 import { Gender } from '@/constants'
 import i18n from '@/lib/i18n'
 
+export type UserAccountInfo = {
+  id?: string
+  phoneNumber?: string
+  email?: string
+  role?: string
+}
+
 export type UserResponse = {
   id: string
   fullName: string
-  dob: string
-  bio: string
-  gender: Gender
-  accountId: string
-  email: string
-  phoneNumber: string
-  role: string
-  avatar?: string
-  background?: string
-  backgroundY?: number
+  dob?: string | null
+  bio?: string | null
+  gender?: string | null
+  accountId?: string | null
+  /** Present on /users/me (UserProfileResponse) — flat fields */
+  email?: string | null
+  phoneNumber?: string | null
+  role?: string | null
+  /** Present on /users/{id} (UserResponse from backend) — nested */
+  accountInfo?: UserAccountInfo | null
+  avatar?: string | null
+  background?: string | null
+  backgroundY?: number | null
+  active?: boolean | null
 }
 
 export type UserImageResponse = {

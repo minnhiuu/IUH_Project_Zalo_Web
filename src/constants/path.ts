@@ -24,6 +24,7 @@ export const PATHS = {
 
   USER: {
     PROFILE: '/profile',
+    OTHER_PROFILE: '/profile/:userId',
     SETTINGS: '/settings'
   },
 

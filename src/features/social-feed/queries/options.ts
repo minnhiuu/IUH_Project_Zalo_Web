@@ -8,7 +8,8 @@ import {
   socialFeedCommentKeys,
   socialFeedKeys,
   socialReelKeys,
-  socialStoryKeys
+  socialStoryKeys,
+  userPostsKeys
 } from './keys'
 import type { SocialPost } from '../components/post/post-card'
 import type { SocialStory, StoryGroup } from '../components/stories/stories-strip'
@@ -88,6 +89,7 @@ const mapPostToSocialPost = (post: BackendPostResponse): SocialPost => {
 
   return {
     id: post.id,
+    authorId: post.authorInfo?.id ?? null,
     authorName: post.authorInfo?.fullName?.trim() || getFallbackAuthorName(),
     authorAvatar: post.authorInfo?.avatar ?? null,
     postType: toPostType(post.postType),
@@ -400,4 +402,49 @@ export const getPostByIdQueryOptions = (postId: string) =>
       return mappedPost
     },
     enabled: !!postId
+  })
+
+export const getInfiniteUserPostsQueryOptions = (userId: string, size = 20) =>
+  infiniteQueryOptions({
+    queryKey: [...userPostsKeys.byUser(userId), 'infinite', size] as const,
+    initialPageParam: 0,
+    queryFn: async ({ pageParam = 0 }) => {
+      const response = await socialFeedApi.getUserPosts(userId, pageParam, size)
+      const posts = response.data.data.data
+
+      return posts.map((post) => {
+        const mappedPost = mapPostToSocialPost(post)
+
+        if ((post.postType ?? '').toUpperCase() !== 'SHARE') {
+          return mappedPost
+        }
+
+        if (post.sharedPostPreview) {
+          return {
+            ...mappedPost,
+            sharedPost: mapSharedPreview(post.sharedPostPreview)
+          }
+        }
+
+        if (post.sharedPostId) {
+          return {
+            ...mappedPost,
+            sharedPost: {
+              postId: post.sharedPostId,
+              authorName: 'Original post unavailable',
+              authorAvatar: null,
+              content: '',
+              media: []
+            }
+          }
+        }
+
+        return mappedPost
+      })
+    },
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.length > 0 ? allPages.length : undefined
+    },
+    enabled: !!userId,
+    ...QUERY_POLICIES.LIST
   })

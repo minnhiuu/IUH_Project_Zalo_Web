@@ -111,5 +111,10 @@ export const socialFeedApi = {
   getMyPosts: (page = 0, size = 20) =>
     http.get<ApiResponse<PageResponse<BackendPostResponse>>>('/posts/me', {
       params: { page, size }
+    }),
+
+  getUserPosts: (userId: string, page = 0, size = 20) =>
+    http.get<ApiResponse<PageResponse<BackendPostResponse>>>(`/posts/users/${userId}`, {
+      params: { page, size }
     })
 }

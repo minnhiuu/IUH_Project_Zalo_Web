@@ -8,6 +8,7 @@ import {
   getInfiniteSocialFeedPostsQueryOptions,
   getInfiniteSocialReelsQueryOptions,
   getInfiniteMyPostsQueryOptions,
+  getInfiniteUserPostsQueryOptions,
   getPostByIdQueryOptions
 } from './options'
 
@@ -47,6 +48,10 @@ export const useInfiniteSocialReels = (size = 20) => {
 
 export const useInfiniteMyPosts = (size = 20) => {
   return useInfiniteQuery(getInfiniteMyPostsQueryOptions(size))
+}
+
+export const useInfiniteUserPosts = (userId: string, size = 20) => {
+  return useInfiniteQuery(getInfiniteUserPostsQueryOptions(userId, size))
 }
 
 export const usePostById = (postId: string) => {

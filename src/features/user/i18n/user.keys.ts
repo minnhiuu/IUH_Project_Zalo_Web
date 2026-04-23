@@ -55,7 +55,30 @@ export const USER_KEYS = {
     block: 'user.profile.block',
     editBlock: 'user.profile.editBlock',
     report: 'user.profile.report',
-    deleteFriend: 'user.profile.deleteFriend'
+    deleteFriend: 'user.profile.deleteFriend',
+    page: {
+      myTitle: 'user.profile.page.myTitle',
+      editProfile: 'user.profile.page.editProfile',
+      postsHeading: 'user.profile.page.postsHeading',
+      loadingMore: 'user.profile.page.loadingMore',
+      loadError: 'user.profile.page.loadError',
+      retry: 'user.profile.page.retry',
+      noPosts: 'user.profile.page.noPosts',
+      noPostsHint: 'user.profile.page.noPostsHint',
+      noPostsOther: 'user.profile.page.noPostsOther',
+      noPostsOtherHint: 'user.profile.page.noPostsOtherHint',
+      addFriend: 'user.profile.page.addFriend',
+      message: 'user.profile.page.message',
+      about: 'user.profile.page.about',
+      fieldBio: 'user.profile.page.fieldBio',
+      fieldGender: 'user.profile.page.fieldGender',
+      fieldBirthday: 'user.profile.page.fieldBirthday',
+      fieldEmail: 'user.profile.page.fieldEmail',
+      fieldPhone: 'user.profile.page.fieldPhone',
+      fieldRole: 'user.profile.page.fieldRole',
+      genderMale: 'user.profile.page.genderMale',
+      genderFemale: 'user.profile.page.genderFemale'
+    }
   },
   validation: {
     fullNameRequired: 'user.validation.fullNameRequired',

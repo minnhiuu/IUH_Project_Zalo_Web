@@ -34,9 +34,12 @@ interface PostCommentsModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   post: SocialPost
+  /** Controlled reaction from PostCard — keeps PostCard, modal and media modal in sync */
+  currentReaction?: ReactionType | null
+  onReactionChange?: (type: ReactionType | null) => void
 }
 
-export function PostCommentsModal({ open, onOpenChange, post }: PostCommentsModalProps) {
+export function PostCommentsModal({ open, onOpenChange, post, currentReaction, onReactionChange }: PostCommentsModalProps) {
   const { text } = useSocialText()
   const { user } = useAuthContext()
 
@@ -70,9 +73,8 @@ export function PostCommentsModal({ open, onOpenChange, post }: PostCommentsModa
   const [mediaOverride, setMediaOverride] = useState<SocialPostMedia[]>([])
   const [replyTarget, setReplyTarget] = useState<SocialFeedComment | null>(null)
 
-  const [selectedReaction, setSelectedReaction] = useState<ReactionType | null>(
-    (post.currentUserReaction as ReactionType) ?? null
-  )
+  // Use controlled reaction from PostCard when provided, otherwise fall back to local state
+  const selectedReaction = currentReaction !== undefined ? currentReaction : (post.currentUserReaction as ReactionType ?? null)
   const [showReactionPicker, setShowReactionPicker] = useState(false)
   const [reactionPeopleModalOpen, setReactionPeopleModalOpen] = useState(false)
   const [shareModalOpen, setShareModalOpen] = useState(false)
@@ -100,9 +102,15 @@ export function PostCommentsModal({ open, onOpenChange, post }: PostCommentsModa
   })
 
   function handleReactionClick(type: ReactionType) {
-    setSelectedReaction(type)
     setShowReactionPicker(false)
-    toggleMutation.mutate(type)
+    if (onReactionChange) {
+      // Controlled mode: delegate entirely to PostCard
+      onReactionChange(selectedReaction === type ? null : type)
+    } else {
+      // Standalone mode fallback
+      setSelectedReaction(selectedReaction === type ? null : type)
+      toggleMutation.mutate(type)
+    }
   }
 
   const isMutating =
@@ -315,8 +323,13 @@ export function PostCommentsModal({ open, onOpenChange, post }: PostCommentsModa
                     className={`h-11 w-full gap-2 rounded-xl transition-all hover:bg-zinc-100 dark:hover:bg-white/[0.04] ${activeReaction ? activeReaction.textClass : 'text-zinc-500 dark:text-zinc-400 hover:text-indigo-500 dark:hover:text-indigo-400'}`}
                     onClick={() => {
                       if (selectedReaction) {
-                        setSelectedReaction(null)
-                        deleteMutation.mutate()
+                        setShowReactionPicker(false)
+                        if (onReactionChange) {
+                          onReactionChange(null)
+                        } else {
+                          setSelectedReaction(null)
+                          deleteMutation.mutate()
+                        }
                         return
                       }
                       handleReactionClick('LIKE')

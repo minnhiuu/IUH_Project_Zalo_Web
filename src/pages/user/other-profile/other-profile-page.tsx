@@ -1,16 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
-import { ArrowLeft, ArrowUp, Loader2, Pencil } from 'lucide-react'
-import { useNavigate } from 'react-router'
-import { PostCard, PostComposerLauncher, useInfiniteMyPosts } from '@/features/social-feed'
+import { ArrowLeft, ArrowUp, Loader2, MessageCircle, UserPlus } from 'lucide-react'
+import { useNavigate, useParams } from 'react-router'
+import { PostCard, useInfiniteUserPosts } from '@/features/social-feed'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { UserAvatar } from '@/components/common/user-avatar'
-import { useAuthContext } from '@/features/auth/context/auth-context'
-import { OwnerProfileDialog, useMyProfile } from '@/features/user'
+import { useUserById } from '@/features/user'
+import { OthersProfileDialog } from '@/features/user'
 import { ProfileInfoCard } from '@/features/user/components/profile-page/profile-info-card'
 import { useUserText } from '@/features/user/i18n/use-user-text'
 import { PATHS } from '@/constants/path'
+import { useAuthContext } from '@/features/auth/context/auth-context'
 
 function PostCardSkeleton() {
   return (
@@ -31,15 +32,17 @@ function PostCardSkeleton() {
   )
 }
 
-export default function MyProfilePage() {
+export default function OtherProfilePage() {
   const navigate = useNavigate()
-  const { user } = useAuthContext()
-  const { data: fullProfile } = useMyProfile()
+  const { userId } = useParams<{ userId: string }>()
+  const { user: me } = useAuthContext()
   const { text } = useUserText()
   const p = text.profile.page
   const [showProfileDialog, setShowProfileDialog] = useState(false)
 
-  const { data, isLoading, isError, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteMyPosts(20)
+  const { data: profileUser, isLoading: isUserLoading } = useUserById(userId ?? '')
+  const { data, isLoading, isError, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useInfiniteUserPosts(userId ?? '', 20)
   const posts = useMemo(() => data?.pages.flat() ?? [], [data])
 
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -61,6 +64,15 @@ export default function MyProfilePage() {
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage])
 
+  // Redirect to own profile page if the userId matches the current user
+  useEffect(() => {
+    if (me?.id && userId && me.id === userId) {
+      navigate(PATHS.USER.PROFILE, { replace: true })
+    }
+  }, [me?.id, userId, navigate])
+
+  const isMe = me?.id === userId
+
   return (
     <section
       ref={scrollContainerRef}
@@ -69,24 +81,36 @@ export default function MyProfilePage() {
     >
       {/* ── Back header ── */}
       <header className='sticky top-0 z-30 flex items-center gap-3 border-b border-zinc-200/60 bg-white/90 px-4 py-3 backdrop-blur-md dark:border-white/[0.08] dark:bg-[#242526]/90'>
-        <Button variant='ghost' size='icon' className='shrink-0' onClick={() => navigate(PATHS.SOCIAL_FEED)}>
+        <Button variant='ghost' size='icon' className='shrink-0' onClick={() => navigate(-1)}>
           <ArrowLeft className='h-5 w-5' />
         </Button>
-        <h1 className='text-[17px] font-bold text-foreground'>{p.myTitle}</h1>
+        {isUserLoading ? (
+          <Skeleton className='h-5 w-40' />
+        ) : (
+          <h1 className='truncate text-[17px] font-bold text-foreground'>
+            {profileUser?.fullName ?? 'Profile'}
+          </h1>
+        )}
       </header>
 
       {/* ── Cover photo ── */}
       <div className='relative w-full bg-zinc-300 dark:bg-zinc-800'>
         <div className='mx-auto max-w-5xl'>
           <div className='relative h-52 w-full overflow-hidden rounded-b-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-400 md:h-64 lg:h-[340px]'>
-            {user?.background && (
+            {isUserLoading ? (
+              <Skeleton className='h-full w-full rounded-none' />
+            ) : profileUser?.background ? (
               <img
-                src={user.background}
+                src={profileUser.background}
                 alt='Cover'
                 className='h-full w-full object-cover'
-                style={user.backgroundY != null ? { objectPosition: `center ${user.backgroundY}%` } : undefined}
+                style={
+                  profileUser.backgroundY != null
+                    ? { objectPosition: `center ${profileUser.backgroundY}%` }
+                    : undefined
+                }
               />
-            )}
+            ) : null}
           </div>
         </div>
       </div>
@@ -100,36 +124,63 @@ export default function MyProfilePage() {
               {/* Avatar — overlaps cover */}
               <div className='-mt-10 shrink-0 md:-mt-14'>
                 <div className='h-[100px] w-[100px] overflow-hidden rounded-full border-4 border-white bg-white shadow-lg dark:border-[#242526] md:h-[148px] md:w-[148px]'>
-                  <UserAvatar
-                    src={user?.avatar}
-                    name={user?.fullName || 'User'}
-                    className='h-full w-full'
-                    fallbackClassName='text-4xl font-bold'
-                  />
+                  {isUserLoading ? (
+                    <Skeleton className='h-full w-full rounded-full' />
+                  ) : (
+                    <UserAvatar
+                      src={profileUser?.avatar}
+                      name={profileUser?.fullName || 'User'}
+                      className='h-full w-full'
+                      fallbackClassName='text-4xl font-bold'
+                    />
+                  )}
                 </div>
               </div>
+
               {/* Name + bio */}
               <div className='mb-2 min-w-0 flex-1 pb-1'>
-                <h2 className='truncate text-[22px] font-bold text-foreground md:text-[28px]'>
-                  {user?.fullName}
-                </h2>
-                {user?.bio && (
-                  <p className='mt-0.5 truncate text-[14px] text-muted-foreground'>{user.bio}</p>
+                {isUserLoading ? (
+                  <div className='space-y-2'>
+                    <Skeleton className='h-7 w-44' />
+                    <Skeleton className='h-4 w-64' />
+                  </div>
+                ) : (
+                  <>
+                    <h2 className='truncate text-[22px] font-bold text-foreground md:text-[28px]'>
+                      {profileUser?.fullName}
+                    </h2>
+                    {profileUser?.bio && (
+                      <p className='mt-0.5 truncate text-[14px] text-muted-foreground'>
+                        {profileUser.bio}
+                      </p>
+                    )}
+                  </>
                 )}
               </div>
             </div>
-            {/* Edit profile button */}
-            <div className='mb-3 flex shrink-0 items-center gap-2 sm:mb-4'>
-              <Button
-                variant='outline'
-                size='sm'
-                className='h-9 gap-1.5 rounded-lg px-4 font-semibold'
-                onClick={() => setShowProfileDialog(true)}
-              >
-                <Pencil className='h-4 w-4' />
-                {p.editProfile}
-              </Button>
-            </div>
+
+            {/* Action buttons */}
+            {!isMe && !isUserLoading && profileUser && (
+              <div className='mb-3 flex shrink-0 items-center gap-2 sm:mb-4'>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  className='h-9 gap-1.5 rounded-lg px-4 font-semibold'
+                  onClick={() => setShowProfileDialog(true)}
+                >
+                  <UserPlus className='h-4 w-4' />
+                  {p.addFriend}
+                </Button>
+                <Button
+                  size='sm'
+                  className='h-9 gap-1.5 rounded-lg bg-indigo-500 px-4 font-semibold text-white hover:bg-indigo-600'
+                  onClick={() => { window.location.href = `/chat/u/${userId}` }}
+                >
+                  <MessageCircle className='h-4 w-4' />
+                  {p.message}
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Divider + Tab nav */}
@@ -158,23 +209,20 @@ export default function MyProfilePage() {
 
           {/* ── LEFT sidebar ── */}
           <div className='w-full shrink-0 space-y-4 lg:w-[360px] lg:sticky lg:top-[57px]'>
-            {fullProfile ? (
-              <ProfileInfoCard user={fullProfile} isOther={false} />
-            ) : (
+            {isUserLoading ? (
               <div className='space-y-3 rounded-2xl border border-zinc-200 bg-white p-4 dark:border-white/10 dark:bg-[#242526]'>
                 <Skeleton className='h-5 w-32' />
                 <Skeleton className='h-4 w-full' />
                 <Skeleton className='h-4 w-4/5' />
                 <Skeleton className='h-4 w-3/5' />
               </div>
-            )}
+            ) : profileUser ? (
+              <ProfileInfoCard user={profileUser} isOther={true} />
+            ) : null}
           </div>
 
           {/* ── RIGHT posts column ── */}
           <div className='min-w-0 flex-1 space-y-4'>
-            {/* Post composer */}
-            <PostComposerLauncher />
-
             {/* Posts heading */}
             <div className='flex items-center gap-2 rounded-2xl border border-zinc-200 bg-white px-5 py-4 dark:border-white/10 dark:bg-[#242526]'>
               <h3 className='text-[17px] font-bold text-foreground'>{p.postsHeading}</h3>
@@ -209,8 +257,8 @@ export default function MyProfilePage() {
                 </>
               ) : (
                 <div className='rounded-2xl border border-dashed border-zinc-300 bg-white px-5 py-14 text-center dark:border-white/10 dark:bg-[#242526]'>
-                  <p className='text-[15px] font-medium text-zinc-500 dark:text-zinc-400'>{p.noPosts}</p>
-                  <p className='mt-1 text-[13px] text-zinc-400 dark:text-zinc-500'>{p.noPostsHint}</p>
+                  <p className='text-[15px] font-medium text-zinc-500 dark:text-zinc-400'>{p.noPostsOther}</p>
+                  <p className='mt-1 text-[13px] text-zinc-400 dark:text-zinc-500'>{p.noPostsOtherHint}</p>
                 </div>
               )}
             </div>
@@ -229,7 +277,12 @@ export default function MyProfilePage() {
         </button>
       )}
 
-      <OwnerProfileDialog open={showProfileDialog} onOpenChange={setShowProfileDialog} />
+      {/* Full profile dialog (Add Friend / Block / etc.) */}
+      <OthersProfileDialog
+        open={showProfileDialog}
+        onOpenChange={setShowProfileDialog}
+        userId={userId}
+      />
     </section>
   )
 }

@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { StoryViewerPanel } from './story-viewer-panel'
 import { REACTIONS, type ReactionType } from '../post/reaction-picker'
 import { useSocialText } from '../../i18n/use-social-text'
-import { useRecordStoryViewMutation } from '../../queries/use-mutations'
+import { useRecordStoryViewMutation, useToggleStoryReactionMutation, useDeleteStoryReactionMutation } from '../../queries/use-mutations'
 import type { SocialStory, StoryGroup } from './stories-strip'
 
 interface StoryViewerModalProps {
@@ -17,6 +17,7 @@ interface StoryViewerModalProps {
 export function StoryViewerModal({ groups, open, initialGroupIndex, onOpenChange }: StoryViewerModalProps) {
   const [groupIndex, setGroupIndex] = useState(initialGroupIndex)
   const [storyIndex, setStoryIndex] = useState(0)
+  // storyReactions: maps storyId → the currently-selected reaction type (null = no reaction)
   const [storyReactions, setStoryReactions] = useState<Record<string, ReactionType | null>>({})
   const [storyVolume, setStoryVolume] = useState(0)
   const [lastNonZeroVolume, setLastNonZeroVolume] = useState(0.7)
@@ -30,6 +31,8 @@ export function StoryViewerModal({ groups, open, initialGroupIndex, onOpenChange
 
   const { text } = useSocialText()
   const recordViewMutation = useRecordStoryViewMutation()
+  const toggleReactionMutation = useToggleStoryReactionMutation()
+  const deleteReactionMutation = useDeleteStoryReactionMutation()
 
   // Sync when the modal opens or the initial group changes
   const [prevOpen, setPrevOpen] = useState(open)
@@ -184,11 +187,29 @@ export function StoryViewerModal({ groups, open, initialGroupIndex, onOpenChange
   if (!currentStory || !currentGroup) return null
 
   function handleReactionSelect(type: ReactionType) {
-    const currentReaction = storyReactions[currentStory!.id] ?? null
-    setStoryReactions((previous) => ({
-      ...previous,
-      [currentStory!.id]: currentReaction === type ? null : type
-    }))
+    if (!currentStory) return
+    const storyId = currentStory.id
+    const currentReaction = storyReactions[storyId] ?? null
+
+    if (currentReaction === type) {
+      // De-select: remove reaction optimistically, then call backend
+      setStoryReactions((previous) => ({ ...previous, [storyId]: null }))
+      deleteReactionMutation.mutate(storyId, {
+        onError: () => {
+          // Roll back on failure
+          setStoryReactions((previous) => ({ ...previous, [storyId]: currentReaction }))
+        }
+      })
+    } else {
+      // Select / change reaction optimistically, then call backend
+      setStoryReactions((previous) => ({ ...previous, [storyId]: type }))
+      toggleReactionMutation.mutate({ postId: storyId, type }, {
+        onError: () => {
+          // Roll back on failure
+          setStoryReactions((previous) => ({ ...previous, [storyId]: currentReaction }))
+        }
+      })
+    }
   }
 
   function handleVolumeButtonClick() {

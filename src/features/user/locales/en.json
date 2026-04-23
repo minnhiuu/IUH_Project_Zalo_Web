@@ -56,7 +56,30 @@
       "block": "Block messages and calls",
       "editBlock": "Block settings",
       "report": "Report",
-      "deleteFriend": "Remove from friends list"
+      "deleteFriend": "Remove from friends list",
+      "page": {
+        "myTitle": "My Profile",
+        "editProfile": "Edit Profile",
+        "postsHeading": "Posts",
+        "loadingMore": "Loading...",
+        "loadError": "Failed to load posts.",
+        "retry": "Retry",
+        "noPosts": "No posts yet",
+        "noPostsHint": "Share your first post to get started!",
+        "noPostsOther": "No posts yet",
+        "noPostsOtherHint": "This user hasn't posted anything yet.",
+        "addFriend": "Add Friend",
+        "message": "Message",
+        "about": "About",
+        "fieldBio": "Bio",
+        "fieldGender": "Gender",
+        "fieldBirthday": "Birthday",
+        "fieldEmail": "Email",
+        "fieldPhone": "Phone",
+        "fieldRole": "Role",
+        "genderMale": "Male",
+        "genderFemale": "Female"
+      }
     },
     "validation": {
       "fullNameRequired": "Display name is required",

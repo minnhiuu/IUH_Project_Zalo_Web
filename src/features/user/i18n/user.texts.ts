@@ -58,7 +58,30 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
     block: t(USER_KEYS.profile.block),
     editBlock: t(USER_KEYS.profile.editBlock),
     report: t(USER_KEYS.profile.report),
-    deleteFriend: t(USER_KEYS.profile.deleteFriend)
+    deleteFriend: t(USER_KEYS.profile.deleteFriend),
+    page: {
+      myTitle: t(USER_KEYS.profile.page.myTitle),
+      editProfile: t(USER_KEYS.profile.page.editProfile),
+      postsHeading: t(USER_KEYS.profile.page.postsHeading),
+      loadingMore: t(USER_KEYS.profile.page.loadingMore),
+      loadError: t(USER_KEYS.profile.page.loadError),
+      retry: t(USER_KEYS.profile.page.retry),
+      noPosts: t(USER_KEYS.profile.page.noPosts),
+      noPostsHint: t(USER_KEYS.profile.page.noPostsHint),
+      noPostsOther: t(USER_KEYS.profile.page.noPostsOther),
+      noPostsOtherHint: t(USER_KEYS.profile.page.noPostsOtherHint),
+      addFriend: t(USER_KEYS.profile.page.addFriend),
+      message: t(USER_KEYS.profile.page.message),
+      about: t(USER_KEYS.profile.page.about),
+      fieldBio: t(USER_KEYS.profile.page.fieldBio),
+      fieldGender: t(USER_KEYS.profile.page.fieldGender),
+      fieldBirthday: t(USER_KEYS.profile.page.fieldBirthday),
+      fieldEmail: t(USER_KEYS.profile.page.fieldEmail),
+      fieldPhone: t(USER_KEYS.profile.page.fieldPhone),
+      fieldRole: t(USER_KEYS.profile.page.fieldRole),
+      genderMale: t(USER_KEYS.profile.page.genderMale),
+      genderFemale: t(USER_KEYS.profile.page.genderFemale)
+    }
   },
   validation: {
     fullNameRequired: t(USER_KEYS.validation.fullNameRequired),

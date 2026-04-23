@@ -34,9 +34,12 @@ interface PostMediaModalProps {
   post: SocialPost
   initialSlide?: number
   mediaOverride?: SocialPostMedia[]
+  /** Controlled reaction from PostCard — keeps PostCard, comments modal and media modal in sync */
+  currentReaction?: ReactionType | null
+  onReactionChange?: (type: ReactionType | null) => void
 }
 
-export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, mediaOverride }: PostMediaModalProps) {
+export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, mediaOverride, currentReaction, onReactionChange }: PostMediaModalProps) {
   const { text, language } = useSocialText()
   const { user } = useAuthContext()
 
@@ -50,9 +53,8 @@ export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, med
   const comments = commentsQuery.data?.comments ?? []
   const [replyTarget, setReplyTarget] = useState<SocialFeedComment | null>(null)
 
-  const [selectedReaction, setSelectedReaction] = useState<ReactionType | null>(
-    (post.currentUserReaction as ReactionType) ?? null
-  )
+  // Use controlled reaction from PostCard when provided, otherwise fall back to local state
+  const selectedReaction = currentReaction !== undefined ? currentReaction : (post.currentUserReaction as ReactionType ?? null)
   const [showReactionPicker, setShowReactionPicker] = useState(false)
   const [reactionPeopleModalOpen, setReactionPeopleModalOpen] = useState(false)
   const [shareModalOpen, setShareModalOpen] = useState(false)
@@ -73,9 +75,14 @@ export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, med
   })
 
   function handleReactionClick(type: ReactionType) {
-    setSelectedReaction(type)
     setShowReactionPicker(false)
-    toggleMutation.mutate(type)
+    if (onReactionChange) {
+      // Controlled mode: delegate to PostCard
+      onReactionChange(selectedReaction === type ? null : type)
+    } else {
+      // Standalone fallback
+      toggleMutation.mutate(type)
+    }
   }
 
   const isMutating =
@@ -288,8 +295,12 @@ export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, med
                 className={`h-9 w-full gap-2 transition-all hover:bg-zinc-100 dark:hover:bg-zinc-800 ${activeReaction ? activeReaction.textClass : 'text-zinc-500 dark:text-zinc-400 hover:text-indigo-500 dark:hover:text-indigo-400'}`}
                 onClick={() => {
                   if (selectedReaction) {
-                    setSelectedReaction(null)
-                    deleteMutation.mutate()
+                    setShowReactionPicker(false)
+                    if (onReactionChange) {
+                      onReactionChange(null)
+                    } else {
+                      deleteMutation.mutate()
+                    }
                     return
                   }
                   handleReactionClick('LIKE')

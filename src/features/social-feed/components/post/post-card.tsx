@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router'
 import { useMutation } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { Eye, Flag, Globe, MessageCircle, MoreHorizontal, Share2, ThumbsUp, Users, EyeOff } from 'lucide-react'
@@ -13,6 +14,8 @@ import { SharePostModal } from './share-post-modal'
 import { REACTIONS, ReactionPicker, type ReactionType } from './reaction-picker'
 import { MediaSection } from './media-section'
 import { useSocialText } from '../../i18n/use-social-text'
+import { useAuthContext } from '@/features/auth/context/auth-context'
+import { PATHS } from '@/constants/path'
 import { formatRelativeTime } from '@/utils/date'
 import { useViewTracker } from '../../hooks/use-view-tracker'
 import { commentApi } from '../../api/comment.api'
@@ -35,6 +38,7 @@ interface SharedPostPreview {
 
 export interface SocialPost {
   id: string
+  authorId?: string | null
   authorName: string
   authorAvatar?: string | null
   postType?: 'FEED' | 'STORY' | 'REEL' | 'SHARE'
@@ -57,6 +61,8 @@ interface PostCardProps {
 }
 
 export function PostCard({ post }: PostCardProps) {
+  const navigate = useNavigate()
+  const { user: me } = useAuthContext()
   const { text, language } = useSocialText()
   const { ref: viewRef } = useViewTracker(post.id)
   const { mutate: dislikePost } = useDislikePostMutation()
@@ -136,6 +142,15 @@ export function PostCard({ post }: PostCardProps) {
     })
   }
 
+  function handleAuthorClick() {
+    if (!post.authorId) return
+    if (me?.id && post.authorId === me.id) {
+      navigate(PATHS.USER.PROFILE)
+    } else {
+      navigate(PATHS.USER.OTHER_PROFILE.replace(':userId', post.authorId))
+    }
+  }
+
   if (isHidden) {
     return (
       <Card className='gap-0 py-0 overflow-visible rounded-none sm:rounded-2xl border-x-0 sm:border-x border-y border-zinc-200 dark:border-white/[0.08] bg-white dark:bg-[#09090b]/80'>
@@ -156,7 +171,10 @@ export function PostCard({ post }: PostCardProps) {
     >
       <CardHeader className='flex flex-row items-start justify-between px-4 sm:px-6 py-4 sm:py-5'>
         <div className='flex items-center gap-4'>
-          <button className='transition-transform hover:scale-105 active:scale-95'>
+          <button
+            onClick={handleAuthorClick}
+            className='transition-transform hover:scale-105 active:scale-95'
+          >
             <div className='h-11 w-11'>
               <UserAvatar
                 name={post.authorName}
@@ -167,7 +185,10 @@ export function PostCard({ post }: PostCardProps) {
             </div>
           </button>
           <div>
-            <button className='text-[15px] font-semibold text-zinc-900 dark:text-[#ececec] tracking-tight hover:text-indigo-500 dark:hover:text-indigo-400 hover:underline'>
+            <button
+              onClick={handleAuthorClick}
+              className='text-[15px] font-semibold text-zinc-900 dark:text-[#ececec] tracking-tight hover:text-indigo-500 dark:hover:text-indigo-400 hover:underline'
+            >
               {post.authorName}
             </button>
             {post.postType === 'SHARE' ? (
@@ -372,7 +393,20 @@ export function PostCard({ post }: PostCardProps) {
       </CardFooter>
 
       {commentsModalOpen && (
-        <PostCommentsModal open={commentsModalOpen} onOpenChange={setCommentsModalOpen} post={post} />
+        <PostCommentsModal
+          open={commentsModalOpen}
+          onOpenChange={setCommentsModalOpen}
+          post={post}
+          currentReaction={selectedReaction}
+          onReactionChange={(type) => {
+            if (type === null) {
+              setSelectedReaction(null)
+              deleteMutation.mutate()
+            } else {
+              handleReactionClick(type)
+            }
+          }}
+        />
       )}
       {reactionPeopleModalOpen && (
         <ReactionPeopleModal
@@ -402,6 +436,15 @@ export function PostCard({ post }: PostCardProps) {
           post={post}
           initialSlide={mediaModalState.initialSlide}
           mediaOverride={mediaModalState.media}
+          currentReaction={selectedReaction}
+          onReactionChange={(type) => {
+            if (type === null) {
+              setSelectedReaction(null)
+              deleteMutation.mutate()
+            } else {
+              handleReactionClick(type)
+            }
+          }}
         />
       )}
     </Card>

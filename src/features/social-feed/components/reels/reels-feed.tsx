@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Heart, MessageCircle, Send } from 'lucide-react'
+import { MessageCircle, Send } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { RefObject } from 'react'
 import { UserAvatar } from '@/components/common/user-avatar'
@@ -8,6 +8,10 @@ import type { SocialPost } from '../post/post-card'
 import { ReelCard } from './reel-card'
 import { useSocialText } from '../../i18n/use-social-text'
 import { interactionApi } from '../../api/interaction.api'
+import { REACTIONS, type ReactionType } from '../post/reaction-picker'
+import { useToggleReelReactionMutation, useDeleteReelReactionMutation } from '../../queries/use-mutations'
+import { motion, AnimatePresence } from 'framer-motion'
+import { SharePostModal } from '../post/share-post-modal'
 
 interface ReelsFeedProps {
   reels: SocialPost[]
@@ -34,10 +38,18 @@ function ReelViewportItem({
   isActive: boolean
   onCommentClick?: (reel: SocialPost) => void
 }) {
-  const [liked, setLiked] = useState(false)
+  // Reaction state — initialise from the value returned by the server (currentUserReaction)
+  const [selectedReaction, setSelectedReaction] = useState<ReactionType | null>(
+    (reel.currentUserReaction as ReactionType) ?? null
+  )
+  const [showReactionPicker, setShowReactionPicker] = useState(false)
+  const [shareModalOpen, setShareModalOpen] = useState(false)
   const [localShareCount, setLocalShareCount] = useState(0)
   const hasTrackedView = useRef(false)
   const viewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const toggleReactionMutation = useToggleReelReactionMutation()
+  const deleteReactionMutation = useDeleteReelReactionMutation()
 
   const recordView = useCallback(() => {
     interactionApi.recordView(reel.id).catch(() => {
@@ -69,19 +81,52 @@ function ReelViewportItem({
     }
   }, [isActive, recordView])
 
-  const likeCount = useMemo(() => reel.reactions + (liked ? 1 : 0), [reel.reactions, liked])
-  const shareCount = reel.shares + localShareCount
+  const hadReactionOnLoad = Boolean(reel.currentUserReaction)
+  const reactionsCount = useMemo(
+    () =>
+      reel.reactions +
+      (!hadReactionOnLoad && selectedReaction ? 1 : 0) +
+      (hadReactionOnLoad && !selectedReaction ? -1 : 0),
+    [reel.reactions, hadReactionOnLoad, selectedReaction]
+  )
 
-  async function handleShare() {
-    const reelLink = `${window.location.origin}${window.location.pathname}#reel-${reel.id}`
+  const activeReaction = selectedReaction
+    ? REACTIONS.find((r) => r.type === selectedReaction) ?? null
+    : null
 
-    try {
-      await navigator.clipboard.writeText(reelLink)
-    } catch {
-      // Ignore clipboard failures (for insecure contexts or denied permissions).
+  function handleReactionClick(type: ReactionType) {
+    setShowReactionPicker(false)
+    const previousReaction = selectedReaction
+
+    if (selectedReaction === type) {
+      // Un-react
+      setSelectedReaction(null)
+      deleteReactionMutation.mutate(reel.id, {
+        onError: () => setSelectedReaction(previousReaction)
+      })
+    } else {
+      // React / change reaction
+      setSelectedReaction(type)
+      toggleReactionMutation.mutate({ postId: reel.id, type }, {
+        onError: () => setSelectedReaction(previousReaction)
+      })
     }
+  }
 
-    setLocalShareCount((previous) => previous + 1)
+  function handleReactionButtonClick() {
+    if (selectedReaction) {
+      const previousReaction = selectedReaction
+      setSelectedReaction(null)
+      deleteReactionMutation.mutate(reel.id, {
+        onError: () => setSelectedReaction(previousReaction)
+      })
+    } else {
+      handleReactionClick('LIKE')
+    }
+  }
+
+  function handleShareClick() {
+    setShareModalOpen(true)
   }
 
   return (
@@ -137,18 +182,68 @@ function ReelViewportItem({
 
         {/* Right: Actions */}
         <div className='absolute bottom-6 right-2 z-30 flex flex-col items-center gap-6 md:static md:flex-1 md:items-start md:pb-4 md:pl-2'>
-          <button
-            type='button'
-            onClick={() => setLiked((previous) => !previous)}
-            className='group flex flex-col items-center gap-1.5 text-white md:text-zinc-700 md:dark:text-white'
+          {/* ── Reaction button with popover picker ── */}
+          <div
+            className='relative flex flex-col items-center gap-1.5'
+            onMouseEnter={() => setShowReactionPicker(true)}
+            onMouseLeave={() => setShowReactionPicker(false)}
           >
-            <span className='inline-flex h-11 w-11 md:h-12 md:w-12 items-center justify-center rounded-full border border-white/10 bg-black/40 md:border-zinc-200 md:bg-white/90 md:dark:border-white/10 md:dark:bg-black/40 shadow-xl backdrop-blur-xl transition-all duration-300 hover:scale-110 hover:bg-black/60 md:hover:bg-white md:dark:hover:bg-black/60 active:scale-95'>
-              <Heart
-                className={`h-5 w-5 md:h-6 md:w-6 transition-transform duration-300 ${liked ? 'scale-110 fill-rose-500 text-rose-500' : 'text-white/90 group-hover:text-white md:text-zinc-500 md:group-hover:text-zinc-900 md:dark:text-white/90 md:dark:group-hover:text-white'}`}
-              />
-            </span>
-            <span className='text-[11px] md:text-xs font-bold drop-shadow-md'>{likeCount}</span>
-          </button>
+            {/* Floating reaction picker */}
+            <AnimatePresence>
+              {showReactionPicker && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8, scale: 0.92 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 8, scale: 0.92 }}
+                  transition={{ duration: 0.18, ease: 'easeOut' }}
+                  className='absolute bottom-full mb-2 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 rounded-2xl border border-white/10 bg-black/80 px-2 py-2 shadow-2xl backdrop-blur-xl'
+                >
+                  {REACTIONS.map((reaction, i) => (
+                    <motion.button
+                      key={reaction.type}
+                      type='button'
+                      title={reaction.type}
+                      onClick={() => handleReactionClick(reaction.type)}
+                      initial={{ opacity: 0, x: -6 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.13, delay: 0.03 * i }}
+                      whileHover={{ scale: 1.2, x: 4 }}
+                      whileTap={{ scale: 0.9 }}
+                      className={`flex h-10 w-10 items-center justify-center rounded-full transition-all duration-200 ${
+                        selectedReaction === reaction.type
+                          ? 'bg-white/25 ring-1 ring-white/50'
+                          : 'hover:bg-white/10'
+                      }`}
+                    >
+                      <reaction.Icon size={28} />
+                    </motion.button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <button
+              type='button'
+              onClick={handleReactionButtonClick}
+              className='group flex flex-col items-center gap-1.5 text-white md:text-zinc-700 md:dark:text-white'
+            >
+              <motion.span
+                whileTap={{ scale: 0.85 }}
+                animate={selectedReaction ? { scale: [1, 1.25, 1] } : {}}
+                transition={{ duration: 0.3 }}
+                className='inline-flex h-11 w-11 md:h-12 md:w-12 items-center justify-center rounded-full border border-white/10 bg-black/40 md:border-zinc-200 md:bg-white/90 md:dark:border-white/10 md:dark:bg-black/40 shadow-xl backdrop-blur-xl transition-all duration-300 hover:scale-110 hover:bg-black/60 md:hover:bg-white md:dark:hover:bg-black/60 active:scale-95'
+              >
+                {activeReaction ? (
+                  <activeReaction.Icon size={22} />
+                ) : (
+                  <svg viewBox='0 0 24 24' className='h-5 w-5 md:h-6 md:w-6 text-white/90 md:text-zinc-500 transition-colors group-hover:text-white md:group-hover:text-zinc-900 md:dark:text-white/90 md:dark:group-hover:text-white' fill='none' stroke='currentColor' strokeWidth={2}>
+                    <path d='M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z' />
+                  </svg>
+                )}
+              </motion.span>
+              <span className='text-[11px] md:text-xs font-bold drop-shadow-md'>{reactionsCount}</span>
+            </button>
+          </div>
 
           <button
             type='button'
@@ -163,14 +258,26 @@ function ReelViewportItem({
 
           <button
             type='button'
-            onClick={handleShare}
+            onClick={handleShareClick}
             className='group flex flex-col items-center gap-1.5 text-white md:text-zinc-700 md:dark:text-white'
           >
             <span className='inline-flex h-11 w-11 md:h-12 md:w-12 items-center justify-center rounded-full border border-white/10 bg-black/40 md:border-zinc-200 md:bg-white/90 md:dark:border-white/10 md:dark:bg-black/40 shadow-xl backdrop-blur-xl transition-all duration-300 hover:scale-110 hover:bg-black/60 md:hover:bg-white md:dark:hover:bg-black/60 active:scale-95'>
               <Send className='h-5 w-5 md:h-6 md:w-6 pr-0.5 text-white/90 transition-colors duration-300 group-hover:text-white md:text-zinc-500 md:group-hover:text-zinc-900 md:dark:text-white/90 md:dark:group-hover:text-white' />
             </span>
-            <span className='text-[11px] md:text-xs font-bold drop-shadow-md'>{shareCount}</span>
+            <span className='text-[11px] md:text-xs font-bold drop-shadow-md'>{reel.shares + localShareCount}</span>
           </button>
+
+          {/* Share reel modal — reuses the same post-sharing dialog */}
+          {shareModalOpen && (
+            <SharePostModal
+              open={shareModalOpen}
+              onOpenChange={(open) => {
+                setShareModalOpen(open)
+                if (!open) setLocalShareCount((c) => c + 1)
+              }}
+              post={reel}
+            />
+          )}
         </div>
       </div>
     </div>
