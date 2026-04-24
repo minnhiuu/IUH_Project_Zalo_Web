@@ -8,6 +8,7 @@ import { JoinGroupDialog } from './group/dialogs/join-group-dialog'
 import { useChatText } from '../i18n/use-chat-text'
 import { GroupAvatar } from '@/components/common/group-avatar'
 import { showSimpleToast } from '@/utils/toast'
+import { extractGroupLinkToken } from '../utils/group-link'
 
 interface LinkPreviewData {
   url: string
@@ -42,10 +43,7 @@ export function JoinLinkCard({ token, url, cachedPreview }: JoinLinkCardProps) {
 
   const queryClient = useQueryClient()
 
-  const resolvedToken = token || (() => {
-    const match = String(url || '').match(/\/g\/([A-Za-z0-9]+)/i)
-    return match?.[1] || ''
-  })()
+  const resolvedToken = token || extractGroupLinkToken(url)
 
   const handleClick = useCallback(async () => {
     if (isChecking) return

@@ -14,10 +14,19 @@ export function BusinessCardMessage({ payload }: BusinessCardMessageProps) {
   const bc = text.businessCard
   const navigate = useNavigate()
   const qrValue = payload.qrValue || `bondhub://user/${payload.userId}?name=${encodeURIComponent(payload.name || '')}`
+  const handleOpenDirectConversation = () => {
+    if (!payload.userId) return
+    navigate(`/chat/u/${payload.userId}`)
+  }
 
   return (
     <div className='w-76.25 overflow-hidden rounded-xl border border-[#C8D7EB] bg-card shadow-sm'>
-      <div className='relative flex min-h-28 items-center gap-3 overflow-hidden bg-linear-to-br from-[#0C6DE8] to-[#2A7CEE] px-4 py-3'>
+      <div 
+        className='relative flex min-h-28 items-center gap-3 overflow-hidden bg-linear-to-br from-[#0C6DE8] to-[#2A7CEE] px-4 py-3 cursor-pointer'
+        onClick={() => {
+          handleOpenDirectConversation()
+        }}
+      >
         <div className='absolute -right-6 -top-7 h-28 w-28 rounded-full bg-white/10' />
         <div className='absolute right-12 top-5 h-20 w-20 rounded-full bg-white/10' />
 
@@ -50,8 +59,7 @@ export function BusinessCardMessage({ payload }: BusinessCardMessageProps) {
         <button
           type='button'
           onClick={() => {
-            if (!payload.userId) return
-            navigate(`/chat/u/${payload.userId}`)
+            handleOpenDirectConversation()
           }}
           className='flex items-center justify-center gap-1.5 text-[15px] font-semibold text-[#1F2937] dark:text-[#E5EDF9]'
         >

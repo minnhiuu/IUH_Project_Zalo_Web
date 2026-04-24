@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import type { InfiniteData } from '@tanstack/react-query'
 // test
 import { useAuth } from '@/features/auth'
 import {
@@ -35,13 +36,13 @@ import {
   updateJoinQuestionApi
 } from '../api/chat.api'
 import { chatKeys } from './keys'
-import type { PageResponse } from '@/shared/api'
 import type {
   ConversationResponse,
   ChatMessageRequest,
   GroupSettings,
   LeaveGroupRequest,
-  MessageResponse
+  MessageResponse,
+  CursorPageResponse
 } from '../schemas/chat.schema'
 
 export const useMarkAsReadMutation = () => {
@@ -234,8 +235,15 @@ export const useClearConversationHistoryMutation = () => {
 
   return useMutation({
     mutationFn: (conversationId: string) => clearConversationHistoryApi(conversationId),
-    onSuccess: (_, conversationId) => {
-      // Update sidebar preview immediately without waiting for refetch.
+    onMutate: async (conversationId) => {
+      await queryClient.cancelQueries({ queryKey: chatKeys.conversations() })
+      await queryClient.cancelQueries({ queryKey: chatKeys.messages(conversationId) })
+
+      const previousConversations = queryClient.getQueryData<ConversationResponse[]>(chatKeys.conversations())
+      const previousMessages = queryClient.getQueryData<InfiniteData<CursorPageResponse<MessageResponse>>>(
+        chatKeys.messages(conversationId)
+      )
+
       queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
         if (!oldData) return []
         return oldData.map((conv) => {
@@ -248,18 +256,28 @@ export const useClearConversationHistoryMutation = () => {
         })
       })
 
-      // Flush current chat window immediately.
-      queryClient.setQueryData<InfiniteData<PageResponse<MessageResponse>>>(chatKeys.messages(conversationId), {
+      queryClient.setQueryData<InfiniteData<CursorPageResponse<MessageResponse>>>(chatKeys.messages(conversationId), {
         pages: [],
-        pageParams: [0]
+        pageParams: [{ limit: 20, direction: 'OLDER', cursor: null }]
       })
 
+      return { previousConversations, previousMessages }
+    },
+    onSuccess: (_, conversationId) => {
       queryClient.invalidateQueries({ queryKey: chatKeys.messages(conversationId) })
-      queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+      // Notice: We intentionally do not invalidate chatKeys.conversations() here 
+      // to avoid refetching stale server data that might restore the old lastMessage.
+      queryClient.invalidateQueries({ queryKey: chatKeys.unreadAnchor(conversationId) })
       queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'media', conversationId] })
     },
-    onError: (error) => {
+    onError: (error, conversationId, context) => {
       console.error('Failed to clear conversation history', error)
+      if (context?.previousConversations) {
+        queryClient.setQueryData(chatKeys.conversations(), context.previousConversations)
+      }
+      if (context?.previousMessages) {
+        queryClient.setQueryData(chatKeys.messages(conversationId), context.previousMessages)
+      }
     }
   })
 }

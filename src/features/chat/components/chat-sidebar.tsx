@@ -1,15 +1,11 @@
 import { useState } from 'react'
-<<<<<<< HEAD
 import { useQueryClient } from '@tanstack/react-query'
 import { chatKeys } from '../queries/keys'
 import { UserPlus, Users, Filter, MoreHorizontal, Megaphone, Trash2, Clock3, FolderTree, BellOff, Flag } from 'lucide-react'
-=======
-import { UserPlus, Users, Filter, MoreHorizontal, Megaphone } from 'lucide-react'
->>>>>>> 61ff73b6918883769d96313105706373ab2d8c76
 import { cn } from '@/lib/utils'
 import { getUnreadAnchorApi, type UnreadAnchorResponse } from '../api/chat.api'
 import { useConversationsQuery } from '../queries/use-queries'
-import { useMarkAsReadMutation } from '../queries/use-mutations'
+import { useMarkAsReadMutation, useClearConversationHistoryMutation, useDeleteConversationMutation } from '../queries/use-mutations'
 import { useAuth } from '@/features/auth'
 import { MessageType, MessageStatus } from '@/constants/enum'
 import { useChatText } from '../i18n/use-chat-text'
@@ -25,7 +21,6 @@ import { stripMentionsForPreview } from '../utils/mention'
 import { SearchAndActions, type SearchAction } from '@/components/common/search-and-actions'
 import { AddFriendSearchDialog } from '@/features/friend'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { useClearConversationHistoryMutation, useDeleteConversationMutation } from '../queries/use-mutations'
 import { ConversationHistoryConfirmDialog } from './conversation-history-confirm-dialog'
 import { showSimpleToast } from '@/utils/toast'
 import { BONDHUB_AI } from '@/constants/system'
@@ -39,15 +34,13 @@ interface ChatSidebarProps {
 export function ChatSidebar({ selectedChatId, onSelectChat, onCaptureUnreadAnchor }: ChatSidebarProps) {
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false)
   const [isAddFriendModalOpen, setIsAddFriendModalOpen] = useState(false)
-<<<<<<< HEAD
   const [clearTarget, setClearTarget] = useState<ConversationResponse | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<ConversationResponse | null>(null)
-=======
   const { mutate: markAsRead } = useMarkAsReadMutation()
->>>>>>> 61ff73b6918883769d96313105706373ab2d8c76
   const { text, t, i18n } = useChatText()
   const { user } = useAuth()
   const { data: conversations, isLoading, isError } = useConversationsQuery()
+  const queryClient = useQueryClient()
 
   const isAiConversation = (chat: ConversationResponse) => {
     return chat.members?.some((member) => member.userId === BONDHUB_AI.userId) ?? false
@@ -380,3 +373,5 @@ export function ChatSidebar({ selectedChatId, onSelectChat, onCaptureUnreadAncho
     </div>
   )
 }
+
+

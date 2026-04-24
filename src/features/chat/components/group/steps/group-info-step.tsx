@@ -1,3 +1,4 @@
+import { buildGroupLinkUrl } from '../../../utils/group-link'
 import { useState, useMemo } from 'react'
 import { Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -219,7 +220,7 @@ export function GroupInfoStep({
           title='Chia sẻ'
           confirmText='Chia sẻ'
           onConfirm={(selectedConvIds) => {
-            const linkUrl = `${window.location.origin}/g/${conversation.joinLinkToken}`
+              const linkUrl = buildGroupLinkUrl(conversation.joinLinkToken)
             selectedConvIds.forEach((convId) => {
               sendMessage(convId, linkUrl, null, false)
             })

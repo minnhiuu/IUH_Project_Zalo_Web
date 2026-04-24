@@ -30,6 +30,7 @@ import { MediaStorageView } from './media-storage-view'
 import type { ConversationMemberResponse } from '../schemas/chat.schema'
 import { cn } from '@/lib/utils'
 import { useChatText } from '../i18n/use-chat-text'
+import { buildGroupLinkUrl } from '../utils/group-link'
 
 interface SidebarSectionProps {
   title: string
@@ -178,6 +179,9 @@ export function ChatInfoSections({
                 }
               />
               {joinLinkToken ? (
+                (() => {
+                  const joinLinkUrl = buildGroupLinkUrl(joinLinkToken)
+                  return (
                 <ActionMenuItem
                   icon={<Link />}
                   label={chatText.sidebarInfo.groupJoinLink}
@@ -185,7 +189,7 @@ export function ChatInfoSections({
                   as='div'
                   subLabel={
                     <span className='text-[13px] font-medium truncate' style={{ color: 'var(--cta-link)' }}>
-                      {`${window.location.origin}/g/${joinLinkToken}`}
+                      {joinLinkUrl}
                     </span>
                   }
                   rightElement={
@@ -193,7 +197,7 @@ export function ChatInfoSections({
                       <ActionButton
                         icon={<Copy />}
                         onClick={() => {
-                          navigator.clipboard.writeText(`${window.location.origin}/g/${joinLinkToken}`)
+                          navigator.clipboard.writeText(joinLinkUrl)
                           showSimpleToast(chatText.sidebarInfo.copied)
                         }}
                       />
@@ -201,6 +205,8 @@ export function ChatInfoSections({
                     </div>
                   }
                 />
+                  )
+                })()
               ) : (
                 joinByLinkEnabled &&
                 onGenerateJoinLink && (

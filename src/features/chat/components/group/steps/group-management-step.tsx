@@ -14,6 +14,7 @@ import type { GroupSettings } from '../../../schemas/chat.schema'
 import { useChatContext } from '../../../context/chat-context'
 import { ForwardDialog } from '../../forward-dialog'
 import { cn } from '@/lib/utils'
+import { buildGroupLinkUrl } from '../../../utils/group-link'
 interface GroupManagementStepText {
   joinQuestion: string
   joinQuestionDesc: string
@@ -321,13 +322,16 @@ export function GroupManagementStep({
               {/* Link section moved to main info sidebar per user request */}
 
               {settings?.joinByLinkEnabled && joinLinkToken && (
+                (() => {
+                  const joinLinkUrl = buildGroupLinkUrl(joinLinkToken)
+                  return (
                 <div
                   className='mt-2 p-2 px-3 border border-border/20 bg-color-B10'
                   style={{ backgroundColor: 'var(--B10)', borderRadius: '8px' }}
                 >
                   <div className='flex items-center justify-between gap-2'>
                     <span className='text-[13px] font-medium truncate flex-1 min-w-0' style={{ color: 'var(--B70)' }}>
-                      {`${window.location.origin}/g/${joinLinkToken}`}
+                      {joinLinkUrl}
                     </span>
                     <div className='flex items-center gap-1 shrink-0'>
                       <button
@@ -335,7 +339,7 @@ export function GroupManagementStep({
                         className='z--btn--v2 btn-tertiary-primary icon-only medium'
                         title={text.copied}
                         onClick={() => {
-                          navigator.clipboard.writeText(`${window.location.origin}/g/${joinLinkToken}`)
+                          navigator.clipboard.writeText(joinLinkUrl)
                           showSimpleToast(text.copied)
                         }}
                       >
@@ -361,6 +365,8 @@ export function GroupManagementStep({
                     </div>
                   </div>
                 </div>
+                  )
+                })()
               )}
             </div>
           )}
@@ -440,7 +446,7 @@ export function GroupManagementStep({
           title={text.share}
           confirmText={text.share}
           onConfirm={(selectedConvIds) => {
-            const linkUrl = `${window.location.origin}/g/${joinLinkToken}`
+            const linkUrl = buildGroupLinkUrl(joinLinkToken)
             selectedConvIds.forEach((convId) => {
               sendMessage(convId, linkUrl, null, false)
             })

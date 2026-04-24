@@ -9,6 +9,7 @@ import { CustomTooltip } from '@/components/common/custom-tooltip'
 import { canChangeGroupInfo } from '../../../utils/group-permissions'
 import { showWarningToast } from '@/utils/toast'
 import { useTranslation } from 'react-i18next'
+import { buildGroupLinkUrl } from '../../../utils/group-link'
 
 interface GroupInfoOverviewText {
   membersCount: (count: number) => string
@@ -183,6 +184,9 @@ export function GroupInfoOverviewStep({
 
       <div className='bg-background mt-1.5 border-y border-border/50 flex flex-col w-full'>
         {conversation.settings?.joinByLinkEnabled && conversation.joinLinkToken && (
+          (() => {
+            const joinLinkUrl = buildGroupLinkUrl(conversation.joinLinkToken)
+            return (
           <ActionMenuItem
             as='div'
             icon={
@@ -201,13 +205,13 @@ export function GroupInfoOverviewStep({
               </svg>
             }
             label={text.groupLink}
-            subLabel={`${window.location.origin}/g/${conversation.joinLinkToken}`}
+            subLabel={joinLinkUrl}
             rightElement={
               <div className='flex items-center gap-2'>
                 <ActionButton
                   icon={<Copy />}
                   onClick={() => {
-                    navigator.clipboard.writeText(`${window.location.origin}/g/${conversation.joinLinkToken}`)
+                    navigator.clipboard.writeText(joinLinkUrl)
                   }}
                 />
                 <ActionButton icon={<Forward />} />
@@ -215,6 +219,8 @@ export function GroupInfoOverviewStep({
             }
             className='hover:bg-transparent'
           />
+            )
+          })()
         )}
 
         <ActionMenuItem icon={<Settings />} label={text.management} onClick={onOpenManagement} showDivider={true} />
