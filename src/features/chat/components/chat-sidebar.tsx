@@ -1,7 +1,18 @@
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { chatKeys } from '../queries/keys'
-import { UserPlus, Users, Filter, MoreHorizontal, Megaphone, Trash2, Clock3, FolderTree, BellOff, Flag } from 'lucide-react'
+import {
+  UserPlus,
+  Users,
+  Filter,
+  MoreHorizontal,
+  Megaphone,
+  Trash2,
+  Clock3,
+  FolderTree,
+  BellOff,
+  Flag
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { getUnreadAnchorApi, type UnreadAnchorResponse } from '../api/chat.api'
 import { useConversationsQuery } from '../queries/use-queries'
@@ -20,7 +31,22 @@ import { getConversationDisplayName } from '../utils/group-name'
 import { stripMentionsForPreview } from '../utils/mention'
 import { SearchAndActions, type SearchAction } from '@/components/common/search-and-actions'
 import { AddFriendSearchDialog } from '@/features/friend'
+<<<<<<< HEAD
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+=======
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
+import {
+  useClearConversationHistoryMutation,
+  useDeleteConversationMutation,
+  useMarkAsReadMutation
+} from '../queries/use-mutations'
+>>>>>>> 1b78bf72fb564aff0e2fbd83a0cb426a9c0c3e17
 import { ConversationHistoryConfirmDialog } from './conversation-history-confirm-dialog'
 import { showSimpleToast } from '@/utils/toast'
 import { BONDHUB_AI } from '@/constants/system'
@@ -34,6 +60,7 @@ interface ChatSidebarProps {
 export function ChatSidebar({ selectedChatId, onSelectChat, onCaptureUnreadAnchor }: ChatSidebarProps) {
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false)
   const [isAddFriendModalOpen, setIsAddFriendModalOpen] = useState(false)
+  const [openMenuChatId, setOpenMenuChatId] = useState<string | null>(null)
   const [clearTarget, setClearTarget] = useState<ConversationResponse | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<ConversationResponse | null>(null)
   const { mutate: markAsRead } = useMarkAsReadMutation()
@@ -53,6 +80,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat, onCaptureUnreadAncho
   }
   const { mutate: clearHistory, isPending: isClearing } = useClearConversationHistoryMutation()
   const { mutate: deleteConversation, isPending: isDeleting } = useDeleteConversationMutation()
+  const { mutate: markAsRead } = useMarkAsReadMutation()
 
   const handleSelectChat = (chat: ConversationResponse) => {
     const unreadCount = getEffectiveUnreadCount(chat)
@@ -157,6 +185,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat, onCaptureUnreadAncho
           const previewDisplay = getPreviewDisplay(chat)
           const isSelected = selectedChatId === chat.id
           const effectiveUnreadCount = getEffectiveUnreadCount(chat)
+          const isMenuOpen = openMenuChatId === chat.id
 
           return (
             <div
@@ -253,12 +282,24 @@ export function ChatSidebar({ selectedChatId, onSelectChat, onCaptureUnreadAncho
               </div>
 
               {/* Hover Actions */}
-              <div className='absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-background/90 rounded-md p-0.5 shadow-sm border border-border/40'>
-                <DropdownMenu>
+              <div
+                className={cn(
+                  'absolute right-2 top-1/2 -translate-y-1/2 transition-opacity bg-background/90 rounded-md p-0.5 shadow-sm border border-border/40 z-10',
+                  isSelected || isMenuOpen
+                    ? 'opacity-100'
+                    : 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'
+                )}
+              >
+                <DropdownMenu
+                  modal={false}
+                  open={isMenuOpen}
+                  onOpenChange={(open) => setOpenMenuChatId(open ? chat.id : null)}
+                >
                   <DropdownMenuTrigger asChild>
                     <button
                       className='p-1.5 hover:bg-muted rounded transition-colors'
                       onClick={(e) => e.stopPropagation()}
+                      onPointerDown={(e) => e.stopPropagation()}
                     >
                       <MoreHorizontal className='w-4 h-4 text-text-secondary' />
                     </button>
@@ -292,6 +333,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat, onCaptureUnreadAncho
                       className='text-[14px]'
                       onClick={(e) => {
                         e.preventDefault()
+                        setOpenMenuChatId(null)
                         setClearTarget(chat)
                       }}
                     >
@@ -302,6 +344,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat, onCaptureUnreadAncho
                       className='text-[14px] text-destructive focus:text-destructive'
                       onClick={(e) => {
                         e.preventDefault()
+                        setOpenMenuChatId(null)
                         setDeleteTarget(chat)
                       }}
                     >
