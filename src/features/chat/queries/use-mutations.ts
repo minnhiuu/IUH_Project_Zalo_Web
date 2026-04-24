@@ -33,6 +33,11 @@ import {
   approveJoinRequestApi,
   rejectJoinRequestApi,
   cancelMyJoinRequestApi,
+  markAsUnreadApi,
+  pinConversationApi,
+  unpinConversationApi,
+  toggleMuteApi,
+  toggleHideApi,
   updateJoinQuestionApi
 } from '../api/chat.api'
 import { chatKeys } from './keys'
@@ -62,15 +67,22 @@ export const useMarkAsReadMutation = () => {
           previousConversations.map((conv: ConversationResponse) => {
             if (conv.id === conversationId) {
               const optimisticLastReadMessageId = lastReadMessageId ?? conv.lastMessage?.id ?? null
+              const myMember = conv.members?.find((m) => m.userId === user?.id)
 
               return {
                 ...conv,
                 unreadCount: 0,
-                members: conv.members?.map((m) => ({
-                  ...m,
-                  lastReadMessageId:
-                    m.userId === user?.id && optimisticLastReadMessageId ? optimisticLastReadMessageId : m.lastReadMessageId
-                }))
+                manuallyMarkedUnread: false,
+                members: conv.members?.map((m) => {
+                  if (m.userId === user?.id) {
+                    return {
+                      ...m,
+                      lastReadMessageId: optimisticLastReadMessageId || m.lastReadMessageId,
+                      manuallyMarkedUnread: false
+                    }
+                  }
+                  return m
+                })
               }
             }
             return conv
@@ -691,6 +703,172 @@ export const useUnpinMessageMutation = () => {
     },
     onError: (error) => {
       console.error('Failed to unpin message', error)
+    }
+  })
+}
+export const useMarkAsUnreadMutation = () => {
+  const queryClient = useQueryClient()
+  const { user } = useAuth()
+
+  return useMutation({
+    mutationFn: (conversationId: string) => markAsUnreadApi(conversationId),
+    onMutate: async (conversationId) => {
+      await queryClient.cancelQueries({ queryKey: chatKeys.conversations() })
+      const previousConversations = queryClient.getQueryData<ConversationResponse[]>(chatKeys.conversations())
+
+      if (previousConversations) {
+        queryClient.setQueryData(
+          chatKeys.conversations(),
+          previousConversations.map((conv: ConversationResponse) => {
+            if (conv.id === conversationId) {
+              return {
+                ...conv,
+                manuallyMarkedUnread: true,
+                members: conv.members?.map((m) => (m.userId === user?.id ? { ...m, manuallyMarkedUnread: true } : m))
+              }
+            }
+            return conv
+          })
+        )
+      }
+
+      return { previousConversations }
+    },
+    onError: (error, _vars, context) => {
+      console.error('Error marking conversation as unread:', error)
+      if (context?.previousConversations) {
+        queryClient.setQueryData(chatKeys.conversations(), context.previousConversations)
+      }
+    }
+  })
+}
+
+export const useTogglePinConversationMutation = () => {
+  const queryClient = useQueryClient()
+  const { user } = useAuth()
+
+  return useMutation({
+    mutationFn: ({ conversationId, isPinned }: { conversationId: string; isPinned: boolean }) =>
+      isPinned ? pinConversationApi(conversationId) : unpinConversationApi(conversationId),
+    onMutate: async ({ conversationId, isPinned }) => {
+      await queryClient.cancelQueries({ queryKey: chatKeys.conversations() })
+      const previousConversations = queryClient.getQueryData<ConversationResponse[]>(chatKeys.conversations())
+
+      if (previousConversations) {
+        const updatedConversations = previousConversations.map((conv: ConversationResponse) => {
+          if (conv.id === conversationId) {
+            return {
+              ...conv,
+              isPinned: isPinned,
+              members: conv.members?.map((m) => (m.userId === user?.id ? { ...m, pinned: isPinned } : m))
+            }
+          }
+          return conv
+        })
+
+        // Re-sort according to pin status and last message time
+        const sorted = [...updatedConversations].sort((a, b) => {
+          const aP = a.id === conversationId ? isPinned : !!a.isPinned
+          const bP = b.id === conversationId ? isPinned : !!b.isPinned
+          if (aP !== bP) return aP ? -1 : 1
+          return new Date(b.lastMessage?.timestamp || 0).getTime() - new Date(a.lastMessage?.timestamp || 0).getTime()
+        })
+
+        queryClient.setQueryData(chatKeys.conversations(), sorted)
+      }
+
+      return { previousConversations }
+    },
+    onError: (error, _vars, context) => {
+      console.error('Error toggling pin:', error)
+      if (context?.previousConversations) {
+        queryClient.setQueryData(chatKeys.conversations(), context.previousConversations)
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+    }
+  })
+}
+
+export const useToggleMuteConversationMutation = () => {
+  const queryClient = useQueryClient()
+  const { user } = useAuth()
+
+  return useMutation({
+    mutationFn: ({ conversationId, isMuted }: { conversationId: string; isMuted: boolean }) =>
+      toggleMuteApi(conversationId, isMuted),
+    onMutate: async ({ conversationId, isMuted }) => {
+      await queryClient.cancelQueries({ queryKey: chatKeys.conversations() })
+      const previousConversations = queryClient.getQueryData<ConversationResponse[]>(chatKeys.conversations())
+
+      if (previousConversations) {
+        queryClient.setQueryData(
+          chatKeys.conversations(),
+          previousConversations.map((conv: ConversationResponse) => {
+            if (conv.id === conversationId) {
+              return {
+                ...conv,
+                members: conv.members?.map((m) => (m.userId === user?.id ? { ...m, muted: isMuted } : m))
+              }
+            }
+            return conv
+          })
+        )
+      }
+
+      return { previousConversations }
+    },
+    onError: (error, _vars, context) => {
+      console.error('Error toggling mute:', error)
+      if (context?.previousConversations) {
+        queryClient.setQueryData(chatKeys.conversations(), context.previousConversations)
+      }
+    }
+  })
+}
+
+export const useToggleHideConversationMutation = () => {
+  const queryClient = useQueryClient()
+  const { user } = useAuth()
+
+  return useMutation({
+    mutationFn: ({ conversationId, isHidden }: { conversationId: string; isHidden: boolean }) =>
+      toggleHideApi(conversationId, isHidden),
+    onMutate: async ({ conversationId, isHidden }) => {
+      await queryClient.cancelQueries({ queryKey: chatKeys.conversations() })
+      const previousConversations = queryClient.getQueryData<ConversationResponse[]>(chatKeys.conversations())
+
+      if (previousConversations) {
+        if (isHidden) {
+          // Optimistically hide from list
+          queryClient.setQueryData(
+            chatKeys.conversations(),
+            previousConversations.filter((conv) => conv.id !== conversationId)
+          )
+        } else {
+          queryClient.setQueryData(
+            chatKeys.conversations(),
+            previousConversations.map((conv: ConversationResponse) => {
+              if (conv.id === conversationId) {
+                return {
+                  ...conv,
+                  members: conv.members?.map((m) => (m.userId === user?.id ? { ...m, hidden: isHidden } : m))
+                }
+              }
+              return conv
+            })
+          )
+        }
+      }
+
+      return { previousConversations }
+    },
+    onError: (error, _vars, context) => {
+      console.error('Error toggling hide:', error)
+      if (context?.previousConversations) {
+        queryClient.setQueryData(chatKeys.conversations(), context.previousConversations)
+      }
     }
   })
 }

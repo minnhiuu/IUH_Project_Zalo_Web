@@ -222,6 +222,34 @@ export const clearConversationHistoryApi = async (conversationId: string): Promi
   await http.patch(`/messages/conversations/${conversationId}/clear-history`)
 }
 
+export const markAsUnreadApi = async (conversationId: string): Promise<void> => {
+  await http.put(`/messages/conversations/${conversationId}/unread`)
+}
+
+export const pinConversationApi = async (conversationId: string): Promise<void> => {
+  await http.post(`/messages/conversations/${conversationId}/pin`)
+}
+
+export const unpinConversationApi = async (conversationId: string): Promise<void> => {
+  await http.delete(`/messages/conversations/${conversationId}/pin`)
+}
+
+export const toggleMuteApi = async (conversationId: string, isMuted: boolean): Promise<void> => {
+  if (isMuted) {
+    await http.post(`/messages/conversations/${conversationId}/mute`)
+  } else {
+    await http.delete(`/messages/conversations/${conversationId}/mute`)
+  }
+}
+
+export const toggleHideApi = async (conversationId: string, isHidden: boolean): Promise<void> => {
+  if (isHidden) {
+    await http.post(`/messages/conversations/${conversationId}/hide`)
+  } else {
+    await http.delete(`/messages/conversations/${conversationId}/hide`)
+  }
+}
+
 export const leaveGroupApi = async (conversationId: string, request: LeaveGroupRequest): Promise<void> => {
   await http.delete(`/messages/conversations/${conversationId}/leave`, {
     data: request

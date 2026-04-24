@@ -6,7 +6,11 @@ export const ConversationMemberResponseSchema = z.object({
   fullName: z.string(),
   avatar: z.string().nullable().optional(),
   lastReadMessageId: z.string().nullable().optional(),
-  role: z.string().nullable().optional()
+  role: z.string().nullable().optional(),
+  pinned: z.boolean().nullable().optional(),
+  muted: z.boolean().nullable().optional(),
+  hidden: z.boolean().nullable().optional(),
+  manuallyMarkedUnread: z.boolean().nullable().optional()
 })
 
 export type ConversationMemberResponse = z.infer<typeof ConversationMemberResponseSchema>
@@ -68,6 +72,10 @@ export const ConversationResponseSchema = z.object({
   lastSeenAt: z.string().datetime().nullable().optional(),
   isGroup: z.boolean().default(false),
   isDisbanded: z.boolean().default(false),
+  isPinned: z.boolean().nullable().optional(),
+  isMuted: z.boolean().nullable().optional(),
+  isHidden: z.boolean().nullable().optional(),
+  manuallyMarkedUnread: z.boolean().nullable().optional(),
   unreadCount: z.number().nullable().optional(),
   lastMessage: LastMessageResponseSchema.nullable().optional(),
   members: z.array(ConversationMemberResponseSchema).nullable().optional(),
