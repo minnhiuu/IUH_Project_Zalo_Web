@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useOutletContext } from 'react-router'
 import { UserPlus, Users, Filter, MoreHorizontal, Megaphone } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { getUnreadAnchorApi, type UnreadAnchorResponse } from '../api/chat.api'
@@ -27,6 +28,7 @@ interface ChatSidebarProps {
 }
 
 export function ChatSidebar({ selectedChatId, onSelectChat, onCaptureUnreadAnchor }: ChatSidebarProps) {
+  const { setIsGlobalSearchOpen } = useOutletContext<{ setIsGlobalSearchOpen: (open: boolean) => void }>()
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false)
   const [isAddFriendModalOpen, setIsAddFriendModalOpen] = useState(false)
   const { mutate: markAsRead } = useMarkAsReadMutation()
@@ -114,7 +116,11 @@ export function ChatSidebar({ selectedChatId, onSelectChat, onCaptureUnreadAncho
     <div className='w-[344px] flex flex-col border-r border-border bg-background shrink-0 h-full'>
       {/* Search and Quick Actions */}
       <div className='px-4 py-3 shrink-0'>
-        <SearchAndActions placeholder={text.searchPlaceholder} actions={headerActions} />
+        <SearchAndActions
+          placeholder={text.searchPlaceholder}
+          actions={headerActions}
+          onFocus={() => setIsGlobalSearchOpen(true)}
+        />
       </div>
 
       {/* Filters Bar */}

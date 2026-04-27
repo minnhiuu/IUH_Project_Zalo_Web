@@ -1,0 +1,36 @@
+{
+  "globalSearch": {
+    "title": "Tìm kiếm",
+    "placeholder": "Tìm kiếm",
+    "close": "Đóng",
+    "tabs": {
+      "all": "Tất cả",
+      "contacts": "Liên lạc",
+      "messages": "Tin nhắn",
+      "files": "File"
+    },
+    "sections": {
+      "contacts": "Liên lạc",
+      "messages": "Tin nhắn",
+      "files": "File",
+      "recent": "Tìm kiếm gần đây"
+    },
+    "actions": {
+      "viewAll": "Xem tất cả",
+      "viewAllMessages": "Xem tất cả tin nhắn",
+      "viewAllFiles": "Xem tất cả tập tin",
+      "viewAllContacts": "Xem tất cả liên hệ",
+      "clearAll": "Xóa tất cả"
+    },
+    "states": {
+      "empty": "Không tìm thấy kết quả phù hợp",
+      "noRecent": "Chưa có lịch sử tìm kiếm",
+      "loading": "Đang tìm kiếm...",
+      "developing": "Đang phát triển tính năng xem chi tiết tab {{tab}}..."
+    },
+    "contactTypes": {
+      "friend": "Bạn bè",
+      "members": "{{count}} thành viên"
+    }
+  }
+}

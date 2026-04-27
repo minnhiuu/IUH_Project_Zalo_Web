@@ -1,6 +1,6 @@
 export interface MessageSearchRequest {
   keyword?: string
-  conversationId: string
+  conversationId?: string // Optional for global search
   senderId?: string
   from?: string // ISO format
   to?: string // ISO format
@@ -27,6 +27,8 @@ export interface MessageSearchResponse {
   status: string
   hasAttachment: boolean
   hasLink: boolean
+  isGroup: boolean
+  conversationName: string | null
   createdAt: string // ISO format (Instant)
   displayHighlights: string | null
 }
@@ -39,7 +41,26 @@ export interface MessageSearchSectionResponse {
   totalItems: number
 }
 
+export interface ConversationSearchResponse {
+  conversationId: string
+  recipientId: string | null
+  name: string
+  avatar: string | null
+  group: boolean
+  memberCount: number
+  displayHighlights: string | null
+}
+
+export interface ConversationSearchSectionResponse {
+  data: ConversationSearchResponse[]
+  page: number
+  totalPages: number
+  limit: number
+  totalItems: number
+}
+
 export interface MessageSearchOverviewResponse {
+  contacts: ConversationSearchSectionResponse
   messages: MessageSearchSectionResponse
   files: MessageSearchSectionResponse
 }

@@ -150,6 +150,7 @@
   --layer-background: #fff;
   --divider-bold: #dbdbdb;
   --surface-background-subtle: #ebecf0;
+  --layer-background-subtle: #ebecf0;
   --badge-emerald-bg: #d1fae5;
   --badge-emerald-text: #047857;
   --badge-blue-bg: #dbeafe;
@@ -301,6 +302,7 @@
   --layer-background: #22262b;
   --divider-bold: #16191d;
   --surface-background-subtle: #16191d;
+  --layer-background-subtle: #1d2025;
   --input-field-bg-outline: #16191d;
   --input-field-bg-filled: #16191d;
   --badge-emerald-bg: #064e3b;
@@ -474,7 +476,7 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
   body {
     @apply font-sans bg-background text-foreground;

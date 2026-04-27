@@ -28,6 +28,9 @@ import ingestEn from '@/features/admin-document-ingest/locales/en.json'
 import socialVi from '@/features/social-feed/locales/vi.json'
 import socialEn from '@/features/social-feed/locales/en.json'
 
+import globalSearchVi from '@/features/global-search/locales/vi.json'
+import globalSearchEn from '@/features/global-search/locales/en.json'
+
 export const resources = {
   vi: {
     common: commonVi,
@@ -40,7 +43,8 @@ export const resources = {
     admin: adminVi,
     notification: notificationVi,
     friend: friendVi,
-    ingest: ingestVi
+    ingest: ingestVi,
+    globalSearch: globalSearchVi
   },
   en: {
     common: commonEn,
@@ -53,6 +57,7 @@ export const resources = {
     admin: adminEn,
     notification: notificationEn,
     friend: friendEn,
-    ingest: ingestEn
+    ingest: ingestEn,
+    globalSearch: globalSearchEn
   }
 } as const

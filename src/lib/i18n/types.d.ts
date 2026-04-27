@@ -10,6 +10,7 @@ import notification from '@/features/notification/locales/vi.json'
 import friend from '@/features/friend/locales/vi.json'
 import ingest from '@/features/admin-document-ingest/locales/vi.json'
 import social from '@/features/social-feed/locales/vi.json'
+import globalSearch from '@/features/global-search/locales/vi.json'
 
 declare module 'i18next' {
   interface CustomTypeOptions {
@@ -26,6 +27,7 @@ declare module 'i18next' {
       friend: typeof friend
       ingest: typeof ingest
       social: typeof social
+      globalSearch: typeof globalSearch
     }
   }
 }

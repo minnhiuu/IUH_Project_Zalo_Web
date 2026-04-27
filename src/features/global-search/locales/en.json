@@ -1,0 +1,36 @@
+{
+  "globalSearch": {
+    "title": "Search",
+    "placeholder": "Search",
+    "close": "Close",
+    "tabs": {
+      "all": "All",
+      "contacts": "Contacts",
+      "messages": "Messages",
+      "files": "Files"
+    },
+    "sections": {
+      "contacts": "Contacts",
+      "messages": "Messages",
+      "files": "Files",
+      "recent": "Recent Searches"
+    },
+    "actions": {
+      "viewAll": "View all",
+      "viewAllMessages": "See all messages",
+      "viewAllFiles": "See all files",
+      "viewAllContacts": "See all contacts",
+      "clearAll": "Clear all"
+    },
+    "states": {
+      "empty": "No results found",
+      "noRecent": "No recent search history",
+      "loading": "Searching...",
+      "developing": "Developing detail view for {{tab}} tab..."
+    },
+    "contactTypes": {
+      "friend": "Friend",
+      "members": "{{count}} members"
+    }
+  }
+}

@@ -16,6 +16,7 @@ import { useNotificationStateQuery } from '@/features/notification/queries/use-q
 import { useMarkHistoryAsCheckedMutation } from '@/features/notification/queries/use-mutations'
 import { useNotificationBadge } from '@/hooks/use-notification-badge'
 import { ChatProvider } from '@/features/chat'
+import { GlobalSearchPanel } from '@/features/global-search'
 import { socialFeedKeys } from '@/features/social-feed/queries/keys'
 import { showWarningToast } from '@/utils/toast'
 import type { SocialPost } from '@/features/social-feed/components/post/post-card'
@@ -27,6 +28,7 @@ export default function UserLayout() {
   const queryClient = useQueryClient()
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isNotificationOpen, setIsNotificationOpen] = useState(false)
+  const [isGlobalSearchOpen, setIsGlobalSearchOpen] = useState(false)
 
   const { data: notificationState } = useNotificationStateQuery()
   const { mutate: markAsChecked } = useMarkHistoryAsCheckedMutation()
@@ -245,11 +247,12 @@ export default function UserLayout() {
 
         {/* Main Content Area */}
         <main className='flex-1 flex overflow-hidden'>
-          <Outlet />
+          <Outlet context={{ setIsGlobalSearchOpen }} />
         </main>
 
         <SearchPanel open={isSearchOpen} onOpenChange={setIsSearchOpen} />
         <NotificationPanel open={isNotificationOpen} onOpenChange={setIsNotificationOpen} />
+        <GlobalSearchPanel open={isGlobalSearchOpen} onOpenChange={setIsGlobalSearchOpen} />
       </div>
     </ChatProvider>
   )
