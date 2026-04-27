@@ -15,13 +15,17 @@ export const createGlobalSearchTexts = (t: TFunction<'globalSearch'>) => ({
     contacts: t(GLOBAL_SEARCH_KEYS.sections.contacts),
     messages: t(GLOBAL_SEARCH_KEYS.sections.messages),
     files: t(GLOBAL_SEARCH_KEYS.sections.files),
-    recent: t(GLOBAL_SEARCH_KEYS.sections.recent)
+    recent: t(GLOBAL_SEARCH_KEYS.sections.recent),
+    people: t(GLOBAL_SEARCH_KEYS.sections.people),
+    groups: t(GLOBAL_SEARCH_KEYS.sections.groups)
   },
   actions: {
     viewAll: t(GLOBAL_SEARCH_KEYS.actions.viewAll),
     viewAllMessages: t(GLOBAL_SEARCH_KEYS.actions.viewAllMessages),
     viewAllFiles: t(GLOBAL_SEARCH_KEYS.actions.viewAllFiles),
     viewAllContacts: t(GLOBAL_SEARCH_KEYS.actions.viewAllContacts),
+    viewAllPeople: t(GLOBAL_SEARCH_KEYS.actions.viewAllPeople),
+    viewAllGroups: t(GLOBAL_SEARCH_KEYS.actions.viewAllGroups),
     clearAll: t(GLOBAL_SEARCH_KEYS.actions.clearAll)
   },
   states: {

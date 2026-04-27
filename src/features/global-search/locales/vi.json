@@ -13,13 +13,17 @@
       "contacts": "Liên lạc",
       "messages": "Tin nhắn",
       "files": "File",
-      "recent": "Tìm kiếm gần đây"
+      "recent": "Tìm kiếm gần đây",
+      "people": "Cá nhân",
+      "groups": "Nhóm"
     },
     "actions": {
       "viewAll": "Xem tất cả",
       "viewAllMessages": "Xem tất cả tin nhắn",
       "viewAllFiles": "Xem tất cả tập tin",
       "viewAllContacts": "Xem tất cả liên hệ",
+      "viewAllPeople": "Xem tất cả cá nhân",
+      "viewAllGroups": "Xem tất cả nhóm",
       "clearAll": "Xóa tất cả"
     },
     "states": {

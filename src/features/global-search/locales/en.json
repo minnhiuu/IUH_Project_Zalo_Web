@@ -13,13 +13,17 @@
       "contacts": "Contacts",
       "messages": "Messages",
       "files": "Files",
-      "recent": "Recent Searches"
+      "recent": "Recent Searches",
+      "people": "People",
+      "groups": "Groups"
     },
     "actions": {
       "viewAll": "View all",
       "viewAllMessages": "See all messages",
       "viewAllFiles": "See all files",
       "viewAllContacts": "See all contacts",
+      "viewAllPeople": "See all people",
+      "viewAllGroups": "See all groups",
       "clearAll": "Clear all"
     },
     "states": {

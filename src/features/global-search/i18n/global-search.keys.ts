@@ -12,13 +12,17 @@ export const GLOBAL_SEARCH_KEYS = {
     contacts: 'globalSearch.sections.contacts',
     messages: 'globalSearch.sections.messages',
     files: 'globalSearch.sections.files',
-    recent: 'globalSearch.sections.recent'
+    recent: 'globalSearch.sections.recent',
+    people: 'globalSearch.sections.people',
+    groups: 'globalSearch.sections.groups'
   },
   actions: {
     viewAll: 'globalSearch.actions.viewAll',
     viewAllMessages: 'globalSearch.actions.viewAllMessages',
     viewAllFiles: 'globalSearch.actions.viewAllFiles',
     viewAllContacts: 'globalSearch.actions.viewAllContacts',
+    viewAllPeople: 'globalSearch.actions.viewAllPeople',
+    viewAllGroups: 'globalSearch.actions.viewAllGroups',
     clearAll: 'globalSearch.actions.clearAll'
   },
   states: {

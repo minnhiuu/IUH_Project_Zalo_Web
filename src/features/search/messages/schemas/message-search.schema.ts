@@ -1,3 +1,5 @@
+import type { PageResponse } from '@/shared/api'
+
 export interface MessageSearchRequest {
   keyword?: string
   conversationId?: string // Optional for global search
@@ -49,6 +51,11 @@ export interface ConversationSearchResponse {
   group: boolean
   memberCount: number
   displayHighlights: string | null
+}
+
+export interface ContactSearchTabResponse {
+  people: PageResponse<ConversationSearchResponse>
+  groups: PageResponse<ConversationSearchResponse>
 }
 
 export interface ConversationSearchSectionResponse {
