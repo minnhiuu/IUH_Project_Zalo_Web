@@ -31,6 +31,9 @@ export interface MessageSearchResponse {
   hasLink: boolean
   isGroup: boolean
   conversationName: string | null
+  conversationAvatar: string | null
+  participantNames: string[] | null
+  participantAvatars: (string | null)[] | null
   createdAt: string // ISO format (Instant)
   displayHighlights: string | null
 }
@@ -53,11 +56,6 @@ export interface ConversationSearchResponse {
   displayHighlights: string | null
 }
 
-export interface ContactSearchTabResponse {
-  people: PageResponse<ConversationSearchResponse>
-  groups: PageResponse<ConversationSearchResponse>
-}
-
 export interface ConversationSearchSectionResponse {
   data: ConversationSearchResponse[]
   page: number
@@ -66,8 +64,3 @@ export interface ConversationSearchSectionResponse {
   totalItems: number
 }
 
-export interface MessageSearchOverviewResponse {
-  contacts: ConversationSearchSectionResponse
-  messages: MessageSearchSectionResponse
-  files: MessageSearchSectionResponse
-}

@@ -5,10 +5,10 @@ import { MESSAGE_SEARCH_SECTION } from '../../../search/messages'
 import { useChatText } from '../../i18n/use-chat-text'
 import { useConversationParticipantsInfinite } from '../../queries/use-queries'
 import { useMessageSearchInfinite, useMessageSearchOverview } from '../../../search/messages'
-import { DateFilter } from './date-filter'
+import { DateFilter, type DateFilterText } from '@/components/common/search/date-filter'
 import { EmptyState } from '@/components/common/search/empty-state'
 import { MessageResultCard, MessageResultSkeleton } from '@/components/common/search/message-result-card'
-import { SenderFilter } from './sender-filter'
+import { SenderFilter, type SearchParticipant, type SenderFilterText } from '@/components/common/search/sender-filter'
 import { Button } from '@/components/ui/button'
 
 interface SearchSidebarProps {
@@ -111,6 +111,26 @@ export function SearchSidebar({ conversationId, onClose, onNavigateToMessage }: 
     setExpandedSections((prev) => ({ ...prev, files: true }))
   }
 
+  const senderFilterText: SenderFilterText = {
+    filterSender: sText.filterSender,
+    placeholder: sText.placeholder,
+    emptyStateSearch: text.emptyStateSearch,
+    you: text.you
+  }
+
+  const dateFilterText: DateFilterText = {
+    filterDate: sText.filterDate,
+    timeSuggestion: sText.timeSuggestion,
+    last7Days: sText.last7Days,
+    last30Days: sText.last30Days,
+    last3Months: sText.last3Months,
+    chooseTimeRange: sText.chooseTimeRange,
+    fromDate: sText.fromDate,
+    toDate: sText.toDate,
+    cancel: 'Hủy',
+    confirm: 'Xác nhận'
+  }
+
   return (
     <div className='flex flex-col h-full bg-background'>
       <div className='h-[68px] border-b border-border flex items-center px-4 shrink-0 shadow-sm relative'>
@@ -156,9 +176,8 @@ export function SearchSidebar({ conversationId, onClose, onNavigateToMessage }: 
               memberQuery={memberQuery}
               setMemberQuery={setMemberQuery}
               isLoadingParticipants={isLoadingParticipants}
-              participants={participants}
-              sText={sText}
-              text={text}
+              participants={participants as SearchParticipant[]}
+              text={senderFilterText}
             />
 
             <DateFilter
@@ -166,7 +185,7 @@ export function SearchSidebar({ conversationId, onClose, onNavigateToMessage }: 
               toDate={toDate}
               setFromDate={setFromDate}
               setToDate={setToDate}
-              sText={sText}
+              text={dateFilterText}
             />
           </div>
         </div>

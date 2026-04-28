@@ -26,6 +26,22 @@
       "viewAllGroups": "Xem tất cả nhóm",
       "clearAll": "Xóa tất cả"
     },
+    "filters": {
+      "label": "Bộ lọc:",
+      "sender": "Người gửi",
+      "time": "Thời gian",
+      "all": "Tất cả",
+      "you": "Bạn",
+      "timeSuggestion": "Gợi ý thời gian",
+      "last7Days": "7 ngày qua",
+      "last30Days": "30 ngày qua",
+      "last3Months": "3 tháng qua",
+      "chooseTimeRange": "Chọn khoảng thời gian",
+      "fromDate": "Từ ngày",
+      "toDate": "Đến ngày",
+      "cancel": "Hủy",
+      "confirm": "Xác nhận"
+    },
     "states": {
       "empty": "Không tìm thấy kết quả phù hợp",
       "noRecent": "Chưa có lịch sử tìm kiếm",

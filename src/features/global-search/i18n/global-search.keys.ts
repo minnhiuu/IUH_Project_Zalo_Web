@@ -25,6 +25,22 @@ export const GLOBAL_SEARCH_KEYS = {
     viewAllGroups: 'globalSearch.actions.viewAllGroups',
     clearAll: 'globalSearch.actions.clearAll'
   },
+  filters: {
+    label: 'globalSearch.filters.label',
+    sender: 'globalSearch.filters.sender',
+    time: 'globalSearch.filters.time',
+    all: 'globalSearch.filters.all',
+    you: 'globalSearch.filters.you',
+    timeSuggestion: 'globalSearch.filters.timeSuggestion',
+    last7Days: 'globalSearch.filters.last7Days',
+    last30Days: 'globalSearch.filters.last30Days',
+    last3Months: 'globalSearch.filters.last3Months',
+    chooseTimeRange: 'globalSearch.filters.chooseTimeRange',
+    fromDate: 'globalSearch.filters.fromDate',
+    toDate: 'globalSearch.filters.toDate',
+    cancel: 'globalSearch.filters.cancel',
+    confirm: 'globalSearch.filters.confirm'
+  },
   states: {
     empty: 'globalSearch.states.empty',
     noRecent: 'globalSearch.states.noRecent',

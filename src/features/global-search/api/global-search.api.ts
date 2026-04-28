@@ -2,51 +2,56 @@ import http from '@/lib/axios-client'
 import type { ApiResponse, PageResponse } from '@/shared/api'
 import type {
   MessageSearchResponse,
-  MessageSearchOverviewResponse,
-  ConversationSearchResponse,
-  ContactSearchTabResponse
+  ConversationSearchResponse
 } from '@/features/search/messages/schemas/message-search.schema'
 
 export interface GlobalSearchRequest {
   keyword: string
   conversationId?: string
   senderId?: string
-  from?: string
-  to?: string
+  from?: number
+  to?: number
 }
 
 export const globalSearchApi = {
-  getOverview: async (request: GlobalSearchRequest, sectionSize = 5): Promise<MessageSearchOverviewResponse> => {
-    const response = await http.get<ApiResponse<MessageSearchOverviewResponse>>('/search/overview', {
-      params: { ...request, sectionSize }
-    })
-    return response.data.data
-  },
-
-  searchContacts: async (keyword: string, page = 0, size = 20): Promise<PageResponse<ConversationSearchResponse>> => {
+  searchContacts: async (
+    keyword: string,
+    page = 0,
+    size = 20,
+    isGroup?: boolean
+  ): Promise<PageResponse<ConversationSearchResponse>> => {
     const response = await http.get<ApiResponse<PageResponse<ConversationSearchResponse>>>('/search/contacts', {
-      params: { keyword, page, size }
+      params: { keyword, page, size, isGroup }
     })
     return response.data.data
   },
 
-  searchContactsCategorized: async (keyword: string, page = 0, size = 1): Promise<ContactSearchTabResponse> => {
-    const response = await http.get<ApiResponse<ContactSearchTabResponse>>('/search/contacts/categorized', {
-      params: { keyword, page, size }
+  searchSenders: async (keyword: string): Promise<ConversationSearchResponse[]> => {
+    const response = await http.get<ApiResponse<ConversationSearchResponse[]>>('/search/messages/senders', {
+      params: { keyword }
     })
     return response.data.data
   },
 
-  searchMessages: async (keyword: string, page = 0, size = 20): Promise<PageResponse<MessageSearchResponse>> => {
+
+  searchMessages: async (
+    request: GlobalSearchRequest,
+    page = 0,
+    size = 20
+  ): Promise<PageResponse<MessageSearchResponse>> => {
     const response = await http.get<ApiResponse<PageResponse<MessageSearchResponse>>>('/search/messages', {
-      params: { keyword, page, size }
+      params: { ...request, page, size, section: 'MESSAGES' }
     })
     return response.data.data
   },
 
-  searchFiles: async (keyword: string, page = 0, size = 20): Promise<PageResponse<MessageSearchResponse>> => {
-    const response = await http.get<ApiResponse<PageResponse<MessageSearchResponse>>>('/search/files', {
-      params: { keyword, page, size }
+  searchFiles: async (
+    request: GlobalSearchRequest,
+    page = 0,
+    size = 20
+  ): Promise<PageResponse<MessageSearchResponse>> => {
+    const response = await http.get<ApiResponse<PageResponse<MessageSearchResponse>>>('/search/messages', {
+      params: { ...request, page, size, section: 'FILES' }
     })
     return response.data.data
   }

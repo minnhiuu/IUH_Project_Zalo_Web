@@ -9,6 +9,7 @@ interface ResultSectionProps {
   count?: number
   displayedCount?: number
   text: ReturnType<typeof useGlobalSearchText>['text']
+  isLoading?: boolean
 }
 
 export function ResultSection({
@@ -17,7 +18,8 @@ export function ResultSection({
   onViewAll,
   count,
   displayedCount,
-  text
+  text,
+  isLoading
 }: ResultSectionProps) {
   return (
     <section className='flex flex-col mt-4'>
@@ -27,7 +29,7 @@ export function ResultSection({
         </h3>
       </div>
       <div className='flex flex-col'>{children}</div>
-      {count !== undefined && displayedCount !== undefined && count > displayedCount && (
+      {count !== undefined && displayedCount !== undefined && count > displayedCount && !isLoading && (
         <div className='px-4 mt-2'>
           <Button variant='secondary' onClick={onViewAll} className='w-full font-semibold'>
             {title === text.sections.messages

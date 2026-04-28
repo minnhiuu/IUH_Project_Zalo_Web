@@ -28,6 +28,22 @@ export const createGlobalSearchTexts = (t: TFunction<'globalSearch'>) => ({
     viewAllGroups: t(GLOBAL_SEARCH_KEYS.actions.viewAllGroups),
     clearAll: t(GLOBAL_SEARCH_KEYS.actions.clearAll)
   },
+  filters: {
+    label: t(GLOBAL_SEARCH_KEYS.filters.label),
+    sender: t(GLOBAL_SEARCH_KEYS.filters.sender),
+    time: t(GLOBAL_SEARCH_KEYS.filters.time),
+    all: t(GLOBAL_SEARCH_KEYS.filters.all),
+    you: t(GLOBAL_SEARCH_KEYS.filters.you),
+    timeSuggestion: t(GLOBAL_SEARCH_KEYS.filters.timeSuggestion),
+    last7Days: t(GLOBAL_SEARCH_KEYS.filters.last7Days),
+    last30Days: t(GLOBAL_SEARCH_KEYS.filters.last30Days),
+    last3Months: t(GLOBAL_SEARCH_KEYS.filters.last3Months),
+    chooseTimeRange: t(GLOBAL_SEARCH_KEYS.filters.chooseTimeRange),
+    fromDate: t(GLOBAL_SEARCH_KEYS.filters.fromDate),
+    toDate: t(GLOBAL_SEARCH_KEYS.filters.toDate),
+    cancel: t(GLOBAL_SEARCH_KEYS.filters.cancel),
+    confirm: t(GLOBAL_SEARCH_KEYS.filters.confirm)
+  },
   states: {
     empty: t(GLOBAL_SEARCH_KEYS.states.empty),
     noRecent: t(GLOBAL_SEARCH_KEYS.states.noRecent),

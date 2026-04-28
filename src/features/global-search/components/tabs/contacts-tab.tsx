@@ -1,30 +1,36 @@
 import { Fragment } from 'react'
 import { useNavigate } from 'react-router'
 import { Loader2 } from 'lucide-react'
-import { useInfiniteGlobalSearchContactsCategorized } from '../../queries/use-queries'
+import { useInfiniteGlobalSearchPeople, useInfiniteGlobalSearchGroups } from '../../queries/use-queries'
 import { EmptyState } from '@/components/common/search/empty-state'
 import { ResultSection } from '../result-section'
 import { ContactItem } from '../contact-item'
 import { useGlobalSearchText } from '../../i18n/use-global-search-text'
-import type {
-  ContactSearchTabResponse,
-  ConversationSearchResponse
-} from '@/features/search/messages/schemas/message-search.schema'
 
 interface ContactsTabProps {
   keyword: string
   onClose: () => void
   text: ReturnType<typeof useGlobalSearchText>['text']
-  sectionSize: number
 }
 
-export function ContactsTab({ keyword, onClose, text, sectionSize }: ContactsTabProps) {
+export function ContactsTab({ keyword, onClose, text }: ContactsTabProps) {
   const navigate = useNavigate()
+  
   const {
-    data: contactsData,
-    fetchNextPage,
-    isLoading
-  } = useInfiniteGlobalSearchContactsCategorized(keyword, sectionSize)
+    data: peopleData,
+    fetchNextPage: fetchNextPeople,
+    hasNextPage: hasNextPeople,
+    isLoading: isLoadingPeople
+  } = useInfiniteGlobalSearchPeople(keyword, 20)
+
+  const {
+    data: groupsData,
+    fetchNextPage: fetchNextGroups,
+    hasNextPage: hasNextGroups,
+    isLoading: isLoadingGroups
+  } = useInfiniteGlobalSearchGroups(keyword, 20)
+
+  const isLoading = isLoadingPeople && isLoadingGroups
 
   if (isLoading) {
     return (
@@ -34,25 +40,27 @@ export function ContactsTab({ keyword, onClose, text, sectionSize }: ContactsTab
     )
   }
 
-  const firstPage = contactsData?.pages[0]
-  if (!firstPage || (firstPage.people.totalItems === 0 && firstPage.groups.totalItems === 0)) {
+  const peopleCount = peopleData?.pages[0]?.totalItems || 0
+  const groupsCount = groupsData?.pages[0]?.totalItems || 0
+
+  if (peopleCount === 0 && groupsCount === 0 && !isLoadingPeople && !isLoadingGroups) {
     return <EmptyState text={text.states.empty} />
   }
 
   return (
     <div className='flex flex-col py-2'>
-      {firstPage.people.totalItems > 0 && (
+      {peopleCount > 0 && (
         <ResultSection
           title={text.sections.people}
-          count={firstPage.people.totalItems}
-          displayedCount={contactsData?.pages.reduce((acc, page) => acc + (page.people?.data?.length || 0), 0)}
-          onViewAll={fetchNextPage}
+          count={peopleCount}
+          displayedCount={peopleData?.pages?.reduce((acc, page) => acc + (page?.data?.length || 0), 0) || 0}
+          onViewAll={hasNextPeople ? fetchNextPeople : undefined}
           text={text}
         >
           <div className='flex flex-col'>
-            {contactsData?.pages.map((page: ContactSearchTabResponse, i: number) => (
+            {peopleData?.pages?.map((page, i) => (
               <Fragment key={i}>
-                {page.people.data.map((contact: ConversationSearchResponse) => (
+                {page?.data?.map((contact) => (
                   <ContactItem
                     key={contact.conversationId}
                     name={contact.name}
@@ -70,18 +78,18 @@ export function ContactsTab({ keyword, onClose, text, sectionSize }: ContactsTab
         </ResultSection>
       )}
 
-      {firstPage.groups.totalItems > 0 && (
+      {groupsCount > 0 && (
         <ResultSection
           title={text.sections.groups}
-          count={firstPage.groups.totalItems}
-          displayedCount={contactsData?.pages.reduce((acc, page) => acc + (page.groups?.data?.length || 0), 0)}
-          onViewAll={fetchNextPage}
+          count={groupsCount}
+          displayedCount={groupsData?.pages?.reduce((acc, page) => acc + (page?.data?.length || 0), 0) || 0}
+          onViewAll={hasNextGroups ? fetchNextGroups : undefined}
           text={text}
         >
           <div className='flex flex-col'>
-            {contactsData?.pages.map((page: ContactSearchTabResponse, i: number) => (
+            {groupsData?.pages?.map((page, i) => (
               <Fragment key={i}>
-                {page.groups.data.map((group: ConversationSearchResponse) => (
+                {page?.data?.map((group) => (
                   <ContactItem
                     key={group.conversationId}
                     name={group.name}

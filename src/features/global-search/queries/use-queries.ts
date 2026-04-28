@@ -2,37 +2,44 @@ import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import { globalSearchOptions } from './options'
 import type { GlobalSearchRequest } from '../api/global-search.api'
 
-export const useGlobalSearchOverview = (request: GlobalSearchRequest, sectionSize = 5, enabled = true) => {
+export const useGlobalSearchContacts = (keyword: string, page = 0, size = 20, isGroup?: boolean, enabled = true) => {
   return useQuery({
-    ...globalSearchOptions.overview(request, sectionSize),
+    ...globalSearchOptions.contacts(keyword, page, size, isGroup),
+    enabled: enabled && !!keyword && keyword.length > 0
+  })
+}
+
+export const useGlobalSearchSenders = (keyword: string, enabled = true) => {
+  return useQuery({
+    ...globalSearchOptions.senders(keyword),
+    enabled: enabled && !!keyword && keyword.length > 0
+  })
+}
+
+export const useInfiniteGlobalSearchPeople = (keyword: string, size = 20, enabled = true) => {
+  return useInfiniteQuery({
+    ...globalSearchOptions.people(keyword, size),
+    enabled: enabled && !!keyword && keyword.length > 0
+  })
+}
+
+export const useInfiniteGlobalSearchGroups = (keyword: string, size = 20, enabled = true) => {
+  return useInfiniteQuery({
+    ...globalSearchOptions.groups(keyword, size),
+    enabled: enabled && !!keyword && keyword.length > 0
+  })
+}
+
+export const useInfiniteGlobalSearchMessages = (request: GlobalSearchRequest, size = 20, enabled = true) => {
+  return useInfiniteQuery({
+    ...globalSearchOptions.messages(request, size),
     enabled: enabled && !!request.keyword && request.keyword.length > 0
   })
 }
 
-export const useGlobalSearchContacts = (keyword: string, enabled = true) => {
-  return useQuery({
-    ...globalSearchOptions.contacts(keyword),
-    enabled: enabled && !!keyword && keyword.length > 0
-  })
-}
-
-export const useInfiniteGlobalSearchContactsCategorized = (keyword: string, size = 1, enabled = true) => {
+export const useInfiniteGlobalSearchFiles = (request: GlobalSearchRequest, size = 20, enabled = true) => {
   return useInfiniteQuery({
-    ...globalSearchOptions.contactsCategorized(keyword, size),
-    enabled: enabled && !!keyword && keyword.length > 0
-  })
-}
-
-export const useInfiniteGlobalSearchMessages = (keyword: string, size = 20, enabled = true) => {
-  return useInfiniteQuery({
-    ...globalSearchOptions.messages(keyword, size),
-    enabled: enabled && !!keyword && keyword.length > 0
-  })
-}
-
-export const useInfiniteGlobalSearchFiles = (keyword: string, size = 20, enabled = true) => {
-  return useInfiniteQuery({
-    ...globalSearchOptions.files(keyword, size),
-    enabled: enabled && !!keyword && keyword.length > 0
+    ...globalSearchOptions.files(request, size),
+    enabled: enabled && !!request.keyword && request.keyword.length > 0
   })
 }

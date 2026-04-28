@@ -13,6 +13,11 @@
   --brand-blue-text: #0045ad;
   --cta-link: #0068ff;
 
+  --background-activeness: #0068ff;
+  --text-disable: #8b96a7;
+  --B10: #f0f7ff;
+  --border-focused: #005ae0;
+
   --vibrant-blue: #0068ff;
   --vibrant-blue-hover: #005ae0;
 
@@ -184,6 +189,11 @@
   --brand-blue-hover: #162638;
   --brand-blue-text: #66a6ff;
   --cta-link: #66a6ff;
+
+  --background-activeness: #66a6ff;
+  --text-disable: #738296;
+  --B10: #001029;
+  --border-focused: #66a6ff;
 
   --accent-blue-border: #66a6ff;
   --accent-blue-text: #66a6ff;
@@ -428,6 +438,10 @@
   --color-information: var(--text-information);
   --color-layer-selected: var(--layer-background-selected);
   --color-text-primary: var(--text-primary);
+  --color-text-disable: var(--text-disable);
+  --color-background-activeness: var(--background-activeness);
+  --color-B10: var(--B10);
+  --color-border-focused: var(--border-focused);
   --color-layer-background: var(--layer-background);
   --color-divider-bold: var(--divider-bold);
   --color-badge-emerald-bg: var(--badge-emerald-bg);

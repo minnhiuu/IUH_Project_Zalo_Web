@@ -1,5 +1,9 @@
 import { useNavigate } from 'react-router'
-import { useGlobalSearchOverview } from '../../queries/use-queries'
+import { 
+  useGlobalSearchContacts, 
+  useInfiniteGlobalSearchMessages, 
+  useInfiniteGlobalSearchFiles 
+} from '../../queries/use-queries'
 import { MessageResultSkeleton, MessageResultCard } from '@/components/common/search/message-result-card'
 import { EmptyState } from '@/components/common/search/empty-state'
 import { ResultSection } from '../result-section'
@@ -27,9 +31,22 @@ export function AllResultsTab({
   sectionSize
 }: AllResultsTabProps) {
   const navigate = useNavigate()
-  const { data: overviewData, isLoading } = useGlobalSearchOverview({ keyword }, sectionSize)
+  
+  // Independent queries for each section
+  const { data: contactsData, isLoading: isLoadingContacts } = useGlobalSearchContacts(keyword, 0, sectionSize)
+  const { data: messagesData, isLoading: isLoadingMessages } = useInfiniteGlobalSearchMessages({ keyword }, sectionSize)
+  const { data: filesData, isLoading: isLoadingFiles } = useInfiniteGlobalSearchFiles({ keyword }, sectionSize)
 
-  if (isLoading) {
+  const isLoadingInitial = isLoadingContacts && isLoadingMessages && isLoadingFiles
+  
+  const hasResults = 
+    (contactsData?.totalItems || 0) > 0 || 
+    (messagesData?.pages?.[0]?.totalItems || 0) > 0 || 
+    (filesData?.pages?.[0]?.totalItems || 0) > 0
+
+  const allFinished = !isLoadingContacts && !isLoadingMessages && !isLoadingFiles
+
+  if (isLoadingInitial) {
     return (
       <div className='flex flex-col'>
         {Array.from({ length: 6 }).map((_, i) => (
@@ -39,11 +56,7 @@ export function AllResultsTab({
     )
   }
 
-  const hasResults =
-    overviewData &&
-    (overviewData.contacts.totalItems > 0 || overviewData.messages.totalItems > 0 || overviewData.files.totalItems > 0)
-
-  if (!hasResults) {
+  if (allFinished && !hasResults) {
     return (
       <div className='p-8'>
         <EmptyState image='/images/search_empty_state.png' text={text.states.empty} />
@@ -53,74 +66,92 @@ export function AllResultsTab({
 
   return (
     <>
-      {overviewData.contacts.totalItems > 0 && (
+      {/* Contacts Section */}
+      {(isLoadingContacts || (contactsData?.totalItems || 0) > 0) && (
         <ResultSection
           title={text.sections.contacts}
           onViewAll={onViewAllContacts}
-          count={overviewData.contacts.totalItems}
-          displayedCount={overviewData.contacts.data.length}
+          count={contactsData?.totalItems || 0}
+          displayedCount={contactsData?.data?.length || 0}
           text={text}
+          isLoading={isLoadingContacts}
         >
           <div className='flex flex-col'>
-            {overviewData.contacts.data.map((contact: ConversationSearchResponse) => (
-              <ContactItem
-                key={contact.conversationId}
-                name={contact.name}
-                displayHighlights={contact.displayHighlights}
-                avatar={contact.avatar || undefined}
-                onClick={() => {
-                  navigate(`/chat/c/${contact.conversationId}`)
-                  onClose()
-                }}
-              />
-            ))}
+            {isLoadingContacts ? (
+              Array.from({ length: 2 }).map((_, i) => <MessageResultSkeleton key={i} />)
+            ) : (
+              contactsData?.data?.map((contact: ConversationSearchResponse) => (
+                <ContactItem
+                  key={contact.conversationId}
+                  name={contact.name}
+                  displayHighlights={contact.displayHighlights}
+                  avatar={contact.avatar || undefined}
+                  onClick={() => {
+                    navigate(`/chat/c/${contact.conversationId}`)
+                    onClose()
+                  }}
+                />
+              ))
+            )}
           </div>
         </ResultSection>
       )}
 
-      {overviewData.messages.totalItems > 0 && (
+      {/* Messages Section */}
+      {(isLoadingMessages || (messagesData?.pages[0]?.totalItems || 0) > 0) && (
         <ResultSection
           title={text.sections.messages}
           onViewAll={onViewAllMessages}
-          count={overviewData.messages.totalItems}
-          displayedCount={overviewData.messages.data.length}
+          count={messagesData?.pages[0]?.totalItems || 0}
+          displayedCount={messagesData?.pages[0]?.data?.length || 0}
           text={text}
+          isLoading={isLoadingMessages}
         >
           <div className='flex flex-col'>
-            {overviewData.messages.data.map((msg) => (
-              <MessageResultCard
-                key={msg.messageId}
-                msg={msg}
-                onClick={() => {
-                  navigate(`/chat/c/${msg.conversationId}?msgId=${msg.messageId}`)
-                  onClose()
-                }}
-              />
-            ))}
+            {isLoadingMessages ? (
+              Array.from({ length: 2 }).map((_, i) => <MessageResultSkeleton key={i} />)
+            ) : (
+              messagesData?.pages[0]?.data?.map((msg) => (
+                <MessageResultCard
+                  key={msg.messageId}
+                  msg={msg}
+                  onClick={() => {
+                    navigate(`/chat/c/${msg.conversationId}?msgId=${msg.messageId}`)
+                    onClose()
+                  }}
+                />
+              ))
+            )}
           </div>
         </ResultSection>
       )}
 
-      {overviewData.files.totalItems > 0 && (
+      {/* Files Section */}
+      {(isLoadingFiles || (filesData?.pages[0]?.totalItems || 0) > 0) && (
         <ResultSection
           title={text.sections.files}
           onViewAll={onViewAllFiles}
-          count={overviewData.files.totalItems}
-          displayedCount={overviewData.files.data.length}
+          count={filesData?.pages[0]?.totalItems || 0}
+          displayedCount={filesData?.pages[0]?.data?.length || 0}
           text={text}
+          isLoading={isLoadingFiles}
         >
           <div className='flex flex-col'>
-            {overviewData.files.data.map((file) => (
-              <MessageResultCard
-                key={file.messageId}
-                variant='file'
-                msg={file}
-                onClick={() => {
-                  navigate(`/chat/c/${file.conversationId}?msgId=${file.messageId}`)
-                  onClose()
-                }}
-              />
-            ))}
+            {isLoadingFiles ? (
+              Array.from({ length: 2 }).map((_, i) => <MessageResultSkeleton key={i} />)
+            ) : (
+              filesData?.pages[0]?.data?.map((file) => (
+                <MessageResultCard
+                  key={file.messageId}
+                  variant='file'
+                  msg={file}
+                  onClick={() => {
+                    navigate(`/chat/c/${file.conversationId}?msgId=${file.messageId}`)
+                    onClose()
+                  }}
+                />
+              ))
+            )}
           </div>
         </ResultSection>
       )}

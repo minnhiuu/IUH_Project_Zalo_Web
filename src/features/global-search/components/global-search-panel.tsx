@@ -6,8 +6,11 @@ import { useDebounce } from '@/hooks/use-debounce'
 import { useGlobalSearchText } from '../i18n/use-global-search-text'
 import { AllResultsTab } from './tabs/all-results-tab'
 import { ContactsTab } from './tabs/contacts-tab'
+import { MessagesTab } from './tabs/messages-tab'
+import { FilesTab } from './tabs/files-tab'
+import { GlobalSearchProvider } from './global-search-context'
 
-const TEST_SECTION_SIZE = 1 // Change this to test pagination (e.g., 1 or 5)
+const PREVIEW_SECTION_SIZE = 3
 
 interface GlobalSearchPanelProps {
   open: boolean
@@ -106,32 +109,29 @@ export function GlobalSearchPanel({ open, onOpenChange }: GlobalSearchPanelProps
         {!searchValue ? (
           <RecentSearchSection text={text} />
         ) : (
-          <div className='flex flex-col pb-4'>
-            {activeTab === 'all' && (
-              <AllResultsTab 
-                keyword={debouncedKeyword} 
-                onViewAllContacts={() => setActiveTab('contacts')}
-                onViewAllMessages={() => setActiveTab('messages')}
-                onViewAllFiles={() => setActiveTab('files')}
-                onClose={handleClose}
-                text={text}
-                sectionSize={TEST_SECTION_SIZE}
-              />
-            )}
+          <GlobalSearchProvider keyword={debouncedKeyword} text={text} onClose={handleClose}>
+            <div className='flex flex-col pb-4'>
+              {activeTab === 'all' && (
+                <AllResultsTab
+                  keyword={debouncedKeyword}
+                  onViewAllContacts={() => setActiveTab('contacts')}
+                  onViewAllMessages={() => setActiveTab('messages')}
+                  onViewAllFiles={() => setActiveTab('files')}
+                  onClose={handleClose}
+                  text={text}
+                  sectionSize={PREVIEW_SECTION_SIZE}
+                />
+              )}
 
-            {activeTab === 'contacts' && (
-              <ContactsTab 
-                keyword={debouncedKeyword} 
-                onClose={handleClose} 
-                text={text} 
-                sectionSize={TEST_SECTION_SIZE}
-              />
-            )}
+              {activeTab === 'contacts' && (
+                <ContactsTab keyword={debouncedKeyword} onClose={handleClose} text={text} />
+              )}
 
-            {(activeTab === 'messages' || activeTab === 'files') && (
-              <div className='p-8 text-center text-text-secondary'>{text.states.developing(activeTab)}</div>
-            )}
-          </div>
+              {activeTab === 'messages' && <MessagesTab />}
+
+              {activeTab === 'files' && <FilesTab />}
+            </div>
+          </GlobalSearchProvider>
         )}
       </div>
     </div>

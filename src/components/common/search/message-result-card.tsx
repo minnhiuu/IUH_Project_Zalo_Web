@@ -1,11 +1,11 @@
 import { Skeleton } from '@/components/ui/skeleton'
 import { UserAvatar } from '@/components/common/user-avatar'
+import { GroupAvatar } from '@/components/common/group-avatar'
 import { formatMessageTime } from '@/utils/date'
 import { formatFileSize } from '@/utils/file-size'
 import { cn } from '@/lib/utils'
 import type { MessageSearchResponse } from '@/features/search/messages/schemas/message-search.schema'
 import { useChatText } from '@/features/chat/i18n/use-chat-text'
-import { useAuth } from '@/features/auth'
 import { Archive } from 'lucide-react'
 
 interface MessageResultCardProps {
@@ -16,10 +16,8 @@ interface MessageResultCardProps {
 }
 
 export function MessageResultCard({ msg, variant = 'message', isActive, onClick }: MessageResultCardProps) {
-  const { i18n, text } = useChatText()
-  const { user } = useAuth()
-  const isMe = user?.id === msg.senderId
-  const senderName = isMe ? text.you : msg.senderName || 'User'
+  const { i18n } = useChatText()
+  const senderName = msg.senderName || 'User'
 
   const containerClass = cn(
     'grid grid-cols-[auto_1fr_auto] grid-rows-[max-content_1fr] pt-[14px] px-4 min-h-[68px] max-h-[88px] gap-x-[10px] gap-y-[2px] cursor-pointer transition-[background-color] duration-75 box-border relative group',
@@ -35,29 +33,32 @@ export function MessageResultCard({ msg, variant = 'message', isActive, onClick 
       if (['DOC', 'DOCX'].includes(extension)) return { bg: 'bg-blue-600', label: 'WORD' }
       if (['XLS', 'XLSX'].includes(extension)) return { bg: 'bg-green-600', label: 'EXCEL' }
       if (['PPT', 'PPTX'].includes(extension)) return { bg: 'bg-orange-500', label: 'PPT' }
-      if (['ZIP', 'RAR', '7Z'].includes(extension)) return { bg: 'bg-purple-600', label: extension }
-      if (['M4A', 'MP3', 'WAV', 'OGG'].includes(extension)) return { bg: 'bg-indigo-600', label: 'AUDIO' }
-      if (['MP4', 'MOV', 'AVI', 'MKV'].includes(extension)) return { bg: 'bg-indigo-600', label: 'VIDEO' }
-      return { bg: 'bg-primary', label: extension || 'FILE' }
+      if (['ZIP', 'RAR', '7Z'].includes(extension)) return { bg: 'bg-purple-600', label: extension.slice(0, 3) }
+      return { bg: 'bg-primary', label: extension.slice(0, 3) || 'FILE' }
     }
 
     const { bg, label } = getFileStyle(ext)
 
     return (
       <div key={msg.messageId} onClick={onClick} className={containerClass}>
-        {/* Col 1, Span 2 Rows */}
-        <div className={cn('row-span-2 w-12 h-12 shrink-0 rounded flex items-center justify-center text-white', bg)}>
-          {['ZIP', 'RAR', '7Z'].includes(ext) ? (
-            <Archive size={20} className='text-white' />
-          ) : (
-            <span className='text-[11px] font-bold tracking-tight leading-none text-center px-0.5'>
-              {label.slice(0, 5)}
-            </span>
-          )}
+        {/* Col 1, Span 2 Rows - File Icon */}
+        <div className='row-span-2 pt-0.5'>
+          <div
+            className={cn(
+              'w-10 h-10 shrink-0 rounded-lg flex items-center justify-center text-white relative overflow-hidden',
+              bg
+            )}
+          >
+            {['ZIP', 'RAR', '7Z'].includes(ext) ? (
+              <Archive size={20} className='text-white' />
+            ) : (
+              <span className='text-[10px] font-bold tracking-tight leading-none text-center px-0.5'>{label}</span>
+            )}
+          </div>
         </div>
 
-        {/* Col 2, Row 1 */}
-        <div className='text-[12px] text-text-secondary truncate leading-tight pt-0.5'>
+        {/* Col 2, Row 1 - Filename */}
+        <div className='text-[15px] font-medium text-text-primary truncate leading-tight pt-0.5'>
           {msg.displayHighlights ? (
             <span
               className='[&_em]:text-(--text-mention) [&_em]:not-italic [&_em]:font-semibold'
@@ -68,21 +69,23 @@ export function MessageResultCard({ msg, variant = 'message', isActive, onClick 
           )}
         </div>
 
-        {/* Col 3, Row 1 */}
-        <span className='text-[11px] text-text-secondary whitespace-nowrap pt-1'>
+        {/* Col 3, Row 1 - Date */}
+        <span className='text-[12px] text-text-secondary whitespace-nowrap pt-1'>
           {msg.createdAt && formatMessageTime(msg.createdAt, i18n.language)}
         </span>
 
-        {/* Col 2, Row 2 */}
-        <div className='flex items-start gap-2 col-start-2 pb-3'>
-          <span className='text-[12px] text-text-secondary truncate'>
+        {/* Col 2, Row 2 - Metadata (Size - Sender) */}
+        <div className='flex items-start gap-1.5 col-start-2 pb-3'>
+          <span className='text-[13px] text-text-secondary truncate'>
             {msg.size ? formatFileSize(msg.size).replace(' ', '') : '0 KB'}
           </span>
+          <span className='text-[13px] text-text-secondary shrink-0'>-</span>
+          <span className='text-[13px] text-text-secondary truncate'>{senderName}</span>
         </div>
 
         {/* Divider line */}
         {!isActive && (
-          <div className='absolute bottom-0 left-[76px] right-0 h-[1px] bg-(--divider) group-last:hidden' />
+          <div className='absolute bottom-0 left-[70px] right-0 h-[1px] bg-(--divider) group-last:hidden' />
         )}
       </div>
     )
@@ -91,52 +94,49 @@ export function MessageResultCard({ msg, variant = 'message', isActive, onClick 
   return (
     <div key={msg.messageId} onClick={onClick} className={containerClass}>
       {/* Col 1, Span 2 Rows */}
-      <UserAvatar
-        name={msg.senderName || 'User'}
-        src={msg.senderAvatar || undefined}
-        className='row-span-2 w-12 h-12 shrink-0'
-      />
+      <div className='row-span-2'>
+        {msg.isGroup && !msg.conversationAvatar ? (
+          <GroupAvatar
+            avatars={msg.participantAvatars || []}
+            names={msg.participantNames || []}
+            count={msg.participantNames?.length || 0}
+            size='lg'
+          />
+        ) : (
+          <UserAvatar
+            name={msg.conversationName || senderName}
+            src={msg.conversationAvatar || msg.senderAvatar || undefined}
+            className='w-12 h-12 shrink-0'
+          />
+        )}
+      </div>
 
       {/* Col 2, Row 1 */}
-      <div className='text-[12px] text-text-secondary truncate leading-none pt-0.5'>
+      <div className='text-[15px] font-medium text-text-primary truncate leading-tight pt-0.5'>
         {msg.conversationName || senderName}
       </div>
 
       {/* Col 3, Row 1 */}
-      <span className='text-[11px] text-text-secondary whitespace-nowrap pt-0.5'>
+      <span className='text-[12px] text-text-secondary whitespace-nowrap pt-1'>
         {msg.createdAt && formatMessageTime(msg.createdAt, i18n.language)}
       </span>
 
       {/* Col 2, Row 2 */}
-      <div className='col-start-2 text-[13px] text-text-primary line-clamp-2 leading-tight break-words pr-4 pb-3'>
-        {renderMessageContent(msg, senderName)}
+      <div className='col-start-2 text-[14px] text-text-secondary truncate leading-tight pb-3'>
+        <span className='mr-1'>{senderName}:</span>
+        {msg.displayHighlights ? (
+          <span
+            className='[&_em]:text-(--text-mention) [&_em]:not-italic [&_em]:font-semibold'
+            dangerouslySetInnerHTML={{ __html: msg.displayHighlights }}
+          />
+        ) : (
+          <span>{msg.displayContent}</span>
+        )}
       </div>
 
       {/* Divider line */}
       {!isActive && <div className='absolute bottom-0 left-[76px] right-0 h-[1px] bg-(--divider) group-last:hidden' />}
     </div>
-  )
-}
-
-function renderMessageContent(msg: MessageSearchResponse, senderName: string) {
-  const senderPrefix = msg.isGroup ? `${senderName}: ` : ''
-
-  if (msg.displayHighlights) {
-    return (
-      <span>
-        {senderPrefix && <span className='text-text-primary font-normal'>{senderPrefix}</span>}
-        <span
-          className='[&_em]:text-(--text-mention) [&_em]:not-italic [&_em]:font-semibold'
-          dangerouslySetInnerHTML={{ __html: msg.displayHighlights }}
-        />
-      </span>
-    )
-  }
-  return (
-    <span>
-      {senderPrefix && <span className='text-text-primary/70 font-normal'>{senderPrefix}</span>}
-      {msg.displayContent || ''}
-    </span>
   )
 }
 
