@@ -27,7 +27,7 @@
       "clearAll": "Xóa tất cả"
     },
     "filters": {
-      "label": "Bộ lọc:",
+      "label": "Lọc:",
       "sender": "Người gửi",
       "time": "Thời gian",
       "all": "Tất cả",
@@ -40,7 +40,8 @@
       "fromDate": "Từ ngày",
       "toDate": "Đến ngày",
       "cancel": "Hủy",
-      "confirm": "Xác nhận"
+      "confirm": "Xác nhận",
+      "type": "Loại"
     },
     "states": {
       "empty": "Không tìm thấy kết quả phù hợp",

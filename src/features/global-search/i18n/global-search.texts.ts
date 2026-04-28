@@ -42,7 +42,8 @@ export const createGlobalSearchTexts = (t: TFunction<'globalSearch'>) => ({
     fromDate: t(GLOBAL_SEARCH_KEYS.filters.fromDate),
     toDate: t(GLOBAL_SEARCH_KEYS.filters.toDate),
     cancel: t(GLOBAL_SEARCH_KEYS.filters.cancel),
-    confirm: t(GLOBAL_SEARCH_KEYS.filters.confirm)
+    confirm: t(GLOBAL_SEARCH_KEYS.filters.confirm),
+    type: t(GLOBAL_SEARCH_KEYS.filters.type)
   },
   states: {
     empty: t(GLOBAL_SEARCH_KEYS.states.empty),

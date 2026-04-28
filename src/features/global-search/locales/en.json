@@ -40,7 +40,8 @@
       "fromDate": "From date",
       "toDate": "To date",
       "cancel": "Cancel",
-      "confirm": "Confirm"
+      "confirm": "Confirm",
+      "type": "Type"
     },
     "states": {
       "empty": "No results found",

@@ -11,6 +11,7 @@ export interface GlobalSearchRequest {
   senderId?: string
   from?: number
   to?: number
+  fileType?: string
 }
 
 export const globalSearchApi = {

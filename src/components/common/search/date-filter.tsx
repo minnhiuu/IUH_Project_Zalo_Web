@@ -90,13 +90,15 @@ export function DateFilter({ fromDate, toDate, setFromDate, setToDate, text }: D
     >
       <Popover open={open} onOpenChange={handleOpenChange}>
         <PopoverTrigger asChild>
-          <button className='flex-1 flex items-center justify-center gap-1.5 px-2 min-w-0 h-full border-none bg-transparent cursor-pointer outline-none'>
-            <CalendarIcon className={cn('w-3.5 h-3.5 shrink-0', fromDate || toDate ? 'text-current' : 'opacity-60')} />
-            <span className='truncate min-w-0 text-center'>
-              {fromDate || toDate
-                ? `${fromDate ? (isToday(fromDate) ? 'Today' : format(fromDate, 'dd/MM')) : '...'} - ${toDate ? (isToday(toDate) ? 'Today' : format(toDate, 'dd/MM')) : '...'}`
-                : text.filterDate}
-            </span>
+          <button className='flex-1 flex items-center justify-between gap-1.5 px-2 min-w-0 h-full border-none bg-transparent cursor-pointer outline-none'>
+            <div className='flex items-center gap-1.5 min-w-0'>
+              <CalendarIcon className={cn('w-3.5 h-3.5 shrink-0', fromDate || toDate ? 'text-current' : 'opacity-60')} />
+              <span className='truncate min-w-0'>
+                {fromDate || toDate
+                  ? `${fromDate ? (isToday(fromDate) ? 'Today' : format(fromDate, 'dd/MM')) : '...'} - ${toDate ? (isToday(toDate) ? 'Today' : format(toDate, 'dd/MM')) : '...'}`
+                  : text.filterDate}
+              </span>
+            </div>
             {!fromDate && !toDate && <ChevronDown className='w-3.5 h-3.5 opacity-60 shrink-0' />}
           </button>
         </PopoverTrigger>

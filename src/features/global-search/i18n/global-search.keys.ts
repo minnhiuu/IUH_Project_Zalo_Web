@@ -39,7 +39,8 @@ export const GLOBAL_SEARCH_KEYS = {
     fromDate: 'globalSearch.filters.fromDate',
     toDate: 'globalSearch.filters.toDate',
     cancel: 'globalSearch.filters.cancel',
-    confirm: 'globalSearch.filters.confirm'
+    confirm: 'globalSearch.filters.confirm',
+    type: 'globalSearch.filters.type'
   },
   states: {
     empty: 'globalSearch.states.empty',

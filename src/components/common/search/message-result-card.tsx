@@ -6,7 +6,7 @@ import { formatFileSize } from '@/utils/file-size'
 import { cn } from '@/lib/utils'
 import type { MessageSearchResponse } from '@/features/search/messages/schemas/message-search.schema'
 import { useChatText } from '@/features/chat/i18n/use-chat-text'
-import { Archive } from 'lucide-react'
+import { Archive, Image } from 'lucide-react'
 
 interface MessageResultCardProps {
   msg: MessageSearchResponse
@@ -29,15 +29,16 @@ export function MessageResultCard({ msg, variant = 'message', isActive, onClick 
     const ext = fileName.split('.').pop()?.toUpperCase() || ''
 
     const getFileStyle = (extension: string) => {
-      if (['PDF'].includes(extension)) return { bg: 'bg-red-500', label: 'PDF' }
-      if (['DOC', 'DOCX'].includes(extension)) return { bg: 'bg-blue-600', label: 'WORD' }
-      if (['XLS', 'XLSX'].includes(extension)) return { bg: 'bg-green-600', label: 'EXCEL' }
-      if (['PPT', 'PPTX'].includes(extension)) return { bg: 'bg-orange-500', label: 'PPT' }
-      if (['ZIP', 'RAR', '7Z'].includes(extension)) return { bg: 'bg-purple-600', label: extension.slice(0, 3) }
-      return { bg: 'bg-primary', label: extension.slice(0, 3) || 'FILE' }
+      if (['PDF'].includes(extension)) return { bg: 'bg-red-500', label: 'PDF', isImg: false }
+      if (['DOC', 'DOCX'].includes(extension)) return { bg: 'bg-blue-600', label: 'WORD', isImg: false }
+      if (['XLS', 'XLSX'].includes(extension)) return { bg: 'bg-green-600', label: 'EXCEL', isImg: false }
+      if (['PPT', 'PPTX'].includes(extension)) return { bg: 'bg-orange-500', label: 'PPT', isImg: false }
+      if (['ZIP', 'RAR', '7Z'].includes(extension)) return { bg: 'bg-purple-600', label: extension.slice(0, 3), isImg: false }
+      if (['JPG', 'JPEG', 'PNG', 'GIF', 'WEBP'].includes(extension)) return { bg: 'bg-teal-500', label: 'IMG', isImg: true }
+      return { bg: 'bg-primary', label: extension.slice(0, 3) || 'FILE', isImg: false }
     }
 
-    const { bg, label } = getFileStyle(ext)
+    const { bg, label, isImg } = getFileStyle(ext)
 
     return (
       <div key={msg.messageId} onClick={onClick} className={containerClass}>
@@ -51,6 +52,8 @@ export function MessageResultCard({ msg, variant = 'message', isActive, onClick 
           >
             {['ZIP', 'RAR', '7Z'].includes(ext) ? (
               <Archive size={20} className='text-white' />
+            ) : isImg ? (
+              <Image size={22} className='text-white' />
             ) : (
               <span className='text-[10px] font-bold tracking-tight leading-none text-center px-0.5'>{label}</span>
             )}
