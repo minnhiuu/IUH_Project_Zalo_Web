@@ -84,10 +84,12 @@ export function ChatLayout({
   const defaultChatId = cachedConvForPartner?.id || resolvedConversation?.id || null
   const selectedChatId = userSelectedChatId || defaultConversationId || defaultChatId
 
-  useEffect(() => {
-    if (!defaultConversationId) return
-    setUserSelectedChatId((current) => (current === defaultConversationId ? current : defaultConversationId))
-  }, [defaultConversationId])
+  // Sync userSelectedChatId when defaultConversationId changes (e.g. navigation)
+  const [prevDefaultId, setPrevDefaultId] = useState<string | null>(null)
+  if (defaultConversationId && defaultConversationId !== prevDefaultId) {
+    setPrevDefaultId(defaultConversationId)
+    setUserSelectedChatId(defaultConversationId)
+  }
 
   const selectedChat = useMemo(() => {
     if (!selectedChatId) return null

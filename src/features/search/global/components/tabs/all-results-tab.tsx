@@ -21,7 +21,7 @@ interface AllResultsTabProps {
   onViewAllContacts: () => void
   onViewAllMessages: () => void
   onViewAllFiles: () => void
-  text: SearchTexts['global']
+  text: SearchTexts['globalSearch']
   sectionSize: number
 }
 

@@ -25,7 +25,7 @@ type TabType = 'all' | 'contacts' | 'messages' | 'files'
 
 export function GlobalSearchPanel({ open, onOpenChange }: GlobalSearchPanelProps) {
   const { text: searchText } = useSearchText()
-  const text = searchText.global
+  const text = searchText.globalSearch
   const [searchValue, setSearchValue] = useState('')
   const [activeTab, setActiveTab] = useState<TabType>('all')
   const inputRef = useRef<HTMLInputElement>(null)
@@ -101,23 +101,25 @@ export function GlobalSearchPanel({ open, onOpenChange }: GlobalSearchPanelProps
         </button>
       </div>
 
-      {/* Tabs Navigation */}
-      <div className='flex border-b border-border px-4 shrink-0'>
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={cn(
-              'px-3 py-2 text-[14px] font-medium border-b-2 transition-all relative',
-              activeTab === tab.id
-                ? 'text-primary border-primary'
-                : 'text-text-secondary border-transparent hover:text-text-primary'
-            )}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      {/* Tabs Navigation - Only show when searching */}
+      {searchValue && (
+        <div className='flex border-b border-border px-4 shrink-0'>
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={cn(
+                'px-3 py-2 text-[14px] font-medium border-b-2 transition-all relative',
+                activeTab === tab.id
+                  ? 'text-primary border-primary'
+                  : 'text-text-secondary border-transparent hover:text-text-primary'
+              )}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Main Content Area */}
       <div className='flex-1 overflow-y-auto custom-scrollbar bg-background'>

@@ -30,7 +30,7 @@ export function MessageResultCard({
   showSenderOnly = false
 }: MessageResultCardProps) {
   const { text: searchText, i18n } = useSearchText()
-  const text = searchText.global.resultCard
+  const text = searchText.globalSearch.resultCard
   const senderName = msg.senderName || 'User'
   const [fetchDetails, setFetchDetails] = useState(false)
   const [forwardOpen, setForwardOpen] = useState(false)

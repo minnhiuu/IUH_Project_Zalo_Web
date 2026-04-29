@@ -255,7 +255,7 @@ export default function QRLoginForm({ onSwitchToPassword }: QRLoginFormProps) {
                             size={192}
                             level='H'
                             imageSettings={{
-                              src: '/images/logo.png',
+                              src: '/images/logo.svg',
                               height: 40,
                               width: 40,
                               excavate: true

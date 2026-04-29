@@ -3,7 +3,7 @@ import { SEARCH_KEYS } from './search.keys'
 import { createSearchTexts } from './search.texts'
 
 export const useSearchText = () => {
-  const { t } = useTranslation('search')
+  const { t } = useTranslation('globalSearch')
 
   return {
     t,

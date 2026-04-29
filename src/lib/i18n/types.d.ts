@@ -20,7 +20,7 @@ declare module 'i18next' {
       auth: typeof auth
       user: typeof user
       chat: typeof chat
-      search: typeof search
+      globalSearch: typeof search
       'admin-elasticsearch': typeof adminEs
       admin: typeof admin
       notification: typeof notification

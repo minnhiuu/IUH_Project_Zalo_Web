@@ -12,7 +12,7 @@ import { generateKeywordId } from '../../../utils/search-id'
 
 interface ContactsTabProps {
   keyword: string
-  text: SearchTexts['global']
+  text: SearchTexts['globalSearch']
 }
 
 export function ContactsTab({ keyword, text }: ContactsTabProps) {

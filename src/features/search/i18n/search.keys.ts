@@ -23,65 +23,65 @@ export const SEARCH_KEYS = {
     file: 'tabs.file',
     files: 'tabs.files'
   },
-  global: {
-    title: 'global.title',
-    placeholder: 'global.placeholder',
-    close: 'global.close',
+  globalSearch: {
+    title: 'globalSearch.title',
+    placeholder: 'globalSearch.placeholder',
+    close: 'globalSearch.close',
     tabs: {
-      all: 'global.tabs.all',
-      contacts: 'global.tabs.contacts',
-      messages: 'global.tabs.messages',
-      files: 'global.tabs.files'
+      all: 'globalSearch.tabs.all',
+      contacts: 'globalSearch.tabs.contacts',
+      messages: 'globalSearch.tabs.messages',
+      files: 'globalSearch.tabs.files'
     },
     sections: {
-      contacts: 'global.sections.contacts',
-      messages: 'global.sections.messages',
-      files: 'global.sections.files',
-      recent: 'global.sections.recent',
-      people: 'global.sections.people',
-      groups: 'global.sections.groups'
+      contacts: 'globalSearch.sections.contacts',
+      messages: 'globalSearch.sections.messages',
+      files: 'globalSearch.sections.files',
+      recent: 'globalSearch.sections.recent',
+      people: 'globalSearch.sections.people',
+      groups: 'globalSearch.sections.groups'
     },
     actions: {
-      viewAll: 'global.actions.viewAll',
-      viewAllMessages: 'global.actions.viewAllMessages',
-      viewAllFiles: 'global.actions.viewAllFiles',
-      viewAllContacts: 'global.actions.viewAllContacts',
-      viewAllPeople: 'global.actions.viewAllPeople',
-      viewAllGroups: 'global.actions.viewAllGroups',
-      clearAll: 'global.actions.clearAll'
+      viewAll: 'globalSearch.actions.viewAll',
+      viewAllMessages: 'globalSearch.actions.viewAllMessages',
+      viewAllFiles: 'globalSearch.actions.viewAllFiles',
+      viewAllContacts: 'globalSearch.actions.viewAllContacts',
+      viewAllPeople: 'globalSearch.actions.viewAllPeople',
+      viewAllGroups: 'globalSearch.actions.viewAllGroups',
+      clearAll: 'globalSearch.actions.clearAll'
     },
     filters: {
-      label: 'global.filters.label',
-      sender: 'global.filters.sender',
-      time: 'global.filters.time',
-      all: 'global.filters.all',
-      you: 'global.filters.you',
-      timeSuggestion: 'global.filters.timeSuggestion',
-      last7Days: 'global.filters.last7Days',
-      last30Days: 'global.filters.last30Days',
-      last3Months: 'global.filters.last3Months',
-      chooseTimeRange: 'global.filters.chooseTimeRange',
-      fromDate: 'global.filters.fromDate',
-      toDate: 'global.filters.toDate',
-      cancel: 'global.filters.cancel',
-      confirm: 'global.filters.confirm',
-      type: 'global.filters.type'
+      label: 'globalSearch.filters.label',
+      sender: 'globalSearch.filters.sender',
+      time: 'globalSearch.filters.time',
+      all: 'globalSearch.filters.all',
+      you: 'globalSearch.filters.you',
+      timeSuggestion: 'globalSearch.filters.timeSuggestion',
+      last7Days: 'globalSearch.filters.last7Days',
+      last30Days: 'globalSearch.filters.last30Days',
+      last3Months: 'globalSearch.filters.last3Months',
+      chooseTimeRange: 'globalSearch.filters.chooseTimeRange',
+      fromDate: 'globalSearch.filters.fromDate',
+      toDate: 'globalSearch.filters.toDate',
+      cancel: 'globalSearch.filters.cancel',
+      confirm: 'globalSearch.filters.confirm',
+      type: 'globalSearch.filters.type'
     },
     states: {
-      empty: 'global.states.empty',
-      noRecent: 'global.states.noRecent',
-      loading: 'global.states.loading',
-      developing: 'global.states.developing'
+      empty: 'globalSearch.states.empty',
+      noRecent: 'globalSearch.states.noRecent',
+      loading: 'globalSearch.states.loading',
+      developing: 'globalSearch.states.developing'
     },
     contactTypes: {
-      friend: 'global.contactTypes.friend',
-      members: 'global.contactTypes.members'
+      friend: 'globalSearch.contactTypes.friend',
+      members: 'globalSearch.contactTypes.members'
     },
     resultCard: {
-      forward: 'global.resultCard.forward',
-      jump: 'global.resultCard.jump',
-      preview: 'global.resultCard.preview',
-      download: 'global.resultCard.download'
+      forward: 'globalSearch.resultCard.forward',
+      jump: 'globalSearch.resultCard.jump',
+      preview: 'globalSearch.resultCard.preview',
+      download: 'globalSearch.resultCard.download'
     }
   }
 } as const

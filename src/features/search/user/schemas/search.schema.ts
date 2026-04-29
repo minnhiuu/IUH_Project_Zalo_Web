@@ -3,11 +3,11 @@ import { SearchType } from '@/constants/enum'
 import i18n from '@/lib/i18n'
 
 export const recentSearchRequestSchema = z.object({
-  id: z.string().min(1, i18n.t('search:validation.idRequired')),
-  name: z.string().min(1, i18n.t('search:validation.nameRequired')),
+  id: z.string().min(1, i18n.t('globalSearch:validation.idRequired')),
+  name: z.string().min(1, i18n.t('globalSearch:validation.nameRequired')),
   avatar: z.string().optional(),
   type: z.enum([SearchType.User, SearchType.Group, SearchType.Keyword], {
-    message: i18n.t('search:validation.typeInvalid')
+    message: i18n.t('globalSearch:validation.typeInvalid')
   })
 })
 

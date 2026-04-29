@@ -1,7 +1,7 @@
 import type { TFunction } from 'i18next'
 import { SEARCH_KEYS } from './search.keys'
 
-export const createSearchTexts = (t: TFunction<'search'>) => ({
+export const createSearchTexts = (t: TFunction<'globalSearch'>) => ({
   placeholder: t(SEARCH_KEYS.placeholder),
   close: t(SEARCH_KEYS.close),
   recentHeader: t(SEARCH_KEYS.recentHeader),

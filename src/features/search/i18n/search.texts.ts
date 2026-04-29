@@ -1,7 +1,7 @@
 import type { TFunction } from 'i18next'
 import { SEARCH_KEYS } from './search.keys'
 
-export const createSearchTexts = (t: TFunction<'search'>) => ({
+export const createSearchTexts = (t: TFunction<'globalSearch'>) => ({
   placeholder: t(SEARCH_KEYS.placeholder),
   close: t(SEARCH_KEYS.close),
   recentHeader: t(SEARCH_KEYS.recentHeader),
@@ -26,65 +26,65 @@ export const createSearchTexts = (t: TFunction<'search'>) => ({
     file: t(SEARCH_KEYS.tabs.file),
     files: t(SEARCH_KEYS.tabs.files)
   },
-  global: {
-    title: t(SEARCH_KEYS.global.title),
-    placeholder: t(SEARCH_KEYS.global.placeholder),
-    close: t(SEARCH_KEYS.global.close),
+  globalSearch: {
+    title: t(SEARCH_KEYS.globalSearch.title),
+    placeholder: t(SEARCH_KEYS.globalSearch.placeholder),
+    close: t(SEARCH_KEYS.globalSearch.close),
     tabs: {
-      all: t(SEARCH_KEYS.global.tabs.all),
-      contacts: t(SEARCH_KEYS.global.tabs.contacts),
-      messages: t(SEARCH_KEYS.global.tabs.messages),
-      files: t(SEARCH_KEYS.global.tabs.files)
+      all: t(SEARCH_KEYS.globalSearch.tabs.all),
+      contacts: t(SEARCH_KEYS.globalSearch.tabs.contacts),
+      messages: t(SEARCH_KEYS.globalSearch.tabs.messages),
+      files: t(SEARCH_KEYS.globalSearch.tabs.files)
     },
     sections: {
-      contacts: t(SEARCH_KEYS.global.sections.contacts),
-      messages: t(SEARCH_KEYS.global.sections.messages),
-      files: t(SEARCH_KEYS.global.sections.files),
-      recent: t(SEARCH_KEYS.global.sections.recent),
-      people: t(SEARCH_KEYS.global.sections.people),
-      groups: t(SEARCH_KEYS.global.sections.groups)
+      contacts: t(SEARCH_KEYS.globalSearch.sections.contacts),
+      messages: t(SEARCH_KEYS.globalSearch.sections.messages),
+      files: t(SEARCH_KEYS.globalSearch.sections.files),
+      recent: t(SEARCH_KEYS.globalSearch.sections.recent),
+      people: t(SEARCH_KEYS.globalSearch.sections.people),
+      groups: t(SEARCH_KEYS.globalSearch.sections.groups)
     },
     actions: {
-      viewAll: t(SEARCH_KEYS.global.actions.viewAll),
-      viewAllMessages: t(SEARCH_KEYS.global.actions.viewAllMessages),
-      viewAllFiles: t(SEARCH_KEYS.global.actions.viewAllFiles),
-      viewAllContacts: t(SEARCH_KEYS.global.actions.viewAllContacts),
-      viewAllPeople: t(SEARCH_KEYS.global.actions.viewAllPeople),
-      viewAllGroups: t(SEARCH_KEYS.global.actions.viewAllGroups),
-      clearAll: t(SEARCH_KEYS.global.actions.clearAll)
+      viewAll: t(SEARCH_KEYS.globalSearch.actions.viewAll),
+      viewAllMessages: t(SEARCH_KEYS.globalSearch.actions.viewAllMessages),
+      viewAllFiles: t(SEARCH_KEYS.globalSearch.actions.viewAllFiles),
+      viewAllContacts: t(SEARCH_KEYS.globalSearch.actions.viewAllContacts),
+      viewAllPeople: t(SEARCH_KEYS.globalSearch.actions.viewAllPeople),
+      viewAllGroups: t(SEARCH_KEYS.globalSearch.actions.viewAllGroups),
+      clearAll: t(SEARCH_KEYS.globalSearch.actions.clearAll)
     },
     filters: {
-      label: t(SEARCH_KEYS.global.filters.label),
-      sender: t(SEARCH_KEYS.global.filters.sender),
-      time: t(SEARCH_KEYS.global.filters.time),
-      all: t(SEARCH_KEYS.global.filters.all),
-      you: t(SEARCH_KEYS.global.filters.you),
-      timeSuggestion: t(SEARCH_KEYS.global.filters.timeSuggestion),
-      last7Days: t(SEARCH_KEYS.global.filters.last7Days),
-      last30Days: t(SEARCH_KEYS.global.filters.last30Days),
-      last3Months: t(SEARCH_KEYS.global.filters.last3Months),
-      chooseTimeRange: t(SEARCH_KEYS.global.filters.chooseTimeRange),
-      fromDate: t(SEARCH_KEYS.global.filters.fromDate),
-      toDate: t(SEARCH_KEYS.global.filters.toDate),
-      cancel: t(SEARCH_KEYS.global.filters.cancel),
-      confirm: t(SEARCH_KEYS.global.filters.confirm),
-      type: t(SEARCH_KEYS.global.filters.type)
+      label: t(SEARCH_KEYS.globalSearch.filters.label),
+      sender: t(SEARCH_KEYS.globalSearch.filters.sender),
+      time: t(SEARCH_KEYS.globalSearch.filters.time),
+      all: t(SEARCH_KEYS.globalSearch.filters.all),
+      you: t(SEARCH_KEYS.globalSearch.filters.you),
+      timeSuggestion: t(SEARCH_KEYS.globalSearch.filters.timeSuggestion),
+      last7Days: t(SEARCH_KEYS.globalSearch.filters.last7Days),
+      last30Days: t(SEARCH_KEYS.globalSearch.filters.last30Days),
+      last3Months: t(SEARCH_KEYS.globalSearch.filters.last3Months),
+      chooseTimeRange: t(SEARCH_KEYS.globalSearch.filters.chooseTimeRange),
+      fromDate: t(SEARCH_KEYS.globalSearch.filters.fromDate),
+      toDate: t(SEARCH_KEYS.globalSearch.filters.toDate),
+      cancel: t(SEARCH_KEYS.globalSearch.filters.cancel),
+      confirm: t(SEARCH_KEYS.globalSearch.filters.confirm),
+      type: t(SEARCH_KEYS.globalSearch.filters.type)
     },
     states: {
-      empty: t(SEARCH_KEYS.global.states.empty),
-      noRecent: t(SEARCH_KEYS.global.states.noRecent),
-      loading: t(SEARCH_KEYS.global.states.loading),
-      developing: (tab: string) => t(SEARCH_KEYS.global.states.developing, { tab })
+      empty: t(SEARCH_KEYS.globalSearch.states.empty),
+      noRecent: t(SEARCH_KEYS.globalSearch.states.noRecent),
+      loading: t(SEARCH_KEYS.globalSearch.states.loading),
+      developing: (tab: string) => t(SEARCH_KEYS.globalSearch.states.developing, { tab })
     },
     contactTypes: {
-      friend: t(SEARCH_KEYS.global.contactTypes.friend),
-      members: (count: number) => t(SEARCH_KEYS.global.contactTypes.members, { count })
+      friend: t(SEARCH_KEYS.globalSearch.contactTypes.friend),
+      members: (count: number) => t(SEARCH_KEYS.globalSearch.contactTypes.members, { count })
     },
     resultCard: {
-      forward: t(SEARCH_KEYS.global.resultCard.forward),
-      jump: t(SEARCH_KEYS.global.resultCard.jump),
-      preview: t(SEARCH_KEYS.global.resultCard.preview),
-      download: t(SEARCH_KEYS.global.resultCard.download)
+      forward: t(SEARCH_KEYS.globalSearch.resultCard.forward),
+      jump: t(SEARCH_KEYS.globalSearch.resultCard.jump),
+      preview: t(SEARCH_KEYS.globalSearch.resultCard.preview),
+      download: t(SEARCH_KEYS.globalSearch.resultCard.download)
     }
   }
 })

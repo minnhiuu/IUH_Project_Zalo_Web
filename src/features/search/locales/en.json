@@ -28,7 +28,7 @@
     "file": "File",
     "files": "Files"
   },
-  "global": {
+  "globalSearch": {
     "title": "Search",
     "placeholder": "Search",
     "close": "Close",

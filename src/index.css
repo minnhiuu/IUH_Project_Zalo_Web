@@ -716,6 +716,16 @@ input[type='radio']:checked {
     background-color: var(--button-tertiary-primary-hover);
   }
 
+  .z--btn--v2.btn-outline-tertiary-primary {
+    background-color: var(--button-tertiary-primary-normal);
+    color: var(--button-tertiary-primary-text);
+    border: 1px solid var(--button-tertiary-primary-text);
+  }
+
+  .z--btn--v2.btn-outline-tertiary-primary:hover:not(:disabled) {
+    background-color: var(--button-tertiary-primary-hover);
+  }
+
   .z--btn--icon-content {
     font-size: 1.25rem;
     width: 1.25rem;

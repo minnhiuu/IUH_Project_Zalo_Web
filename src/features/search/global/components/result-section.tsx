@@ -8,7 +8,7 @@ interface ResultSectionProps {
   onViewAll?: () => void
   count?: number
   displayedCount?: number
-  text: SearchTexts['global']
+  text: SearchTexts['globalSearch']
   isLoading?: boolean
 }
 

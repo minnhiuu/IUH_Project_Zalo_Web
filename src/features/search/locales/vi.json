@@ -28,7 +28,7 @@
     "file": "File",
     "files": "File"
   },
-  "global": {
+  "globalSearch": {
     "title": "Tìm kiếm",
     "placeholder": "Tìm kiếm",
     "close": "Đóng",
