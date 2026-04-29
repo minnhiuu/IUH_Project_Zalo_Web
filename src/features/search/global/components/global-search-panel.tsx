@@ -12,6 +12,7 @@ import { GlobalSearchProvider } from './global-search-context'
 import { RecentSearchList } from '../../recent/components/recent-search-list'
 import { SearchType } from '@/constants/enum'
 import { useAddSearchItem } from '../../recent/queries/use-recent-queries'
+import { generateKeywordId } from '../../utils/search-id'
 
 const PREVIEW_SECTION_SIZE = 3
 
@@ -58,10 +59,9 @@ export function GlobalSearchPanel({ open, onOpenChange }: GlobalSearchPanelProps
   return (
     <div
       className={cn(
-        'fixed inset-y-0 z-50 w-[344px] bg-background border-r border-border flex flex-col shadow-xl',
+        'w-full bg-background flex flex-col h-full',
         !open && 'hidden'
       )}
-      style={{ left: '64px' }}
     >
       {/* Search Header */}
       <div className='flex items-center gap-2 px-4 py-3 shrink-0'>
@@ -73,9 +73,10 @@ export function GlobalSearchPanel({ open, onOpenChange }: GlobalSearchPanelProps
             onChange={(e) => setSearchValue(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && searchValue.trim() !== '') {
+                const keyword = searchValue.trim()
                 addSearchItem({
-                  id: `k-${Date.now()}`,
-                  name: searchValue.trim(),
+                  id: generateKeywordId(keyword),
+                  name: keyword,
                   type: SearchType.Keyword
                 })
               }
@@ -86,9 +87,9 @@ export function GlobalSearchPanel({ open, onOpenChange }: GlobalSearchPanelProps
           {searchValue && (
             <button
               onClick={() => setSearchValue('')}
-              className='absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded-full text-text-secondary'
+              className='absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded-full text-text-secondary/50 hover:text-text-primary transition-all'
             >
-              <X className='w-3.5 h-3.5' />
+              <X className='w-4 h-4' />
             </button>
           )}
         </div>

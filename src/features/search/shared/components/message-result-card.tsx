@@ -7,17 +7,12 @@ import { cn } from '@/lib/utils'
 import type { MessageSearchResponse } from '@/features/search/messages/schemas/message-search.schema'
 import { Archive, Image, Search, Download, Forward, MoreHorizontal } from 'lucide-react'
 import { useState } from 'react'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useMessageQuery } from '@/features/chat/queries/use-queries'
 import { ForwardDialog } from '@/features/chat/components/forward-dialog'
 import { useSendMessageMutation } from '@/features/chat/queries/use-mutations'
-import { useChatText } from '@/features/chat/i18n/use-chat-text'
 import { FilePreviewModal } from '@/features/chat/components/message-file-content'
+import { useSearchText } from '../hooks/use-search-text'
 
 interface MessageResultCardProps {
   msg: MessageSearchResponse
@@ -34,7 +29,8 @@ export function MessageResultCard({
   onClick,
   showSenderOnly = false
 }: MessageResultCardProps) {
-  const { i18n } = useChatText()
+  const { text: searchText, i18n } = useSearchText()
+  const text = searchText.global.resultCard
   const senderName = msg.senderName || 'User'
   const [fetchDetails, setFetchDetails] = useState(false)
   const [forwardOpen, setForwardOpen] = useState(false)
@@ -144,8 +140,8 @@ export function MessageResultCard({
           onClick={(e) => e.stopPropagation()}
         >
           <button
-            className='p-1.5 hover:bg-muted rounded-md transition-colors text-text-secondary hover:text-primary'
-            title='Preview'
+            className='p-1.5 hover:bg-muted rounded-md transition-colors text-text-secondary cursor-pointer'
+            title={text.preview}
             onClick={() => {
               setFetchDetails(true)
               setPreviewOpen(true)
@@ -154,8 +150,8 @@ export function MessageResultCard({
             <Search size={16} />
           </button>
           <button
-            className='p-1.5 hover:bg-muted rounded-md transition-colors text-text-secondary hover:text-primary'
-            title='Download'
+            className='p-1.5 hover:bg-muted rounded-md transition-colors text-text-secondary cursor-pointer'
+            title={text.download}
             onClick={() => {
               setFetchDetails(true)
               if (fullMsg?.attachments?.[0]?.url) {
@@ -169,8 +165,8 @@ export function MessageResultCard({
             <Download size={16} />
           </button>
           <button
-            className='p-1.5 hover:bg-muted rounded-md transition-colors text-text-secondary hover:text-primary'
-            title='Forward'
+            className='p-1.5 hover:bg-muted rounded-md transition-colors text-text-secondary cursor-pointer'
+            title={text.forward}
             onClick={() => {
               setFetchDetails(true)
               setForwardOpen(true)
@@ -181,7 +177,7 @@ export function MessageResultCard({
 
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
-              <button className='p-1.5 hover:bg-muted rounded-md transition-colors text-text-secondary hover:text-primary outline-none'>
+              <button className='p-1.5 hover:bg-muted rounded-md transition-colors text-text-secondary outline-none cursor-pointer'>
                 <MoreHorizontal size={16} />
               </button>
             </DropdownMenuTrigger>
@@ -192,11 +188,9 @@ export function MessageResultCard({
                   setForwardOpen(true)
                 }}
               >
-                Chuyển tiếp
+                {text.forward}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={onClick}>
-                Xem chi tiết
-              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onClick}>{text.jump}</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

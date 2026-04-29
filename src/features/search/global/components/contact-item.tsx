@@ -10,7 +10,6 @@ interface ContactItemProps {
   participantNames?: string[] | null
   participantAvatars?: (string | null)[] | null
   onClick?: () => void
-  isActive?: boolean
 }
 
 export function ContactItem({
@@ -20,18 +19,16 @@ export function ContactItem({
   isGroup,
   participantNames,
   participantAvatars,
-  onClick,
-  isActive
+  onClick
 }: ContactItemProps) {
   return (
     <div
       onClick={onClick}
       className={cn(
         'flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors group relative',
-        isActive ? 'bg-(--layer-background-selected)' : 'hover:bg-muted/40'
+        'hover:bg-muted/40'
       )}
     >
-      {isActive && <div className='absolute left-0 top-0 bottom-0 w-1 bg-primary' />}
       {isGroup && !avatar ? (
         <GroupAvatar
           avatars={participantAvatars || []}

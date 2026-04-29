@@ -9,10 +9,14 @@ import { SenderFilter, type SearchParticipant, type SenderFilterText } from '@/f
 import { DateFilter, type DateFilterText } from '@/features/search'
 import { useGlobalSearchContext } from '../global-search-context'
 import type { GlobalSearchRequest } from '../../api/global-search.api'
+import { useAddSearchItem } from '../../../recent/queries/use-recent-queries'
+import { SearchType } from '@/constants/enum'
+import { generateKeywordId } from '../../../utils/search-id'
 
 export const MessagesTab = () => {
   const navigate = useNavigate()
   const { keyword, text, activeItemId, setActiveItemId } = useGlobalSearchContext()
+  const { mutate: addSearchItem } = useAddSearchItem()
   const { ref, inView } = useInView()
 
   // Filter states
@@ -123,8 +127,25 @@ export const MessagesTab = () => {
                   msg={msg}
                   isActive={activeItemId === msg.messageId}
                   onClick={() => {
+                    if (keyword.trim()) {
+                      addSearchItem({
+                        id: generateKeywordId(keyword),
+                        name: keyword.trim(),
+                        type: SearchType.Keyword
+                      })
+                    }
                     setActiveItemId(msg.messageId)
-                    navigate(`/chat/c/${msg.conversationId}?msgId=${msg.messageId}&keyword=${encodeURIComponent(keyword)}&showInfo=true`)
+                    addSearchItem({
+                      id: msg.conversationId,
+                      name: msg.conversationName || 'Conversation',
+                      avatar: msg.conversationAvatar || undefined,
+                      type: msg.isGroup ? SearchType.Group : SearchType.User
+                    })
+                    navigate(
+                      `/chat/c/${msg.conversationId}?msgId=${msg.messageId}&keyword=${encodeURIComponent(
+                        keyword
+                      )}&showInfo=true`
+                    )
                   }}
                 />
               ))}

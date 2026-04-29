@@ -81,6 +81,12 @@
     "contactTypes": {
       "friend": "Friend",
       "members": "{{count}} members"
+    },
+    "resultCard": {
+      "forward": "Forward",
+      "jump": "Jump to message",
+      "preview": "Preview",
+      "download": "Download"
     }
   }
 }

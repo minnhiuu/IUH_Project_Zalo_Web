@@ -53,11 +53,11 @@ export function RecentSearchList({
             key={item.id}
             className='flex items-center gap-3 px-3 py-2 hover:bg-muted/50 cursor-pointer transition-colors rounded-lg mx-2 my-0.5 group relative'
             onClick={() => {
+              addSearchItem({ id: item.id, name: item.name, avatar: item.avatar, type: item.type })
               if (item.type === SearchType.User || item.type === SearchType.Group) {
                 onSelectUser({ id: item.id, fullName: item.name, avatar: item.avatar })
               } else {
                 onSelectKeyword(item.name)
-                addSearchItem({ id: item.id, name: item.name, type: SearchType.Keyword })
               }
             }}
           >
@@ -78,9 +78,9 @@ export function RecentSearchList({
                 e.stopPropagation()
                 removeItem({ id: item.id, type: item.type })
               }}
-              className='w-8 h-8 opacity-0 group-hover:opacity-100 transition-opacity'
+              className='w-7 h-7 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded-full text-text-secondary/60 hover:text-text-primary'
             >
-              <X className='w-4 h-4 bg-icon-x-bg text-muted-foreground dark:text-brand-blue-dark rounded-full p-0.5' />
+              <X className='w-full h-full' />
             </Button>
           </div>
         ))}

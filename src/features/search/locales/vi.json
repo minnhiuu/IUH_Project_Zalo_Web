@@ -81,6 +81,12 @@
     "contactTypes": {
       "friend": "Bạn bè",
       "members": "{{count}} thành viên"
+    },
+    "resultCard": {
+      "forward": "Chuyển tiếp",
+      "jump": "Xem tin nhắn gốc",
+      "preview": "Xem trước",
+      "download": "Tải về"
     }
   }
 }

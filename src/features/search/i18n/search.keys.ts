@@ -76,6 +76,12 @@ export const SEARCH_KEYS = {
     contactTypes: {
       friend: 'global.contactTypes.friend',
       members: 'global.contactTypes.members'
+    },
+    resultCard: {
+      forward: 'global.resultCard.forward',
+      jump: 'global.resultCard.jump',
+      preview: 'global.resultCard.preview',
+      download: 'global.resultCard.download'
     }
   }
 } as const

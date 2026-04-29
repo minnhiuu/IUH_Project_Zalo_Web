@@ -79,6 +79,12 @@ export const createSearchTexts = (t: TFunction<'search'>) => ({
     contactTypes: {
       friend: t(SEARCH_KEYS.global.contactTypes.friend),
       members: (count: number) => t(SEARCH_KEYS.global.contactTypes.members, { count })
+    },
+    resultCard: {
+      forward: t(SEARCH_KEYS.global.resultCard.forward),
+      jump: t(SEARCH_KEYS.global.resultCard.jump),
+      preview: t(SEARCH_KEYS.global.resultCard.preview),
+      download: t(SEARCH_KEYS.global.resultCard.download)
     }
   }
 })

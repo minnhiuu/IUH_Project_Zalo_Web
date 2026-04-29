@@ -12,6 +12,9 @@ import type { SearchTexts } from '../../../i18n/search.texts'
 import type { ConversationSearchResponse } from '@/features/search/messages/schemas/message-search.schema'
 
 import { useGlobalSearchContext } from '../global-search-context'
+import { useAddSearchItem } from '../../../recent/queries/use-recent-queries'
+import { SearchType } from '@/constants/enum'
+import { generateKeywordId } from '../../../utils/search-id'
 
 interface AllResultsTabProps {
   keyword: string
@@ -32,6 +35,7 @@ export function AllResultsTab({
 }: AllResultsTabProps) {
   const navigate = useNavigate()
   const { activeItemId, setActiveItemId } = useGlobalSearchContext()
+  const { mutate: addSearchItem } = useAddSearchItem()
 
   // Independent queries for each section
   const { data: contactsData, isLoading: isLoadingContacts } = useGlobalSearchContacts(keyword, 0, sectionSize)
@@ -89,9 +93,22 @@ export function AllResultsTab({
                     isGroup={contact.group}
                     participantNames={contact.participantNames}
                     participantAvatars={contact.participantAvatars}
-                    isActive={activeItemId === contact.conversationId}
                     onClick={() => {
-                      setActiveItemId(contact.conversationId)
+                      // Save the keyword first
+                      if (keyword.trim()) {
+                        addSearchItem({
+                          id: generateKeywordId(keyword),
+                          name: keyword.trim(),
+                          type: SearchType.Keyword
+                        })
+                      }
+                      // Save the contact
+                      addSearchItem({
+                        id: contact.conversationId,
+                        name: contact.name,
+                        avatar: contact.avatar || undefined,
+                        type: contact.group ? SearchType.Group : SearchType.User
+                      })
                       navigate(`/chat/c/${contact.conversationId}`)
                     }}
                   />
@@ -119,8 +136,19 @@ export function AllResultsTab({
                     msg={msg}
                     isActive={activeItemId === msg.messageId}
                     onClick={() => {
+                      if (keyword.trim()) {
+                        addSearchItem({
+                          id: generateKeywordId(keyword),
+                          name: keyword.trim(),
+                          type: SearchType.Keyword
+                        })
+                      }
                       setActiveItemId(msg.messageId)
-                      navigate(`/chat/c/${msg.conversationId}?msgId=${msg.messageId}&keyword=${encodeURIComponent(keyword)}&showInfo=true`)
+                      navigate(
+                        `/chat/c/${msg.conversationId}?msgId=${msg.messageId}&keyword=${encodeURIComponent(
+                          keyword
+                        )}&showInfo=true`
+                      )
                     }}
                   />
                 ))}
@@ -148,8 +176,19 @@ export function AllResultsTab({
                     msg={file}
                     isActive={activeItemId === file.messageId}
                     onClick={() => {
+                      if (keyword.trim()) {
+                        addSearchItem({
+                          id: `k-${keyword.trim().toLowerCase()}`,
+                          name: keyword.trim(),
+                          type: SearchType.Keyword
+                        })
+                      }
                       setActiveItemId(file.messageId)
-                      navigate(`/chat/c/${file.conversationId}?msgId=${file.messageId}&keyword=${encodeURIComponent(keyword)}&showInfo=true`)
+                      navigate(
+                        `/chat/c/${file.conversationId}?msgId=${file.messageId}&keyword=${encodeURIComponent(
+                          keyword
+                        )}&showInfo=true`
+                      )
                     }}
                   />
                 ))}

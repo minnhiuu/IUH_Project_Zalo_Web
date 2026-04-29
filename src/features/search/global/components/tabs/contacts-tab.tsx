@@ -7,6 +7,9 @@ import { ResultSection } from '../result-section'
 import { ContactItem } from '../contact-item'
 import type { SearchTexts } from '../../../i18n/search.texts'
 import { useGlobalSearchContext } from '../global-search-context'
+import { useAddSearchItem } from '../../../recent/queries/use-recent-queries'
+import { SearchType } from '@/constants/enum'
+import { generateKeywordId } from '../../../utils/search-id'
 
 interface ContactsTabProps {
   keyword: string
@@ -16,6 +19,7 @@ interface ContactsTabProps {
 export function ContactsTab({ keyword, text }: ContactsTabProps) {
   const navigate = useNavigate()
   const { activeItemId, setActiveItemId } = useGlobalSearchContext()
+  const { mutate: addSearchItem } = useAddSearchItem()
 
   const {
     data: peopleData,
@@ -70,9 +74,20 @@ export function ContactsTab({ keyword, text }: ContactsTabProps) {
                     isGroup={contact.group}
                     participantNames={contact.participantNames}
                     participantAvatars={contact.participantAvatars}
-                    isActive={activeItemId === contact.conversationId}
                     onClick={() => {
-                      setActiveItemId(contact.conversationId)
+                      if (keyword.trim()) {
+                        addSearchItem({
+                          id: generateKeywordId(keyword),
+                          name: keyword.trim(),
+                          type: SearchType.Keyword
+                        })
+                      }
+                      addSearchItem({
+                        id: contact.conversationId,
+                        name: contact.name,
+                        avatar: contact.avatar || undefined,
+                        type: contact.group ? SearchType.Group : SearchType.User
+                      })
                       navigate(`/chat/c/${contact.conversationId}`)
                     }}
                   />
@@ -103,9 +118,20 @@ export function ContactsTab({ keyword, text }: ContactsTabProps) {
                     isGroup={group.group}
                     participantNames={group.participantNames}
                     participantAvatars={group.participantAvatars}
-                    isActive={activeItemId === group.conversationId}
                     onClick={() => {
-                      setActiveItemId(group.conversationId)
+                      if (keyword.trim()) {
+                        addSearchItem({
+                          id: generateKeywordId(keyword),
+                          name: keyword.trim(),
+                          type: SearchType.Keyword
+                        })
+                      }
+                      addSearchItem({
+                        id: group.conversationId,
+                        name: group.name,
+                        avatar: group.avatar || undefined,
+                        type: SearchType.Group
+                      })
                       navigate(`/chat/c/${group.conversationId}`)
                     }}
                   />

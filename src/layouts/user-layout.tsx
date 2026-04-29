@@ -247,12 +247,11 @@ export default function UserLayout() {
 
         {/* Main Content Area */}
         <main className='flex-1 flex overflow-hidden'>
-          <Outlet context={{ setIsGlobalSearchOpen }} />
+          <Outlet context={{ setIsGlobalSearchOpen, isGlobalSearchOpen }} />
         </main>
 
         <SearchPanel open={isSearchOpen} onOpenChange={setIsSearchOpen} />
         <NotificationPanel open={isNotificationOpen} onOpenChange={setIsNotificationOpen} />
-        <GlobalSearchPanel open={isGlobalSearchOpen} onOpenChange={setIsGlobalSearchOpen} />
       </div>
     </ChatProvider>
   )

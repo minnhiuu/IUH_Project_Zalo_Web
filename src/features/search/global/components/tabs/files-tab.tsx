@@ -8,10 +8,14 @@ import { DateFilter, type DateFilterText } from '@/features/search'
 import { FileTypeFilter, type FileType } from '@/features/search'
 import { useGlobalSearchContext } from '../global-search-context'
 import type { GlobalSearchRequest } from '../../api/global-search.api'
+import { useAddSearchItem } from '../../../recent/queries/use-recent-queries'
+import { SearchType } from '@/constants/enum'
+import { generateKeywordId } from '../../../utils/search-id'
 
 export const FilesTab = () => {
   const navigate = useNavigate()
   const { keyword, text, activeItemId, setActiveItemId } = useGlobalSearchContext()
+  const { mutate: addSearchItem } = useAddSearchItem()
   const { ref, inView } = useInView()
 
   // Filter states
@@ -91,9 +95,24 @@ export const FilesTab = () => {
                   variant='file'
                   isActive={activeItemId === message.messageId}
                   onClick={() => {
+                    if (keyword.trim()) {
+                      addSearchItem({
+                        id: generateKeywordId(keyword),
+                        name: keyword.trim(),
+                        type: SearchType.Keyword
+                      })
+                    }
                     setActiveItemId(message.messageId)
+                    addSearchItem({
+                      id: message.conversationId,
+                      name: message.conversationName || 'Conversation',
+                      avatar: message.conversationAvatar || undefined,
+                      type: message.isGroup ? SearchType.Group : SearchType.User
+                    })
                     navigate(
-                      `/chat/c/${message.conversationId}?msgId=${message.messageId}&keyword=${encodeURIComponent(keyword)}&showInfo=true`
+                      `/chat/c/${message.conversationId}?msgId=${message.messageId}&keyword=${encodeURIComponent(
+                        keyword
+                      )}&showInfo=true`
                     )
                   }}
                 />

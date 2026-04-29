@@ -1,7 +1,7 @@
 {
   "chat": {
     "title": "Messages",
-    "searchPlaceholder": "Search conversations...",
+    "searchPlaceholder": "Search",
     "emptyState": "Select a conversation to start chatting",
     "emptyStateSearch": "No results found",
     "inputPlaceholder": "Type a message...",
