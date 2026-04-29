@@ -1,4 +1,5 @@
 import { Phone, Video, Search, PanelsTopLeft, Users, Pencil } from 'lucide-react'
+import { useSearchParams } from 'react-router'
 import { useMessagesInfiniteQuery } from '../queries/use-queries'
 import { useAuth } from '@/features/auth'
 import { useChatContext } from '../context/chat-context'
@@ -70,6 +71,7 @@ export function ChatWindow({
   const { sendMessage, typingUsers } = useChatContext()
   const { t, text } = useChatText()
   const queryClient = useQueryClient()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [jumpTargetId, setJumpTargetId] = useState<string | null>(null)
 
   const {
@@ -215,6 +217,25 @@ export function ChatWindow({
     },
     [queryClient]
   )
+
+  useEffect(() => {
+    const msgId = searchParams.get('msgId')
+    const keyword = searchParams.get('keyword') || ''
+    const showInfo = searchParams.get('showInfo') === 'true'
+
+    if (msgId) {
+      navigateToMessage(conversation.id, msgId, keyword)
+      if (showInfo) {
+        setIsInfoSidebarOpen(true)
+      }
+      // Clear the params so it doesn't jump again on every re-render/tab switch
+      const newParams = new URLSearchParams(searchParams)
+      newParams.delete('msgId')
+      newParams.delete('keyword')
+      newParams.delete('showInfo')
+      setSearchParams(newParams, { replace: true })
+    }
+  }, [searchParams, conversation.id, navigateToMessage, setSearchParams])
 
   // Video Call
   const {

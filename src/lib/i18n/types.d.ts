@@ -3,14 +3,14 @@ import common from '@/locales/vi/common.json'
 import auth from '@/features/auth/locales/vi.json'
 import user from '@/features/user/locales/vi.json'
 import chat from '@/features/chat/locales/vi.json'
-import search from '@/features/search-user/locales/vi.json'
+import search from '@/features/search/locales/vi.json'
 import adminEs from '@/features/admin-elasticsearch/locales/vi.json'
 import admin from '@/locales/vi/admin.json'
 import notification from '@/features/notification/locales/vi.json'
 import friend from '@/features/friend/locales/vi.json'
 import ingest from '@/features/admin-document-ingest/locales/vi.json'
 import social from '@/features/social-feed/locales/vi.json'
-import globalSearch from '@/features/global-search/locales/vi.json'
+
 
 declare module 'i18next' {
   interface CustomTypeOptions {
@@ -27,7 +27,7 @@ declare module 'i18next' {
       friend: typeof friend
       ingest: typeof ingest
       social: typeof social
-      globalSearch: typeof globalSearch
     }
+
   }
 }

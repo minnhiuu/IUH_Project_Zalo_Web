@@ -1,13 +1,13 @@
-import type { PageResponse } from '@/shared/api'
-
 export interface MessageSearchRequest {
   keyword?: string
   conversationId?: string // Optional for global search
   senderId?: string
-  from?: string // ISO format
-  to?: string // ISO format
+  from?: number // Epoch millis
+  to?: number // Epoch millis
   dateRange?: '7d' | '30d' | '3months'
+  fileType?: string
 }
+
 
 export const MESSAGE_SEARCH_SECTION = {
   All: 'all',
@@ -53,6 +53,8 @@ export interface ConversationSearchResponse {
   avatar: string | null
   group: boolean
   memberCount: number
+  participantNames: string[] | null
+  participantAvatars: (string | null)[] | null
   displayHighlights: string | null
 }
 
@@ -63,4 +65,3 @@ export interface ConversationSearchSectionResponse {
   limit: number
   totalItems: number
 }
-

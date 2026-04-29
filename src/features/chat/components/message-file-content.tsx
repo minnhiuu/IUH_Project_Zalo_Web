@@ -85,7 +85,7 @@ export function MessageFileContent({ message }: { message: MessageResponse }) {
   )
 }
 
-function FilePreviewModal({
+export function FilePreviewModal({
   url,
   fileName,
   fileUrl,

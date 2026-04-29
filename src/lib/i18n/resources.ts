@@ -10,8 +10,9 @@ import chatEn from '@/features/chat/locales/en.json'
 import commonVi from '@/locales/vi/common.json'
 import commonEn from '@/locales/en/common.json'
 
-import searchVi from '@/features/search-user/locales/vi.json'
-import searchEn from '@/features/search-user/locales/en.json'
+import searchVi from '@/features/search/locales/vi.json'
+import searchEn from '@/features/search/locales/en.json'
+
 import adminEsVi from '@/features/admin-elasticsearch/locales/vi.json'
 import adminEsEn from '@/features/admin-elasticsearch/locales/en.json'
 import adminVi from '@/locales/vi/admin.json'
@@ -28,9 +29,6 @@ import ingestEn from '@/features/admin-document-ingest/locales/en.json'
 import socialVi from '@/features/social-feed/locales/vi.json'
 import socialEn from '@/features/social-feed/locales/en.json'
 
-import globalSearchVi from '@/features/global-search/locales/vi.json'
-import globalSearchEn from '@/features/global-search/locales/en.json'
-
 export const resources = {
   vi: {
     common: commonVi,
@@ -43,8 +41,7 @@ export const resources = {
     admin: adminVi,
     notification: notificationVi,
     friend: friendVi,
-    ingest: ingestVi,
-    globalSearch: globalSearchVi
+    ingest: ingestVi
   },
   en: {
     common: commonEn,
@@ -57,7 +54,7 @@ export const resources = {
     admin: adminEn,
     notification: notificationEn,
     friend: friendEn,
-    ingest: ingestEn,
-    globalSearch: globalSearchEn
+    ingest: ingestEn
   }
 } as const
+
