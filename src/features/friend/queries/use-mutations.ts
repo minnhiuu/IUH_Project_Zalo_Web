@@ -29,11 +29,14 @@ export const useAcceptFriendRequest = () => {
 
   return useMutation({
     mutationKey: friendKeys.acceptRequest(),
-    mutationFn: (friendshipId: string) => friendApi.acceptFriendRequest(friendshipId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: friendKeys.receivedRequests() })
-      queryClient.invalidateQueries({ queryKey: friendKeys.myFriends() })
+    mutationFn: (args: { requestId: string; requesterId?: string }) => friendApi.acceptFriendRequest(args.requestId),
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: friendKeys.all() })
+
+      if (variables.requesterId) {
+        queryClient.invalidateQueries({ queryKey: friendKeys.status(variables.requesterId) })
+      }
+
       showSuccessToast(toast.acceptSuccess)
     },
     onError: () => {
@@ -48,10 +51,15 @@ export const useDeclineFriendRequest = () => {
 
   return useMutation({
     mutationKey: friendKeys.declineRequest(),
-    mutationFn: (friendshipId: string) => friendApi.declineFriendRequest(friendshipId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: friendKeys.receivedRequests() })
+    mutationFn: (args: { requestId: string; requesterId?: string }) => friendApi.declineFriendRequest(args.requestId),
+    onSuccess: (_data, variables) => {
+      // Centralized invalidation
       queryClient.invalidateQueries({ queryKey: friendKeys.all() })
+
+      if (variables.requesterId) {
+        queryClient.invalidateQueries({ queryKey: friendKeys.status(variables.requesterId) })
+      }
+
       showSuccessToast(toast.declineSuccess)
     },
     onError: () => {

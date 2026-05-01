@@ -1,16 +1,17 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { Outlet, Link, useLocation } from 'react-router'
+import { Outlet, Link, useLocation, useSearchParams } from 'react-router'
 import { Contact2, CheckSquare, Settings, Cloud, Briefcase, MessageCircle, Search, Bell, Newspaper } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { PATHS } from '@/constants/path'
 import { UserNavDropdown } from '@/features/user'
 import { useAuthContext } from '@/features/auth/context/auth-context'
 import { UserAvatar } from '@/components/common/user-avatar'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { SearchPanel } from '@/features/search-user'
 import { useCommonText } from '@/locales/common/use-common-text'
 import { useFCM } from '@/hooks/use-fcm'
-import { NotificationPanel } from '@/features/notification'
+import { NotificationPanel, useNotificationSocket } from '@/features/notification'
+import { NotificationOverlay } from '@/components/common/notification-overlay'
 import { notificationKeys } from '@/features/notification/queries/keys'
 import { useNotificationStateQuery } from '@/features/notification/queries/use-queries'
 import { useMarkHistoryAsCheckedMutation } from '@/features/notification/queries/use-mutations'
@@ -28,6 +29,8 @@ export default function UserLayout() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isNotificationOpen, setIsNotificationOpen] = useState(false)
 
+  useNotificationSocket()
+
   const { data: notificationState } = useNotificationStateQuery()
   const { mutate: markAsChecked } = useMarkHistoryAsCheckedMutation()
 
@@ -36,6 +39,21 @@ export default function UserLayout() {
   useNotificationBadge({ count: unreadCount, title: 'BondHub' })
 
   const { text: commonText } = useCommonText()
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  useEffect(() => {
+    if (searchParams.get('noti_open') === 'true') {
+      setTimeout(() => {
+        setIsNotificationOpen(true)
+        setIsSearchOpen(false)
+        markAsChecked()
+
+        const newParams = new URLSearchParams(searchParams)
+        newParams.delete('noti_open')
+        setSearchParams(newParams, { replace: true })
+      }, 0)
+    }
+  }, [searchParams, setSearchParams, markAsChecked])
 
   const handleFCMMessage = useCallback(
     (payload: unknown) => {
@@ -250,6 +268,7 @@ export default function UserLayout() {
 
         <SearchPanel open={isSearchOpen} onOpenChange={setIsSearchOpen} />
         <NotificationPanel open={isNotificationOpen} onOpenChange={setIsNotificationOpen} />
+        <NotificationOverlay />
       </div>
     </ChatProvider>
   )

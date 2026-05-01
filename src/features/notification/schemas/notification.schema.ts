@@ -42,3 +42,11 @@ export const NotificationFlatHistoryResponseSchema = z.object({
 })
 
 export type NotificationFlatHistoryResponse = z.infer<typeof NotificationFlatHistoryResponseSchema>
+
+export interface NotificationCleanupData {
+  action: 'DELETE'
+  referenceId: string
+  type: NotificationType
+}
+
+export type NotificationSocketMessage = NotificationGroupResponse | NotificationCleanupData

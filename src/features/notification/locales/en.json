@@ -42,7 +42,8 @@
       "acceptSuccess": "Accepted friend invitation",
       "acceptError": "Unable to accept invitation",
       "declineSuccess": "Declined friend invitation",
-      "declineError": "Unable to decline invitation"
+      "declineError": "Unable to decline invitation",
+      "newNotification": "New notification"
     },
     "validation": {
       "receiverIdRequired": "Receiver ID is required",

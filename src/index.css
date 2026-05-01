@@ -727,6 +727,20 @@ input[type='radio']:checked {
     justify-content: center !important;
     align-items: center !important;
   }
+
+  .sonner-toast-bottom-right {
+    position: fixed !important;
+    bottom: 18px !important;
+    right: 18px !important;
+    margin: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    pointer-events: none !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+    align-items: flex-end !important;
+  }
 }
 
 @keyframes scale-in-center {

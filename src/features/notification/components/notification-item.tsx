@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { UserAvatar } from '@/components/common/user-avatar'
 import { Button } from '@/components/ui/button'
 import type { NotificationGroupResponse } from '@/features/notification/schemas/notification.schema'
 import { cn } from '@/lib/utils'
@@ -22,8 +22,7 @@ import {
 import { useTranslation } from 'react-i18next'
 import { formatTimeAgo } from '@/utils/date'
 import { useAcceptFriendRequest, useDeclineFriendRequest } from '@/features/friend/queries/use-mutations'
-import { showSuccessToast, showErrorToast } from '@/utils/toast'
-import { useNavigate } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
 import { PATHS } from '@/constants/path'
 
 interface NotificationItemProps {
@@ -75,10 +74,13 @@ const getBadgeConfig = (type: NotificationType) => {
 }
 
 export const NotificationItem = React.memo(({ notification, onMarkAsRead }: NotificationItemProps) => {
-  const { action, toast } = useNotificationText()
+  const { action } = useNotificationText()
   const { i18n } = useTranslation()
   const [status, setStatus] = useState<'pending' | 'accepted' | 'declined'>('pending')
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const highlightId = searchParams.get('highlight')
+  const isHighlighted = highlightId === notification.id
   const acceptRequestMutation = useAcceptFriendRequest()
   const declineRequestMutation = useDeclineFriendRequest()
 
@@ -133,32 +135,46 @@ export const NotificationItem = React.memo(({ notification, onMarkAsRead }: Noti
 
   const handleAcceptRequest = async (e: React.MouseEvent) => {
     e.stopPropagation()
-    const requestId = notification.payload?.requestId as string
-    if (!requestId) return
-    acceptRequestMutation.mutate(requestId, {
-      onSuccess: () => {
-        showSuccessToast(toast.acceptSuccess)
-        setStatus('accepted')
+    const requestId = (notification.payload?.requestId || notification.referenceId) as string
+    if (!requestId || requestId === 'undefined') return
+
+    if (!notification.read) {
+      onMarkAsRead(notification.id)
+    }
+
+    acceptRequestMutation.mutate(
+      {
+        requestId,
+        requesterId: notification.actorIds?.[0]
       },
-      onError: () => {
-        showErrorToast(toast.acceptError)
+      {
+        onSuccess: () => {
+          setStatus('accepted')
+        }
       }
-    })
+    )
   }
 
   const handleDeclineRequest = async (e: React.MouseEvent) => {
     e.stopPropagation()
-    const requestId = notification.payload?.requestId as string
-    if (!requestId) return
-    declineRequestMutation.mutate(requestId, {
-      onSuccess: () => {
-        showSuccessToast(toast.declineSuccess)
-        setStatus('declined')
+    const requestId = (notification.payload?.requestId || notification.referenceId) as string
+    if (!requestId || requestId === 'undefined') return
+
+    if (!notification.read) {
+      onMarkAsRead(notification.id)
+    }
+
+    declineRequestMutation.mutate(
+      {
+        requestId,
+        requesterId: notification.actorIds?.[0]
       },
-      onError: () => {
-        showErrorToast(toast.declineError)
+      {
+        onSuccess: () => {
+          setStatus('declined')
+        }
       }
-    })
+    )
   }
   const badge = getBadgeConfig(notification.type)
   const isModeration = isModerationNotification(notification.type)
@@ -168,10 +184,12 @@ export const NotificationItem = React.memo(({ notification, onMarkAsRead }: Noti
       onClick={handleClick}
       className={cn(
         'group flex cursor-pointer gap-3 p-2 mx-2 rounded-lg transition-all duration-200 hover:bg-muted/60 relative',
-        !notification.read && 'bg-brand-blue-light/20 dark:bg-brand-blue/5'
+        !notification.read && 'bg-brand-blue-light/20 dark:bg-brand-blue/5',
+        isHighlighted &&
+          'ring-2 ring-brand-blue/30 bg-brand-blue/5 border border-brand-blue/20 animate-in fade-in zoom-in duration-500'
       )}
     >
-      <div className='relative shrink-0'>
+      <div className='relative shrink-0 h-14 w-14'>
         {isModeration ? (
           <div
             className={cn(
@@ -188,12 +206,12 @@ export const NotificationItem = React.memo(({ notification, onMarkAsRead }: Noti
             />
           </div>
         ) : (
-          <Avatar className='h-14 w-14'>
-            {notification.payload?.actorAvatar && <AvatarImage src={notification.payload.actorAvatar as string} />}
-            <AvatarFallback className='bg-primary/5 text-primary text-lg font-bold'>
-              {((notification.payload?.actorName as string) || 'U').substring(0, 1).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+          <UserAvatar
+            src={notification.payload?.actorAvatar as string}
+            name={(notification.payload?.actorName as string) || 'U'}
+            className='h-14 w-14'
+            fallbackClassName='text-lg font-bold'
+          />
         )}
         <div
           className={cn(

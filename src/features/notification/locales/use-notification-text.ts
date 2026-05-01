@@ -46,7 +46,8 @@ export const useNotificationText = () => {
       acceptSuccess: t('notification.toast.acceptSuccess'),
       acceptError: t('notification.toast.acceptError'),
       declineSuccess: t('notification.toast.declineSuccess'),
-      declineError: t('notification.toast.declineError')
+      declineError: t('notification.toast.declineError'),
+      newNotification: t('notification.toast.newNotification')
     }
   }
 }
