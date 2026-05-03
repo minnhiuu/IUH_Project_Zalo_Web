@@ -1,7 +1,7 @@
 {
   "chat": {
     "title": "Messages",
-    "searchPlaceholder": "Search conversations...",
+    "searchPlaceholder": "Search",
     "emptyState": "Select a conversation to start chatting",
     "emptyStateSearch": "No results found",
     "inputPlaceholder": "Type a message...",
@@ -115,7 +115,7 @@
         "by_actor": "<bold>{{target}}</bold> was blocked from this group by <actorBold>{{actor}}</actorBold>"
       },
       "blocked_from_joining": "<bold>{{target}}</bold> is blocked by owner/admin to join group",
-      "add_members_failed": "Failed to add member({{count}}).",
+      "add_members_failed": "Failed to add member",
       "self_blocked_from_joining": {
         "with_link": "Cannot add <bold>{{target}}</bold> to the group. They can only join via the group invite link.",
         "without_link": "Cannot add <bold>{{target}}</bold> to the group.",
@@ -283,7 +283,7 @@
       "noResultsFound": "No results found",
       "noFriendsFound": "No friends found",
       "groupAlreadyExists": "A group already exists",
-      "addMemberFailed": "Failed to add member({{count}}).",
+      "addMemberFailed": "Failed to add member.",
       "avatarAlt": "Avatar",
       "notAvailable": "Not available",
       "confirmSelection": "Confirm selection",
@@ -475,7 +475,8 @@
       "leaveGroupError": "Failed to leave group",
       "blockSuccess": "Blocked members successfully",
       "unblockSuccess": "Unblocked successfully",
-      "noBlockCandidates": "No members available to block"
+      "noBlockCandidates": "No members available to block",
+      "transferOwnerSuccess": "Transferred ownership successfully"
     },
     "sidebarInfo": {
       "title": "Chat Information",

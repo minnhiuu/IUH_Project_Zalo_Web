@@ -7,7 +7,7 @@ import { UserNavDropdown } from '@/features/user'
 import { useAuthContext } from '@/features/auth/context/auth-context'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { useState, useCallback, useEffect } from 'react'
-import { SearchPanel } from '@/features/search-user'
+import { SearchPanel } from '@/features/search'
 import { useCommonText } from '@/locales/common/use-common-text'
 import { useFCM } from '@/hooks/use-fcm'
 import { NotificationPanel, useNotificationSocket } from '@/features/notification'
@@ -17,6 +17,7 @@ import { useNotificationStateQuery } from '@/features/notification/queries/use-q
 import { useMarkHistoryAsCheckedMutation } from '@/features/notification/queries/use-mutations'
 import { useNotificationBadge } from '@/hooks/use-notification-badge'
 import { ChatProvider } from '@/features/chat'
+
 import { socialFeedKeys } from '@/features/social-feed/queries/keys'
 import { showWarningToast } from '@/utils/toast'
 import type { SocialPost } from '@/features/social-feed/components/post/post-card'
@@ -28,6 +29,7 @@ export default function UserLayout() {
   const queryClient = useQueryClient()
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isNotificationOpen, setIsNotificationOpen] = useState(false)
+  const [isGlobalSearchOpen, setIsGlobalSearchOpen] = useState(false)
 
   useNotificationSocket()
 
@@ -263,7 +265,7 @@ export default function UserLayout() {
 
         {/* Main Content Area */}
         <main className='flex-1 flex overflow-hidden'>
-          <Outlet />
+          <Outlet context={{ setIsGlobalSearchOpen, isGlobalSearchOpen }} />
         </main>
 
         <SearchPanel open={isSearchOpen} onOpenChange={setIsSearchOpen} />

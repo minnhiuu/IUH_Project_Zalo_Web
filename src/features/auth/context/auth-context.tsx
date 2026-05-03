@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     storage.remove(STORAGE_KEYS.FCM_TOKEN)
     storage.remove(STORAGE_KEYS.FCM_REGISTERED_USER_ID)
     queryClient.clear()
-  }, [queryClient])
+  }, [queryClient, user])
 
   const updateUser = useCallback((userData: UserResponse) => {
     setUser(userData)
