@@ -212,7 +212,9 @@
         "reply_prefix": "Press",
         "reply_action": "Reply",
         "reply_suffix": "to quote message content"
-      }
+      },
+      "quiet_mode_active": "<actorBold>{{actor}}</actorBold> is in Quiet Mode",
+      "dnd_summary": "You have <bold>{{count}}</bold> new notifications since you started Quiet Mode"
     },
     "disbanded": {
       "message": "The group has been disbanded by the owner.",

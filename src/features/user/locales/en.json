@@ -175,6 +175,25 @@
         "sound": {
           "title": "Notification sound",
           "description": "Play sound when a notification arrives"
+        },
+        "vibration": {
+          "title": "Vibration",
+          "description": "Vibrate when a notification arrives"
+        },
+        "friendRequests": {
+          "title": "Friend requests",
+          "description": "Get notified when someone sends you a friend request"
+        },
+        "quietMode": {
+          "title": "Quiet mode",
+          "description": "When this is on, your status and auto-reply will be automatically updated to \"in quiet mode\".",
+          "startTime": "Start time",
+          "endTime": "End time",
+          "timezone": "Timezone",
+          "chooseDays": "Choose days",
+          "everyday": "Quiet mode is on everyday.",
+          "activeDaysCount": "On for: {{count}} days of the week.",
+          "save": "Save"
         }
       },
       "messages": {

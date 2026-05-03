@@ -62,6 +62,8 @@ export type MessageSettings = {
 
 export type NotificationSettings = {
   notifSound: boolean
+  notifVibration: boolean
+  notifFriendRequests: boolean
 
   // Direct message
   notifyNewMessageFromDirect: boolean
@@ -83,6 +85,15 @@ export type NotificationSettings = {
   notifyNewMessage: boolean
   shakeOnNewMessage: boolean
   previewNewMessage: boolean
+
+  // Do Not Disturb
+  doNotDisturb: {
+    dndEnabled: boolean
+    dndStartTime: string
+    dndEndTime: string
+    dndTimezone: string
+    activeDays: string[] // DayOfWeek enum as string
+  }
 }
 
 export type UtilitiesSettings = {
@@ -139,6 +150,8 @@ export type MessageSettingsUpdateRequest = {
 
 export type NotificationSettingsUpdateRequest = {
   notifSound: boolean
+  notifVibration: boolean
+  notifFriendRequests: boolean
   notifyNewMessageFromDirect: boolean
   previewNewMessageFromDirect: boolean
   notifyNewMessageFromGroup: boolean
@@ -148,6 +161,15 @@ export type NotificationSettingsUpdateRequest = {
   notifyNewMessage: boolean
   shakeOnNewMessage: boolean
   previewNewMessage: boolean
+
+  // Do Not Disturb
+  doNotDisturb: {
+    dndEnabled: boolean
+    dndStartTime: string
+    dndEndTime: string
+    dndTimezone: string
+    activeDays: string[]
+  }
 }
 
 export type UtilitiesSettingsUpdateRequest = {

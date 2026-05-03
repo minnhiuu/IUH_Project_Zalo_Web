@@ -21,6 +21,8 @@ import { resolveBlockMemberAction } from './block-member-action'
 import { resolveBlockedFromJoiningAction } from './blocked-from-joining-action'
 import { resolveSelfBlockedFromJoiningAction } from './self-blocked-from-joining-action'
 import { resolveAddMembersFailedAction } from './add-members-failed-action'
+import { resolveQuietModeActiveAction } from './quiet-mode-active-action'
+import { resolveDndSummaryAction } from './dnd-summary-action'
 
 export function resolveSystemAction(context: ActionContext): ActionResolveResult {
   const { metadata } = context
@@ -72,6 +74,10 @@ export function resolveSystemAction(context: ActionContext): ActionResolveResult
       return resolveSelfBlockedFromJoiningAction(context)
     case 'ADD_MEMBERS_FAILED':
       return resolveAddMembersFailedAction(context)
+    case 'QUIET_MODE_ACTIVE':
+      return resolveQuietModeActiveAction(context)
+    case 'DND_SUMMARY':
+      return resolveDndSummaryAction(context)
     default:
       return {}
   }

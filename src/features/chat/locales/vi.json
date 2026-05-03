@@ -212,7 +212,9 @@
         "reply_prefix": "Chọn",
         "reply_action": "Trả lời",
         "reply_suffix": "để trích dẫn nội dung tin nhắn"
-      }
+      },
+      "quiet_mode_active": "<actorBold>{{actor}}</actorBold> đang trong chế độ ngủ nên sẽ không nhận được thông báo này",
+      "dnd_summary": "Bạn có <bold>{{count}}</bold> thông báo mới trong chế độ ngủ"
     },
     "disbanded": {
       "message": "Trưởng nhóm đã giải tán nhóm.",

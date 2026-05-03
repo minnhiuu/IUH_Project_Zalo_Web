@@ -174,6 +174,25 @@ export const USER_KEYS = {
       sound: {
         title: 'user.settings.notification.sound.title',
         description: 'user.settings.notification.sound.description'
+      },
+      vibration: {
+        title: 'user.settings.notification.vibration.title',
+        description: 'user.settings.notification.vibration.description'
+      },
+      friendRequests: {
+        title: 'user.settings.notification.friendRequests.title',
+        description: 'user.settings.notification.friendRequests.description'
+      },
+      quietMode: {
+        title: 'user.settings.notification.quietMode.title',
+        description: 'user.settings.notification.quietMode.description',
+        startTime: 'user.settings.notification.quietMode.startTime',
+        endTime: 'user.settings.notification.quietMode.endTime',
+        chooseDays: 'user.settings.notification.quietMode.chooseDays',
+        everyday: 'user.settings.notification.quietMode.everyday',
+        activeDaysCount: 'user.settings.notification.quietMode.activeDaysCount',
+        timezone: 'user.settings.notification.quietMode.timezone',
+        save: 'user.settings.notification.quietMode.save'
       }
     },
     messages: {

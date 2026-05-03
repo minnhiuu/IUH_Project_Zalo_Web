@@ -177,6 +177,25 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
       sound: {
         title: t(USER_KEYS.settings.notification.sound.title),
         description: t(USER_KEYS.settings.notification.sound.description)
+      },
+      vibration: {
+        title: t(USER_KEYS.settings.notification.vibration.title),
+        description: t(USER_KEYS.settings.notification.vibration.description)
+      },
+      friendRequests: {
+        title: t(USER_KEYS.settings.notification.friendRequests.title),
+        description: t(USER_KEYS.settings.notification.friendRequests.description)
+      },
+      quietMode: {
+        title: t(USER_KEYS.settings.notification.quietMode.title),
+        description: t(USER_KEYS.settings.notification.quietMode.description),
+        startTime: t(USER_KEYS.settings.notification.quietMode.startTime),
+        endTime: t(USER_KEYS.settings.notification.quietMode.endTime),
+        chooseDays: t(USER_KEYS.settings.notification.quietMode.chooseDays),
+        everyday: t(USER_KEYS.settings.notification.quietMode.everyday),
+        activeDaysCount: (count: number) => t(USER_KEYS.settings.notification.quietMode.activeDaysCount, { count }),
+        timezone: t(USER_KEYS.settings.notification.quietMode.timezone),
+        save: t(USER_KEYS.settings.notification.quietMode.save)
       }
     },
     messages: {

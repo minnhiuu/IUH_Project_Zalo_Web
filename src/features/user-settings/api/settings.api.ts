@@ -31,6 +31,12 @@ type BackendUserSettingResponse = {
     notifMessages: boolean
     notifGroups: boolean
     notifFriendRequests: boolean
+    doNotDisturb: {
+      dndEnabled: boolean
+      dndStartTime: string
+      dndEndTime: string
+      activeDays: string[]
+    }
   }
   messageSettings: {
     messagePreview: boolean
@@ -157,7 +163,13 @@ const toFrontendSettings = (backend: BackendUserSettingResponse): UserSettingRes
     notifyDOB: backend.notificationSettings?.notifFriendRequests ?? true,
     notifyNewMessage: backend.notificationSettings?.notifMessages ?? true,
     shakeOnNewMessage: backend.notificationSettings?.notifVibration ?? true,
-    previewNewMessage: backend.messageSettings?.messagePreview ?? true
+    previewNewMessage: backend.messageSettings?.messagePreview ?? true,
+    doNotDisturb: {
+      dndEnabled: backend.notificationSettings?.doNotDisturb?.dndEnabled ?? false,
+      dndStartTime: backend.notificationSettings?.doNotDisturb?.dndStartTime ?? '23:00',
+      dndEndTime: backend.notificationSettings?.doNotDisturb?.dndEndTime ?? '07:00',
+      activeDays: backend.notificationSettings?.doNotDisturb?.activeDays ?? ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
+    }
   },
   utilitiesSettings: {
     stickerSuggestion: backend.dataOnDeviceSettings?.allowCellularMediaDownload ?? false
@@ -230,7 +242,13 @@ export const settingsApi = {
       notifyDOB: notification.notifFriendRequests,
       notifyNewMessage: notification.notifMessages,
       shakeOnNewMessage: notification.notifVibration,
-      previewNewMessage: true
+      previewNewMessage: true,
+      doNotDisturb: {
+        dndEnabled: notification.doNotDisturb?.dndEnabled ?? false,
+        dndStartTime: notification.doNotDisturb?.dndStartTime ?? '23:00',
+        dndEndTime: notification.doNotDisturb?.dndEndTime ?? '07:00',
+        activeDays: notification.doNotDisturb?.activeDays ?? ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
+      }
     }
     return {
       ...response,
@@ -355,9 +373,10 @@ export const settingsApi = {
       notifGroups: data.notifyNewMessageFromGroup,
       notifFriendRequests: data.notifyNewPostFromFriend || data.notifyDOB,
       doNotDisturb: {
-        dndEnabled: false,
-        dndStartTime: '22:00',
-        dndEndTime: '07:00'
+        dndEnabled: data.doNotDisturb.dndEnabled,
+        dndStartTime: data.doNotDisturb.dndStartTime,
+        dndEndTime: data.doNotDisturb.dndEndTime,
+        activeDays: data.doNotDisturb.activeDays
       }
     })
     return {

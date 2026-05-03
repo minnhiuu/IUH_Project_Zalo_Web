@@ -175,6 +175,25 @@
         "sound": {
           "title": "Âm thanh thông báo",
           "description": "Phát âm thanh khi có thông báo mới"
+        },
+        "vibration": {
+          "title": "Rung",
+          "description": "Rung khi có thông báo mới"
+        },
+        "friendRequests": {
+          "title": "Lời mời kết bạn",
+          "description": "Nhận thông báo khi có người gửi lời mời kết bạn cho bạn"
+        },
+        "quietMode": {
+          "title": "Chế độ im lặng (Quiet mode)",
+          "description": "Khi bật chế độ này, trạng thái của bạn và tính năng tự động trả lời sẽ được cập nhật thành \"đang ở chế độ im lặng\".",
+          "startTime": "Giờ bắt đầu",
+          "endTime": "Giờ kết thúc",
+          "timezone": "Múi giờ",
+          "chooseDays": "Chọn ngày",
+          "everyday": "Chế độ im lặng được bật mỗi ngày.",
+          "activeDaysCount": "Bật vào: {{count}} ngày trong tuần.",
+          "save": "Lưu"
         }
       },
       "messages": {
