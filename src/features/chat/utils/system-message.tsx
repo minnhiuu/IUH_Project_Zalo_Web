@@ -8,7 +8,7 @@ import { OthersProfileDialog } from '@/features/user'
 import { getSystemMessageLabel, type SystemMetadata } from './system-message-label'
 import { PromoteAdminCard } from '../components/group/cards/promote-admin-card'
 import { OwnerCard } from '../components/group/cards/owner-card'
-import { Key, X, Link2 } from 'lucide-react'
+import { Key, X, Link2, Moon } from 'lucide-react'
 import { showSimpleToast } from '@/utils/toast'
 import { ForwardDialog } from '../components/forward-dialog'
 import { useChatContext } from '../context/chat-context'
@@ -217,7 +217,7 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
   return (
     <>
       {(metadata?.action === 'PIN_MESSAGE' || metadata?.action === 'UNPIN_MESSAGE') &&
-        (metadata.originalContent || metadata.contentSnapshot) ? (
+      (metadata.originalContent || metadata.contentSnapshot) ? (
         <div className='flex justify-center w-full my-2.5 px-4'>
           <div className='system-msg flex items-center gap-2 py-1.5 px-3.5 max-w-[95%]'>
             <UserAvatar
@@ -251,6 +251,9 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
                   <Key className='system-msg-promote-icon' />
                   <X className='absolute -bottom-1 -right-1.5 w-2 h-2 system-msg-promote-icon stroke-3 mr-2' />
                 </div>
+              )}
+              {(metadata?.action === 'QUIET_MODE_ACTIVE' || metadata?.action === 'DND_AUTO_REPLY') && (
+                <Moon className='inline-block w-3.5 h-3.5 mb-0.5 mr-1 text-indigo-500 fill-indigo-500/20' />
               )}
               {systemLabel}
               {showDeleteConversationAction && (

@@ -1,12 +1,8 @@
 import type { ActionContext, ActionResolveResult } from './types'
 
-export function resolveQuietModeActiveAction({
-  metadata,
-  t,
-}: ActionContext): ActionResolveResult {
-  const actor = metadata.actorName || t('chat.user')
-
+export function resolveQuietModeActiveAction({ actorNameCapital }: ActionContext): ActionResolveResult {
   return {
-    content: t('chat.system.quiet_mode_active', { actor }),
+    i18nKey: 'chat.system.quiet_mode_active',
+    values: { actor: actorNameCapital }
   }
 }

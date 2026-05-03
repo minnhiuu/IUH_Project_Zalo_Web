@@ -190,7 +190,7 @@
         },
         "quietMode": {
           "title": "Quiet mode",
-          "description": "When this is on, your status and auto-reply will be automatically updated to \"in quiet mode\".",
+          "description": "When active, notifications will be silenced and direct message senders will receive an auto-reply. You will receive a summary when the period ends.",
           "startTime": "Start time",
           "endTime": "End time",
           "timezone": "Timezone",

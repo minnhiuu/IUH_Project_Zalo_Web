@@ -190,7 +190,7 @@
         },
         "quietMode": {
           "title": "Chế độ im lặng (Quiet mode)",
-          "description": "Khi bật chế độ này, trạng thái của bạn và tính năng tự động trả lời sẽ được cập nhật thành \"đang ở chế độ im lặng\".",
+          "description": "Khi bật, thông báo sẽ được tạm dừng và người gửi tin nhắn trực tiếp sẽ nhận được phản hồi tự động. Bạn sẽ nhận được tóm tắt thông báo khi thoát chế độ này.",
           "startTime": "Giờ bắt đầu",
           "endTime": "Giờ kết thúc",
           "timezone": "Múi giờ",

@@ -195,7 +195,9 @@ export const SystemActionType = {
   BlockedFromJoining: 'BLOCKED_FROM_JOINING',
   SelfBlockedFromJoining: 'SELF_BLOCKED_FROM_JOINING',
   AddMembersFailed: 'ADD_MEMBERS_FAILED',
-  DisableJoinLink: 'DISABLE_JOIN_LINK'
+  DisableJoinLink: 'DISABLE_JOIN_LINK',
+  QuietModeActive: 'QUIET_MODE_ACTIVE',
+  DndAutoReply: 'DND_AUTO_REPLY'
 } as const
 
 export type SystemActionType = (typeof SystemActionType)[keyof typeof SystemActionType]

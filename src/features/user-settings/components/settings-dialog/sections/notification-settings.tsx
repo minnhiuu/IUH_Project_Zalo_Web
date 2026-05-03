@@ -31,7 +31,7 @@ export function NotificationSettings() {
       dndEnabled: false,
       dndStartTime: '23:00',
       dndEndTime: '07:00',
-      dndTimezone: 'GMT+7',
+      dndTimezone: 'GMT+07:00',
       activeDays: ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
     }
   }

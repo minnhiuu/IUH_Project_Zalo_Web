@@ -160,6 +160,11 @@ export const useChatWebSocket = () => {
 
           queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
             if (!oldData) return oldData
+
+            // Quiet Mode Auto Reply should NOT update sidebar at all
+            const isQuietModeAction = msg.type === MessageType.System && msgMetadata?.action === 'DND_AUTO_REPLY'
+            if (isQuietModeAction) return oldData
+
             const conversations: ConversationResponse[] = oldData
             const existingConvIndex = conversations.findIndex((c) => c.id === conversationId)
 
