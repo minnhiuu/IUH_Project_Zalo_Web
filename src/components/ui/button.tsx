@@ -24,7 +24,9 @@ const buttonVariants = cva(
         'secondary-blue':
           'bg-brand-blue-light text-brand-blue-text hover:bg-brand-blue-hover dark:bg-brand-blue dark:hover:bg-brand-blue-dark',
         disabled:
-          'bg-dialog-selection-btn-disabled-bg text-dialog-selection-btn-disabled-text opacity-100! cursor-not-allowed!'
+          'bg-dialog-selection-btn-disabled-bg text-dialog-selection-btn-disabled-text opacity-100! cursor-not-allowed!',
+        'outline-blue':
+          'border-[var(--button-tertiary-primary-text)] text-[var(--button-tertiary-primary-text)] bg-transparent hover:bg-[var(--button-tertiary-primary-hover)] border'
       },
       size: {
         default:

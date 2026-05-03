@@ -31,7 +31,8 @@ import {
   approveJoinRequestApi,
   rejectJoinRequestApi,
   cancelMyJoinRequestApi,
-  updateJoinQuestionApi
+  updateJoinQuestionApi,
+  getOrCreateConversation
 } from '../api/chat.api'
 import { chatKeys } from './keys'
 import type { ConversationResponse, ChatMessageRequest, GroupSettings, LeaveGroupRequest } from '../schemas/chat.schema'
@@ -630,6 +631,22 @@ export const useUnpinMessageMutation = () => {
     },
     onError: (error) => {
       console.error('Failed to unpin message', error)
+    }
+  })
+}
+export const useGetOrCreateConversationMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation<ConversationResponse, Error, string>({
+    mutationFn: (partnerId: string) => getOrCreateConversation(partnerId),
+    onSuccess: (conversation) => {
+      queryClient.setQueryData<ConversationResponse[]>(chatKeys.conversations(), (old) => {
+        if (!old) return [conversation]
+        const exists = old.find((c) => c.id === conversation.id)
+        if (exists) return old
+        return [conversation, ...old]
+      })
+      queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
     }
   })
 }

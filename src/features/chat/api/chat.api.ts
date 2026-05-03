@@ -157,6 +157,11 @@ export const revokeMessageApi = async (messageId: string): Promise<void> => {
   await http.patch(`/messages/messages/${messageId}/revoke`)
 }
 
+export const getMessageApi = async (messageId: string): Promise<MessageResponse> => {
+  const response = await http.get<ApiResponse<MessageResponse>>(`/messages/messages/${messageId}`)
+  return response.data.data
+}
+
 export const deleteMessageForMeApi = async (messageId: string): Promise<void> => {
   await http.delete(`/messages/messages/${messageId}/me`)
 }

@@ -13,6 +13,11 @@
   --brand-blue-text: #0045ad;
   --cta-link: #0068ff;
 
+  --background-activeness: #0068ff;
+  --text-disable: #8b96a7;
+  --B10: #f0f7ff;
+  --border-focused: #005ae0;
+
   --vibrant-blue: #0068ff;
   --vibrant-blue-hover: #005ae0;
 
@@ -150,6 +155,7 @@
   --layer-background: #fff;
   --divider-bold: #dbdbdb;
   --surface-background-subtle: #ebecf0;
+  --layer-background-subtle: #ebecf0;
   --badge-emerald-bg: #d1fae5;
   --badge-emerald-text: #047857;
   --badge-blue-bg: #dbeafe;
@@ -183,6 +189,11 @@
   --brand-blue-hover: #162638;
   --brand-blue-text: #66a6ff;
   --cta-link: #66a6ff;
+
+  --background-activeness: #66a6ff;
+  --text-disable: #738296;
+  --B10: #001029;
+  --border-focused: #66a6ff;
 
   --accent-blue-border: #66a6ff;
   --accent-blue-text: #66a6ff;
@@ -301,6 +312,7 @@
   --layer-background: #22262b;
   --divider-bold: #16191d;
   --surface-background-subtle: #16191d;
+  --layer-background-subtle: #1d2025;
   --input-field-bg-outline: #16191d;
   --input-field-bg-filled: #16191d;
   --badge-emerald-bg: #064e3b;
@@ -426,6 +438,10 @@
   --color-information: var(--text-information);
   --color-layer-selected: var(--layer-background-selected);
   --color-text-primary: var(--text-primary);
+  --color-text-disable: var(--text-disable);
+  --color-background-activeness: var(--background-activeness);
+  --color-B10: var(--B10);
+  --color-border-focused: var(--border-focused);
   --color-layer-background: var(--layer-background);
   --color-divider-bold: var(--divider-bold);
   --color-badge-emerald-bg: var(--badge-emerald-bg);
@@ -474,7 +490,7 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
   body {
     @apply font-sans bg-background text-foreground;
@@ -697,6 +713,16 @@ input[type='radio']:checked {
   }
 
   .z--btn--v2.btn-tertiary-primary:hover:not(:disabled) {
+    background-color: var(--button-tertiary-primary-hover);
+  }
+
+  .z--btn--v2.btn-outline-tertiary-primary {
+    background-color: var(--button-tertiary-primary-normal);
+    color: var(--button-tertiary-primary-text);
+    border: 1px solid var(--button-tertiary-primary-text);
+  }
+
+  .z--btn--v2.btn-outline-tertiary-primary:hover:not(:disabled) {
     background-color: var(--button-tertiary-primary-hover);
   }
 

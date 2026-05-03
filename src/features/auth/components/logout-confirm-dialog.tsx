@@ -64,7 +64,6 @@ export function LogoutConfirmDialog({ open, onOpenChange }: LogoutConfirmDialogP
       {isPending && <FullScreenLoading message={commonText.pleaseWait} />}
       <DialogContent
         showCloseButton={false}
-        overlayClassName='bg-black/45 backdrop-blur-none! duration-200 fixed inset-0'
         className={cn(
           'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
           'w-[374px] max-w-[95vw] p-0 gap-0 rounded-md overflow-hidden border border-border shadow-2xl bg-background outline-none',

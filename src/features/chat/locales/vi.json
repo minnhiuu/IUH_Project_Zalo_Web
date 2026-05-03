@@ -115,7 +115,7 @@
         "by_actor": "<bold>{{target}}</bold> bị <actorBold>{{actor}}</actorBold> chặn khỏi nhóm này"
       },
       "blocked_from_joining": "<bold>{{target}}</bold> đã bị trưởng/phó nhóm chặn tham gia nhóm",
-      "add_members_failed": "Thêm thành viên không thành công({{count}}).",
+      "add_members_failed": "Thêm thành viên không thành công. Một số người dùng chỉ có thể tham gia qua link mời.",
       "self_blocked_from_joining": {
         "with_link": "Không thể thêm <bold>{{target}}</bold> vào nhóm. Họ chỉ có thể tham gia bằng link mời vào nhóm.",
         "without_link": "Không thể thêm <bold>{{target}}</bold> vào nhóm.",
@@ -277,7 +277,7 @@
       "noResultsFound": "Không tìm thấy kết quả",
       "noFriendsFound": "Không tìm thấy bạn bè",
       "groupAlreadyExists": "Nhóm đã tồn tại",
-      "addMemberFailed": "Thêm thành viên không thành công({{count}}).",
+      "addMemberFailed": "Thêm thành viên không thành công.",
       "avatarAlt": "Ảnh đại diện",
       "notAvailable": "Không khả dụng",
       "confirmSelection": "Xác nhận chọn",
@@ -469,7 +469,8 @@
       "leaveGroupError": "Rời nhóm thất bại",
       "blockSuccess": "Đã chặn thành viên thành công",
       "unblockSuccess": "Đã bỏ chặn thành công",
-      "noBlockCandidates": "Không có thành viên nào để chặn"
+      "noBlockCandidates": "Không có thành viên nào để chặn",
+      "transferOwnerSuccess": "Đã chuyển quyền trưởng nhóm thành công"
     },
     "sidebarInfo": {
       "title": "Thông tin hội thoại",

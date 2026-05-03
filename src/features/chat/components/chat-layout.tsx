@@ -4,12 +4,13 @@ import { ChatWindow } from './chat-window'
 import { useChatText } from '../i18n/use-chat-text'
 import { useConversationsQuery } from '../queries/use-queries'
 import type { ConversationResponse } from '../schemas/chat.schema'
-import { useNavigate } from 'react-router'
+import { useNavigate, useOutletContext } from 'react-router'
 import { Status } from '@/constants/enum'
 import { useUserById } from '@/features/user/queries/use-queries'
 import { JoinGroupDialog } from './group/dialogs/join-group-dialog'
 import { BONDHUB_AI } from '@/constants/system'
 import type { UnreadAnchorResponse } from '../api/chat.api'
+import { GlobalSearchPanel } from '@/features/search'
 
 interface CapturedUnreadAnchor extends UnreadAnchorResponse {
   conversationId: string
@@ -26,6 +27,10 @@ export function ChatLayout({
 }) {
   const navigate = useNavigate()
   const { text } = useChatText()
+  const { isGlobalSearchOpen, setIsGlobalSearchOpen } = useOutletContext<{
+    isGlobalSearchOpen: boolean
+    setIsGlobalSearchOpen: (open: boolean) => void
+  }>()
 
   const [userSelectedChatId, setUserSelectedChatId] = useState<string | null>(null)
   const [currentSnapshotId, setCurrentSnapshotId] = useState<string | null>(null)
@@ -79,10 +84,12 @@ export function ChatLayout({
   const defaultChatId = cachedConvForPartner?.id || resolvedConversation?.id || null
   const selectedChatId = userSelectedChatId || defaultConversationId || defaultChatId
 
-  useEffect(() => {
-    if (!defaultConversationId) return
-    setUserSelectedChatId((current) => (current === defaultConversationId ? current : defaultConversationId))
-  }, [defaultConversationId])
+  // Sync userSelectedChatId when defaultConversationId changes (e.g. navigation)
+  const [prevDefaultId, setPrevDefaultId] = useState<string | null>(null)
+  if (defaultConversationId && defaultConversationId !== prevDefaultId) {
+    setPrevDefaultId(defaultConversationId)
+    setUserSelectedChatId(defaultConversationId)
+  }
 
   const selectedChat = useMemo(() => {
     if (!selectedChatId) return null
@@ -117,19 +124,25 @@ export function ChatLayout({
 
   return (
     <div className='flex w-full h-full overflow-hidden'>
-      <ChatSidebar
-        selectedChatId={selectedChatId || undefined}
-        onCaptureUnreadAnchor={(conversationId, unreadAnchor) => {
-          setCapturedUnreadAnchor({ conversationId, ...unreadAnchor })
-        }}
-        onSelectChat={(chat: ConversationResponse, snapshotId, unreadCount) => {
-          setUserSelectedChatId(chat.id)
-          setCurrentSnapshotId(snapshotId || null)
-          setCapturedUnreadCount(unreadCount || 0)
-          setCapturedUnreadAnchor(null)
-          navigate(`/chat/c/${chat.id}`)
-        }}
-      />
+      <div className='w-[344px] flex flex-col border-r border-border shrink-0 h-full relative'>
+        {isGlobalSearchOpen ? (
+          <GlobalSearchPanel open={isGlobalSearchOpen} onOpenChange={setIsGlobalSearchOpen} />
+        ) : (
+          <ChatSidebar
+            selectedChatId={selectedChatId || undefined}
+            onCaptureUnreadAnchor={(conversationId, unreadAnchor) => {
+              setCapturedUnreadAnchor({ conversationId, ...unreadAnchor })
+            }}
+            onSelectChat={(chat: ConversationResponse, snapshotId, unreadCount) => {
+              setUserSelectedChatId(chat.id)
+              setCurrentSnapshotId(snapshotId || null)
+              setCapturedUnreadCount(unreadCount || 0)
+              setCapturedUnreadAnchor(null)
+              navigate(`/chat/c/${chat.id}`)
+            }}
+          />
+        )}
+      </div>
 
       {(() => {
         if (isResolving && !selectedChat) {
