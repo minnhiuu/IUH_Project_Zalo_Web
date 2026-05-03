@@ -176,13 +176,17 @@
           "title": "Âm thanh thông báo",
           "description": "Phát âm thanh khi có thông báo mới"
         },
-        "vibration": {
-          "title": "Rung",
-          "description": "Rung khi có thông báo mới"
-        },
         "friendRequests": {
           "title": "Lời mời kết bạn",
           "description": "Nhận thông báo khi có người gửi lời mời kết bạn cho bạn"
+        },
+        "directMessages": {
+          "title": "Tin nhắn trực tiếp",
+          "description": "Nhận thông báo khi có tin nhắn mới từ bạn bè"
+        },
+        "groupMessages": {
+          "title": "Tin nhắn nhóm",
+          "description": "Nhận thông báo khi có tin nhắn mới trong nhóm"
         },
         "quietMode": {
           "title": "Chế độ im lặng (Quiet mode)",

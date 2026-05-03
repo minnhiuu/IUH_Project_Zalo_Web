@@ -35,6 +35,7 @@ type BackendUserSettingResponse = {
       dndEnabled: boolean
       dndStartTime: string
       dndEndTime: string
+      dndTimezone: string
       activeDays: string[]
     }
   }
@@ -154,7 +155,10 @@ const toFrontendSettings = (backend: BackendUserSettingResponse): UserSettingRes
     showTypingStatus: backend.messageSettings?.autoDownload ?? true
   },
   notificationSettings: {
+    allowNotifications: backend.notificationSettings?.allowNotifications ?? true,
     notifSound: backend.notificationSettings?.notifSound ?? true,
+    notifVibration: backend.notificationSettings?.notifVibration ?? true,
+    notifFriendRequests: backend.notificationSettings?.notifFriendRequests ?? true,
     notifyNewMessageFromDirect: backend.notificationSettings?.notifMessages ?? true,
     previewNewMessageFromDirect: backend.messageSettings?.messagePreview ?? true,
     notifyNewMessageFromGroup: backend.notificationSettings?.notifGroups ?? true,
@@ -168,6 +172,7 @@ const toFrontendSettings = (backend: BackendUserSettingResponse): UserSettingRes
       dndEnabled: backend.notificationSettings?.doNotDisturb?.dndEnabled ?? false,
       dndStartTime: backend.notificationSettings?.doNotDisturb?.dndStartTime ?? '23:00',
       dndEndTime: backend.notificationSettings?.doNotDisturb?.dndEndTime ?? '07:00',
+      dndTimezone: backend.notificationSettings?.doNotDisturb?.dndTimezone ?? 'GMT+7',
       activeDays: backend.notificationSettings?.doNotDisturb?.activeDays ?? ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
     }
   },
@@ -366,16 +371,17 @@ export const settingsApi = {
 
   updateNotificationSettings: async (data: NotificationSettingsUpdateRequest) => {
     const response = await http.put<ApiResponse<BackendUserSettingResponse>>('/users/settings/me/notification', {
-      allowNotifications: data.notifyCall,
+      allowNotifications: data.allowNotifications,
       notifSound: data.notifSound,
-      notifVibration: data.shakeOnNewMessage,
-      notifMessages: data.notifyNewMessageFromDirect || data.notifyNewMessage,
+      notifVibration: data.notifVibration,
+      notifMessages: data.notifyNewMessageFromDirect,
       notifGroups: data.notifyNewMessageFromGroup,
-      notifFriendRequests: data.notifyNewPostFromFriend || data.notifyDOB,
+      notifFriendRequests: data.notifFriendRequests,
       doNotDisturb: {
         dndEnabled: data.doNotDisturb.dndEnabled,
         dndStartTime: data.doNotDisturb.dndStartTime,
         dndEndTime: data.doNotDisturb.dndEndTime,
+        dndTimezone: data.doNotDisturb.dndTimezone,
         activeDays: data.doNotDisturb.activeDays
       }
     })

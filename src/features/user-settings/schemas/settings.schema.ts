@@ -61,6 +61,7 @@ export type MessageSettings = {
 }
 
 export type NotificationSettings = {
+  allowNotifications: boolean
   notifSound: boolean
   notifVibration: boolean
   notifFriendRequests: boolean
@@ -149,6 +150,7 @@ export type MessageSettingsUpdateRequest = {
 }
 
 export type NotificationSettingsUpdateRequest = {
+  allowNotifications: boolean
   notifSound: boolean
   notifVibration: boolean
   notifFriendRequests: boolean

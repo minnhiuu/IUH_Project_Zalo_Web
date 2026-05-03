@@ -14,6 +14,7 @@ export function NotificationSettings() {
 
   // Default settings for new users
   const defaultNotificationSettings: NotificationSettingsType = {
+    allowNotifications: true,
     notifSound: true,
     notifVibration: true,
     notifFriendRequests: true,
@@ -80,7 +81,7 @@ export function NotificationSettings() {
   const handleToggleAllowNotifications = () => {
     updateNotificationSettings({
       ...notificationSettings,
-      notifyCall: !notificationSettings.notifyCall
+      allowNotifications: !notificationSettings.allowNotifications
     })
   }
 
@@ -91,17 +92,25 @@ export function NotificationSettings() {
     })
   }
 
-  const handleToggleNotifVibration = () => {
-    updateNotificationSettings({
-      ...notificationSettings,
-      notifVibration: !notificationSettings.notifVibration
-    })
-  }
 
   const handleToggleNotifFriendRequests = () => {
     updateNotificationSettings({
       ...notificationSettings,
       notifFriendRequests: !notificationSettings.notifFriendRequests
+    })
+  }
+
+  const handleToggleDirectMessages = () => {
+    updateNotificationSettings({
+      ...notificationSettings,
+      notifyNewMessageFromDirect: !notificationSettings.notifyNewMessageFromDirect
+    })
+  }
+
+  const handleToggleGroupMessages = () => {
+    updateNotificationSettings({
+      ...notificationSettings,
+      notifyNewMessageFromGroup: !notificationSettings.notifyNewMessageFromGroup
     })
   }
 
@@ -138,13 +147,13 @@ export function NotificationSettings() {
               disabled={pending.notification}
               className={cn(
                 'w-10 h-6 rounded-full transition-colors relative disabled:opacity-50 disabled:cursor-not-allowed',
-                notificationSettings.notifyCall ? 'bg-primary' : 'bg-muted'
+                notificationSettings.allowNotifications ? 'bg-primary' : 'bg-muted'
               )}
             >
               <div
                 className={cn(
                   'absolute top-1 w-4 h-4 rounded-full bg-primary-foreground shadow-sm transition-transform',
-                  notificationSettings.notifyCall ? 'translate-x-5' : 'translate-x-1'
+                  notificationSettings.allowNotifications ? 'translate-x-5' : 'translate-x-1'
                 )}
               />
             </button>
@@ -158,7 +167,7 @@ export function NotificationSettings() {
           action={
             <button
               onClick={handleToggleNotifSound}
-              disabled={pending.notification || !notificationSettings.notifyCall}
+              disabled={pending.notification || !notificationSettings.allowNotifications}
               className={cn(
                 'w-10 h-6 rounded-full transition-colors relative disabled:opacity-50 disabled:cursor-not-allowed',
                 notificationSettings.notifSound ? 'bg-primary' : 'bg-muted'
@@ -174,28 +183,6 @@ export function NotificationSettings() {
           }
         />
 
-        <ActionRow
-          mode='inline'
-          title={text.settings.notification.vibration.title}
-          description={text.settings.notification.vibration.description}
-          action={
-            <button
-              onClick={handleToggleNotifVibration}
-              disabled={pending.notification || !notificationSettings.notifyCall}
-              className={cn(
-                'w-10 h-6 rounded-full transition-colors relative disabled:opacity-50 disabled:cursor-not-allowed',
-                notificationSettings.notifVibration ? 'bg-primary' : 'bg-muted'
-              )}
-            >
-              <div
-                className={cn(
-                  'absolute top-1 w-4 h-4 rounded-full bg-primary-foreground shadow-sm transition-transform',
-                  notificationSettings.notifVibration ? 'translate-x-5' : 'translate-x-1'
-                )}
-              />
-            </button>
-          }
-        />
 
         <ActionRow
           mode='inline'
@@ -204,7 +191,7 @@ export function NotificationSettings() {
           action={
             <button
               onClick={handleToggleNotifFriendRequests}
-              disabled={pending.notification || !notificationSettings.notifyCall}
+              disabled={pending.notification || !notificationSettings.allowNotifications}
               className={cn(
                 'w-10 h-6 rounded-full transition-colors relative disabled:opacity-50 disabled:cursor-not-allowed',
                 notificationSettings.notifFriendRequests ? 'bg-primary' : 'bg-muted'
@@ -222,12 +209,58 @@ export function NotificationSettings() {
 
         <ActionRow
           mode='inline'
+          title={text.settings.notification.directMessages.title}
+          description={text.settings.notification.directMessages.description}
+          action={
+            <button
+              onClick={handleToggleDirectMessages}
+              disabled={pending.notification || !notificationSettings.allowNotifications}
+              className={cn(
+                'w-10 h-6 rounded-full transition-colors relative disabled:opacity-50 disabled:cursor-not-allowed',
+                notificationSettings.notifyNewMessageFromDirect ? 'bg-primary' : 'bg-muted'
+              )}
+            >
+              <div
+                className={cn(
+                  'absolute top-1 w-4 h-4 rounded-full bg-primary-foreground shadow-sm transition-transform',
+                  notificationSettings.notifyNewMessageFromDirect ? 'translate-x-5' : 'translate-x-1'
+                )}
+              />
+            </button>
+          }
+        />
+
+        <ActionRow
+          mode='inline'
+          title={text.settings.notification.groupMessages.title}
+          description={text.settings.notification.groupMessages.description}
+          action={
+            <button
+              onClick={handleToggleGroupMessages}
+              disabled={pending.notification || !notificationSettings.allowNotifications}
+              className={cn(
+                'w-10 h-6 rounded-full transition-colors relative disabled:opacity-50 disabled:cursor-not-allowed',
+                notificationSettings.notifyNewMessageFromGroup ? 'bg-primary' : 'bg-muted'
+              )}
+            >
+              <div
+                className={cn(
+                  'absolute top-1 w-4 h-4 rounded-full bg-primary-foreground shadow-sm transition-transform',
+                  notificationSettings.notifyNewMessageFromGroup ? 'translate-x-5' : 'translate-x-1'
+                )}
+              />
+            </button>
+          }
+        />
+
+        <ActionRow
+          mode='inline'
           title={text.settings.notification.quietMode.title}
           description={text.settings.notification.quietMode.description}
           action={
             <button
               onClick={handleToggleDnd}
-              disabled={pending.notification}
+              disabled={pending.notification || !notificationSettings.allowNotifications}
               className={cn(
                 'w-10 h-6 rounded-full transition-colors relative disabled:opacity-50 disabled:cursor-not-allowed',
                 dndServer.dndEnabled ? 'bg-primary' : 'bg-muted'
@@ -244,7 +277,7 @@ export function NotificationSettings() {
         />
       </div>
 
-      {dndServer.dndEnabled && (
+      {dndServer.dndEnabled && notificationSettings.allowNotifications && (
         <div className='p-6 mt-4 rounded-xl border border-border/50 bg-card shadow-sm space-y-6 animate-in fade-in slide-in-from-top-2 duration-200'>
           <div className='grid grid-cols-2 gap-6'>
             <div className='space-y-2'>

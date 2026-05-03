@@ -183,6 +183,14 @@ export const USER_KEYS = {
         title: 'user.settings.notification.friendRequests.title',
         description: 'user.settings.notification.friendRequests.description'
       },
+      directMessages: {
+        title: 'user.settings.notification.directMessages.title',
+        description: 'user.settings.notification.directMessages.description'
+      },
+      groupMessages: {
+        title: 'user.settings.notification.groupMessages.title',
+        description: 'user.settings.notification.groupMessages.description'
+      },
       quietMode: {
         title: 'user.settings.notification.quietMode.title',
         description: 'user.settings.notification.quietMode.description',

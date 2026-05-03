@@ -176,13 +176,17 @@
           "title": "Notification sound",
           "description": "Play sound when a notification arrives"
         },
-        "vibration": {
-          "title": "Vibration",
-          "description": "Vibrate when a notification arrives"
-        },
         "friendRequests": {
           "title": "Friend requests",
           "description": "Get notified when someone sends you a friend request"
+        },
+        "directMessages": {
+          "title": "Direct messages",
+          "description": "Get notified when you receive a message from a friend"
+        },
+        "groupMessages": {
+          "title": "Group messages",
+          "description": "Get notified when you receive a message in a group"
         },
         "quietMode": {
           "title": "Quiet mode",

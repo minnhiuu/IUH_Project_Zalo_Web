@@ -186,6 +186,14 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
         title: t(USER_KEYS.settings.notification.friendRequests.title),
         description: t(USER_KEYS.settings.notification.friendRequests.description)
       },
+      directMessages: {
+        title: t(USER_KEYS.settings.notification.directMessages.title),
+        description: t(USER_KEYS.settings.notification.directMessages.description)
+      },
+      groupMessages: {
+        title: t(USER_KEYS.settings.notification.groupMessages.title),
+        description: t(USER_KEYS.settings.notification.groupMessages.description)
+      },
       quietMode: {
         title: t(USER_KEYS.settings.notification.quietMode.title),
         description: t(USER_KEYS.settings.notification.quietMode.description),
