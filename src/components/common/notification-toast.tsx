@@ -22,9 +22,11 @@ import { Button } from '@/components/ui/button'
 import { useAcceptFriendRequest, useDeclineFriendRequest } from '@/features/friend/queries/use-mutations'
 import { useMarkAsReadMutation } from '@/features/notification/queries/use-mutations'
 import { useNotificationText } from '@/features/notification/locales/use-notification-text'
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router'
 import type { NotificationGroupResponse } from '@/features/notification/schemas/notification.schema'
+import { getSystemMessagePreview } from '@/features/chat/utils/system-message-preview'
+import { useAuth } from '@/features/auth/hooks/use-auth'
 
 interface NotificationToastProps {
   data: NotificationGroupResponse
@@ -83,6 +85,26 @@ export function NotificationToast({ data, onClose }: NotificationToastProps) {
   const { action } = useNotificationText()
   const [status, setStatus] = useState<'pending' | 'accepted' | 'declined'>('pending')
   const navigate = useNavigate()
+  const { user: currentUser } = useAuth()
+  const { t: tChat } = useTranslation('chat')
+
+  // We rely on metadata payload for system message rendering in toasts
+  // as fetching the full member list here is overkill and potentially slow
+  const members = useMemo(() => [], [])
+
+  const body = useMemo(() => {
+    if (data.type === 'SYSTEM' && data.payload?.metadata) {
+      return getSystemMessagePreview(
+        data.payload.metadata,
+        data.actorIds?.[0],
+        data.payload?.actorName as string,
+        currentUser?.id,
+        members,
+        tChat
+      )
+    }
+    return data.body
+  }, [data.type, data.payload, data.body, data.actorIds, currentUser?.id, members, tChat])
 
   const acceptRequestMutation = useAcceptFriendRequest()
   const declineRequestMutation = useDeclineFriendRequest()
@@ -205,7 +227,7 @@ export function NotificationToast({ data, onClose }: NotificationToastProps) {
             <div className='flex flex-col min-w-0 flex-1'>
               <div
                 className='text-[15px] leading-[1.3] text-foreground font-medium pr-2 break-words'
-                dangerouslySetInnerHTML={{ __html: data.body || '' }}
+                dangerouslySetInnerHTML={{ __html: body || '' }}
               />
               <span className='text-[13px] font-medium text-brand-blue mt-1.5'>
                 {formatTimeAgo(parseDateArray(data.lastModifiedAt), i18n.language, true)}

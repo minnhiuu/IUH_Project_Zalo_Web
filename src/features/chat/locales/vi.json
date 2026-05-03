@@ -172,6 +172,10 @@
         "self": "Bạn đã làm mới link mời nhóm. Link cũ không còn hiệu lực.",
         "by_actor": "<actorBold>{{actor}}</actorBold> đã làm mới link mời nhóm. Link cũ không còn hiệu lực."
       },
+      "disable_join_link": {
+        "self": "Bạn đã hủy link mời tham gia nhóm. Link cũ không còn hiệu lực.",
+        "by_actor": "<actorBold>{{actor}}</actorBold> đã hủy link mời tham gia nhóm. Link cũ không còn hiệu lực."
+      },
       "pin_message": {
         "pinned_self": "Bạn đã ghim 1 tin nhắn",
         "pinned_by_actor": "<actorBold>{{actor}}</actorBold> đã ghim 1 tin nhắn",

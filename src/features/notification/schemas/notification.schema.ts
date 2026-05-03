@@ -3,7 +3,7 @@ import { NotificationType } from '@/constants'
 
 export const NotificationGroupResponseSchema = z.object({
   id: z.string(),
-  type: z.enum(NotificationType),
+  type: z.nativeEnum(NotificationType),
   referenceId: z.string().nullable(),
   title: z.string(),
   body: z.string(),

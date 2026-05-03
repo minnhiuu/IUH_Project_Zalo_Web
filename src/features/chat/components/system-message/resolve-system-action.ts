@@ -21,6 +21,7 @@ import { resolveBlockMemberAction } from './block-member-action'
 import { resolveBlockedFromJoiningAction } from './blocked-from-joining-action'
 import { resolveSelfBlockedFromJoiningAction } from './self-blocked-from-joining-action'
 import { resolveAddMembersFailedAction } from './add-members-failed-action'
+import { resolveDisableJoinLinkAction } from './disable-join-link-action'
 import { resolveQuietModeActiveAction } from './quiet-mode-active-action'
 import { resolveDndSummaryAction } from './dnd-summary-action'
 
@@ -56,6 +57,8 @@ export function resolveSystemAction(context: ActionContext): ActionResolveResult
       return resolveGenerateJoinLinkAction(context)
     case 'REFRESH_JOIN_LINK':
       return resolveRefreshJoinLinkAction(context)
+    case 'DISABLE_JOIN_LINK':
+      return resolveDisableJoinLinkAction(context)
     case 'PIN_MESSAGE':
       return resolvePinMessageAction(context)
     case 'UNPIN_MESSAGE':

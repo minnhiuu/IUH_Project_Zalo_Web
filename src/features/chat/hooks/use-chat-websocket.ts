@@ -154,7 +154,9 @@ export const useChatWebSocket = () => {
               msgMetadata?.action === 'DISBAND_GROUP' ||
               msgMetadata?.action === 'REMOVE_MEMBER' ||
               msgMetadata?.action === 'BLOCK_MEMBER' ||
-              msgMetadata?.action === 'ADD_MEMBERS_FAILED')
+              msgMetadata?.action === 'ADD_MEMBERS' ||
+              msgMetadata?.action === 'ADD_MEMBERS_FAILED' ||
+              msgMetadata?.action === 'CREATE_GROUP')
 
           queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
             if (!oldData) return oldData
@@ -494,7 +496,8 @@ export const useChatWebSocket = () => {
                     lastMeta?.action !== 'REMOVE_MEMBER' &&
                     lastMeta?.action !== 'LEAVE_GROUP' &&
                     lastMeta?.action !== 'BLOCK_MEMBER' &&
-                    lastMeta?.action !== 'ADD_MEMBERS_FAILED'
+                    lastMeta?.action !== 'ADD_MEMBERS_FAILED' &&
+                    lastMeta?.action !== 'CREATE_GROUP'
                   nextData = [
                     {
                       ...newConv,

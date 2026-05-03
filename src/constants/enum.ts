@@ -132,6 +132,7 @@ export const NotificationType = {
   FRIEND_REQUEST: 'FRIEND_REQUEST',
   FRIEND_ACCEPT: 'FRIEND_ACCEPT',
   MESSAGE_DIRECT: 'MESSAGE_DIRECT',
+  MESSAGE_GROUP: 'MESSAGE_GROUP',
   CALL: 'CALL',
   POST_LIKE: 'POST_LIKE',
   POST_COMMENT: 'POST_COMMENT',
@@ -193,7 +194,8 @@ export const SystemActionType = {
   BlockMember: 'BLOCK_MEMBER',
   BlockedFromJoining: 'BLOCKED_FROM_JOINING',
   SelfBlockedFromJoining: 'SELF_BLOCKED_FROM_JOINING',
-  AddMembersFailed: 'ADD_MEMBERS_FAILED'
+  AddMembersFailed: 'ADD_MEMBERS_FAILED',
+  DisableJoinLink: 'DISABLE_JOIN_LINK'
 } as const
 
 export type SystemActionType = (typeof SystemActionType)[keyof typeof SystemActionType]
