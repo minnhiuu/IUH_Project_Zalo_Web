@@ -80,7 +80,13 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
       fieldPhone: t(USER_KEYS.profile.page.fieldPhone),
       fieldRole: t(USER_KEYS.profile.page.fieldRole),
       genderMale: t(USER_KEYS.profile.page.genderMale),
-      genderFemale: t(USER_KEYS.profile.page.genderFemale)
+      genderFemale: t(USER_KEYS.profile.page.genderFemale),
+      friendsTab: t(USER_KEYS.profile.page.friendsTab),
+      searchPlaceholder: t(USER_KEYS.profile.page.searchPlaceholder),
+      mutualFriends: (count: number) => t(USER_KEYS.profile.page.mutualFriends, { count }),
+      noFriends: t(USER_KEYS.profile.page.noFriends),
+      noMutualFriends: t(USER_KEYS.profile.page.noMutualFriends),
+      featureInDevelopment: t(USER_KEYS.profile.page.featureInDevelopment)
     }
   },
   validation: {

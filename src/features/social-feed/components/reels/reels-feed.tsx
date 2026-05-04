@@ -195,9 +195,6 @@ function ReelViewportItem({
               <button type='button' onClick={handleAuthorClick} className='text-[15px] font-bold tracking-wide drop-shadow-md hover:underline pointer-events-auto'>
                 {reel.authorName}
               </button>
-              <button type='button' className='ml-1 rounded-md border border-white/40 px-2 py-1 text-[11px] font-semibold transition hover:bg-white/20 pointer-events-auto'>
-                Theo dõi
-              </button>
             </div>
             <p className='line-clamp-3 whitespace-pre-line text-[14px] leading-relaxed text-white/90 drop-shadow-md pointer-events-auto'>
               {reel.content}

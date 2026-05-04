@@ -28,6 +28,15 @@ export type UserResponse = {
   active?: boolean | null
 }
 
+export type UserSummaryResponse = {
+  id: string
+  accountId?: string
+  fullName: string
+  email?: string
+  phoneNumber?: string
+  avatar?: string
+}
+
 export type UserImageResponse = {
   url: string
   x?: number

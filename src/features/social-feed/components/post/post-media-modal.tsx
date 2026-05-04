@@ -37,9 +37,11 @@ interface PostMediaModalProps {
   /** Controlled reaction from PostCard — keeps PostCard, comments modal and media modal in sync */
   currentReaction?: ReactionType | null
   onReactionChange?: (type: ReactionType | null) => void
+  onCommentAdded?: () => void
+  onCommentDeleted?: () => void
 }
 
-export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, mediaOverride, currentReaction, onReactionChange }: PostMediaModalProps) {
+export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, mediaOverride, currentReaction, onReactionChange, onCommentAdded, onCommentDeleted }: PostMediaModalProps) {
   const { text, language } = useSocialText()
   const { user } = useAuthContext()
 
@@ -99,6 +101,9 @@ export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, med
     })
 
     setReplyTarget(null)
+    if (onCommentAdded) {
+      onCommentAdded()
+    }
   }
 
   async function handleUpdateComment(commentId: string, content: string) {
@@ -112,6 +117,9 @@ export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, med
 
   async function handleDeleteComment(commentId: string) {
     await deleteCommentMutation.mutateAsync(commentId)
+    if (onCommentDeleted) {
+      onCommentDeleted()
+    }
   }
 
   async function handleToggleCommentReaction(commentId: string, type: ReactionType) {

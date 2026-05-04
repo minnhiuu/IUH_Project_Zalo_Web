@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
-import { ArrowLeft, ArrowUp, Loader2, Pencil } from 'lucide-react'
+import { ArrowLeft, ArrowUp, Loader2, Pencil, Search, MoreHorizontal } from 'lucide-react'
 import { useNavigate } from 'react-router'
 import { PostCard, PostComposerLauncher, useInfiniteMyPosts } from '@/features/social-feed'
 import { Button } from '@/components/ui/button'
@@ -9,8 +9,11 @@ import { UserAvatar } from '@/components/common/user-avatar'
 import { useAuthContext } from '@/features/auth/context/auth-context'
 import { OwnerProfileDialog, useMyProfile } from '@/features/user'
 import { ProfileInfoCard } from '@/features/user/components/profile-page/profile-info-card'
+import { ProfileReelsGrid } from '@/features/user/components/profile-page/profile-reels-grid'
 import { useUserText } from '@/features/user/i18n/use-user-text'
 import { PATHS } from '@/constants/path'
+import { useMyFriends } from '@/features/friend/queries'
+import { useUsersByIds } from '@/features/user/queries/use-queries'
 
 function PostCardSkeleton() {
   return (
@@ -39,8 +42,33 @@ export default function MyProfilePage() {
   const p = text.profile.page
   const [showProfileDialog, setShowProfileDialog] = useState(false)
 
+  const { data: friends } = useMyFriends()
+  const safeFriends = useMemo(() => (Array.isArray(friends) ? friends : []), [friends])
+
+  const friendIds = useMemo(() => safeFriends.map((f) => f.userId), [safeFriends])
+  const { data: userSummaryMap } = useUsersByIds(friendIds)
+
+  const friendsWithInfo = useMemo(() => {
+    return safeFriends.map((friend) => {
+      const info = userSummaryMap?.[friend.userId]
+      return {
+        ...friend,
+        userName: info?.fullName || friend.userName,
+        userAvatar: info?.avatar || friend.userAvatar
+      }
+    })
+  }, [safeFriends, userSummaryMap])
+
   const { data, isLoading, isError, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteMyPosts(20)
   const posts = useMemo(() => data?.pages.flat() ?? [], [data])
+
+  const [activeTab, setActiveTab] = useState('Tất cả')
+  const displayedPosts = useMemo(() => {
+    if (activeTab === 'Reels') return posts.filter((p) => p.postType === 'REEL')
+    if (activeTab === 'Ảnh') return posts.filter((p) => p.media?.some((m) => m.type === 'IMAGE'))
+    if (activeTab === 'Giới thiệu' || activeTab === 'Bạn bè') return [] // Placeholder for other tabs
+    return posts
+  }, [posts, activeTab])
 
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [showScrollTop, setShowScrollTop] = useState(false)
@@ -135,11 +163,12 @@ export default function MyProfilePage() {
           {/* Divider + Tab nav */}
           <div className='mt-1 border-t border-zinc-200 dark:border-white/[0.08]'>
             <nav className='-mb-px flex gap-1 overflow-x-auto'>
-              {['Tất cả', 'Giới thiệu', 'Bạn bè', 'Ảnh', 'Reels'].map((tab, i) => (
+              {['Tất cả', 'Giới thiệu', 'Bạn bè', 'Ảnh', 'Reels'].map((tab) => (
                 <button
                   key={tab}
+                  onClick={() => setActiveTab(tab)}
                   className={`whitespace-nowrap px-4 py-3 text-[15px] font-semibold transition-colors ${
-                    i === 0
+                    activeTab === tab
                       ? 'border-b-[3px] border-indigo-500 text-indigo-600 dark:text-indigo-400'
                       : 'text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-white/5 dark:hover:text-zinc-200'
                   }`}
@@ -157,31 +186,39 @@ export default function MyProfilePage() {
         <div className='flex flex-col gap-4 lg:flex-row lg:items-start'>
 
           {/* ── LEFT sidebar ── */}
-          <div className='w-full shrink-0 space-y-4 lg:w-[360px] lg:sticky lg:top-[57px]'>
-            {fullProfile ? (
-              <ProfileInfoCard user={fullProfile} isOther={false} />
-            ) : (
-              <div className='space-y-3 rounded-2xl border border-zinc-200 bg-white p-4 dark:border-white/10 dark:bg-[#242526]'>
-                <Skeleton className='h-5 w-32' />
-                <Skeleton className='h-4 w-full' />
-                <Skeleton className='h-4 w-4/5' />
-                <Skeleton className='h-4 w-3/5' />
-              </div>
-            )}
-          </div>
+          {(activeTab === 'Tất cả' || activeTab === 'Giới thiệu') && (
+            <div className='w-full shrink-0 space-y-4 lg:w-[360px] lg:sticky lg:top-[57px]'>
+              {fullProfile ? (
+                <ProfileInfoCard user={fullProfile} isOther={false} />
+              ) : (
+                <div className='space-y-3 rounded-2xl border border-zinc-200 bg-white p-4 dark:border-white/10 dark:bg-[#242526]'>
+                  <Skeleton className='h-5 w-32' />
+                  <Skeleton className='h-4 w-full' />
+                  <Skeleton className='h-4 w-4/5' />
+                  <Skeleton className='h-4 w-3/5' />
+                </div>
+              )}
+            </div>
+          )}
 
           {/* ── RIGHT posts column ── */}
           <div className='min-w-0 flex-1 space-y-4'>
             {/* Post composer */}
-            <PostComposerLauncher />
+            {activeTab !== 'Bạn bè' && activeTab !== 'Giới thiệu' && activeTab !== 'Ảnh' && activeTab !== 'Reels' && (
+              <PostComposerLauncher />
+            )}
 
             {/* Posts heading */}
-            <div className='flex items-center gap-2 rounded-2xl border border-zinc-200 bg-white px-5 py-4 dark:border-white/10 dark:bg-[#242526]'>
-              <h3 className='text-[17px] font-bold text-foreground'>{p.postsHeading}</h3>
-              {!isLoading && (
-                <span className='text-[14px] text-muted-foreground'>({posts.length})</span>
-              )}
-            </div>
+            {activeTab !== 'Bạn bè' && activeTab !== 'Giới thiệu' && (
+              <div className='flex items-center gap-2 rounded-2xl border border-zinc-200 bg-white px-5 py-4 dark:border-white/10 dark:bg-[#242526]'>
+                <h3 className='text-[17px] font-bold text-foreground'>
+                  {activeTab === 'Tất cả' ? p.postsHeading : activeTab}
+                </h3>
+                {!isLoading && (
+                  <span className='text-[14px] text-muted-foreground'>({displayedPosts.length})</span>
+                )}
+              </div>
+            )}
 
             {/* Post list */}
             <div className='flex flex-col space-y-4'>
@@ -194,11 +231,80 @@ export default function MyProfilePage() {
                     {p.retry}
                   </Button>
                 </div>
-              ) : posts.length > 0 ? (
+              ) : activeTab === 'Bạn bè' ? (
+                <div className='rounded-2xl border border-zinc-200 bg-white p-5 dark:border-white/10 dark:bg-[#242526]'>
+                  <div className='mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
+                    <h3 className='text-[20px] font-bold text-foreground'>{p.friendsTab}</h3>
+                    <div className='flex flex-wrap items-center gap-2'>
+                      <div className='relative'>
+                        <Search className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500' />
+                        <input
+                          type='text'
+                          placeholder={p.searchPlaceholder}
+                          className='h-9 w-full rounded-full bg-zinc-100 pl-9 pr-4 text-[14px] outline-none transition-colors focus:ring-2 focus:ring-indigo-500 dark:bg-white/10 dark:text-white dark:placeholder:text-zinc-400 sm:w-[200px]'
+                        />
+                      </div>
+                      <Button variant='ghost' className='h-9 font-semibold text-indigo-600 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:bg-indigo-500/10'>
+                        Tìm bạn bè
+                      </Button>
+                      <Button variant='secondary' size='icon' className='h-9 w-9 shrink-0 rounded-md bg-zinc-100 dark:bg-white/10 dark:hover:bg-white/20'>
+                        <MoreHorizontal className='h-5 w-5' />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className='grid grid-cols-1 gap-2 sm:grid-cols-2'>
+                    {friendsWithInfo.length > 0 ? (
+                      friendsWithInfo.map((friend) => (
+                        <div
+                          key={friend.userId}
+                          onClick={() => navigate(`/profile/${friend.userId}`)}
+                          className='flex cursor-pointer items-center justify-between rounded-xl p-3 transition-colors hover:bg-zinc-50 dark:hover:bg-white/5'
+                        >
+                          <div className='flex items-center gap-4'>
+                            <UserAvatar
+                              src={friend.userAvatar}
+                              name={friend.userName}
+                              className='h-[80px] w-[80px] shrink-0 rounded-xl'
+                            />
+                            <div className='min-w-0 flex-1'>
+                              <h4 className='truncate text-[16px] font-semibold text-foreground'>{friend.userName}</h4>
+                              {friend.mutualFriendsCount > 0 && (
+                                <p className='text-[13px] text-zinc-500 dark:text-zinc-400'>{p.mutualFriends(friend.mutualFriendsCount)}</p>
+                              )}
+                            </div>
+                          </div>
+                          <Button
+                            variant='ghost'
+                            size='icon'
+                            className='h-8 w-8 text-zinc-500 dark:text-zinc-400 dark:hover:bg-white/10'
+                            onClick={(e) => {
+                              e.stopPropagation()
+                            }}
+                          >
+                            <MoreHorizontal className='h-5 w-5' />
+                          </Button>
+                        </div>
+                      ))
+                    ) : (
+                      <div className='col-span-full py-10 text-center'>
+                        <p className='text-[15px] font-medium text-zinc-500 dark:text-zinc-400'>{p.noFriends}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : activeTab === 'Giới thiệu' ? (
+                <div className='rounded-2xl border border-dashed border-zinc-300 bg-white px-5 py-14 text-center dark:border-white/10 dark:bg-[#242526]'>
+                  <p className='text-[15px] font-medium text-zinc-500 dark:text-zinc-400'>{p.featureInDevelopment}</p>
+                </div>
+              ) : displayedPosts.length > 0 ? (
                 <>
-                  {posts.map((post) => (
-                    <PostCard key={post.id} post={post} />
-                  ))}
+                  {activeTab === 'Reels' ? (
+                    <ProfileReelsGrid reels={displayedPosts} />
+                  ) : (
+                    displayedPosts.map((post) => (
+                      <PostCard key={post.id} post={post} />
+                    ))
+                  )}
                   <div ref={ref} className='flex justify-center py-4 text-zinc-500 dark:text-zinc-400'>
                     {isFetchingNextPage && (
                       <div className='flex items-center gap-2 text-[14px] font-medium'>

@@ -27,6 +27,17 @@ export const getUserByIdQueryOptions = (id: string) =>
     ...QUERY_POLICIES.DETAIL
   })
 
+export const getUsersByIdsQueryOptions = (ids: string[]) =>
+  queryOptions({
+    queryKey: userKeys.batch(ids),
+    queryFn: async () => {
+      const response = await userApi.getUsersByIds(ids)
+      return response.data.data ?? {}
+    },
+    enabled: ids.length > 0,
+    ...QUERY_POLICIES.DETAIL
+  })
+
 export const getBlockDetailsQueryOptions = (userId: string) =>
   queryOptions({
     queryKey: blockKeys.detail(userId),

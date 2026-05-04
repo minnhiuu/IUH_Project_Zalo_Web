@@ -77,7 +77,13 @@ export const USER_KEYS = {
       fieldPhone: 'user.profile.page.fieldPhone',
       fieldRole: 'user.profile.page.fieldRole',
       genderMale: 'user.profile.page.genderMale',
-      genderFemale: 'user.profile.page.genderFemale'
+      genderFemale: 'user.profile.page.genderFemale',
+      friendsTab: 'user.profile.page.friendsTab',
+      searchPlaceholder: 'user.profile.page.searchPlaceholder',
+      mutualFriends: 'user.profile.page.mutualFriends',
+      noFriends: 'user.profile.page.noFriends',
+      noMutualFriends: 'user.profile.page.noMutualFriends',
+      featureInDevelopment: 'user.profile.page.featureInDevelopment'
     }
   },
   validation: {

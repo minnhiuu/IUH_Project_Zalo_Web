@@ -78,35 +78,6 @@ export function SocialSidebar() {
           })}
         </div>
 
-        <div className='mt-2 border-t border-zinc-300 dark:border-white/10 mx-2 pt-2'>
-          <div className='flex items-center justify-between px-2 py-2'>
-            <h3 className='text-[15px] font-semibold text-zinc-500 dark:text-[#b0b3b8]'>Lối tắt của bạn</h3>
-          </div>
-          <div className='grid gap-1'>
-            <Link
-              to='#'
-              className='group flex cursor-pointer items-center gap-3 rounded-xl p-2 transition-colors hover:bg-zinc-200/50 dark:hover:bg-zinc-900/50'
-            >
-              <div className='h-9 w-9 overflow-hidden rounded-lg'>
-                <img src='https://cdn.haitrieu.com/wp-content/uploads/2022/11/Logo-Truong-Dai-hoc-Cong-nghiep-TPHCM-IUH.png' alt='IUH' className='h-full w-full object-cover bg-white' />
-              </div>
-              <span className='text-[15px] font-medium text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-[#ececec] transition-colors line-clamp-2'>
-                IUH - Đại học Công nghiệp TP. Hồ Chí Minh
-              </span>
-            </Link>
-            <Link
-              to='#'
-              className='group flex cursor-pointer items-center gap-3 rounded-xl p-2 transition-colors hover:bg-zinc-200/50 dark:hover:bg-zinc-900/50'
-            >
-              <div className='h-9 w-9 overflow-hidden rounded-lg'>
-                <img src='https://play-lh.googleusercontent.com/eun_G0a0n62e5k_Iav9i4T3nL1rN55N6h9_uI455q0s6N_5V2_zP4_s7R_56s9Vw8w=w240-h480-rw' alt='8 Ball Pool' className='h-full w-full object-cover' />
-              </div>
-              <span className='text-[15px] font-medium text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-[#ececec] transition-colors'>
-                8 Ball Pool
-              </span>
-            </Link>
-          </div>
-        </div>
 
         <div className='mt-4 px-4 text-[12px] font-medium text-zinc-500 dark:text-[#b0b3b8] flex flex-wrap gap-x-1.5 gap-y-1'>
           <a href='#' className='hover:underline'>Quyền riêng tư</a> · 

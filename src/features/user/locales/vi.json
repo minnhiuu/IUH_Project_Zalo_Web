@@ -78,7 +78,13 @@
         "fieldPhone": "Điện thoại",
         "fieldRole": "Vai trò",
         "genderMale": "Nam",
-        "genderFemale": "Nữ"
+        "genderFemale": "Nữ",
+        "friendsTab": "Bạn bè",
+        "searchPlaceholder": "Tìm kiếm",
+        "mutualFriends": "{{count}} bạn chung",
+        "noFriends": "Bạn chưa có bạn bè nào.",
+        "noMutualFriends": "Không có bạn chung nào.",
+        "featureInDevelopment": "Tính năng đang phát triển"
       }
     },
     "validation": {

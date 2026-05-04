@@ -76,6 +76,10 @@ export function PostCard({ post }: PostCardProps) {
   const [commentsModalOpen, setCommentsModalOpen] = useState(false)
   const [shareModalOpen, setShareModalOpen] = useState(false)
   const [reactionPeopleModalOpen, setReactionPeopleModalOpen] = useState(false)
+  const [localCommentCountOffset, setLocalCommentCountOffset] = useState(0)
+  
+  const displayedCommentsCount = Math.max(0, post.comments + localCommentCountOffset)
+  
   const [mediaModalState, setMediaModalState] = useState<{
     open: boolean
     initialSlide: number
@@ -339,16 +343,20 @@ export function PostCard({ post }: PostCardProps) {
             <div />
           )}
           <div className='flex items-center gap-3'>
-            <button
-              type='button'
-              className='cursor-pointer transition-colors hover:text-indigo-400'
-              onClick={() => setCommentsModalOpen(true)}
-            >
-              {text.post.commentCount(post.comments)}
-            </button>
-            <span className='hover:text-indigo-400 cursor-pointer transition-colors'>
-              {text.post.shareCount(post.shares)}
-            </span>
+            {displayedCommentsCount > 0 && (
+              <button
+                type='button'
+                className='cursor-pointer transition-colors hover:text-indigo-400'
+                onClick={() => setCommentsModalOpen(true)}
+              >
+                {text.post.commentCount(displayedCommentsCount)}
+              </button>
+            )}
+            {post.shares > 0 && (
+              <span className='hover:text-indigo-400 cursor-pointer transition-colors'>
+                {text.post.shareCount(post.shares)}
+              </span>
+            )}
             {post.views !== undefined && post.views > 0 && (
               <span className='flex items-center gap-1 text-zinc-400 dark:text-zinc-500'>
                 <Eye className='h-3.5 w-3.5' />
@@ -429,6 +437,8 @@ export function PostCard({ post }: PostCardProps) {
               handleReactionClick(type)
             }
           }}
+          onCommentAdded={() => setLocalCommentCountOffset(c => c + 1)}
+          onCommentDeleted={() => setLocalCommentCountOffset(c => c - 1)}
         />
       )}
       {reactionPeopleModalOpen && (
@@ -468,6 +478,8 @@ export function PostCard({ post }: PostCardProps) {
               handleReactionClick(type)
             }
           }}
+          onCommentAdded={() => setLocalCommentCountOffset(c => c + 1)}
+          onCommentDeleted={() => setLocalCommentCountOffset(c => c - 1)}
         />
       )}
     </Card>

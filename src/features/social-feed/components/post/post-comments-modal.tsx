@@ -40,9 +40,11 @@ interface PostCommentsModalProps {
   /** Controlled reaction from PostCard — keeps PostCard, modal and media modal in sync */
   currentReaction?: ReactionType | null
   onReactionChange?: (type: ReactionType | null) => void
+  onCommentAdded?: () => void
+  onCommentDeleted?: () => void
 }
 
-export function PostCommentsModal({ open, onOpenChange, post, currentReaction, onReactionChange }: PostCommentsModalProps) {
+export function PostCommentsModal({ open, onOpenChange, post, currentReaction, onReactionChange, onCommentAdded, onCommentDeleted }: PostCommentsModalProps) {
   const { text } = useSocialText()
   const { user } = useAuthContext()
   const navigate = useNavigate()
@@ -193,6 +195,10 @@ export function PostCommentsModal({ open, onOpenChange, post, currentReaction, o
     setHasMore(true)
     initialLoadDone.current = false
     setReplyTarget(null)
+    
+    if (onCommentAdded) {
+      onCommentAdded()
+    }
   }
 
   async function handleUpdateComment(commentId: string, content: string) {
@@ -206,6 +212,10 @@ export function PostCommentsModal({ open, onOpenChange, post, currentReaction, o
     await deleteCommentMutation.mutateAsync(commentId)
     // Remove locally so user sees the deletion immediately
     setAccumulatedComments((prev) => prev.filter((c) => c.id !== commentId))
+    
+    if (onCommentDeleted) {
+      onCommentDeleted()
+    }
   }
 
   async function handleToggleCommentReaction(commentId: string, type: ReactionType) {

@@ -78,7 +78,13 @@
         "fieldPhone": "Phone",
         "fieldRole": "Role",
         "genderMale": "Male",
-        "genderFemale": "Female"
+        "genderFemale": "Female",
+        "friendsTab": "Friends",
+        "searchPlaceholder": "Search",
+        "mutualFriends": "{{count}} mutual friends",
+        "noFriends": "You don't have any friends yet.",
+        "noMutualFriends": "No mutual friends.",
+        "featureInDevelopment": "Feature in development"
       }
     },
     "validation": {
