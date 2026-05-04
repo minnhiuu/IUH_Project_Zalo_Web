@@ -95,7 +95,9 @@ messaging.onBackgroundMessage(async (payload) => {
       })
     })
 
+    /* 
     return self.registration.showNotification(notificationTitle, notificationOptions)
+    */
   })
 })
 
