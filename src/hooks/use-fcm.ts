@@ -86,6 +86,20 @@ export function useFCM(onForegroundMessage?: (payload: unknown) => void, onNotif
 
     initFCM()
 
+    // Sync userId to Service Worker for multi-user security
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.ready.then((registration) => {
+        if (registration.active) {
+          if (userId) {
+            const expiresAt = storage.get<number>(STORAGE_KEYS.REFRESH_TOKEN_EXPIRATION)
+            registration.active.postMessage({ type: 'SET_USER', userId, expiresAt })
+          } else {
+            registration.active.postMessage({ type: 'CLEAR_USER' })
+          }
+        }
+      })
+    }
+
     const unsubscribe = onMessage(messaging, (payload) => {
       queryClient.refetchQueries({
         queryKey: notificationKeys.all,

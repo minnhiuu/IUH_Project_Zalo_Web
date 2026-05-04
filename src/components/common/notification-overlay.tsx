@@ -3,8 +3,10 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { NotificationToast } from './notification-toast'
 import type { NotificationGroupResponse } from '@/features/notification/schemas/notification.schema'
 import { useLocation } from 'react-router'
+import { useTranslation } from 'react-i18next'
 
 export function NotificationOverlay() {
+  const { i18n } = useTranslation()
   const location = useLocation()
   const [notifications, setNotifications] = useState<(NotificationGroupResponse & { key: string })[]>([])
 
@@ -37,7 +39,17 @@ export function NotificationOverlay() {
           return prev
         }
 
-        const next = [...prev, { ...data, key }]
+        // 2. Select language from translations map
+        const currentLocale = i18n.language.split('-')[0] // 'vi' or 'en'
+        let title = data.title
+        let body = data.body
+
+        if (data.translations && data.translations[currentLocale]) {
+          title = data.translations[currentLocale].title
+          body = data.translations[currentLocale].body
+        }
+
+        const next = [...prev, { ...data, title, body, key }]
         return next.slice(-3)
       })
 

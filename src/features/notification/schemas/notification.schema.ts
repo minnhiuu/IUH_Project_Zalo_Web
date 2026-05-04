@@ -7,6 +7,10 @@ export const NotificationGroupResponseSchema = z.object({
   referenceId: z.string().nullable(),
   title: z.string(),
   body: z.string(),
+  translations: z.record(z.string(), z.object({
+    title: z.string(),
+    body: z.string()
+  })).optional(),
   actorIds: z.array(z.string()),
   actorCount: z.number(),
   read: z.boolean(),

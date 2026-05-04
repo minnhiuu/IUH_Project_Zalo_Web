@@ -229,7 +229,9 @@ export const NotificationItem = React.memo(({ notification, onMarkAsRead }: Noti
             'text-[15px] leading-[1.3] overflow-wrap-break-word',
             !notification.read ? 'text-foreground font-medium' : 'text-muted-foreground'
           )}
-          dangerouslySetInnerHTML={{ __html: notification.body }}
+          dangerouslySetInnerHTML={{ 
+            __html: (notification.translations?.[i18n.language.split('-')[0]]?.body) || notification.body 
+          }}
         />
         <div
           className={cn(

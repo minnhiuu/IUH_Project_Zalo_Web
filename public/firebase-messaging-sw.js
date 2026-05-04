@@ -15,16 +15,67 @@ firebase.initializeApp(firebaseConfig)
 
 const messaging = firebase.messaging()
 
-self.addEventListener('install', () => {
-  self.skipWaiting()
-})
+// Helper to interact with IndexedDB in SW
+const DB_NAME = 'fcm_auth_db';
+const STORE_NAME = 'auth_state';
 
-self.addEventListener('activate', (event) => {
-  event.waitUntil(self.clients.claim())
-})
+function getAuthState() {
+  return new Promise((resolve) => {
+    const request = indexedDB.open(DB_NAME, 1);
+    request.onupgradeneeded = (e) => e.target.result.createObjectStore(STORE_NAME);
+    request.onsuccess = (e) => {
+      const db = e.target.result;
+      const tx = db.transaction(STORE_NAME, 'readonly');
+      const store = tx.objectStore(STORE_NAME);
+      const getReq = store.get('current_user');
+      getReq.onsuccess = () => resolve(getReq.result);
+      getReq.onerror = () => resolve(null);
+    };
+    request.onerror = () => resolve(null);
+  });
+}
 
-messaging.onBackgroundMessage((payload) => {
+function setAuthState(data) {
+  const request = indexedDB.open(DB_NAME, 1);
+  request.onupgradeneeded = (e) => e.target.result.createObjectStore(STORE_NAME);
+  request.onsuccess = (e) => {
+    const db = e.target.result;
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    store.put(data, 'current_user');
+  };
+}
+
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SET_USER') {
+    setAuthState({
+      userId: event.data.userId,
+      expiresAt: event.data.expiresAt // Thêm thời điểm hết hạn
+    });
+    console.log('[SW] Auth state updated');
+  } else if (event.data && event.data.type === 'CLEAR_USER') {
+    setAuthState(null);
+    console.log('[SW] Auth state cleared');
+  }
+});
+
+messaging.onBackgroundMessage(async (payload) => {
   console.log('[SW] Background message received:', payload)
+
+  const authState = await getAuthState();
+  const now = Date.now();
+
+  // 1. Session Expiry & Recipient Validation
+  if (!authState || (authState.expiresAt && now > authState.expiresAt)) {
+    console.warn('[SW] Blocking notification: No active session or session expired');
+    return;
+  }
+
+  const recipientId = payload.data?.recipientId;
+  if (recipientId && authState.userId !== recipientId) {
+    console.warn(`[SW] Blocking notification: recipient mismatch (${recipientId} vs ${authState.userId})`);
+    return;
+  }
 
   const origin = self.location.origin
   const notificationTitle = payload.notification?.title || payload.data?.title || 'Tin nhắn mới'
