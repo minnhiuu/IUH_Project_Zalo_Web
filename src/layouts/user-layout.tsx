@@ -39,7 +39,7 @@ export default function UserLayout() {
   const { text: commonText } = useCommonText()
   const [searchParams, setSearchParams] = useSearchParams()
 
-  const unreadDisplay = Math.max(notificationState?.unreadCount ?? 0, systemUnreadCount)
+  const unreadDisplay = systemUnreadCount
 
   useEffect(() => {
     if (searchParams.get('noti_open') === 'true') {

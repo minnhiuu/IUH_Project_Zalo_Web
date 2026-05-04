@@ -11,6 +11,7 @@ export const NotificationGroupResponseSchema = z.object({
     title: z.string(),
     body: z.string()
   })).optional(),
+  silent: z.boolean().optional(),
   actorIds: z.array(z.string()),
   actorCount: z.number(),
   read: z.boolean(),

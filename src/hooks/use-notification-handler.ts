@@ -95,8 +95,9 @@ export function useNotificationHandler() {
       conversationId?: string
       type?: string
       referenceId?: string
+      silent?: boolean
     }) => {
-      const { id, senderId, alertMessage, conversationId, type, referenceId } = data
+      const { id, senderId, alertMessage, conversationId, type, referenceId, silent } = data
 
       if (conversationId && activeConversationId === conversationId) return
 
@@ -115,6 +116,8 @@ export function useNotificationHandler() {
           return next
         })
       }
+
+      if (silent) return // Skip sound and flashing for silent notifications
 
       if (alertMessage && conversationId) {
         setLastMessageContent(alertMessage)
@@ -144,7 +147,8 @@ export function useNotificationHandler() {
         alertMessage: payload.title,
         conversationId: data.conversationId as string,
         type: payload.type,
-        referenceId: payload.referenceId || undefined
+        referenceId: payload.referenceId || undefined,
+        silent: payload.silent
       })
     }
 
@@ -183,9 +187,13 @@ export function useNotificationHandler() {
     return () => window.removeEventListener('notification:marked-as-read', handleClear)
   }, [])
 
-  const chatUnreadCount = Array.from(notificationsByConv.keys()).filter((key) => !key.startsWith('system_')).length
-  const systemUnreadCount = notificationsByConv.size - chatUnreadCount
+  // 1. Đếm số hội thoại chat có tin nhắn chưa đọc (mỗi hội thoại tính là 1)
+  const chatUnreadCount = Array.from(notificationsByConv.entries()).filter(([, type]) => type !== 'system').length
 
+  // 2. Lấy số lượng thông báo hệ thống từ Server DB
+  const systemUnreadCount = notificationState?.unreadCount ?? 0
+
+  // 3. Cập nhật Tab Badge = Tổng tất cả định danh duy nhất (Chat + System)
   useNotificationBadge({
     count: notificationsByConv.size,
     showDot: chatUnreadCount > 0,
@@ -194,7 +202,8 @@ export function useNotificationHandler() {
   })
 
   return {
-    unreadCount: notificationsByConv.size,
-    systemUnreadCount
+    unreadCount: notificationsByConv.size, // Tổng duy nhất để dùng cho Tab
+    chatUnreadCount,
+    systemUnreadCount // Riêng cho Sidebar (lấy từ DB)
   }
 }
