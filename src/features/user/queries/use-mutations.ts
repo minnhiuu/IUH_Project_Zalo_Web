@@ -154,46 +154,4 @@ export const useUnblockUserMutation = () => {
   })
 }
 
-export const useDeactivateAccountMutation = () => {
-  const queryClient = useQueryClient()
-  const { updateUser, user } = useAuthContext()
 
-  return useMutation({
-    mutationFn: userApi.deactivateMyAccount,
-    onSuccess: (response) => {
-      const updatedUser = response.data.data
-      if (updatedUser) {
-        updateUser(updatedUser)
-      } else if (user) {
-        updateUser({ ...user, active: false })
-      }
-
-      queryClient.invalidateQueries({ queryKey: userKeys.profile() })
-      if (updatedUser?.id) {
-        queryClient.invalidateQueries({ queryKey: userKeys.detail(updatedUser.id) })
-      }
-    }
-  })
-}
-
-export const useActivateAccountMutation = () => {
-  const queryClient = useQueryClient()
-  const { updateUser, user } = useAuthContext()
-
-  return useMutation({
-    mutationFn: userApi.activateMyAccount,
-    onSuccess: (response) => {
-      const updatedUser = response.data.data
-      if (updatedUser) {
-        updateUser(updatedUser)
-      } else if (user) {
-        updateUser({ ...user, active: true })
-      }
-
-      queryClient.invalidateQueries({ queryKey: userKeys.profile() })
-      if (updatedUser?.id) {
-        queryClient.invalidateQueries({ queryKey: userKeys.detail(updatedUser.id) })
-      }
-    }
-  })
-}

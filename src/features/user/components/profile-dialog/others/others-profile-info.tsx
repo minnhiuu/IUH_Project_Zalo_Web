@@ -20,7 +20,6 @@ import { FriendStatus } from '@/features/friend/schemas/friend.schema'
 import { useAuthContext } from '@/features/auth/context/auth-context'
 import { useFriendText } from '@/features/friend/i18n/use-friend-text'
 import { UnfriendConfirmDialog } from '@/features/friend/components/unfriend-confirm-dialog'
-import { DeactivatedProfileState } from '../shared/deactivated-profile-state'
 
 interface OthersProfileInfoProps {
   user: UserResponse
@@ -145,7 +144,7 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
   }
 
   if (user.active === false) {
-    return <DeactivatedProfileState user={user} />
+    return null
   }
 
   return (

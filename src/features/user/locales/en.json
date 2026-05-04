@@ -57,9 +57,6 @@
       "editBlock": "Block settings",
       "report": "Report",
       "deleteFriend": "Remove from friends list",
-      "deactivatedTitle": "Account is deactivated",
-      "deactivatedDescription": "This user has temporarily deactivated their account.",
-      "deactivatedOwnerDescription": "Your account is deactivated. You can reactivate it in Settings.",
       "goToSettings": "Go to settings"
     },
     "validation": {
@@ -272,22 +269,7 @@
             "story": "Stories"
           }
         },
-        "accountActivation": {
-          "title": "Account status",
-          "activeDescription": "Deactivate your account to temporarily hide your profile and interactions.",
-          "inactiveDescription": "Your account is currently deactivated. Reactivate to use all features again.",
-          "deactivateButton": "Deactivate my account",
-          "activateButton": "Activate my account",
-          "deactivateConfirmTitle": "Deactivate account?",
-          "deactivateConfirmDescription": "Your profile will be shown as deactivated until you activate it again.",
-          "activateConfirmTitle": "Activate account?",
-          "activateConfirmDescription": "Your profile and social interactions will be restored.",
-          "deactivating": "Deactivating...",
-          "activating": "Activating...",
-          "deactivateSuccess": "Your account has been deactivated",
-          "activateSuccess": "Your account has been activated",
-          "error": "Could not update account status. Please try again."
-        },
+        "accountActivation": {},
         "blockModal": {
           "title": "Block User",
           "editTitle": "Block Settings",

@@ -10,7 +10,6 @@ import { type UserResponse } from '@/features/user/schemas/user.schema'
 import { ProfileInfoBase } from '../shared/profile-info-base'
 import { BackgroundEditor } from './background-editor'
 import { UpdateImageDialog } from './update-image-dialog'
-import { DeactivatedProfileState } from '../shared/deactivated-profile-state'
 import { getBatchPresignedUrls } from '@/features/chat/api/chat.api'
 import { uploadToS3 } from '@/utils/s3-upload'
 
@@ -89,18 +88,6 @@ export function OwnerProfileInfo({ user, onEdit }: OwnerProfileInfoProps) {
       console.error('Crop failed', e)
       toast.error(text.profile.selectImageError)
     }
-  }
-
-  if (user.active === false) {
-    return (
-      <DeactivatedProfileState
-        user={user}
-        isOwner={true}
-        onGoToSettings={() => {
-          window.location.href = '/settings'
-        }}
-      />
-    )
   }
 
   return (

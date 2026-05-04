@@ -1,15 +1,10 @@
-import { useState } from 'react'
 import {
   Check,
   Loader2,
   Smartphone,
   ChevronRight,
   KeyRound,
-  Ban,
-  ShieldAlert,
-  ShieldCheck,
-  UserCheck,
-  UserX
+  Ban
 } from 'lucide-react'
 import { useUserText } from '@/features/user/i18n/use-user-text'
 import { cn } from '@/lib/utils'
@@ -17,20 +12,8 @@ import { Separator } from '@/components/ui/separator'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { PrivacyLevel, DobVisibility } from '@/features/user-settings/schemas/settings.schema'
 import { Button } from '@/components/ui/button'
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle
-} from '@/components/ui/alert-dialog'
-import { toast } from 'sonner'
 import { ActionRow } from './action-row'
 import { useSettingsState } from '../settings-state-context'
-import { useAuthContext } from '@/features/auth/context/auth-context'
-import { useActivateAccountMutation, useDeactivateAccountMutation } from '@/features/user/queries/use-mutations'
 
 interface PrivacySettingsProps {
   onNavigateToDevices?: () => void
@@ -45,15 +28,9 @@ export function PrivacySettings({
 }: PrivacySettingsProps) {
   const { text } = useUserText()
   const { settings, isLoading, pending, updatePrivacySettings } = useSettingsState()
-  const { user } = useAuthContext()
-  const [confirmAction, setConfirmAction] = useState<'deactivate' | 'activate' | null>(null)
-  const deactivateAccountMutation = useDeactivateAccountMutation()
-  const activateAccountMutation = useActivateAccountMutation()
 
   const privacySettings = settings?.privacySettings
   const isPrivacyAvailable = !!privacySettings
-  const isAccountActive = user?.active === true
-  const isActivationPending = deactivateAccountMutation.isPending || activateAccountMutation.isPending
 
   const handleToggle = (field: keyof NonNullable<typeof privacySettings>) => {
     if (!privacySettings) return
@@ -92,23 +69,6 @@ export function PrivacySettings({
     { value: PrivacyLevel.FRIENDS, label: text.settings.privacy.textAndCall.canText.friends },
     { value: PrivacyLevel.FRIENDS_AND_CONTACTED, label: text.settings.privacy.textAndCall.canText.contacted }
   ]
-
-  const handleConfirmAccountAction = async () => {
-    if (!confirmAction) return
-
-    try {
-      if (confirmAction === 'deactivate') {
-        await deactivateAccountMutation.mutateAsync()
-        toast.success(text.settings.accountPrivacy.accountActivation.deactivateSuccess)
-      } else {
-        await activateAccountMutation.mutateAsync()
-        toast.success(text.settings.accountPrivacy.accountActivation.activateSuccess)
-      }
-      setConfirmAction(null)
-    } catch {
-      toast.error(text.settings.accountPrivacy.accountActivation.error)
-    }
-  }
 
   return (
     <div className='space-y-4'>
@@ -311,58 +271,6 @@ export function PrivacySettings({
 
         <Separator />
 
-        {/* Account Activation Section */}
-        <ActionRow title={text.settings.accountPrivacy.accountActivation.title} contentClassName='space-y-4'>
-          <div
-            className={cn(
-              'rounded-xl border px-4 py-3',
-              isAccountActive
-                ? 'border-destructive/25 bg-destructive-subtle/40'
-                : 'border-emerald-500/25 bg-emerald-500/10 dark:bg-emerald-500/15'
-            )}
-          >
-            <div className='flex items-start gap-3'>
-              <div
-                className={cn(
-                  'mt-0.5 inline-flex size-8 shrink-0 items-center justify-center rounded-full',
-                  isAccountActive
-                    ? 'bg-destructive/10 text-destructive'
-                    : 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300'
-                )}
-              >
-                {isAccountActive ? <ShieldAlert className='h-4 w-4' /> : <ShieldCheck className='h-4 w-4' />}
-              </div>
-
-              <div className='space-y-1'>
-                <p className='text-sm font-semibold text-foreground'>
-                  {isAccountActive
-                    ? text.settings.accountPrivacy.accountActivation.deactivateButton
-                    : text.settings.accountPrivacy.accountActivation.activateButton}
-                </p>
-                <p className='text-xs leading-relaxed text-muted-foreground'>
-                  {isAccountActive
-                    ? text.settings.accountPrivacy.accountActivation.activeDescription
-                    : text.settings.accountPrivacy.accountActivation.inactiveDescription}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <Button
-            onClick={() => setConfirmAction(isAccountActive ? 'deactivate' : 'activate')}
-            disabled={isActivationPending}
-            variant={isAccountActive ? 'destructive' : 'secondary-blue'}
-            className='w-full sm:w-fit'
-          >
-            {isAccountActive ? <UserX className='w-4 h-4 mr-2' /> : <UserCheck className='w-4 h-4 mr-2' />}
-            {isAccountActive
-              ? text.settings.accountPrivacy.accountActivation.deactivateButton
-              : text.settings.accountPrivacy.accountActivation.activateButton}
-          </Button>
-        </ActionRow>
-
-        <Separator />
-
         {/* Blocked Users Section */}
         <ActionRow
           title={text.settings.accountPrivacy.blockedUsers.title}
@@ -377,45 +285,6 @@ export function PrivacySettings({
         </ActionRow>
       </div>
 
-      <AlertDialog open={!!confirmAction} onOpenChange={(open) => !open && setConfirmAction(null)}>
-        <AlertDialogContent size='sm'>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {confirmAction === 'deactivate'
-                ? text.settings.accountPrivacy.accountActivation.deactivateConfirmTitle
-                : text.settings.accountPrivacy.accountActivation.activateConfirmTitle}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {confirmAction === 'deactivate'
-                ? text.settings.accountPrivacy.accountActivation.deactivateConfirmDescription
-                : text.settings.accountPrivacy.accountActivation.activateConfirmDescription}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isActivationPending}>{text.profile.cancel}</AlertDialogCancel>
-            <Button
-              type='button'
-              variant={confirmAction === 'deactivate' ? 'destructive' : 'secondary-blue'}
-              onClick={handleConfirmAccountAction}
-              disabled={isActivationPending}
-            >
-              {isActivationPending ? (
-                <>
-                  <Loader2 className='w-4 h-4 mr-2 animate-spin' />
-                  {confirmAction === 'deactivate'
-                    ? text.settings.accountPrivacy.accountActivation.deactivating
-                    : text.settings.accountPrivacy.accountActivation.activating}
-                </>
-              ) : confirmAction === 'deactivate' ? (
-                text.settings.accountPrivacy.accountActivation.deactivateButton
-              ) : (
-                text.settings.accountPrivacy.accountActivation.activateButton
-              )}
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   )
 }

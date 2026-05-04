@@ -57,9 +57,6 @@
       "editBlock": "Cài đặt chặn",
       "report": "Báo xấu",
       "deleteFriend": "Xóa khỏi danh sách bạn bè",
-      "deactivatedTitle": "Tài khoản đã tạm ngưng",
-      "deactivatedDescription": "Người dùng này đã tạm ngưng tài khoản.",
-      "deactivatedOwnerDescription": "Tài khoản của bạn đang tạm ngưng. Bạn có thể kích hoạt lại trong Cài đặt.",
       "goToSettings": "Mở cài đặt"
     },
     "validation": {
@@ -272,22 +269,7 @@
             "story": "Nhật ký"
           }
         },
-        "accountActivation": {
-          "title": "Trạng thái tài khoản",
-          "activeDescription": "Tạm ngưng tài khoản để ẩn hồ sơ và tương tác của bạn trong thời gian ngắn.",
-          "inactiveDescription": "Tài khoản của bạn đang tạm ngưng. Kích hoạt lại để sử dụng đầy đủ tính năng.",
-          "deactivateButton": "Tạm ngưng tài khoản",
-          "activateButton": "Kích hoạt tài khoản",
-          "deactivateConfirmTitle": "Tạm ngưng tài khoản?",
-          "deactivateConfirmDescription": "Hồ sơ của bạn sẽ hiển thị ở trạng thái tạm ngưng cho đến khi bạn kích hoạt lại.",
-          "activateConfirmTitle": "Kích hoạt tài khoản?",
-          "activateConfirmDescription": "Hồ sơ và các tương tác xã hội của bạn sẽ được khôi phục.",
-          "deactivating": "Đang tạm ngưng...",
-          "activating": "Đang kích hoạt...",
-          "deactivateSuccess": "Đã tạm ngưng tài khoản",
-          "activateSuccess": "Đã kích hoạt tài khoản",
-          "error": "Không thể cập nhật trạng thái tài khoản. Vui lòng thử lại."
-        },
+        "accountActivation": {},
         "blockModal": {
           "title": "Chặn người dùng",
           "editTitle": "Cài đặt chặn",
