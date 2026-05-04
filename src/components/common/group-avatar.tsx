@@ -111,7 +111,9 @@ export function GroupAvatar({ avatars, names, count, size = 'md', className }: G
               </span>
             </div>
           ) : (
-            <div className={cn('w-full h-full overflow-hidden flex items-center justify-center', innerSizeClasses[size])}>
+            <div
+              className={cn('w-full h-full overflow-hidden flex items-center justify-center', innerSizeClasses[size])}
+            >
               <UserAvatar src={avatars[3]} name={names[3] || '?'} className={avatarClassName} />
             </div>
           )}

@@ -16,7 +16,7 @@ import { AiWelcomeScreen } from './ai-welcome-screen'
 
 // ── Main AI Chat Window ────────────────────────────────────────────────────────
 export function AiChatWindow({ conversation }: AiChatWindowProps) {
-  const { messages, isLoading, sendMessage, clearHistory } = useAiChat(conversation.id)
+  const { messages, isLoading, sendMessage, clearHistory } = useAiChat(conversation.id, { loadHistory: true })
   const { text } = useChatText()
   const [content, setContent] = useState('')
   const scrollRef = useRef<HTMLDivElement>(null)

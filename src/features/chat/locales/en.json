@@ -1,7 +1,7 @@
 {
   "chat": {
     "title": "Messages",
-    "searchPlaceholder": "Search conversations...",
+    "searchPlaceholder": "Search",
     "emptyState": "Select a conversation to start chatting",
     "emptyStateSearch": "No results found",
     "inputPlaceholder": "Type a message...",
@@ -115,7 +115,7 @@
         "by_actor": "<bold>{{target}}</bold> was blocked from this group by <actorBold>{{actor}}</actorBold>"
       },
       "blocked_from_joining": "<bold>{{target}}</bold> is blocked by owner/admin to join group",
-      "add_members_failed": "Failed to add member({{count}}).",
+      "add_members_failed": "Failed to add member",
       "self_blocked_from_joining": {
         "with_link": "Cannot add <bold>{{target}}</bold> to the group. They can only join via the group invite link.",
         "without_link": "Cannot add <bold>{{target}}</bold> to the group.",
@@ -234,9 +234,9 @@
     "status": {
       "online": "Active now",
       "justNow": "Just now",
-      "minutesAgo": "{{count}} minutes ago",
-      "hoursAgo": "{{count}} hours ago",
-      "daysAgo": "{{count}} days ago",
+      "minutesAgo": "{{count}} minutes",
+      "hoursAgo": "{{count}} hours",
+      "daysAgo": "{{count}} days",
       "yesterday": "Yesterday",
       "onDate": "Accessed on {{date}}",
       "sending": "Sending...",
@@ -277,7 +277,7 @@
       "noResultsFound": "No results found",
       "noFriendsFound": "No friends found",
       "groupAlreadyExists": "A group already exists",
-      "addMemberFailed": "Failed to add member({{count}}).",
+      "addMemberFailed": "Failed to add member.",
       "avatarAlt": "Avatar",
       "notAvailable": "Not available",
       "confirmSelection": "Confirm selection",
@@ -469,7 +469,8 @@
       "leaveGroupError": "Failed to leave group",
       "blockSuccess": "Blocked members successfully",
       "unblockSuccess": "Unblocked successfully",
-      "noBlockCandidates": "No members available to block"
+      "noBlockCandidates": "No members available to block",
+      "transferOwnerSuccess": "Transferred ownership successfully"
     },
     "sidebarInfo": {
       "title": "Chat Information",
@@ -525,6 +526,7 @@
       "removeFromGroupConfirmTitle": "Confirm",
       "removeFromGroupConfirmDesc": "Remove this member from group?",
       "blockFromGroupDesc": "Block this one from rejoining",
+      "confirmAccept": "Confirm",
       "close": "Close"
     },
     "mediaStorage": {
@@ -585,6 +587,29 @@
       "upgradeDesc": "Expand storage up to 100GB and automatically preserve chat data with zCloud.",
       "upgradeAction": "Add storage",
       "reminderList": "Reminder list"
+    },
+    "searchSidebar": {
+      "title": "Search messages",
+      "placeholder": "Search",
+      "filterLabel": "Filter by:",
+      "filterSender": "Sender",
+      "filterDate": "Sent date",
+      "filterTime": "Time",
+      "emptyStateText": "Enter a keyword to search for messages in this conversation",
+      "emptyStateSearch": "No results found",
+      "timeSuggestion": "Time suggestion",
+      "last7Days": "7 days ago",
+      "last30Days": "30 days ago",
+      "last3Months": "3 months ago",
+      "chooseTimeRange": "Choose time range",
+      "fromDate": "From date",
+      "toDate": "To date",
+      "loadMore": "Load more",
+      "clear": "Clear",
+      "confirm": "Confirm",
+      "cancel": "Cancel",
+      "messages": "Messages",
+      "files": "Files"
     }
   },
   "call": {

@@ -1,4 +1,4 @@
-import { UserPlus, UserRoundPlus, UserRoundX } from 'lucide-react'
+import { UserPlus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { GroupMembersSection } from '../members/group-members-section'
 import { JoinRequestsSection } from '../members/join-requests-section'
@@ -6,8 +6,7 @@ import { GroupMemberRole } from '@/constants/enum'
 import type { GroupMemberListItemResponse } from '../../../schemas/chat.schema'
 import { useJoinRequestsQuery } from '../../../queries/use-queries'
 import { useApproveJoinRequestMutation, useRejectJoinRequestMutation } from '../../../queries/use-mutations'
-import { ActionMenuItem } from '@/components/common/action-menu-item'
-import { useChatText } from '../../../i18n/use-chat-text'
+
 
 interface GroupMembersStepProps {
   conversationId: string
@@ -19,8 +18,6 @@ interface GroupMembersStepProps {
   onOpenAddMember: () => void
   onLeaveGroup: () => void
   onMemberClick?: (member: GroupMemberListItemResponse) => void
-  onGoToAdmins?: () => void
-  onGoToBlocked?: () => void
 }
 
 export function GroupMembersStep({
@@ -32,14 +29,9 @@ export function GroupMembersStep({
   currentUserRole,
   onOpenAddMember,
   onLeaveGroup,
-  onMemberClick,
-  onGoToAdmins,
-  onGoToBlocked
+  onMemberClick
 }: GroupMembersStepProps) {
-  const { text } = useChatText()
-  const tg = text['group-info-dialog']
   const isAdmin = currentUserRole === GroupMemberRole.Owner || currentUserRole === GroupMemberRole.Admin
-  const isOwner = currentUserRole === GroupMemberRole.Owner
   const { data: joinRequests = [] } = useJoinRequestsQuery(conversationId, isAdmin)
   const { mutate: approveRequest } = useApproveJoinRequestMutation()
   const { mutate: rejectRequest } = useRejectJoinRequestMutation()
@@ -51,27 +43,6 @@ export function GroupMembersStep({
           <UserPlus className='w-4 h-4 mr-2' />
           {addMemberLabel}
         </Button>
-
-        <div className='flex flex-col'>
-          {isOwner && (
-            <ActionMenuItem
-              icon={<UserRoundPlus className='w-4 h-4' />}
-              label={tg.actions.ownerAndDeputy}
-              showDivider={isAdmin}
-              onClick={onGoToAdmins}
-              className='px-0 py-2.5 h-auto'
-            />
-          )}
-          {isAdmin && (
-            <ActionMenuItem
-              icon={<UserRoundX className='w-4 h-4' />}
-              label={tg.actions.removeMembers}
-              showDivider={false}
-              onClick={onGoToBlocked}
-              className='px-0 py-2.5 h-auto'
-            />
-          )}
-        </div>
       </div>
 
       <div className='flex-1 overflow-hidden flex flex-col'>

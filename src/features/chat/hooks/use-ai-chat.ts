@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { getAccessToken } from '@/lib/axios-client'
 import i18n from '@/lib/i18n'
-import { getMessages } from '../api/chat.api'
+import { getMessagesV2 } from '../api/chat.api'
 import type { MessageResponse } from '../schemas/chat.schema'
 import type { AiProcessingStatus } from '@/constants/enum'
 import { parseAiSuggestions, parseAiQuestion } from '../utils/ai-parser'
@@ -41,13 +41,18 @@ function parseAiMessageFromDb(raw: string): {
 const AI_BASE_URL = import.meta.env.VITE_API_BASE_URL
 const AI_ASSISTANT_ID = 'ai-assistant-001'
 
+interface UseAiChatOptions {
+  loadHistory?: boolean
+}
+
 /**
  * Hook xử lý nghiệp vụ AI Chat:
  * 1. Fetch lịch sử tin nhắn từ message-service (MongoDB) để duy trì khi F5.
  * 2. Gửi tin nhắn mới đến ai-service và nhận Streaming (SSE).
  * 3. Xử lý STATUS events để hiển thị trạng thái pipeline real-time.
  */
-export function useAiChat(conversationId: string) {
+export function useAiChat(conversationId: string, options: UseAiChatOptions = {}) {
+  const { loadHistory = true } = options
   const [messages, setMessages] = useState<AiMessage[]>([])
   const [isInitialLoading, setIsInitialLoading] = useState(true)
   const [isSummarizing, setIsSummarizing] = useState(false)
@@ -56,12 +61,18 @@ export function useAiChat(conversationId: string) {
 
   // BƯỚC 1: Lấy lịch sử tin nhắn từ Database (MongoDB) khi mở cửa sổ chat
   useEffect(() => {
-    if (!conversationId) return
+    if (!conversationId || !loadHistory) {
+      setMessages([])
+      setIsInitialLoading(false)
+      return
+    }
+
+    let isCancelled = false
 
     const fetchHistory = async () => {
       try {
         setIsInitialLoading(true)
-        const response = await getMessages(conversationId, 0)
+        const response = await getMessagesV2(conversationId, { limit: 20, direction: 'OLDER', cursor: null })
 
         // Map từ MessageResponse (DB) sang AiMessage (UI)
         // Quan trọng: parse <suggestions> và <question> tags khỏi content được lưu raw trong DB
@@ -94,16 +105,25 @@ export function useAiChat(conversationId: string) {
           })
           .reverse() // API trả về tin mới nhất trước (DESC)
 
-        setMessages(history)
+        if (!isCancelled) {
+          setMessages(history)
+        }
       } catch (err) {
-        console.error('[AiChat] Failed to fetch history:', err)
+        if (!isCancelled) {
+          console.error('[AiChat] Failed to fetch history:', err)
+        }
       } finally {
-        setIsInitialLoading(false)
+        if (!isCancelled) {
+          setIsInitialLoading(false)
+        }
       }
     }
 
     fetchHistory()
-  }, [conversationId])
+    return () => {
+      isCancelled = true
+    }
+  }, [conversationId, loadHistory])
 
   const mutation = useMutation({
     mutationFn: async (payload: { userText: string; isMention?: boolean }) => {

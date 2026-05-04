@@ -8,6 +8,7 @@ import type {
   LeaveGroupRequest,
   SearchMemberResponse,
   GroupMemberListItemResponse,
+  ConversationParticipantResponse,
   AdminMemberResponse,
   GroupSettings,
   JoinGroupPreviewResponse,
@@ -156,6 +157,11 @@ export const revokeMessageApi = async (messageId: string): Promise<void> => {
   await http.patch(`/messages/messages/${messageId}/revoke`)
 }
 
+export const getMessageApi = async (messageId: string): Promise<MessageResponse> => {
+  const response = await http.get<ApiResponse<MessageResponse>>(`/messages/messages/${messageId}`)
+  return response.data.data
+}
+
 export const deleteMessageForMeApi = async (messageId: string): Promise<void> => {
   await http.delete(`/messages/messages/${messageId}/me`)
 }
@@ -272,6 +278,27 @@ export const getGroupMembersApi = async (
         query: params?.query,
         page: params?.page ?? 0,
         size: params?.size ?? 20
+      }
+    }
+  )
+  return response.data.data
+}
+
+export const getConversationParticipantsApi = async (
+  conversationId: string,
+  params?: {
+    query?: string
+    page?: number
+    size?: number
+  }
+): Promise<PageResponse<ConversationParticipantResponse>> => {
+  const response = await http.get<ApiResponse<PageResponse<ConversationParticipantResponse>>>(
+    `/messages/conversations/${conversationId}/participants`,
+    {
+      params: {
+        query: params?.query,
+        page: params?.page ?? 0,
+        size: params?.size ?? 50
       }
     }
   )

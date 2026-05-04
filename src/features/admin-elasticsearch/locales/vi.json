@@ -4,8 +4,8 @@
     "description": "Trung tâm điều khiển và giám sát toàn bộ các chỉ mục tìm kiếm.",
     "modules": {
       "users": "Chỉ mục Người dùng",
-      "messages": "Chỉ mục Tin nhắn (Sắp tới)",
-      "groups": "Chỉ mục Nhóm (Sắp tới)"
+      "messages": "Chỉ mục Tin nhắn",
+      "groups": "Chỉ mục Nhóm"
     },
     "actions": {
       "reindexAll": "Phục hồi toàn bộ dữ liệu",
@@ -80,8 +80,8 @@
     "dashboard": {
       "headerTitle": "Quản lý tìm kiếm",
       "headerSubtitle": "Thống kê vận hành và điều khiển tập trung cụm Elasticsearch",
-      "messagesComingSoon": "Tính năng Tin nhắn sắp ra mắt",
-      "groupsComingSoon": "Tính năng Nhóm sắp ra mắt",
+      "messagesComingSoon": "Quản lý và lịch sử chỉ mục tin nhắn",
+      "groupsComingSoon": "Tính năng chỉ mục nhóm sắp ra mắt",
       "noData": "Không có dữ liệu",
       "primaryActive": "Chỉ mục đang hoạt động",
       "connecting": "Đang kết nối...",
@@ -90,16 +90,16 @@
     },
     "controlBar": {
       "inputPlaceholder": "User ID...",
-      "syncUser": "Đồng bộ",
-      "sync": "ĐỒNG BỘ",
-      "reindexAll": "Đồng bộ",
+      "syncUser": "Sync User",
+      "syncMessage": "Sync Message",
+      "reindexAll": "Sync All Index",
       "reindexMessages": "REINDEX MESSAGES",
       "reindexGroups": "REINDEX GROUPS",
       "retryDeadEvents": "Khôi phục sự kiện lỗi (DLQ)",
       "dialog": {
         "reindexAll": {
-          "title": "Xác nhận Reindex Người dùng",
-          "description": "Làm mới toàn bộ dữ liệu chỉ mục USERS. Hành động này có thể gây gián đoạn dịch vụ tìm kiếm trong giây lát."
+          "title": "Xác nhận đồng bộ toàn bộ",
+          "description": "Kích hoạt đồng bộ hóa dữ liệu toàn bộ cho module đã chọn. Hành động này sẽ làm mới toàn bộ các bản ghi tìm kiếm liên quan."
         },
         "cancel": "Hủy bỏ",
         "confirm": "Xác nhận"
@@ -114,10 +114,10 @@
     "userTab": {
       "statusCardTitle": "Trạng thái Index",
       "badges": {
-        "sync": "ĐỒNG BỘ",
-        "diff": "LỆCH",
+        "sync": "ĐÃ KHỚP",
+        "diff": "LỆCH DỮ LIỆU",
         "match": "ĐÃ KHỚP",
-        "missMatch": "CÓ SAI LỆCH",
+        "missMatch": "CHƯA ĐỒNG BỘ",
         "active": "Sử dụng",
         "standby": "Dự phòng"
       },
@@ -154,7 +154,19 @@
         "cancel": "Hủy"
       },
       "deadEventsLabel": "Sự kiện lỗi (DLQ)",
-      "deadEventsTooltip": "{{count}} bản ghi chưa thể đồng bộ. Click để xem chi tiết."
+      "deadEventsTooltip": "{{count}} bản ghi chưa thể đồng bộ. Click để xem chi tiết.",
+      "tooltips": {
+        "totalDocs": "Tổng số bản ghi hiện có trong Elasticsearch cho module này.",
+        "storageSize": "Dung lượng đĩa mà các bản ghi này chiếm dụng trong Cluster.",
+        "currentIndex": "Tên định danh thực tế (vật lý) của index đang nhận dữ liệu tìm kiếm.",
+        "aliasName": "Tên gợi nhớ (biệt danh) dùng để truy vấn mà không cần quan tâm đến phiên bản index vật lý.",
+        "shards": "Số lượng phân mảnh dữ liệu. Giúp tối ưu tốc độ tìm kiếm và ghi dữ liệu.",
+        "replicas": "Số lượng bản sao lưu. Giúp hệ thống vẫn hoạt động nếu một Node bị lỗi.",
+        "mongodbCount": "Tổng số bản ghi hiện có trong cơ sở dữ liệu MongoDB.",
+        "esCount": "Tổng số bản ghi đã được đồng bộ sang Elasticsearch.",
+        "integrity": "Sự chênh lệch dữ liệu giữa MongoDB (Nguồn) và Elasticsearch (Đích).",
+        "dlq": "Số lượng yêu cầu đồng bộ bị thất bại và đang nằm trong hàng đợi lỗi Kafka."
+      }
     },
     "messages": {
       "reindexAllSuccess": "Đã lệnh kích hoạt tái lập chỉ mục toàn bộ",

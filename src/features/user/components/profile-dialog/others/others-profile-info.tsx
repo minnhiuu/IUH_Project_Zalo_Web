@@ -82,10 +82,10 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
         const sentByMe = friendshipStatus.requestedBy === currentUser?.id
         if (sentByMe) {
           return {
-            label: friendText.actions.withdraw,
-            variant: 'secondary',
+            label: userText.profile.message,
+            variant: 'secondary-blue',
             disabled: false,
-            action: 'withdraw'
+            action: null // This will handle the click separately
           }
         } else {
           return {
