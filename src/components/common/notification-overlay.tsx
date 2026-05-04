@@ -27,15 +27,14 @@ export function NotificationOverlay() {
         // Prevent duplicates
         if (prev.some((n) => n.id === data.id)) return prev
 
-        // 1. Skip if user is currently looking at this conversation
         const targetConvId = data.payload?.conversationId
-        const isSameChat =
-          targetConvId &&
-          currentConversationId === targetConvId &&
-          (data.type === 'MESSAGE_DIRECT' || data.type === 'MESSAGE_GROUP')
+        // 1. Skip Toast for Chat messages (handled by Chat Service)
+        if (data.type === 'MESSAGE_DIRECT' || data.type === 'MESSAGE_GROUP') {
+          return prev
+        }
 
-        if (isSameChat) {
-          console.log('[NotificationOverlay] Suppressed realtime toast for active chat:', targetConvId)
+        // 2. Skip if user is currently looking at this conversation
+        if (targetConvId && currentConversationId === targetConvId) {
           return prev
         }
 
