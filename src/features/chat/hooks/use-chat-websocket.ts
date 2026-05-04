@@ -12,8 +12,11 @@ import type {
   ReplyMetadata,
   TypingEvent
 } from '../schemas/chat.schema'
+import { useNavigate } from 'react-router'
 import { useAuth } from '@/features/auth/hooks/use-auth'
+import { useAuthContext } from '@/features/auth/context/auth-context'
 import { getAccessToken } from '@/lib/axios-client'
+import { PATHS } from '@/constants/path'
 import { MessageStatus, MessageType } from '@/constants/enum'
 import { BONDHUB_AI } from '@/constants/system'
 import { aiStreamingRegistry } from './ai-streaming-registry'
@@ -33,6 +36,8 @@ const JOIN_LINK_REGEX = /^https?:\/\/[^/]+\/g\/[a-zA-Z0-9_-]+$/
 
 export const useChatWebSocket = () => {
   const { user } = useAuth()
+  const { logoutLocal } = useAuthContext()
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [connected, setConnected] = useState(false)
   const [typingUsers, setTypingUsers] = useState<TypingEvent[]>([])
@@ -582,6 +587,36 @@ export const useChatWebSocket = () => {
           }
         })
 
+        // ────────── /queue/session (force logout) ──────────
+        client.subscribe('/user/queue/session', (payload) => {
+          try {
+           
+            const event = JSON.parse(payload.body)
+            console.log(`[Socket] Session event received:`, event);
+            if (event?.type !== 'FORCE_LOGOUT') return
+
+            // Compare the event's sessionId against the session encoded in our JWT
+            let mySessionId: string | null = null
+            try {
+              const token = getAccessToken()
+              if (token) {
+                const jwtPayload = JSON.parse(atob(token.split('.')[1]))
+                mySessionId = jwtPayload.sessionId ?? null
+              }
+            } catch {
+              // If we can't decode the token, treat it as a match (safe fallback → force logout)
+              mySessionId = null
+            }
+
+            if (mySessionId === null || mySessionId === event.sessionId) {
+              logoutLocal()
+              navigate(PATHS.AUTH.LOGIN)
+            }
+          } catch (error) {
+            console.error('[Socket] Error handling session event:', error)
+          }
+        })
+
         client.publish({
           destination: '/app/user.addUser',
           body: JSON.stringify(user)
@@ -594,7 +629,7 @@ export const useChatWebSocket = () => {
 
     client.activate()
     stompClientRef.current = client
-  }, [user, queryClient])
+  }, [user, queryClient, logoutLocal, navigate])
 
   const disconnect = useCallback(() => {
     if (stompClientRef.current) {

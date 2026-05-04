@@ -75,7 +75,7 @@
       "subtitle": "Create Zalo account\nto connect to Zalo Web",
       "fullname": "Full name",
       "email": "Email",
-      "phoneNumber": "Phone number",
+      "phoneNumber": "Phone number (optional)",
       "password": "Password",
       "confirmPassword": "Confirm password",
       "submit": "Register",

@@ -58,7 +58,8 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
     block: t(USER_KEYS.profile.block),
     editBlock: t(USER_KEYS.profile.editBlock),
     report: t(USER_KEYS.profile.report),
-    deleteFriend: t(USER_KEYS.profile.deleteFriend)
+    deleteFriend: t(USER_KEYS.profile.deleteFriend),
+    goToSettings: t(USER_KEYS.profile.goToSettings)
   },
   validation: {
     fullNameRequired: t(USER_KEYS.validation.fullNameRequired),
@@ -274,6 +275,7 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
           story: t(USER_KEYS.settings.accountPrivacy.blockedUsers.types.story)
         }
       },
+      accountActivation: {},
       blockModal: {
         title: t(USER_KEYS.settings.accountPrivacy.blockModal.title),
         editTitle: t(USER_KEYS.settings.accountPrivacy.blockModal.editTitle),

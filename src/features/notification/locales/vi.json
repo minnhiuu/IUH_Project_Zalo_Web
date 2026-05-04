@@ -49,6 +49,15 @@
       "senderIdRequired": "ID người gửi là bắt buộc",
       "senderNameRequired": "Tên người gửi là bắt buộc",
       "requestIdRequired": "ID yêu cầu là bắt buộc"
+    },
+    "newDeviceLogin": {
+      "title": "Cảnh báo đăng nhập thiết bị mới",
+      "description": "Chúng tôi phát hiện một lượt đăng nhập mới vào tài khoản của bạn.",
+      "device": "Thiết bị",
+      "ipAddress": "Địa chỉ IP",
+      "time": "Thời gian",
+      "unknown": "Không xác định",
+      "warning": "Nếu đây không phải là bạn, hãy đăng nhập vào thiết bị gốc và đăng xuất khỏi thiết bị này."
     }
   }
 }

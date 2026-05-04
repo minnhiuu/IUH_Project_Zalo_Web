@@ -56,7 +56,8 @@
       "block": "Chặn tin nhắn và cuộc gọi",
       "editBlock": "Cài đặt chặn",
       "report": "Báo xấu",
-      "deleteFriend": "Xóa khỏi danh sách bạn bè"
+      "deleteFriend": "Xóa khỏi danh sách bạn bè",
+      "goToSettings": "Mở cài đặt"
     },
     "validation": {
       "fullNameRequired": "Tên hiển thị không được để trống",
@@ -268,6 +269,7 @@
             "story": "Nhật ký"
           }
         },
+        "accountActivation": {},
         "blockModal": {
           "title": "Chặn người dùng",
           "editTitle": "Cài đặt chặn",

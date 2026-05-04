@@ -29,7 +29,10 @@ export const registerRequestSchema = z
       ),
     confirmPassword: z.string().min(1, i18n.t('auth:auth.validation.confirmPasswordRequired')),
     fullName: z.string().min(1, i18n.t('auth:auth.validation.fullNameRequired')),
-    phoneNumber: z.string().regex(/^[0-9]{10}$/, i18n.t('auth:auth.validation.phoneInvalid'))
+    phoneNumber: z
+      .string()
+      .optional()
+      .refine((val) => !val || /^[0-9]{10}$/.test(val), i18n.t('auth:auth.validation.phoneInvalid'))
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: i18n.t('auth:auth.validation.passwordMismatch'),

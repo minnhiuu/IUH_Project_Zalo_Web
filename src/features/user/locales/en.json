@@ -56,7 +56,8 @@
       "block": "Block messages and calls",
       "editBlock": "Block settings",
       "report": "Report",
-      "deleteFriend": "Remove from friends list"
+      "deleteFriend": "Remove from friends list",
+      "goToSettings": "Go to settings"
     },
     "validation": {
       "fullNameRequired": "Display name is required",
@@ -268,6 +269,7 @@
             "story": "Stories"
           }
         },
+        "accountActivation": {},
         "blockModal": {
           "title": "Block User",
           "editTitle": "Block Settings",

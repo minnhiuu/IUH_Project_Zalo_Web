@@ -63,8 +63,12 @@ export default function RegisterForm() {
   const verifyRegistrationMutation = useVerifyRegistration()
   const onHandleRegister = async (data: RegisterRequest) => {
     setIsSubmitting(true)
+    const payload = {
+      ...data,
+      phoneNumber: data.phoneNumber?.trim() || undefined
+    }
     try {
-      await initiateRegistrationMutation.mutateAsync(data)
+      await initiateRegistrationMutation.mutateAsync(payload)
       setEmail(data.email)
       verifyForm.setValue('email', data.email)
       setStep('VERIFY')

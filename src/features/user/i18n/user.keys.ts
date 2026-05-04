@@ -55,7 +55,8 @@ export const USER_KEYS = {
     block: 'user.profile.block',
     editBlock: 'user.profile.editBlock',
     report: 'user.profile.report',
-    deleteFriend: 'user.profile.deleteFriend'
+    deleteFriend: 'user.profile.deleteFriend',
+    goToSettings: 'user.profile.goToSettings'
   },
   validation: {
     fullNameRequired: 'user.validation.fullNameRequired',
@@ -267,6 +268,7 @@ export const USER_KEYS = {
           story: 'user.settings.accountPrivacy.blockedUsers.types.story'
         }
       },
+      accountActivation: {},
       blockModal: {
         title: 'user.settings.accountPrivacy.blockModal.title',
         editTitle: 'user.settings.accountPrivacy.blockModal.editTitle',
