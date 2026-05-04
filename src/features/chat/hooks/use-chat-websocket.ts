@@ -140,7 +140,12 @@ export const useChatWebSocket = () => {
             // waiting for React Query cache → re-render → useEffect pipeline.
             window.dispatchEvent(
               new CustomEvent('chat:incoming-message', {
-                detail: { conversationId, messageId: msg.id, senderId: msg.senderId }
+                detail: { 
+                  conversationId, 
+                  messageId: msg.id, 
+                  senderId: msg.senderId,
+                  senderName: msg.senderName 
+                }
               })
             )
           }

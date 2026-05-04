@@ -112,10 +112,6 @@ export function ChatLayout({
     }, 0)
   }, [conversations])
 
-  useEffect(() => {
-    document.title = totalUnread > 0 ? `(${totalUnread}) Tin nhắn mới | Zalo Web` : 'Zalo Web - PC'
-  }, [totalUnread])
-
   const handleClearSnapshot = () => {
     setCurrentSnapshotId(null)
     setCapturedUnreadCount(0)

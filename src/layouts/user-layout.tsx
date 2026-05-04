@@ -10,12 +10,11 @@ import { useState, useCallback, useEffect } from 'react'
 import { SearchPanel } from '@/features/search'
 import { useCommonText } from '@/locales/common/use-common-text'
 import { useFCM } from '@/hooks/use-fcm'
-import { NotificationPanel, useNotificationSocket } from '@/features/notification'
+import { NotificationPanel, useNotificationSocket, useNotificationStateQuery } from '@/features/notification'
 import { NotificationOverlay } from '@/components/common/notification-overlay'
 import { notificationKeys } from '@/features/notification/queries/keys'
-import { useNotificationStateQuery } from '@/features/notification/queries/use-queries'
 import { useMarkHistoryAsCheckedMutation } from '@/features/notification/queries/use-mutations'
-import { useNotificationBadge } from '@/hooks/use-notification-badge'
+import { useNotificationHandler } from '@/hooks/use-notification-handler'
 import { ChatProvider } from '@/features/chat'
 
 import { socialFeedKeys } from '@/features/social-feed/queries/keys'
@@ -32,16 +31,15 @@ export default function UserLayout() {
   const [isGlobalSearchOpen, setIsGlobalSearchOpen] = useState(false)
 
   useNotificationSocket()
+  const { systemUnreadCount } = useNotificationHandler()
 
   const { data: notificationState } = useNotificationStateQuery()
   const { mutate: markAsChecked } = useMarkHistoryAsCheckedMutation()
 
-  const unreadCount = notificationState?.unreadCount ?? 0
-
-  useNotificationBadge({ count: unreadCount, title: 'BondHub' })
-
   const { text: commonText } = useCommonText()
   const [searchParams, setSearchParams] = useSearchParams()
+
+  const unreadDisplay = Math.max(notificationState?.unreadCount ?? 0, systemUnreadCount)
 
   useEffect(() => {
     if (searchParams.get('noti_open') === 'true') {
@@ -49,6 +47,7 @@ export default function UserLayout() {
         setIsNotificationOpen(true)
         setIsSearchOpen(false)
         markAsChecked()
+        window.dispatchEvent(new CustomEvent('notification:marked-as-read'))
 
         const newParams = new URLSearchParams(searchParams)
         newParams.delete('noti_open')
@@ -100,6 +99,7 @@ export default function UserLayout() {
     setIsNotificationOpen(true)
     setIsSearchOpen(false)
     markAsChecked()
+    window.dispatchEvent(new CustomEvent('notification:marked-as-read'))
     queryClient.invalidateQueries({ queryKey: notificationKeys.all })
   })
 
@@ -162,7 +162,6 @@ export default function UserLayout() {
               }
               if (item.path === PATHS.NOTIFICATIONS) {
                 const isActive = isNotificationOpen
-                const unreadCount = notificationState?.unreadCount ?? 0
                 return (
                   <button
                     key={item.path}
@@ -172,6 +171,7 @@ export default function UserLayout() {
                       setIsSearchOpen(false)
                       if (nextState) {
                         markAsChecked()
+                        window.dispatchEvent(new CustomEvent('notification:marked-as-read'))
                       }
                       queryClient.invalidateQueries({ queryKey: notificationKeys.all })
                     }}
@@ -186,9 +186,9 @@ export default function UserLayout() {
                         isActive ? 'text-white' : 'text-white/80 group-hover:text-white'
                       )}
                     />
-                    {unreadCount > 0 && (
+                    {unreadDisplay > 0 && (
                       <span className='absolute top-2 right-2 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-medium text-white ring-2 ring-sidebar'>
-                        {unreadCount > 99 ? '99+' : unreadCount}
+                        {unreadDisplay > 99 ? '99+' : unreadDisplay}
                       </span>
                     )}
                   </button>
