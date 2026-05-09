@@ -25,7 +25,7 @@ export function NotificationDropdown({
   const [isOpen, setIsOpen] = useState(false)
 
   const { data: state } = useNotificationStateQuery()
-  const unreadCount = state?.unreadCount ?? 0
+  const badgeCount = state?.notificationBadgeCount ?? 0
 
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open)
@@ -45,15 +45,15 @@ export function NotificationDropdown({
           )}
         >
           <Bell className={cn('w-5.5 h-5.5 group-hover:text-primary transition-colors', iconClassName)} />
-          {unreadCount > 0 && (
+          {badgeCount > 0 && (
             <span
-              aria-label={dropdown.unreadBadge(unreadCount)}
+              aria-label={dropdown.unreadBadge(badgeCount)}
               className={cn(
                 'absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 bg-destructive text-white text-[10px] font-bold rounded-full border-2 border-layout-header-bg flex items-center justify-center animate-in zoom-in duration-300',
                 badgeClassName
               )}
             >
-              {unreadCount > 99 ? '99+' : unreadCount}
+              {badgeCount > 99 ? '99+' : badgeCount}
             </span>
           )}
         </button>
@@ -68,9 +68,9 @@ export function NotificationDropdown({
             <div className='flex items-center justify-between mb-4'>
               <div className='flex items-center gap-2'>
                 <h3 className='text-xl font-bold text-foreground tracking-tight'>{title}</h3>
-                {unreadCount > 0 && (
+                {badgeCount > 0 && (
                   <span className='rounded-full bg-brand-blue/10 px-2 py-0.5 text-[11px] font-semibold text-brand-blue'>
-                    {dropdown.unreadBadge(unreadCount)}
+                    {dropdown.unreadBadge(badgeCount)}
                   </span>
                 )}
               </div>

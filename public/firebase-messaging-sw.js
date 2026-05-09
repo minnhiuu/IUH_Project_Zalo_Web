@@ -24,34 +24,34 @@ self.addEventListener('activate', (event) => {
 })
 
 // Helper to interact with IndexedDB in SW
-const DB_NAME = 'fcm_auth_db';
-const STORE_NAME = 'auth_state';
+const DB_NAME = 'fcm_auth_db'
+const STORE_NAME = 'auth_state'
 
 function getAuthState() {
   return new Promise((resolve) => {
-    const request = indexedDB.open(DB_NAME, 1);
-    request.onupgradeneeded = (e) => e.target.result.createObjectStore(STORE_NAME);
+    const request = indexedDB.open(DB_NAME, 1)
+    request.onupgradeneeded = (e) => e.target.result.createObjectStore(STORE_NAME)
     request.onsuccess = (e) => {
-      const db = e.target.result;
-      const tx = db.transaction(STORE_NAME, 'readonly');
-      const store = tx.objectStore(STORE_NAME);
-      const getReq = store.get('current_user');
-      getReq.onsuccess = () => resolve(getReq.result);
-      getReq.onerror = () => resolve(null);
-    };
-    request.onerror = () => resolve(null);
-  });
+      const db = e.target.result
+      const tx = db.transaction(STORE_NAME, 'readonly')
+      const store = tx.objectStore(STORE_NAME)
+      const getReq = store.get('current_user')
+      getReq.onsuccess = () => resolve(getReq.result)
+      getReq.onerror = () => resolve(null)
+    }
+    request.onerror = () => resolve(null)
+  })
 }
 
 function setAuthState(data) {
-  const request = indexedDB.open(DB_NAME, 1);
-  request.onupgradeneeded = (e) => e.target.result.createObjectStore(STORE_NAME);
+  const request = indexedDB.open(DB_NAME, 1)
+  request.onupgradeneeded = (e) => e.target.result.createObjectStore(STORE_NAME)
   request.onsuccess = (e) => {
-    const db = e.target.result;
-    const tx = db.transaction(STORE_NAME, 'readwrite');
-    const store = tx.objectStore(STORE_NAME);
-    store.put(data, 'current_user');
-  };
+    const db = e.target.result
+    const tx = db.transaction(STORE_NAME, 'readwrite')
+    const store = tx.objectStore(STORE_NAME)
+    store.put(data, 'current_user')
+  }
 }
 
 self.addEventListener('message', (event) => {
@@ -59,30 +59,30 @@ self.addEventListener('message', (event) => {
     setAuthState({
       userId: event.data.userId,
       expiresAt: event.data.expiresAt // Thêm thời điểm hết hạn
-    });
-    console.log('[SW] Auth state updated');
+    })
+    console.log('[SW] Auth state updated')
   } else if (event.data && event.data.type === 'CLEAR_USER') {
-    setAuthState(null);
-    console.log('[SW] Auth state cleared');
+    setAuthState(null)
+    console.log('[SW] Auth state cleared')
   }
-});
+})
 
 messaging.onBackgroundMessage(async (payload) => {
   console.log('[SW] Background message received:', payload)
 
-  const authState = await getAuthState();
-  const now = Date.now();
+  const authState = await getAuthState()
+  const now = Date.now()
 
   // 1. Session Expiry & Recipient Validation
   if (!authState || (authState.expiresAt && now > authState.expiresAt)) {
-    console.warn('[SW] Blocking notification: No active session or session expired');
-    return;
+    console.warn('[SW] Blocking notification: No active session or session expired')
+    return
   }
 
-  const recipientId = payload.data?.recipientId;
+  const recipientId = payload.data?.recipientId
   if (recipientId && authState.userId !== recipientId) {
-    console.warn(`[SW] Blocking notification: recipient mismatch (${recipientId} vs ${authState.userId})`);
-    return;
+    console.warn(`[SW] Blocking notification: recipient mismatch (${recipientId} vs ${authState.userId})`)
+    return
   }
 
   const origin = self.location.origin
@@ -146,12 +146,23 @@ function buildTargetUrl(data) {
     data?.conversationId ||
     data?.conversation_id ||
     data?.conversation?.id ||
-    ((type === 'MESSAGE_DIRECT' || type === 'MESSAGE_GROUP') ? data?.referenceId : undefined)
+    (type === 'MESSAGE_DIRECT' || type === 'MESSAGE_GROUP' ? data?.referenceId : undefined)
 
+  // Handle chat messages
   if ((type === 'MESSAGE_DIRECT' || type === 'MESSAGE_GROUP') && conversationId) {
     return `${origin}/chat/c/${encodeURIComponent(conversationId)}`
   }
 
+  // Handle friend requests and system notifications
+  if (type === 'FRIEND_REQUEST' || type === 'FRIEND_ACCEPT') {
+    const url = new URL(`${origin}/notifications`)
+    if (data?.notificationId) {
+      url.searchParams.set('highlight', data.notificationId)
+    }
+    return url.href
+  }
+
+  // Handle custom URL if provided
   if (data?.url) {
     try {
       return new URL(data.url, origin).href
@@ -160,8 +171,8 @@ function buildTargetUrl(data) {
     }
   }
 
-  const fallback = new URL(origin)
-  fallback.searchParams.set('noti_open', 'true')
+  // Default fallback: navigate to notifications page
+  const fallback = new URL(`${origin}/notifications`)
   if (data?.notificationId) {
     fallback.searchParams.set('highlight', data.notificationId)
   }

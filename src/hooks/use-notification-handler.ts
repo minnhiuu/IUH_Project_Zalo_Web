@@ -1,10 +1,8 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams } from 'react-router'
 import { useNotificationBadge } from './use-notification-badge'
 import { useNotificationStateQuery } from '@/features/notification/queries/use-queries'
-import { useConversationsQuery } from '@/features/chat/queries/use-queries'
 import type { NotificationGroupResponse } from '@/features/notification/schemas/notification.schema'
-import type { ConversationResponse } from '@/features/chat/schemas/chat.schema'
 
 // Cấu hình Throttling âm thanh
 const MAX_SOUNDS_PER_PERIOD = 3
@@ -12,55 +10,14 @@ const SOUND_PERIOD_MS = 60000 // 1 phút
 
 export function useNotificationHandler() {
   const { data: notificationState } = useNotificationStateQuery()
-  const { data: conversations } = useConversationsQuery()
   const { id: activeConversationId } = useParams<{ id: string }>()
 
-  // Chỉ dùng State cho các sự kiện real-time nhận được qua Socket
-  const [realtimeNotifications, setRealtimeNotifications] = useState<Map<string, string>>(new Map())
-
-  // Tính toán con số tổng hợp (Tab Badge) bằng useMemo - Không dùng useEffect để setState
-  const notificationsByConv = useMemo(() => {
-    const combinedMap = new Map<string, string>()
-
-    // 1. Lấy từ Server Chat (Hội thoại chưa đọc)
-    if (conversations) {
-      conversations.forEach((conv: ConversationResponse) => {
-        if (conv.unreadCount && conv.unreadCount > 0) {
-          combinedMap.set(conv.id, 'chat')
-        }
-      })
-    }
-
-    // 2. Lấy từ Server Notification (Đầu người chưa đọc)
-    if (notificationState?.unreadActorIds && notificationState.unreadActorIds.length > 0) {
-      notificationState.unreadActorIds.forEach((compositeKey: string) => {
-        // compositeKey from BE is like "actorId_NOTIFICATION_TYPE" or "system_NOTIFICATION_TYPE"
-        combinedMap.set(`system_realtime_${compositeKey}`, 'system')
-      })
-    } else if (notificationState?.uniqueActorCount && notificationState.uniqueActorCount > 0) {
-      // Fallback in case unreadActorIds is missing
-      for (let i = 0; i < notificationState.uniqueActorCount; i++) {
-        combinedMap.set(`system_${i}`, 'system')
-      }
-    }
-
-    // 3. Gộp các sự kiện real-time vừa nhận được
-    realtimeNotifications.forEach((senderId, convId) => {
-      combinedMap.set(convId, senderId)
-    })
-
-    // 4. Loại bỏ hội thoại đang mở (Nếu Server chưa kịp cập nhật)
-    if (activeConversationId) {
-      combinedMap.delete(activeConversationId)
-    }
-
-    return combinedMap
-  }, [notificationState, conversations, realtimeNotifications, activeConversationId])
-
-  const uniqueUnreadCount = notificationsByConv.size
+  // Chỉ dùng State cho các sự kiện real-time nhận được qua Socket (không được render)
+  const realtimeNotificationsRef = useRef<Map<string, string>>(new Map())
 
   const [lastMessageContent, setLastMessageContent] = useState<string | null>(null)
   const [isFlashing, setIsFlashing] = useState(false)
+  const prevBadgeCountRef = useRef(notificationState?.notificationBadgeCount ?? 0)
 
   const soundHistory = useRef<number[]>([])
   const audioRef = useRef<HTMLAudioElement | null>(null)
@@ -72,8 +29,15 @@ export function useNotificationHandler() {
     audioRef.current = new Audio(dingSound)
   }, [])
 
+  const currentBadgeCount = notificationState?.notificationBadgeCount ?? 0
+
+  // Track badge count changes with ref to avoid cascading renders
   useEffect(() => {
-    if (uniqueUnreadCount === 0 || !lastMessageContent) {
+    prevBadgeCountRef.current = currentBadgeCount
+  }, [currentBadgeCount])
+
+  useEffect(() => {
+    if (!lastMessageContent) {
       return
     }
 
@@ -85,7 +49,7 @@ export function useNotificationHandler() {
       clearInterval(interval)
       setIsFlashing(false)
     }
-  }, [uniqueUnreadCount, lastMessageContent])
+  }, [lastMessageContent])
 
   const processIncomingAlert = useCallback(
     (data: {
@@ -102,19 +66,17 @@ export function useNotificationHandler() {
       if (conversationId && activeConversationId === conversationId) return
 
       if (senderId || id) {
-        setRealtimeNotifications((prev) => {
-          const next = new Map(prev)
+        const next = new Map(realtimeNotificationsRef.current)
 
-          let compositeKey = (senderId || 'system') + '_' + (type || 'UNKNOWN')
-          if (referenceId) {
-            compositeKey += '_' + referenceId
-          }
+        let compositeKey = (senderId || 'system') + '_' + (type || 'UNKNOWN')
+        if (referenceId) {
+          compositeKey += '_' + referenceId
+        }
 
-          const systemKey = `system_realtime_${compositeKey}`
-          const key = conversationId ? conversationId : systemKey
-          next.set(key, senderId || 'system')
-          return next
-        })
+        const systemKey = `system_realtime_${compositeKey}`
+        const key = conversationId ? conversationId : systemKey
+        next.set(key, senderId || 'system')
+        realtimeNotificationsRef.current = next
       }
 
       if (silent) return // Skip sound and flashing for silent notifications
@@ -170,40 +132,26 @@ export function useNotificationHandler() {
     }
   }, [processIncomingAlert])
 
-  const [prevUnreadCount, setPrevUnreadCount] = useState(uniqueUnreadCount)
-  if (uniqueUnreadCount !== prevUnreadCount) {
-    setPrevUnreadCount(uniqueUnreadCount)
-    if (uniqueUnreadCount === 0) {
-      setLastMessageContent(null)
-    }
-  }
-
   useEffect(() => {
     const handleClear = () => {
-      setRealtimeNotifications(new Map())
+      realtimeNotificationsRef.current = new Map()
       setLastMessageContent(null)
     }
     window.addEventListener('notification:marked-as-read', handleClear)
     return () => window.removeEventListener('notification:marked-as-read', handleClear)
   }, [])
 
-  // 1. Đếm số hội thoại chat có tin nhắn chưa đọc (mỗi hội thoại tính là 1)
-  const chatUnreadCount = Array.from(notificationsByConv.entries()).filter(([, type]) => type !== 'system').length
-
-  // 2. Lấy số lượng thông báo hệ thống từ Server DB
-  const systemUnreadCount = notificationState?.unreadCount ?? 0
-
-  // 3. Cập nhật Tab Badge = Tổng tất cả định danh duy nhất (Chat + System)
+  // Update Tab Badge = notificationBadgeCount từ backend (đã tính = unreadCount + chat conversations)
   useNotificationBadge({
-    count: notificationsByConv.size,
-    showDot: chatUnreadCount > 0,
+    count: currentBadgeCount,
+    showDot: currentBadgeCount > 0,
     lastMessage: isFlashing ? lastMessageContent : null,
     title: 'BondHub'
   })
 
   return {
-    unreadCount: notificationsByConv.size, // Tổng duy nhất để dùng cho Tab
-    chatUnreadCount,
-    systemUnreadCount // Riêng cho Sidebar (lấy từ DB)
+    unreadCount: notificationState?.unreadCount ?? 0,
+    notificationBadgeCount: notificationState?.notificationBadgeCount ?? 0,
+    systemUnreadCount: notificationState?.notificationBadgeCount ?? 0 // For sidebar badge display
   }
 }

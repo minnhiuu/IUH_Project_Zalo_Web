@@ -4,6 +4,7 @@ import { friendKeys } from './keys'
 import { showSuccessToast, showErrorToast } from '@/utils/toast'
 import { useFriendText } from '../i18n/use-friend-text'
 import type { FriendRequestSendRequest } from '../schemas/friend.schema'
+import { notificationKeys } from '@/features/notification/queries/keys'
 
 export const useSendFriendRequest = () => {
   const queryClient = useQueryClient()
@@ -37,6 +38,9 @@ export const useAcceptFriendRequest = () => {
         queryClient.invalidateQueries({ queryKey: friendKeys.status(variables.requesterId) })
       }
 
+      // Invalidate notification state to update badge count
+      queryClient.invalidateQueries({ queryKey: notificationKeys.state() })
+
       showSuccessToast(toast.acceptSuccess)
     },
     onError: () => {
@@ -59,6 +63,9 @@ export const useDeclineFriendRequest = () => {
       if (variables.requesterId) {
         queryClient.invalidateQueries({ queryKey: friendKeys.status(variables.requesterId) })
       }
+
+      // Invalidate notification state to update badge count
+      queryClient.invalidateQueries({ queryKey: notificationKeys.state() })
 
       showSuccessToast(toast.declineSuccess)
     },

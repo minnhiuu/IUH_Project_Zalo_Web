@@ -140,12 +140,24 @@ export const NotificationItem = React.memo(({ notification, onMarkAsRead }: Noti
           }
         })
       )
+      return
     }
 
+    // Handle friend requests and other system notifications
+    if (notification.type === 'FRIEND_REQUEST' || notification.type === 'FRIEND_ACCEPT') {
+      navigate(`${PATHS.NOTIFICATIONS}?highlight=${notification.id}`)
+      return
+    }
+
+    // Handle post-related notifications
     const postId = getModerationTargetPostId() ?? getPostNotificationPostId()
     if (postId) {
       navigate(`${PATHS.SOCIAL_FEED}?postId=${postId}`)
+      return
     }
+
+    // Default: navigate to notifications page
+    navigate(`${PATHS.NOTIFICATIONS}?highlight=${notification.id}`)
   }
 
   const handleAcceptRequest = async (e: React.MouseEvent) => {
@@ -244,8 +256,8 @@ export const NotificationItem = React.memo(({ notification, onMarkAsRead }: Noti
             'text-[15px] leading-[1.3] overflow-wrap-break-word',
             !notification.read ? 'text-foreground font-medium' : 'text-muted-foreground'
           )}
-          dangerouslySetInnerHTML={{ 
-            __html: (notification.translations?.[i18n.language.split('-')[0]]?.body) || notification.body 
+          dangerouslySetInnerHTML={{
+            __html: notification.translations?.[i18n.language.split('-')[0]]?.body || notification.body
           }}
         />
         <div
@@ -265,15 +277,17 @@ export const NotificationItem = React.memo(({ notification, onMarkAsRead }: Noti
                   variant='secondary'
                   className='h-9 flex-1 font-bold text-[15px] rounded-lg border-none shadow-none transition-all active:scale-95'
                   onClick={(e) => handleDeclineRequest(e)}
+                  disabled={declineRequestMutation.isPending || acceptRequestMutation.isPending}
                 >
-                  {action.decline}
+                  {declineRequestMutation.isPending ? '...' : action.decline}
                 </Button>
                 <Button
                   variant='secondary-blue'
                   className='h-9 flex-1 font-bold text-[15px] rounded-lg border-none shadow-none transition-all active:scale-95'
                   onClick={(e) => handleAcceptRequest(e)}
+                  disabled={acceptRequestMutation.isPending || declineRequestMutation.isPending}
                 >
-                  {action.accept}
+                  {acceptRequestMutation.isPending ? '...' : action.accept}
                 </Button>
               </div>
             ) : (

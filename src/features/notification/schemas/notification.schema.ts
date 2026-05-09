@@ -7,10 +7,15 @@ export const NotificationGroupResponseSchema = z.object({
   referenceId: z.string().nullable(),
   title: z.string(),
   body: z.string(),
-  translations: z.record(z.string(), z.object({
-    title: z.string(),
-    body: z.string()
-  })).optional(),
+  translations: z
+    .record(
+      z.string(),
+      z.object({
+        title: z.string(),
+        body: z.string()
+      })
+    )
+    .optional(),
   silent: z.boolean().optional(),
   actorIds: z.array(z.string()),
   actorCount: z.number(),
@@ -36,9 +41,7 @@ export type NotificationHistoryResponse = z.infer<typeof NotificationHistoryResp
 
 export const UserNotificationStateResponseSchema = z.object({
   unreadCount: z.number(),
-  uniqueActorCount: z.number(),
-  unreadActorIds: z.array(z.string()).optional(),
-  lastCheckedAt: z.string().nullable()
+  notificationBadgeCount: z.number()
 })
 
 export type UserNotificationStateResponse = z.infer<typeof UserNotificationStateResponseSchema>

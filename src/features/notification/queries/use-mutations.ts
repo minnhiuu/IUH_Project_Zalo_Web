@@ -23,11 +23,8 @@ export const useMarkHistoryAsCheckedMutation = () => {
   return useMutation({
     mutationFn: notificationApi.markHistoryAsChecked,
     onSuccess: () => {
-      queryClient.setQueriesData<UserNotificationStateResponse>({ queryKey: notificationKeys.state() }, (oldState) => {
-        if (!oldState) return oldState
-        return { ...oldState, unreadCount: 0 }
-      })
-
+      // Invalidate state query to recalculate counts
+      queryClient.invalidateQueries({ queryKey: notificationKeys.state() })
       queryClient.invalidateQueries({ queryKey: notificationKeys.all })
     }
   })
@@ -71,6 +68,9 @@ export const useMarkAsReadMutation = () => {
           return { ...old, pages: newPages }
         }
       )
+
+      // Invalidate state query to recalculate unread counts
+      queryClient.invalidateQueries({ queryKey: notificationKeys.state() })
     }
   })
 }
@@ -105,11 +105,8 @@ export const useMarkAllAsReadMutation = () => {
         }
       )
 
-      // 2. Reset unread count to 0
-      queryClient.setQueriesData<UserNotificationStateResponse>({ queryKey: notificationKeys.state() }, (oldState) => {
-        if (!oldState) return oldState
-        return { ...oldState, unreadCount: 0 }
-      })
+      // 2. Invalidate state query to recalculate counts
+      queryClient.invalidateQueries({ queryKey: notificationKeys.state() })
     }
   })
 }
