@@ -172,7 +172,7 @@ const toFrontendSettings = (backend: BackendUserSettingResponse): UserSettingRes
       dndEnabled: backend.notificationSettings?.doNotDisturb?.dndEnabled ?? false,
       dndStartTime: backend.notificationSettings?.doNotDisturb?.dndStartTime ?? '23:00',
       dndEndTime: backend.notificationSettings?.doNotDisturb?.dndEndTime ?? '07:00',
-      dndTimezone: backend.notificationSettings?.doNotDisturb?.dndTimezone ?? 'GMT+7',
+      dndTimezone: 'GMT+07:00',
       activeDays: backend.notificationSettings?.doNotDisturb?.activeDays ?? ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
     }
   },
@@ -238,7 +238,10 @@ export const settingsApi = {
     )
     const notification = response.data.data
     const mapped: NotificationSettings = {
+      allowNotifications: notification.allowNotifications,
       notifSound: notification.notifSound,
+      notifVibration: notification.notifVibration,
+      notifFriendRequests: notification.notifFriendRequests,
       notifyNewMessageFromDirect: notification.notifMessages,
       previewNewMessageFromDirect: true,
       notifyNewMessageFromGroup: notification.notifGroups,
@@ -252,6 +255,7 @@ export const settingsApi = {
         dndEnabled: notification.doNotDisturb?.dndEnabled ?? false,
         dndStartTime: notification.doNotDisturb?.dndStartTime ?? '23:00',
         dndEndTime: notification.doNotDisturb?.dndEndTime ?? '07:00',
+        dndTimezone: 'GMT+07:00',
         activeDays: notification.doNotDisturb?.activeDays ?? ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
       }
     }
@@ -381,7 +385,7 @@ export const settingsApi = {
         dndEnabled: data.doNotDisturb.dndEnabled,
         dndStartTime: data.doNotDisturb.dndStartTime,
         dndEndTime: data.doNotDisturb.dndEndTime,
-        dndTimezone: data.doNotDisturb.dndTimezone,
+        dndTimezone: 'GMT+07:00',
         activeDays: data.doNotDisturb.activeDays
       }
     })

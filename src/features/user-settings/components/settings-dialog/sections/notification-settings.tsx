@@ -8,6 +8,8 @@ import { useSettingsState } from '../settings-state-context'
 import { Button } from '@/components/ui/button'
 import { type NotificationSettings as NotificationSettingsType } from '@/features/user-settings/schemas/settings.schema'
 
+const DEFAULT_DND_TIMEZONE = 'GMT+07:00'
+
 export function NotificationSettings() {
   const { text } = useUserText()
   const { settings, isLoading, pending, updateNotificationSettings } = useSettingsState()
@@ -31,13 +33,16 @@ export function NotificationSettings() {
       dndEnabled: false,
       dndStartTime: '23:00',
       dndEndTime: '07:00',
-      dndTimezone: 'GMT+07:00',
+      dndTimezone: DEFAULT_DND_TIMEZONE,
       activeDays: ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
     }
   }
 
   const notificationSettings = settings?.notificationSettings || defaultNotificationSettings
-  const dndServer = notificationSettings.doNotDisturb
+  const dndServer = {
+    ...notificationSettings.doNotDisturb,
+    dndTimezone: DEFAULT_DND_TIMEZONE
+  }
 
   // Local state for the schedule draft
   const [localDraft, setLocalDraft] = useState(dndServer)
@@ -62,6 +67,7 @@ export function NotificationSettings() {
       ...notificationSettings,
       doNotDisturb: {
         ...localDraft,
+        dndTimezone: DEFAULT_DND_TIMEZONE,
         dndEnabled: dndServer.dndEnabled // Keep the current enabled state
       }
     })
@@ -73,6 +79,7 @@ export function NotificationSettings() {
       ...notificationSettings,
       doNotDisturb: {
         ...dndServer,
+        dndTimezone: DEFAULT_DND_TIMEZONE,
         dndEnabled: isEnabling
       }
     })
@@ -302,49 +309,6 @@ export function NotificationSettings() {
                 className='w-full px-3 py-2.5 rounded-lg bg-muted/30 border border-border/50 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all hover:bg-muted/50'
               />
             </div>
-          </div>
-
-          <div className='space-y-2'>
-            <label className='text-[11px] font-bold uppercase tracking-[0.05em] text-muted-foreground/70'>
-              {text.settings.notification.quietMode.timezone}
-            </label>
-            <select
-              value={localDraft.dndTimezone}
-              onChange={(e) => setLocalDraft({ ...localDraft, dndTimezone: e.target.value })}
-              className='w-full px-3 py-2.5 rounded-lg bg-muted/30 border border-border/50 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all hover:bg-muted/50'
-            >
-              <option value='GMT-12:00'>(GMT-12:00) International Date Line West</option>
-              <option value='GMT-11:00'>(GMT-11:00) Midway Island, Samoa</option>
-              <option value='GMT-10:00'>(GMT-10:00) Hawaii</option>
-              <option value='GMT-09:00'>(GMT-09:00) Alaska</option>
-              <option value='GMT-08:00'>(GMT-08:00) Pacific Time (US & Canada)</option>
-              <option value='GMT-07:00'>(GMT-07:00) Mountain Time (US & Canada)</option>
-              <option value='GMT-06:00'>(GMT-06:00) Central Time (US & Canada), Mexico City</option>
-              <option value='GMT-05:00'>(GMT-05:00) Eastern Time (US & Canada), Bogota, Lima</option>
-              <option value='GMT-04:00'>(GMT-04:00) Atlantic Time (Canada), Caracas, La Paz</option>
-              <option value='GMT-03:30'>(GMT-03:30) Newfoundland</option>
-              <option value='GMT-03:00'>(GMT-03:00) Brazil, Buenos Aires, Georgetown</option>
-              <option value='GMT-02:00'>(GMT-02:00) Mid-Atlantic</option>
-              <option value='GMT-01:00'>(GMT-01:00) Azores, Cape Verde Islands</option>
-              <option value='GMT+00:00'>(GMT+00:00) Western Europe Time, London, Lisbon, Casablanca</option>
-              <option value='GMT+01:00'>(GMT+01:00) Brussels, Copenhagen, Madrid, Paris</option>
-              <option value='GMT+02:00'>(GMT+02:00) Kaliningrad, South Africa</option>
-              <option value='GMT+03:00'>(GMT+03:00) Baghdad, Riyadh, Moscow, St. Petersburg</option>
-              <option value='GMT+03:30'>(GMT+03:30) Tehran</option>
-              <option value='GMT+04:00'>(GMT+04:00) Abu Dhabi, Muscat, Baku, Tbilisi</option>
-              <option value='GMT+04:30'>(GMT+04:30) Kabul</option>
-              <option value='GMT+05:00'>(GMT+05:00) Ekaterinburg, Islamabad, Karachi, Tashkent</option>
-              <option value='GMT+05:30'>(GMT+05:30) Bombay, Calcutta, Madras, New Delhi</option>
-              <option value='GMT+05:45'>(GMT+05:45) Kathmandu</option>
-              <option value='GMT+06:00'>(GMT+06:00) Almaty, Dhaka, Colombo</option>
-              <option value='GMT+07:00'>(GMT+07:00) Bangkok, Hanoi, Jakarta</option>
-              <option value='GMT+08:00'>(GMT+08:00) Beijing, Perth, Singapore, Hong Kong</option>
-              <option value='GMT+09:00'>(GMT+09:00) Tokyo, Seoul, Osaka, Sapporo, Yakutsk</option>
-              <option value='GMT+09:30'>(GMT+09:30) Adelaide, Darwin</option>
-              <option value='GMT+10:00'>(GMT+10:00) Eastern Australia, Guam, Vladivostok</option>
-              <option value='GMT+11:00'>(GMT+11:00) Magadan, Solomon Islands, New Caledonia</option>
-              <option value='GMT+12:00'>(GMT+12:00) Auckland, Wellington, Fiji, Kamchatka</option>
-            </select>
           </div>
 
           <div className='space-y-4'>
