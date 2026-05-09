@@ -10,7 +10,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { SearchPanel } from '@/features/search'
 import { useCommonText } from '@/locales/common/use-common-text'
 import { useFCM } from '@/hooks/use-fcm'
-import { NotificationPanel, useNotificationSocket, useNotificationStateQuery } from '@/features/notification'
+import { NotificationPanel, useNotificationSocket } from '@/features/notification'
 import { NotificationOverlay } from '@/components/common/notification-overlay'
 import { useMySettings } from '@/features/user-settings/queries/use-settings'
 import { NewDeviceLoginModal } from '@/features/notification/components/new-device-login-modal'
@@ -36,7 +36,6 @@ export default function UserLayout() {
   useNotificationSocket()
   const { systemUnreadCount } = useNotificationHandler()
 
-  const { data: notificationState } = useNotificationStateQuery()
   const { mutate: markAsChecked } = useMarkHistoryAsCheckedMutation()
   const { data: settings } = useMySettings()
   const { locale, changeLocale } = useLocale()

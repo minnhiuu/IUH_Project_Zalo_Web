@@ -49,6 +49,7 @@ export function useFCM(onForegroundMessage?: (payload: unknown) => void, onNotif
         const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
           scope: '/'
         })
+        await registration.update()
         await navigator.serviceWorker.ready
 
         const token = await getToken(messaging, {
@@ -116,7 +117,9 @@ export function useFCM(onForegroundMessage?: (payload: unknown) => void, onNotif
         })
         onForegroundMessageRef.current?.(event.data.payload)
       } else if (event.data?.type === 'FCM_CLICK_ACTION') {
-        if (event.data.action === 'OPEN_NOTIFICATIONS') {
+        if (event.data.action === 'OPEN_URL' && typeof event.data.url === 'string') {
+          window.location.assign(event.data.url)
+        } else if (event.data.action === 'OPEN_NOTIFICATIONS') {
           onNotificationClickRef.current?.()
         }
       }

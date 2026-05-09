@@ -15,6 +15,14 @@ firebase.initializeApp(firebaseConfig)
 
 const messaging = firebase.messaging()
 
+self.addEventListener('install', () => {
+  self.skipWaiting()
+})
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(self.clients.claim())
+})
+
 // Helper to interact with IndexedDB in SW
 const DB_NAME = 'fcm_auth_db';
 const STORE_NAME = 'auth_state';
@@ -84,10 +92,15 @@ messaging.onBackgroundMessage(async (payload) => {
     icon: payload.data?.actorAvatar || payload.notification?.icon || origin + '/images/logo.jpg',
     badge: origin + '/images/logo.jpg',
     data: payload.data,
-    tag: payload.messageId || payload.data?.type
+    tag:
+      payload.data?.summaryGroupKey ||
+      payload.data?.conversationId ||
+      payload.data?.notificationId ||
+      payload.messageId ||
+      payload.data?.type
   }
 
-  self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+  return self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
     clientList.forEach((client) => {
       client.postMessage({
         type: 'FCM_BACKGROUND_MESSAGE',
@@ -95,25 +108,90 @@ messaging.onBackgroundMessage(async (payload) => {
       })
     })
 
-    /* 
+    if (payload.notification) {
+      return
+    }
+
     return self.registration.showNotification(notificationTitle, notificationOptions)
-    */
   })
 })
+
+function getNotificationData(notification) {
+  const data = notification?.data || {}
+  const fcmData = data.FCM_MSG?.data || data.data || data
+
+  if (typeof fcmData.dataString === 'string') {
+    try {
+      return JSON.parse(fcmData.dataString)
+    } catch (e) {
+      console.warn('[SW] Failed to parse dataString:', e)
+    }
+  }
+
+  if (typeof fcmData.payload === 'string') {
+    try {
+      return { ...fcmData, ...JSON.parse(fcmData.payload) }
+    } catch (e) {
+      console.warn('[SW] Failed to parse payload:', e)
+    }
+  }
+
+  return fcmData
+}
+
+function buildTargetUrl(data) {
+  const origin = self.location.origin
+  const type = data?.type
+  const conversationId =
+    data?.conversationId ||
+    data?.conversation_id ||
+    data?.conversation?.id ||
+    ((type === 'MESSAGE_DIRECT' || type === 'MESSAGE_GROUP') ? data?.referenceId : undefined)
+
+  if ((type === 'MESSAGE_DIRECT' || type === 'MESSAGE_GROUP') && conversationId) {
+    return `${origin}/chat/c/${encodeURIComponent(conversationId)}`
+  }
+
+  if (data?.url) {
+    try {
+      return new URL(data.url, origin).href
+    } catch (e) {
+      console.warn('[SW] Invalid notification url, falling back to notifications:', data.url)
+    }
+  }
+
+  const fallback = new URL(origin)
+  fallback.searchParams.set('noti_open', 'true')
+  if (data?.notificationId) {
+    fallback.searchParams.set('highlight', data.notificationId)
+  }
+  return fallback.href
+}
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close()
 
-  const url = event.notification.data?.url ?? '/'
+  const data = getNotificationData(event.notification)
+  const url = buildTargetUrl(data)
 
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
       // Tìm tab đang mở
       for (const client of clientList) {
         if (client.url.includes(self.location.origin) && 'focus' in client) {
+          if ('navigate' in client) {
+            return client.navigate(url).then((navigatedClient) => {
+              if (navigatedClient && 'focus' in navigatedClient) {
+                return navigatedClient.focus()
+              }
+              return client.focus()
+            })
+          }
+
           client.postMessage({
             type: 'FCM_CLICK_ACTION',
-            action: 'OPEN_NOTIFICATIONS'
+            action: 'OPEN_URL',
+            url
           })
           return client.focus()
         }

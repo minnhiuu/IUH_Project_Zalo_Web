@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 // test
 import { useAuth } from '@/features/auth'
+import { notificationApi } from '@/features/notification/api/notification.api'
 import {
   markAsRead,
   sendMessageApi,
@@ -42,8 +43,12 @@ export const useMarkAsReadMutation = () => {
   const { user } = useAuth()
 
   return useMutation({
-    mutationFn: ({ conversationId, lastReadMessageId }: { conversationId: string; lastReadMessageId?: string }) =>
-      markAsRead(conversationId, lastReadMessageId),
+    mutationFn: async ({ conversationId, lastReadMessageId }: { conversationId: string; lastReadMessageId?: string }) => {
+      await markAsRead(conversationId, lastReadMessageId)
+      await notificationApi.markChatConversationAsRead(conversationId).catch((error) => {
+        console.warn('[Notification] Failed to mark chat notification as read:', error)
+      })
+    },
     onMutate: async ({ conversationId, lastReadMessageId }) => {
       await queryClient.cancelQueries({ queryKey: chatKeys.conversations() })
       const previousConversations = queryClient.getQueryData<ConversationResponse[]>(chatKeys.conversations())
