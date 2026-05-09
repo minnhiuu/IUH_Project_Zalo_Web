@@ -146,7 +146,8 @@ export const NotificationType = {
   DLQ_ALERT: 'DLQ_ALERT',
   CONTENT_REMOVED: 'CONTENT_REMOVED',
   CONTENT_HIDDEN: 'CONTENT_HIDDEN',
-  USER_WARNED: 'USER_WARNED'
+  USER_WARNED: 'USER_WARNED',
+  NEW_DEVICE_LOGIN: 'NEW_DEVICE_LOGIN'
 } as const
 
 export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]

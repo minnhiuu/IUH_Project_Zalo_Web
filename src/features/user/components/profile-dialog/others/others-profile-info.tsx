@@ -143,6 +143,10 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
     })
   }
 
+  if (user.active === false) {
+    return null
+  }
+
   return (
     <ProfileInfoBase
       user={user}

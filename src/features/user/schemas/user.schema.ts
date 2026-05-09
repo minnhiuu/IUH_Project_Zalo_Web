@@ -5,6 +5,7 @@ import i18n from '@/lib/i18n'
 export type UserResponse = {
   id: string
   fullName: string
+  active?: boolean
   dob: string
   bio: string
   gender: Gender

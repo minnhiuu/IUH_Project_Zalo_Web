@@ -7,7 +7,7 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   optimizeDeps: {
-    include: ['@vidstack/react', 'vidstack', 'maverick.js']
+    include: ['maverick.js']
   },
   css: {
     devSourcemap: true
