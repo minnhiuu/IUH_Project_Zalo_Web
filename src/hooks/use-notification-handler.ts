@@ -29,7 +29,9 @@ export function useNotificationHandler() {
     audioRef.current = new Audio(dingSound)
   }, [])
 
-  const currentBadgeCount = notificationState?.notificationBadgeCount ?? 0
+  const notificationUnreadCount = notificationState?.notificationUnreadCount ?? notificationState?.unreadCount ?? 0
+  const chatUnreadConversationCount = notificationState?.chatUnreadConversationCount ?? 0
+  const currentBadgeCount = notificationState?.notificationBadgeCount ?? notificationUnreadCount + chatUnreadConversationCount
 
   // Track badge count changes with ref to avoid cascading renders
   useEffect(() => {
@@ -150,8 +152,10 @@ export function useNotificationHandler() {
   })
 
   return {
-    unreadCount: notificationState?.unreadCount ?? 0,
-    notificationBadgeCount: notificationState?.notificationBadgeCount ?? 0,
-    systemUnreadCount: notificationState?.notificationBadgeCount ?? 0 // For sidebar badge display
+    unreadCount: notificationUnreadCount,
+    notificationUnreadCount,
+    chatUnreadConversationCount,
+    notificationBadgeCount: currentBadgeCount,
+    systemUnreadCount: notificationUnreadCount // For sidebar badge display
   }
 }

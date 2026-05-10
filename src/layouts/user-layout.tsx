@@ -15,7 +15,6 @@ import { NotificationOverlay } from '@/components/common/notification-overlay'
 import { useMySettings } from '@/features/user-settings/queries/use-settings'
 import { NewDeviceLoginModal } from '@/features/notification/components/new-device-login-modal'
 import { notificationKeys } from '@/features/notification/queries/keys'
-import { useMarkHistoryAsCheckedMutation } from '@/features/notification/queries/use-mutations'
 import { useNotificationHandler } from '@/hooks/use-notification-handler'
 import { ChatProvider } from '@/features/chat'
 
@@ -34,9 +33,8 @@ export default function UserLayout() {
   const [isGlobalSearchOpen, setIsGlobalSearchOpen] = useState(false)
 
   useNotificationSocket()
-  const { systemUnreadCount } = useNotificationHandler()
+  const { notificationUnreadCount } = useNotificationHandler()
 
-  const { mutate: markAsChecked } = useMarkHistoryAsCheckedMutation()
   const { data: settings } = useMySettings()
   const { locale, changeLocale } = useLocale()
 
@@ -53,22 +51,20 @@ export default function UserLayout() {
   const { text: commonText } = useCommonText()
   const [searchParams, setSearchParams] = useSearchParams()
 
-  const unreadDisplay = systemUnreadCount
+  const unreadDisplay = notificationUnreadCount
 
   useEffect(() => {
     if (searchParams.get('noti_open') === 'true') {
       setTimeout(() => {
         setIsNotificationOpen(true)
         setIsSearchOpen(false)
-        markAsChecked()
-        window.dispatchEvent(new CustomEvent('notification:marked-as-read'))
 
         const newParams = new URLSearchParams(searchParams)
         newParams.delete('noti_open')
         setSearchParams(newParams, { replace: true })
       }, 0)
     }
-  }, [searchParams, setSearchParams, markAsChecked])
+  }, [searchParams, setSearchParams])
 
   const handleFCMMessage = useCallback(
     (payload: unknown) => {
@@ -124,8 +120,6 @@ export default function UserLayout() {
   useFCM(handleFCMMessage, () => {
     setIsNotificationOpen(true)
     setIsSearchOpen(false)
-    markAsChecked()
-    window.dispatchEvent(new CustomEvent('notification:marked-as-read'))
     queryClient.invalidateQueries({ queryKey: notificationKeys.all })
   })
 
@@ -195,10 +189,6 @@ export default function UserLayout() {
                       const nextState = !isNotificationOpen
                       setIsNotificationOpen(nextState)
                       setIsSearchOpen(false)
-                      if (nextState) {
-                        markAsChecked()
-                        window.dispatchEvent(new CustomEvent('notification:marked-as-read'))
-                      }
                       queryClient.invalidateQueries({ queryKey: notificationKeys.all })
                     }}
                     className={cn(

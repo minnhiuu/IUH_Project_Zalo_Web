@@ -25,7 +25,7 @@ export function NotificationDropdown({
   const [isOpen, setIsOpen] = useState(false)
 
   const { data: state } = useNotificationStateQuery()
-  const badgeCount = state?.notificationBadgeCount ?? 0
+  const badgeCount = state?.notificationUnreadCount ?? state?.unreadCount ?? 0
 
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open)

@@ -41,6 +41,8 @@ export type NotificationHistoryResponse = z.infer<typeof NotificationHistoryResp
 
 export const UserNotificationStateResponseSchema = z.object({
   unreadCount: z.number(),
+  notificationUnreadCount: z.number().optional(),
+  chatUnreadConversationCount: z.number().optional(),
   notificationBadgeCount: z.number()
 })
 

@@ -1,8 +1,9 @@
 import { cn } from '@/lib/utils'
 import { NotificationList, type NotificationFilter } from './notification-list'
 import { useNotificationText } from '../locales/use-notification-text'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { NotificationMenu } from './notification-menu'
+import { useMarkHistoryAsCheckedMutation } from '../queries/use-mutations'
 
 interface NotificationPanelProps {
   open: boolean
@@ -12,6 +13,17 @@ interface NotificationPanelProps {
 export function NotificationPanel({ open }: NotificationPanelProps) {
   const { title, filter: filterText } = useNotificationText()
   const [filter, setFilter] = useState<NotificationFilter>('all')
+  const wasOpenRef = useRef(false)
+  const { mutate: markAsChecked } = useMarkHistoryAsCheckedMutation()
+
+  useEffect(() => {
+    if (open && !wasOpenRef.current) {
+      markAsChecked()
+      window.dispatchEvent(new CustomEvent('notification:marked-as-read'))
+    }
+
+    wasOpenRef.current = open
+  }, [markAsChecked, open])
 
   return (
     <div
