@@ -77,13 +77,6 @@ export function ContactsTab({ keyword, text }: ContactsTabProps) {
                     phoneNumber={contact.phoneNumber}
                     phoneLabel={text.phoneNumber}
                     onClick={() => {
-                      if (keyword.trim()) {
-                        addSearchItem({
-                          id: generateKeywordId(keyword),
-                          name: keyword.trim(),
-                          type: SearchType.Keyword
-                        })
-                      }
                       addSearchItem({
                         id: contact.conversationId || contact.recipientId || '',
                         name: contact.name,

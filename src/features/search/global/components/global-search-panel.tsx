@@ -57,12 +57,7 @@ export function GlobalSearchPanel({ open, onOpenChange }: GlobalSearchPanelProps
   ]
 
   return (
-    <div
-      className={cn(
-        'w-full bg-background flex flex-col h-full',
-        !open && 'hidden'
-      )}
-    >
+    <div className={cn('w-full bg-background flex flex-col h-full', !open && 'hidden')}>
       {/* Search Header */}
       <div className='flex items-center gap-2 px-4 py-3 shrink-0'>
         <div className='relative flex-1 group'>

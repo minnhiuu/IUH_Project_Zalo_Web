@@ -99,14 +99,6 @@ export function AllResultsTab({
                     phoneNumber={contact.phoneNumber}
                     phoneLabel={text.phoneNumber}
                     onClick={() => {
-                      // Save the keyword first
-                      if (keyword.trim()) {
-                        addSearchItem({
-                          id: generateKeywordId(keyword),
-                          name: keyword.trim(),
-                          type: SearchType.Keyword
-                        })
-                      }
                       // Save the contact
                       addSearchItem({
                         id: contact.conversationId || contact.recipientId || '',
