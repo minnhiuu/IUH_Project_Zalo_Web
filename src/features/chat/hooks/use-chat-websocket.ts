@@ -851,13 +851,15 @@ export const useChatWebSocket = () => {
           }
         )
 
-        const mediaPreview =
+        const imageCount = mediaFiles.filter((a) => a.file.type.startsWith('image/')).length
+        const videoCount = mediaFiles.filter((a) => a.file.type.startsWith('video/')).length
+        const normalizedMediaPreview =
           trimmedContent ||
-          (mediaFiles.length === 1
-            ? allVideo
-              ? '[Video]'
-              : '[Hình ảnh]'
-            : `[${mediaFiles.length} ${allVideo ? 'video' : 'ảnh'}]`)
+          (imageCount > 0 && videoCount > 0
+            ? `[${imageCount > 1 ? 'Nhiều ảnh' : 'Ảnh'} và ${videoCount > 1 ? 'nhiều video' : 'video'}]`
+            : imageCount > 0
+              ? imageCount > 1 ? '[Nhiều ảnh]' : '[Ảnh]'
+              : videoCount > 1 ? '[Nhiều video]' : '[Video]')
         queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
           if (!oldData) return oldData
           const idx = oldData.findIndex((c) => c.id === conversationId)
@@ -867,7 +869,7 @@ export const useChatWebSocket = () => {
               ...oldData[idx],
               lastMessage: {
                 id: clientMessageId,
-                content: mediaPreview,
+                content: normalizedMediaPreview,
                 timestamp: now,
                 isFromMe: true,
                 type: msgType,
@@ -985,7 +987,7 @@ export const useChatWebSocket = () => {
               ...oldData[idx],
               lastMessage: {
                 id: clientMessageId,
-                content: `[Tệp] ${file.name}`,
+                content: `[File] ${file.name}`,
                 timestamp: now,
                 isFromMe: true,
                 type: MessageType.File,

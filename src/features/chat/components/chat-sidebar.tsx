@@ -89,6 +89,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat, onCaptureUnreadAncho
         {
           content: stripMentionsForPreview(chat.lastMessage.content),
           isFromMe: !!chat.lastMessage.isFromMe,
+          isGroup: chat.isGroup,
           senderName: chat.lastMessage.senderName || '',
           type: chat.lastMessage.type as MessageType,
           status: chat.lastMessage.status as MessageStatus
