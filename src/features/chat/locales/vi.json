@@ -172,6 +172,10 @@
         "self": "Bạn đã làm mới link mời nhóm. Link cũ không còn hiệu lực.",
         "by_actor": "<actorBold>{{actor}}</actorBold> đã làm mới link mời nhóm. Link cũ không còn hiệu lực."
       },
+      "disable_join_link": {
+        "self": "Bạn đã hủy link mời tham gia nhóm. Link cũ không còn hiệu lực.",
+        "by_actor": "<actorBold>{{actor}}</actorBold> đã hủy link mời tham gia nhóm. Link cũ không còn hiệu lực."
+      },
       "pin_message": {
         "pinned_self": "Bạn đã ghim 1 tin nhắn",
         "pinned_by_actor": "<actorBold>{{actor}}</actorBold> đã ghim 1 tin nhắn",
@@ -212,7 +216,9 @@
         "reply_prefix": "Chọn",
         "reply_action": "Trả lời",
         "reply_suffix": "để trích dẫn nội dung tin nhắn"
-      }
+      },
+      "quiet_mode_active": "<actorBold>{{actor}}</actorBold> đang trong chế độ ngủ và sẽ không nhận được thông báo tin nhắn",
+      "dnd_summary": "Bạn có <bold>{{count}}</bold> thông báo mới trong chế độ ngủ"
     },
     "disbanded": {
       "message": "Trưởng nhóm đã giải tán nhóm.",

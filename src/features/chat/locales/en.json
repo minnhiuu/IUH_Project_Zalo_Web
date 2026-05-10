@@ -172,6 +172,10 @@
         "self": "You refreshed the group invite link. The old link is no longer valid.",
         "by_actor": "<actorBold>{{actor}}</actorBold> refreshed the group invite link. The old link is no longer valid."
       },
+      "disable_join_link": {
+        "self": "You disabled the group invite link. The old link is no longer valid.",
+        "by_actor": "<actorBold>{{actor}}</actorBold> disabled the group invite link. The old link is no longer valid."
+      },
       "pin_message": {
         "pinned_self": "You pinned a message",
         "pinned_by_actor": "<actorBold>{{actor}}</actorBold> pinned a message",
@@ -212,7 +216,9 @@
         "reply_prefix": "Press",
         "reply_action": "Reply",
         "reply_suffix": "to quote message content"
-      }
+      },
+      "quiet_mode_active": "<actorBold>{{actor}}</actorBold> is in quiet mode and won't be notified about messages",
+      "dnd_summary": "You have <bold>{{count}}</bold> new notifications since you started Quiet Mode"
     },
     "disbanded": {
       "message": "The group has been disbanded by the owner.",

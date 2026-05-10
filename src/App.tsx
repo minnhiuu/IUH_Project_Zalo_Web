@@ -7,7 +7,7 @@ export function App() {
     <>
       <AppRoutes />
       <Toaster
-        position='top-right'
+        position='bottom-left'
         richColors
         closeButton
         offset='24px'

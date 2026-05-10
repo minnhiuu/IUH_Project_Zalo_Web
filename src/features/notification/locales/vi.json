@@ -42,7 +42,8 @@
       "acceptSuccess": "Đã chấp nhận lời mời kết bạn",
       "acceptError": "Không thể chấp nhận lời mời",
       "declineSuccess": "Đã từ chối lời mời kết bạn",
-      "declineError": "Không thể từ chối lời mời"
+      "declineError": "Không thể từ chối lời mời",
+      "newNotification": "Thông báo mới"
     },
     "validation": {
       "receiverIdRequired": "ID người nhận là bắt buộc",

@@ -22,12 +22,34 @@ export const useMarkHistoryAsCheckedMutation = () => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: notificationApi.markHistoryAsChecked,
-    onSuccess: () => {
-      queryClient.setQueriesData<UserNotificationStateResponse>({ queryKey: notificationKeys.state() }, (oldState) => {
-        if (!oldState) return oldState
-        return { ...oldState, unreadCount: 0 }
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: notificationKeys.state() })
+      const previousState = queryClient.getQueryData<UserNotificationStateResponse>(notificationKeys.state())
+
+      queryClient.setQueryData<UserNotificationStateResponse>(notificationKeys.state(), (old) => {
+        if (!old) return old
+
+        const chatUnreadConversationCount = old.chatUnreadConversationCount ?? 0
+
+        return {
+          ...old,
+          unreadCount: 0,
+          notificationUnreadCount: 0,
+          chatUnreadConversationCount,
+          notificationBadgeCount: chatUnreadConversationCount
+        }
       })
 
+      return { previousState }
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousState) {
+        queryClient.setQueryData(notificationKeys.state(), context.previousState)
+      }
+    },
+    onSuccess: () => {
+      // Invalidate state query to recalculate counts
+      queryClient.invalidateQueries({ queryKey: notificationKeys.state() })
       queryClient.invalidateQueries({ queryKey: notificationKeys.all })
     }
   })
@@ -71,6 +93,9 @@ export const useMarkAsReadMutation = () => {
           return { ...old, pages: newPages }
         }
       )
+
+      // Invalidate state query to recalculate unread counts
+      queryClient.invalidateQueries({ queryKey: notificationKeys.state() })
     }
   })
 }
@@ -105,11 +130,8 @@ export const useMarkAllAsReadMutation = () => {
         }
       )
 
-      // 2. Reset unread count to 0
-      queryClient.setQueriesData<UserNotificationStateResponse>({ queryKey: notificationKeys.state() }, (oldState) => {
-        if (!oldState) return oldState
-        return { ...oldState, unreadCount: 0 }
-      })
+      // 2. Invalidate state query to recalculate counts
+      queryClient.invalidateQueries({ queryKey: notificationKeys.state() })
     }
   })
 }

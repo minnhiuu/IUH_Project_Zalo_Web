@@ -176,6 +176,29 @@
         "sound": {
           "title": "Notification sound",
           "description": "Play sound when a notification arrives"
+        },
+        "friendRequests": {
+          "title": "Friend requests",
+          "description": "Get notified when someone sends you a friend request"
+        },
+        "directMessages": {
+          "title": "Direct messages",
+          "description": "Get notified when you receive a message from a friend"
+        },
+        "groupMessages": {
+          "title": "Group messages",
+          "description": "Get notified when you receive a message in a group"
+        },
+        "quietMode": {
+          "title": "Quiet mode",
+          "description": "When active, notifications will be silenced and direct message senders will receive an auto-reply. You will receive a summary when the period ends.",
+          "startTime": "Start time",
+          "endTime": "End time",
+          "timezone": "Timezone",
+          "chooseDays": "Choose days",
+          "everyday": "Quiet mode is on everyday.",
+          "activeDaysCount": "On for: {{count}} days of the week.",
+          "save": "Save"
         }
       },
       "messages": {

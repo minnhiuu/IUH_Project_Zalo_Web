@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 // test
 import { useAuth } from '@/features/auth'
+import { notificationApi } from '@/features/notification/api/notification.api'
+import { notificationKeys } from '@/features/notification/queries/keys'
 import {
   markAsRead,
   sendMessageApi,
@@ -42,8 +44,18 @@ export const useMarkAsReadMutation = () => {
   const { user } = useAuth()
 
   return useMutation({
-    mutationFn: ({ conversationId, lastReadMessageId }: { conversationId: string; lastReadMessageId?: string }) =>
-      markAsRead(conversationId, lastReadMessageId),
+    mutationFn: async ({
+      conversationId,
+      lastReadMessageId
+    }: {
+      conversationId: string
+      lastReadMessageId?: string
+    }) => {
+      await markAsRead(conversationId, lastReadMessageId)
+      await notificationApi.markChatConversationAsRead(conversationId).catch((error) => {
+        console.warn('[Notification] Failed to mark chat notification as read:', error)
+      })
+    },
     onMutate: async ({ conversationId, lastReadMessageId }) => {
       await queryClient.cancelQueries({ queryKey: chatKeys.conversations() })
       const previousConversations = queryClient.getQueryData<ConversationResponse[]>(chatKeys.conversations())
@@ -61,7 +73,9 @@ export const useMarkAsReadMutation = () => {
                 members: conv.members?.map((m) => ({
                   ...m,
                   lastReadMessageId:
-                    m.userId === user?.id && optimisticLastReadMessageId ? optimisticLastReadMessageId : m.lastReadMessageId
+                    m.userId === user?.id && optimisticLastReadMessageId
+                      ? optimisticLastReadMessageId
+                      : m.lastReadMessageId
                 }))
               }
             }
@@ -78,9 +92,10 @@ export const useMarkAsReadMutation = () => {
         queryClient.setQueryData(chatKeys.conversations(), context.previousConversations)
       }
     },
-    onSettled: () => {
-      // Không invalidate unreadAnchor ở đây vì ta đã xử lý ẩn divider bằng local state trong ChatWindow
-      // Việc invalidate sẽ làm phát sinh thêm 1 request API dư thừa mỗi lần Read
+    onSuccess: () => {
+      // Invalidate notification state to recalculate badge count
+      // When conversation is marked as read, chatUnreadConversationCount should decrease
+      queryClient.invalidateQueries({ queryKey: notificationKeys.state() })
     }
   })
 }

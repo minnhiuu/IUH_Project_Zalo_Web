@@ -145,7 +145,12 @@ export const useChatWebSocket = () => {
             // waiting for React Query cache → re-render → useEffect pipeline.
             window.dispatchEvent(
               new CustomEvent('chat:incoming-message', {
-                detail: { conversationId, messageId: msg.id, senderId: msg.senderId }
+                detail: { 
+                  conversationId, 
+                  messageId: msg.id, 
+                  senderId: msg.senderId,
+                  senderName: msg.senderName 
+                }
               })
             )
           }
@@ -159,10 +164,17 @@ export const useChatWebSocket = () => {
               msgMetadata?.action === 'DISBAND_GROUP' ||
               msgMetadata?.action === 'REMOVE_MEMBER' ||
               msgMetadata?.action === 'BLOCK_MEMBER' ||
-              msgMetadata?.action === 'ADD_MEMBERS_FAILED')
+              msgMetadata?.action === 'ADD_MEMBERS' ||
+              msgMetadata?.action === 'ADD_MEMBERS_FAILED' ||
+              msgMetadata?.action === 'CREATE_GROUP')
 
           queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
             if (!oldData) return oldData
+
+            // Quiet Mode Auto Reply should NOT update sidebar at all
+            const isQuietModeAction = msg.type === MessageType.System && msgMetadata?.action === 'DND_AUTO_REPLY'
+            if (isQuietModeAction) return oldData
+
             const conversations: ConversationResponse[] = oldData
             const existingConvIndex = conversations.findIndex((c) => c.id === conversationId)
 
@@ -499,7 +511,8 @@ export const useChatWebSocket = () => {
                     lastMeta?.action !== 'REMOVE_MEMBER' &&
                     lastMeta?.action !== 'LEAVE_GROUP' &&
                     lastMeta?.action !== 'BLOCK_MEMBER' &&
-                    lastMeta?.action !== 'ADD_MEMBERS_FAILED'
+                    lastMeta?.action !== 'ADD_MEMBERS_FAILED' &&
+                    lastMeta?.action !== 'CREATE_GROUP'
                   nextData = [
                     {
                       ...newConv,
@@ -838,13 +851,15 @@ export const useChatWebSocket = () => {
           }
         )
 
-        const mediaPreview =
+        const imageCount = mediaFiles.filter((a) => a.file.type.startsWith('image/')).length
+        const videoCount = mediaFiles.filter((a) => a.file.type.startsWith('video/')).length
+        const normalizedMediaPreview =
           trimmedContent ||
-          (mediaFiles.length === 1
-            ? allVideo
-              ? '[Video]'
-              : '[Hình ảnh]'
-            : `[${mediaFiles.length} ${allVideo ? 'video' : 'ảnh'}]`)
+          (imageCount > 0 && videoCount > 0
+            ? `[${imageCount > 1 ? 'Nhiều ảnh' : 'Ảnh'} và ${videoCount > 1 ? 'nhiều video' : 'video'}]`
+            : imageCount > 0
+              ? imageCount > 1 ? '[Nhiều ảnh]' : '[Ảnh]'
+              : videoCount > 1 ? '[Nhiều video]' : '[Video]')
         queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
           if (!oldData) return oldData
           const idx = oldData.findIndex((c) => c.id === conversationId)
@@ -854,7 +869,7 @@ export const useChatWebSocket = () => {
               ...oldData[idx],
               lastMessage: {
                 id: clientMessageId,
-                content: mediaPreview,
+                content: normalizedMediaPreview,
                 timestamp: now,
                 isFromMe: true,
                 type: msgType,
@@ -972,7 +987,7 @@ export const useChatWebSocket = () => {
               ...oldData[idx],
               lastMessage: {
                 id: clientMessageId,
-                content: `[Tệp] ${file.name}`,
+                content: `[File] ${file.name}`,
                 timestamp: now,
                 isFromMe: true,
                 type: MessageType.File,
