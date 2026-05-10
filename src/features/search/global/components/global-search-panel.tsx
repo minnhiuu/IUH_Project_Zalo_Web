@@ -135,7 +135,7 @@ export function GlobalSearchPanel({ open, onOpenChange }: GlobalSearchPanelProps
             }}
           />
         ) : (
-          <GlobalSearchProvider keyword={debouncedKeyword} text={text}>
+          <GlobalSearchProvider keyword={debouncedKeyword} text={searchText}>
             <div className='flex flex-col pb-4'>
               {activeTab === 'all' && (
                 <AllResultsTab
@@ -143,12 +143,12 @@ export function GlobalSearchPanel({ open, onOpenChange }: GlobalSearchPanelProps
                   onViewAllContacts={() => setActiveTab('contacts')}
                   onViewAllMessages={() => setActiveTab('messages')}
                   onViewAllFiles={() => setActiveTab('files')}
-                  text={text}
+                  text={searchText}
                   sectionSize={PREVIEW_SECTION_SIZE}
                 />
               )}
 
-              {activeTab === 'contacts' && <ContactsTab keyword={debouncedKeyword} text={text} />}
+              {activeTab === 'contacts' && <ContactsTab keyword={debouncedKeyword} text={searchText} />}
 
               {activeTab === 'messages' && <MessagesTab />}
 

@@ -56,6 +56,7 @@ export interface ConversationSearchResponse {
   participantNames: string[] | null
   participantAvatars: (string | null)[] | null
   displayHighlights: string | null
+  phoneNumber?: string
 }
 
 export interface ConversationSearchSectionResponse {
