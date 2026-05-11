@@ -93,7 +93,7 @@ export interface ElasticsearchTexts {
   controlBar: {
     inputPlaceholder: string
     syncUser: string
-    sync: string
+    syncMessage: string
     reindexAll: string
     reindexMessages: string
     reindexGroups: string
@@ -156,6 +156,18 @@ export interface ElasticsearchTexts {
         reasonLabel: string
       }
       cancel: string
+    }
+    tooltips: {
+      totalDocs: string
+      storageSize: string
+      currentIndex: string
+      aliasName: string
+      shards: string
+      replicas: string
+      mongodbCount: string
+      esCount: string
+      integrity: string
+      dlq: string
     }
   }
   messages: {
@@ -355,7 +367,7 @@ export const createElasticsearchTexts = (t: TFunction<'admin-elasticsearch'>): E
   controlBar: {
     inputPlaceholder: t(ELASTICSEARCH_KEYS.controlBar.inputPlaceholder),
     syncUser: t(ELASTICSEARCH_KEYS.controlBar.syncUser),
-    sync: t(ELASTICSEARCH_KEYS.controlBar.sync),
+    syncMessage: t(ELASTICSEARCH_KEYS.controlBar.syncMessage),
     reindexAll: t(ELASTICSEARCH_KEYS.controlBar.reindexAll),
     reindexMessages: t(ELASTICSEARCH_KEYS.controlBar.reindexMessages),
     reindexGroups: t(ELASTICSEARCH_KEYS.controlBar.reindexGroups),
@@ -418,6 +430,18 @@ export const createElasticsearchTexts = (t: TFunction<'admin-elasticsearch'>): E
         reasonLabel: t(ELASTICSEARCH_KEYS.userTab.dialogs.deadEvents.reasonLabel)
       },
       cancel: t(ELASTICSEARCH_KEYS.userTab.dialogs.cancel)
+    },
+    tooltips: {
+      totalDocs: t(ELASTICSEARCH_KEYS.userTab.tooltips.totalDocs),
+      storageSize: t(ELASTICSEARCH_KEYS.userTab.tooltips.storageSize),
+      currentIndex: t(ELASTICSEARCH_KEYS.userTab.tooltips.currentIndex),
+      aliasName: t(ELASTICSEARCH_KEYS.userTab.tooltips.aliasName),
+      shards: t(ELASTICSEARCH_KEYS.userTab.tooltips.shards),
+      replicas: t(ELASTICSEARCH_KEYS.userTab.tooltips.replicas),
+      mongodbCount: t(ELASTICSEARCH_KEYS.userTab.tooltips.mongodbCount),
+      esCount: t(ELASTICSEARCH_KEYS.userTab.tooltips.esCount),
+      integrity: t(ELASTICSEARCH_KEYS.userTab.tooltips.integrity),
+      dlq: t(ELASTICSEARCH_KEYS.userTab.tooltips.dlq)
     }
   },
   messages: {

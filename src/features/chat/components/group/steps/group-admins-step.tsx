@@ -71,7 +71,7 @@ export function GroupAdminsStep({ conversation, currentUserRole, onSuccess }: Gr
       { conversationId: conversation.id, targetUserId: pendingTransferTargetId },
       {
         onSuccess: () => {
-          showSuccessToast('Chuyển quyền trưởng nhóm thành công')
+          showSuccessToast(tg.toasts.transferOwnerSuccess)
           setIsTransferOwnerFinalOpen(false)
           setIsTransferOwnerDialogOpen(false)
           setPendingTransferTargetId(null)

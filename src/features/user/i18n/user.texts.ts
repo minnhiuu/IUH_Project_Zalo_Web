@@ -87,7 +87,8 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
       noFriends: t(USER_KEYS.profile.page.noFriends),
       noMutualFriends: t(USER_KEYS.profile.page.noMutualFriends),
       featureInDevelopment: t(USER_KEYS.profile.page.featureInDevelopment)
-    }
+    },
+    goToSettings: t(USER_KEYS.profile.goToSettings)
   },
   validation: {
     fullNameRequired: t(USER_KEYS.validation.fullNameRequired),
@@ -206,6 +207,33 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
       sound: {
         title: t(USER_KEYS.settings.notification.sound.title),
         description: t(USER_KEYS.settings.notification.sound.description)
+      },
+      vibration: {
+        title: t(USER_KEYS.settings.notification.vibration.title),
+        description: t(USER_KEYS.settings.notification.vibration.description)
+      },
+      friendRequests: {
+        title: t(USER_KEYS.settings.notification.friendRequests.title),
+        description: t(USER_KEYS.settings.notification.friendRequests.description)
+      },
+      directMessages: {
+        title: t(USER_KEYS.settings.notification.directMessages.title),
+        description: t(USER_KEYS.settings.notification.directMessages.description)
+      },
+      groupMessages: {
+        title: t(USER_KEYS.settings.notification.groupMessages.title),
+        description: t(USER_KEYS.settings.notification.groupMessages.description)
+      },
+      quietMode: {
+        title: t(USER_KEYS.settings.notification.quietMode.title),
+        description: t(USER_KEYS.settings.notification.quietMode.description),
+        startTime: t(USER_KEYS.settings.notification.quietMode.startTime),
+        endTime: t(USER_KEYS.settings.notification.quietMode.endTime),
+        chooseDays: t(USER_KEYS.settings.notification.quietMode.chooseDays),
+        everyday: t(USER_KEYS.settings.notification.quietMode.everyday),
+        activeDaysCount: (count: number) => t(USER_KEYS.settings.notification.quietMode.activeDaysCount, { count }),
+        timezone: t(USER_KEYS.settings.notification.quietMode.timezone),
+        save: t(USER_KEYS.settings.notification.quietMode.save)
       }
     },
     messages: {
@@ -303,6 +331,7 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
           story: t(USER_KEYS.settings.accountPrivacy.blockedUsers.types.story)
         }
       },
+      accountActivation: {},
       blockModal: {
         title: t(USER_KEYS.settings.accountPrivacy.blockModal.title),
         editTitle: t(USER_KEYS.settings.accountPrivacy.blockModal.editTitle),

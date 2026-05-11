@@ -52,8 +52,7 @@ function PostPreviewDialog({
         url: m.url || URL.createObjectURL(m.file!),
         type: m.type
       }))
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setMediaUrls(urls)
+      requestAnimationFrame(() => setMediaUrls(urls))
       return () => {
         urls.forEach((u) => {
           if (!selectedMedia.find(m => m.url === u.url)) {
@@ -114,18 +113,19 @@ function MediaPreview({
   onRemove: () => void
   className?: string
 }) {
-  const [previewUrl, setPreviewUrl] = useState<string>('')
+  const previewUrl = useMemo(() => {
+    if (item.url) return item.url
+    if (item.file) return URL.createObjectURL(item.file)
+    return ''
+  }, [item.url, item.file])
 
   useEffect(() => {
-    if (item.url) {
-      setPreviewUrl(item.url)
-    } else if (item.file) {
-      const url = URL.createObjectURL(item.file)
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setPreviewUrl(url)
-      return () => URL.revokeObjectURL(url)
+    return () => {
+      if (item.file && !item.url && previewUrl) {
+        URL.revokeObjectURL(previewUrl)
+      }
     }
-  }, [item])
+  }, [item.file, item.url, previewUrl])
 
   if (!previewUrl) return null
 
@@ -450,7 +450,7 @@ function ComposerBody({
             disabled={!hasPostContent || isPending}
             className='h-10 min-w-24 rounded-xl bg-indigo-500 px-6 font-semibold text-white shadow-sm transition-all hover:bg-indigo-600 hover:shadow-indigo-500/20 active:scale-95 disabled:opacity-50 disabled:pointer-events-none'
           >
-            {isPending ? <Loader2 className='h-5 w-5 animate-spin' /> : (initialPost ? (text.composer as any).save || 'Save' : text.composer.post)}
+            {isPending ? <Loader2 className='h-5 w-5 animate-spin' /> : (initialPost ? (text.composer as Record<string, string>).save || 'Save' : text.composer.post)}
           </Button>
         </div>
       </div>

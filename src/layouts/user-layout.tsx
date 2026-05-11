@@ -1,23 +1,26 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { Outlet, Link, useLocation } from 'react-router'
+import { Outlet, Link, useLocation, useSearchParams } from 'react-router'
 import { Contact2, CheckSquare, Settings, Cloud, Briefcase, MessageCircle, Search, Bell, Newspaper } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { PATHS } from '@/constants/path'
 import { UserNavDropdown } from '@/features/user'
 import { useAuthContext } from '@/features/auth/context/auth-context'
 import { UserAvatar } from '@/components/common/user-avatar'
-import { useState, useCallback } from 'react'
-import { SearchPanel } from '@/features/search-user'
+import { useState, useCallback, useEffect } from 'react'
+import { SearchPanel } from '@/features/search'
 import { useCommonText } from '@/locales/common/use-common-text'
 import { useFCM } from '@/hooks/use-fcm'
-import { NotificationPanel } from '@/features/notification'
+import { NotificationPanel, useNotificationSocket } from '@/features/notification'
+import { NotificationOverlay } from '@/components/common/notification-overlay'
+import { useMySettings } from '@/features/user-settings/queries/use-settings'
+import { NewDeviceLoginModal } from '@/features/notification/components/new-device-login-modal'
 import { notificationKeys } from '@/features/notification/queries/keys'
-import { useNotificationStateQuery } from '@/features/notification/queries/use-queries'
-import { useMarkHistoryAsCheckedMutation } from '@/features/notification/queries/use-mutations'
-import { useNotificationBadge } from '@/hooks/use-notification-badge'
+import { useNotificationHandler } from '@/hooks/use-notification-handler'
 import { ChatProvider } from '@/features/chat'
+
 import { socialFeedKeys } from '@/features/social-feed/queries/keys'
 import { showWarningToast } from '@/utils/toast'
+import { useLocale } from '@/lib/i18n/use-locale'
 import type { SocialPost } from '@/features/social-feed/components/post/post-card'
 import type { InfiniteData } from '@tanstack/react-query'
 
@@ -27,15 +30,41 @@ export default function UserLayout() {
   const queryClient = useQueryClient()
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isNotificationOpen, setIsNotificationOpen] = useState(false)
+  const [isGlobalSearchOpen, setIsGlobalSearchOpen] = useState(false)
 
-  const { data: notificationState } = useNotificationStateQuery()
-  const { mutate: markAsChecked } = useMarkHistoryAsCheckedMutation()
+  useNotificationSocket()
+  const { notificationUnreadCount } = useNotificationHandler()
 
-  const unreadCount = notificationState?.unreadCount ?? 0
+  const { data: settings } = useMySettings()
+  const { locale, changeLocale } = useLocale()
 
-  useNotificationBadge({ count: unreadCount, title: 'BondHub' })
+  // Sync language from user settings globally
+  useEffect(() => {
+    if (settings?.generalSettings?.languageEn !== undefined) {
+      const settingsLang = settings.generalSettings.languageEn ? 'en' : 'vi'
+      if (locale !== settingsLang) {
+        changeLocale(settingsLang)
+      }
+    }
+  }, [settings?.generalSettings?.languageEn, locale, changeLocale])
 
   const { text: commonText } = useCommonText()
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  const unreadDisplay = notificationUnreadCount
+
+  useEffect(() => {
+    if (searchParams.get('noti_open') === 'true') {
+      setTimeout(() => {
+        setIsNotificationOpen(true)
+        setIsSearchOpen(false)
+
+        const newParams = new URLSearchParams(searchParams)
+        newParams.delete('noti_open')
+        setSearchParams(newParams, { replace: true })
+      }, 0)
+    }
+  }, [searchParams, setSearchParams])
 
   const handleFCMMessage = useCallback(
     (payload: unknown) => {
@@ -71,6 +100,18 @@ export default function UserLayout() {
           message += ` Note: ${adminNote}`
         }
         showWarningToast(message, 8000)
+      } else if (type === 'NEW_DEVICE_LOGIN') {
+        const payloadData = data?.payload ? JSON.parse(data.payload) : data
+        window.dispatchEvent(
+          new CustomEvent('open-new-device-login-modal', {
+            detail: {
+              deviceName: payloadData.deviceName || '',
+              ipAddress: payloadData.ipAddress || '',
+              loginTime: payloadData.loginTime || '',
+              sessionId: payloadData.sessionId || ''
+            }
+          })
+        )
       }
     },
     [queryClient]
@@ -79,7 +120,6 @@ export default function UserLayout() {
   useFCM(handleFCMMessage, () => {
     setIsNotificationOpen(true)
     setIsSearchOpen(false)
-    markAsChecked()
     queryClient.invalidateQueries({ queryKey: notificationKeys.all })
   })
 
@@ -142,7 +182,6 @@ export default function UserLayout() {
               }
               if (item.path === PATHS.NOTIFICATIONS) {
                 const isActive = isNotificationOpen
-                const unreadCount = notificationState?.unreadCount ?? 0
                 return (
                   <button
                     key={item.path}
@@ -150,9 +189,6 @@ export default function UserLayout() {
                       const nextState = !isNotificationOpen
                       setIsNotificationOpen(nextState)
                       setIsSearchOpen(false)
-                      if (nextState) {
-                        markAsChecked()
-                      }
                       queryClient.invalidateQueries({ queryKey: notificationKeys.all })
                     }}
                     className={cn(
@@ -166,9 +202,9 @@ export default function UserLayout() {
                         isActive ? 'text-white' : 'text-white/80 group-hover:text-white'
                       )}
                     />
-                    {unreadCount > 0 && (
+                    {unreadDisplay > 0 && (
                       <span className='absolute top-2 right-2 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-medium text-white ring-2 ring-sidebar'>
-                        {unreadCount > 99 ? '99+' : unreadCount}
+                        {unreadDisplay > 99 ? '99+' : unreadDisplay}
                       </span>
                     )}
                   </button>
@@ -245,11 +281,13 @@ export default function UserLayout() {
 
         {/* Main Content Area */}
         <main className='flex-1 flex overflow-hidden'>
-          <Outlet />
+          <Outlet context={{ setIsGlobalSearchOpen, isGlobalSearchOpen }} />
         </main>
 
         <SearchPanel open={isSearchOpen} onOpenChange={setIsSearchOpen} />
         <NotificationPanel open={isNotificationOpen} onOpenChange={setIsNotificationOpen} />
+        <NotificationOverlay />
+        <NewDeviceLoginModal />
       </div>
     </ChatProvider>
   )

@@ -13,6 +13,11 @@
   --brand-blue-text: #0045ad;
   --cta-link: #0068ff;
 
+  --background-activeness: #0068ff;
+  --text-disable: #8b96a7;
+  --B10: #f0f7ff;
+  --border-focused: #005ae0;
+
   --vibrant-blue: #0068ff;
   --vibrant-blue-hover: #005ae0;
 
@@ -150,12 +155,21 @@
   --layer-background: #fff;
   --divider-bold: #dbdbdb;
   --surface-background-subtle: #ebecf0;
+  --layer-background-subtle: #ebecf0;
   --badge-emerald-bg: #d1fae5;
   --badge-emerald-text: #047857;
   --badge-blue-bg: #dbeafe;
   --badge-blue-text: #1d4ed8;
   --badge-violet-bg: #ede9fe;
   --badge-violet-text: #6d28d9;
+  --button-secondary-neutral-normal: #e5e7eb;
+  --button-secondary-neutral-text: #081b3a;
+  --button-tertiary-neutral-focus-bg: #e5f1ff;
+  --button-tertiary-neutral-focus-text: #005ae0;
+  --text-mention: #0068ff;
+  --layer-background-selected: #e5f1ff;
+  --input-field-bg-filled: #f1f2f4;
+  --divider: rgba(0, 0, 0, 0.15);
 }
 
 @layer utilities {
@@ -176,9 +190,22 @@
   --brand-blue-text: #66a6ff;
   --cta-link: #66a6ff;
 
-  --accent-blue-border: #66a6ff;
-  --accent-blue-text: #66a6ff;
-  --bg-message-info: hsla(0, 0%, 100%, 0.05);
+  --background-activeness: #66a6ff;
+  --text-disable: #738296;
+  --B10: #001029;
+  --border-focused: #66a6ff;
+
+  --background: #22262b;
+  --foreground: #dfe2e7;
+
+  --vibrant-blue: #0190f3;
+  --vibrant-blue-hover: #0078cc;
+
+  --card: #22262b;
+  --card-foreground: #ffffff;
+
+  --popover: #22262b;
+  --popover-foreground: #ffffff;
 
   --background: #22262b;
   --foreground: #dfe2e7;
@@ -293,15 +320,23 @@
   --layer-background: #22262b;
   --divider-bold: #16191d;
   --surface-background-subtle: #16191d;
+  --layer-background-subtle: #1d2025;
   --input-field-bg-outline: #16191d;
   --input-field-bg-filled: #16191d;
-  --button-secondary-neutral-text: #dfe2e7;
   --badge-emerald-bg: #064e3b;
   --badge-emerald-text: #10b981;
   --badge-blue-bg: #1e3a8a;
   --badge-blue-text: #60a5fa;
   --badge-violet-bg: #4c1d95;
   --badge-violet-text: #a78bfa;
+  --button-secondary-neutral-normal: #2c323a;
+  --button-secondary-neutral-text: #dfe2e7;
+  --button-tertiary-neutral-focus-bg: #002152;
+  --button-tertiary-neutral-focus-text: #66a6ff;
+  --text-mention: #0068ff;
+  --layer-background-selected: #1f344d;
+  --input-field-bg-filled: #16191d;
+  --divider: rgba(0, 0, 0, 0.15);
 }
 
 @theme inline {
@@ -411,6 +446,10 @@
   --color-information: var(--text-information);
   --color-layer-selected: var(--layer-background-selected);
   --color-text-primary: var(--text-primary);
+  --color-text-disable: var(--text-disable);
+  --color-background-activeness: var(--background-activeness);
+  --color-B10: var(--B10);
+  --color-border-focused: var(--border-focused);
   --color-layer-background: var(--layer-background);
   --color-divider-bold: var(--divider-bold);
   --color-badge-emerald-bg: var(--badge-emerald-bg);
@@ -459,7 +498,7 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
   body {
     @apply font-sans bg-background text-foreground;
@@ -685,6 +724,16 @@ input[type='radio']:checked {
     background-color: var(--button-tertiary-primary-hover);
   }
 
+  .z--btn--v2.btn-outline-tertiary-primary {
+    background-color: var(--button-tertiary-primary-normal);
+    color: var(--button-tertiary-primary-text);
+    border: 1px solid var(--button-tertiary-primary-text);
+  }
+
+  .z--btn--v2.btn-outline-tertiary-primary:hover:not(:disabled) {
+    background-color: var(--button-tertiary-primary-hover);
+  }
+
   .z--btn--icon-content {
     font-size: 1.25rem;
     width: 1.25rem;
@@ -711,6 +760,20 @@ input[type='radio']:checked {
     display: flex !important;
     justify-content: center !important;
     align-items: center !important;
+  }
+
+  .sonner-toast-bottom-right {
+    position: fixed !important;
+    bottom: 18px !important;
+    right: 18px !important;
+    margin: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    pointer-events: none !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+    align-items: flex-end !important;
   }
 }
 
@@ -756,21 +819,9 @@ input[type='radio']:checked {
 }
 
 /* ── Highlight message (scroll-to) ── */
-@keyframes highlight-fade {
-  0% {
-    background-color: rgba(0, 104, 255, 0.25);
-  }
-  70% {
-    background-color: rgba(0, 104, 255, 0.25);
-  }
-  100% {
-    background-color: transparent;
-  }
-}
-
 .highlight-message {
-  animation: highlight-fade 2s ease-out forwards;
-  border-radius: 10px;
+  background-color: var(--layer-background-selected);
+  border-radius: 4px;
 }
 
 /* ── Message bubble action buttons: show on group hover (Tailwind v4 fix) ── */

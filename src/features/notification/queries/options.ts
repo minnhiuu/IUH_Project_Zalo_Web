@@ -24,5 +24,6 @@ export const getNotificationStateOptions = () =>
   queryOptions({
     queryKey: notificationKeys.state(),
     queryFn: () => notificationApi.getNotificationState().then((res) => res.data.data),
-    ...QUERY_POLICIES.LIST
+    staleTime: 10 * 1000, // 10 seconds - notification state updates frequently
+    gcTime: 5 * 60 * 1000 // 5 minutes
   })

@@ -1,81 +1,76 @@
 import { useState, useEffect } from 'react'
 import { Activity, Database, Zap, Terminal } from 'lucide-react'
 
-import { useEsSummary, useReindexStatus } from '../queries/use-queries'
+import { useEsSummary, useReindexStatus, useEsHealth } from '../queries/use-queries'
 import { elasticsearchKeys } from '../queries/keys'
 import { useQueryClient } from '@tanstack/react-query'
-import { useReindexUsers, useReindexUser, useUpdateFailedEventResolved } from '../queries/use-mutations'
+import { useReindex, useReindexUser, useUpdateFailedEventResolved } from '../queries/use-mutations'
 import { useElasticsearchText } from '../i18n/use-elasticsearch-text'
 import { StatsCard } from './stats-card'
 import { UserIndexTab } from './user-index-tab'
 import { ControlBar } from './control-bar'
 import { ReindexProgressBar } from './reindex-progress-bar'
 import { toast } from 'sonner'
-import { ElasticsearchClusterStatus, DataSyncStatus, ReindexTaskStatus } from '@/constants/enum'
+import { useSearchParams } from 'react-router'
+import { ElasticsearchClusterStatus, DataSyncStatus, ReindexTaskStatus, SearchIndexType } from '@/constants/enum'
 
 export const ElasticsearchDashboard = () => {
   const { text } = useElasticsearchText()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const activeModule = (searchParams.get('tab') as 'users' | 'messages' | 'groups') || 'users'
+
+  const setActiveModule = (value: 'users' | 'messages' | 'groups') => {
+    setSearchParams({ tab: value })
+  }
+
   const [userId, setUserId] = useState('')
-  const [activeModule, setActiveModule] = useState<'users' | 'messages' | 'groups'>('users')
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null)
 
-  const { data: summary, isLoading: summaryLoading } = useEsSummary()
-  const health = summary?.health
+  const indexType = activeModule === 'messages' ? SearchIndexType.MESSAGE : SearchIndexType.USER
+
+  const { data: summary, isLoading: summaryLoading } = useEsSummary(indexType)
   const stats = summary?.stats
   const compare = summary?.compare
   const failedEventsCount = summary?.failedEventsCount
 
-  const { data: taskStatus } = useReindexStatus(activeTaskId)
+  const { data: globalHealth } = useEsHealth()
+  const { data: taskStatus } = useReindexStatus(indexType, activeTaskId)
   const queryClient = useQueryClient()
 
   useEffect(() => {
     if (taskStatus?.status === ReindexTaskStatus.Completed) {
       const timer = setTimeout(() => {
         queryClient.invalidateQueries({
-          queryKey: elasticsearchKeys.summary()
+          queryKey: elasticsearchKeys.summary(indexType)
         })
         queryClient.invalidateQueries({
-          queryKey: elasticsearchKeys.indexes()
+          queryKey: elasticsearchKeys.indexes(indexType)
         })
         toast.success(text.messages.reindexAllSuccess)
       }, 500)
 
       return () => clearTimeout(timer)
     }
-  }, [taskStatus?.status, queryClient, text.messages.reindexAllSuccess])
+  }, [taskStatus?.status, queryClient, text.messages.reindexAllSuccess, indexType])
 
-  const reindexUsersMutation = useReindexUsers()
+  const reindexMutation = useReindex()
   const reindexUserMutation = useReindexUser()
   const updateResolvedMutation = useUpdateFailedEventResolved()
 
   const handleReindexAll = () => {
-    switch (activeModule) {
-      case 'users':
-        reindexUsersMutation.mutate(undefined, {
-          onSuccess: (data) => {
-            setActiveTaskId(data.taskId)
-          }
-        })
-        break
-      case 'messages':
-        toast.error(text.messages.notImplemented)
-        break
-      case 'groups':
-        toast.error(text.messages.notImplemented)
-        break
+    if (activeModule === 'groups') {
+      toast.error(text.messages.notImplemented)
+      return
     }
+
+    reindexMutation.mutate(indexType, {
+      onSuccess: (data) => {
+        setActiveTaskId(data.taskId)
+      }
+    })
   }
 
-  const isReindexingAll =
-    activeModule === 'users'
-      ? reindexUsersMutation.isPending || taskStatus?.status === ReindexTaskStatus.Running
-      : activeModule === 'messages'
-        ? false
-        : activeModule === 'groups'
-          ? false
-          : false
-
-  const isModuleActive = activeModule === 'users'
+  const isReindexingAll = reindexMutation.isPending || taskStatus?.status === ReindexTaskStatus.Running
 
   return (
     <div className='flex flex-col gap-8 pb-10 animate-in fade-in duration-500'>
@@ -113,58 +108,50 @@ export const ElasticsearchDashboard = () => {
         <StatsCard
           title={text.health.title}
           value={
-            health?.status === ElasticsearchClusterStatus.Green ? text.health.healthy : health?.status || 'Unknown'
+            globalHealth?.status === ElasticsearchClusterStatus.Green ? text.health.healthy : globalHealth?.status || 'Unknown'
           }
-          subValue={health?.clusterName || text.dashboard.connecting}
+          subValue={globalHealth?.clusterName || text.dashboard.connecting}
           icon={Activity}
-          color={health?.status === ElasticsearchClusterStatus.Green ? 'success' : 'warning'}
+          color={globalHealth?.status === ElasticsearchClusterStatus.Green ? 'success' : 'warning'}
           loading={summaryLoading}
         />
         <StatsCard
           title={text.stats.documents}
-          value={isModuleActive ? stats?.documentCount?.toLocaleString() || '0' : '—'}
-          subValue={isModuleActive ? `${text.stats.storage}: ${stats?.totalStoreSize || 'N/A'}` : text.dashboard.noData}
+          value={stats?.documentCount?.toLocaleString() || '0'}
+          subValue={`${text.stats.storage}: ${stats?.totalStoreSize || 'N/A'}`}
           icon={Database}
           color='info'
-          loading={isModuleActive && summaryLoading}
+          loading={summaryLoading}
         />
         <StatsCard
           title={text.compare.title}
-          value={isModuleActive ? compare?.difference?.toLocaleString() || '0' : '—'}
+          value={compare?.difference?.toLocaleString() || '0'}
           subValue={
-            isModuleActive
-              ? compare?.status === DataSyncStatus.InSync
-                ? text.userTab.badges.match
-                : text.userTab.badges.missMatch
-              : text.dashboard.noData
+            compare?.status === DataSyncStatus.InSync
+              ? text.userTab.badges.match
+              : text.userTab.badges.missMatch
           }
           icon={Zap}
           color={
-            isModuleActive && compare?.status === DataSyncStatus.InSync
+            compare?.status === DataSyncStatus.InSync
               ? 'success'
-              : isModuleActive
-                ? 'destructive'
-                : 'primary'
+              : 'destructive'
           }
-          loading={isModuleActive && summaryLoading}
+          loading={summaryLoading}
         />
         <StatsCard
           title={text.stats.shards}
-          value={isModuleActive ? stats?.numberOfShards || 0 : '—'}
-          subValue={isModuleActive ? text.dashboard.primaryActive : text.dashboard.notDefined}
+          value={stats?.numberOfShards || 0}
+          subValue={text.dashboard.primaryActive}
           icon={Terminal}
           color='primary'
-          loading={isModuleActive && summaryLoading}
+          loading={summaryLoading}
         />
       </div>
 
       <div className='flex flex-col gap-6'>
-        {activeModule === 'users' && <UserIndexTab activeModule={activeModule} />}
-        {activeModule === 'messages' && (
-          <div className='p-12 border-2 border-dashed border-border rounded-2xl flex flex-col items-center justify-center text-muted-foreground animate-in fade-in zoom-in-95 duration-500'>
-            <Database className='h-12 w-12 mb-4 opacity-20' />
-            <p className='font-bold uppercase tracking-widest text-[12px]'>{text.dashboard.messagesComingSoon}</p>
-          </div>
+        {(activeModule === 'users' || activeModule === 'messages') && (
+           <UserIndexTab activeModule={activeModule} type={indexType} />
         )}
         {activeModule === 'groups' && (
           <div className='p-12 border-2 border-dashed border-border rounded-2xl flex flex-col items-center justify-center text-muted-foreground animate-in fade-in zoom-in-95 duration-500'>

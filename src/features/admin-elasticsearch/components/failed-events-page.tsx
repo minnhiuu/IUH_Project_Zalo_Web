@@ -23,6 +23,8 @@ import { formatFullDateTime } from '@/utils/date'
 import { Checkbox } from '@/components/ui/checkbox'
 import { useRetryFailedEventsBulk } from '../queries/use-mutations'
 import { cn } from '@/lib/utils'
+import { SearchIndexType } from '@/constants/enum'
+import type { FailedEvent } from '../schemas/elasticsearch.schema'
 
 export const FailedEventsPage = () => {
   const navigate = useNavigate()
@@ -35,12 +37,14 @@ export const FailedEventsPage = () => {
   const retryDurationMutation = useRetryFailedEventsByDuration()
   const retryBulkMutation = useRetryFailedEventsBulk()
 
+  const typeParam = searchParams.get('type') as SearchIndexType | null
   const resolvedParam = searchParams.get('resolved')
   const hoursParam = searchParams.get('hours') || 'all'
   const keyword = searchParams.get('keyword') || ''
   const currentPage = parseInt(searchParams.get('page') || '1')
 
   const [filters, setFilters] = useState({
+    type: typeParam || 'all',
     resolved: resolvedParam || 'all',
     keyword: keyword,
     hours: hoursParam
@@ -49,18 +53,30 @@ export const FailedEventsPage = () => {
   const [selectedIds, setSelectedIds] = useState<string[]>([])
 
   const [prevParams, setPrevParams] = useState({
+    type: typeParam || 'all',
     resolved: resolvedParam || 'all',
     hours: hoursParam,
     keyword: keyword
   })
 
   if (
+    prevParams.type !== (typeParam || 'all') ||
     prevParams.resolved !== (resolvedParam || 'all') ||
     prevParams.hours !== hoursParam ||
     prevParams.keyword !== keyword
   ) {
-    setPrevParams({ resolved: resolvedParam || 'all', hours: hoursParam, keyword: keyword })
-    setFilters({ resolved: resolvedParam || 'all', keyword: keyword, hours: hoursParam })
+    setPrevParams({
+      type: typeParam || 'all',
+      resolved: resolvedParam || 'all',
+      hours: hoursParam,
+      keyword: keyword
+    })
+    setFilters({
+      type: typeParam || 'all',
+      resolved: resolvedParam || 'all',
+      keyword: keyword,
+      hours: hoursParam
+    })
   }
 
   const itemsPerPage = 10
@@ -70,7 +86,8 @@ export const FailedEventsPage = () => {
     keyword: keyword,
     hours: hoursParam === 'all' ? undefined : parseInt(hoursParam),
     page: currentPage - 1,
-    size: itemsPerPage
+    size: itemsPerPage,
+    type: (typeParam as SearchIndexType) || undefined
   })
 
   const events = pagedData?.data || []
@@ -78,6 +95,7 @@ export const FailedEventsPage = () => {
 
   const handleApplyFilters = () => {
     const params = new URLSearchParams()
+    if (filters.type !== 'all') params.set('type', filters.type)
     if (filters.resolved !== 'all') params.set('resolved', filters.resolved)
     if (filters.keyword) params.set('keyword', filters.keyword)
     if (filters.hours !== 'all') params.set('hours', filters.hours)
@@ -126,7 +144,7 @@ export const FailedEventsPage = () => {
 
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
 
-  const hasAppliedFilters = resolvedParam !== null || keyword !== '' || hoursParam !== 'all'
+  const hasAppliedFilters = typeParam !== null || resolvedParam !== null || keyword !== '' || hoursParam !== 'all'
 
   return (
     <div className='flex flex-col gap-6 pb-10 animate-in fade-in duration-300'>
@@ -147,7 +165,7 @@ export const FailedEventsPage = () => {
             </div>
           </div>
           <Button
-            onClick={() => retryAllMutation.mutate()}
+            onClick={() => retryAllMutation.mutate((typeParam as SearchIndexType) || undefined)}
             disabled={retryAllMutation.isPending}
             variant='outline'
             className='h-10 px-6 rounded-lg border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700'
@@ -174,6 +192,26 @@ export const FailedEventsPage = () => {
                 className='h-10 pl-9 border-border bg-background rounded-lg text-sm font-medium focus-visible:ring-primary/20'
               />
             </div>
+          </div>
+
+          <div className='flex flex-col gap-1.5'>
+            <span className='text-[11px] font-bold text-muted-foreground uppercase px-1'>Module</span>
+            <Select value={filters.type} onValueChange={(val) => setFilters((prev) => ({ ...prev, type: val }))}>
+              <SelectTrigger className='h-10 w-[160px] text-sm text-foreground font-medium border-border bg-background rounded-lg focus:ring-4 focus:ring-primary/5 transition-all'>
+                <SelectValue placeholder='Module' />
+              </SelectTrigger>
+              <SelectContent className='rounded-xl border-border shadow-xl'>
+                <SelectItem value='all' className='text-[14px] font-medium'>
+                  {text.dlq.allEvents}
+                </SelectItem>
+                <SelectItem value={SearchIndexType.USER} className='text-[14px] font-medium'>
+                  User
+                </SelectItem>
+                <SelectItem value={SearchIndexType.MESSAGE} className='text-[14px] font-medium'>
+                  Message
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className='flex flex-col gap-1.5'>
@@ -304,7 +342,7 @@ export const FailedEventsPage = () => {
                 </TableCell>
               </TableRow>
             ) : (
-              events.map((event, index) => (
+              events.map((event: FailedEvent, index) => (
                 <TableRow
                   key={event.id}
                   className={cn(

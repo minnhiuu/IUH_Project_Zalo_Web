@@ -56,7 +56,7 @@ export function GroupSubStep({ conversation, currentUserRole, step, onBack, onSt
   return (
     <div
       className={cn(
-        'chat-info-sidebar w-87.5 border-l border-border bg-background flex flex-col h-full overflow-hidden shrink-0 shadow-xl min-[1150px]:shadow-none'
+        'chat-info-sidebar w-full border-l border-border bg-background flex flex-col h-full overflow-hidden shrink-0 shadow-xl min-[1150px]:shadow-none'
       )}
     >
       <div className='h-17 flex items-center border-b border-border shrink-0 px-4'>

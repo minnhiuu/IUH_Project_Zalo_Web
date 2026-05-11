@@ -1,5 +1,5 @@
 import { Settings } from 'lucide-react'
-import { BlockedUsersSection } from '@/features/user-settings/components/settings-dialog/sections'
+import { SettingsContent } from '@/features/user-settings/components/settings-dialog/settings-content'
 
 export default function SettingsPage() {
   return (
@@ -14,13 +14,8 @@ export default function SettingsPage() {
         </div>
 
         {/* Content */}
-        <div className='flex-1 overflow-y-auto'>
-          <div className='max-w-4xl mx-auto py-6 px-6 space-y-8'>
-            {/* Blocked Users Section */}
-            <BlockedUsersSection />
-
-            {/* Có thể thêm các sections khác ở đây */}
-          </div>
+        <div className='flex-1 overflow-hidden'>
+          <SettingsContent />
         </div>
       </div>
     </div>

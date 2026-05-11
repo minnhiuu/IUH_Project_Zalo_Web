@@ -85,7 +85,8 @@
         "noFriends": "Bạn chưa có bạn bè nào.",
         "noMutualFriends": "Không có bạn chung nào.",
         "featureInDevelopment": "Tính năng đang phát triển"
-      }
+      },
+      "goToSettings": "Mở cài đặt"
     },
     "validation": {
       "fullNameRequired": "Tên hiển thị không được để trống",
@@ -204,6 +205,33 @@
         "sound": {
           "title": "Âm thanh thông báo",
           "description": "Phát âm thanh khi có thông báo mới"
+        },
+        "vibration": {
+          "title": "Rung",
+          "description": "Rung khi có thông báo mới"
+        },
+        "friendRequests": {
+          "title": "Lời mời kết bạn",
+          "description": "Nhận thông báo khi có người gửi lời mời kết bạn cho bạn"
+        },
+        "directMessages": {
+          "title": "Tin nhắn trực tiếp",
+          "description": "Nhận thông báo khi có tin nhắn mới từ bạn bè"
+        },
+        "groupMessages": {
+          "title": "Tin nhắn nhóm",
+          "description": "Nhận thông báo khi có tin nhắn mới trong nhóm"
+        },
+        "quietMode": {
+          "title": "Chế độ im lặng (Quiet mode)",
+          "description": "Khi bật, thông báo sẽ được tạm dừng và người gửi tin nhắn trực tiếp sẽ nhận được phản hồi tự động. Bạn sẽ nhận được tóm tắt thông báo khi thoát chế độ này.",
+          "startTime": "Giờ bắt đầu",
+          "endTime": "Giờ kết thúc",
+          "timezone": "Múi giờ",
+          "chooseDays": "Chọn ngày",
+          "everyday": "Chế độ im lặng được bật mỗi ngày.",
+          "activeDaysCount": "Bật vào: {{count}} ngày trong tuần.",
+          "save": "Lưu"
         }
       },
       "messages": {
@@ -297,6 +325,7 @@
             "story": "Nhật ký"
           }
         },
+        "accountActivation": {},
         "blockModal": {
           "title": "Chặn người dùng",
           "editTitle": "Cài đặt chặn",

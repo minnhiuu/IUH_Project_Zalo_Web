@@ -49,10 +49,10 @@ export function ProfileInfoBase({
 
       <Separator className='h-2 bg-section-divider border-none shrink-0 mt-1' />
 
-      <div className='flex flex-col px-4 py-4 space-y-4'>
+      <div className='flex flex-col px-4 py-6 space-y-6'>
         <h4 className='text-[15px] font-bold text-foreground'>{text.profile.personalInfo}</h4>
 
-        <div className='space-y-3 pr-1'>
+        <div className='space-y-4 pr-1'>
           <div className='flex text-[14px] items-start'>
             <span className='w-28 shrink-0 text-muted-foreground'>{text.profile.bioLabel}</span>
             <span className='text-foreground wrap-break-words flex-1'>{user.bio || text.profile.noBio}</span>

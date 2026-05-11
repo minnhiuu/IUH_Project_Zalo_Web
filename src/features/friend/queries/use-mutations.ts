@@ -4,6 +4,7 @@ import { friendKeys } from './keys'
 import { showSuccessToast, showErrorToast } from '@/utils/toast'
 import { useFriendText } from '../i18n/use-friend-text'
 import type { FriendRequestSendRequest } from '../schemas/friend.schema'
+import { notificationKeys } from '@/features/notification/queries/keys'
 
 export const useSendFriendRequest = () => {
   const queryClient = useQueryClient()
@@ -29,11 +30,17 @@ export const useAcceptFriendRequest = () => {
 
   return useMutation({
     mutationKey: friendKeys.acceptRequest(),
-    mutationFn: (friendshipId: string) => friendApi.acceptFriendRequest(friendshipId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: friendKeys.receivedRequests() })
-      queryClient.invalidateQueries({ queryKey: friendKeys.myFriends() })
+    mutationFn: (args: { requestId: string; requesterId?: string }) => friendApi.acceptFriendRequest(args.requestId),
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: friendKeys.all() })
+
+      if (variables.requesterId) {
+        queryClient.invalidateQueries({ queryKey: friendKeys.status(variables.requesterId) })
+      }
+
+      // Invalidate notification state to update badge count
+      queryClient.invalidateQueries({ queryKey: notificationKeys.state() })
+
       showSuccessToast(toast.acceptSuccess)
     },
     onError: () => {
@@ -48,10 +55,18 @@ export const useDeclineFriendRequest = () => {
 
   return useMutation({
     mutationKey: friendKeys.declineRequest(),
-    mutationFn: (friendshipId: string) => friendApi.declineFriendRequest(friendshipId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: friendKeys.receivedRequests() })
+    mutationFn: (args: { requestId: string; requesterId?: string }) => friendApi.declineFriendRequest(args.requestId),
+    onSuccess: (_data, variables) => {
+      // Centralized invalidation
       queryClient.invalidateQueries({ queryKey: friendKeys.all() })
+
+      if (variables.requesterId) {
+        queryClient.invalidateQueries({ queryKey: friendKeys.status(variables.requesterId) })
+      }
+
+      // Invalidate notification state to update badge count
+      queryClient.invalidateQueries({ queryKey: notificationKeys.state() })
+
       showSuccessToast(toast.declineSuccess)
     },
     onError: () => {

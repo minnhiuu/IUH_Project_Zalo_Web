@@ -37,7 +37,7 @@ export function ChatInfoDirectSidebar({ conversation, onRenameClick, onAvatarCli
   return (
     <div
       className={cn(
-        'w-[350px] border-l border-border bg-background flex flex-col h-full overflow-hidden shrink-0 shadow-xl min-[1150px]:shadow-none'
+        'w-full border-l border-border bg-background flex flex-col h-full overflow-hidden shrink-0 shadow-xl min-[1150px]:shadow-none'
       )}
     >
       {storageOpen ? (

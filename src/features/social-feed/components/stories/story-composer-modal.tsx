@@ -24,7 +24,6 @@ export function StoryComposerModal({ open, onOpenChange }: StoryComposerModalPro
 
         {/* Root layout */}
         <div className='flex h-full w-full overflow-hidden bg-zinc-950 dark:bg-[#0a0a0f]'>
-
           {/* Left: immersive story canvas */}
           <StoryCanvas
             mediaPreviewUrl={composer.mediaPreviewUrl}

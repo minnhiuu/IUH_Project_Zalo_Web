@@ -2,14 +2,14 @@ import { Database, RotateCcw, Trash2, Clock, FileText, HardDrive } from 'lucide-
 import { useEsSummary, useEsIndexes } from '../queries/use-queries'
 import { useElasticsearchText } from '../i18n/use-elasticsearch-text'
 import { ELASTICSEARCH_KEYS } from '../i18n/elasticsearch.keys'
-import { useSwitchAlias, useDeleteIndex } from '../queries/use-mutations'
+import { useDeleteIndex, useSwitchAlias } from '../queries/use-mutations'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { formatCompactDateTime } from '@/utils/date'
-import { IndexStatus } from '@/constants/enum'
+import { DataSyncStatus, IndexStatus } from '@/constants/enum'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,6 +24,7 @@ import {
 import { useNavigate } from 'react-router'
 import { PATHS } from '@/constants/path'
 import { ExternalLink } from 'lucide-react'
+import { SearchIndexType } from '@/constants/enum'
 
 const StatusRow = ({
   label,
@@ -50,22 +51,27 @@ const StatusRow = ({
 }
 
 interface UserIndexTabProps {
-  activeModule: string
+  activeModule: 'users' | 'messages' | 'groups'
+  type: SearchIndexType
 }
 
-export const UserIndexTab = ({ activeModule }: UserIndexTabProps) => {
+export const UserIndexTab = ({ activeModule, type }: UserIndexTabProps) => {
   const { text, t } = useElasticsearchText()
-  const { data: summary } = useEsSummary()
-  const health = summary?.health
+  const { data: summary } = useEsSummary(type)
   const stats = summary?.stats
   const compare = summary?.compare
   const failedEventsCount = summary?.failedEventsCount
+  const health = summary?.health
 
-  const { data: indexes, isLoading: indexesLoading } = useEsIndexes()
+  const { data: indexes, isLoading: indexesLoading } = useEsIndexes(type)
 
   const navigate = useNavigate()
-  const switchAliasMutation = useSwitchAlias()
   const deleteIndexMutation = useDeleteIndex()
+  const switchAliasMutation = useSwitchAlias()
+
+  const handleSwitchAlias = (indexName: string) => {
+    switchAliasMutation.mutate({ type, indexName })
+  }
 
   return (
     <div className='flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-2 duration-500'>
@@ -76,12 +82,13 @@ export const UserIndexTab = ({ activeModule }: UserIndexTabProps) => {
               {text.userTab.statusCardTitle} · {activeModule}
             </h3>
           </div>
-          {compare?.status === 'IN_SYNC' ? (
+          {compare?.status === DataSyncStatus.InSync ? (
             <Badge className='bg-success-bg text-success-text border-success-border text-[10px] font-bold px-2 py-0.5 shadow-none rounded-md uppercase'>
               {text.userTab.badges.sync}
             </Badge>
           ) : (
-            <Badge className='bg-destructive-subtle text-destructive-text border-destructive-border text-[10px] font-bold px-2 py-0.5 shadow-none rounded-md uppercase'>
+            <Badge className='bg-[#FF4D4F] text-white border-none text-[11px] font-bold px-2.5 py-0.5 shadow-sm rounded-md uppercase tracking-wider animate-pulse flex items-center gap-1.5'>
+              <div className='h-1.5 w-1.5 rounded-full bg-white animate-pulse' />
               {text.userTab.badges.diff}
             </Badge>
           )}
@@ -89,29 +96,67 @@ export const UserIndexTab = ({ activeModule }: UserIndexTabProps) => {
 
         <CardContent className='p-6'>
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-5 gap-x-12'>
-            <StatusRow label={text.stats.documents} value={stats?.documentCount?.toLocaleString()} />
-            <StatusRow label={text.stats.storage} value={stats?.primaryStoreSize} />
-            <StatusRow label={text.health.index} value={health?.currentIndexName} />
-            <StatusRow label={text.health.alias} value={health?.aliasName} />
-            <StatusRow label={text.stats.shards} value={stats?.numberOfShards} />
-            <StatusRow label={text.stats.replicas} value={stats?.numberOfReplicas} />
-            <StatusRow label={text.compare.mongodb} value={compare?.databaseCount?.toLocaleString()} />
-            <StatusRow label={text.compare.elasticsearch} value={compare?.elasticsearchCount?.toLocaleString()} />
+            <StatusRow
+              label={text.stats.documents}
+              value={stats?.documentCount?.toLocaleString()}
+              tooltip={text.userTab.tooltips.totalDocs}
+            />
+            <StatusRow
+              label={text.stats.storage}
+              value={stats?.primaryStoreSize}
+              tooltip={text.userTab.tooltips.storageSize}
+            />
+            <StatusRow
+              label={text.health.index}
+              value={health?.currentIndexName}
+              tooltip={text.userTab.tooltips.currentIndex}
+            />
+            <StatusRow
+              label={text.health.alias}
+              value={health?.aliasName}
+              tooltip={text.userTab.tooltips.aliasName}
+            />
+            <StatusRow
+              label={text.stats.shards}
+              value={stats?.numberOfShards}
+              tooltip={text.userTab.tooltips.shards}
+            />
+            <StatusRow
+              label={text.stats.replicas}
+              value={stats?.numberOfReplicas}
+              tooltip={text.userTab.tooltips.replicas}
+            />
+            <StatusRow
+              label={text.compare.mongodb}
+              value={compare?.databaseCount?.toLocaleString()}
+              tooltip={text.userTab.tooltips.mongodbCount}
+            />
+            <StatusRow
+              label={text.compare.elasticsearch}
+              value={compare?.elasticsearchCount?.toLocaleString()}
+              tooltip={text.userTab.tooltips.esCount}
+            />
             <StatusRow
               label={text.compare.title}
+              tooltip={text.userTab.tooltips.integrity}
               value={
                 <span
                   className={cn(
                     'font-black tracking-wide',
-                    compare?.status === 'IN_SYNC' ? 'text-success-text' : 'text-destructive-text'
+                    compare?.status === DataSyncStatus.InSync ? 'text-success-text' : 'text-destructive-text'
                   )}
                 >
-                  {compare?.status === 'IN_SYNC' ? text.userTab.badges.match : text.userTab.badges.missMatch}
+                  {compare?.status === DataSyncStatus.InSync
+                    ? text.userTab.badges.match
+                    : text.userTab.badges.missMatch}
                 </span>
               }
             />
             {failedEventsCount && failedEventsCount > 0 ? (
-              <div className='cursor-pointer group' onClick={() => navigate(PATHS.ADMIN.FAILED_EVENTS)}>
+              <div
+                className='cursor-pointer group'
+                onClick={() => navigate(`${PATHS.ADMIN.FAILED_EVENTS}?type=${type}`)}
+              >
                 <StatusRow
                   label={text.userTab.deadEventsLabel}
                   value={
@@ -125,7 +170,11 @@ export const UserIndexTab = ({ activeModule }: UserIndexTabProps) => {
                 />
               </div>
             ) : (
-              <StatusRow label={text.userTab.deadEventsLabel} value={0} />
+              <StatusRow
+                label={text.userTab.deadEventsLabel}
+                value={0}
+                tooltip={text.userTab.tooltips.dlq}
+              />
             )}
           </div>
 
@@ -133,7 +182,7 @@ export const UserIndexTab = ({ activeModule }: UserIndexTabProps) => {
             <div
               className={cn(
                 'mt-6 p-3 rounded-lg border text-[13px] font-medium flex items-center gap-3 animate-in fade-in slide-in-from-top-1 duration-300',
-                compare.status === 'IN_SYNC'
+                compare.status === DataSyncStatus.InSync
                   ? 'bg-success-bg/10 border-success-border/20 text-success-text'
                   : 'bg-destructive/5 border-destructive/20 text-destructive'
               )}
@@ -270,7 +319,7 @@ export const UserIndexTab = ({ activeModule }: UserIndexTabProps) => {
                                   <AlertDialogFooter>
                                     <AlertDialogCancel>{text.userTab.dialogs.cancel}</AlertDialogCancel>
                                     <AlertDialogAction
-                                      onClick={() => switchAliasMutation.mutate(idx.indexName)}
+                                      onClick={() => handleSwitchAlias(idx.indexName)}
                                       className='bg-brand-blue hover:bg-brand-blue-dark'
                                     >
                                       {text.userTab.dialogs.switchAlias.confirm}

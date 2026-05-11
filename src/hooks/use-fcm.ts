@@ -49,6 +49,7 @@ export function useFCM(onForegroundMessage?: (payload: unknown) => void, onNotif
         const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
           scope: '/'
         })
+        await registration.update()
         await navigator.serviceWorker.ready
 
         const token = await getToken(messaging, {
@@ -86,6 +87,20 @@ export function useFCM(onForegroundMessage?: (payload: unknown) => void, onNotif
 
     initFCM()
 
+    // Sync userId to Service Worker for multi-user security
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.ready.then((registration) => {
+        if (registration.active) {
+          if (userId) {
+            const expiresAt = storage.get<number>(STORAGE_KEYS.REFRESH_TOKEN_EXPIRATION)
+            registration.active.postMessage({ type: 'SET_USER', userId, expiresAt })
+          } else {
+            registration.active.postMessage({ type: 'CLEAR_USER' })
+          }
+        }
+      })
+    }
+
     const unsubscribe = onMessage(messaging, (payload) => {
       queryClient.refetchQueries({
         queryKey: notificationKeys.all,
@@ -102,7 +117,9 @@ export function useFCM(onForegroundMessage?: (payload: unknown) => void, onNotif
         })
         onForegroundMessageRef.current?.(event.data.payload)
       } else if (event.data?.type === 'FCM_CLICK_ACTION') {
-        if (event.data.action === 'OPEN_NOTIFICATIONS') {
+        if (event.data.action === 'OPEN_URL' && typeof event.data.url === 'string') {
+          window.location.assign(event.data.url)
+        } else if (event.data.action === 'OPEN_NOTIFICATIONS') {
           onNotificationClickRef.current?.()
         }
       }

@@ -222,6 +222,10 @@ export function getSystemMessagePreview(
     return linkUrl ? `${label}: ${linkUrl}` : label
   }
 
+  if (action === 'DISABLE_JOIN_LINK') {
+    return translate('chat.system.join_link.label') as string
+  }
+
   if (action === 'PROMOTE_ADMIN') {
     const normalizedCurrentUserId = String(currentUserId || '')
     const targetId = String((targetIds || [])[0] || '')

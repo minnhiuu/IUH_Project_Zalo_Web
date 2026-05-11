@@ -21,6 +21,10 @@ export const useFriendshipStatus = (userId: string, enabled: boolean = true) => 
   return useQuery(friendOptions.friendshipStatus(userId, enabled))
 }
 
+export const useBatchFriendshipStatus = (userIds: string[], enabled: boolean = true) => {
+  return useQuery(friendOptions.batchFriendshipStatus(userIds, enabled))
+}
+
 export const useMutualFriends = (userId: string, enabled: boolean = true) => {
   return useQuery(friendOptions.mutualFriends(userId, enabled))
 }

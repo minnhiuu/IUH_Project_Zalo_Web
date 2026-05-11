@@ -68,12 +68,12 @@ export function SettingsContent() {
 
   return (
     <SettingsStateProvider>
-      <div className='flex h-full overflow-hidden'>
+      <div className='flex h-full overflow-hidden bg-background'>
         <SettingsSidebar menuItems={menuItems} activeMenu={activeMenu} onSelectMenu={setActiveMenu} />
 
         {/* Right Content Area */}
-        <div className='flex-1 overflow-y-auto min-w-0 bg-muted dark:bg-sidebar'>
-          <div className='p-8 text-[15px] [&_h2]:text-xl [&_h3]:text-lg [&_h4]:text-base [&_p]:text-sm'>
+        <div className='flex-1 overflow-y-auto min-w-0 bg-muted/60 dark:bg-sidebar'>
+          <div className='mx-auto w-full max-w-4xl p-4 sm:p-6 md:p-8 text-[15px] [&_h2]:text-xl [&_h3]:text-lg [&_h4]:text-base [&_p]:text-sm'>
             {renderContent()}
           </div>
         </div>

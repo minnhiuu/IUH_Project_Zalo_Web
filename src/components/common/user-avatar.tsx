@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
-import { useEffect, useState } from 'react'
+import { useState, useMemo } from 'react'
 
 interface UserAvatarProps {
   name: string
@@ -34,36 +34,40 @@ export const getNameColor = (name: string) => {
 
 export const UserAvatar = ({ name, src, className, fallbackClassName }: UserAvatarProps) => {
   const bgColor = getNameColor(name)
-  const hasExplicitFallbackBg = Boolean(fallbackClassName && /\b(?:dark:)?bg-[^\s]+/.test(fallbackClassName))
-  const [loadedSrc, setLoadedSrc] = useState<string | undefined>(src ?? undefined)
 
-  useEffect(() => {
-    if (!src || src === loadedSrc) return
-
-    let active = true
+  // 1. Determine if the image is already cached synchronously
+  const isCurrentlyCached = useMemo(() => {
+    if (typeof window === 'undefined' || !src) return false
     const img = new Image()
-
-    // Keep showing the current avatar until the new one is fully loaded.
-    img.onload = () => {
-      if (active) setLoadedSrc(src)
-    }
-
     img.src = src
+    return img.complete
+  }, [src])
 
-    return () => {
-      active = false
-    }
-  }, [src, loadedSrc])
+  const [isLoaded, setIsLoaded] = useState(isCurrentlyCached)
+  const [prevSrc, setPrevSrc] = useState(src)
 
-  const displaySrc = src ? (loadedSrc ?? src) : undefined
+  // 2. Sync state when src changes during render phase
+  if (src !== prevSrc) {
+    setPrevSrc(src)
+    setIsLoaded(isCurrentlyCached)
+  }
 
   return (
     <Avatar className={cn('h-8 w-8', className)}>
-      {displaySrc && <AvatarImage src={displaySrc} alt={name} className='object-cover' />}
+      {src && (
+        <AvatarImage
+          src={src}
+          alt={name}
+          className={cn('object-cover transition-opacity duration-200', isLoaded ? 'opacity-100' : 'opacity-0')}
+          onLoadingStatusChange={(status) => {
+            if (status === 'loaded') setIsLoaded(true)
+          }}
+        />
+      )}
       <AvatarFallback
-        delayMs={300}
-        className={cn('text-center leading-none text-white font-bold text-[11px]', fallbackClassName)}
-        style={hasExplicitFallbackBg ? undefined : { backgroundColor: bgColor }}
+        delayMs={isLoaded ? 0 : 800}
+        className={cn('!text-white font-bold text-[11px]', fallbackClassName)}
+        style={{ backgroundColor: bgColor }}
       >
         {getInitials(name)}
       </AvatarFallback>

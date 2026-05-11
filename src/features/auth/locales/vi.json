@@ -75,7 +75,7 @@
       "subtitle": "Tạo tài khoản BondHub\nđể kết nối với ứng dụng BondHub Web",
       "fullname": "Họ và tên",
       "email": "Email",
-      "phoneNumber": "Số điện thoại",
+      "phoneNumber": "Số điện thoại (tùy chọn)",
       "password": "Mật khẩu",
       "confirmPassword": "Nhập lại mật khẩu",
       "submit": "Đăng ký",

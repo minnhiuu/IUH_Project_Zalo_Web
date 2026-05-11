@@ -12,8 +12,11 @@ import type {
   ReplyMetadata,
   TypingEvent
 } from '../schemas/chat.schema'
+import { useNavigate } from 'react-router'
 import { useAuth } from '@/features/auth/hooks/use-auth'
+import { useAuthContext } from '@/features/auth/context/auth-context'
 import { getAccessToken } from '@/lib/axios-client'
+import { PATHS } from '@/constants/path'
 import { MessageStatus, MessageType } from '@/constants/enum'
 import { BONDHUB_AI } from '@/constants/system'
 import { aiStreamingRegistry } from './ai-streaming-registry'
@@ -33,6 +36,8 @@ const JOIN_LINK_REGEX = /^https?:\/\/[^/]+\/g\/[a-zA-Z0-9_-]+$/
 
 export const useChatWebSocket = () => {
   const { user } = useAuth()
+  const { logoutLocal } = useAuthContext()
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [connected, setConnected] = useState(false)
   const [typingUsers, setTypingUsers] = useState<TypingEvent[]>([])
@@ -136,6 +141,18 @@ export const useChatWebSocket = () => {
                 }
               }
             )
+            // Emit instant event for ChatWindow to increment new-msg badge without
+            // waiting for React Query cache → re-render → useEffect pipeline.
+            window.dispatchEvent(
+              new CustomEvent('chat:incoming-message', {
+                detail: { 
+                  conversationId, 
+                  messageId: msg.id, 
+                  senderId: msg.senderId,
+                  senderName: msg.senderName 
+                }
+              })
+            )
           }
 
           // 2. Update Conversations Cache
@@ -147,10 +164,17 @@ export const useChatWebSocket = () => {
               msgMetadata?.action === 'DISBAND_GROUP' ||
               msgMetadata?.action === 'REMOVE_MEMBER' ||
               msgMetadata?.action === 'BLOCK_MEMBER' ||
-              msgMetadata?.action === 'ADD_MEMBERS_FAILED')
+              msgMetadata?.action === 'ADD_MEMBERS' ||
+              msgMetadata?.action === 'ADD_MEMBERS_FAILED' ||
+              msgMetadata?.action === 'CREATE_GROUP')
 
           queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
             if (!oldData) return oldData
+
+            // Quiet Mode Auto Reply should NOT update sidebar at all
+            const isQuietModeAction = msg.type === MessageType.System && msgMetadata?.action === 'DND_AUTO_REPLY'
+            if (isQuietModeAction) return oldData
+
             const conversations: ConversationResponse[] = oldData
             const existingConvIndex = conversations.findIndex((c) => c.id === conversationId)
 
@@ -383,10 +407,10 @@ export const useChatWebSocket = () => {
                     data: page.data.map((m: MessageResponse) =>
                       m.id === update.messageId
                         ? {
-                          ...m,
-                          reactions:
-                            update.reactions && Object.keys(update.reactions).length ? update.reactions : undefined
-                        }
+                            ...m,
+                            reactions:
+                              update.reactions && Object.keys(update.reactions).length ? update.reactions : undefined
+                          }
                         : m
                     )
                   }))
@@ -487,7 +511,8 @@ export const useChatWebSocket = () => {
                     lastMeta?.action !== 'REMOVE_MEMBER' &&
                     lastMeta?.action !== 'LEAVE_GROUP' &&
                     lastMeta?.action !== 'BLOCK_MEMBER' &&
-                    lastMeta?.action !== 'ADD_MEMBERS_FAILED'
+                    lastMeta?.action !== 'ADD_MEMBERS_FAILED' &&
+                    lastMeta?.action !== 'CREATE_GROUP'
                   nextData = [
                     {
                       ...newConv,
@@ -575,6 +600,36 @@ export const useChatWebSocket = () => {
           }
         })
 
+        // ────────── /queue/session (force logout) ──────────
+        client.subscribe('/user/queue/session', (payload) => {
+          try {
+           
+            const event = JSON.parse(payload.body)
+            console.log(`[Socket] Session event received:`, event);
+            if (event?.type !== 'FORCE_LOGOUT') return
+
+            // Compare the event's sessionId against the session encoded in our JWT
+            let mySessionId: string | null = null
+            try {
+              const token = getAccessToken()
+              if (token) {
+                const jwtPayload = JSON.parse(atob(token.split('.')[1]))
+                mySessionId = jwtPayload.sessionId ?? null
+              }
+            } catch {
+              // If we can't decode the token, treat it as a match (safe fallback → force logout)
+              mySessionId = null
+            }
+
+            if (mySessionId === null || mySessionId === event.sessionId) {
+              logoutLocal()
+              navigate(PATHS.AUTH.LOGIN)
+            }
+          } catch (error) {
+            console.error('[Socket] Error handling session event:', error)
+          }
+        })
+
         client.publish({
           destination: '/app/user.addUser',
           body: JSON.stringify(user)
@@ -587,7 +642,7 @@ export const useChatWebSocket = () => {
 
     client.activate()
     stompClientRef.current = client
-  }, [user, queryClient])
+  }, [user, queryClient, logoutLocal, navigate])
 
   const disconnect = useCallback(() => {
     if (stompClientRef.current) {
@@ -796,13 +851,15 @@ export const useChatWebSocket = () => {
           }
         )
 
-        const mediaPreview =
+        const imageCount = mediaFiles.filter((a) => a.file.type.startsWith('image/')).length
+        const videoCount = mediaFiles.filter((a) => a.file.type.startsWith('video/')).length
+        const normalizedMediaPreview =
           trimmedContent ||
-          (mediaFiles.length === 1
-            ? allVideo
-              ? '[Video]'
-              : '[Hình ảnh]'
-            : `[${mediaFiles.length} ${allVideo ? 'video' : 'ảnh'}]`)
+          (imageCount > 0 && videoCount > 0
+            ? `[${imageCount > 1 ? 'Nhiều ảnh' : 'Ảnh'} và ${videoCount > 1 ? 'nhiều video' : 'video'}]`
+            : imageCount > 0
+              ? imageCount > 1 ? '[Nhiều ảnh]' : '[Ảnh]'
+              : videoCount > 1 ? '[Nhiều video]' : '[Video]')
         queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
           if (!oldData) return oldData
           const idx = oldData.findIndex((c) => c.id === conversationId)
@@ -812,7 +869,7 @@ export const useChatWebSocket = () => {
               ...oldData[idx],
               lastMessage: {
                 id: clientMessageId,
-                content: mediaPreview,
+                content: normalizedMediaPreview,
                 timestamp: now,
                 isFromMe: true,
                 type: msgType,
@@ -930,7 +987,7 @@ export const useChatWebSocket = () => {
               ...oldData[idx],
               lastMessage: {
                 id: clientMessageId,
-                content: `[Tệp] ${file.name}`,
+                content: `[File] ${file.name}`,
                 timestamp: now,
                 isFromMe: true,
                 type: MessageType.File,
