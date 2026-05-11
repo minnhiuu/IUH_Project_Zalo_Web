@@ -19,6 +19,12 @@ export const createSearchTexts = (t: TFunction<'globalSearch'>) => ({
   },
   findByPhone: t(SEARCH_KEYS.findByPhone),
   phoneNumber: t(SEARCH_KEYS.phoneNumber),
+  loadMore: t(SEARCH_KEYS.loadMore),
+  relationship: {
+    mutualFriends: (count: number) => t(SEARCH_KEYS.relationship.mutualFriends, { count }),
+    sharedGroups: (count: number) => t(SEARCH_KEYS.relationship.sharedGroups, { count }),
+    inContact: t(SEARCH_KEYS.relationship.inContact)
+  },
   tabs: {
     all: t(SEARCH_KEYS.tabs.all),
     contacts: t(SEARCH_KEYS.tabs.contacts),
@@ -90,4 +96,3 @@ export const createSearchTexts = (t: TFunction<'globalSearch'>) => ({
 })
 
 export type SearchTexts = ReturnType<typeof createSearchTexts>
-

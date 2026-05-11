@@ -21,6 +21,12 @@
   },
   "findByPhone": "Tìm bạn qua số điện thoại:",
   "phoneNumber": "Số điện thoại:",
+  "loadMore": "Xem th\u00eam",
+  "relationship": {
+    "mutualFriends": "{{count}} b\u1ea1n chung",
+    "sharedGroups": "{{count}} nh\u00f3m chung",
+    "inContact": "C\u00f3 trong danh b\u1ea1"
+  },
   "tabs": {
     "all": "Tất cả",
     "contacts": "Liên hệ",

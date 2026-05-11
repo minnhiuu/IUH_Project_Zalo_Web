@@ -96,7 +96,7 @@ export function AllResultsTab({
                     isGroup={contact.group}
                     participantNames={contact.participantNames}
                     participantAvatars={contact.participantAvatars}
-                    phoneNumber={contact.phoneNumber}
+                    phoneNumber={isPhoneSearch ? contact.phoneNumber : undefined}
                     phoneLabel={text.phoneNumber}
                     onClick={() => {
                       // Save the contact

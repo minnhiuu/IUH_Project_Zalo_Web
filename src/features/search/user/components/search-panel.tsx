@@ -1,4 +1,4 @@
-import { Search, X, Loader2 } from 'lucide-react'
+import { Search, X, Loader2, Users } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { useState } from 'react'
 import { useSearchText } from '../../shared/hooks/use-search-text'
@@ -6,18 +6,23 @@ import { cn } from '@/lib/utils'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import {
-  useSearchUser,
-  useAddSearchItem
-} from '../queries/use-queries'
+import { useSearchUser, useAddSearchItem } from '../queries/use-queries'
+import { searchKeys } from '../queries/keys'
 import { SearchEmpty } from '@/components/common/search-empty'
 import { useDebounce } from '@/hooks/use-debounce'
 import { OthersProfileDialog, useMyProfile } from '@/features/user'
 import { SearchType } from '@/constants/enum'
 import { RecentSearchList } from '../../recent/components/recent-search-list'
-
-
-
+import type { UserSearchResponse } from '../schemas/search.schema'
+import type { PageResponse } from '@/shared/api'
+import {
+  FriendStatus,
+  useAcceptFriendRequest,
+  useCancelFriendRequest,
+  useFriendText,
+  useSendFriendRequest
+} from '@/features/friend'
+import { type InfiniteData, useQueryClient } from '@tanstack/react-query'
 
 interface SearchPanelProps {
   open: boolean
@@ -36,6 +41,11 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
 
   const { data: myProfile } = useMyProfile()
   const { mutate: addSearchItem } = useAddSearchItem()
+  const friendText = useFriendText().text
+  const queryClient = useQueryClient()
+  const acceptRequestMutation = useAcceptFriendRequest()
+  const cancelRequestMutation = useCancelFriendRequest()
+  const sendRequestMutation = useSendFriendRequest()
 
   const searchResults = data?.pages.flatMap((page) => page.data) || []
 
@@ -48,6 +58,125 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
     setSelectedUserId(item.id)
   }
 
+  const updateCachedSearchUser = (userId: string, patch: Partial<UserSearchResponse>) => {
+    queryClient.setQueryData<InfiniteData<PageResponse<UserSearchResponse>>>(
+      searchKeys.search(debouncedKeyword),
+      (current) => {
+        if (!current) return current
+
+        return {
+          ...current,
+          pages: current.pages.map((page) => ({
+            ...page,
+            data: page.data.map((user) => (user.id === userId ? { ...user, ...patch } : user))
+          }))
+        }
+      }
+    )
+  }
+
+  const handleAcceptRequest = (item: UserSearchResponse) => {
+    if (!item.friendshipId) return
+
+    acceptRequestMutation.mutate({ requestId: item.friendshipId, requesterId: item.id }, {
+      onSuccess: () => {
+        updateCachedSearchUser(item.id, {
+          friendshipStatus: FriendStatus.Accepted,
+          requestedBy: null,
+          relationshipLabel: friendText.status.accepted
+        })
+      }
+    })
+  }
+
+  const handleCancelRequest = (item: UserSearchResponse) => {
+    if (!item.friendshipId) return
+
+    cancelRequestMutation.mutate(item.friendshipId, {
+      onSuccess: () => {
+        updateCachedSearchUser(item.id, {
+          friendshipId: null,
+          friendshipStatus: null,
+          requestedBy: null,
+          relationshipLabel: null
+        })
+      }
+    })
+  }
+
+  const handleSendRequest = (item: UserSearchResponse) => {
+    sendRequestMutation.mutate({ receiverId: item.id }, {
+      onSuccess: (response) => {
+        updateCachedSearchUser(item.id, {
+          friendshipId: response.data.data.id,
+          friendshipStatus: FriendStatus.Pending,
+          requestedBy: myProfile?.id,
+          relationshipLabel: friendText.actions.recall
+        })
+      }
+    })
+  }
+
+  const renderRelationshipActions = (item: UserSearchResponse) => {
+    const sentByMe = item.requestedBy === myProfile?.id
+    const isPending = item.friendshipStatus === FriendStatus.Pending
+    const isAccepted = item.friendshipStatus === FriendStatus.Accepted
+    const isMutating =
+      acceptRequestMutation.isPending || cancelRequestMutation.isPending || sendRequestMutation.isPending
+
+    if (isAccepted) {
+      return null
+    }
+
+    if (isPending && sentByMe) {
+      return (
+        <Button
+          variant='secondary'
+          size='sm'
+          disabled={isMutating || !item.friendshipId}
+          onClick={(event) => {
+            event.stopPropagation()
+            handleCancelRequest(item)
+          }}
+          className='h-9 flex-1 font-bold text-[15px] rounded-lg border-none shadow-none transition-all active:scale-95'
+        >
+          {friendText.actions.recall}
+        </Button>
+      )
+    }
+
+    if (isPending) {
+      return (
+        <Button
+          variant='secondary-blue'
+          size='sm'
+          disabled={isMutating || !item.friendshipId}
+          onClick={(event) => {
+            event.stopPropagation()
+            handleAcceptRequest(item)
+          }}
+          className='h-9 flex-1 font-bold text-[15px] rounded-lg border-none shadow-none transition-all active:scale-95'
+        >
+          {friendText.requestCard.accept}
+        </Button>
+      )
+    }
+
+    return (
+      <Button
+        variant='secondary-blue'
+        size='sm'
+        disabled={isMutating}
+        onClick={(event) => {
+          event.stopPropagation()
+          handleSendRequest(item)
+        }}
+        className='h-9 flex-1 font-bold text-[15px] rounded-lg border-none shadow-none transition-all active:scale-95'
+      >
+        {friendText.actions.addFriend}
+      </Button>
+    )
+  }
 
   return (
     <>
@@ -81,14 +210,12 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
               autoFocus
             />
             {searchValue && (
-              <Button
-                variant='ghost'
-                size='icon'
+              <button
                 onClick={() => setSearchValue('')}
-                className='absolute right-1 top-1/2 -translate-y-1/2 w-6 h-6 p-0 hover:bg-transparent text-muted-foreground'
+                className='absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded-full text-text-secondary/50 hover:text-text-primary transition-all'
               >
-                <X className='size-4 bg-icon-x-bg text-muted-foreground dark:text-brand-blue-dark rounded-full p-0.5' />
-              </Button>
+                <X className='w-4 h-4' />
+              </button>
             )}
           </div>
           <Button
@@ -102,7 +229,6 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
             {text.close}
           </Button>
         </div>
-
 
         <div className='flex-1 flex flex-col overflow-hidden'>
           <div className='flex-1 overflow-y-auto px-1'>
@@ -126,8 +252,6 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
                 onSelectKeyword={(keyword) => setSearchValue(keyword)}
                 onSelectUser={handleSelectItem}
               />
-
-
             ) : (
               <>
                 {phoneMatchItem && (
@@ -135,23 +259,61 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
                     <h3 className='text-[15px] font-bold text-foreground'>{text.findByPhone}</h3>
                   </div>
                 )}
-                {searchResults.map((item) => (
-                  <div
-                    key={item.id}
-                    onClick={() => handleSelectItem(item)}
-                    className='flex items-center gap-3 px-3 py-2.5 hover:bg-muted/50 cursor-pointer transition-colors rounded-lg mx-2 my-0.5 group relative'
-                  >
-                    <UserAvatar src={item.avatar} name={item.fullName} className='w-12 h-12' />
-                    <div className='flex flex-col min-w-0'>
-                      <span className='text-base text-foreground font-medium truncate'>{item.fullName}</span>
-                      {item.phoneNumber && (
-                        <span className='text-sm text-muted-foreground'>
-                          {text.phoneNumber} <span className='text-primary'>{item.phoneNumber}</span>
-                        </span>
-                      )}
+                {searchResults.map((item) => {
+                  const mutualFriendsCount = item.mutualFriendsCount ?? 0
+                  const sharedGroupsCount = item.sharedGroupsCount ?? 0
+                  const showFriendLabel = item.friendshipStatus === FriendStatus.Accepted && item.relationshipLabel
+                  const hasRelationshipMetadata = showFriendLabel || mutualFriendsCount > 0 || sharedGroupsCount > 0
+                  const relationshipActions = renderRelationshipActions(item)
+
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => handleSelectItem(item)}
+                      className='flex items-center gap-3 px-3 py-2.5 hover:bg-muted/50 cursor-pointer transition-colors rounded-lg mx-2 my-0.5 group relative'
+                    >
+                      <UserAvatar src={item.avatar} name={item.fullName} className='w-12 h-12 shrink-0' />
+                      <div className='flex min-w-0 flex-1 items-center gap-2'>
+                        <div className='flex min-w-0 flex-1 flex-col gap-1'>
+                          <span className='min-w-0 truncate text-base font-medium text-foreground'>
+                            {item.fullName}
+                          </span>
+
+                          {item.phoneNumber && (
+                            <span className='truncate text-sm text-muted-foreground'>
+                              {text.phoneNumber} <span className='text-primary'>{item.phoneNumber}</span>
+                            </span>
+                          )}
+
+                          {hasRelationshipMetadata && (
+                            <div className='flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground'>
+                              {showFriendLabel && <span className='truncate'>{item.relationshipLabel}</span>}
+                              {mutualFriendsCount > 0 && (
+                                <span className='inline-flex min-w-0 items-center gap-1'>
+                                  <Users className='size-3 shrink-0' />
+                                  <span className='truncate'>
+                                    {text.relationship.mutualFriends(mutualFriendsCount)}
+                                  </span>
+                                </span>
+                              )}
+                              {sharedGroupsCount > 0 && (
+                                <span className='inline-flex min-w-0 items-center gap-1'>
+                                  <Users className='size-3 shrink-0' />
+                                  <span className='truncate'>{text.relationship.sharedGroups(sharedGroupsCount)}</span>
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        {relationshipActions && (
+                          <div className='flex shrink-0 items-center justify-end self-center'>
+                            {relationshipActions}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
                 {searchResults.length === 0 && !isFetching && (
                   <SearchEmpty title={text.noResult} description={text.noResultDescription} />
                 )}
@@ -165,7 +327,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
                       disabled={isFetchingNextPage}
                       className='w-full rounded-sm'
                     >
-                      {isFetchingNextPage ? <Loader2 className='w-4 h-4 animate-spin' /> : 'Xem thêm'}
+                      {isFetchingNextPage ? <Loader2 className='w-4 h-4 animate-spin' /> : text.loadMore}
                     </Button>
                   </div>
                 )}
@@ -182,7 +344,5 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
         />
       </div>
     </>
-
   )
 }
-

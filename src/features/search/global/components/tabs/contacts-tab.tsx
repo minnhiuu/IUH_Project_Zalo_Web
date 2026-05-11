@@ -74,7 +74,7 @@ export function ContactsTab({ keyword, text }: ContactsTabProps) {
                     isGroup={contact.group}
                     participantNames={contact.participantNames}
                     participantAvatars={contact.participantAvatars}
-                    phoneNumber={contact.phoneNumber}
+                    phoneNumber={isPhoneSearch ? contact.phoneNumber : undefined}
                     phoneLabel={text.phoneNumber}
                     onClick={() => {
                       addSearchItem({
