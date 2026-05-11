@@ -38,3 +38,16 @@ export type UserSearchResponse = UserSummaryResponse & {
   inContact?: boolean | null
   contactScore?: number | null
 }
+
+export const SearchEventType = {
+  UserResultClick: 'USER_RESULT_CLICK'
+} as const
+
+export type SearchEventType = (typeof SearchEventType)[keyof typeof SearchEventType]
+
+export type SearchEventRequest = {
+  keyword: string
+  targetUserId: string
+  rank?: number
+  eventType: SearchEventType
+}

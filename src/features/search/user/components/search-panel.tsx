@@ -6,14 +6,14 @@ import { cn } from '@/lib/utils'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useSearchUser, useAddSearchItem } from '../queries/use-queries'
+import { useSearchUser, useAddSearchItem, useRecordSearchEvent } from '../queries/use-queries'
 import { searchKeys } from '../queries/keys'
 import { SearchEmpty } from '@/components/common/search-empty'
 import { useDebounce } from '@/hooks/use-debounce'
 import { OthersProfileDialog, useMyProfile } from '@/features/user'
 import { SearchType } from '@/constants/enum'
 import { RecentSearchList } from '../../recent/components/recent-search-list'
-import type { UserSearchResponse } from '../schemas/search.schema'
+import { SearchEventType, type UserSearchResponse } from '../schemas/search.schema'
 import type { PageResponse } from '@/shared/api'
 import {
   FriendStatus,
@@ -41,6 +41,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
 
   const { data: myProfile } = useMyProfile()
   const { mutate: addSearchItem } = useAddSearchItem()
+  const { mutate: recordSearchEvent } = useRecordSearchEvent()
   const friendText = useFriendText().text
   const queryClient = useQueryClient()
   const acceptRequestMutation = useAcceptFriendRequest()
@@ -53,7 +54,18 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
 
   const phoneMatchItem = searchResults.find((item) => item.phoneNumber)
 
-  const handleSelectItem = (item: { id: string; fullName: string; avatar?: string }) => {
+  const handleSelectItem = (item: { id: string; fullName: string; avatar?: string }, rank?: number) => {
+    const keyword = debouncedKeyword.trim()
+
+    if (keyword) {
+      recordSearchEvent({
+        keyword,
+        targetUserId: item.id,
+        rank,
+        eventType: SearchEventType.UserResultClick
+      })
+    }
+
     addSearchItem({ id: item.id, name: item.fullName, avatar: item.avatar, type: SearchType.User })
     setSelectedUserId(item.id)
   }
@@ -250,7 +262,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
                 noRecentText={text.noRecent}
                 clearAllText={text.clearAll}
                 onSelectKeyword={(keyword) => setSearchValue(keyword)}
-                onSelectUser={handleSelectItem}
+                onSelectUser={(item) => handleSelectItem(item)}
               />
             ) : (
               <>
@@ -259,7 +271,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
                     <h3 className='text-[15px] font-bold text-foreground'>{text.findByPhone}</h3>
                   </div>
                 )}
-                {searchResults.map((item) => {
+                {searchResults.map((item, rank) => {
                   const mutualFriendsCount = item.mutualFriendsCount ?? 0
                   const sharedGroupsCount = item.sharedGroupsCount ?? 0
                   const showFriendLabel = item.friendshipStatus === FriendStatus.Accepted && item.relationshipLabel
@@ -269,7 +281,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
                   return (
                     <div
                       key={item.id}
-                      onClick={() => handleSelectItem(item)}
+                      onClick={() => handleSelectItem(item, rank)}
                       className='flex items-center gap-3 px-3 py-2.5 hover:bg-muted/50 cursor-pointer transition-colors rounded-lg mx-2 my-0.5 group relative'
                     >
                       <UserAvatar src={item.avatar} name={item.fullName} className='w-12 h-12 shrink-0' />
