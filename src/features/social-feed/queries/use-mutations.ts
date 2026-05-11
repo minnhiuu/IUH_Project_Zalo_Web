@@ -2,8 +2,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { commentApi } from '../api/comment.api'
 import { reactionApi } from '../api/reaction.api'
 import { interactionApi } from '../api/interaction.api'
-import { socialFeedApi, type CreatePostRequest } from '../api/post.api'
-import { socialFeedCommentKeys, socialFeedKeys, socialStoryKeys, socialReelKeys } from './keys'
+import { socialFeedApi, type CreatePostRequest, type UpdatePostRequest } from '../api/post.api'
+import { socialFeedCommentKeys, socialFeedKeys, socialStoryKeys } from './keys'
 import type { CreateCommentRequest, UpdateCommentRequest } from '../schemas/comment.schema'
 import type { ReactionType } from '../components/post/reaction-picker'
 
@@ -16,6 +16,29 @@ export const useCreateSocialPostMutation = () => {
 
   return useMutation({
     mutationFn: (payload: CreatePostRequest) => socialFeedApi.createPost(payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: socialFeedKeys.all })
+    }
+  })
+}
+
+export const useUpdateSocialPostMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ postId, payload }: { postId: string; payload: UpdatePostRequest }) =>
+      socialFeedApi.updatePost(postId, payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: socialFeedKeys.all })
+    }
+  })
+}
+
+export const useDeleteSocialPostMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (postId: string) => socialFeedApi.deletePost(postId),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: socialFeedKeys.all })
     }
@@ -110,6 +133,19 @@ export const useToggleStoryReactionMutation = () => {
   return useMutation({
     mutationFn: ({ postId, type }: { postId: string; type: ReactionType }) =>
       reactionApi.toggleReaction({ targetId: postId, targetType: 'POST', type }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: socialStoryKeys.all })
+    }
+  })
+}
+
+/**
+ * Delete a Story post. Invalidates story list queries on success.
+ */
+export const useDeleteStoryMutation = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (postId: string) => socialFeedApi.deletePost(postId),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: socialStoryKeys.all })
     }

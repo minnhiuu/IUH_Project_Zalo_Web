@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { ArrowUpRight, ChevronDown, Clock, Eye, Loader2, MessageCircle, Share2, ThumbsUp } from 'lucide-react'
@@ -54,7 +54,7 @@ export function PostCommentsModal({ open, onOpenChange, post, currentReaction, o
   const [accumulatedComments, setAccumulatedComments] = useState<SocialFeedComment[]>([])
   const [hasMore, setHasMore] = useState(true)
   // Track whether we've loaded the first page
-  const initialLoadDone = useRef(false)
+  const [initialLoadDone, setInitialLoadDone] = useState(false)
 
   const sortOptions = [
     { value: 'NEWEST' as const, label: text.commentsModal.sortNewest, icon: <Clock className='h-3.5 w-3.5' /> },
@@ -133,8 +133,9 @@ export function PostCommentsModal({ open, onOpenChange, post, currentReaction, o
 
     if (page === 0) {
       // Replace all when sort changes or first load
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setAccumulatedComments(newComments)
-      initialLoadDone.current = true
+      setInitialLoadDone(true)
     } else {
       // Append for subsequent pages
       setAccumulatedComments((prev) => {
@@ -156,7 +157,7 @@ export function PostCommentsModal({ open, onOpenChange, post, currentReaction, o
       setPage(0)
       setAccumulatedComments([])
       setHasMore(true)
-      initialLoadDone.current = false
+      setInitialLoadDone(false)
     },
     [sortBy]
   )
@@ -193,7 +194,7 @@ export function PostCommentsModal({ open, onOpenChange, post, currentReaction, o
     setPage(0)
     setAccumulatedComments([])
     setHasMore(true)
-    initialLoadDone.current = false
+    setInitialLoadDone(false)
     setReplyTarget(null)
     
     if (onCommentAdded) {
@@ -226,7 +227,7 @@ export function PostCommentsModal({ open, onOpenChange, post, currentReaction, o
     await deleteReactionMutation.mutateAsync(commentId)
   }
 
-  const isFirstLoad = commentsQuery.isLoading && page === 0 && !initialLoadDone.current
+  const isFirstLoad = commentsQuery.isLoading && page === 0 && !initialLoadDone
   const isLoadingMore = commentsQuery.isFetching && page > 0
 
   return (
@@ -428,7 +429,7 @@ export function PostCommentsModal({ open, onOpenChange, post, currentReaction, o
                   {opt.label}
                 </button>
               ))}
-              {commentsQuery.isFetching && page === 0 && initialLoadDone.current && (
+              {commentsQuery.isFetching && page === 0 && initialLoadDone && (
                 <span className='ml-auto flex items-center gap-1 text-[11px] text-zinc-400'>
                   <Loader2 className='h-3 w-3 animate-spin' />
                   {text.commentsModal.loadingComments}

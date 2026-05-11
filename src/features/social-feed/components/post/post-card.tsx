@@ -2,10 +2,11 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useMutation } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
-import { Eye, Flag, Globe, MessageCircle, MoreHorizontal, Share2, ThumbsUp, Users, EyeOff } from 'lucide-react'
+import { Eye, Flag, Globe, MessageCircle, MoreHorizontal, Share2, ThumbsUp, Users, EyeOff, Edit2, Trash2, Lock } from 'lucide-react'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { PostCommentsModal } from './post-comments-modal'
 import { PostMediaModal } from './post-media-modal'
@@ -19,9 +20,10 @@ import { PATHS } from '@/constants/path'
 import { formatRelativeTime } from '@/utils/date'
 import { useViewTracker } from '../../hooks/use-view-tracker'
 import { commentApi } from '../../api/comment.api'
-import { useDislikePostMutation } from '../../queries/use-mutations'
+import { useDislikePostMutation, useDeleteSocialPostMutation } from '../../queries/use-mutations'
 import { ReportContentDialog } from '@/features/report/components/report-content-dialog'
 import { toast } from 'sonner'
+import { PostComposer } from '../composer/post-composer'
 
 export interface SocialPostMedia {
   url: string
@@ -67,7 +69,9 @@ export function PostCard({ post }: PostCardProps) {
   const { text, language } = useSocialText()
   const { ref: viewRef } = useViewTracker(post.id)
   const { mutate: dislikePost } = useDislikePostMutation()
+  const { mutate: deletePost } = useDeleteSocialPostMutation()
   const [isHidden, setIsHidden] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
 
   const [selectedReaction, setSelectedReaction] = useState<ReactionType | null>(
     (post.currentUserReaction as ReactionType) ?? null
@@ -92,7 +96,7 @@ export function PostCard({ post }: PostCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [reportDialogOpen, setReportDialogOpen] = useState(false)
 
-  const VisibilityIcon = post.visibility === 'Public' ? Globe : post.visibility === 'Friends' ? Users : Globe
+  const VisibilityIcon = post.visibility === 'Friends' ? Users : post.visibility === 'Private' ? Lock : Globe
   const activeReaction = selectedReaction ? REACTIONS.find((reaction) => reaction.type === selectedReaction) : null
   const hadReactionOnLoad = Boolean(post.currentUserReaction)
   const reactionsCount =
@@ -106,7 +110,7 @@ export function PostCard({ post }: PostCardProps) {
   const topReactionOptions = displayedTopReactions
     .map((type) => REACTIONS.find((reaction) => reaction.type === type))
     .filter((reaction): reaction is (typeof REACTIONS)[number] => Boolean(reaction))
-  const visibilityLabel = text.post.visibility[post.visibility]
+  const visibilityLabel = post.visibility === 'Friends' ? text.post.visibility.Friends : post.visibility === 'Private' ? text.post.visibility.Private : text.post.visibility.Public
   const defaultPostedAtLabel = text.post.justNow
   const postedAtLabel = formatRelativeTime(post.postedAt, language) || defaultPostedAtLabel
 
@@ -126,6 +130,19 @@ export function PostCard({ post }: PostCardProps) {
         toast.error('Failed to hide post')
       }
     })
+  }
+
+  function handleDeletePost() {
+    if (confirm('Are you sure you want to delete this post?')) {
+      deletePost(post.id, {
+        onSuccess: () => {
+          toast.success('Post deleted successfully')
+        },
+        onError: () => {
+          toast.error('Failed to delete post')
+        }
+      })
+    }
   }
 
   function handleReactionClick(type: ReactionType) {
@@ -229,10 +246,37 @@ export function PostCard({ post }: PostCardProps) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align='end' className='w-56'>
+            {post.authorId === me?.id && (
+              <>
+                <DropdownMenuItem onClick={() => setIsEditing(true)} className='gap-2 text-[13.5px]'>
+                  <Edit2 className='h-4 w-4' />
+                  Edit post
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleDeletePost} className='gap-2 text-[13.5px] text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400'>
+                  <Trash2 className='h-4 w-4' />
+                  Delete post
+                </DropdownMenuItem>
+              </>
+            )}
             <DropdownMenuItem onClick={handleNotInterested} className='gap-2 text-[13.5px]'>
               <EyeOff className='h-4 w-4' />
               Not interested
             </DropdownMenuItem>
+            {post.authorId === me?.id && (
+              <DropdownMenuItem
+                onClick={() => {
+                  toast.promise(commentApi.simulateBatchLikes(post.id, 50), {
+                    loading: 'Simulating 50 likes...',
+                    success: 'Successfully queued 50 like notifications!',
+                    error: 'Failed to simulate likes'
+                  })
+                }}
+                className='gap-2 text-[13.5px] text-amber-600 dark:text-amber-400 focus:text-amber-600 dark:focus:text-amber-400'
+              >
+                <ThumbsUp className='h-4 w-4' />
+                Simulate 50 Likes
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem
               onClick={() => setReportDialogOpen(true)}
               className='gap-2 text-[13.5px] text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400'
@@ -357,7 +401,7 @@ export function PostCard({ post }: PostCardProps) {
                 {text.post.shareCount(post.shares)}
               </span>
             )}
-            {post.views !== undefined && post.views > 0 && (
+            {post.postType === 'REEL' && post.views !== undefined && post.views > 0 && (
               <span className='flex items-center gap-1 text-zinc-400 dark:text-zinc-500'>
                 <Eye className='h-3.5 w-3.5' />
                 {post.views}
@@ -481,6 +525,23 @@ export function PostCard({ post }: PostCardProps) {
           onCommentAdded={() => setLocalCommentCountOffset(c => c + 1)}
           onCommentDeleted={() => setLocalCommentCountOffset(c => c - 1)}
         />
+      )}
+
+      {isEditing && (
+        <Dialog open={isEditing} onOpenChange={setIsEditing}>
+          <DialogContent className='max-h-[90vh] w-[95vw] sm:max-w-[600px] overflow-y-auto border-none p-0 bg-transparent shadow-none [&>button]:hidden'>
+            <DialogHeader className='sr-only'>
+              <DialogTitle>Edit Post</DialogTitle>
+              <DialogDescription>Edit your social feed post</DialogDescription>
+            </DialogHeader>
+            <PostComposer 
+              inModal 
+              initialPost={post} 
+              onPostSuccess={() => setIsEditing(false)} 
+              onCancel={() => setIsEditing(false)}
+            />
+          </DialogContent>
+        </Dialog>
       )}
     </Card>
   )

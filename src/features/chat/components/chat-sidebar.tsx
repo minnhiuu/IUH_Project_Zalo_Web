@@ -1,9 +1,7 @@
 import { useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
-import { chatKeys } from '../queries/keys'
+import { useConversationsQuery } from '../queries/use-queries'
 import { UserPlus, Users, Filter, MoreHorizontal, Megaphone } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { useConversationsQuery } from '../queries/use-queries'
 import { useAuth } from '@/features/auth'
 import { MessageType, MessageStatus } from '@/constants/enum'
 import { useChatText } from '../i18n/use-chat-text'
@@ -31,7 +29,6 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
   const { text, t, i18n } = useChatText()
   const { user } = useAuth()
   const { data: conversations, isLoading, isError } = useConversationsQuery()
-  const queryClient = useQueryClient()
 
   const isAiConversation = (chat: ConversationResponse) => {
     return chat.members?.some((member) => member.userId === BONDHUB_AI.userId) ?? false

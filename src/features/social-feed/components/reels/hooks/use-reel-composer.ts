@@ -5,6 +5,7 @@ import { useSocialText } from '../../../i18n/use-social-text'
 import { useCreateSocialPostMutation } from '../../../queries/use-mutations'
 import { fileApi } from '../../../api/file.api'
 import type { VisibilityType } from '../../composer/visibility-dropdown'
+import { extractHashtags } from '@/utils/hashtag'
 
 export interface UseReelComposerResult {
   profileName: string
@@ -85,10 +86,14 @@ export function useReelComposer(open: boolean): UseReelComposerResult {
       const uploadResponse = await fileApi.upload(videoFile)
       const key = uploadResponse.data.data.key
 
+      const trimmedCaption = caption.trim()
+      const hashtags = extractHashtags(trimmedCaption)
+
       await createPost({
         postType: 'REEL',
         visibility,
-        caption: caption.trim() || undefined,
+        caption: trimmedCaption || undefined,
+        hashtags: hashtags.length > 0 ? hashtags : undefined,
         media: [{ url: key, type: 'VIDEO' }]
       })
 

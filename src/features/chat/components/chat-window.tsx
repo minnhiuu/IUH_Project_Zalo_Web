@@ -347,7 +347,7 @@ export function ChatWindow({
         conversationId: conversation.id,
         createdAt: new Date().toISOString(),
         isFromMe: false
-      } as any // ép kiểu để bỏ qua một số field không dùng tới trong preview
+      } as unknown as MessageResponse // ép kiểu để bỏ qua một số field không dùng tới trong preview
       return [syntheticMsg, ...rawMessages]
     }
     return rawMessages

@@ -8,5 +8,10 @@ export const seedingApi = {
       params: { count }
     }),
 
-  seedSocialFeedAll: () => http.post<ApiResponse<SeedResponsePayload>>('/social/internal/seeder/seed/all')
+  seedSocialFeedAll: () => http.post<ApiResponse<SeedResponsePayload>>('/social/internal/seeder/seed/all'),
+
+  simulateBatchLikes: (postId: string, count: number = 50) =>
+    http.post<ApiResponse<void>>('/reactions/test-batch-like', null, {
+      params: { postId, count }
+    })
 }

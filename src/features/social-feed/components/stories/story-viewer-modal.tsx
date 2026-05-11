@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
-import { ChevronLeft, ChevronRight, Eye } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Eye, Trash2 } from 'lucide-react'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { StoryViewerPanel } from './story-viewer-panel'
 import { REACTIONS, type ReactionType } from '../post/reaction-picker'
 import { useSocialText } from '../../i18n/use-social-text'
-import { useRecordStoryViewMutation, useToggleStoryReactionMutation, useDeleteStoryReactionMutation } from '../../queries/use-mutations'
+import { useRecordStoryViewMutation, useToggleStoryReactionMutation, useDeleteStoryReactionMutation, useDeleteStoryMutation } from '../../queries/use-mutations'
 import { useMyProfile } from '@/features/user/queries/use-queries'
 import { StoryReactionsModal } from './story-reactions-modal'
 import { StoryViewersModal } from './story-viewers-modal'
@@ -37,6 +37,7 @@ export function StoryViewerModal({ groups, open, initialGroupIndex, onOpenChange
   const recordViewMutation = useRecordStoryViewMutation()
   const toggleReactionMutation = useToggleStoryReactionMutation()
   const deleteReactionMutation = useDeleteStoryReactionMutation()
+  const deleteStoryMutation = useDeleteStoryMutation()
 
   const [showReactionsModal, setShowReactionsModal] = useState(false)
   const [showViewersModal, setShowViewersModal] = useState(false)
@@ -234,6 +235,17 @@ export function StoryViewerModal({ groups, open, initialGroupIndex, onOpenChange
     if (normalizedVolume > 0) setLastNonZeroVolume(normalizedVolume)
   }
 
+  function handleDeleteStory() {
+    if (!currentStory) return
+    if (window.confirm('Are you sure you want to delete this story?')) {
+      deleteStoryMutation.mutate(currentStory.id, {
+        onSuccess: () => {
+          onOpenChange(false)
+        }
+      })
+    }
+  }
+
   const isMyStory = currentStory?.authorId === myProfile?.id
 
   return (
@@ -267,6 +279,19 @@ export function StoryViewerModal({ groups, open, initialGroupIndex, onOpenChange
               }
             }}
             onVideoEnded={() => goForward()}
+
+            headerTrailing={
+              isMyStory && (
+                <button
+                  type="button"
+                  onClick={handleDeleteStory}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-black/40 text-white/90 shadow-xl backdrop-blur-xl transition-all duration-300 hover:scale-110 hover:bg-red-500/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+                  title="Delete story"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              )
+            }
 
             footer={
               isMyStory ? (

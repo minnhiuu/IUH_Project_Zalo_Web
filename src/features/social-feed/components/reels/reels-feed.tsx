@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { MessageCircle, Send, MoreHorizontal, EyeOff, Flag } from 'lucide-react'
+import { MessageCircle, Send, MoreHorizontal, EyeOff, Flag, Eye } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { RefObject } from 'react'
 import { useNavigate } from 'react-router'
@@ -268,6 +268,16 @@ function ReelViewportItem({
               <span className='text-[11px] md:text-xs font-bold drop-shadow-md md:drop-shadow-none md:dark:drop-shadow-md'>{reactionsCount}</span>
             </button>
           </div>
+
+          <button
+            type='button'
+            className='group flex flex-col items-center gap-1.5 text-white md:text-zinc-700 md:dark:text-zinc-300 cursor-default'
+          >
+            <span className='inline-flex h-11 w-11 md:h-12 md:w-12 items-center justify-center rounded-full bg-black/40 md:bg-zinc-100 md:dark:bg-zinc-800/80 shadow-xl backdrop-blur-xl'>
+              <Eye className='h-6 w-6 text-white md:text-zinc-700 md:dark:text-white' />
+            </span>
+            <span className='text-[11px] md:text-xs font-bold drop-shadow-md md:drop-shadow-none md:dark:drop-shadow-md'>{reel.views ?? 0}</span>
+          </button>
 
           <button
             type='button'

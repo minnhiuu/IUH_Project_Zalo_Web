@@ -47,7 +47,12 @@ export const useMarkAsReadMutation = () => {
             if ('items' in page) {
               return {
                 ...page,
-                items: page.items.filter((item: NotificationGroupResponse) => item.id !== notificationId)
+                items: page.items.map((item: NotificationGroupResponse) => {
+                  if (item.id === notificationId && !item.read) {
+                    return { ...item, read: true }
+                  }
+                  return item
+                })
               }
             }
 
@@ -71,6 +76,12 @@ export const useMarkAsReadMutation = () => {
           return { ...old, pages: newPages }
         }
       )
+
+      // Decrement unread count
+      queryClient.setQueriesData<UserNotificationStateResponse>({ queryKey: notificationKeys.state() }, (oldState) => {
+        if (!oldState) return oldState
+        return { ...oldState, unreadCount: Math.max(0, oldState.unreadCount - 1) }
+      })
     }
   })
 }
@@ -87,9 +98,9 @@ export const useMarkAllAsReadMutation = () => {
           if (!old || !old.pages) return old
 
           const newPages = old.pages.map((page) => {
-            // For flat response (UNREAD tab), clear everything
+            // For flat response (UNREAD tab), mark everything as read instead of clearing
             if ('items' in page) {
-              return { ...page, items: [] }
+              return { ...page, items: page.items.map((n) => ({ ...n, read: true })) }
             }
 
             // For grouped response (ALL tab), mark everything as read

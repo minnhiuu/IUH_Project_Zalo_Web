@@ -134,45 +134,47 @@ export function StoryViewerPanel({
           </div>
 
           {/* Volume and Playback control — video or image-with-music */}
-          {(mediaType === 'VIDEO' || music?.audioUrl) && onVolumeButtonClick && onVolumeChange ? (
-            <div className='group ml-auto flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-2 py-1 text-white shadow-xl backdrop-blur-xl transition-all duration-300 hover:bg-black/60'>
-              {/* Play/Pause Button (Image + Music only) */}
-              {mediaType !== 'VIDEO' && music?.audioUrl && onPlayPauseClick ? (
+          <div className='ml-auto flex items-center gap-2'>
+            {(mediaType === 'VIDEO' || music?.audioUrl) && onVolumeButtonClick && onVolumeChange && (
+              <div className='group flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-2 py-1 text-white shadow-xl backdrop-blur-xl transition-all duration-300 hover:bg-black/60'>
+                {/* Play/Pause Button (Image + Music only) */}
+                {mediaType !== 'VIDEO' && music?.audioUrl && onPlayPauseClick ? (
+                  <button
+                    type='button'
+                    onClick={onPlayPauseClick}
+                    className='inline-flex h-8 w-8 items-center justify-center rounded-full text-white/90 transition-transform duration-300 hover:scale-110 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50'
+                    aria-label={isMusicPaused ? 'Play music' : 'Pause music'}
+                    title={isMusicPaused ? 'Play' : 'Pause'}
+                  >
+                    {isMusicPaused ? <Play className='h-4 w-4 fill-current' /> : <Pause className='h-4 w-4' />}
+                  </button>
+                ) : null}
+
+                {/* Volume Button */}
                 <button
                   type='button'
-                  onClick={onPlayPauseClick}
+                  onClick={onVolumeButtonClick}
                   className='inline-flex h-8 w-8 items-center justify-center rounded-full text-white/90 transition-transform duration-300 hover:scale-110 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50'
-                  aria-label={isMusicPaused ? 'Play music' : 'Pause music'}
-                  title={isMusicPaused ? 'Play' : 'Pause'}
+                  aria-label={storyVolume === 0 ? 'Unmute story' : 'Mute story'}
+                  title={storyVolume === 0 ? 'Unmute' : 'Mute'}
                 >
-                  {isMusicPaused ? <Play className='h-4 w-4 fill-current' /> : <Pause className='h-4 w-4' />}
+                  {storyVolume === 0 ? <VolumeX className='h-4 w-4' /> : <Volume2 className='h-4 w-4' />}
                 </button>
-              ) : null}
-
-              {/* Volume Button */}
-              <button
-                type='button'
-                onClick={onVolumeButtonClick}
-                className='inline-flex h-8 w-8 items-center justify-center rounded-full text-white/90 transition-transform duration-300 hover:scale-110 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50'
-                aria-label={storyVolume === 0 ? 'Unmute story' : 'Mute story'}
-                title={storyVolume === 0 ? 'Unmute' : 'Mute'}
-              >
-                {storyVolume === 0 ? <VolumeX className='h-4 w-4' /> : <Volume2 className='h-4 w-4' />}
-              </button>
-              <input
-                type='range'
-                min={0}
-                max={100}
-                step={1}
-                value={Math.round(storyVolume * 100)}
-                onChange={(e) => onVolumeChange(Number(e.target.value) / 100)}
-                className='pointer-events-none h-1.5 w-0 opacity-0 accent-white transition-all duration-200 group-hover:pointer-events-auto group-hover:w-20 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:w-20 group-focus-within:opacity-100'
-                aria-label='Story volume'
-              />
-            </div>
-          ) : (
-            (headerTrailing ?? null)
-          )}
+                <input
+                  type='range'
+                  min={0}
+                  max={100}
+                  step={1}
+                  value={Math.round(storyVolume * 100)}
+                  onChange={(e) => onVolumeChange(Number(e.target.value) / 100)}
+                  className='pointer-events-none h-1.5 w-0 opacity-0 accent-white transition-all duration-200 group-hover:pointer-events-auto group-hover:w-20 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:w-20 group-focus-within:opacity-100'
+                  aria-label='Story volume'
+                />
+              </div>
+            )}
+            
+            {headerTrailing ?? null}
+          </div>
         </div>
       </div>
 

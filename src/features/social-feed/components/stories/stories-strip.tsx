@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react'
-import { Sparkles } from 'lucide-react'
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel'
 import { useMyProfile } from '@/features/user/queries/use-queries'
 import { useSocialText } from '../../i18n/use-social-text'
@@ -67,7 +66,7 @@ export function StoriesStrip({ stories, isLoading = false }: StoriesStripProps) 
       return [myGroup, ...others]
     }
     return stories
-  }, [stories, myProfile?.id])
+  }, [stories, myProfile])
 
   return (
     <section className='relative overflow-hidden w-full'>

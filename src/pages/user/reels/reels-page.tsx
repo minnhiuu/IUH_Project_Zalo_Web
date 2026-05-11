@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ChevronDown, ChevronUp, Loader2, Star, Users } from 'lucide-react'
+import { ChevronDown, ChevronUp, Loader2 } from 'lucide-react'
 import { ReelsFeed, useInfiniteSocialReels } from '@/features/social-feed'
 import { ReelCommentsSidebar } from '@/features/social-feed/components/reels/reel-comments-sidebar'
 import { ReelComposerModal } from '@/features/social-feed/components/reels/reel-composer-modal'

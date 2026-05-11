@@ -31,8 +31,10 @@ const toPostType = (postType?: string | null): SocialPost['postType'] => {
 
 const toVisibility = (visibility?: string | null): SocialPost['visibility'] => {
   switch ((visibility ?? '').toUpperCase()) {
+    case 'FRIEND':
     case 'FRIENDS':
       return 'Friends'
+    case 'ONLY_ME':
     case 'PRIVATE':
       return 'Private'
     case 'ALL':
@@ -42,7 +44,6 @@ const toVisibility = (visibility?: string | null): SocialPost['visibility'] => {
   }
 }
 
-const normalizeHashtag = (tag: string) => (tag.startsWith('#') ? tag : `#${tag}`)
 
 const pickDisplayContent = (post: BackendPostResponse) => {
   return post.content ?? post.sharedCaption ?? null
@@ -54,11 +55,6 @@ const toContent = (post: BackendPostResponse): string => {
   const sections = [content?.title, content?.caption, content?.description]
     .map((part) => part?.trim())
     .filter((part): part is string => Boolean(part))
-
-  const hashtags = (content?.hashtags ?? []).filter(Boolean).map(normalizeHashtag).join(' ')
-  if (hashtags) {
-    sections.push(hashtags)
-  }
 
   return sections.join('\n\n') || ''
 }
@@ -101,6 +97,7 @@ const mapPostToSocialPost = (post: BackendPostResponse): SocialPost => {
     topReactions: normalizedTopReactions,
     comments: post.stats?.commentCount ?? 0,
     shares: post.stats?.shareCount ?? 0,
+    views: post.stats?.viewCount ?? 0,
     rootPostId: post.rootPostId ?? null,
     currentUserReaction: (post.currentUserReaction?.toUpperCase() ?? null) as SocialPost['currentUserReaction']
   }
@@ -113,8 +110,6 @@ const mapSharedPreview = (preview: BackendSharedPostPreview): SocialPost['shared
   const sections = [content?.title, content?.caption, content?.description]
     .map((part) => part?.trim())
     .filter((part): part is string => Boolean(part))
-  const hashtags = (content?.hashtags ?? []).filter(Boolean).map(normalizeHashtag).join(' ')
-  if (hashtags) sections.push(hashtags)
 
   const media =
     preview.media

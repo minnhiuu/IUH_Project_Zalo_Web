@@ -55,7 +55,7 @@ function StatItem({ label, value, sub }: { label: string; value: string | number
   )
 }
 
-function CollectionCard({ name, stats }: { name: string; stats: ReturnType<typeof Object.values<any>>[number] }) {
+function CollectionCard({ name, stats }: { name: string; stats: VectorStoreStats[keyof VectorStoreStats] }) {
   const meta = COLLECTION_LABELS[name]
   const indexRatio = stats.vectors_count > 0
     ? Math.round((stats.indexed_vectors_count / stats.vectors_count) * 100)

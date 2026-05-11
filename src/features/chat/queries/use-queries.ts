@@ -18,7 +18,7 @@ export const useMessagesInfiniteQuery = (conversationId: string, jumpTargetId?: 
     ...chatOptions.messagesV2(conversationId),
     initialPageParam: (jumpTargetId
       ? { limit: 20, aroundMessageId: jumpTargetId }
-      : { limit: 20, direction: 'OLDER', cursor: null }) as any, // ép kiểu an toàn
+      : { limit: 20, direction: 'OLDER', cursor: null }) as never, // ép kiểu an toàn
     enabled: !!conversationId
   })
 }

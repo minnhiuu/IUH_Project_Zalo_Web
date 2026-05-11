@@ -15,7 +15,7 @@ export function SocialSidebar() {
   const shortcuts = [
     { icon: Users, label: text.sidebar.friends, color: 'text-blue-500', bg: 'bg-blue-500/10' },
     { icon: Users2, label: text.sidebar.groups, color: 'text-indigo-500', bg: 'bg-indigo-500/10' },
-    { icon: Clapperboard, label: text.sidebar.reels, color: 'text-rose-500', bg: 'bg-rose-500/10', path: PATHS.REELS },
+    { icon: Clapperboard, label: text.sidebar.reels, color: 'text-rose-500', bg: 'bg-rose-500/10', path: `${PATHS.SOCIAL_FEED}?tab=reels` },
     { icon: Bookmark, label: text.sidebar.saved, color: 'text-purple-500', bg: 'bg-purple-500/10' },
     { icon: Clock, label: text.sidebar.memories, color: 'text-emerald-500', bg: 'bg-emerald-500/10' }
   ]
