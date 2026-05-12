@@ -140,6 +140,20 @@
         },
         "search": {
           "title": "Search",
+          "nameSearchVisibility": {
+            "title": "Who can find me by name",
+            "description": "Control who can discover your profile from name search"
+          },
+          "phoneSearchVisibility": {
+            "title": "Who can find me by phone number",
+            "description": "Control who can discover your profile from exact phone search"
+          },
+          "visibility": {
+            "public": "Everyone",
+            "friendsOfFriends": "Friends of friends",
+            "friendsOnly": "Friends only",
+            "none": "Nobody"
+          },
           "allowSearchOnPhoneNumber": {
             "title": "Allow search by phone number",
             "description": "Others can find you using your phone number"
