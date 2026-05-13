@@ -130,7 +130,7 @@ export function GlobalSearchPanel({ open, onOpenChange }: GlobalSearchPanelProps
             }}
           />
         ) : (
-          <GlobalSearchProvider keyword={debouncedKeyword} text={searchText}>
+          <GlobalSearchProvider keyword={debouncedKeyword} text={text}>
             <div className='flex flex-col pb-4'>
               {activeTab === 'all' && (
                 <AllResultsTab
