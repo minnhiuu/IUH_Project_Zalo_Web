@@ -1,18 +1,23 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
-import { ArrowLeft, ArrowUp, Loader2, Pencil } from 'lucide-react'
+import { ArrowLeft, ArrowUp, Loader2, Pencil, Search, MoreHorizontal } from 'lucide-react'
 import { useNavigate } from 'react-router'
 import { PostCard, PostComposerLauncher, useInfiniteMyPosts } from '@/features/social-feed'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { useAuthContext } from '@/features/auth/context/auth-context'
-import { OwnerProfileDialog } from '@/features/user'
+import { OwnerProfileDialog, useMyProfile } from '@/features/user'
+import { ProfileInfoCard } from '@/features/user/components/profile-page/profile-info-card'
+import { ProfileReelsGrid } from '@/features/user/components/profile-page/profile-reels-grid'
+import { useUserText } from '@/features/user/i18n/use-user-text'
 import { PATHS } from '@/constants/path'
+import { useMyFriends } from '@/features/friend/queries'
+import { useUsersByIds } from '@/features/user/queries/use-queries'
 
 function PostCardSkeleton() {
   return (
-    <div className='rounded-2xl border border-zinc-200 bg-white/90 p-5 dark:border-white/10 dark:bg-zinc-950/50'>
+    <div className='rounded-2xl border border-zinc-200 bg-white p-5 dark:border-white/10 dark:bg-[#242526]'>
       <div className='mb-4 flex items-center gap-3'>
         <Skeleton className='h-11 w-11 rounded-full' />
         <div className='flex-1 space-y-2'>
@@ -24,12 +29,7 @@ function PostCardSkeleton() {
         <Skeleton className='h-4 w-full' />
         <Skeleton className='h-4 w-11/12' />
       </div>
-      <Skeleton className='mt-4 h-64 w-full rounded-xl' />
-      <div className='mt-4 flex items-center justify-between border-t border-zinc-200/70 pt-4 dark:border-white/10'>
-        <Skeleton className='h-9 w-[31%] rounded-lg' />
-        <Skeleton className='h-9 w-[31%] rounded-lg' />
-        <Skeleton className='h-9 w-[31%] rounded-lg' />
-      </div>
+      <Skeleton className='mt-4 h-56 w-full rounded-xl' />
     </div>
   )
 }
@@ -37,16 +37,44 @@ function PostCardSkeleton() {
 export default function MyProfilePage() {
   const navigate = useNavigate()
   const { user } = useAuthContext()
+  const { data: fullProfile } = useMyProfile()
+  const { text } = useUserText()
+  const p = text.profile.page
   const [showProfileDialog, setShowProfileDialog] = useState(false)
+
+  const { data: friends } = useMyFriends()
+  const safeFriends = useMemo(() => (Array.isArray(friends) ? friends : []), [friends])
+
+  const friendIds = useMemo(() => safeFriends.map((f) => f.userId), [safeFriends])
+  const { data: userSummaryMap } = useUsersByIds(friendIds)
+
+  const friendsWithInfo = useMemo(() => {
+    return safeFriends.map((friend) => {
+      const info = userSummaryMap?.[friend.userId]
+      return {
+        ...friend,
+        userName: info?.fullName || friend.userName,
+        userAvatar: info?.avatar || friend.userAvatar
+      }
+    })
+  }, [safeFriends, userSummaryMap])
 
   const { data, isLoading, isError, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteMyPosts(20)
   const posts = useMemo(() => data?.pages.flat() ?? [], [data])
+
+  const [activeTab, setActiveTab] = useState('Tất cả')
+  const displayedPosts = useMemo(() => {
+    if (activeTab === 'Reels') return posts.filter((p) => p.postType === 'REEL')
+    if (activeTab === 'Ảnh') return posts.filter((p) => p.media?.some((m) => m.type === 'IMAGE'))
+    if (activeTab === 'Giới thiệu' || activeTab === 'Bạn bè') return [] // Placeholder for other tabs
+    return posts
+  }, [posts, activeTab])
 
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [showScrollTop, setShowScrollTop] = useState(false)
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    setShowScrollTop(e.currentTarget.scrollTop > 800)
+    setShowScrollTop(e.currentTarget.scrollTop > 600)
   }
 
   const scrollToTop = () => {
@@ -65,108 +93,234 @@ export default function MyProfilePage() {
     <section
       ref={scrollContainerRef}
       onScroll={handleScroll}
-      className='custom-scrollbar flex h-[100dvh] w-full flex-col overflow-y-auto bg-zinc-50/50 dark:bg-zinc-950/50'
+      className='custom-scrollbar flex h-[100dvh] w-full flex-col overflow-y-auto bg-[#f0f2f5] dark:bg-[#18191a]'
     >
-      {/* Header bar */}
-      <header className='sticky top-0 z-30 flex items-center gap-3 border-b border-zinc-200/60 bg-white/80 px-4 py-3 backdrop-blur-md dark:border-white/10 dark:bg-zinc-950/80'>
+      {/* ── Back header ── */}
+      <header className='sticky top-0 z-30 flex items-center gap-3 border-b border-zinc-200/60 bg-white/90 px-4 py-3 backdrop-blur-md dark:border-white/[0.08] dark:bg-[#242526]/90'>
         <Button variant='ghost' size='icon' className='shrink-0' onClick={() => navigate(PATHS.SOCIAL_FEED)}>
           <ArrowLeft className='h-5 w-5' />
         </Button>
-        <h1 className='text-lg font-bold text-foreground'>My Profile</h1>
+        <h1 className='text-[17px] font-bold text-foreground'>{p.myTitle}</h1>
       </header>
 
-      {/* Profile cover + info */}
-      <div className='relative w-full'>
-        {/* Cover image */}
-        <div className='h-48 w-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-400 md:h-56 lg:h-64'>
-          {user?.background && (
-            <img
-              src={user.background}
-              alt='Cover'
-              className='h-full w-full object-cover'
-              style={user.backgroundY != null ? { objectPosition: `center ${user.backgroundY}%` } : undefined}
-            />
-          )}
-        </div>
-
-        {/* Profile info overlay */}
-        <div className='mx-auto -mt-14 max-w-3xl px-4 md:px-8'>
-          <div className='flex items-end gap-4'>
-            {/* Avatar */}
-            <div className='relative shrink-0'>
-              <div className='h-28 w-28 overflow-hidden rounded-full border-4 border-white bg-white shadow-lg dark:border-zinc-900'>
-                <UserAvatar
-                  src={user?.avatar}
-                  name={user?.fullName || 'User'}
-                  className='h-full w-full'
-                  fallbackClassName='text-3xl font-bold'
-                />
-              </div>
-            </div>
-
-            {/* Name + bio */}
-            <div className='flex-1 pb-2'>
-              <h2 className='text-xl font-bold text-foreground md:text-2xl'>{user?.fullName}</h2>
-              {user?.bio && <p className='mt-0.5 text-sm text-muted-foreground'>{user.bio}</p>}
-            </div>
-
-            {/* Edit profile button */}
-            <Button
-              variant='outline'
-              size='sm'
-              className='mb-2 shrink-0 gap-1.5'
-              onClick={() => setShowProfileDialog(true)}
-            >
-              <Pencil className='h-3.5 w-3.5' />
-              Edit Profile
-            </Button>
+      {/* ── Cover photo ── */}
+      <div className='relative w-full bg-zinc-300 dark:bg-zinc-800'>
+        <div className='mx-auto max-w-5xl'>
+          <div className='relative h-52 w-full overflow-hidden rounded-b-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-400 md:h-64 lg:h-[340px]'>
+            {user?.background && (
+              <img
+                src={user.background}
+                alt='Cover'
+                className='h-full w-full object-cover'
+                style={user.backgroundY != null ? { objectPosition: `center ${user.backgroundY}%` } : undefined}
+              />
+            )}
           </div>
         </div>
       </div>
 
-      {/* Posts section */}
-      <div className='mx-auto mt-6 w-full max-w-3xl px-4 pb-10 md:px-8'>
-        {/* Post composer */}
-        <div className='mb-6'>
-          <PostComposerLauncher />
-        </div>
-
-        {/* Posts heading */}
-        <div className='mb-4 flex items-center gap-2'>
-          <h3 className='text-base font-semibold text-foreground'>Posts</h3>
-          {!isLoading && <span className='text-sm text-muted-foreground'>({posts.length})</span>}
-        </div>
-
-        {/* Post list */}
-        <div className='flex flex-col space-y-6'>
-          {isLoading ? (
-            Array.from({ length: 3 }).map((_, index) => <PostCardSkeleton key={index} />)
-          ) : isError ? (
-            <div className='rounded-2xl border border-dashed border-red-300 bg-red-50/70 px-5 py-10 text-center text-[14px] font-medium text-red-700 dark:border-red-500/40 dark:bg-red-950/30 dark:text-red-300'>
-              <p className='mb-4'>Failed to load posts.</p>
-              <Button variant='outline' onClick={() => refetch()}>
-                Retry
-              </Button>
-            </div>
-          ) : posts.length > 0 ? (
-            <>
-              {posts.map((post) => (
-                <PostCard key={post.id} post={post} />
-              ))}
-              <div ref={ref} className='flex justify-center py-6 text-zinc-500 dark:text-zinc-400'>
-                {isFetchingNextPage && (
-                  <div className='flex items-center gap-2 text-[14px] font-medium'>
-                    <Loader2 className='h-4 w-4 animate-spin' /> Loading...
-                  </div>
+      {/* ── Identity row ── */}
+      <div className='border-b border-zinc-200 bg-white dark:border-white/[0.08] dark:bg-[#242526]'>
+        <div className='mx-auto max-w-5xl px-4 pb-0 md:px-6'>
+          {/* Avatar + name + actions */}
+          <div className='flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between'>
+            <div className='flex items-end gap-4'>
+              {/* Avatar — overlaps cover */}
+              <div className='-mt-10 shrink-0 md:-mt-14'>
+                <div className='h-[100px] w-[100px] overflow-hidden rounded-full border-4 border-white bg-white shadow-lg dark:border-[#242526] md:h-[148px] md:w-[148px]'>
+                  <UserAvatar
+                    src={user?.avatar}
+                    name={user?.fullName || 'User'}
+                    className='h-full w-full'
+                    fallbackClassName='text-4xl font-bold bg-primary'
+                  />
+                </div>
+              </div>
+              {/* Name + bio */}
+              <div className='mb-2 min-w-0 flex-1 pb-1'>
+                <h2 className='truncate text-[22px] font-bold text-foreground md:text-[28px]'>
+                  {user?.fullName}
+                </h2>
+                {user?.bio && (
+                  <p className='mt-0.5 truncate text-[14px] text-muted-foreground'>{user.bio}</p>
                 )}
               </div>
-            </>
-          ) : (
-            <div className='rounded-2xl border border-dashed border-zinc-300 bg-white/80 px-5 py-14 text-center dark:border-white/10 dark:bg-zinc-950/50'>
-              <p className='text-[15px] font-medium text-zinc-500 dark:text-zinc-400'>No posts yet</p>
-              <p className='mt-1 text-[13px] text-zinc-400 dark:text-zinc-500'>Share your first post to get started!</p>
+            </div>
+            {/* Edit profile button */}
+            <div className='mb-3 flex shrink-0 items-center gap-2 sm:mb-4'>
+              <Button
+                variant='outline'
+                size='sm'
+                className='h-9 gap-1.5 rounded-lg px-4 font-semibold'
+                onClick={() => setShowProfileDialog(true)}
+              >
+                <Pencil className='h-4 w-4' />
+                {p.editProfile}
+              </Button>
+            </div>
+          </div>
+
+          {/* Divider + Tab nav */}
+          <div className='mt-1 border-t border-zinc-200 dark:border-white/[0.08]'>
+            <nav className='-mb-px flex gap-1 overflow-x-auto'>
+              {['Tất cả', 'Giới thiệu', 'Bạn bè', 'Ảnh', 'Reels'].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`whitespace-nowrap px-4 py-3 text-[15px] font-semibold transition-colors ${
+                    activeTab === tab
+                      ? 'border-b-[3px] border-indigo-500 text-indigo-600 dark:text-indigo-400'
+                      : 'text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-white/5 dark:hover:text-zinc-200'
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </nav>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Two-column body ── */}
+      <div className='mx-auto w-full max-w-5xl px-4 py-5 md:px-6'>
+        <div className='flex flex-col gap-4 lg:flex-row lg:items-start'>
+
+          {/* ── LEFT sidebar ── */}
+          {(activeTab === 'Tất cả' || activeTab === 'Giới thiệu') && (
+            <div className='w-full shrink-0 space-y-4 lg:w-[360px] lg:sticky lg:top-[57px]'>
+              {fullProfile ? (
+                <ProfileInfoCard user={fullProfile} isOther={false} />
+              ) : (
+                <div className='space-y-3 rounded-2xl border border-zinc-200 bg-white p-4 dark:border-white/10 dark:bg-[#242526]'>
+                  <Skeleton className='h-5 w-32' />
+                  <Skeleton className='h-4 w-full' />
+                  <Skeleton className='h-4 w-4/5' />
+                  <Skeleton className='h-4 w-3/5' />
+                </div>
+              )}
             </div>
           )}
+
+          {/* ── RIGHT posts column ── */}
+          <div className='min-w-0 flex-1 space-y-4'>
+            {/* Post composer */}
+            {activeTab !== 'Bạn bè' && activeTab !== 'Giới thiệu' && activeTab !== 'Ảnh' && activeTab !== 'Reels' && (
+              <PostComposerLauncher />
+            )}
+
+            {/* Posts heading */}
+            {activeTab !== 'Bạn bè' && activeTab !== 'Giới thiệu' && (
+              <div className='flex items-center gap-2 rounded-2xl border border-zinc-200 bg-white px-5 py-4 dark:border-white/10 dark:bg-[#242526]'>
+                <h3 className='text-[17px] font-bold text-foreground'>
+                  {activeTab === 'Tất cả' ? p.postsHeading : activeTab}
+                </h3>
+                {!isLoading && (
+                  <span className='text-[14px] text-muted-foreground'>({displayedPosts.length})</span>
+                )}
+              </div>
+            )}
+
+            {/* Post list */}
+            <div className='flex flex-col space-y-4'>
+              {isLoading ? (
+                Array.from({ length: 3 }).map((_, i) => <PostCardSkeleton key={i} />)
+              ) : isError ? (
+                <div className='rounded-2xl border border-dashed border-red-300 bg-red-50/70 px-5 py-10 text-center text-[14px] font-medium text-red-700 dark:border-red-500/40 dark:bg-red-950/30 dark:text-red-300'>
+                  <p className='mb-4'>{p.loadError}</p>
+                  <Button variant='outline' onClick={() => refetch()}>
+                    {p.retry}
+                  </Button>
+                </div>
+              ) : activeTab === 'Bạn bè' ? (
+                <div className='rounded-2xl border border-zinc-200 bg-white p-5 dark:border-white/10 dark:bg-[#242526]'>
+                  <div className='mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
+                    <h3 className='text-[20px] font-bold text-foreground'>{p.friendsTab}</h3>
+                    <div className='flex flex-wrap items-center gap-2'>
+                      <div className='relative'>
+                        <Search className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500' />
+                        <input
+                          type='text'
+                          placeholder={p.searchPlaceholder}
+                          className='h-9 w-full rounded-full bg-zinc-100 pl-9 pr-4 text-[14px] outline-none transition-colors focus:ring-2 focus:ring-indigo-500 dark:bg-white/10 dark:text-white dark:placeholder:text-zinc-400 sm:w-[200px]'
+                        />
+                      </div>
+                      <Button variant='ghost' className='h-9 font-semibold text-indigo-600 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:bg-indigo-500/10'>
+                        Tìm bạn bè
+                      </Button>
+                      <Button variant='secondary' size='icon' className='h-9 w-9 shrink-0 rounded-md bg-zinc-100 dark:bg-white/10 dark:hover:bg-white/20'>
+                        <MoreHorizontal className='h-5 w-5' />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className='grid grid-cols-1 gap-2 sm:grid-cols-2'>
+                    {friendsWithInfo.length > 0 ? (
+                      friendsWithInfo.map((friend) => (
+                        <div
+                          key={friend.userId}
+                          onClick={() => navigate(`/profile/${friend.userId}`)}
+                          className='flex cursor-pointer items-center justify-between rounded-xl p-3 transition-colors hover:bg-zinc-50 dark:hover:bg-white/5'
+                        >
+                          <div className='flex items-center gap-4'>
+                            <UserAvatar
+                              src={friend.userAvatar}
+                              name={friend.userName}
+                              className='h-[80px] w-[80px] shrink-0 rounded-xl'
+                            />
+                            <div className='min-w-0 flex-1'>
+                              <h4 className='truncate text-[16px] font-semibold text-foreground'>{friend.userName}</h4>
+                              {friend.mutualFriendsCount > 0 && (
+                                <p className='text-[13px] text-zinc-500 dark:text-zinc-400'>{p.mutualFriends(friend.mutualFriendsCount)}</p>
+                              )}
+                            </div>
+                          </div>
+                          <Button
+                            variant='ghost'
+                            size='icon'
+                            className='h-8 w-8 text-zinc-500 dark:text-zinc-400 dark:hover:bg-white/10'
+                            onClick={(e) => {
+                              e.stopPropagation()
+                            }}
+                          >
+                            <MoreHorizontal className='h-5 w-5' />
+                          </Button>
+                        </div>
+                      ))
+                    ) : (
+                      <div className='col-span-full py-10 text-center'>
+                        <p className='text-[15px] font-medium text-zinc-500 dark:text-zinc-400'>{p.noFriends}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : activeTab === 'Giới thiệu' ? (
+                <div className='rounded-2xl border border-dashed border-zinc-300 bg-white px-5 py-14 text-center dark:border-white/10 dark:bg-[#242526]'>
+                  <p className='text-[15px] font-medium text-zinc-500 dark:text-zinc-400'>{p.featureInDevelopment}</p>
+                </div>
+              ) : displayedPosts.length > 0 ? (
+                <>
+                  {activeTab === 'Reels' ? (
+                    <ProfileReelsGrid reels={displayedPosts} />
+                  ) : (
+                    displayedPosts.map((post) => (
+                      <PostCard key={post.id} post={post} />
+                    ))
+                  )}
+                  <div ref={ref} className='flex justify-center py-4 text-zinc-500 dark:text-zinc-400'>
+                    {isFetchingNextPage && (
+                      <div className='flex items-center gap-2 text-[14px] font-medium'>
+                        <Loader2 className='h-4 w-4 animate-spin' /> {p.loadingMore}
+                      </div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className='rounded-2xl border border-dashed border-zinc-300 bg-white px-5 py-14 text-center dark:border-white/10 dark:bg-[#242526]'>
+                  <p className='text-[15px] font-medium text-zinc-500 dark:text-zinc-400'>{p.noPosts}</p>
+                  <p className='mt-1 text-[13px] text-zinc-400 dark:text-zinc-500'>{p.noPostsHint}</p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 

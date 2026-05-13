@@ -9,39 +9,22 @@ import { PostCard, type SocialPost } from '../post/post-card'
 import { cn } from '@/lib/utils'
 import { useMyProfile } from '@/features/user/queries/use-queries'
 import { useSocialText } from '../../i18n/use-social-text'
-import { useCreateSocialPostMutation } from '../../queries/use-mutations'
+import { useCreateSocialPostMutation, useUpdateSocialPostMutation } from '../../queries/use-mutations'
 import { fileApi } from '../../api/file.api'
 import { toast } from 'sonner'
 import { VisibilityDropdown, type VisibilityType } from './visibility-dropdown'
+import { extractHashtags } from '@/utils/hashtag'
 
-// VisibilityType is imported from visibility-dropdown
-type SelectedMedia = { file: File; type: 'IMAGE' | 'VIDEO' }
+type SelectedMedia = { file?: File; url?: string; type: 'IMAGE' | 'VIDEO' }
 const IMAGE_MIME_PREFIX = 'image/'
 const VIDEO_MIME_PREFIX = 'video/'
-const HASHTAG_REGEX = /(^|\s)#([\p{L}\p{N}_]+)/gu
-
-const extractHashtags = (value: string): string[] => {
-  const hashtags: string[] = []
-  const seen = new Set<string>()
-
-  for (const match of value.matchAll(HASHTAG_REGEX)) {
-    const rawTag = match[2]?.trim()
-    if (!rawTag) continue
-
-    const normalizedTag = rawTag.toLowerCase()
-    if (seen.has(normalizedTag)) continue
-
-    seen.add(normalizedTag)
-    hashtags.push(`#${rawTag}`)
-  }
-
-  return hashtags
-}
 
 interface PostComposerProps {
   inModal?: boolean
   className?: string
+  initialPost?: SocialPost
   onPostSuccess?: () => void
+  onCancel?: () => void
 }
 
 function PostPreviewDialog({
@@ -66,12 +49,16 @@ function PostPreviewDialog({
   useEffect(() => {
     if (open) {
       const urls = selectedMedia.map((m) => ({
-        url: URL.createObjectURL(m.file),
+        url: m.url || URL.createObjectURL(m.file!),
         type: m.type
       }))
-      setMediaUrls(urls)
+      requestAnimationFrame(() => setMediaUrls(urls))
       return () => {
-        urls.forEach((u) => URL.revokeObjectURL(u.url))
+        urls.forEach((u) => {
+          if (!selectedMedia.find(m => m.url === u.url)) {
+            URL.revokeObjectURL(u.url)
+          }
+        })
       }
     }
   }, [open, selectedMedia])
@@ -118,23 +105,27 @@ function PostPreviewDialog({
 }
 
 function MediaPreview({
-  file,
-  type,
+  item,
   onRemove,
   className
 }: {
-  file: File
-  type: 'IMAGE' | 'VIDEO'
+  item: SelectedMedia
   onRemove: () => void
   className?: string
 }) {
-  const [previewUrl, setPreviewUrl] = useState<string>('')
+  const previewUrl = useMemo(() => {
+    if (item.url) return item.url
+    if (item.file) return URL.createObjectURL(item.file)
+    return ''
+  }, [item.url, item.file])
 
   useEffect(() => {
-    const url = URL.createObjectURL(file)
-    setPreviewUrl(url)
-    return () => URL.revokeObjectURL(url)
-  }, [file])
+    return () => {
+      if (item.file && !item.url && previewUrl) {
+        URL.revokeObjectURL(previewUrl)
+      }
+    }
+  }, [item.file, item.url, previewUrl])
 
   if (!previewUrl) return null
 
@@ -145,10 +136,10 @@ function MediaPreview({
         className
       )}
     >
-      {type === 'IMAGE' ? (
+      {item.type === 'IMAGE' ? (
         <img
           src={previewUrl}
-          alt={file.name}
+          alt='Media preview'
           className='absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]'
         />
       ) : (
@@ -173,7 +164,7 @@ function MediaPreview({
       >
         <X className='h-[14px] w-[14px]' />
       </button>
-      {type === 'VIDEO' && (
+      {item.type === 'VIDEO' && (
         <div className='absolute bottom-2 left-2 z-10 rounded-lg bg-black/60 px-2 py-1 text-[10px] font-bold tracking-wider text-white ring-1 ring-white/20 backdrop-blur-md'>
           VIDEO
         </div>
@@ -184,10 +175,14 @@ function MediaPreview({
 
 function ComposerBody({
   textareaClassName,
-  onPostSuccess
+  initialPost,
+  onPostSuccess,
+  onCancel
 }: {
   textareaClassName?: string
+  initialPost?: SocialPost
   onPostSuccess?: () => void
+  onCancel?: () => void
 }) {
   const { text } = useSocialText()
   const currentUserLabel = text.composer.me
@@ -195,11 +190,23 @@ function ComposerBody({
   const profileName = myProfile?.fullName?.trim() || currentUserLabel
   const profileAvatar = myProfile?.avatar || ''
 
-  const [content, setContent] = useState('')
-  const [selectedMedia, setSelectedMedia] = useState<SelectedMedia[]>([])
-  const [visibility, setVisibility] = useState<VisibilityType>('ALL')
+  const [content, setContent] = useState(initialPost?.content || '')
+  const [selectedMedia, setSelectedMedia] = useState<SelectedMedia[]>(
+    initialPost?.media?.map(m => ({ url: m.url, type: m.type as 'IMAGE' | 'VIDEO' })) || []
+  )
+  const mapVisibilityToEnum = (v?: string): VisibilityType => {
+    if (v === 'Friends') return 'FRIENDS'
+    if (v === 'Private') return 'ONLY_ME'
+    return 'ALL'
+  }
+  const [visibility, setVisibility] = useState<VisibilityType>(mapVisibilityToEnum(initialPost?.visibility))
   const [previewOpen, setPreviewOpen] = useState(false)
-  const { mutateAsync: createPost, isPending } = useCreateSocialPostMutation()
+  
+  // Use dynamically imported hook to avoid circular dependency or import error if needed, but we already imported useCreateSocialPostMutation above.
+  const { mutateAsync: createPost, isPending: isCreating } = useCreateSocialPostMutation()
+  const { mutateAsync: updatePost, isPending: isUpdating } = useUpdateSocialPostMutation()
+  const isPending = isCreating || isUpdating
+  
   const imageInputRef = useRef<HTMLInputElement | null>(null)
   const videoInputRef = useRef<HTMLInputElement | null>(null)
 
@@ -235,30 +242,55 @@ function ComposerBody({
 
       const uploadedMedia = await Promise.all(
         selectedMedia.map(async (item) => {
-          const response = await fileApi.upload(item.file)
-          const key = response.data.data.key
-
+          if (item.url && !item.file) {
+            let backendUrl = item.url
+            if (backendUrl.includes('.amazonaws.com/')) {
+               backendUrl = backendUrl.split('.amazonaws.com/')[1]
+            } else {
+               // strip domain if necessary, or just keep it
+            }
+            return {
+              url: backendUrl,
+              type: item.type
+            }
+          }
+          const response = await fileApi.upload(item.file!)
           return {
-            url: key,
+            url: response.data.data.key,
             type: item.type
           }
         })
       )
 
-      await createPost({
-        postType: 'FEED',
-        visibility,
-        caption: trimmedContent || undefined,
-        hashtags: hashtags.length > 0 ? hashtags : undefined,
-        media: uploadedMedia.length > 0 ? uploadedMedia : undefined
-      })
+      if (initialPost) {
+        await updatePost({
+          postId: initialPost.id,
+          payload: {
+            visibility,
+            caption: trimmedContent || undefined,
+            hashtags: hashtags.length > 0 ? hashtags : [],
+            media: uploadedMedia.length > 0 ? uploadedMedia : []
+          }
+        })
+        toast.success('Post updated successfully')
+      } else {
+        await createPost({
+          postType: 'FEED',
+          visibility,
+          caption: trimmedContent || undefined,
+          hashtags: hashtags.length > 0 ? hashtags : undefined,
+          media: uploadedMedia.length > 0 ? uploadedMedia : undefined
+        })
+        toast.success('Post created successfully')
+      }
 
-      setContent('')
-      setSelectedMedia([])
-      toast.success('Post created successfully')
+      if (!initialPost) {
+        setContent('')
+        setSelectedMedia([])
+      }
       onPostSuccess?.()
     } catch {
-      toast.error('Failed to create post')
+      toast.error(initialPost ? 'Failed to update post' : 'Failed to create post')
     }
   }
 
@@ -341,9 +373,8 @@ function ComposerBody({
           <div className='flex flex-wrap gap-2 pt-1'>
             {selectedMedia.map((item, index) => (
               <MediaPreview
-                key={`${item.file.name}-${index}`}
-                file={item.file}
-                type={item.type}
+                key={`${item.url || item.file?.name}-${index}`}
+                item={item}
                 onRemove={() => removeMedia(index)}
                 className={cn(
                   'shrink-0',
@@ -403,13 +434,25 @@ function ComposerBody({
           </Button>
         </div>
 
-        <Button
-          onClick={handlePost}
-          disabled={!hasPostContent || isPending}
-          className='h-10 min-w-24 rounded-xl bg-indigo-500 px-6 font-semibold text-white shadow-sm transition-all hover:bg-indigo-600 hover:shadow-indigo-500/20 active:scale-95 disabled:opacity-50 disabled:pointer-events-none'
-        >
-          {isPending ? <Loader2 className='h-5 w-5 animate-spin' /> : text.composer.post}
-        </Button>
+        <div className='flex gap-2'>
+          {onCancel && (
+            <Button
+              type='button'
+              variant='outline'
+              onClick={onCancel}
+              className='h-10 rounded-xl px-4 font-semibold shadow-sm transition-all'
+            >
+              Cancel
+            </Button>
+          )}
+          <Button
+            onClick={handlePost}
+            disabled={!hasPostContent || isPending}
+            className='h-10 min-w-24 rounded-xl bg-indigo-500 px-6 font-semibold text-white shadow-sm transition-all hover:bg-indigo-600 hover:shadow-indigo-500/20 active:scale-95 disabled:opacity-50 disabled:pointer-events-none'
+          >
+            {isPending ? <Loader2 className='h-5 w-5 animate-spin' /> : (initialPost ? (text.composer as Record<string, string>).save || 'Save' : text.composer.post)}
+          </Button>
+        </div>
       </div>
 
       <PostPreviewDialog
@@ -425,7 +468,7 @@ function ComposerBody({
   )
 }
 
-export function PostComposer({ inModal = false, className, onPostSuccess }: PostComposerProps) {
+export function PostComposer({ inModal = false, className, initialPost, onPostSuccess, onCancel }: PostComposerProps) {
   if (inModal) {
     return (
       <div
@@ -434,7 +477,7 @@ export function PostComposer({ inModal = false, className, onPostSuccess }: Post
           className
         )}
       >
-        <ComposerBody textareaClassName='min-h-44 sm:min-h-56' onPostSuccess={onPostSuccess} />
+        <ComposerBody textareaClassName='min-h-44 sm:min-h-56' initialPost={initialPost} onPostSuccess={onPostSuccess} onCancel={onCancel} />
       </div>
     )
   }
@@ -447,7 +490,7 @@ export function PostComposer({ inModal = false, className, onPostSuccess }: Post
       )}
     >
       <CardContent className='space-y-4 p-5 sm:p-6'>
-        <ComposerBody onPostSuccess={onPostSuccess} />
+        <ComposerBody initialPost={initialPost} onPostSuccess={onPostSuccess} onCancel={onCancel} />
       </CardContent>
     </Card>
   )

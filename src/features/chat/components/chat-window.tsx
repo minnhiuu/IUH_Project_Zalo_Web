@@ -415,7 +415,7 @@ export function ChatWindow({
         conversationId: conversation.id,
         createdAt: new Date().toISOString(),
         isFromMe: false
-      } as unknown as MessageResponse // Synthetic AI preview message
+      } as unknown as MessageResponse // ép kiểu để bỏ qua một số field không dùng tới trong preview
       return [syntheticMsg, ...rawMessages]
     }
     return rawMessages
@@ -497,7 +497,7 @@ export function ChatWindow({
       })
       .slice(0, initialUnreadCount)
       .map((msg) => msg.id)
-  }, [allMessages, initialUnreadCount, conversation.id])
+  }, [allMessages, initialUnreadCount])
   const loadedMessageIdSet = useMemo(() => new Set(allMessages.map((msg) => msg.id)), [allMessages])
 
   const measureVisibleMessageIds = useCallback(
@@ -592,7 +592,7 @@ export function ChatWindow({
       setFloatingUnreadReady(true)
       setUnreadUiReady(true)
     },
-    [allMessages, conversation.id, initialUnreadMessageIds, measureVisibleMessageIds]
+    [allMessages, conversation.id, initialUnreadMessageIds, measureVisibleMessageIds, scrollRef]
   )
 
   const syncVisibleInitialUnreadCount = useCallback(() => {
@@ -777,6 +777,7 @@ export function ChatWindow({
       clearTimeout(dividerVisibleTimerRef.current)
       dividerVisibleTimerRef.current = null
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversation.id]) // Intentionally omit capturedUnreadCount so we don't reset UI when mark-as-read completes
 
   useEffect(() => {
@@ -1267,8 +1268,8 @@ export function ChatWindow({
                   content: finalContent,
                   suggestions,
                   isClarification,
-                  isStreaming: !!(msg as any).isStreaming, // from synthetic msg
-                  processingStatus: (msg as any).processingStatus, // from synthetic msg
+                  isStreaming: !!(msg as Record<string, unknown>).isStreaming, // from synthetic msg
+                  processingStatus: (msg as Record<string, unknown>).processingStatus as 'processing' | 'done', // from synthetic msg
                   timestamp: new Date(msg.createdAt || new Date().toISOString())
                 }
 

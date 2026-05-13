@@ -6,6 +6,7 @@ import CloudPage from '@/pages/user/cloud/cloud-page'
 import SettingsPage from '@/pages/user/settings/settings-page'
 import SocialFeedPage from '@/pages/user/social-feed/social-feed-page'
 import MyProfilePage from '@/pages/user/my-profile/my-profile-page'
+import OtherProfilePage from '@/pages/user/other-profile/other-profile-page'
 import { PrivateRoute } from './private-route'
 import ContactPage from '@/pages/user/contacts/contact-page'
 
@@ -25,6 +26,7 @@ export const userRoutes: RouteObject = {
       ]
     },
     { path: PATHS.SOCIAL_FEED, element: <SocialFeedPage /> },
-    { path: PATHS.USER.PROFILE, element: <MyProfilePage /> }
+    { path: PATHS.USER.PROFILE, element: <MyProfilePage /> },
+    { path: PATHS.USER.OTHER_PROFILE, element: <OtherProfilePage /> }
   ]
 }

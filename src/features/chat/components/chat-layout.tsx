@@ -8,7 +8,6 @@ import { useNavigate, useOutletContext } from 'react-router'
 import { Status } from '@/constants/enum'
 import { useUserById } from '@/features/user/queries/use-queries'
 import { JoinGroupDialog } from './group/dialogs/join-group-dialog'
-import { BONDHUB_AI } from '@/constants/system'
 import type { UnreadAnchorResponse } from '../api/chat.api'
 import { GlobalSearchPanel } from '@/features/search'
 
@@ -101,16 +100,6 @@ export function ChatLayout({
     return null
   }, [selectedChatId, conversations, resolvedConversation])
 
-  // ── Document title theo unread count ──
-  const totalUnread = useMemo(() => {
-    if (!conversations) return 0
-
-    return conversations.reduce((sum: number, c: ConversationResponse) => {
-      const isAiConversation = c.members?.some((m) => m.userId === BONDHUB_AI.userId) ?? false
-      if (isAiConversation) return sum
-      return sum + (c.unreadCount || 0)
-    }, 0)
-  }, [conversations])
 
   const handleClearSnapshot = () => {
     setCurrentSnapshotId(null)

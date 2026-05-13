@@ -1,7 +1,8 @@
 export const userKeys = {
   all: ['users'] as const,
   profile: () => [...userKeys.all, 'me'] as const,
-  detail: (id: string) => [...userKeys.all, 'detail', id] as const
+  detail: (id: string) => [...userKeys.all, 'detail', id] as const,
+  batch: (ids: string[]) => [...userKeys.all, 'batch', ...ids.sort()] as const
 }
 
 export const blockKeys = {

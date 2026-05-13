@@ -65,23 +65,32 @@ export function StoryComposerModal({ open, onOpenChange }: StoryComposerModalPro
             onTogglePlay={composer.handleTogglePlay}
             canPost={!!composer.mediaFile}
             isPending={composer.isPending}
-            onPost={composer.handlePost}
+            onPost={async () => {
+              const success = await composer.handlePost()
+              if (success) {
+                onOpenChange(false)
+              }
+            }}
           />
         </div>
 
         {/* Hidden file inputs */}
         <input
+          // eslint-disable-next-line react-hooks/refs
           ref={composer.imageInputRef}
           type='file'
           accept='image/png,image/jpeg,image/jpg,image/webp,image/gif'
           className='hidden'
+          // eslint-disable-next-line react-hooks/refs
           onChange={composer.onPickImage}
         />
         <input
+          // eslint-disable-next-line react-hooks/refs
           ref={composer.videoInputRef}
           type='file'
           accept='video/*'
           className='hidden'
+          // eslint-disable-next-line react-hooks/refs
           onChange={composer.onPickVideo}
         />
       </DialogContent>

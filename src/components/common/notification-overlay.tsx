@@ -60,7 +60,7 @@ export function NotificationOverlay() {
 
     window.addEventListener('notification:received', handleNotification)
     return () => window.removeEventListener('notification:received', handleNotification)
-  }, [removeNotification])
+  }, [removeNotification, currentConversationId, i18n.language])
 
   return (
     <div className='fixed bottom-6 left-6 z-[9999] flex flex-col gap-4 pointer-events-none'>

@@ -1,76 +1,86 @@
 import { UserAvatar } from '@/components/common/user-avatar'
+import { Search, MoreHorizontal, UserPlus } from 'lucide-react'
+import { useUnifiedSuggestions } from '@/features/friend/queries'
+import { useNavigate } from 'react-router'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { useSocialText } from '../../i18n/use-social-text'
-
-const SUGGESTED_FRIENDS = [
-  { id: 1, name: 'Hoàng Huy', mutual: 12, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Huy' },
-  { id: 2, name: 'Minh Tuấn', mutual: 5, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Tuan' },
-  { id: 3, name: 'Thanh Hà', mutual: 2, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Ha' }
-]
 
 export function SuggestedFriendsSidebar() {
-  const { text } = useSocialText()
+  const navigate = useNavigate()
+  const { data, isLoading } = useUnifiedSuggestions(0, 10)
+  
+  // Extract friends from the page response (data.data.content or just data.content depending on api structure)
+  // useUnifiedSuggestions uses friendOptions.unifiedSuggestions which returns data.data (the PageResponse)
+  const suggestions = data?.content || []
 
   return (
-    <aside className='hidden w-70 shrink-0 lg:block'>
-      <div className='sticky top-0 space-y-6 pb-10'>
-        <Card className='shadow-sm border border-zinc-200 dark:border-white/5 bg-white dark:bg-zinc-950/50 dark:backdrop-blur-xl'>
-          <CardHeader className='pb-4 pt-6 px-6'>
-            <CardTitle className='text-[15px] font-bold text-zinc-900 dark:text-[#ececec] flex items-center justify-between'>
-              {text.suggested.title}
-              <button className='text-[13px] font-semibold text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:underline transition-colors'>
-                {text.suggested.seeAll}
-              </button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className='space-y-4 px-6 pb-6'>
-            {SUGGESTED_FRIENDS.map((friend) => (
-              <div key={friend.id} className='flex items-center justify-between group'>
-                <div className='flex items-center gap-3 cursor-pointer'>
-                  <div className='h-10 w-10 transition-transform group-hover:scale-105'>
+    <aside className='hidden w-[280px] shrink-0 lg:block 2xl:w-[360px] pr-2'>
+      <div className='sticky top-0 pb-10'>
+        <div className='flex items-center justify-between px-2 py-2 mb-2'>
+          <h3 className='text-[16px] font-semibold text-zinc-500 dark:text-[#b0b3b8]'>Gợi ý kết bạn</h3>
+          <div className='flex items-center gap-1 text-zinc-500 dark:text-[#b0b3b8]'>
+            <button className='flex h-8 w-8 items-center justify-center rounded-full hover:bg-zinc-200/50 dark:hover:bg-zinc-800 transition-colors'>
+              <Search className='h-4 w-4' />
+            </button>
+            <button className='flex h-8 w-8 items-center justify-center rounded-full hover:bg-zinc-200/50 dark:hover:bg-zinc-800 transition-colors'>
+              <MoreHorizontal className='h-4 w-4' />
+            </button>
+          </div>
+        </div>
+
+        <div className='grid gap-1'>
+          {isLoading ? (
+            Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className='flex items-center gap-3 p-2'>
+                <Skeleton className='h-9 w-9 rounded-full' />
+                <Skeleton className='h-4 flex-1' />
+              </div>
+            ))
+          ) : suggestions.length > 0 ? (
+            suggestions.map((friend) => (
+              <div
+                key={friend.userId}
+                onClick={() => navigate(`/profile/${friend.userId}`)}
+                className='group flex cursor-pointer items-center justify-between gap-3 rounded-xl p-2 transition-colors hover:bg-zinc-200/50 dark:hover:bg-zinc-900/50'
+              >
+                <div className='flex items-center gap-3 min-w-0'>
+                  <div className='relative h-9 w-9 shrink-0'>
                     <UserAvatar
-                      name={friend.name}
+                      name={friend.fullName}
                       src={friend.avatar}
                       className='w-full h-full border border-background'
-                      fallbackClassName='bg-primary'
+                      fallbackClassName='bg-primary text-xs'
                     />
                   </div>
-                  <div>
-                    <p className='text-[14.5px] font-semibold text-zinc-800 dark:text-[#ececec] group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors'>
-                      {friend.name}
-                    </p>
-                    <p className='text-[12.5px] font-medium text-zinc-500 dark:text-zinc-500'>
-                      {text.suggested.mutualCount(friend.mutual)}
-                    </p>
+                  <div className='min-w-0 flex-1'>
+                    <span className='block truncate text-[15px] font-medium text-zinc-700 dark:text-[#ececec]'>
+                      {friend.fullName}
+                    </span>
+                    {(friend.mutualFriendsCount ?? 0) > 0 && (
+                      <span className='block truncate text-[12px] text-zinc-500 dark:text-[#b0b3b8]'>
+                        {friend.mutualFriendsCount} bạn chung
+                      </span>
+                    )}
                   </div>
                 </div>
                 <Button
-                  variant='secondary'
-                  size='xs'
-                  className='h-8 px-4 rounded-lg text-[13px] font-semibold bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-900 dark:text-zinc-300 transition-colors'
+                  variant='ghost'
+                  size='icon'
+                  className='h-8 w-8 shrink-0 rounded-full opacity-0 transition-opacity group-hover:opacity-100 dark:hover:bg-zinc-800'
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    // navigate or add friend logic
+                  }}
                 >
-                  {text.suggested.addFriend}
+                  <UserPlus className='h-4 w-4' />
                 </Button>
               </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        <div className='text-[12.5px] font-medium text-zinc-500 dark:text-zinc-500 px-2 flex flex-wrap gap-x-4 gap-y-2 justify-center text-center'>
-          <a href='#' className='hover:text-zinc-900 dark:hover:text-[#ececec] transition-colors'>
-            {text.suggested.footerPrivacy}
-          </a>
-          <a href='#' className='hover:text-zinc-900 dark:hover:text-[#ececec] transition-colors'>
-            {text.suggested.footerTerms}
-          </a>
-          <a href='#' className='hover:text-zinc-900 dark:hover:text-[#ececec] transition-colors'>
-            {text.suggested.footerAds}
-          </a>
-          <a href='#' className='hover:text-zinc-900 dark:hover:text-[#ececec] transition-colors'>
-            {text.suggested.footerCookie}
-          </a>
-          <span className='w-full pt-1'>{text.suggested.footerBrand(new Date().getFullYear())}</span>
+            ))
+          ) : (
+            <div className='px-2 py-4 text-center text-[14px] text-zinc-500 dark:text-[#b0b3b8]'>
+              Không có gợi ý nào
+            </div>
+          )}
         </div>
       </div>
     </aside>

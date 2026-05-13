@@ -8,7 +8,8 @@ import {
   socialFeedCommentKeys,
   socialFeedKeys,
   socialReelKeys,
-  socialStoryKeys
+  socialStoryKeys,
+  userPostsKeys
 } from './keys'
 import type { SocialPost } from '../components/post/post-card'
 import type { SocialStory, StoryGroup } from '../components/stories/stories-strip'
@@ -30,8 +31,10 @@ const toPostType = (postType?: string | null): SocialPost['postType'] => {
 
 const toVisibility = (visibility?: string | null): SocialPost['visibility'] => {
   switch ((visibility ?? '').toUpperCase()) {
+    case 'FRIEND':
     case 'FRIENDS':
       return 'Friends'
+    case 'ONLY_ME':
     case 'PRIVATE':
       return 'Private'
     case 'ALL':
@@ -41,7 +44,6 @@ const toVisibility = (visibility?: string | null): SocialPost['visibility'] => {
   }
 }
 
-const normalizeHashtag = (tag: string) => (tag.startsWith('#') ? tag : `#${tag}`)
 
 const pickDisplayContent = (post: BackendPostResponse) => {
   return post.content ?? post.sharedCaption ?? null
@@ -54,12 +56,7 @@ const toContent = (post: BackendPostResponse): string => {
     .map((part) => part?.trim())
     .filter((part): part is string => Boolean(part))
 
-  const hashtags = (content?.hashtags ?? []).filter(Boolean).map(normalizeHashtag).join(' ')
-  if (hashtags) {
-    sections.push(hashtags)
-  }
-
-  return sections.join('\n\n') || 'No content'
+  return sections.join('\n\n') || ''
 }
 
 const getFallbackAuthorName = () => 'Unknown user'
@@ -88,6 +85,7 @@ const mapPostToSocialPost = (post: BackendPostResponse): SocialPost => {
 
   return {
     id: post.id,
+    authorId: post.authorInfo?.id ?? null,
     authorName: post.authorInfo?.fullName?.trim() || getFallbackAuthorName(),
     authorAvatar: post.authorInfo?.avatar ?? null,
     postType: toPostType(post.postType),
@@ -99,6 +97,7 @@ const mapPostToSocialPost = (post: BackendPostResponse): SocialPost => {
     topReactions: normalizedTopReactions,
     comments: post.stats?.commentCount ?? 0,
     shares: post.stats?.shareCount ?? 0,
+    views: post.stats?.viewCount ?? 0,
     rootPostId: post.rootPostId ?? null,
     currentUserReaction: (post.currentUserReaction?.toUpperCase() ?? null) as SocialPost['currentUserReaction']
   }
@@ -111,8 +110,6 @@ const mapSharedPreview = (preview: BackendSharedPostPreview): SocialPost['shared
   const sections = [content?.title, content?.caption, content?.description]
     .map((part) => part?.trim())
     .filter((part): part is string => Boolean(part))
-  const hashtags = (content?.hashtags ?? []).filter(Boolean).map(normalizeHashtag).join(' ')
-  if (hashtags) sections.push(hashtags)
 
   const media =
     preview.media
@@ -128,6 +125,7 @@ const mapSharedPreview = (preview: BackendSharedPostPreview): SocialPost['shared
 
   return {
     postId: preview.postId,
+    authorId: preview.authorInfo?.id ?? null,
     authorName: preview.authorInfo?.fullName?.trim() || getFallbackAuthorName(),
     authorAvatar: preview.authorInfo?.avatar ?? null,
     content: sections.join('\n\n') || '',
@@ -168,7 +166,9 @@ const mapPostToSocialStory = (post: BackendPostResponse): SocialStory => {
     mediaType: (firstMedia?.type ?? '').toUpperCase() === 'VIDEO' ? 'VIDEO' : 'IMAGE',
     caption: toContent(post),
     expiresAt: post.expiresAt ?? null,
-    music: post.music ?? null
+    music: post.music ?? null,
+    stats: post.stats ?? null,
+    currentUserReaction: post.currentUserReaction ?? null
   }
 }
 
@@ -216,6 +216,7 @@ export const getSocialFeedPostsQueryOptions = (page = 0, size = 20) =>
             ...mappedPost,
             sharedPost: {
               postId: post.sharedPostId,
+              authorId: null,
               authorName: 'Original post unavailable',
               authorAvatar: null,
               content: '',
@@ -257,6 +258,7 @@ export const getInfiniteSocialFeedPostsQueryOptions = (size = 20) =>
             ...mappedPost,
             sharedPost: {
               postId: post.sharedPostId,
+              authorId: null,
               authorName: 'Original post unavailable',
               authorAvatar: null,
               content: '',
@@ -365,6 +367,7 @@ export const getInfiniteMyPostsQueryOptions = (size = 20) =>
             ...mappedPost,
             sharedPost: {
               postId: post.sharedPostId,
+              authorId: null,
               authorName: 'Original post unavailable',
               authorAvatar: null,
               content: '',
@@ -400,4 +403,50 @@ export const getPostByIdQueryOptions = (postId: string) =>
       return mappedPost
     },
     enabled: !!postId
+  })
+
+export const getInfiniteUserPostsQueryOptions = (userId: string, size = 20) =>
+  infiniteQueryOptions({
+    queryKey: [...userPostsKeys.byUser(userId), 'infinite', size] as const,
+    initialPageParam: 0,
+    queryFn: async ({ pageParam = 0 }) => {
+      const response = await socialFeedApi.getUserPosts(userId, pageParam, size)
+      const posts = response.data.data.data
+
+      return posts.map((post) => {
+        const mappedPost = mapPostToSocialPost(post)
+
+        if ((post.postType ?? '').toUpperCase() !== 'SHARE') {
+          return mappedPost
+        }
+
+        if (post.sharedPostPreview) {
+          return {
+            ...mappedPost,
+            sharedPost: mapSharedPreview(post.sharedPostPreview)
+          }
+        }
+
+        if (post.sharedPostId) {
+          return {
+            ...mappedPost,
+            sharedPost: {
+              postId: post.sharedPostId,
+              authorId: null,
+              authorName: 'Original post unavailable',
+              authorAvatar: null,
+              content: '',
+              media: []
+            }
+          }
+        }
+
+        return mappedPost
+      })
+    },
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.length > 0 ? allPages.length : undefined
+    },
+    enabled: !!userId,
+    ...QUERY_POLICIES.LIST
   })

@@ -195,9 +195,17 @@
   --B10: #001029;
   --border-focused: #66a6ff;
 
-  --accent-blue-border: #66a6ff;
-  --accent-blue-text: #66a6ff;
-  --bg-message-info: hsla(0, 0%, 100%, 0.05);
+  --background: #22262b;
+  --foreground: #dfe2e7;
+
+  --vibrant-blue: #0190f3;
+  --vibrant-blue-hover: #0078cc;
+
+  --card: #22262b;
+  --card-foreground: #ffffff;
+
+  --popover: #22262b;
+  --popover-foreground: #ffffff;
 
   --background: #22262b;
   --foreground: #dfe2e7;

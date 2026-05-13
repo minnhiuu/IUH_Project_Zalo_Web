@@ -15,14 +15,14 @@ export function SocialSidebar() {
   const shortcuts = [
     { icon: Users, label: text.sidebar.friends, color: 'text-blue-500', bg: 'bg-blue-500/10' },
     { icon: Users2, label: text.sidebar.groups, color: 'text-indigo-500', bg: 'bg-indigo-500/10' },
-    { icon: Clapperboard, label: text.sidebar.reels, color: 'text-rose-500', bg: 'bg-rose-500/10', path: PATHS.REELS },
+    { icon: Clapperboard, label: text.sidebar.reels, color: 'text-rose-500', bg: 'bg-rose-500/10', path: `${PATHS.SOCIAL_FEED}?tab=reels` },
     { icon: Bookmark, label: text.sidebar.saved, color: 'text-purple-500', bg: 'bg-purple-500/10' },
     { icon: Clock, label: text.sidebar.memories, color: 'text-emerald-500', bg: 'bg-emerald-500/10' }
   ]
 
   return (
-    <aside className='hidden w-70 shrink-0 xl:block'>
-      <div className='sticky top-0 space-y-4 pb-10'>
+    <aside className='hidden w-[280px] shrink-0 xl:block 2xl:w-[360px] pl-2'>
+      <div className='sticky top-0 pb-10'>
         <Link
           to={PATHS.USER.PROFILE}
           className='flex cursor-pointer items-center gap-3 rounded-xl p-2 transition-colors hover:bg-zinc-200/50 dark:hover:bg-zinc-900/50'
@@ -76,6 +76,17 @@ export function SocialSidebar() {
               </div>
             )
           })}
+        </div>
+
+
+        <div className='mt-4 px-4 text-[12px] font-medium text-zinc-500 dark:text-[#b0b3b8] flex flex-wrap gap-x-1.5 gap-y-1'>
+          <a href='#' className='hover:underline'>Quyền riêng tư</a> · 
+          <a href='#' className='hover:underline'>Điều khoản</a> · 
+          <a href='#' className='hover:underline'>Quảng cáo</a> · 
+          <a href='#' className='hover:underline'>Lựa chọn quảng cáo</a> · 
+          <a href='#' className='hover:underline'>Cookie</a> · 
+          <a href='#' className='hover:underline'>Xem thêm</a> · 
+          <span>Meta © {new Date().getFullYear()}</span>
         </div>
       </div>
     </aside>

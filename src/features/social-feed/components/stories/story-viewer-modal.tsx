@@ -1,10 +1,13 @@
 import { useState, useRef, useEffect } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Eye, Trash2 } from 'lucide-react'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { StoryViewerPanel } from './story-viewer-panel'
 import { REACTIONS, type ReactionType } from '../post/reaction-picker'
 import { useSocialText } from '../../i18n/use-social-text'
-import { useRecordStoryViewMutation } from '../../queries/use-mutations'
+import { useRecordStoryViewMutation, useToggleStoryReactionMutation, useDeleteStoryReactionMutation, useDeleteStoryMutation } from '../../queries/use-mutations'
+import { useMyProfile } from '@/features/user/queries/use-queries'
+import { StoryReactionsModal } from './story-reactions-modal'
+import { StoryViewersModal } from './story-viewers-modal'
 import type { SocialStory, StoryGroup } from './stories-strip'
 
 interface StoryViewerModalProps {
@@ -17,6 +20,7 @@ interface StoryViewerModalProps {
 export function StoryViewerModal({ groups, open, initialGroupIndex, onOpenChange }: StoryViewerModalProps) {
   const [groupIndex, setGroupIndex] = useState(initialGroupIndex)
   const [storyIndex, setStoryIndex] = useState(0)
+  // storyReactions: maps storyId → the currently-selected reaction type (null = no reaction)
   const [storyReactions, setStoryReactions] = useState<Record<string, ReactionType | null>>({})
   const [storyVolume, setStoryVolume] = useState(0)
   const [lastNonZeroVolume, setLastNonZeroVolume] = useState(0.7)
@@ -29,7 +33,14 @@ export function StoryViewerModal({ groups, open, initialGroupIndex, onOpenChange
   const progressAnimationRef = useRef<number | null>(null)
 
   const { text } = useSocialText()
+  const { data: myProfile } = useMyProfile()
   const recordViewMutation = useRecordStoryViewMutation()
+  const toggleReactionMutation = useToggleStoryReactionMutation()
+  const deleteReactionMutation = useDeleteStoryReactionMutation()
+  const deleteStoryMutation = useDeleteStoryMutation()
+
+  const [showReactionsModal, setShowReactionsModal] = useState(false)
+  const [showViewersModal, setShowViewersModal] = useState(false)
 
   // Sync when the modal opens or the initial group changes
   const [prevOpen, setPrevOpen] = useState(open)
@@ -184,11 +195,29 @@ export function StoryViewerModal({ groups, open, initialGroupIndex, onOpenChange
   if (!currentStory || !currentGroup) return null
 
   function handleReactionSelect(type: ReactionType) {
-    const currentReaction = storyReactions[currentStory!.id] ?? null
-    setStoryReactions((previous) => ({
-      ...previous,
-      [currentStory!.id]: currentReaction === type ? null : type
-    }))
+    if (!currentStory) return
+    const storyId = currentStory.id
+    const currentReaction = storyReactions[storyId] ?? null
+
+    if (currentReaction === type) {
+      // De-select: remove reaction optimistically, then call backend
+      setStoryReactions((previous) => ({ ...previous, [storyId]: null }))
+      deleteReactionMutation.mutate(storyId, {
+        onError: () => {
+          // Roll back on failure
+          setStoryReactions((previous) => ({ ...previous, [storyId]: currentReaction }))
+        }
+      })
+    } else {
+      // Select / change reaction optimistically, then call backend
+      setStoryReactions((previous) => ({ ...previous, [storyId]: type }))
+      toggleReactionMutation.mutate({ postId: storyId, type }, {
+        onError: () => {
+          // Roll back on failure
+          setStoryReactions((previous) => ({ ...previous, [storyId]: currentReaction }))
+        }
+      })
+    }
   }
 
   function handleVolumeButtonClick() {
@@ -205,6 +234,19 @@ export function StoryViewerModal({ groups, open, initialGroupIndex, onOpenChange
     setStoryVolume(normalizedVolume)
     if (normalizedVolume > 0) setLastNonZeroVolume(normalizedVolume)
   }
+
+  function handleDeleteStory() {
+    if (!currentStory) return
+    if (window.confirm('Are you sure you want to delete this story?')) {
+      deleteStoryMutation.mutate(currentStory.id, {
+        onSuccess: () => {
+          onOpenChange(false)
+        }
+      })
+    }
+  }
+
+  const isMyStory = currentStory?.authorId === myProfile?.id
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -238,23 +280,75 @@ export function StoryViewerModal({ groups, open, initialGroupIndex, onOpenChange
             }}
             onVideoEnded={() => goForward()}
 
+            headerTrailing={
+              isMyStory && (
+                <button
+                  type="button"
+                  onClick={handleDeleteStory}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-black/40 text-white/90 shadow-xl backdrop-blur-xl transition-all duration-300 hover:scale-110 hover:bg-red-500/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+                  title="Delete story"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              )
+            }
+
             footer={
-              <div className='flex items-center gap-3 rounded-full border border-white/10 bg-black/40 px-4 py-2.5 shadow-xl backdrop-blur-xl transition-all hover:bg-black/50'>
-                {REACTIONS.map((reaction) => {
-                  const isActive = selectedReaction === reaction.type
-                  return (
-                    <button
-                      key={reaction.type}
-                      type='button'
-                      onClick={() => handleReactionSelect(reaction.type)}
-                      title={text.reactions.labels[reaction.type]}
-                      className={`flex h-10 w-10 items-center justify-center rounded-full text-2xl leading-none transition-all duration-300 ${isActive ? 'scale-125 bg-white/20 ring-1 ring-white/50' : 'hover:scale-125 hover:bg-white/10'}`}
-                    >
-                      <reaction.Icon size={28} />
-                    </button>
-                  )
-                })}
-              </div>
+              isMyStory ? (
+                <div className='flex items-center gap-6 rounded-full border border-white/10 bg-black/40 px-6 py-2.5 shadow-xl backdrop-blur-xl transition-all hover:bg-black/50'>
+                  <div
+                    className='flex items-center gap-2 cursor-pointer transition-colors hover:text-white/80'
+                    title='Views'
+                    onClick={() => setShowViewersModal(true)}
+                  >
+                    <Eye className='h-5 w-5 text-white/90' />
+                    <span className='text-[15px] font-semibold tracking-wide text-white'>
+                      {currentStory.stats?.viewCount || 0}
+                    </span>
+                  </div>
+                  <div className='h-4 w-px bg-white/20' />
+                  <div
+                    className='flex items-center gap-2 cursor-pointer transition-colors hover:text-white/80'
+                    title='Reactions'
+                    onClick={() => setShowReactionsModal(true)}
+                  >
+                    {currentStory.stats?.topReactions && currentStory.stats.topReactions.length > 0 && (
+                      <div className='flex -space-x-1 mr-1'>
+                        {currentStory.stats.topReactions.slice(0, 3).map((reactionType, i) => {
+                          const ReactionDef = REACTIONS.find((r) => r.type === reactionType)
+                          if (!ReactionDef) return null
+                          return (
+                            <div key={i} className='rounded-full border border-black/20 bg-black/40 p-[2px] z-10'>
+                              <ReactionDef.Icon size={14} />
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )}
+                    <span className='text-[15px] font-semibold tracking-wide text-white'>
+                      {currentStory.stats?.reactionCount || 0}
+                    </span>
+                    <span className='text-[13px] font-medium text-white/80'>reactions</span>
+                  </div>
+                </div>
+              ) : (
+                <div className='flex items-center gap-3 rounded-full border border-white/10 bg-black/40 px-4 py-2.5 shadow-xl backdrop-blur-xl transition-all hover:bg-black/50'>
+                  {REACTIONS.map((reaction) => {
+                    const isActive = selectedReaction === reaction.type
+                    return (
+                      <button
+                        key={reaction.type}
+                        type='button'
+                        onClick={() => handleReactionSelect(reaction.type)}
+                        title={text.reactions.labels[reaction.type]}
+                        className={`flex h-10 w-10 items-center justify-center rounded-full text-2xl leading-none transition-all duration-300 ${isActive ? 'scale-125 bg-white/20 ring-1 ring-white/50' : 'hover:scale-125 hover:bg-white/10'}`}
+                      >
+                        <reaction.Icon size={28} />
+                      </button>
+                    )
+                  })}
+                </div>
+              )
             }
             overlay={
               <>
@@ -312,6 +406,23 @@ export function StoryViewerModal({ groups, open, initialGroupIndex, onOpenChange
           />
         </div>
       </DialogContent>
+      {showReactionsModal && currentStory && (
+        <StoryReactionsModal
+          open={showReactionsModal}
+          onOpenChange={setShowReactionsModal}
+          targetId={currentStory.id}
+          targetType='POST'
+          initialReactionType={(currentStory.stats?.topReactions?.[0] as ReactionType) || 'LIKE'}
+        />
+      )}
+
+      {showViewersModal && currentStory && (
+        <StoryViewersModal
+          open={showViewersModal}
+          onOpenChange={setShowViewersModal}
+          targetId={currentStory.id}
+        />
+      )}
     </Dialog>
   )
 }

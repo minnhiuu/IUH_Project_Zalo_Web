@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { commentApi } from '../api/comment.api'
+import { reactionApi } from '../api/reaction.api'
 import { interactionApi } from '../api/interaction.api'
-import { socialFeedApi, type CreatePostRequest } from '../api/post.api'
-import { socialFeedCommentKeys, socialFeedKeys } from './keys'
+import { socialFeedApi, type CreatePostRequest, type UpdatePostRequest } from '../api/post.api'
+import { socialFeedCommentKeys, socialFeedKeys, socialStoryKeys } from './keys'
 import type { CreateCommentRequest, UpdateCommentRequest } from '../schemas/comment.schema'
 import type { ReactionType } from '../components/post/reaction-picker'
 
@@ -15,6 +16,29 @@ export const useCreateSocialPostMutation = () => {
 
   return useMutation({
     mutationFn: (payload: CreatePostRequest) => socialFeedApi.createPost(payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: socialFeedKeys.all })
+    }
+  })
+}
+
+export const useUpdateSocialPostMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ postId, payload }: { postId: string; payload: UpdatePostRequest }) =>
+      socialFeedApi.updatePost(postId, payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: socialFeedKeys.all })
+    }
+  })
+}
+
+export const useDeleteSocialPostMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (postId: string) => socialFeedApi.deletePost(postId),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: socialFeedKeys.all })
     }
@@ -98,5 +122,64 @@ export const useRecordStoryViewMutation = () =>
 export const useDislikePostMutation = () => {
   return useMutation({
     mutationFn: (postId: string) => interactionApi.dislikePost(postId)
+  })
+}
+
+/**
+ * Toggle a reaction on a Story post (POST targetType). Invalidates story list queries on success.
+ */
+export const useToggleStoryReactionMutation = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ postId, type }: { postId: string; type: ReactionType }) =>
+      reactionApi.toggleReaction({ targetId: postId, targetType: 'POST', type }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: socialStoryKeys.all })
+    }
+  })
+}
+
+/**
+ * Delete a Story post. Invalidates story list queries on success.
+ */
+export const useDeleteStoryMutation = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (postId: string) => socialFeedApi.deletePost(postId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: socialStoryKeys.all })
+    }
+  })
+}
+
+/**
+ * Delete a reaction from a Story post. Invalidates story list queries on success.
+ */
+export const useDeleteStoryReactionMutation = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (postId: string) => reactionApi.deleteReaction(postId, 'POST'),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: socialStoryKeys.all })
+    }
+  })
+}
+
+/**
+ * Toggle a reaction on a Reel post (POST targetType). Invalidates reel list queries on success.
+ */
+export const useToggleReelReactionMutation = () => {
+  return useMutation({
+    mutationFn: ({ postId, type }: { postId: string; type: ReactionType }) =>
+      reactionApi.toggleReaction({ targetId: postId, targetType: 'POST', type })
+  })
+}
+
+/**
+ * Delete a reaction from a Reel post. Invalidates reel list queries on success.
+ */
+export const useDeleteReelReactionMutation = () => {
+  return useMutation({
+    mutationFn: (postId: string) => reactionApi.deleteReaction(postId, 'POST')
   })
 }

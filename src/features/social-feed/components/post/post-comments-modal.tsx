@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { ArrowUpRight, ChevronDown, Clock, Eye, Loader2, MessageCircle, Share2, ThumbsUp } from 'lucide-react'
@@ -26,6 +26,9 @@ import { REACTIONS, ReactionPicker, type ReactionType } from './reaction-picker'
 import { useAuthContext } from '@/features/auth/context/auth-context'
 import { commentApi } from '../../api/comment.api'
 
+import { useNavigate } from 'react-router'
+import { PATHS } from '@/constants/path'
+
 type CommentSortBy = 'NEWEST' | 'MOST_REACTED'
 
 const PAGE_SIZE = 10
@@ -34,18 +37,24 @@ interface PostCommentsModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   post: SocialPost
+  /** Controlled reaction from PostCard — keeps PostCard, modal and media modal in sync */
+  currentReaction?: ReactionType | null
+  onReactionChange?: (type: ReactionType | null) => void
+  onCommentAdded?: () => void
+  onCommentDeleted?: () => void
 }
 
-export function PostCommentsModal({ open, onOpenChange, post }: PostCommentsModalProps) {
+export function PostCommentsModal({ open, onOpenChange, post, currentReaction, onReactionChange, onCommentAdded, onCommentDeleted }: PostCommentsModalProps) {
   const { text } = useSocialText()
   const { user } = useAuthContext()
+  const navigate = useNavigate()
 
   const [sortBy, setSortBy] = useState<CommentSortBy>('NEWEST')
   const [page, setPage] = useState(0)
   const [accumulatedComments, setAccumulatedComments] = useState<SocialFeedComment[]>([])
   const [hasMore, setHasMore] = useState(true)
   // Track whether we've loaded the first page
-  const initialLoadDone = useRef(false)
+  const [initialLoadDone, setInitialLoadDone] = useState(false)
 
   const sortOptions = [
     { value: 'NEWEST' as const, label: text.commentsModal.sortNewest, icon: <Clock className='h-3.5 w-3.5' /> },
@@ -70,9 +79,8 @@ export function PostCommentsModal({ open, onOpenChange, post }: PostCommentsModa
   const [mediaOverride, setMediaOverride] = useState<SocialPostMedia[]>([])
   const [replyTarget, setReplyTarget] = useState<SocialFeedComment | null>(null)
 
-  const [selectedReaction, setSelectedReaction] = useState<ReactionType | null>(
-    (post.currentUserReaction as ReactionType) ?? null
-  )
+  // Use controlled reaction from PostCard when provided, otherwise fall back to local state
+  const selectedReaction = currentReaction !== undefined ? currentReaction : (post.currentUserReaction as ReactionType ?? null)
   const [showReactionPicker, setShowReactionPicker] = useState(false)
   const [reactionPeopleModalOpen, setReactionPeopleModalOpen] = useState(false)
   const [shareModalOpen, setShareModalOpen] = useState(false)
@@ -100,9 +108,15 @@ export function PostCommentsModal({ open, onOpenChange, post }: PostCommentsModa
   })
 
   function handleReactionClick(type: ReactionType) {
-    setSelectedReaction(type)
     setShowReactionPicker(false)
-    toggleMutation.mutate(type)
+    if (onReactionChange) {
+      // Controlled mode: delegate entirely to PostCard
+      onReactionChange(selectedReaction === type ? null : type)
+    } else {
+      // Standalone mode fallback
+      setSelectedReaction(selectedReaction === type ? null : type)
+      toggleMutation.mutate(type)
+    }
   }
 
   const isMutating =
@@ -119,8 +133,9 @@ export function PostCommentsModal({ open, onOpenChange, post }: PostCommentsModa
 
     if (page === 0) {
       // Replace all when sort changes or first load
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setAccumulatedComments(newComments)
-      initialLoadDone.current = true
+      setInitialLoadDone(true)
     } else {
       // Append for subsequent pages
       setAccumulatedComments((prev) => {
@@ -142,7 +157,7 @@ export function PostCommentsModal({ open, onOpenChange, post }: PostCommentsModa
       setPage(0)
       setAccumulatedComments([])
       setHasMore(true)
-      initialLoadDone.current = false
+      setInitialLoadDone(false)
     },
     [sortBy]
   )
@@ -157,6 +172,17 @@ export function PostCommentsModal({ open, onOpenChange, post }: PostCommentsModa
     setMediaModalOpen(true)
   }
 
+  function handleSharedAuthorClick(e: React.MouseEvent) {
+    e.stopPropagation()
+    if (!post.sharedPost?.authorId) return
+    onOpenChange(false)
+    if (user?.id && post.sharedPost.authorId === user.id) {
+      navigate(PATHS.USER.PROFILE)
+    } else {
+      navigate(PATHS.USER.OTHER_PROFILE.replace(':userId', post.sharedPost.authorId))
+    }
+  }
+
   async function handleCreateComment(content: string, parentId?: string, media?: CommentMediaRequest[]) {
     await createCommentMutation.mutateAsync({
       content,
@@ -168,8 +194,12 @@ export function PostCommentsModal({ open, onOpenChange, post }: PostCommentsModa
     setPage(0)
     setAccumulatedComments([])
     setHasMore(true)
-    initialLoadDone.current = false
+    setInitialLoadDone(false)
     setReplyTarget(null)
+    
+    if (onCommentAdded) {
+      onCommentAdded()
+    }
   }
 
   async function handleUpdateComment(commentId: string, content: string) {
@@ -183,6 +213,10 @@ export function PostCommentsModal({ open, onOpenChange, post }: PostCommentsModa
     await deleteCommentMutation.mutateAsync(commentId)
     // Remove locally so user sees the deletion immediately
     setAccumulatedComments((prev) => prev.filter((c) => c.id !== commentId))
+    
+    if (onCommentDeleted) {
+      onCommentDeleted()
+    }
   }
 
   async function handleToggleCommentReaction(commentId: string, type: ReactionType) {
@@ -193,7 +227,7 @@ export function PostCommentsModal({ open, onOpenChange, post }: PostCommentsModa
     await deleteReactionMutation.mutateAsync(commentId)
   }
 
-  const isFirstLoad = commentsQuery.isLoading && page === 0 && !initialLoadDone.current
+  const isFirstLoad = commentsQuery.isLoading && page === 0 && !initialLoadDone
   const isLoadingMore = commentsQuery.isFetching && page > 0
 
   return (
@@ -216,17 +250,25 @@ export function PostCommentsModal({ open, onOpenChange, post }: PostCommentsModa
               {post.postType === 'SHARE' && post.sharedPost ? (
                 <div className='mt-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3 dark:border-white/10 dark:bg-zinc-900/40'>
                   <div className='mb-2 flex items-center gap-2'>
-                    <div className='h-8 w-8'>
+                    <button
+                      onClick={handleSharedAuthorClick}
+                      disabled={!post.sharedPost.authorId}
+                      className={`h-8 w-8 ${post.sharedPost.authorId ? 'transition-transform hover:scale-105 active:scale-95' : ''}`}
+                    >
                       <UserAvatar
                         name={post.sharedPost.authorName}
                         src={post.sharedPost.authorAvatar}
                         className='w-full h-full border border-background'
                         fallbackClassName='bg-primary text-white text-xs font-semibold'
                       />
-                    </div>
-                    <span className='text-[13px] font-semibold text-zinc-800 dark:text-zinc-200'>
+                    </button>
+                    <button
+                      onClick={handleSharedAuthorClick}
+                      disabled={!post.sharedPost.authorId}
+                      className={`text-[13px] font-semibold text-zinc-800 dark:text-zinc-200 ${post.sharedPost.authorId ? 'hover:text-indigo-500 dark:hover:text-indigo-400 hover:underline' : ''}`}
+                    >
                       {post.sharedPost.authorName}
-                    </span>
+                    </button>
                   </div>
 
                   {post.sharedPost.content ? (
@@ -315,8 +357,13 @@ export function PostCommentsModal({ open, onOpenChange, post }: PostCommentsModa
                     className={`h-11 w-full gap-2 rounded-xl transition-all hover:bg-zinc-100 dark:hover:bg-white/[0.04] ${activeReaction ? activeReaction.textClass : 'text-zinc-500 dark:text-zinc-400 hover:text-indigo-500 dark:hover:text-indigo-400'}`}
                     onClick={() => {
                       if (selectedReaction) {
-                        setSelectedReaction(null)
-                        deleteMutation.mutate()
+                        setShowReactionPicker(false)
+                        if (onReactionChange) {
+                          onReactionChange(null)
+                        } else {
+                          setSelectedReaction(null)
+                          deleteMutation.mutate()
+                        }
                         return
                       }
                       handleReactionClick('LIKE')
@@ -382,7 +429,7 @@ export function PostCommentsModal({ open, onOpenChange, post }: PostCommentsModa
                   {opt.label}
                 </button>
               ))}
-              {commentsQuery.isFetching && page === 0 && initialLoadDone.current && (
+              {commentsQuery.isFetching && page === 0 && initialLoadDone && (
                 <span className='ml-auto flex items-center gap-1 text-[11px] text-zinc-400'>
                   <Loader2 className='h-3 w-3 animate-spin' />
                   {text.commentsModal.loadingComments}
