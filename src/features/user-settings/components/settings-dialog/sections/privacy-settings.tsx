@@ -1,16 +1,9 @@
-import {
-  Check,
-  Loader2,
-  Smartphone,
-  ChevronRight,
-  KeyRound,
-  Ban
-} from 'lucide-react'
+import { Check, Loader2, Smartphone, ChevronRight, KeyRound, Ban } from 'lucide-react'
 import { useUserText } from '@/features/user/i18n/use-user-text'
 import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { PrivacyLevel, DobVisibility } from '@/features/user-settings/schemas/settings.schema'
+import { PrivacyLevel, DobVisibility, SearchVisibility } from '@/features/user-settings/schemas/settings.schema'
 import { Button } from '@/components/ui/button'
 import { ActionRow } from './action-row'
 import { useSettingsState } from '../settings-state-context'
@@ -56,6 +49,17 @@ export function PrivacySettings({
     })
   }
 
+  const handleSearchVisibilityChange = (
+    field: 'nameSearchVisibility' | 'phoneSearchVisibility',
+    value: SearchVisibility
+  ) => {
+    if (!privacySettings) return
+    updatePrivacySettings({
+      ...privacySettings,
+      [field]: field === 'nameSearchVisibility' && value === SearchVisibility.NONE ? SearchVisibility.PUBLIC : value
+    })
+  }
+
   if (isLoading) {
     return (
       <div className='flex items-center justify-center py-8'>
@@ -68,6 +72,20 @@ export function PrivacySettings({
     { value: PrivacyLevel.EVERYONE, label: text.settings.privacy.textAndCall.canText.everybody },
     { value: PrivacyLevel.FRIENDS, label: text.settings.privacy.textAndCall.canText.friends },
     { value: PrivacyLevel.FRIENDS_AND_CONTACTED, label: text.settings.privacy.textAndCall.canText.contacted }
+  ]
+
+  const nameSearchVisibilityOptions: { value: SearchVisibility; label: string }[] = [
+    { value: SearchVisibility.PUBLIC, label: text.settings.privacy.search.visibility.public },
+    {
+      value: SearchVisibility.FRIENDS_OF_FRIENDS,
+      label: text.settings.privacy.search.visibility.friendsOfFriends
+    },
+    { value: SearchVisibility.FRIENDS_ONLY, label: text.settings.privacy.search.visibility.friendsOnly }
+  ]
+
+  const phoneSearchVisibilityOptions: { value: SearchVisibility; label: string }[] = [
+    ...nameSearchVisibilityOptions,
+    { value: SearchVisibility.NONE, label: text.settings.privacy.search.visibility.none }
   ]
 
   return (
@@ -206,31 +224,61 @@ export function PrivacySettings({
           <Separator />
 
           {/* Search Section */}
-          <ActionRow title={text.settings.privacy.search.title} contentClassName='space-y-0'>
-            <div className='flex items-center justify-between'>
-              <div>
-                <h4 className='text-sm font-medium text-foreground'>
-                  {text.settings.privacy.search.allowSearchOnPhoneNumber.title}
-                </h4>
-                <p className='text-xs text-muted-foreground'>
-                  {text.settings.privacy.search.allowSearchOnPhoneNumber.description}
-                </p>
-              </div>
-              <button
-                onClick={() => handleToggle('allowSearchOnPhoneNumber')}
+          <ActionRow title={text.settings.privacy.search.title} contentClassName='space-y-4'>
+            <div className='space-y-2'>
+              <h4 className='text-sm font-medium text-foreground'>
+                {text.settings.privacy.search.nameSearchVisibility.title}
+              </h4>
+              <p className='text-xs text-muted-foreground'>
+                {text.settings.privacy.search.nameSearchVisibility.description}
+              </p>
+              <Select
+                value={privacySettings.nameSearchVisibility}
+                onValueChange={(value) =>
+                  handleSearchVisibilityChange('nameSearchVisibility', value as SearchVisibility)
+                }
                 disabled={pending.privacy}
-                className={cn(
-                  'w-10 h-6 rounded-full transition-colors relative disabled:opacity-50 disabled:cursor-not-allowed',
-                  privacySettings.allowSearchOnPhoneNumber ? 'bg-primary' : 'bg-muted'
-                )}
               >
-                <div
-                  className={cn(
-                    'absolute top-1 w-4 h-4 rounded-full bg-primary-foreground shadow-sm transition-transform',
-                    privacySettings.allowSearchOnPhoneNumber ? 'translate-x-5' : 'translate-x-1'
-                  )}
-                />
-              </button>
+                <SelectTrigger className='w-full'>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent side='bottom' align='start' position='popper' sideOffset={4} className='bg-popover'>
+                  {nameSearchVisibilityOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Separator />
+
+            <div className='space-y-2'>
+              <h4 className='text-sm font-medium text-foreground'>
+                {text.settings.privacy.search.phoneSearchVisibility.title}
+              </h4>
+              <p className='text-xs text-muted-foreground'>
+                {text.settings.privacy.search.phoneSearchVisibility.description}
+              </p>
+              <Select
+                value={privacySettings.phoneSearchVisibility}
+                onValueChange={(value) =>
+                  handleSearchVisibilityChange('phoneSearchVisibility', value as SearchVisibility)
+                }
+                disabled={pending.privacy}
+              >
+                <SelectTrigger className='w-full'>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent side='bottom' align='start' position='popper' sideOffset={4} className='bg-popover'>
+                  {phoneSearchVisibilityOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </ActionRow>
 
@@ -284,7 +332,6 @@ export function PrivacySettings({
           </Button>
         </ActionRow>
       </div>
-
     </div>
   )
 }

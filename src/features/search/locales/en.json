@@ -21,6 +21,12 @@
   },
   "findByPhone": "Find friends by phone number:",
   "phoneNumber": "Phone number:",
+  "loadMore": "View more",
+  "relationship": {
+    "mutualFriends": "{{count}} mutual friends",
+    "sharedGroups": "{{count}} mutual groups",
+    "inContact": "In contacts"
+  },
   "tabs": {
     "all": "All",
     "contacts": "Contacts",

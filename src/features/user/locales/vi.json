@@ -169,6 +169,20 @@
         },
         "search": {
           "title": "Tìm kiếm",
+          "nameSearchVisibility": {
+            "title": "Ai có thể tìm tôi bằng tên",
+            "description": "Kiểm soát ai có thể thấy hồ sơ của bạn khi tìm kiếm bằng tên"
+          },
+          "phoneSearchVisibility": {
+            "title": "Ai có thể tìm tôi bằng số điện thoại",
+            "description": "Kiểm soát ai có thể thấy hồ sơ của bạn khi tìm đúng số điện thoại"
+          },
+          "visibility": {
+            "public": "Mọi người",
+            "friendsOfFriends": "Bạn của bạn bè",
+            "friendsOnly": "Chỉ bạn bè",
+            "none": "Không ai"
+          },
           "allowSearchOnPhoneNumber": {
             "title": "Cho phép tìm kiếm bằng số điện thoại",
             "description": "Người khác có thể tìm thấy bạn qua số điện thoại"

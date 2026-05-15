@@ -1,5 +1,6 @@
 import { Fragment } from 'react'
 import { useNavigate } from 'react-router'
+import { PhoneUtil } from '@/utils/phone'
 import { Loader2 } from 'lucide-react'
 import { useInfiniteGlobalSearchPeople, useInfiniteGlobalSearchGroups } from '../../queries/use-queries'
 import { EmptyState } from '@/features/search'
@@ -12,7 +13,7 @@ import { generateKeywordId } from '../../../utils/search-id'
 
 interface ContactsTabProps {
   keyword: string
-  text: SearchTexts['globalSearch']
+  text: SearchTexts
 }
 
 export function ContactsTab({ keyword, text }: ContactsTabProps) {
@@ -45,20 +46,21 @@ export function ContactsTab({ keyword, text }: ContactsTabProps) {
 
   const peopleCount = peopleData?.pages[0]?.totalItems || 0
   const groupsCount = groupsData?.pages[0]?.totalItems || 0
+  const isPhoneSearch = PhoneUtil.isValidVnPhone(keyword)
 
   if (peopleCount === 0 && groupsCount === 0 && !isLoadingPeople && !isLoadingGroups) {
-    return <EmptyState text={text.states.empty} />
+    return <EmptyState text={text.globalSearch.states.empty} />
   }
 
   return (
     <div className='flex flex-col py-2'>
       {peopleCount > 0 && (
         <ResultSection
-          title={text.sections.people}
+          title={isPhoneSearch ? text.findByPhone : text.globalSearch.sections.people}
           count={peopleCount}
           displayedCount={peopleData?.pages?.reduce((acc, page) => acc + (page?.data?.length || 0), 0) || 0}
           onViewAll={hasNextPeople ? fetchNextPeople : undefined}
-          text={text}
+          text={text.globalSearch}
         >
           <div className='flex flex-col'>
             {peopleData?.pages?.map((page, i) => (
@@ -72,21 +74,21 @@ export function ContactsTab({ keyword, text }: ContactsTabProps) {
                     isGroup={contact.group}
                     participantNames={contact.participantNames}
                     participantAvatars={contact.participantAvatars}
+                    phoneNumber={isPhoneSearch ? contact.phoneNumber : undefined}
+                    phoneLabel={text.phoneNumber}
                     onClick={() => {
-                      if (keyword.trim()) {
-                        addSearchItem({
-                          id: generateKeywordId(keyword),
-                          name: keyword.trim(),
-                          type: SearchType.Keyword
-                        })
-                      }
                       addSearchItem({
-                        id: contact.conversationId,
+                        id: contact.conversationId || contact.recipientId || '',
                         name: contact.name,
                         avatar: contact.avatar || undefined,
                         type: contact.group ? SearchType.Group : SearchType.User
                       })
-                      navigate(`/chat/c/${contact.conversationId}`)
+
+                      if (contact.conversationId) {
+                        navigate(`/chat/c/${contact.conversationId}`)
+                      } else if (contact.recipientId) {
+                        navigate(`/chat/u/${contact.recipientId}`)
+                      }
                     }}
                   />
                 ))}
@@ -98,11 +100,11 @@ export function ContactsTab({ keyword, text }: ContactsTabProps) {
 
       {groupsCount > 0 && (
         <ResultSection
-          title={text.sections.groups}
+          title={text.globalSearch.sections.groups}
           count={groupsCount}
           displayedCount={groupsData?.pages?.reduce((acc, page) => acc + (page?.data?.length || 0), 0) || 0}
           onViewAll={hasNextGroups ? fetchNextGroups : undefined}
-          text={text}
+          text={text.globalSearch}
         >
           <div className='flex flex-col'>
             {groupsData?.pages?.map((page, i) => (

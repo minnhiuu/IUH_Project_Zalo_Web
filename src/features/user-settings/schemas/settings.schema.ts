@@ -9,6 +9,15 @@ export const PrivacyLevel = {
 
 export type PrivacyLevel = (typeof PrivacyLevel)[keyof typeof PrivacyLevel]
 
+export const SearchVisibility = {
+  PUBLIC: 'PUBLIC',
+  FRIENDS_OF_FRIENDS: 'FRIENDS_OF_FRIENDS',
+  FRIENDS_ONLY: 'FRIENDS_ONLY',
+  NONE: 'NONE'
+} as const
+
+export type SearchVisibility = (typeof SearchVisibility)[keyof typeof SearchVisibility]
+
 export const DobVisibility = {
   HIDDEN: 'HIDDEN',
   FULL_DATE: 'FULL_DATE',
@@ -43,6 +52,8 @@ export type PrivacySettings = {
 
   // Search source
   allowSearchOnPhoneNumber: boolean
+  nameSearchVisibility: Exclude<SearchVisibility, 'NONE'>
+  phoneSearchVisibility: SearchVisibility
 }
 
 export type SyncSettings = {
@@ -132,6 +143,8 @@ export type PrivacySettingsUpdateRequest = {
   showPosts: boolean
   showPostAfter: string | null
   allowSearchOnPhoneNumber: boolean
+  nameSearchVisibility: Exclude<SearchVisibility, 'NONE'>
+  phoneSearchVisibility: SearchVisibility
 }
 
 export type SyncSettingsUpdateRequest = {

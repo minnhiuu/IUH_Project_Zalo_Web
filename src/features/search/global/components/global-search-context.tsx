@@ -1,9 +1,11 @@
 import { createContext, useContext, useState, type ReactNode } from 'react'
 import type { SearchTexts } from '../../i18n/search.texts'
 
+type GlobalSearchTexts = SearchTexts['globalSearch']
+
 interface GlobalSearchContextType {
   keyword: string
-  text: SearchTexts['globalSearch']
+  text: GlobalSearchTexts
   activeItemId: string | null
   setActiveItemId: (id: string | null) => void
 }
@@ -17,7 +19,7 @@ export const GlobalSearchProvider = ({
 }: {
   children: ReactNode
   keyword: string
-  text: SearchTexts['globalSearch']
+  text: GlobalSearchTexts
 }) => {
   const [activeItemId, setActiveItemId] = useState<string | null>(null)
 

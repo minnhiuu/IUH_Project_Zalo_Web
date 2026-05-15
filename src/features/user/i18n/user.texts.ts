@@ -171,6 +171,20 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
       },
       search: {
         title: t(USER_KEYS.settings.privacy.search.title),
+        nameSearchVisibility: {
+          title: t(USER_KEYS.settings.privacy.search.nameSearchVisibility.title),
+          description: t(USER_KEYS.settings.privacy.search.nameSearchVisibility.description)
+        },
+        phoneSearchVisibility: {
+          title: t(USER_KEYS.settings.privacy.search.phoneSearchVisibility.title),
+          description: t(USER_KEYS.settings.privacy.search.phoneSearchVisibility.description)
+        },
+        visibility: {
+          public: t(USER_KEYS.settings.privacy.search.visibility.public),
+          friendsOfFriends: t(USER_KEYS.settings.privacy.search.visibility.friendsOfFriends),
+          friendsOnly: t(USER_KEYS.settings.privacy.search.visibility.friendsOnly),
+          none: t(USER_KEYS.settings.privacy.search.visibility.none)
+        },
         allowSearchOnPhoneNumber: {
           title: t(USER_KEYS.settings.privacy.search.allowSearchOnPhoneNumber.title),
           description: t(USER_KEYS.settings.privacy.search.allowSearchOnPhoneNumber.description)

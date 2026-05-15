@@ -15,13 +15,14 @@ import { useGlobalSearchContext } from '../global-search-context'
 import { useAddSearchItem } from '../../../recent/queries/use-recent-queries'
 import { SearchType } from '@/constants/enum'
 import { generateKeywordId } from '../../../utils/search-id'
+import { PhoneUtil } from '@/utils/phone'
 
 interface AllResultsTabProps {
   keyword: string
   onViewAllContacts: () => void
   onViewAllMessages: () => void
   onViewAllFiles: () => void
-  text: SearchTexts['globalSearch']
+  text: SearchTexts
   sectionSize: number
 }
 
@@ -61,10 +62,12 @@ export function AllResultsTab({
     )
   }
 
+  const isPhoneSearch = PhoneUtil.isValidVnPhone(keyword)
+
   if (allFinished && !hasResults) {
     return (
       <div className='p-8'>
-        <EmptyState image='/images/search_empty_state.png' text={text.states.empty} />
+        <EmptyState image='/images/search_empty_state.png' text={text.globalSearch.states.empty} />
       </div>
     )
   }
@@ -74,11 +77,11 @@ export function AllResultsTab({
       {/* Contacts Section */}
       {(isLoadingContacts || (contactsData?.totalItems || 0) > 0) && (
         <ResultSection
-          title={text.sections.contacts}
+          title={isPhoneSearch ? text.findByPhone : text.globalSearch.sections.contacts}
           onViewAll={onViewAllContacts}
           count={contactsData?.totalItems || 0}
           displayedCount={contactsData?.data?.length || 0}
-          text={text}
+          text={text.globalSearch}
           isLoading={isLoadingContacts}
         >
           <div className='flex flex-col'>
@@ -93,23 +96,22 @@ export function AllResultsTab({
                     isGroup={contact.group}
                     participantNames={contact.participantNames}
                     participantAvatars={contact.participantAvatars}
+                    phoneNumber={isPhoneSearch ? contact.phoneNumber : undefined}
+                    phoneLabel={text.phoneNumber}
                     onClick={() => {
-                      // Save the keyword first
-                      if (keyword.trim()) {
-                        addSearchItem({
-                          id: generateKeywordId(keyword),
-                          name: keyword.trim(),
-                          type: SearchType.Keyword
-                        })
-                      }
                       // Save the contact
                       addSearchItem({
-                        id: contact.conversationId,
+                        id: contact.conversationId || contact.recipientId || '',
                         name: contact.name,
                         avatar: contact.avatar || undefined,
                         type: contact.group ? SearchType.Group : SearchType.User
                       })
-                      navigate(`/chat/c/${contact.conversationId}`)
+
+                      if (contact.conversationId) {
+                        navigate(`/chat/c/${contact.conversationId}`)
+                      } else if (contact.recipientId) {
+                        navigate(`/chat/u/${contact.recipientId}`)
+                      }
                     }}
                   />
                 ))}
@@ -120,11 +122,11 @@ export function AllResultsTab({
       {/* Messages Section */}
       {(isLoadingMessages || (messagesData?.pages[0]?.totalItems || 0) > 0) && (
         <ResultSection
-          title={text.sections.messages}
+          title={text.globalSearch.sections.messages}
           onViewAll={onViewAllMessages}
           count={messagesData?.pages[0]?.totalItems || 0}
           displayedCount={messagesData?.pages[0]?.data?.length || 0}
-          text={text}
+          text={text.globalSearch}
           isLoading={isLoadingMessages}
         >
           <div className='flex flex-col'>
@@ -159,11 +161,11 @@ export function AllResultsTab({
       {/* Files Section */}
       {(isLoadingFiles || (filesData?.pages[0]?.totalItems || 0) > 0) && (
         <ResultSection
-          title={text.sections.files}
+          title={text.globalSearch.sections.files}
           onViewAll={onViewAllFiles}
           count={filesData?.pages[0]?.totalItems || 0}
           displayedCount={filesData?.pages[0]?.data?.length || 0}
-          text={text}
+          text={text.globalSearch}
           isLoading={isLoadingFiles}
         >
           <div className='flex flex-col'>

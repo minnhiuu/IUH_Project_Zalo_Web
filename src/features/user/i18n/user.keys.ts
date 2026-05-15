@@ -168,6 +168,20 @@ export const USER_KEYS = {
       },
       search: {
         title: 'user.settings.privacy.search.title',
+        nameSearchVisibility: {
+          title: 'user.settings.privacy.search.nameSearchVisibility.title',
+          description: 'user.settings.privacy.search.nameSearchVisibility.description'
+        },
+        phoneSearchVisibility: {
+          title: 'user.settings.privacy.search.phoneSearchVisibility.title',
+          description: 'user.settings.privacy.search.phoneSearchVisibility.description'
+        },
+        visibility: {
+          public: 'user.settings.privacy.search.visibility.public',
+          friendsOfFriends: 'user.settings.privacy.search.visibility.friendsOfFriends',
+          friendsOnly: 'user.settings.privacy.search.visibility.friendsOnly',
+          none: 'user.settings.privacy.search.visibility.none'
+        },
         allowSearchOnPhoneNumber: {
           title: 'user.settings.privacy.search.allowSearchOnPhoneNumber.title',
           description: 'user.settings.privacy.search.allowSearchOnPhoneNumber.description'

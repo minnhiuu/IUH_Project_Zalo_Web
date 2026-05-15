@@ -9,6 +9,8 @@ interface ContactItemProps {
   isGroup?: boolean
   participantNames?: string[] | null
   participantAvatars?: (string | null)[] | null
+  phoneNumber?: string
+  phoneLabel?: string
   onClick?: () => void
 }
 
@@ -19,6 +21,8 @@ export function ContactItem({
   isGroup,
   participantNames,
   participantAvatars,
+  phoneNumber,
+  phoneLabel,
   onClick
 }: ContactItemProps) {
   return (
@@ -40,15 +44,23 @@ export function ContactItem({
       ) : (
         <UserAvatar name={name} src={avatar} className='w-12 h-12 shrink-0' />
       )}
-      <div className='flex flex-col min-w-0'>
-        {displayHighlights ? (
-          <span
-            className='text-[15px] font-medium text-text-primary truncate [&_em]:text-(--text-mention) [&_em]:not-italic [&_em]:font-semibold'
-            dangerouslySetInnerHTML={{ __html: displayHighlights }}
-          />
-        ) : (
-          <span className='text-[15px] font-medium text-text-primary truncate'>{name}</span>
-        )}
+      <div className='flex flex-col min-w-0 flex-1'>
+        <div className='flex flex-col'>
+          {displayHighlights ? (
+            <div
+              className='text-[15px] font-medium text-text-primary [&_em]:text-(--text-mention) [&_em]:not-italic [&_em]:font-semibold leading-snug truncate'
+              dangerouslySetInnerHTML={{ __html: displayHighlights }}
+            />
+          ) : (
+            <span className='text-[15px] font-medium text-text-primary truncate'>{name}</span>
+          )}
+
+          {phoneNumber && (
+            <div className='text-sm text-text-secondary mt-0.5 truncate'>
+              {phoneLabel || 'Số điện thoại:'} <span className='text-primary font-medium'>{phoneNumber}</span>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
