@@ -3,12 +3,13 @@
     "messages": "Tin nhắn",
     "socialFeed": "Bảng tin",
     "search": "Tìm kiếm",
-    "contacts": "Danh bạ",
+    "friends": "Bạn bè",
     "todo": "To-do",
     "notifications": "Thông báo",
     "cloud": "Cloud",
     "business": "Business",
-    "settings": "Cài đặt"
+    "settings": "Cài đặt",
+    "reels": "Video"
   },
   "ok": "OK",
   "cancel": "Huỷ",

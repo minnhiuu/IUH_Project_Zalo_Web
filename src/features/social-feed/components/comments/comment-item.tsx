@@ -143,7 +143,7 @@ export function CommentItem({
               <textarea
                 value={draftContent}
                 onChange={(event) => setDraftContent(event.target.value)}
-                className='w-full min-w-[200px] resize-none rounded-xl border border-zinc-300 bg-white px-3 py-2 text-[14px] text-zinc-800 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-white/10 dark:bg-zinc-950 dark:text-zinc-200 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 transition-all'
+                className='w-full min-w-[200px] resize-none rounded-xl border border-zinc-300 bg-white px-3 py-2 text-[14px] text-zinc-800 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-white/10 dark:bg-zinc-950 dark:text-zinc-200 dark:focus:border-primary dark:focus:ring-primary transition-all'
                 rows={3}
               />
               <div className='mt-2.5 flex items-center justify-end gap-2'>
@@ -162,7 +162,7 @@ export function CommentItem({
                   type='button'
                   disabled={isMutating || !draftContent.trim()}
                   onClick={handleSaveEdit}
-                  className='rounded-full bg-indigo-600 px-4 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 dark:bg-indigo-500 dark:hover:bg-indigo-600 dark:focus:ring-offset-zinc-950 transition-all'
+                  className='rounded-full bg-primary/90 px-4 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 dark:bg-primary dark:hover:bg-primary/90 dark:focus:ring-offset-zinc-950 transition-all'
                 >
                   {text.commentItem.save}
                 </button>
@@ -185,10 +185,10 @@ export function CommentItem({
             <Button
               variant='ghost'
               disabled={isMutating}
-              className={`h-6 gap-1 px-1.5 transition-all hover:bg-zinc-100 dark:hover:bg-indigo-500/10 ${
+              className={`h-6 gap-1 px-1.5 transition-all hover:bg-zinc-100 dark:hover:bg-primary/10 ${
                 activeReaction
                   ? activeReaction.textClass
-                  : 'text-zinc-500 dark:text-zinc-400 hover:text-indigo-500 dark:hover:text-indigo-400'
+                  : 'text-zinc-500 dark:text-zinc-400 hover:text-primary dark:hover:text-primary'
               }`}
               onClick={handleReactionClick}
             >
@@ -232,7 +232,7 @@ export function CommentItem({
               type='button'
               disabled={isMutating}
               onClick={() => setShowReplies((prev) => !prev)}
-              className='group/replies text-[12px] font-bold text-zinc-500 transition-all duration-200 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 disabled:text-zinc-400 dark:text-zinc-400 dark:hover:text-zinc-200'
+              className='group/replies text-[12px] font-bold text-zinc-500 transition-all duration-200 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 disabled:text-zinc-400 dark:text-zinc-400 dark:hover:text-zinc-200'
             >
               {showReplies ? text.commentItem.hideReplies : text.commentItem.viewReplies(comment.replyCount ?? 0)}
             </button>
@@ -243,7 +243,7 @@ export function CommentItem({
                 type='button'
                 disabled={isMutating}
                 onClick={() => setIsEditing(true)}
-                className='text-[12px] font-bold text-zinc-500 transition-colors hover:text-indigo-600 disabled:text-zinc-400 dark:text-zinc-400 dark:hover:text-indigo-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50'
+                className='text-[12px] font-bold text-zinc-500 transition-colors hover:text-primary/90 disabled:text-zinc-400 dark:text-zinc-400 dark:hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50'
               >
                 {text.commentItem.edit}
               </button>

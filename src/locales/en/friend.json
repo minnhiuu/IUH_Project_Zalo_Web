@@ -46,7 +46,13 @@
     "sections": {
       "newFriends": "New Friends",
       "receivedRequests": "Requests ({{count}})",
-      "suggestions": "Suggestions ({{count}})"
+      "suggestions": "Suggestions ({{count}})",
+      "suggestedForYou": "Suggested for you",
+      "activeFriends": "Active friends",
+      "seeAll": "See all",
+      "noSuggestions": "No suggestions",
+      "online": "Online",
+      "noActiveFriends": "No active friends"
     },
     "source": {
       "phoneContact": "Phone Contact",

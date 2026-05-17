@@ -253,7 +253,7 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
                 </div>
               )}
               {(metadata?.action === 'QUIET_MODE_ACTIVE' || metadata?.action === 'DND_AUTO_REPLY') && (
-                <Moon className='inline-block w-3.5 h-3.5 mb-0.5 mr-1 text-indigo-500 fill-indigo-500/20' />
+                <Moon className='inline-block w-3.5 h-3.5 mb-0.5 mr-1 text-primary fill-primary/20' />
               )}
               {systemLabel}
               {showDeleteConversationAction && (

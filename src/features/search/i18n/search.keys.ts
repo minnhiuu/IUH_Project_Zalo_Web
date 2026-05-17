@@ -16,6 +16,12 @@ export const SEARCH_KEYS = {
   },
   findByPhone: 'findByPhone',
   phoneNumber: 'phoneNumber',
+  loadMore: 'loadMore',
+  relationship: {
+    mutualFriends: 'relationship.mutualFriends',
+    sharedGroups: 'relationship.sharedGroups',
+    inContact: 'relationship.inContact'
+  },
   tabs: {
     all: 'tabs.all',
     contacts: 'tabs.contacts',

@@ -1,94 +1,111 @@
 import { Users, Users2, Bookmark, Clock, Clapperboard } from 'lucide-react'
-import { Link } from 'react-router'
+import { Link, useLocation } from 'react-router'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { useMyProfile } from '@/features/user/queries/use-queries'
 import { PATHS } from '@/constants/path'
 import { useSocialText } from '../../i18n/use-social-text'
+import { cn } from '@/lib/utils'
+import { QuickMessagesPill } from './quick-messages-pill'
 
 export function SocialSidebar() {
   const { text } = useSocialText()
   const { data: myProfile } = useMyProfile()
+  const location = useLocation()
+
   const currentUserLabel = text.composer.me
   const profileName = myProfile?.fullName?.trim() || currentUserLabel
   const profileAvatar = myProfile?.avatar || undefined
 
+  const currentTab = new URLSearchParams(location.search).get('tab') || 'feed'
+
   const shortcuts = [
-    { icon: Users, label: text.sidebar.friends, color: 'text-blue-500', bg: 'bg-blue-500/10' },
-    { icon: Users2, label: text.sidebar.groups, color: 'text-indigo-500', bg: 'bg-indigo-500/10' },
-    { icon: Clapperboard, label: text.sidebar.reels, color: 'text-rose-500', bg: 'bg-rose-500/10', path: `${PATHS.SOCIAL_FEED}?tab=reels` },
-    { icon: Bookmark, label: text.sidebar.saved, color: 'text-purple-500', bg: 'bg-purple-500/10' },
-    { icon: Clock, label: text.sidebar.memories, color: 'text-emerald-500', bg: 'bg-emerald-500/10' }
+    {
+      id: 'feed',
+      icon: Users,
+      label: text.sidebar.friends,
+      path: PATHS.SOCIAL_FEED
+    },
+    {
+      id: 'groups',
+      icon: Users2,
+      label: text.sidebar.groups,
+      path: PATHS.SOCIAL_FEED
+    },
+    {
+      id: 'reels',
+      icon: Clapperboard,
+      label: text.sidebar.reels,
+      path: `${PATHS.SOCIAL_FEED}?tab=reels`
+    },
+    {
+      id: 'saved',
+      icon: Bookmark,
+      label: text.sidebar.saved,
+      path: PATHS.SOCIAL_FEED
+    },
+    {
+      id: 'memories',
+      icon: Clock,
+      label: text.sidebar.memories,
+      path: PATHS.SOCIAL_FEED
+    }
   ]
 
   return (
-    <aside className='hidden w-[280px] shrink-0 xl:block 2xl:w-[360px] pl-2'>
-      <div className='sticky top-0 pb-10'>
-        <Link
-          to={PATHS.USER.PROFILE}
-          className='flex cursor-pointer items-center gap-3 rounded-xl p-2 transition-colors hover:bg-zinc-200/50 dark:hover:bg-zinc-900/50'
-        >
-          <div className='h-10 w-10'>
+    <div className='w-full space-y-4'>
+      <Link to={PATHS.USER.PROFILE} className='flex items-center justify-between group'>
+        <div className='flex items-center gap-4'>
+          <div className='h-12 w-12 shrink-0'>
             <UserAvatar
               name={profileName}
               src={profileAvatar}
-              className='w-full h-full border border-background'
+              className='w-full h-full border border-background shadow-sm'
               fallbackClassName='bg-primary text-white text-sm'
             />
           </div>
-          <span className='text-[15px] font-semibold text-zinc-900 dark:text-[#ececec]'>{profileName}</span>
-        </Link>
+          <div className='flex flex-col min-w-0'>
+            <span className='text-[14px] font-bold text-text-primary truncate group-hover:underline'>
+              {profileName}
+            </span>
+            <span className='text-[13px] text-text-secondary truncate'>{currentUserLabel}</span>
+          </div>
+        </div>
+        <button className='text-[12px] font-bold text-[#0068ff] hover:text-blue-700 transition-colors'>Chuyển</button>
+      </Link>
 
-        <div className='grid gap-1 pt-2'>
-          {shortcuts.map((item, i) => {
-            const content = (
-              <>
-                <div
-                  className={`flex h-9 w-9 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-900 group-hover:${item.bg} transition-colors`}
-                >
-                  <item.icon
-                    className={`h-5 w-5 text-zinc-500 dark:text-zinc-400 group-hover:${item.color} transition-colors`}
-                  />
-                </div>
-                <span className='text-[15px] font-medium text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-[#ececec] transition-colors'>
-                  {item.label}
-                </span>
-              </>
-            )
-
-            if (item.path) {
-              return (
-                <Link
-                  key={i}
-                  to={item.path}
-                  className='group flex cursor-pointer items-center gap-3 rounded-xl p-2.5 transition-colors hover:bg-zinc-200/50 dark:hover:bg-zinc-900/50'
-                >
-                  {content}
-                </Link>
-              )
-            }
-
-            return (
-              <div
-                key={i}
-                className='group flex cursor-pointer items-center gap-3 rounded-xl p-2.5 transition-colors hover:bg-zinc-200/50 dark:hover:bg-zinc-900/50'
+      <div className='flex flex-col gap-0.5 pt-2'>
+        {shortcuts.map((item) => {
+          const isActive = currentTab === item.id
+          return (
+            <Link
+              key={item.id}
+              to={item.path}
+              className={cn(
+                'flex items-center gap-3 py-2 px-1 rounded-md transition-colors text-left relative cursor-pointer group',
+                isActive ? 'font-semibold' : 'hover:bg-muted/50'
+              )}
+            >
+              <item.icon
+                className={cn(
+                  'w-4 h-4 shrink-0',
+                  isActive ? 'text-text-primary' : 'text-text-secondary group-hover:text-text-primary'
+                )}
+              />
+              <span
+                className={cn(
+                  'flex-1 text-[13px] leading-tight truncate',
+                  isActive ? 'text-text-primary' : 'text-text-secondary group-hover:text-text-primary'
+                )}
               >
-                {content}
-              </div>
-            )
-          })}
-        </div>
-
-
-        <div className='mt-4 px-4 text-[12px] font-medium text-zinc-500 dark:text-[#b0b3b8] flex flex-wrap gap-x-1.5 gap-y-1'>
-          <a href='#' className='hover:underline'>Quyền riêng tư</a> · 
-          <a href='#' className='hover:underline'>Điều khoản</a> · 
-          <a href='#' className='hover:underline'>Quảng cáo</a> · 
-          <a href='#' className='hover:underline'>Lựa chọn quảng cáo</a> · 
-          <a href='#' className='hover:underline'>Cookie</a> · 
-          <a href='#' className='hover:underline'>Xem thêm</a> · 
-          <span>Meta © {new Date().getFullYear()}</span>
-        </div>
+                {item.label}
+              </span>
+            </Link>
+          )
+        })}
       </div>
-    </aside>
+
+      {/* Quick Messages Pill */}
+      <QuickMessagesPill />
+    </div>
   )
 }

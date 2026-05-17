@@ -3,12 +3,13 @@ export const COMMON_KEYS = {
     messages: 'nav.messages',
     socialFeed: 'nav.socialFeed',
     search: 'nav.search',
-    contacts: 'nav.contacts',
+    friends: 'nav.friends',
     todo: 'nav.todo',
     notifications: 'nav.notifications',
     cloud: 'nav.cloud',
     business: 'nav.business',
-    settings: 'nav.settings'
+    settings: 'nav.settings',
+    reels: 'nav.reels'
   },
   ok: 'ok',
   cancel: 'cancel',

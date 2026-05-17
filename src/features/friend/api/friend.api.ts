@@ -33,6 +33,9 @@ export const friendApi = {
   getMyFriends: (page: number = 0, size: number = 10) =>
     http.get<ApiResponse<PageResponse<FriendResponse>>>(`/friendships/friends?page=${page}&size=${size}`),
 
+  getOnlineFriends: (page: number = 0, size: number = 20) =>
+    http.get<ApiResponse<PageResponse<UserSummaryResponse>>>(`/friendships/online?page=${page}&size=${size}`),
+
   unfriend: (friendId: string) => http.delete<ApiResponse<void>>(`/friendships/friends/${friendId}`),
 
   checkFriendshipStatus: (userId: string) =>

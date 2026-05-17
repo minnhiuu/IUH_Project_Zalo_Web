@@ -17,10 +17,18 @@ import type {
   MessageCursorParams,
   CursorPageResponse
 } from '../schemas/chat.schema'
+import type { UserSummaryResponse } from '@/shared/user/user-summary'
 
 export const getConversations = async (page = 0, size = 20): Promise<PageResponse<ConversationResponse>> => {
   const response = await http.get<ApiResponse<PageResponse<ConversationResponse>>>('/messages/conversations', {
     params: { page, size }
+  })
+  return response.data.data
+}
+
+export const getQuickConversations = async (size = 3): Promise<UserSummaryResponse[]> => {
+  const response = await http.get<ApiResponse<UserSummaryResponse[]>>('/messages/conversations/quick', {
+    params: { size }
   })
   return response.data.data
 }
@@ -516,4 +524,11 @@ export const pinMessageApi = async (conversationId: string, messageId: string): 
 
 export const unpinMessageApi = async (conversationId: string, messageId: string): Promise<void> => {
   await http.delete(`/messages/conversations/${conversationId}/messages/${messageId}/pin`)
+}
+
+export const getQuickConversationsApi = async (size = 3): Promise<UserSummaryResponse[]> => {
+  const response = await http.get<ApiResponse<UserSummaryResponse[]>>('/messages/conversations/quick', {
+    params: { size }
+  })
+  return response.data.data
 }

@@ -79,7 +79,7 @@ export function StoriesStrip({ stories, isLoading = false }: StoriesStripProps) 
         </div>
       ) : (
         <Carousel opts={{ align: 'start' }} className='w-full'>
-          <CarouselContent className='ml-0 gap-2'>
+          <CarouselContent className='ml-0 gap-3 pb-4'>
             {/* Create card always first */}
             <CarouselItem className='basis-auto pl-0'>
               <StoryCreateCard
@@ -96,7 +96,8 @@ export function StoriesStrip({ stories, isLoading = false }: StoriesStripProps) 
               return (
                 <CarouselItem key={group.authorId} className='basis-auto pl-0'>
                   <StoryCard
-                    authorName={isMyStory ? 'Your Story' : group.authorName}
+                    authorName={group.authorName}
+                    displayName={isMyStory ? 'Your Story' : group.authorName}
                     authorAvatar={group.authorAvatar}
                     mediaUrl={group.stories[0]?.mediaUrl}
                     mediaType={group.stories[0]?.mediaType}
@@ -112,8 +113,12 @@ export function StoriesStrip({ stories, isLoading = false }: StoriesStripProps) 
             })}
           </CarouselContent>
 
-          <CarouselPrevious className='-left-3 h-11 w-11 rounded-full border border-zinc-200/80 bg-white/95 text-zinc-700 shadow-lg backdrop-blur-md transition-all hover:scale-105 hover:bg-zinc-50 hover:text-zinc-900 dark:border-white/10 dark:bg-zinc-900/95 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white' />
-          <CarouselNext className='-right-3 h-11 w-11 rounded-full border border-zinc-200/80 bg-white/95 text-zinc-700 shadow-lg backdrop-blur-md transition-all hover:scale-105 hover:bg-zinc-50 hover:text-zinc-900 dark:border-white/10 dark:bg-zinc-900/95 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white' />
+            {sortedStories.length > 0 && (
+            <>
+              <CarouselPrevious className='left-2 h-11 w-11 rounded-full border border-zinc-200/80 bg-white/95 text-zinc-700 shadow-lg backdrop-blur-md transition-all hover:scale-105 hover:bg-zinc-50 hover:text-zinc-900 disabled:hidden dark:border-white/10 dark:bg-zinc-900/95 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white' />
+              <CarouselNext className='right-2 h-11 w-11 rounded-full border border-zinc-200/80 bg-white/95 text-zinc-700 shadow-lg backdrop-blur-md transition-all hover:scale-105 hover:bg-zinc-50 hover:text-zinc-900 disabled:hidden dark:border-white/10 dark:bg-zinc-900/95 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white' />
+            </>
+          )}
         </Carousel>
       )}
 

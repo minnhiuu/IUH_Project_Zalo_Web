@@ -60,7 +60,7 @@
   --ring: #0068ff;
 
   --radius: 0.5rem;
-  --sidebar: #005ae0;
+  --sidebar: #0068ff;
   --sidebar-foreground: #ffffff;
   --sidebar-primary: #ffffff;
   --sidebar-primary-foreground: #005ae0;
@@ -115,7 +115,7 @@
   --group-tips-link: #0068ff;
   --group-tips-icon-invite: #3384ff;
   --group-tips-icon-mention: #e05a00;
-  --group-tips-icon-reply: #8b64d8;
+  --group-tips-icon-reply: #0068ff;
   --member-role-key-badge-bg: rgba(0, 0, 0, 0.6);
   --member-role-key-owner: #ffd95c;
   --member-role-key-admin: #ffffff;
@@ -160,8 +160,8 @@
   --badge-emerald-text: #047857;
   --badge-blue-bg: #dbeafe;
   --badge-blue-text: #1d4ed8;
-  --badge-violet-bg: #ede9fe;
-  --badge-violet-text: #6d28d9;
+  --badge-violet-bg: #e5f1ff;
+  --badge-violet-text: #005ae0;
   --button-secondary-neutral-normal: #e5e7eb;
   --button-secondary-neutral-text: #081b3a;
   --button-tertiary-neutral-focus-bg: #e5f1ff;
@@ -170,6 +170,9 @@
   --layer-background-selected: #e5f1ff;
   --input-field-bg-filled: #f1f2f4;
   --divider: rgba(0, 0, 0, 0.15);
+
+  --reel-modal-bg: #242526;
+  --reel-preview-bg: #f0f2f5;
 }
 
 @layer utilities {
@@ -284,7 +287,7 @@
   --group-tips-link: #66a6ff;
   --group-tips-icon-invite: #005ae0;
   --group-tips-icon-mention: #ff7e29;
-  --group-tips-icon-reply: #5a2db4;
+  --group-tips-icon-reply: #005ae0;
   --member-role-key-badge-bg: rgba(0, 0, 0, 0.6);
   --member-role-key-owner: #ffd95c;
   --member-role-key-admin: #ffffff;
@@ -327,8 +330,8 @@
   --badge-emerald-text: #10b981;
   --badge-blue-bg: #1e3a8a;
   --badge-blue-text: #60a5fa;
-  --badge-violet-bg: #4c1d95;
-  --badge-violet-text: #a78bfa;
+  --badge-violet-bg: #00378a;
+  --badge-violet-text: #8fbfff;
   --button-secondary-neutral-normal: #2c323a;
   --button-secondary-neutral-text: #dfe2e7;
   --button-tertiary-neutral-focus-bg: #002152;
@@ -337,6 +340,9 @@
   --layer-background-selected: #1f344d;
   --input-field-bg-filled: #16191d;
   --divider: rgba(0, 0, 0, 0.15);
+
+  --reel-modal-bg: #242526;
+  --reel-preview-bg: #242526;
 }
 
 @theme inline {
@@ -458,6 +464,9 @@
   --color-badge-blue-text: var(--badge-blue-text);
   --color-badge-violet-bg: var(--badge-violet-bg);
   --color-badge-violet-text: var(--badge-violet-text);
+  
+  --color-reel-modal-bg: var(--reel-modal-bg);
+  --color-reel-preview-bg: var(--reel-preview-bg);
 
   @keyframes pulse-subtle {
     0%,

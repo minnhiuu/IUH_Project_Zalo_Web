@@ -17,6 +17,7 @@ import type {
 type BackendAppLanguage = 'VI' | 'EN'
 type BackendThemeMode = 'LIGHT' | 'DARK' | 'SYSTEM'
 type BackendSettingScope = 'EVERYONE' | 'FRIENDS' | 'FRIENDS_AND_CONTACTED' | 'ONLY_ME' | 'OFF'
+type BackendSearchVisibility = 'PUBLIC' | 'FRIENDS_OF_FRIENDS' | 'FRIENDS_ONLY' | 'NONE'
 
 type BackendUserSettingResponse = {
   languageAndInterface: {
@@ -51,6 +52,9 @@ type BackendUserSettingResponse = {
     allowMessaging: BackendSettingScope
     allowCallsPrivacy: BackendSettingScope
     friendSourceByPhone: boolean
+    friendSourceByQr: boolean
+    nameSearchVisibility?: BackendSearchVisibility
+    phoneSearchVisibility?: BackendSearchVisibility
   }
   contactSettings: {
     syncContacts: boolean
@@ -140,7 +144,12 @@ const toFrontendSettings = (backend: BackendUserSettingResponse): UserSettingRes
     canCall: mapScopeToPrivacyLevel(backend.privacySettings?.allowCallsPrivacy ?? 'EVERYONE'),
     showPosts: true,
     showPostAfter: null,
-    allowSearchOnPhoneNumber: backend.privacySettings?.friendSourceByPhone ?? true
+    allowSearchOnPhoneNumber: backend.privacySettings?.friendSourceByPhone ?? true,
+    nameSearchVisibility:
+      backend.privacySettings?.nameSearchVisibility === 'NONE'
+        ? 'PUBLIC'
+        : (backend.privacySettings?.nameSearchVisibility ?? 'PUBLIC'),
+    phoneSearchVisibility: backend.privacySettings?.phoneSearchVisibility ?? 'PUBLIC'
   },
   syncSettings: {
     syncSuggestion: backend.contactSettings?.syncContacts ?? false,
@@ -173,7 +182,15 @@ const toFrontendSettings = (backend: BackendUserSettingResponse): UserSettingRes
       dndStartTime: backend.notificationSettings?.doNotDisturb?.dndStartTime ?? '23:00',
       dndEndTime: backend.notificationSettings?.doNotDisturb?.dndEndTime ?? '07:00',
       dndTimezone: 'GMT+07:00',
-      activeDays: backend.notificationSettings?.doNotDisturb?.activeDays ?? ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
+      activeDays: backend.notificationSettings?.doNotDisturb?.activeDays ?? [
+        'MONDAY',
+        'TUESDAY',
+        'WEDNESDAY',
+        'THURSDAY',
+        'FRIDAY',
+        'SATURDAY',
+        'SUNDAY'
+      ]
     }
   },
   utilitiesSettings: {
@@ -222,7 +239,10 @@ export const settingsApi = {
       canCall: mapScopeToPrivacyLevel(privacy.allowCallsPrivacy),
       showPosts: true,
       showPostAfter: null,
-      allowSearchOnPhoneNumber: privacy.friendSourceByPhone
+      allowSearchOnPhoneNumber: privacy.friendSourceByPhone,
+      nameSearchVisibility:
+        privacy.nameSearchVisibility === 'NONE' ? 'PUBLIC' : (privacy.nameSearchVisibility ?? 'PUBLIC'),
+      phoneSearchVisibility: privacy.phoneSearchVisibility ?? 'PUBLIC'
     }
     return {
       ...response,
@@ -256,7 +276,15 @@ export const settingsApi = {
         dndStartTime: notification.doNotDisturb?.dndStartTime ?? '23:00',
         dndEndTime: notification.doNotDisturb?.dndEndTime ?? '07:00',
         dndTimezone: 'GMT+07:00',
-        activeDays: notification.doNotDisturb?.activeDays ?? ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
+        activeDays: notification.doNotDisturb?.activeDays ?? [
+          'MONDAY',
+          'TUESDAY',
+          'WEDNESDAY',
+          'THURSDAY',
+          'FRIDAY',
+          'SATURDAY',
+          'SUNDAY'
+        ]
       }
     }
     return {
@@ -312,6 +340,8 @@ export const settingsApi = {
       blockUnknownUsers: false,
       friendSourceByPhone: data.allowSearchOnPhoneNumber,
       friendSourceByQr: true,
+      nameSearchVisibility: data.nameSearchVisibility,
+      phoneSearchVisibility: data.phoneSearchVisibility,
       utilityPermissions: [],
       blockedUserIds: []
     })

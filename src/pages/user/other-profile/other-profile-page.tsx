@@ -187,7 +187,7 @@ export default function OtherProfilePage() {
       {/* ── Cover photo ── */}
       <div className='relative w-full bg-zinc-300 dark:bg-zinc-800'>
         <div className='mx-auto max-w-5xl'>
-          <div className='relative h-52 w-full overflow-hidden rounded-b-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-400 md:h-64 lg:h-[340px]'>
+          <div className='relative h-52 w-full overflow-hidden rounded-b-2xl bg-gradient-to-br from-primary via-blue-500 to-sky-400 md:h-64 lg:h-[340px]'>
             {isUserLoading ? (
               <Skeleton className='h-full w-full rounded-none' />
             ) : profileUser?.background ? (
@@ -257,7 +257,7 @@ export default function OtherProfilePage() {
                   variant={friendBtnState.variant === 'outline' ? 'outline' : 'default'}
                   size='sm'
                   disabled={friendBtnState.disabled || sendRequestMutation.isPending || acceptRequestMutation.isPending || cancelRequestMutation.isPending}
-                  className={`h-9 gap-1.5 rounded-lg px-4 font-semibold ${friendBtnState.variant === 'default' ? 'bg-indigo-500 text-white hover:bg-indigo-600' : ''}`}
+                  className={`h-9 gap-1.5 rounded-lg px-4 font-semibold ${friendBtnState.variant === 'default' ? 'bg-primary text-white hover:bg-primary/90' : ''}`}
                   onClick={handleFriendAction}
                 >
                   {friendBtnState.action === 'add' && <UserPlus className='h-4 w-4' />}
@@ -265,7 +265,7 @@ export default function OtherProfilePage() {
                 </Button>
                 <Button
                   size='sm'
-                  className='h-9 gap-1.5 rounded-lg bg-indigo-500 px-4 font-semibold text-white hover:bg-indigo-600'
+                  className='h-9 gap-1.5 rounded-lg bg-primary px-4 font-semibold text-white hover:bg-primary/90'
                   onClick={() => { window.location.href = `/chat/u/${userId}` }}
                 >
                   <MessageCircle className='h-4 w-4' />
@@ -315,7 +315,7 @@ export default function OtherProfilePage() {
                   onClick={() => setActiveTab(tab)}
                   className={`whitespace-nowrap px-4 py-3 text-[15px] font-semibold transition-colors ${
                     activeTab === tab
-                      ? 'border-b-[3px] border-indigo-500 text-indigo-600 dark:text-indigo-400'
+                      ? 'border-b-[3px] border-primary text-primary dark:text-primary'
                       : 'text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-white/5 dark:hover:text-zinc-200'
                   }`}
                 >
@@ -432,7 +432,7 @@ export default function OtherProfilePage() {
       {showScrollTop && (
         <button
           onClick={scrollToTop}
-          className='pointer-events-auto fixed bottom-[6rem] right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-indigo-500 text-white shadow-xl shadow-indigo-500/20 backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-indigo-600 hover:shadow-2xl active:scale-95 md:right-8'
+          className='pointer-events-auto fixed bottom-[6rem] right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white shadow-xl shadow-primary/20 backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-primary/90 hover:shadow-2xl active:scale-95 md:right-8'
           aria-label='Scroll to top'
         >
           <ArrowUp className='h-5 w-5' />

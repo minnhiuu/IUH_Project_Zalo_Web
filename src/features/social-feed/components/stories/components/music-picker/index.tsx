@@ -68,7 +68,7 @@ export function MusicPicker({
         className={cn(
           'flex w-full items-center gap-3 rounded-2xl border px-4 py-3 transition-all duration-200',
           showMusicPicker
-            ? 'border-violet-500/40 bg-violet-500/10 shadow-sm shadow-violet-500/10'
+            ? 'border-primary/40 bg-primary/10 shadow-sm shadow-primary/10'
             : 'border-border bg-muted/40 hover:bg-muted/70 hover:border-border/80'
         )}
       >
@@ -77,7 +77,7 @@ export function MusicPicker({
           className={cn(
             'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-all duration-200',
             showMusicPicker
-              ? 'bg-gradient-to-br from-violet-500 to-indigo-500 text-white shadow-md shadow-violet-500/30'
+              ? 'bg-gradient-to-br from-primary to-primary text-white shadow-md shadow-primary/30'
               : 'bg-muted text-muted-foreground'
           )}
         >
@@ -129,7 +129,7 @@ export function MusicPicker({
 
           {/* Search bar */}
           <div className='px-3 pt-3'>
-            <div className='flex items-center gap-2 rounded-xl border border-border bg-muted/50 px-3 py-2 transition-all duration-200 focus-within:border-violet-500/50 focus-within:bg-violet-500/[0.04] focus-within:shadow-sm focus-within:shadow-violet-500/10'>
+            <div className='flex items-center gap-2 rounded-xl border border-border bg-muted/50 px-3 py-2 transition-all duration-200 focus-within:border-primary/50 focus-within:bg-primary/[0.04] focus-within:shadow-sm focus-within:shadow-primary/10'>
               <Search className='h-3.5 w-3.5 shrink-0 text-muted-foreground/60' />
               <input
                 type='text'
@@ -153,9 +153,9 @@ export function MusicPicker({
 
           {/* ── Saved PostMusic banner – shown when story already has a track ── */}
           {existingMusic?.title && !selectedTrackId && (
-            <div className='mx-3 mt-3 flex items-center gap-3 rounded-xl border border-indigo-500/30 bg-indigo-500/[0.08] p-2.5'>
+            <div className='mx-3 mt-3 flex items-center gap-3 rounded-xl border border-primary/30 bg-primary/[0.08] p-2.5'>
               {/* Album art */}
-              <div className='relative h-10 w-10 shrink-0 rounded-xl overflow-hidden bg-gradient-to-br from-indigo-500/60 to-violet-500/60 shadow flex items-center justify-center'>
+              <div className='relative h-10 w-10 shrink-0 rounded-xl overflow-hidden bg-gradient-to-br from-primary/60 to-primary/60 shadow flex items-center justify-center'>
                 {existingMusic.coverUrl ? (
                   <img src={existingMusic.coverUrl} alt={existingMusic.title ?? ''} className='h-full w-full object-cover' />
                 ) : (
@@ -164,20 +164,20 @@ export function MusicPicker({
               </div>
               {/* Info */}
               <div className='min-w-0 flex-1'>
-                <p className='truncate text-[12.5px] font-semibold text-indigo-200 leading-tight'>
+                <p className='truncate text-[12.5px] font-semibold text-primary/20 leading-tight'>
                   ♪ {existingMusic.title}
                 </p>
                 {existingMusic.artistName && (
-                  <p className='truncate text-[11px] text-indigo-300/70 mt-0.5'>{existingMusic.artistName}</p>
+                  <p className='truncate text-[11px] text-primary/30/70 mt-0.5'>{existingMusic.artistName}</p>
                 )}
                 {existingMusic.duration && (
-                  <p className='text-[10px] text-indigo-400/50 mt-0.5'>
+                  <p className='text-[10px] text-primary/50 mt-0.5'>
                     {Math.floor(existingMusic.duration / 60)}:{String(existingMusic.duration % 60).padStart(2, '0')}
                   </p>
                 )}
               </div>
               {/* Saved label */}
-              <span className='shrink-0 rounded-full border border-indigo-500/40 bg-indigo-500/20 px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wide text-indigo-300'>
+              <span className='shrink-0 rounded-full border border-primary/40 bg-primary/20 px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wide text-primary/30'>
                 saved
               </span>
             </div>
@@ -194,7 +194,7 @@ export function MusicPicker({
                   className={cn(
                     'shrink-0 rounded-full border px-3 py-1 text-[11.5px] font-semibold transition-all duration-150',
                     genreFilter === genre
-                      ? 'border-violet-500/70 bg-gradient-to-r from-violet-500 to-indigo-500 text-white shadow-sm shadow-violet-500/30 ring-1 ring-violet-500/20'
+                      ? 'border-primary/70 bg-gradient-to-r from-primary to-primary text-white shadow-sm shadow-primary/30 ring-1 ring-primary/20'
                       : 'border-border bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted hover:border-border/80'
                   )}
                 >
@@ -213,16 +213,16 @@ export function MusicPicker({
 
           {/* Now playing bar */}
           {playingTrackId && (
-            <div className='mx-3 mt-2.5 flex items-center gap-2.5 rounded-xl border border-violet-500/25 bg-violet-500/[0.08] px-3 py-2'>
+            <div className='mx-3 mt-2.5 flex items-center gap-2.5 rounded-xl border border-primary/25 bg-primary/[0.08] px-3 py-2'>
               <span className='relative flex h-2 w-2 shrink-0'>
-                <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75' />
-                <span className='relative inline-flex h-2 w-2 rounded-full bg-violet-500' />
+                <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75' />
+                <span className='relative inline-flex h-2 w-2 rounded-full bg-primary' />
               </span>
-              <p className='flex-1 text-[11.5px] font-medium text-violet-300'>{text.storyComposer.nowPlaying}</p>
+              <p className='flex-1 text-[11.5px] font-medium text-primary/30'>{text.storyComposer.nowPlaying}</p>
               <button
                 type='button'
                 onClick={onToggleMute}
-                className='flex h-6 w-6 items-center justify-center rounded-lg text-violet-400 hover:text-white transition-colors hover:bg-violet-500/20'
+                className='flex h-6 w-6 items-center justify-center rounded-lg text-primary hover:text-white transition-colors hover:bg-primary/20'
                 aria-label={isMusicMuted ? 'Unmute' : 'Mute'}
               >
                 {isMusicMuted ? <VolumeX className='h-3.5 w-3.5' /> : <Volume2 className='h-3.5 w-3.5' />}

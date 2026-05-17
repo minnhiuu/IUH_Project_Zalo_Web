@@ -3,7 +3,7 @@ import { commentApi } from '../api/comment.api'
 import { reactionApi } from '../api/reaction.api'
 import { interactionApi } from '../api/interaction.api'
 import { socialFeedApi, type CreatePostRequest, type UpdatePostRequest } from '../api/post.api'
-import { socialFeedCommentKeys, socialFeedKeys, socialStoryKeys } from './keys'
+import { myPostsKeys, socialFeedCommentKeys, socialFeedKeys, socialReelKeys, socialStoryKeys } from './keys'
 import type { CreateCommentRequest, UpdateCommentRequest } from '../schemas/comment.schema'
 import type { ReactionType } from '../components/post/reaction-picker'
 
@@ -17,7 +17,13 @@ export const useCreateSocialPostMutation = () => {
   return useMutation({
     mutationFn: (payload: CreatePostRequest) => socialFeedApi.createPost(payload),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: socialFeedKeys.all })
+      // Invalidate everything social-related and force refetch
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: socialFeedKeys.all, refetchType: 'all' }),
+        queryClient.invalidateQueries({ queryKey: socialStoryKeys.all, refetchType: 'all' }),
+        queryClient.invalidateQueries({ queryKey: socialReelKeys.all, refetchType: 'all' }),
+        queryClient.invalidateQueries({ queryKey: myPostsKeys.all, refetchType: 'all' })
+      ])
     }
   })
 }

@@ -44,7 +44,7 @@ export function MessageMoreMenu({
   onAdminDelete
 }: MessageMoreMenuProps) {
   return (
-    <DropdownMenuContent side={side} align='start' sideOffset={4} className='w-62 rounded-xl '>
+    <DropdownMenuContent side={side} align='start' sideOffset={4} className='w-62 rounded-xl z-[9999]'>
       <ActionMenuItem icon={<Copy />} label={text.copy} onClick={() => navigator.clipboard.writeText(messageContent)} />
       <ActionMenuItem icon={<Pin />} label={text.pinMessage} onClick={() => onPin?.()} />
       <ActionMenuItem icon={<Star />} label={text.starMessage} onClick={() => {}} />
@@ -56,7 +56,7 @@ export function MessageMoreMenu({
           <span className='shrink-0 w-5 h-5' />
           <span className='flex-1 truncate text-foreground'>{text.otherOptions}</span>
         </DropdownMenuSubTrigger>
-        <DropdownMenuSubContent className='w-56 rounded-xl '>
+        <DropdownMenuSubContent className='w-56 rounded-xl z-[9999]'>
           <ActionMenuItem icon={<FolderHeart />} label={text.saveToMyDocuments} onClick={() => {}} />
           <ActionMenuItem icon={<AlarmClockPlus />} label={text.createReminder} onClick={() => {}} />
         </DropdownMenuSubContent>

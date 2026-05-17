@@ -24,7 +24,7 @@ export interface ReactionOption {
 }
 
 export const REACTIONS: ReactionOption[] = [
-  { type: 'LIKE', emoji: '👍', textClass: 'text-indigo-500', Icon: IconMThumbsUpDefault },
+  { type: 'LIKE', emoji: '👍', textClass: 'text-primary', Icon: IconMThumbsUpDefault },
   { type: 'LOVE', emoji: '❤️', textClass: 'text-rose-500', Icon: IconMRedHeart },
   { type: 'HAHA', emoji: '😂', textClass: 'text-amber-500', Icon: IconMFaceWithTearsOfJoy },
   { type: 'WOW', emoji: '😮', textClass: 'text-orange-500', Icon: IconMFaceWithOpenMouth },
