@@ -60,7 +60,7 @@ export function BaseDialog({
           showCloseButton={false}
           className={cn(
             'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50',
-            'w-100 max-w-[95vw] p-0 gap-0 rounded-md overflow-hidden border border-border shadow-2xl bg-background outline-none',
+            'w-full max-w-[95vw] p-0 gap-0 rounded-md overflow-hidden border border-border shadow-2xl bg-background outline-none',
             'animate-in zoom-in-95 duration-200',
             className
           )}

@@ -36,8 +36,8 @@ interface InfoRowProps {
 function InfoRow({ icon: Icon, label, value, className }: InfoRowProps) {
   return (
     <div className={`flex items-start gap-3 py-2.5 ${className ?? ''}`}>
-      <span className='mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-50 dark:bg-indigo-950/40'>
-        <Icon className='h-4 w-4 text-indigo-500 dark:text-indigo-400' />
+      <span className='mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 dark:bg-primary/20'>
+        <Icon className='h-4 w-4 text-primary dark:text-primary-foreground' />
       </span>
       <div className='min-w-0 flex-1'>
         <p className='text-[11.5px] font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500'>{label}</p>

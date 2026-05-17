@@ -3,7 +3,9 @@
     "menu": {
       "profile": "Profile",
       "settings": "Settings",
+      "data": "Data",
       "language": "Language",
+      "support": "Support",
       "appearance": "Appearance",
       "themeLight": "Light",
       "themeDark": "Dark",

@@ -26,7 +26,7 @@ createRoot(document.getElementById('root')!).render(
           </AuthProvider>
         </LocaleProvider>
       </ThemeProvider>
-      <ReactQueryDevtools initialIsOpen={false} />
+      <ReactQueryDevtools />
     </QueryClientProvider>
   </StrictMode>
 )

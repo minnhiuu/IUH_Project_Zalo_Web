@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router'
 import { UserAvatar } from '@/components/common/user-avatar'
 import type { SocialPost } from '../post/post-card'
 import { ReelCard } from './reel-card'
+import { ReelCommentsSidebar } from './reel-comments-sidebar'
 import { useSocialText } from '../../i18n/use-social-text'
 import { interactionApi } from '../../api/interaction.api'
 import { REACTIONS, type ReactionType } from '../post/reaction-picker'
@@ -27,6 +28,8 @@ interface ReelsFeedProps {
   onRetry?: () => void
   scrollContainerRef?: RefObject<HTMLDivElement | null>
   onCommentClick?: (reel: SocialPost) => void
+  selectedCommentReel?: SocialPost | null
+  onCloseComment?: () => void
   onLoadMore?: () => void
   hasMore?: boolean
   isLoadingMore?: boolean
@@ -39,11 +42,15 @@ function ReelCardSkeleton() {
 function ReelViewportItem({
   reel,
   isActive,
-  onCommentClick
+  onCommentClick,
+  isCommentOpen,
+  onCloseComment
 }: {
   reel: SocialPost
   isActive: boolean
   onCommentClick?: (reel: SocialPost) => void
+  isCommentOpen?: boolean
+  onCloseComment?: () => void
 }) {
   // Reaction state — initialise from the value returned by the server (currentUserReaction)
   const [selectedReaction, setSelectedReaction] = useState<ReactionType | null>(
@@ -163,7 +170,7 @@ function ReelViewportItem({
   if (isHidden) {
     return (
       <div className='relative flex h-full w-full items-center justify-center bg-transparent py-2 md:py-4 transition-colors duration-500'>
-        <div className='relative flex w-full max-w-[400px] items-center justify-center h-[100dvh] md:h-[90dvh] bg-black/80 md:rounded-xl'>
+        <div className='relative flex w-full md:w-auto md:aspect-[9/16] items-center justify-center h-[100dvh] md:h-full bg-black/80 md:rounded-xl'>
           <div className='flex flex-col items-center gap-3 text-white/70'>
             <EyeOff className='h-8 w-8' />
             <span className='text-[15px] font-medium'>Reel hidden</span>
@@ -175,14 +182,52 @@ function ReelViewportItem({
 
   return (
     <div className='relative flex h-full w-full items-center justify-center bg-transparent py-2 md:py-4 transition-colors duration-500'>
-      <div className='relative flex w-full max-w-[400px] items-end justify-center h-[100dvh] md:h-[90dvh]'>
+      <div className='relative flex w-full md:w-auto md:aspect-[9/16] items-end justify-center h-[100dvh] md:h-full'>
         
+        {/* Desktop Overlay: Text (Left Side) - anchored to the left of the video */}
+        <div className='hidden md:flex absolute bottom-4 right-full mr-3 xl:mr-4 z-20 w-[280px] xl:w-[360px] flex-col justify-end pointer-events-none'>
+          <div className='mb-3 flex items-center gap-3'>
+            <button type='button' onClick={handleAuthorClick} className='h-11 w-11 shrink-0 pointer-events-auto transition hover:scale-105'>
+              <UserAvatar
+                name={reel.authorName}
+                src={reel.authorAvatar}
+                className='w-full h-full border border-zinc-200 dark:border-white/10 shadow-sm'
+                fallbackClassName='bg-primary text-white text-[12px]'
+              />
+            </button>
+            <div className='flex items-center gap-1.5 pointer-events-auto'>
+              <button type='button' onClick={handleAuthorClick} className='text-[15px] font-bold tracking-wide text-zinc-900 dark:text-white hover:underline'>
+                {reel.authorName}
+              </button>
+              {(!me || me.id !== reel.authorId) && (
+                <span className='text-[14px] font-semibold text-indigo-600 dark:text-indigo-400 cursor-pointer hover:underline'>
+                  • Theo dõi
+                </span>
+              )}
+            </div>
+          </div>
+          <p className='line-clamp-4 whitespace-pre-line text-[14.5px] leading-relaxed text-zinc-800 dark:text-zinc-200 pointer-events-auto'>
+            {reel.content}
+          </p>
+        </div>
+
+        {/* Desktop Comments Modal (Right Side) */}
+        {isCommentOpen && onCloseComment && (
+          <div className='hidden md:flex absolute top-4 bottom-4 left-full ml-[88px] xl:ml-[100px] z-50 w-[340px] xl:w-[400px]'>
+            <ReelCommentsSidebar
+              post={reel}
+              onClose={onCloseComment}
+              className='relative flex h-full w-full flex-col overflow-hidden rounded-2xl border border-zinc-200/50 dark:border-white/10 bg-white/95 dark:bg-zinc-900/95 text-zinc-900 dark:text-white shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-bottom-4 duration-300'
+            />
+          </div>
+        )}
+
         {/* Reel Video Container */}
         <div className='relative h-[100dvh] md:h-full w-full shrink-0 md:rounded-xl shadow-none md:shadow-2xl overflow-hidden bg-black group'>
           <ReelCard reel={reel} isActive={isActive} />
 
-          {/* Overlay: Text */}
-          <div className='absolute bottom-0 left-0 right-14 z-20 flex flex-col justify-end bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 pb-10 pt-12 md:right-0 text-white pointer-events-none'>
+          {/* Overlay: Text (Mobile Only) */}
+          <div className='md:hidden absolute bottom-0 left-0 right-14 z-20 flex flex-col justify-end bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 pb-10 pt-12 text-white pointer-events-none'>
             <div className='mb-3 flex items-center gap-3'>
               <button type='button' onClick={handleAuthorClick} className='h-10 w-10 shrink-0 pointer-events-auto transition hover:scale-105'>
                 <UserAvatar
@@ -355,6 +400,8 @@ export function ReelsFeed({
   onRetry,
   scrollContainerRef,
   onCommentClick,
+  selectedCommentReel,
+  onCloseComment,
   onLoadMore,
   hasMore,
   isLoadingMore
@@ -428,7 +475,13 @@ export function ReelsFeed({
     <div ref={scrollContainerRef} className='hide-scrollbar h-full snap-y snap-mandatory overflow-y-auto'>
       {reels.map((reel) => (
         <div key={reel.id} className='flex h-full snap-start items-center justify-center'>
-          <ReelViewportItem reel={reel} isActive={reel.id === activeReelId} onCommentClick={onCommentClick} />
+          <ReelViewportItem 
+            reel={reel} 
+            isActive={reel.id === activeReelId} 
+            onCommentClick={onCommentClick} 
+            isCommentOpen={selectedCommentReel?.id === reel.id}
+            onCloseComment={onCloseComment}
+          />
         </div>
       ))}
     </div>

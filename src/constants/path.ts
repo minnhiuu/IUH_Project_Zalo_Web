@@ -10,6 +10,7 @@ export const PATHS = {
   BUSINESS: '/business',
 
   CHAT: {
+    ROOT: '/chat',
     CONVERSATION: '/chat/c/:id',
     USER: '/chat/u/:id'
   },

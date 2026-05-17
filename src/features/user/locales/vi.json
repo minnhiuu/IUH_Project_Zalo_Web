@@ -3,7 +3,9 @@
     "menu": {
       "profile": "Thông tin tài khoản",
       "settings": "Cài đặt",
+      "data": "Dữ liệu",
       "language": "Ngôn ngữ",
+      "support": "Hỗ trợ",
       "appearance": "Giao diện",
       "themeLight": "Sáng",
       "themeDark": "Tối",

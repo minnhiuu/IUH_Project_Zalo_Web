@@ -265,7 +265,7 @@ export function PostCommentsModal({ open, onOpenChange, post, currentReaction, o
                     <button
                       onClick={handleSharedAuthorClick}
                       disabled={!post.sharedPost.authorId}
-                      className={`text-[13px] font-semibold text-zinc-800 dark:text-zinc-200 ${post.sharedPost.authorId ? 'hover:text-indigo-500 dark:hover:text-indigo-400 hover:underline' : ''}`}
+                      className={`text-[13px] font-semibold text-zinc-800 dark:text-zinc-200 ${post.sharedPost.authorId ? 'hover:text-primary dark:hover:text-primary hover:underline' : ''}`}
                     >
                       {post.sharedPost.authorName}
                     </button>
@@ -303,7 +303,7 @@ export function PostCommentsModal({ open, onOpenChange, post, currentReaction, o
                 <button
                   type='button'
                   onClick={() => setReactionPeopleModalOpen(true)}
-                  className='flex items-center gap-2.5 rounded-md transition-colors hover:text-indigo-500 dark:hover:text-indigo-400'
+                  className='flex items-center gap-2.5 rounded-md transition-colors hover:text-primary dark:hover:text-primary'
                 >
                   {topReactionOptions.length > 0 ? (
                     <div className='flex items-center'>
@@ -318,21 +318,21 @@ export function PostCommentsModal({ open, onOpenChange, post, currentReaction, o
                       ))}
                     </div>
                   ) : (
-                    <div className='flex h-6 w-6 items-center justify-center rounded-full bg-indigo-500/10 dark:bg-indigo-500/20'>
+                    <div className='flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 dark:bg-primary/20'>
                       {activeReaction ? (
                         <activeReaction.Icon size={16} />
                       ) : (
-                        <ThumbsUp className='h-3.5 w-3.5 fill-indigo-500 text-indigo-500' />
+                        <ThumbsUp className='h-3.5 w-3.5 fill-primary text-primary' />
                       )}
                     </div>
                   )}
                   <span className='text-[15px] font-semibold text-zinc-700 dark:text-zinc-200'>{reactionsCount}</span>
                 </button>
                 <div className='flex items-center gap-3'>
-                  <span className='cursor-pointer transition-colors hover:text-indigo-400'>
+                  <span className='cursor-pointer transition-colors hover:text-primary'>
                     {text.post.commentCount(post.comments)}
                   </span>
-                  <span className='hover:text-indigo-400 cursor-pointer transition-colors'>
+                  <span className='hover:text-primary cursor-pointer transition-colors'>
                     {text.post.shareCount(post.shares)}
                   </span>
                   {post.views !== undefined && post.views > 0 && (
@@ -354,7 +354,7 @@ export function PostCommentsModal({ open, onOpenChange, post, currentReaction, o
 
                   <Button
                     variant='ghost'
-                    className={`h-11 w-full gap-2 rounded-xl transition-all hover:bg-zinc-100 dark:hover:bg-white/[0.04] ${activeReaction ? activeReaction.textClass : 'text-zinc-500 dark:text-zinc-400 hover:text-indigo-500 dark:hover:text-indigo-400'}`}
+                    className={`h-11 w-full gap-2 rounded-xl transition-all hover:bg-zinc-100 dark:hover:bg-white/[0.04] ${activeReaction ? activeReaction.textClass : 'text-zinc-500 dark:text-zinc-400 hover:text-primary dark:hover:text-primary'}`}
                     onClick={() => {
                       if (selectedReaction) {
                         setShowReactionPicker(false)
@@ -387,7 +387,7 @@ export function PostCommentsModal({ open, onOpenChange, post, currentReaction, o
                 </div>
                 <Button
                   variant='ghost'
-                  className='h-11 flex-1 gap-2 rounded-xl text-zinc-500 dark:text-zinc-400 transition-all hover:bg-zinc-100 dark:hover:bg-white/[0.04] hover:text-indigo-500 dark:hover:text-indigo-400'
+                  className='h-11 flex-1 gap-2 rounded-xl text-zinc-500 dark:text-zinc-400 transition-all hover:bg-zinc-100 dark:hover:bg-white/[0.04] hover:text-primary dark:hover:text-primary'
                   onClick={() => {
                     const commentInput = document.querySelector('textarea')
                     if (commentInput) {
@@ -400,7 +400,7 @@ export function PostCommentsModal({ open, onOpenChange, post, currentReaction, o
                 </Button>
                 <Button
                   variant='ghost'
-                  className='h-11 flex-1 gap-2 rounded-xl text-zinc-500 dark:text-zinc-400 transition-all hover:bg-zinc-100 dark:hover:bg-white/[0.04] hover:text-indigo-500 dark:hover:text-indigo-400'
+                  className='h-11 flex-1 gap-2 rounded-xl text-zinc-500 dark:text-zinc-400 transition-all hover:bg-zinc-100 dark:hover:bg-white/[0.04] hover:text-primary dark:hover:text-primary'
                   onClick={() => setShareModalOpen(true)}
                 >
                   <Share2 className='h-4.5 w-4.5' />
@@ -471,7 +471,7 @@ export function PostCommentsModal({ open, onOpenChange, post, currentReaction, o
                         type='button'
                         disabled={commentsQuery.isFetching}
                         onClick={() => setPage((p) => p + 1)}
-                        className='inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-5 py-2 text-[13px] font-semibold text-zinc-600 shadow-sm transition-all hover:bg-zinc-50 hover:text-indigo-600 hover:border-indigo-300 disabled:opacity-60 dark:border-white/10 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-indigo-400'
+                        className='inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-5 py-2 text-[13px] font-semibold text-zinc-600 shadow-sm transition-all hover:bg-zinc-50 hover:text-primary/90 hover:border-primary/30 disabled:opacity-60 dark:border-white/10 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-primary'
                       >
                         {isLoadingMore ? (
                           <>

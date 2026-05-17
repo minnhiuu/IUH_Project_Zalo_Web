@@ -2,7 +2,9 @@ export const USER_KEYS = {
   menu: {
     profile: 'user.menu.profile',
     settings: 'user.menu.settings',
+    data: 'user.menu.data',
     language: 'user.menu.language',
+    support: 'user.menu.support',
     appearance: 'user.menu.appearance',
     themeLight: 'user.menu.themeLight',
     themeDark: 'user.menu.themeDark',

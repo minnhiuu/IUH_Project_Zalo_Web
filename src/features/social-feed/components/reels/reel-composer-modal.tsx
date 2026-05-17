@@ -1,13 +1,14 @@
-import { Film, Upload, X } from 'lucide-react'
-import { useEffect, useRef, type ChangeEvent } from 'react'
-import { UserAvatar } from '@/components/common/user-avatar'
+import { useState, useRef, useCallback } from 'react'
+import { Video } from 'lucide-react'
+import { BaseDialog } from '@/components/common/base-dialog'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
-import { VisibilityDropdown } from '../composer/visibility-dropdown'
-import { useReelComposer } from './hooks/use-reel-composer'
+import { cn } from '@/lib/utils'
 import { useSocialText } from '../../i18n/use-social-text'
-import { ReelVideoPlayer } from './reel-video-player'
+import { toast } from 'sonner'
+import { useCreateSocialPostMutation } from '../../queries/use-mutations'
+import { fileApi } from '../../api/file.api'
+import { extractHashtags } from '@/utils/hashtag'
 
 interface ReelComposerModalProps {
   open: boolean
@@ -16,153 +17,180 @@ interface ReelComposerModalProps {
 
 export function ReelComposerModal({ open, onOpenChange }: ReelComposerModalProps) {
   const { text } = useSocialText()
-  const composer = useReelComposer(open)
-  const fileInputRef = useRef<HTMLInputElement | null>(null)
+  const { mutateAsync: createPost, isPending } = useCreateSocialPostMutation()
+  
+  const [videoFile, setVideoFile] = useState<File | null>(null)
+  const [videoUrl, setVideoUrl] = useState<string | null>(null)
+  const [caption, setCaption] = useState('')
+  const [isUploading, setIsUploading] = useState(false)
+  const [isDragging, setIsDragging] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const {
-    profileName,
-    profileAvatar,
-    visibility,
-    setVisibility,
-    caption,
-    setCaption,
-    videoFile,
-    videoPreviewUrl,
-    onPickVideoFile,
-    clearVideo,
-    submitReel,
-    isSubmitting
-  } = composer
+  const isPublishing = isUploading || isPending
 
-  useEffect(() => {
-    if (!import.meta.env.DEV || !videoPreviewUrl) {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) handleProcessFile(file)
+  }
+
+  const handleProcessFile = (file: File) => {
+    if (!file.type.startsWith('video/')) {
+      toast.error(text.reelComposer.invalidVideo)
       return
     }
 
-    console.info('[ReelComposerModal] preview video source', {
-      source: videoPreviewUrl,
-      fileName: videoFile?.name ?? null
-    })
-  }, [videoPreviewUrl, videoFile?.name])
+    if (videoUrl) URL.revokeObjectURL(videoUrl)
 
-  const handleVideoInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = event.target.files?.[0] ?? null
-    onPickVideoFile(selectedFile)
-    event.currentTarget.value = ''
+    setVideoFile(file)
+    const url = URL.createObjectURL(file)
+    setVideoUrl(url)
   }
 
-  const handleSubmit = async () => {
-    const isSuccess = await submitReel()
-    if (isSuccess) {
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(true)
+  }, [])
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+  }, [])
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      setIsDragging(false)
+
+      const file = e.dataTransfer.files?.[0]
+      if (file) handleProcessFile(file)
+    },
+    []
+  )
+
+  const handlePublish = async () => {
+    if (!videoFile) return
+    setIsUploading(true)
+    try {
+      const uploadResponse = await fileApi.upload(videoFile)
+      const key = uploadResponse.data.data.key
+
+      const trimmedCaption = caption.trim()
+      const hashtags = extractHashtags(trimmedCaption)
+
+      await createPost({
+        postType: 'REEL',
+        visibility: 'ALL',
+        caption: trimmedCaption || undefined,
+        hashtags: hashtags.length > 0 ? hashtags : undefined,
+        media: [{ url: key, type: 'VIDEO' }]
+      })
+
+      toast.success(text.reelComposer.successToast)
       onOpenChange(false)
+    } catch (error) {
+      toast.error(text.reelComposer.errorToast)
+    } finally {
+      setIsUploading(false)
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        showCloseButton
-        className='top-0 left-0 h-dvh w-screen max-w-none translate-x-0 translate-y-0 overflow-hidden rounded-none border-none bg-zinc-100 p-0 dark:bg-zinc-950 sm:h-dvh sm:w-screen sm:max-w-none'
+    <>
+      <BaseDialog
+        open={open}
+        onOpenChange={(isOpen) => {
+          onOpenChange(isOpen)
+          if (!isOpen) {
+            if (videoUrl) URL.revokeObjectURL(videoUrl)
+            setVideoFile(null)
+            setVideoUrl(null)
+            setCaption('')
+          }
+        }}
+        title={text.reelComposer.title}
+        className='sm:max-w-[90vw] lg:max-w-[1200px] xl:max-w-[1400px] w-full overflow-hidden'
+        noContentPadding
+        hideFooterBorder
       >
-        <DialogHeader className='sr-only'>
-          <DialogTitle>{text.reelComposer.title}</DialogTitle>
-          <DialogDescription>{text.reelComposer.dialogDescription}</DialogDescription>
-        </DialogHeader>
+        <div className='flex flex-col sm:flex-row w-full h-[75vh] min-h-[600px] max-h-[850px] bg-background'>
+          {/* Left Panel */}
+          <div className='w-full sm:w-[360px] flex flex-col border-r border-border bg-card z-10'>
+            <div className='flex-1 overflow-y-auto p-4 no-scrollbar'>
+              <input type='file' accept='video/*' className='hidden' ref={fileInputRef} onChange={handleFileChange} />
 
-        <div className='grid h-full w-full grid-cols-1 lg:grid-cols-[minmax(0,1.2fr)_minmax(360px,520px)]'>
-          <div className='flex h-full items-center justify-center bg-linear-to-br from-zinc-900 to-zinc-700 p-6 dark:from-zinc-950 dark:to-zinc-900'>
-            <div className='relative aspect-9/16 h-full max-h-[78vh] w-full max-w-107.5 overflow-hidden rounded-3xl border border-white/20 bg-black shadow-2xl'>
-              {videoPreviewUrl ? (
-                <ReelVideoPlayer
-                  src={videoPreviewUrl}
-                  ariaLabel={caption || text.reelComposer.title}
-                  className='h-full w-full'
-                />
-              ) : (
-                <div className='flex h-full w-full flex-col items-center justify-center gap-4 text-zinc-300'>
-                  <Film className='h-12 w-12' />
-                  <p className='text-center text-sm font-medium'>{text.reelComposer.previewEmpty}</p>
+              <div
+                className={cn(
+                  'border-2 border-dashed rounded-xl flex flex-col items-center justify-center p-6 text-center cursor-pointer transition-colors',
+                  isDragging ? 'border-primary bg-primary/5' : 'border-border hover:bg-accent',
+                  videoFile ? 'h-32' : 'h-48'
+                )}
+                onClick={() => fileInputRef.current?.click()}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+              >
+                <div className='w-12 h-12 bg-muted rounded-full flex items-center justify-center mb-3'>
+                  <Video className='w-6 h-6 text-muted-foreground' />
+                </div>
+                <h3 className='text-[15px] font-bold text-foreground mb-1'>
+                  {videoFile ? text.reelComposer.replaceVideo : text.reelComposer.pickVideo}
+                </h3>
+                <p className='text-[13px] text-muted-foreground'>{text.reelComposer.uploadHint}</p>
+              </div>
+
+              {videoFile && (
+                <div className='mt-6 flex flex-col gap-2'>
+                  <span className='text-[14px] font-semibold text-foreground'>{text.storyComposer.captionLabel}</span>
+                  <Textarea
+                    placeholder={text.reelComposer.captionPlaceholder}
+                    value={caption}
+                    onChange={(e) => setCaption(e.target.value)}
+                    className='w-full min-h-[120px] resize-none bg-background border-border text-[15px]'
+                  />
                 </div>
               )}
             </div>
-          </div>
 
-          <div className='flex h-full flex-col overflow-y-auto bg-white px-5 py-7 sm:px-8 dark:bg-zinc-950'>
-            <div className='mb-6'>
-              <h2 className='text-xl font-semibold text-zinc-900 dark:text-zinc-100'>{text.reelComposer.title}</h2>
-              <p className='mt-1 text-sm text-zinc-600 dark:text-zinc-400'>{text.reelComposer.subtitle}</p>
-            </div>
-
-            <div className='mb-5 flex items-center justify-between gap-3 rounded-2xl border border-zinc-200 p-3 dark:border-white/10'>
-              <div className='flex min-w-0 items-center gap-3'>
-                <div className='h-11 w-11 shrink-0'>
-                  <UserAvatar
-                    name={profileName}
-                    src={profileAvatar}
-                    className='h-full w-full border border-background'
-                    fallbackClassName='bg-primary text-white'
-                  />
-                </div>
-                <div className='min-w-0'>
-                  <p className='truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100'>{profileName}</p>
-                  <VisibilityDropdown value={visibility} onChange={setVisibility} align='start' showIcon />
-                </div>
-              </div>
-            </div>
-
-            <div className='space-y-3'>
-              <input
-                ref={fileInputRef}
-                type='file'
-                accept='video/*'
-                className='hidden'
-                onChange={handleVideoInputChange}
-              />
-
-              <div className='flex flex-wrap items-center gap-2'>
-                <Button
-                  type='button'
-                  variant='outline'
-                  className='rounded-full'
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <Upload className='h-4 w-4' />
-                  {videoFile ? text.reelComposer.replaceVideo : text.reelComposer.pickVideo}
-                </Button>
-
-                {videoFile ? (
-                  <Button type='button' variant='ghost' className='rounded-full' onClick={clearVideo}>
-                    <X className='h-4 w-4' />
-                    {text.reelComposer.removeVideo}
-                  </Button>
-                ) : null}
-              </div>
-
-              <p className='text-xs text-zinc-500 dark:text-zinc-400'>{text.reelComposer.videoHint}</p>
-
-              <div className='rounded-2xl border border-zinc-200 p-3 dark:border-white/10'>
-                <Textarea
-                  value={caption}
-                  onChange={(event) => setCaption(event.target.value)}
-                  placeholder={text.reelComposer.captionPlaceholder}
-                  className='min-h-36 resize-none border-none bg-transparent p-0 text-sm text-zinc-900 shadow-none focus-visible:ring-0 dark:text-zinc-100'
-                />
-              </div>
-            </div>
-
-            <div className='mt-auto pt-6'>
+            <div className='mt-auto p-4 border-t border-border bg-card'>
               <Button
-                type='button'
-                onClick={handleSubmit}
-                disabled={isSubmitting || !videoFile}
-                className='h-11 w-full rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50'
+                onClick={handlePublish}
+                disabled={!videoFile || isPublishing}
+                className='w-full h-11 rounded-xl text-[15px] font-bold shadow-sm'
               >
-                {isSubmitting ? text.reelComposer.publishing : text.reelComposer.publish}
+                {isPublishing ? text.reelComposer.publishing : (videoFile ? text.reelComposer.publish : text.reelComposer.upload)}
               </Button>
             </div>
           </div>
+
+          {/* Right Panel (Preview) */}
+          <div className='flex-1 bg-reel-modal-bg flex items-center justify-center relative overflow-hidden'>
+            {videoUrl ? (
+              <div className='w-[85%] max-w-[850px] h-[75%] max-h-[550px] flex items-center justify-center rounded-xl overflow-hidden'>
+                <video src={videoUrl} controls className='w-full h-full object-contain' autoPlay loop />
+              </div>
+            ) : (
+              <div className='w-[85%] max-w-[850px] h-[75%] max-h-[550px] flex flex-col bg-card rounded-xl shadow-md overflow-hidden'>
+                <div className='px-4 py-3'>
+                  <span className='text-[15px] font-bold text-foreground'>{text.storyComposer.preview}</span>
+                </div>
+                <div className='flex-1 px-4 pb-4'>
+                  <div className='w-full h-full bg-reel-preview-bg rounded-lg overflow-hidden flex items-center justify-center relative'>
+                    <div className='text-center p-6 text-muted-foreground'>
+                      <p className='font-semibold text-foreground text-[15px] mb-1'>
+                        {text.reelComposer.videoPreviewTitle}
+                      </p>
+                      <p className='text-[13px]'>{text.reelComposer.videoPreviewDesc}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </BaseDialog>
+    </>
   )
 }

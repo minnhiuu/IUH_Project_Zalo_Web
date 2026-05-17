@@ -199,7 +199,7 @@ export function PostCard({ post }: PostCardProps) {
   return (
     <Card
       ref={viewRef}
-      className='gap-0 py-0 overflow-visible rounded-none sm:rounded-2xl border-x-0 sm:border-x border-y border-zinc-200 dark:border-white/[0.08] bg-white dark:bg-[#09090b]/80 dark:backdrop-blur-2xl shadow-sm dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-300 hover:shadow-md dark:hover:bg-[#121212]/90'
+      className='gap-0 py-0 overflow-visible rounded-none sm:rounded-2xl border-x-0 sm:border-x border-y border-white bg-white/70 backdrop-blur-xl dark:border-white/[0.08] dark:bg-[#09090b]/80 dark:backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-300 hover:shadow-[0_8px_40px_rgb(0,0,0,0.06)] dark:hover:bg-[#121212]/90'
     >
       <CardHeader className='flex flex-row items-start justify-between px-4 sm:px-6 py-4 sm:py-5'>
         <div className='flex items-center gap-4'>
@@ -207,11 +207,11 @@ export function PostCard({ post }: PostCardProps) {
             onClick={handleAuthorClick}
             className='transition-transform hover:scale-105 active:scale-95'
           >
-            <div className='h-11 w-11'>
+            <div className='h-11 w-11 shadow-sm rounded-full'>
               <UserAvatar
                 name={post.authorName}
                 src={post.authorAvatar}
-                className='w-full h-full border border-background'
+                className='w-full h-full border-2 border-white dark:border-zinc-800'
                 fallbackClassName='bg-primary'
               />
             </div>
@@ -219,7 +219,7 @@ export function PostCard({ post }: PostCardProps) {
           <div>
             <button
               onClick={handleAuthorClick}
-              className='text-[15px] font-semibold text-zinc-900 dark:text-[#ececec] tracking-tight hover:text-indigo-500 dark:hover:text-indigo-400 hover:underline'
+              className='text-[15px] font-semibold text-zinc-900 dark:text-[#ececec] tracking-tight hover:text-[#0068ff] dark:hover:text-blue-400 hover:underline'
             >
               {post.authorName}
             </button>
@@ -298,7 +298,7 @@ export function PostCard({ post }: PostCardProps) {
           {post.content?.length > 150 && (
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className='mt-2 text-[14px] font-medium text-zinc-500 dark:text-zinc-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors'
+              className='mt-2 text-[14px] font-medium text-zinc-500 dark:text-zinc-400 hover:text-primary dark:hover:text-primary transition-colors'
             >
               {isExpanded ? text.post.showLess || 'Show less' : text.post.readMore || 'Read more'}
             </button>
@@ -323,7 +323,7 @@ export function PostCard({ post }: PostCardProps) {
               <button
                 onClick={handleSharedAuthorClick}
                 disabled={!post.sharedPost.authorId}
-                className={`text-[13px] font-semibold text-zinc-800 dark:text-zinc-200 ${post.sharedPost.authorId ? 'hover:text-indigo-500 dark:hover:text-indigo-400 hover:underline' : ''}`}
+                className={`text-[13px] font-semibold text-zinc-800 dark:text-zinc-200 ${post.sharedPost.authorId ? 'hover:text-primary dark:hover:text-primary hover:underline' : ''}`}
               >
                 {post.sharedPost.authorName}
               </button>
@@ -358,7 +358,7 @@ export function PostCard({ post }: PostCardProps) {
             <button
               type='button'
               onClick={() => setReactionPeopleModalOpen(true)}
-              className='flex items-center gap-2.5 rounded-md transition-colors hover:text-indigo-500 dark:hover:text-indigo-400'
+              className='flex items-center gap-2.5 rounded-md transition-colors hover:text-primary dark:hover:text-primary'
             >
               {topReactionOptions.length > 0 ? (
                 <div className='flex items-center'>
@@ -373,11 +373,11 @@ export function PostCard({ post }: PostCardProps) {
                   ))}
                 </div>
               ) : (
-                <div className='flex h-6 w-6 items-center justify-center rounded-full bg-indigo-500/10 dark:bg-indigo-500/20'>
+                <div className='flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 dark:bg-primary/20'>
                   {activeReaction ? (
-                    <activeReaction.Icon size={16} />
+                    <span className='text-xs'>{activeReaction.emoji}</span>
                   ) : (
-                    <ThumbsUp className='h-3.5 w-3.5 fill-indigo-500 text-indigo-500' />
+                    <ThumbsUp className='h-3.5 w-3.5 fill-primary text-primary' />
                   )}
                 </div>
               )}
@@ -390,14 +390,14 @@ export function PostCard({ post }: PostCardProps) {
             {displayedCommentsCount > 0 && (
               <button
                 type='button'
-                className='cursor-pointer transition-colors hover:text-indigo-400'
+                className='cursor-pointer transition-colors hover:text-primary'
                 onClick={() => setCommentsModalOpen(true)}
               >
                 {text.post.commentCount(displayedCommentsCount)}
               </button>
             )}
             {post.shares > 0 && (
-              <span className='hover:text-indigo-400 cursor-pointer transition-colors'>
+              <span className='hover:text-primary cursor-pointer transition-colors'>
                 {text.post.shareCount(post.shares)}
               </span>
             )}
@@ -422,7 +422,7 @@ export function PostCard({ post }: PostCardProps) {
 
             <Button
               variant='ghost'
-              className={`h-11 w-full gap-2 rounded-xl transition-all hover:bg-zinc-100 dark:hover:bg-white/[0.04] ${activeReaction ? activeReaction.textClass : 'text-zinc-500 dark:text-zinc-400 hover:text-indigo-500 dark:hover:text-indigo-400'}`}
+              className={`h-11 w-full gap-2 rounded-xl transition-all hover:bg-zinc-100 dark:hover:bg-white/[0.04] ${activeReaction ? activeReaction.textClass : 'text-zinc-500 dark:text-zinc-400 hover:text-[#0068ff] dark:hover:text-blue-400'}`}
               onClick={() => {
                 if (selectedReaction) {
                   setSelectedReaction(null)
@@ -450,7 +450,7 @@ export function PostCard({ post }: PostCardProps) {
           </div>
           <Button
             variant='ghost'
-            className='h-11 flex-1 gap-2 rounded-xl text-zinc-500 dark:text-zinc-400 transition-all hover:bg-zinc-100 dark:hover:bg-white/[0.04] hover:text-indigo-500 dark:hover:text-indigo-400'
+            className='h-11 flex-1 gap-2 rounded-xl text-zinc-500 dark:text-zinc-400 transition-all hover:bg-zinc-100 dark:hover:bg-white/[0.04] hover:text-[#0068ff] dark:hover:text-blue-400'
             onClick={() => setCommentsModalOpen(true)}
           >
             <MessageCircle className='h-4.5 w-4.5' />
@@ -458,7 +458,7 @@ export function PostCard({ post }: PostCardProps) {
           </Button>
           <Button
             variant='ghost'
-            className='h-11 flex-1 gap-2 rounded-xl text-zinc-500 dark:text-zinc-400 transition-all hover:bg-zinc-100 dark:hover:bg-white/[0.04] hover:text-indigo-500 dark:hover:text-indigo-400'
+            className='h-11 flex-1 gap-2 rounded-xl text-zinc-500 dark:text-zinc-400 transition-all hover:bg-zinc-100 dark:hover:bg-white/[0.04] hover:text-[#0068ff] dark:hover:text-blue-400'
             onClick={() => setShareModalOpen(true)}
           >
             <Share2 className='h-4.5 w-4.5' />
@@ -527,22 +527,13 @@ export function PostCard({ post }: PostCardProps) {
         />
       )}
 
-      {isEditing && (
-        <Dialog open={isEditing} onOpenChange={setIsEditing}>
-          <DialogContent className='max-h-[90vh] w-[95vw] sm:max-w-[600px] overflow-y-auto border-none p-0 bg-transparent shadow-none [&>button]:hidden'>
-            <DialogHeader className='sr-only'>
-              <DialogTitle>Edit Post</DialogTitle>
-              <DialogDescription>Edit your social feed post</DialogDescription>
-            </DialogHeader>
-            <PostComposer 
-              inModal 
-              initialPost={post} 
-              onPostSuccess={() => setIsEditing(false)} 
-              onCancel={() => setIsEditing(false)}
-            />
-          </DialogContent>
-        </Dialog>
-      )}
+      <PostComposer
+        open={isEditing}
+        onOpenChange={setIsEditing}
+        initialPost={post}
+        onPostSuccess={() => setIsEditing(false)}
+        onCancel={() => setIsEditing(false)}
+      />
     </Card>
   )
 }

@@ -1,5 +1,7 @@
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import { friendOptions } from './options'
+import { friendKeys } from './keys'
+import { friendApi } from '../api/friend.api'
 
 export const useReceivedFriendRequests = (page: number = 0, size: number = 10, enabled: boolean = true) => {
   return useQuery(friendOptions.receivedRequests(page, size, enabled))
@@ -39,4 +41,16 @@ export const useUnifiedSuggestions = (page: number = 0, size: number = 20, enabl
 
 export const useUnifiedSuggestionsInfinite = (size: number = 20, enabled: boolean = true) => {
   return useInfiniteQuery(friendOptions.unifiedSuggestionsInfinite(size, enabled))
+}
+
+export const useOnlineFriends = (page: number = 0, size: number = 20, enabled: boolean = true) => {
+  return useQuery({
+    queryKey: friendKeys.onlineFriends(page, size),
+    queryFn: async () => {
+      const res = await friendApi.getOnlineFriends(page, size)
+      return res.data.data
+    },
+    enabled,
+    staleTime: 30_000 // Presence data is relatively stable
+  })
 }

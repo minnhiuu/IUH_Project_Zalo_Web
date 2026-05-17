@@ -31,5 +31,6 @@ export const friendKeys = {
   acceptRequest: () => [...friendKeys.all(), 'accept-request'] as const,
   declineRequest: () => [...friendKeys.all(), 'decline-request'] as const,
   cancelRequest: () => [...friendKeys.all(), 'cancel-request'] as const,
-  unfriend: () => [...friendKeys.all(), 'unfriend'] as const
+  unfriend: () => [...friendKeys.all(), 'unfriend'] as const,
+  onlineFriends: (page: number, size: number) => [...friendKeys.all(), 'online', page, size] as const
 }
