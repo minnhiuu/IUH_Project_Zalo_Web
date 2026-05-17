@@ -121,7 +121,7 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
         break
       case 'accept':
         if (friendshipStatus?.friendshipId) {
-          acceptRequestMutation.mutate(friendshipStatus.friendshipId)
+          acceptRequestMutation.mutate({ requestId: friendshipStatus.friendshipId })
         }
         break
       case 'withdraw':

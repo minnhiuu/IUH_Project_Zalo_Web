@@ -112,7 +112,7 @@ export default function OtherProfilePage() {
         if (userId) sendRequestMutation.mutate({ receiverId: userId })
         break
       case 'accept':
-        if (friendshipStatus?.friendshipId) acceptRequestMutation.mutate(friendshipStatus.friendshipId)
+        if (friendshipStatus?.friendshipId) acceptRequestMutation.mutate({ requestId: friendshipStatus.friendshipId })
         break
       case 'withdraw':
         if (friendshipStatus?.friendshipId) cancelRequestMutation.mutate(friendshipStatus.friendshipId)

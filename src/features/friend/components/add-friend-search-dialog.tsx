@@ -69,7 +69,7 @@ function SearchResultItem({ user, onAddFriend }: SearchResultItemProps) {
         break
       case 'accept':
         if (friendshipStatus?.friendshipId) {
-          acceptRequestMutation.mutate(friendshipStatus.friendshipId, {
+          acceptRequestMutation.mutate({ requestId: friendshipStatus.friendshipId }, {
             onSuccess: () => {
               showSuccessToast(text.toast.acceptSuccess)
             },
