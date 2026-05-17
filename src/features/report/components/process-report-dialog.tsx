@@ -29,6 +29,8 @@ import { showSuccessToast } from '@/utils/toast'
 import { cn } from '@/lib/utils'
 import { formatDateTimeShort } from '@/utils/date'
 import type { ContentReportSummary, AdminAction, ReportStatus } from '@/features/report/schemas/report.schema'
+import { usePostById } from '@/features/social-feed/queries/use-queries'
+import { PostCard } from '@/features/social-feed/components/post/post-card'
 
 type ProcessReportDialogProps = {
   summary: ContentReportSummary | null
@@ -37,10 +39,10 @@ type ProcessReportDialogProps = {
 }
 
 const actionStyles: Record<AdminAction, string> = {
-  DELETE_CONTENT: 'border-red-300 bg-red-50 text-red-700',
-  HIDE_CONTENT: 'border-amber-300 bg-amber-50 text-amber-700',
-  WARN_USER: 'border-sky-300 bg-sky-50 text-sky-700',
-  DISMISS_REPORT: 'border-slate-300 bg-slate-100 text-slate-700'
+  DELETE_CONTENT: 'border-red-300 bg-red-50 text-red-700 hover:bg-red-100 hover:text-red-800',
+  HIDE_CONTENT: 'border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100 hover:text-amber-800',
+  WARN_USER: 'border-sky-300 bg-sky-50 text-sky-700 hover:bg-sky-100 hover:text-sky-800',
+  DISMISS_REPORT: 'border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-800'
 }
 
 const statusVariant: Record<ReportStatus, 'destructive' | 'default' | 'secondary'> = {
@@ -66,6 +68,8 @@ export function ProcessReportDialog({ summary, open, onOpenChange }: ProcessRepo
     summary?.targetId
   )
   const individualReports = targetReportsData?.data?.data ?? []
+
+  const { data: postData, isLoading: loadingPost } = usePostById(summary?.targetType === 'POST' ? summary.targetId : '')
 
   const handleSubmit = () => {
     if (!summary || !action) return
@@ -124,7 +128,20 @@ export function ProcessReportDialog({ summary, open, onOpenChange }: ProcessRepo
 
         <div className='space-y-4'>
           {/* Reported content */}
-          {summary.contentText && (
+          {summary.targetType === 'POST' && loadingPost ? (
+            <div className='flex items-center justify-center p-8'>
+              <Loader2 className='h-8 w-8 animate-spin text-primary' />
+            </div>
+          ) : summary.targetType === 'POST' && postData ? (
+            <div className='rounded-lg border p-3 bg-muted/10'>
+              <p className='mb-3 flex items-center gap-1.5 text-sm font-medium'>
+                <MessageSquareText className='h-4 w-4' /> {text.processDialog.reportedContent}
+              </p>
+              <div className='rounded-xl overflow-hidden'>
+                <PostCard post={postData} hideLikeShare />
+              </div>
+            </div>
+          ) : summary.contentText && (
             <div className='rounded-lg border p-3'>
               <p className='mb-2 flex items-center gap-1.5 text-sm font-medium'>
                 <MessageSquareText className='h-4 w-4' /> {text.processDialog.reportedContent}
@@ -141,7 +158,7 @@ export function ProcessReportDialog({ summary, open, onOpenChange }: ProcessRepo
             </div>
           )}
 
-          {summary.contentMediaUrls && summary.contentMediaUrls.length > 0 && (
+          {summary.targetType !== 'POST' && summary.contentMediaUrls && summary.contentMediaUrls.length > 0 && (
             <div className='rounded-lg border p-3'>
               <p className='mb-2 flex items-center gap-1.5 text-sm font-medium'>
                 <ImageIcon className='h-4 w-4' /> {text.processDialog.media(summary.contentMediaUrls.length)}

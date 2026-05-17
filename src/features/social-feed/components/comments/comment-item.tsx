@@ -13,6 +13,8 @@ import { useSocialCommentReplies } from '../../queries/use-queries'
 import { commentApi } from '../../api/comment.api'
 import { socialFeedCommentKeys } from '../../queries/keys'
 import { ReportContentDialog } from '@/features/report/components/report-content-dialog'
+import { useNavigate } from 'react-router'
+import { PATHS } from '@/constants/path'
 
 interface CommentItemProps {
   comment: SocialFeedComment
@@ -41,6 +43,7 @@ export function CommentItem({
 }: CommentItemProps) {
   const { text, language } = useSocialText()
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
   const [selectedReaction, setSelectedReaction] = useState<ReactionType | null>(
     (comment.currentUserReaction as ReactionType) ?? null
   )
@@ -116,22 +119,36 @@ export function CommentItem({
     await onDelete(comment.id)
   }
 
+  function handleAuthorClick(e?: React.MouseEvent) {
+    if (e) {
+      e.stopPropagation()
+    }
+    if (!comment.authorId) return
+    if (currentUserId && comment.authorId === currentUserId) {
+      navigate(PATHS.USER.PROFILE)
+    } else {
+      navigate(PATHS.USER.OTHER_PROFILE.replace(':userId', comment.authorId))
+    }
+  }
+
   return (
     <div className='group flex items-start gap-2.5 w-full py-1 transition-all'>
       <div className='mt-1 h-8 w-8 shrink-0 transition-transform duration-200 group-hover:scale-105'>
-        <UserAvatar
-          name={comment.authorName}
-          src={effectiveAuthorAvatar}
-          className='w-full h-full border border-background'
-          fallbackClassName='bg-primary text-white text-[11px] font-semibold'
-        />
+        <button onClick={handleAuthorClick} className='w-full h-full rounded-full cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary'>
+          <UserAvatar
+            name={comment.authorName}
+            src={effectiveAuthorAvatar}
+            className='w-full h-full border border-background'
+            fallbackClassName='bg-primary text-white text-[11px] font-semibold'
+          />
+        </button>
       </div>
       <div className='min-w-0 flex-1 space-y-1'>
         <div className='relative inline-block max-w-[calc(100%-2rem)] rounded-2xl rounded-tl-sm bg-zinc-100 px-3.5 py-2 dark:bg-zinc-900 shadow-sm border border-transparent dark:border-white/5'>
           <div className='flex items-center gap-2 mb-0.5'>
-            <p className='text-[13px] font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 cursor-pointer hover:underline'>
+            <button onClick={handleAuthorClick} className='text-[13px] font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 hover:text-primary dark:hover:text-primary cursor-pointer hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary rounded'>
               {comment.authorName}
-            </p>
+            </button>
             {comment.isEdited ? (
               <span className='text-[11px] font-medium text-zinc-500/80 dark:text-zinc-500'>
                 {text.commentItem.edited}

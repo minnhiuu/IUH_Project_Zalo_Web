@@ -61,9 +61,10 @@ export interface SocialPost {
 
 interface PostCardProps {
   post: SocialPost
+  hideLikeShare?: boolean
 }
 
-export function PostCard({ post }: PostCardProps) {
+export function PostCard({ post, hideLikeShare }: PostCardProps) {
   const navigate = useNavigate()
   const { user: me } = useAuthContext()
   const { text, language } = useSocialText()
@@ -113,6 +114,7 @@ export function PostCard({ post }: PostCardProps) {
   const visibilityLabel = post.visibility === 'Friends' ? text.post.visibility.Friends : post.visibility === 'Private' ? text.post.visibility.Private : text.post.visibility.Public
   const defaultPostedAtLabel = text.post.justNow
   const postedAtLabel = formatRelativeTime(post.postedAt, language) || defaultPostedAtLabel
+  const canShare = !hideLikeShare && post.authorId !== me?.id && post.sharedPost?.authorId !== me?.id
 
   const toggleMutation = useMutation({
     mutationFn: (type: ReactionType) => commentApi.toggleReaction({ targetId: post.id, targetType: 'POST', type })
@@ -413,41 +415,43 @@ export function PostCard({ post }: PostCardProps) {
 
       <CardFooter className='flex flex-col gap-0 border-t border-zinc-200 dark:border-white/5 px-2 sm:px-4 py-2 sm:py-3'>
         <div className='flex w-full gap-1 sm:gap-2'>
-          <div
-            className='relative flex-1'
-            onMouseEnter={() => setShowReactionPicker(true)}
-            onMouseLeave={() => setShowReactionPicker(false)}
-          >
-            <ReactionPicker open={showReactionPicker} onSelect={handleReactionClick} />
-
-            <Button
-              variant='ghost'
-              className={`h-11 w-full gap-2 rounded-xl transition-all hover:bg-zinc-100 dark:hover:bg-white/[0.04] ${activeReaction ? activeReaction.textClass : 'text-zinc-500 dark:text-zinc-400 hover:text-[#0068ff] dark:hover:text-blue-400'}`}
-              onClick={() => {
-                if (selectedReaction) {
-                  setSelectedReaction(null)
-                  deleteMutation.mutate()
-                  return
-                }
-                handleReactionClick('LIKE')
-              }}
+          {!hideLikeShare && (
+            <div
+              className='relative flex-1'
+              onMouseEnter={() => setShowReactionPicker(true)}
+              onMouseLeave={() => setShowReactionPicker(false)}
             >
-              <motion.div
-                whileTap={{ scale: 0.8 }}
-                animate={selectedReaction ? { scale: [1, 1.2, 1] } : {}}
-                transition={{ duration: 0.3 }}
+              <ReactionPicker open={showReactionPicker} onSelect={handleReactionClick} />
+
+              <Button
+                variant='ghost'
+                className={`h-11 w-full gap-2 rounded-xl transition-all hover:bg-zinc-100 dark:hover:bg-white/[0.04] ${activeReaction ? activeReaction.textClass : 'text-zinc-500 dark:text-zinc-400 hover:text-[#0068ff] dark:hover:text-blue-400'}`}
+                onClick={() => {
+                  if (selectedReaction) {
+                    setSelectedReaction(null)
+                    deleteMutation.mutate()
+                    return
+                  }
+                  handleReactionClick('LIKE')
+                }}
               >
-                {activeReaction ? (
-                  <activeReaction.Icon size={24} />
-                ) : (
-                  <ThumbsUp className='h-4.5 w-4.5 transition-colors' />
-                )}
-              </motion.div>
-              <span className='text-[14px] font-semibold'>
-                {activeReaction ? text.reactions.labels[activeReaction.type] : text.reactions.labels.LIKE}
-              </span>
-            </Button>
-          </div>
+                <motion.div
+                  whileTap={{ scale: 0.8 }}
+                  animate={selectedReaction ? { scale: [1, 1.2, 1] } : {}}
+                  transition={{ duration: 0.3 }}
+                >
+                  {activeReaction ? (
+                    <activeReaction.Icon size={24} />
+                  ) : (
+                    <ThumbsUp className='h-4.5 w-4.5 transition-colors' />
+                  )}
+                </motion.div>
+                <span className='text-[14px] font-semibold'>
+                  {activeReaction ? text.reactions.labels[activeReaction.type] : text.reactions.labels.LIKE}
+                </span>
+              </Button>
+            </div>
+          )}
           <Button
             variant='ghost'
             className='h-11 flex-1 gap-2 rounded-xl text-zinc-500 dark:text-zinc-400 transition-all hover:bg-zinc-100 dark:hover:bg-white/[0.04] hover:text-[#0068ff] dark:hover:text-blue-400'
@@ -456,14 +460,16 @@ export function PostCard({ post }: PostCardProps) {
             <MessageCircle className='h-4.5 w-4.5' />
             <span className='text-[14px] font-semibold'>{text.post.comment}</span>
           </Button>
-          <Button
-            variant='ghost'
-            className='h-11 flex-1 gap-2 rounded-xl text-zinc-500 dark:text-zinc-400 transition-all hover:bg-zinc-100 dark:hover:bg-white/[0.04] hover:text-[#0068ff] dark:hover:text-blue-400'
-            onClick={() => setShareModalOpen(true)}
-          >
-            <Share2 className='h-4.5 w-4.5' />
-            <span className='text-[14px] font-semibold'>{text.post.share}</span>
-          </Button>
+          {canShare && (
+            <Button
+              variant='ghost'
+              className='h-11 flex-1 gap-2 rounded-xl text-zinc-500 dark:text-zinc-400 transition-all hover:bg-zinc-100 dark:hover:bg-white/[0.04] hover:text-[#0068ff] dark:hover:text-blue-400'
+              onClick={() => setShareModalOpen(true)}
+            >
+              <Share2 className='h-4.5 w-4.5' />
+              <span className='text-[14px] font-semibold'>{text.post.share}</span>
+            </Button>
+          )}
         </div>
       </CardFooter>
 
@@ -472,6 +478,7 @@ export function PostCard({ post }: PostCardProps) {
           open={commentsModalOpen}
           onOpenChange={setCommentsModalOpen}
           post={post}
+          hideLikeShare={hideLikeShare}
           currentReaction={selectedReaction}
           onReactionChange={(type) => {
             if (type === null) {
@@ -513,6 +520,7 @@ export function PostCard({ post }: PostCardProps) {
           post={post}
           initialSlide={mediaModalState.initialSlide}
           mediaOverride={mediaModalState.media}
+          hideLikeShare={hideLikeShare}
           currentReaction={selectedReaction}
           onReactionChange={(type) => {
             if (type === null) {

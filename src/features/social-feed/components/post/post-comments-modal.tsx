@@ -37,6 +37,7 @@ interface PostCommentsModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   post: SocialPost
+  hideLikeShare?: boolean
   /** Controlled reaction from PostCard — keeps PostCard, modal and media modal in sync */
   currentReaction?: ReactionType | null
   onReactionChange?: (type: ReactionType | null) => void
@@ -44,7 +45,7 @@ interface PostCommentsModalProps {
   onCommentDeleted?: () => void
 }
 
-export function PostCommentsModal({ open, onOpenChange, post, currentReaction, onReactionChange, onCommentAdded, onCommentDeleted }: PostCommentsModalProps) {
+export function PostCommentsModal({ open, onOpenChange, post, hideLikeShare, currentReaction, onReactionChange, onCommentAdded, onCommentDeleted }: PostCommentsModalProps) {
   const { text } = useSocialText()
   const { user } = useAuthContext()
   const navigate = useNavigate()
@@ -98,6 +99,8 @@ export function PostCommentsModal({ open, onOpenChange, post, currentReaction, o
   const topReactionOptions = displayedTopReactions
     .map((type) => REACTIONS.find((reaction) => reaction.type === type))
     .filter((reaction): reaction is (typeof REACTIONS)[number] => Boolean(reaction))
+
+  const canShare = !hideLikeShare && post.authorId !== user?.id && post.sharedPost?.authorId !== user?.id
 
   const toggleMutation = useMutation({
     mutationFn: (type: ReactionType) => commentApi.toggleReaction({ targetId: post.id, targetType: 'POST', type })
@@ -345,46 +348,48 @@ export function PostCommentsModal({ open, onOpenChange, post, currentReaction, o
               </div>
 
               <div className='mt-2.5 flex w-full gap-1 border-t border-zinc-200 pt-2.5 dark:border-white/5'>
-                <div
-                  className='relative flex-1'
-                  onMouseEnter={() => setShowReactionPicker(true)}
-                  onMouseLeave={() => setShowReactionPicker(false)}
-                >
-                  <ReactionPicker open={showReactionPicker} onSelect={handleReactionClick} />
-
-                  <Button
-                    variant='ghost'
-                    className={`h-11 w-full gap-2 rounded-xl transition-all hover:bg-zinc-100 dark:hover:bg-white/[0.04] ${activeReaction ? activeReaction.textClass : 'text-zinc-500 dark:text-zinc-400 hover:text-primary dark:hover:text-primary'}`}
-                    onClick={() => {
-                      if (selectedReaction) {
-                        setShowReactionPicker(false)
-                        if (onReactionChange) {
-                          onReactionChange(null)
-                        } else {
-                          setSelectedReaction(null)
-                          deleteMutation.mutate()
-                        }
-                        return
-                      }
-                      handleReactionClick('LIKE')
-                    }}
+                {!hideLikeShare && (
+                  <div
+                    className='relative flex-1'
+                    onMouseEnter={() => setShowReactionPicker(true)}
+                    onMouseLeave={() => setShowReactionPicker(false)}
                   >
-                    <motion.div
-                      whileTap={{ scale: 0.8 }}
-                      animate={selectedReaction ? { scale: [1, 1.2, 1] } : {}}
-                      transition={{ duration: 0.3 }}
+                    <ReactionPicker open={showReactionPicker} onSelect={handleReactionClick} />
+
+                    <Button
+                      variant='ghost'
+                      className={`h-11 w-full gap-2 rounded-xl transition-all hover:bg-zinc-100 dark:hover:bg-white/[0.04] ${activeReaction ? activeReaction.textClass : 'text-zinc-500 dark:text-zinc-400 hover:text-primary dark:hover:text-primary'}`}
+                      onClick={() => {
+                        if (selectedReaction) {
+                          setShowReactionPicker(false)
+                          if (onReactionChange) {
+                            onReactionChange(null)
+                          } else {
+                            setSelectedReaction(null)
+                            deleteMutation.mutate()
+                          }
+                          return
+                        }
+                        handleReactionClick('LIKE')
+                      }}
                     >
-                      {activeReaction ? (
-                        <activeReaction.Icon size={24} />
-                      ) : (
-                        <ThumbsUp className='h-4.5 w-4.5 transition-colors' />
-                      )}
-                    </motion.div>
-                    <span className='text-[14px] font-semibold'>
-                      {activeReaction ? text.reactions.labels[activeReaction.type] : text.reactions.labels.LIKE}
-                    </span>
-                  </Button>
-                </div>
+                      <motion.div
+                        whileTap={{ scale: 0.8 }}
+                        animate={selectedReaction ? { scale: [1, 1.2, 1] } : {}}
+                        transition={{ duration: 0.3 }}
+                      >
+                        {activeReaction ? (
+                          <activeReaction.Icon size={24} />
+                        ) : (
+                          <ThumbsUp className='h-4.5 w-4.5 transition-colors' />
+                        )}
+                      </motion.div>
+                      <span className='text-[14px] font-semibold'>
+                        {activeReaction ? text.reactions.labels[activeReaction.type] : text.reactions.labels.LIKE}
+                      </span>
+                    </Button>
+                  </div>
+                )}
                 <Button
                   variant='ghost'
                   className='h-11 flex-1 gap-2 rounded-xl text-zinc-500 dark:text-zinc-400 transition-all hover:bg-zinc-100 dark:hover:bg-white/[0.04] hover:text-primary dark:hover:text-primary'
@@ -398,14 +403,16 @@ export function PostCommentsModal({ open, onOpenChange, post, currentReaction, o
                   <MessageCircle className='h-4.5 w-4.5' />
                   <span className='text-[14px] font-semibold'>{text.post.comment}</span>
                 </Button>
-                <Button
-                  variant='ghost'
-                  className='h-11 flex-1 gap-2 rounded-xl text-zinc-500 dark:text-zinc-400 transition-all hover:bg-zinc-100 dark:hover:bg-white/[0.04] hover:text-primary dark:hover:text-primary'
-                  onClick={() => setShareModalOpen(true)}
-                >
-                  <Share2 className='h-4.5 w-4.5' />
-                  <span className='text-[14px] font-semibold'>{text.post.share}</span>
-                </Button>
+                {canShare && (
+                  <Button
+                    variant='ghost'
+                    className='h-11 flex-1 gap-2 rounded-xl text-zinc-500 dark:text-zinc-400 transition-all hover:bg-zinc-100 dark:hover:bg-white/[0.04] hover:text-primary dark:hover:text-primary'
+                    onClick={() => setShareModalOpen(true)}
+                  >
+                    <Share2 className='h-4.5 w-4.5' />
+                    <span className='text-[14px] font-semibold'>{text.post.share}</span>
+                  </Button>
+                )}
               </div>
             </div>
 
