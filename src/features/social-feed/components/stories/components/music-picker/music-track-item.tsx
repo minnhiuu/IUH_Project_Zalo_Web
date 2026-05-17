@@ -33,7 +33,7 @@ export function MusicTrackItem({ track, isSelected, isPlaying, onSelect, onToggl
       className={cn(
         'group flex items-center gap-3 rounded-xl border p-2.5 transition-all duration-200 cursor-pointer',
         isSelected
-          ? 'border-violet-500/40 bg-violet-500/[0.08] shadow-sm shadow-violet-500/10'
+          ? 'border-primary/40 bg-primary/[0.08] shadow-sm shadow-primary/10'
           : 'border-border bg-muted/40 hover:bg-muted/70 hover:border-border/80'
       )}
     >
@@ -63,7 +63,7 @@ export function MusicTrackItem({ track, isSelected, isPlaying, onSelect, onToggl
         )}
 
         {isSelected && (
-          <div className='absolute -top-1 -right-1 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-violet-500 shadow ring-2 ring-card'>
+          <div className='absolute -top-1 -right-1 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-primary shadow ring-2 ring-card'>
             <Check className='h-2.5 w-2.5 text-white' />
           </div>
         )}
@@ -97,10 +97,10 @@ export function MusicTrackItem({ track, isSelected, isPlaying, onSelect, onToggl
         onClick={(e) => { e.stopPropagation(); onTogglePlay() }}
         className={cn(
           'flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-all duration-200',
-          'hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/60',
+          'hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60',
           isActivelyPlaying
-            ? 'border-violet-400/60 bg-gradient-to-br from-violet-500 to-indigo-500 text-white shadow-md shadow-violet-500/30'
-            : 'border-border bg-muted/60 text-muted-foreground hover:border-violet-400/40 hover:text-violet-400 hover:bg-violet-500/10'
+            ? 'border-primary/60 bg-gradient-to-br from-primary to-primary text-white shadow-md shadow-primary/30'
+            : 'border-border bg-muted/60 text-muted-foreground hover:border-primary/40 hover:text-primary hover:bg-primary/10'
         )}
         aria-label={isActivelyPlaying ? 'Pause preview' : 'Play preview'}
       >

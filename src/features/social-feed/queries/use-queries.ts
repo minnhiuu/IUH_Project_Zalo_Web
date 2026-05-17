@@ -9,7 +9,8 @@ import {
   getInfiniteSocialReelsQueryOptions,
   getInfiniteMyPostsQueryOptions,
   getInfiniteUserPostsQueryOptions,
-  getPostByIdQueryOptions
+  getPostByIdQueryOptions,
+  getStoryViewersQueryOptions
 } from './options'
 
 export const useSocialFeedPosts = (page = 0, size = 20) => {
@@ -56,4 +57,11 @@ export const useInfiniteUserPosts = (userId: string, size = 20) => {
 
 export const usePostById = (postId: string) => {
   return useQuery(getPostByIdQueryOptions(postId))
+}
+
+export const useStoryViewers = (postId: string, page = 0, size = 100, enabled = true) => {
+  return useQuery({
+    ...getStoryViewersQueryOptions(postId, page, size),
+    enabled: enabled
+  })
 }

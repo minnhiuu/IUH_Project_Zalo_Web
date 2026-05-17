@@ -46,7 +46,13 @@
     "sections": {
       "newFriends": "Bạn mới",
       "receivedRequests": "Lời mời ({{count}})",
-      "suggestions": "Gợi ý ({{count}})"
+      "suggestions": "Gợi ý ({{count}})",
+      "suggestedForYou": "Gợi ý cho bạn",
+      "activeFriends": "Bạn bè đang hoạt động",
+      "seeAll": "Xem tất cả",
+      "noSuggestions": "Không có gợi ý nào",
+      "online": "Đang hoạt động",
+      "noActiveFriends": "Không có bạn bè nào đang hoạt động"
     },
     "source": {
       "phoneContact": "Liên hệ điện thoại",

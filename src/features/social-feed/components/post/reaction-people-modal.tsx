@@ -211,7 +211,7 @@ export function ReactionPeopleModal({
                         fallbackClassName='bg-primary text-white text-[13px] font-semibold'
                       />
                     </div>
-                    <span className='truncate text-[15px] font-medium text-zinc-900 dark:text-zinc-100 transition-colors group-hover:text-indigo-600 dark:group-hover:text-indigo-400'>
+                    <span className='truncate text-[15px] font-medium text-zinc-900 dark:text-zinc-100 transition-colors group-hover:text-primary/90 dark:group-hover:text-primary'>
                       {reactor.name}
                     </span>
                   </div>

@@ -5,7 +5,9 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
   menu: {
     profile: t(USER_KEYS.menu.profile),
     settings: t(USER_KEYS.menu.settings),
+    data: t(USER_KEYS.menu.data),
     language: t(USER_KEYS.menu.language),
+    support: t(USER_KEYS.menu.support),
     appearance: t(USER_KEYS.menu.appearance),
     themeLight: t(USER_KEYS.menu.themeLight),
     themeDark: t(USER_KEYS.menu.themeDark),

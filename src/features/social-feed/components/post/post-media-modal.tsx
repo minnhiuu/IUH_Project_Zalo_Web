@@ -158,7 +158,7 @@ export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, med
       <DialogContent
         showCloseButton={false}
         aria-describedby={undefined}
-        className='max-w-none w-screen h-screen sm:max-w-none p-0 m-0 border-none bg-black/95 rounded-none flex flex-col md:flex-row overflow-hidden duration-300 gap-0 !top-0 !left-0 !translate-x-0 !translate-y-0'
+        className='max-w-none w-screen h-screen sm:max-w-none p-0 m-0 border-none bg-black/95 rounded-none flex flex-col md:flex-row overflow-hidden duration-300 gap-0 !top-0 !left-0 !translate-x-0 !translate-y-0 !z-[9999]'
       >
         <DialogTitle className='sr-only'>Post media viewer</DialogTitle>
         {/* Left Side: 70% Media Carousel */}
@@ -251,7 +251,7 @@ export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, med
               <button
                 type='button'
                 onClick={() => setReactionPeopleModalOpen(true)}
-                className='flex items-center gap-1.5 rounded-md transition-colors hover:text-indigo-500 dark:hover:text-indigo-400'
+                className='flex items-center gap-1.5 rounded-md transition-colors hover:text-primary dark:hover:text-primary'
               >
                 {topReactionOptions.length > 0 ? (
                   <div className='flex items-center'>
@@ -266,11 +266,11 @@ export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, med
                     ))}
                   </div>
                 ) : (
-                  <div className='flex h-5 w-5 items-center justify-center rounded-full bg-indigo-500/10 dark:bg-indigo-500/20'>
+                  <div className='flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 dark:bg-primary/20'>
                     {activeReaction ? (
                       <activeReaction.Icon size={14} />
                     ) : (
-                      <ThumbsUp className='h-3 w-3 fill-indigo-500 text-indigo-500' />
+                      <ThumbsUp className='h-3 w-3 fill-primary text-primary' />
                     )}
                   </div>
                 )}
@@ -300,7 +300,7 @@ export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, med
 
               <Button
                 variant='ghost'
-                className={`h-9 w-full gap-2 transition-all hover:bg-zinc-100 dark:hover:bg-zinc-800 ${activeReaction ? activeReaction.textClass : 'text-zinc-500 dark:text-zinc-400 hover:text-indigo-500 dark:hover:text-indigo-400'}`}
+                className={`h-9 w-full gap-2 transition-all hover:bg-zinc-100 dark:hover:bg-zinc-800 ${activeReaction ? activeReaction.textClass : 'text-zinc-500 dark:text-zinc-400 hover:text-primary dark:hover:text-primary'}`}
                 onClick={() => {
                   if (selectedReaction) {
                     setShowReactionPicker(false)
@@ -332,7 +332,7 @@ export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, med
             </div>
             <Button
               variant='ghost'
-              className='h-9 flex-1 gap-2 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-indigo-500 dark:hover:text-indigo-400'
+              className='h-9 flex-1 gap-2 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-primary dark:hover:text-primary'
               onClick={() => {
                 const commentInput = document.querySelector('textarea')
                 if (commentInput) {
@@ -345,7 +345,7 @@ export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, med
             </Button>
             <Button
               variant='ghost'
-              className='h-9 flex-1 gap-2 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-indigo-500 dark:hover:text-indigo-400'
+              className='h-9 flex-1 gap-2 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-primary dark:hover:text-primary'
               onClick={() => setShareModalOpen(true)}
             >
               <Share2 className='h-4 w-4' />
@@ -396,26 +396,31 @@ export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, med
           </div>
         </div>
 
-        {/* Close Button layer on top of media */}
-        <button
-          onClick={() => onOpenChange(false)}
-          className='absolute top-4 left-4 z-50 rounded-full bg-black/50 p-2 text-white/70 hover:text-white hover:bg-black/70 transition-colors'
-        >
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            width='24'
-            height='24'
-            viewBox='0 0 24 24'
-            fill='none'
-            stroke='currentColor'
-            strokeWidth='2'
-            strokeLinecap='round'
-            strokeLinejoin='round'
+        {/* Top Left Area: Close Button & Logo */}
+        <div className='absolute top-4 left-4 z-50 flex items-center gap-3'>
+          <button
+            onClick={() => onOpenChange(false)}
+            className='flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white/80 hover:text-white hover:bg-white/20 transition-colors'
+            title='Close'
           >
-            <path d='M18 6 6 18' />
-            <path d='m6 6 12 12' />
-          </svg>
-        </button>
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              width='24'
+              height='24'
+              viewBox='0 0 24 24'
+              fill='none'
+              stroke='currentColor'
+              strokeWidth='2.5'
+              strokeLinecap='round'
+              strokeLinejoin='round'
+            >
+              <path d='M18 6 6 18' />
+              <path d='m6 6 12 12' />
+            </svg>
+          </button>
+          
+          <img src='/images/logo.svg' alt='Logo' className='h-8 object-contain' />
+        </div>
 
         {reactionPeopleModalOpen && (
           <ReactionPeopleModal

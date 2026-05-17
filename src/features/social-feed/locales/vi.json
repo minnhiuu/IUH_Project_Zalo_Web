@@ -18,7 +18,7 @@
     "post": "Đăng"
   },
   "launcher": {
-    "prompt": "Bạn đang nghĩ gì thế?",
+    "prompt": "{{name}} ơi, bạn đang nghĩ gì vậy?",
     "dialogTitle": "Tạo bài viết",
     "dialogDescription": "Mở trình soạn thảo toàn màn hình cho bài viết mới.",
     "createPost": "Tạo bài viết mới",
@@ -52,7 +52,18 @@
     "share": "Chia sẻ lên Tin",
     "expiresHint": "Tin của bạn sẽ hết hạn sau 24 giờ",
     "successToast": "Đã chia sẻ tin!",
-    "errorToast": "Chia sẻ tin thất bại. Vui lòng thử lại."
+    "errorToast": "Chia sẻ tin thất bại. Vui lòng thử lại.",
+    "preview": "Xem trước",
+    "rotate": "Xoay",
+    "posting": "Đang đăng",
+    "photoStory": "Tạo tin bằng Ảnh",
+    "videoStory": "Tạo tin bằng Video",
+    "discard": "Bỏ",
+    "addText": "Thêm văn bản",
+    "altText": "Văn bản thay thế",
+    "discardConfirmTitle": "Bỏ tin?",
+    "discardConfirmMsg": "Bạn có chắc chắn muốn bỏ tin này không? Hệ thống sẽ không lưu tin của bạn.",
+    "continueEditing": "Tiếp tục chỉnh sửa"
   },
   "reels": {
     "title": "Reels",
@@ -84,12 +95,18 @@
     "videoRequired": "Vui lòng chọn video trước khi đăng.",
     "invalidVideo": "Vui lòng chọn tệp video hợp lệ.",
     "successToast": "Tạo reel thành công.",
-    "errorToast": "Tạo reel thất bại. Vui lòng thử lại."
+    "errorToast": "Tạo reel thất bại. Vui lòng thử lại.",
+    "next": "Tiếp tục",
+    "uploadHint": "hoặc kéo và thả vào đây",
+    "upload": "Tải lên",
+    "videoPreviewTitle": "Bản xem trước video của bạn",
+    "videoPreviewDesc": "Tải video lên để xem trước tại đây."
   },
   "post": {
     "attachmentAlt": "Tệp đính kèm bài viết của {{author}}",
     "commentCount": "{{count}} bình luận",
     "shareCount": "{{count}} chia sẻ",
+    "reactionsCount": "{{count}} lượt cảm xúc",
     "comment": "Bình luận",
     "share": "Chia sẻ",
     "visibilityPublic": "Công khai",
@@ -166,7 +183,8 @@
     "groups": "Nhóm",
     "reels": "Reels",
     "saved": "Đã lưu",
-    "memories": "Kỷ niệm"
+    "memories": "Kỷ niệm",
+    "switchAccount": "Chuyển"
   },
   "suggested": {
     "title": "Gợi ý kết bạn",
@@ -177,7 +195,13 @@
     "footerTerms": "Điều khoản",
     "footerAds": "Quảng cáo",
     "footerCookie": "Cookie",
-    "footerBrand": "Zalo Web © {{year}}"
+    "footerBrand": "Zalo Web © {{year}}",
+    "suggestedForYou": "Gợi ý cho bạn",
+    "activeFriends": "Bạn bè đang hoạt động",
+    "noSuggestions": "Không có gợi ý nào",
+    "online": "Đang hoạt động",
+    "noActiveFriends": "Không có bạn bè nào đang hoạt động",
+    "quickMessages": "Tin nhắn nhanh"
   },
   "mockPosts": {
     "postedAt1": "5 phút trước",
@@ -186,5 +210,27 @@
     "content1": "Hôm nay đang hoàn thiện phần Bảng tin (Social Feed) cho Zalo Web. Giao diện cơ bản đã xong, giờ là lúc tinh chỉnh UX cho các tương tác thích và bình luận.",
     "content2": "Cập nhật tiến độ:\n- Cải thiện tương tác thanh tìm kiếm\n- Thêm menu Bảng tin ở sidebar\n- Đang chuẩn bị tích hợp API cho bài viết thực tế",
     "content3": "Vừa thiết kế xong bộ card mới cho bản tin. Bước tiếp theo là kết nối UI này với các endpoint backend để lấy dữ liệu thực."
+  },
+  "miniChat": {
+    "title": "Tin nhắn",
+    "placeholder": "Nhắn tin...",
+    "loading": "Đang tải tin nhắn...",
+    "noConversations": "Chưa có cuộc trò chuyện nào",
+    "searchPlaceholder": "Tìm kiếm người và nhóm",
+    "maximize": "Mở rộng",
+    "close": "Đóng"
+  },
+  "storyViewer": {
+    "yourStory": "Tin của bạn",
+    "allStories": "Tất cả tin",
+    "details": "Chi tiết về tin",
+    "viewersCount": "{{count}} người xem",
+    "newViewer": "1 người xem mới",
+    "activeMinutesAgo": "Hoạt động {{count}} phút trước",
+    "addToStory": "Thêm vào tin",
+    "newCards": "{{count}} thẻ mới",
+    "hoursAgo": "{{count}} giờ",
+    "minutesAgo": "{{count}} phút",
+    "noViewers": "Chưa có người xem"
   }
 }

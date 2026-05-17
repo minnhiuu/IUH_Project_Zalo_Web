@@ -27,6 +27,12 @@ export const myPostsKeys = {
   list: (page: number, size: number) => [...myPostsKeys.all, page, size] as const
 }
 
+export const interactionKeys = {
+  all: ['interactions'] as const,
+  viewers: (postId: string, page: number, size: number) =>
+    [...interactionKeys.all, 'viewers', postId, { page, size }] as const
+}
+
 export const userPostsKeys = {
   all: ['user-posts'] as const,
   byUser: (userId: string) => [...userPostsKeys.all, userId] as const,

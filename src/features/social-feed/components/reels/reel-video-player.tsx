@@ -93,7 +93,7 @@ export function ReelVideoPlayer({
         src={src}
         poster={poster}
         aria-label={ariaLabel}
-        className='h-full w-full object-cover transition-opacity duration-500'
+        className='h-full w-full object-contain transition-opacity duration-500'
         autoPlay={autoPlay && shouldPlay}
         muted={isMuted}
         loop={loop}

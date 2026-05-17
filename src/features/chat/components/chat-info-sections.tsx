@@ -298,7 +298,7 @@ export function ChatInfoSections({
                   if (['DOC', 'DOCX'].includes(ext)) return { bg: 'bg-blue-600', label: 'WORD' }
                   if (['XLS', 'XLSX'].includes(ext)) return { bg: 'bg-green-600', label: 'EXCEL' }
                   if (['PPT', 'PPTX'].includes(ext)) return { bg: 'bg-orange-500', label: 'PPT' }
-                  if (['ZIP', 'RAR', '7Z'].includes(ext)) return { bg: 'bg-purple-600', label: ext }
+                  if (['ZIP', 'RAR', '7Z'].includes(ext)) return { bg: 'bg-blue-700', label: ext }
                   return { bg: 'bg-primary', label: ext || 'FILE' }
                 }
                 const { bg, label } = getBadge(ext)

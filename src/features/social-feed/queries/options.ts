@@ -2,6 +2,7 @@ import { queryOptions, infiniteQueryOptions } from '@tanstack/react-query'
 import { QUERY_POLICIES } from '@/constants'
 import { socialFeedApi, type BackendPostResponse } from '../api/post.api'
 import { commentApi } from '../api/comment.api'
+import { interactionApi } from '../api/interaction.api'
 import {
   myPostsKeys,
   singlePostKeys,
@@ -9,7 +10,8 @@ import {
   socialFeedKeys,
   socialReelKeys,
   socialStoryKeys,
-  userPostsKeys
+  userPostsKeys,
+  interactionKeys
 } from './keys'
 import type { SocialPost } from '../components/post/post-card'
 import type { SocialStory, StoryGroup } from '../components/stories/stories-strip'
@@ -448,5 +450,15 @@ export const getInfiniteUserPostsQueryOptions = (userId: string, size = 20) =>
       return lastPage.length > 0 ? allPages.length : undefined
     },
     enabled: !!userId,
+    ...QUERY_POLICIES.LIST
+  })
+
+export const getStoryViewersQueryOptions = (postId: string, page = 0, size = 100) =>
+  queryOptions({
+    queryKey: interactionKeys.viewers(postId, page, size),
+    queryFn: async () => {
+      const response = await interactionApi.getViewers(postId, page, size)
+      return response.data.data
+    },
     ...QUERY_POLICIES.LIST
   })

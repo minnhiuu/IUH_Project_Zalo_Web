@@ -4,7 +4,7 @@ import { ChatWindow } from './chat-window'
 import { useChatText } from '../i18n/use-chat-text'
 import { useConversationsQuery } from '../queries/use-queries'
 import type { ConversationResponse } from '../schemas/chat.schema'
-import { useNavigate, useOutletContext } from 'react-router'
+import { useNavigate } from 'react-router'
 import { Status } from '@/constants/enum'
 import { useUserById } from '@/features/user/queries/use-queries'
 import { JoinGroupDialog } from './group/dialogs/join-group-dialog'
@@ -26,10 +26,7 @@ export function ChatLayout({
 }) {
   const navigate = useNavigate()
   const { text } = useChatText()
-  const { isGlobalSearchOpen, setIsGlobalSearchOpen } = useOutletContext<{
-    isGlobalSearchOpen: boolean
-    setIsGlobalSearchOpen: (open: boolean) => void
-  }>()
+  const [isGlobalSearchOpen, setIsGlobalSearchOpen] = useState(false)
 
   const [userSelectedChatId, setUserSelectedChatId] = useState<string | null>(null)
   const [currentSnapshotId, setCurrentSnapshotId] = useState<string | null>(null)
@@ -100,7 +97,6 @@ export function ChatLayout({
     return null
   }, [selectedChatId, conversations, resolvedConversation])
 
-
   const handleClearSnapshot = () => {
     setCurrentSnapshotId(null)
     setCapturedUnreadCount(0)
@@ -115,6 +111,7 @@ export function ChatLayout({
         ) : (
           <ChatSidebar
             selectedChatId={selectedChatId || undefined}
+            setIsGlobalSearchOpen={setIsGlobalSearchOpen}
             onCaptureUnreadAnchor={(conversationId, unreadAnchor) => {
               setCapturedUnreadAnchor({ conversationId, ...unreadAnchor })
             }}

@@ -25,7 +25,7 @@ export const createSocialTexts = (t: TFunction<'social'>) => ({
   },
 
   launcher: {
-    prompt: t(SOCIAL_KEYS.launcher.prompt),
+    prompt: (name: string) => t(SOCIAL_KEYS.launcher.prompt, { name }),
     dialogTitle: t(SOCIAL_KEYS.launcher.dialogTitle),
     dialogDescription: t(SOCIAL_KEYS.launcher.dialogDescription),
     createPost: t(SOCIAL_KEYS.launcher.createPost),
@@ -62,7 +62,18 @@ export const createSocialTexts = (t: TFunction<'social'>) => ({
     share: t(SOCIAL_KEYS.storyComposer.share),
     expiresHint: t(SOCIAL_KEYS.storyComposer.expiresHint),
     successToast: t(SOCIAL_KEYS.storyComposer.successToast),
-    errorToast: t(SOCIAL_KEYS.storyComposer.errorToast)
+    errorToast: t(SOCIAL_KEYS.storyComposer.errorToast),
+    preview: t(SOCIAL_KEYS.storyComposer.preview),
+    rotate: t(SOCIAL_KEYS.storyComposer.rotate),
+    posting: t(SOCIAL_KEYS.storyComposer.posting),
+    photoStory: t(SOCIAL_KEYS.storyComposer.photoStory),
+    videoStory: t(SOCIAL_KEYS.storyComposer.videoStory),
+    discard: t(SOCIAL_KEYS.storyComposer.discard),
+    addText: t(SOCIAL_KEYS.storyComposer.addText),
+    altText: t(SOCIAL_KEYS.storyComposer.altText),
+    discardConfirmTitle: t(SOCIAL_KEYS.storyComposer.discardConfirmTitle),
+    discardConfirmMsg: t(SOCIAL_KEYS.storyComposer.discardConfirmMsg),
+    continueEditing: t(SOCIAL_KEYS.storyComposer.continueEditing)
   },
 
   reels: {
@@ -96,13 +107,19 @@ export const createSocialTexts = (t: TFunction<'social'>) => ({
     videoRequired: t(SOCIAL_KEYS.reelComposer.videoRequired),
     invalidVideo: t(SOCIAL_KEYS.reelComposer.invalidVideo),
     successToast: t(SOCIAL_KEYS.reelComposer.successToast),
-    errorToast: t(SOCIAL_KEYS.reelComposer.errorToast)
+    errorToast: t(SOCIAL_KEYS.reelComposer.errorToast),
+    next: t(SOCIAL_KEYS.reelComposer.next),
+    uploadHint: t(SOCIAL_KEYS.reelComposer.uploadHint),
+    upload: t(SOCIAL_KEYS.reelComposer.upload),
+    videoPreviewTitle: t(SOCIAL_KEYS.reelComposer.videoPreviewTitle),
+    videoPreviewDesc: t(SOCIAL_KEYS.reelComposer.videoPreviewDesc)
   },
 
   post: {
     attachmentAlt: (author: string) => t(SOCIAL_KEYS.post.attachmentAlt, { author }),
     commentCount: (count: number) => t(SOCIAL_KEYS.post.commentCount, { count }),
     shareCount: (count: number) => t(SOCIAL_KEYS.post.shareCount, { count }),
+    reactionsCount: (count: number) => t(SOCIAL_KEYS.post.reactionsCount, { count }),
     comment: t(SOCIAL_KEYS.post.comment),
     share: t(SOCIAL_KEYS.post.share),
     visibility: {
@@ -187,7 +204,8 @@ export const createSocialTexts = (t: TFunction<'social'>) => ({
     groups: t(SOCIAL_KEYS.sidebar.groups),
     reels: t(SOCIAL_KEYS.sidebar.reels),
     saved: t(SOCIAL_KEYS.sidebar.saved),
-    memories: t(SOCIAL_KEYS.sidebar.memories)
+    memories: t(SOCIAL_KEYS.sidebar.memories),
+    switchAccount: t(SOCIAL_KEYS.sidebar.switchAccount)
   },
 
   suggested: {
@@ -199,7 +217,25 @@ export const createSocialTexts = (t: TFunction<'social'>) => ({
     footerTerms: t(SOCIAL_KEYS.suggested.footerTerms),
     footerAds: t(SOCIAL_KEYS.suggested.footerAds),
     footerCookie: t(SOCIAL_KEYS.suggested.footerCookie),
-    footerBrand: (year: number) => t(SOCIAL_KEYS.suggested.footerBrand, { year })
+    footerBrand: (year: number) => t(SOCIAL_KEYS.suggested.footerBrand, { year }),
+    suggestedForYou: t(SOCIAL_KEYS.suggested.suggestedForYou),
+    activeFriends: t(SOCIAL_KEYS.suggested.activeFriends),
+    seeAllLabel: t(SOCIAL_KEYS.suggested.seeAll),
+    noSuggestions: t(SOCIAL_KEYS.suggested.noSuggestions),
+    online: t(SOCIAL_KEYS.suggested.online),
+    noActiveFriends: t(SOCIAL_KEYS.suggested.noActiveFriends),
+    mutualFriendsCount: (count: number) => t(SOCIAL_KEYS.suggested.mutualCount, { count }),
+    quickMessages: t(SOCIAL_KEYS.suggested.quickMessages)
+  },
+
+  miniChat: {
+    title: t(SOCIAL_KEYS.miniChat.title),
+    placeholder: t(SOCIAL_KEYS.miniChat.placeholder),
+    loading: t(SOCIAL_KEYS.miniChat.loading),
+    noConversations: t(SOCIAL_KEYS.miniChat.noConversations),
+    searchPlaceholder: t(SOCIAL_KEYS.miniChat.searchPlaceholder),
+    maximize: t(SOCIAL_KEYS.miniChat.maximize),
+    close: t(SOCIAL_KEYS.miniChat.close)
   },
 
   mockPosts: {
@@ -209,5 +245,18 @@ export const createSocialTexts = (t: TFunction<'social'>) => ({
     content1: t(SOCIAL_KEYS.mockPosts.content1),
     content2: t(SOCIAL_KEYS.mockPosts.content2),
     content3: t(SOCIAL_KEYS.mockPosts.content3)
+  },
+  storyViewer: {
+    yourStory: t(SOCIAL_KEYS.storyViewer.yourStory),
+    allStories: t(SOCIAL_KEYS.storyViewer.allStories),
+    details: t(SOCIAL_KEYS.storyViewer.details),
+    viewersCount: t(SOCIAL_KEYS.storyViewer.viewersCount),
+    newViewer: t(SOCIAL_KEYS.storyViewer.newViewer),
+    activeMinutesAgo: t(SOCIAL_KEYS.storyViewer.activeMinutesAgo),
+    addToStory: t(SOCIAL_KEYS.storyViewer.addToStory),
+    newCards: t(SOCIAL_KEYS.storyViewer.newCards),
+    hoursAgo: t(SOCIAL_KEYS.storyViewer.hoursAgo),
+    minutesAgo: t(SOCIAL_KEYS.storyViewer.minutesAgo),
+    noViewers: t(SOCIAL_KEYS.storyViewer.noViewers)
   }
 })

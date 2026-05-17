@@ -64,34 +64,47 @@ export function StoryViewerPanel({
   return (
     <div className='relative h-[88dvh] w-[min(96vw,440px)] overflow-hidden rounded-[28px] border border-white/10 bg-black shadow-2xl ring-1 ring-white/5'>
       {/* ── Media ───────────────────────────────────────────────────── */}
-      <div className='flex h-full w-full items-center justify-center bg-black'>
-        {mediaUrl ? (
-          mediaType === 'VIDEO' ? (
-            <StoryVideoPlayer
-              src={mediaUrl}
-              className='h-full w-full'
-              videoClassName='h-full w-full'
-              objectFit='contain'
-              ariaLabel={mediaAlt ?? caption ?? authorName}
-              controls={false}
-              allowTapPlayPause
-              autoPlay
-              muted={storyVolume === 0}
-              volume={storyVolume}
-              loop={false}
-              playsInline
-              preload='auto'
-              onTimeUpdate={onVideoTimeUpdate}
-              onEnded={onVideoEnded}
+      <div className='relative flex h-full w-full items-center justify-center bg-black'>
+        {/* Blurred background ("loang màu") */}
+        {mediaUrl && (
+          <div className='absolute inset-0 z-0 overflow-hidden'>
+            <img 
+              src={mediaUrl} 
+              alt='' 
+              className='h-full w-full object-cover blur-[50px] opacity-40 scale-110' 
             />
-          ) : (
-            <img src={mediaUrl} alt={mediaAlt ?? caption ?? authorName} className='h-full w-full object-contain' />
-          )
-        ) : emptyState ? (
-          emptyState
-        ) : (
-          <div className='h-full w-full bg-gradient-to-br from-indigo-500/50 via-sky-500/40 to-emerald-500/40' />
+          </div>
         )}
+        
+        <div className='relative z-10 h-full w-full flex items-center justify-center'>
+          {mediaUrl ? (
+            mediaType === 'VIDEO' ? (
+              <StoryVideoPlayer
+                src={mediaUrl}
+                className='h-full w-full'
+                videoClassName='h-full w-full'
+                objectFit='contain'
+                ariaLabel={mediaAlt ?? caption ?? authorName}
+                controls={false}
+                allowTapPlayPause
+                autoPlay
+                muted={storyVolume === 0}
+                volume={storyVolume}
+                loop={false}
+                playsInline
+                preload='auto'
+                onTimeUpdate={onVideoTimeUpdate}
+                onEnded={onVideoEnded}
+              />
+            ) : (
+              <img src={mediaUrl} alt={mediaAlt ?? caption ?? authorName} className='h-full w-full object-contain' />
+            )
+          ) : emptyState ? (
+            emptyState
+          ) : (
+            <div className='h-full w-full bg-gradient-to-br from-primary/50 via-sky-500/40 to-emerald-500/40' />
+          )}
+        </div>
       </div>
 
       {/* ── Gradient overlay ─────────────────────────────────────────── */}
