@@ -113,8 +113,9 @@ export function StoryVideoPlayer({
       hostElement.appendChild(videoElement)
 
       const options: NonNullable<Parameters<typeof videojs>[1]> = {
+        fill: true,
         fluid: false,
-        responsive: true,
+        responsive: false,
         controls,
         autoplay: shouldAutoplay,
         muted,

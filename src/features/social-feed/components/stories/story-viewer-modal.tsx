@@ -11,7 +11,7 @@ import {
   useDeleteStoryMutation
 } from '../../queries/use-mutations'
 import { useMyProfile } from '@/features/user/queries/use-queries'
-import { useStoryViewers } from '../../queries/use-queries'
+import { useStoryViewers, usePostById } from '../../queries/use-queries'
 import { StoryReactionsModal } from './story-reactions-modal'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { cn } from '@/lib/utils'
@@ -81,7 +81,7 @@ export function StoryViewerModal({ groups, open, initialGroupIndex, onOpenChange
   const currentStories: SocialStory[] = currentGroup?.stories ?? []
   const currentStory: SocialStory | undefined = currentStories[storyIndex]
 
-  const selectedReaction = currentStory ? (storyReactions[currentStory.id] ?? null) : null
+  const selectedReaction = currentStory ? (storyReactions[currentStory.id] ?? currentStory.currentUserReaction ?? null) : null
   const isImageStoryWithMusic = currentStory?.mediaType !== 'VIDEO' && !!currentStory?.music?.audioUrl
 
   function goBack() {
@@ -178,6 +178,18 @@ export function StoryViewerModal({ groups, open, initialGroupIndex, onOpenChange
   const otherGroups = groups.filter((g) => g.authorId !== myProfile?.id)
 
   // ── Viewer Details Data ───────────────────────────────────────
+  const { data: updatedPostData, refetch: refetchPostData } = usePostById(currentStory?.id || '', isMyStory)
+
+  useEffect(() => {
+    if (isMyStory && open && currentStory?.id) {
+      refetchPostData()
+    }
+  }, [isMyStory, open, currentStory?.id, refetchPostData])
+  
+  const currentViewCount = isMyStory ? (updatedPostData?.views ?? currentStory?.stats?.viewCount ?? 0) : (currentStory?.stats?.viewCount ?? 0)
+  const currentReactionCount = isMyStory ? (updatedPostData?.reactions ?? currentStory?.stats?.reactionCount ?? 0) : (currentStory?.stats?.reactionCount ?? 0)
+  const currentTopReactions = isMyStory ? (updatedPostData?.topReactions ?? currentStory?.stats?.topReactions ?? []) : (currentStory?.stats?.topReactions ?? [])
+
   const { data: viewersPage, isLoading: loadingViewers } = useStoryViewers(
     currentStory?.id || '',
     0,
@@ -246,7 +258,7 @@ export function StoryViewerModal({ groups, open, initialGroupIndex, onOpenChange
 
         <div className='flex h-full w-full'>
           {/* ── Sidebar (Left) ── */}
-          <aside className='flex w-[360px] flex-col border-r border-border bg-background dark:bg-card shadow-2xl z-20 text-foreground'>
+          <aside className='flex w-[360px] h-full min-h-0 flex-col border-r border-border bg-background dark:bg-card shadow-2xl z-20 text-foreground'>
             <div className='flex items-center gap-3 p-4 pb-2'>
               <button
                 onClick={() => onOpenChange(false)}
@@ -263,54 +275,35 @@ export function StoryViewerModal({ groups, open, initialGroupIndex, onOpenChange
               <h1 className='text-[24px] font-bold tracking-tight'>{text.stories.title}</h1>
             </div>
 
-            <ScrollArea className='flex-1 px-3 pb-4'>
+            <ScrollArea className='flex-1 min-h-0 px-3 pb-4'>
               {/* Tin của bạn */}
-              <div className='mt-4 px-3 mb-2'>
-                <h2 className='text-[17px] font-bold'>{text.storyViewer.yourStory}</h2>
-              </div>
-
-              {myGroup ? (
-                <button
-                  onClick={() => setGroupIndex(groups.indexOf(myGroup))}
-                  className={cn(
-                    'flex w-full items-center gap-3 rounded-xl p-3 transition-all hover:bg-accent',
-                    groupIndex === groups.indexOf(myGroup) && 'bg-accent'
-                  )}
-                >
-                  <div className='relative'>
-                    <UserAvatar
-                      name={myGroup.authorName}
-                      src={myGroup.authorAvatar}
-                      className='h-[60px] w-[60px] ring-2 ring-primary ring-offset-2 ring-offset-background'
-                    />
-                    <div className='absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border-2 border-background bg-primary text-primary-foreground'>
-                      <Plus className='h-4 w-4' />
+              {myGroup && (
+                <>
+                  <div className='mt-4 px-3 mb-2'>
+                    <h2 className='text-[17px] font-bold'>{text.storyViewer.yourStory}</h2>
+                  </div>
+                  <button
+                    onClick={() => setGroupIndex(groups.indexOf(myGroup))}
+                    className={cn(
+                      'flex w-full items-center gap-3 rounded-xl p-3 transition-all hover:bg-accent',
+                      groupIndex === groups.indexOf(myGroup) && 'bg-accent'
+                    )}
+                  >
+                    <div className='relative'>
+                      <UserAvatar
+                        name={myGroup.authorName}
+                        src={myGroup.authorAvatar}
+                        className='h-[60px] w-[60px] ring-2 ring-primary ring-offset-2 ring-offset-background'
+                      />
                     </div>
-                  </div>
-                  <div className='flex-1 text-left'>
-                    <p className='font-bold leading-tight'>{myGroup.authorName}</p>
-                    <p className='text-[13px] text-muted-foreground mt-1'>
-                      {text.storyViewer.hoursAgo.replace('{{count}}', '1')}
-                    </p>
-                  </div>
-                </button>
-              ) : (
-                <div className='flex items-center gap-3 p-3 opacity-60'>
-                  <div className='relative'>
-                    <UserAvatar
-                      name={myProfile?.fullName || ''}
-                      src={myProfile?.avatar}
-                      className='h-[60px] w-[60px]'
-                    />
-                    <div className='absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border-2 border-background bg-primary text-primary-foreground'>
-                      <Plus className='h-4 w-4' />
+                    <div className='flex-1 text-left'>
+                      <p className='font-bold leading-tight'>{myGroup.authorName}</p>
+                      <p className='text-[13px] text-muted-foreground mt-1'>
+                        {text.storyViewer.hoursAgo.replace('{{count}}', '1')}
+                      </p>
                     </div>
-                  </div>
-                  <div className='flex-1'>
-                    <p className='font-bold'>{myProfile?.fullName || text.composer.me}</p>
-                    <p className='text-[13px] text-primary font-medium'>{text.storyViewer.addToStory}</p>
-                  </div>
-                </div>
+                  </button>
+                </>
               )}
 
               {/* Tất cả tin */}
@@ -356,11 +349,22 @@ export function StoryViewerModal({ groups, open, initialGroupIndex, onOpenChange
           <main className='relative flex flex-1 flex-col items-center justify-center bg-black overflow-hidden'>
             {/* Background blur layers (Outer loang màu) */}
             <div className='absolute inset-0 z-0 overflow-hidden'>
-              <img
-                src={currentStory.mediaUrl || ''}
-                className='h-full w-full object-cover blur-[80px] opacity-20 scale-125'
-                alt=''
-              />
+              {currentStory.mediaType === 'VIDEO' ? (
+                <video
+                  src={currentStory.mediaUrl || ''}
+                  className='h-full w-full object-cover blur-[80px] opacity-20 scale-125'
+                  muted
+                  autoPlay
+                  loop
+                  playsInline
+                />
+              ) : (
+                <img
+                  src={currentStory.mediaUrl || ''}
+                  className='h-full w-full object-cover blur-[80px] opacity-20 scale-125'
+                  alt=''
+                />
+              )}
             </div>
 
             {/* Top Right Utility Icons (Mock Facebook UI) */}
@@ -398,6 +402,7 @@ export function StoryViewerModal({ groups, open, initialGroupIndex, onOpenChange
               <StoryViewerPanel
                 mediaUrl={currentStory.mediaUrl}
                 mediaType={currentStory.mediaType}
+                authorId={currentGroup.authorId}
                 authorName={currentGroup.authorName}
                 authorAvatar={currentGroup.authorAvatar}
                 caption={currentStory.caption}
@@ -435,7 +440,7 @@ export function StoryViewerModal({ groups, open, initialGroupIndex, onOpenChange
                       >
                         <Eye className='h-5 w-5 text-white/90' />
                         <span className='text-[15px] font-semibold tracking-wide text-white'>
-                          {currentStory.stats?.viewCount || 0}
+                          {currentViewCount}
                         </span>
                       </div>
                       <div className='h-4 w-px bg-white/20' />
@@ -444,9 +449,9 @@ export function StoryViewerModal({ groups, open, initialGroupIndex, onOpenChange
                         title='Reactions'
                         onClick={() => setShowReactionsModal(true)}
                       >
-                        {currentStory.stats?.topReactions && currentStory.stats.topReactions.length > 0 && (
+                        {currentTopReactions && currentTopReactions.length > 0 && (
                           <div className='flex -space-x-1 mr-1'>
-                            {currentStory.stats.topReactions.slice(0, 3).map((reactionType, i) => {
+                            {currentTopReactions.slice(0, 3).map((reactionType, i) => {
                               const ReactionDef = REACTIONS.find((r) => r.type === reactionType.toUpperCase())
                               if (!ReactionDef) return null
                               return (
@@ -458,7 +463,7 @@ export function StoryViewerModal({ groups, open, initialGroupIndex, onOpenChange
                           </div>
                         )}
                         <span className='text-[15px] font-semibold tracking-wide text-white'>
-                          {currentStory.stats?.reactionCount || 0}
+                          {currentReactionCount}
                         </span>
                         <span className='text-[13px] font-medium text-white/80 ml-1'>reactions</span>
                       </div>
@@ -516,40 +521,75 @@ export function StoryViewerModal({ groups, open, initialGroupIndex, onOpenChange
                     </button>
                   </div>
 
-                  <ScrollArea className='flex-1 p-4'>
+                  <ScrollArea className='flex-1 min-h-0 p-4'>
                     <div className='flex gap-4 mb-6'>
                       <div className='relative w-[80px] h-[140px] rounded-lg overflow-hidden border-2 border-border shrink-0 shadow-sm'>
                         {/* Thumbnail of story with loang màu bg */}
                         <div className='absolute inset-0 bg-black'>
-                          <img
-                            src={currentStory.mediaUrl || ''}
-                            className='h-full w-full object-cover blur-md opacity-50'
-                            alt=''
-                          />
-                          <img
-                            src={currentStory.mediaUrl || ''}
-                            className='absolute inset-0 h-full w-full object-contain z-10'
-                            alt=''
-                          />
+                          {currentStory.mediaType === 'VIDEO' ? (
+                            <video
+                              src={currentStory.mediaUrl || ''}
+                              className='h-full w-full object-cover blur-md opacity-50'
+                              muted
+                              autoPlay
+                              loop
+                              playsInline
+                            />
+                          ) : (
+                            <img
+                              src={currentStory.mediaUrl || ''}
+                              className='h-full w-full object-cover blur-md opacity-50'
+                              alt=''
+                            />
+                          )}
+                          {currentStory.mediaType === 'VIDEO' ? (
+                            <video
+                              src={currentStory.mediaUrl || ''}
+                              className='absolute inset-0 h-full w-full object-contain z-10'
+                              muted
+                              playsInline
+                            />
+                          ) : (
+                            <img
+                              src={currentStory.mediaUrl || ''}
+                              className='absolute inset-0 h-full w-full object-contain z-10'
+                              alt=''
+                            />
+                          )}
                         </div>
-                      </div>
-                      <div className='flex flex-col justify-center items-center w-[100px] h-[140px] border-2 border-dashed border-border rounded-lg bg-muted/50 transition-colors hover:bg-muted cursor-pointer group'>
-                        <div className='h-10 w-10 flex items-center justify-center rounded-full bg-primary text-primary-foreground mb-2 group-hover:scale-110 transition-transform'>
-                          <Plus className='h-6 w-6' />
-                        </div>
-                        <span className='text-[12px] font-bold text-primary text-center leading-tight'>
-                          {text.storyViewer.addToStory}
-                        </span>
                       </div>
                     </div>
 
                     <div className='h-[1px] bg-border mb-4' />
 
-                    <div className='flex items-center gap-2 mb-4'>
-                      <Eye className='h-5 w-5 text-muted-foreground' />
-                      <span className='text-[16px] font-bold text-foreground'>
-                        {text.storyViewer.viewersCount.replace('{{count}}', String(currentStory.stats?.viewCount || 0))}
-                      </span>
+                    <div className='flex items-center gap-6 mb-4'>
+                      <div className='flex items-center gap-2'>
+                        <Eye className='h-5 w-5 text-muted-foreground' />
+                        <span className='text-[16px] font-bold text-foreground'>
+                          {text.storyViewer.viewersCount.replace('{{count}}', String(currentViewCount))}
+                        </span>
+                      </div>
+                      
+                      <div className='h-5 w-px bg-border' />
+                      
+                      <div className='flex items-center gap-2'>
+                        {currentTopReactions && currentTopReactions.length > 0 && (
+                          <div className='flex -space-x-1.5'>
+                            {currentTopReactions.slice(0, 3).map((reactionType, i) => {
+                              const ReactionDef = REACTIONS.find((r) => r.type === reactionType.toUpperCase())
+                              if (!ReactionDef) return null
+                              return (
+                                <div key={i} className='rounded-full border border-background bg-muted/20 p-[2px] z-10'>
+                                  <ReactionDef.Icon size={16} />
+                                </div>
+                              )
+                            })}
+                          </div>
+                        )}
+                        <span className='text-[16px] font-bold text-foreground'>
+                          {currentReactionCount} reactions
+                        </span>
+                      </div>
                     </div>
 
                     <div className='space-y-1'>
@@ -563,12 +603,23 @@ export function StoryViewerModal({ groups, open, initialGroupIndex, onOpenChange
                             key={viewer.id}
                             className='flex items-center justify-between p-2 rounded-xl hover:bg-accent transition-colors'
                           >
-                            <div className='flex items-center gap-3'>
-                              <UserAvatar
-                                name={viewer.authorInfo?.fullName || 'User'}
-                                src={viewer.authorInfo?.avatar}
-                                className='h-12 w-12 border border-border'
-                              />
+                            <div className='flex items-center gap-3 relative'>
+                              <div className='relative h-12 w-12'>
+                                <UserAvatar
+                                  name={viewer.authorInfo?.fullName || 'User'}
+                                  src={viewer.authorInfo?.avatar}
+                                  className='h-full w-full border border-border'
+                                />
+                                {viewer.reactionType && (() => {
+                                  const ReactionDef = REACTIONS.find(r => r.type === viewer.reactionType)
+                                  if (!ReactionDef) return null
+                                  return (
+                                    <div className='absolute -bottom-1 -right-1 rounded-full border border-background bg-muted/80 p-0.5 shadow-sm'>
+                                      <ReactionDef.Icon size={16} />
+                                    </div>
+                                  )
+                                })()}
+                              </div>
                               <div className='flex flex-col'>
                                 <p className='font-bold text-[16px] text-foreground'>
                                   {viewer.authorInfo?.fullName || 'User'}
@@ -578,8 +629,7 @@ export function StoryViewerModal({ groups, open, initialGroupIndex, onOpenChange
                                 </p>
                               </div>
                             </div>
-                            {/* reactionType is not available in current API, so we hide it */}
-                          </div>
+                            </div>
                         ))
                       ) : (
                         <div className='flex flex-col items-center justify-center py-12 text-muted-foreground'>

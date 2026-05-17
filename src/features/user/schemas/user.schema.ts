@@ -1,6 +1,7 @@
 import z from 'zod'
 import { Gender } from '@/constants'
 import i18n from '@/lib/i18n'
+import type { StoryGroupResponse } from '@/features/social-feed/api/post.api'
 
 export type UserAccountInfo = {
   id?: string
@@ -26,6 +27,7 @@ export type UserResponse = {
   background?: string | null
   backgroundY?: number | null
   active?: boolean | null
+  story?: StoryGroupResponse | null
 }
 
 export type UserSummaryResponse = {

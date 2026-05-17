@@ -136,6 +136,12 @@ const mapSharedPreview = (preview: BackendSharedPostPreview): SocialPost['shared
 }
 
 const mapCommentToSocialComment = (comment: BackendCommentResponse): SocialFeedComment => {
+  const normalizedTopReactions = (comment.topReactions ?? [])
+    .map((type) => (type ?? '').toUpperCase())
+    .filter((type): type is NonNullable<SocialFeedComment['topReactions']>[number] =>
+      ['LIKE', 'LOVE', 'HAHA', 'WOW', 'SAD', 'ANGRY'].includes(type)
+    )
+
   return {
     id: comment.id,
     postId: comment.postId,
@@ -146,15 +152,27 @@ const mapCommentToSocialComment = (comment: BackendCommentResponse): SocialFeedC
     content: comment.content,
     createdAt: comment.createdAt ?? '',
     reactions: comment.reactionCount ?? 0,
+    topReactions: normalizedTopReactions,
     currentUserReaction: (comment.currentUserReaction?.toUpperCase() ??
       null) as SocialFeedComment['currentUserReaction'],
-    isEdited: comment.isEdited ?? comment.edited ?? false,
+    isEdited: comment.edited || comment.isEdited || false,
     replyDepth: comment.replyDepth ?? 0,
-    replyCount: comment.replyCount ?? 0
+    replyCount: comment.replyCount ?? 0,
+    media:
+      comment.media
+        ?.map((item) => {
+          const mediaType = (item.type ?? '').toUpperCase()
+          if (!item.url) return null
+          return {
+            url: item.url,
+            type: mediaType === 'VIDEO' ? 'VIDEO' : 'IMAGE'
+          } as const
+        })
+        .filter((item): item is { url: string; type: 'IMAGE' | 'VIDEO' } => Boolean(item)) ?? []
   }
 }
 
-const mapPostToSocialStory = (post: BackendPostResponse): SocialStory => {
+export const mapPostToSocialStory = (post: BackendPostResponse): SocialStory => {
   const firstMedia =
     post.media?.find((item) => item.url && (item.type ?? '').toUpperCase() === 'IMAGE') ||
     post.media?.find((item) => item.url)
@@ -177,6 +195,7 @@ const mapPostToSocialStory = (post: BackendPostResponse): SocialStory => {
 type BackendStoryGroup = {
   authorInfo?: { id?: string; fullName?: string; avatar?: string } | null
   stories?: BackendPostResponse[] | null
+  hasUnviewed?: boolean
 }
 
 const mapBackendGroupToStoryGroup = (group: BackendStoryGroup): StoryGroup => {
@@ -186,7 +205,8 @@ const mapBackendGroupToStoryGroup = (group: BackendStoryGroup): StoryGroup => {
     authorId: group.authorInfo?.id ?? firstStory?.authorId ?? '',
     authorName: group.authorInfo?.fullName?.trim() || firstStory?.authorName || getFallbackAuthorName(),
     authorAvatar: group.authorInfo?.avatar ?? firstStory?.authorAvatar ?? null,
-    stories
+    stories,
+    hasUnviewedStories: group.hasUnviewed ?? false
   }
 }
 

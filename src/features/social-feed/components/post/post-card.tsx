@@ -260,10 +260,12 @@ export function PostCard({ post, hideLikeShare }: PostCardProps) {
                 </DropdownMenuItem>
               </>
             )}
-            <DropdownMenuItem onClick={handleNotInterested} className='gap-2 text-[13.5px]'>
-              <EyeOff className='h-4 w-4' />
-              Not interested
-            </DropdownMenuItem>
+            {post.authorId !== me?.id && (
+              <DropdownMenuItem onClick={handleNotInterested} className='gap-2 text-[13.5px]'>
+                <EyeOff className='h-4 w-4' />
+                Not interested
+              </DropdownMenuItem>
+            )}
             {post.authorId === me?.id && (
               <DropdownMenuItem
                 onClick={() => {
@@ -279,13 +281,15 @@ export function PostCard({ post, hideLikeShare }: PostCardProps) {
                 Simulate 50 Likes
               </DropdownMenuItem>
             )}
-            <DropdownMenuItem
-              onClick={() => setReportDialogOpen(true)}
-              className='gap-2 text-[13.5px] text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400'
-            >
-              <Flag className='h-4 w-4' />
-              Report post
-            </DropdownMenuItem>
+            {post.authorId !== me?.id && (
+              <DropdownMenuItem
+                onClick={() => setReportDialogOpen(true)}
+                className='gap-2 text-[13.5px] text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400'
+              >
+                <Flag className='h-4 w-4' />
+                Report post
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </CardHeader>
@@ -308,7 +312,10 @@ export function PostCard({ post, hideLikeShare }: PostCardProps) {
         </div>
 
         {post.postType === 'SHARE' && post.sharedPost ? (
-          <div className='rounded-xl border border-zinc-200 bg-zinc-50 p-3 dark:border-white/10 dark:bg-zinc-900/40'>
+          <div 
+            onClick={() => navigate(`${PATHS.SOCIAL_FEED}?postId=${post.sharedPost?.postId}`)}
+            className='rounded-xl border border-zinc-200 bg-zinc-50 p-3 dark:border-white/10 dark:bg-zinc-900/40 cursor-pointer transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800/50'
+          >
             <div className='mb-2 flex items-center gap-2'>
               <button
                 onClick={handleSharedAuthorClick}
@@ -338,11 +345,13 @@ export function PostCard({ post, hideLikeShare }: PostCardProps) {
             ) : null}
 
             {post.sharedPost.media && post.sharedPost.media.length > 0 ? (
-              <MediaSection
-                media={post.sharedPost.media}
-                attachmentAlt={text.post.attachmentAlt(post.sharedPost.authorName)}
-                onMediaClick={(index) => handleMediaClick(index, post.sharedPost?.media ?? [])}
-              />
+              <div onClick={(e) => e.stopPropagation()}>
+                <MediaSection
+                  media={post.sharedPost.media}
+                  attachmentAlt={text.post.attachmentAlt(post.sharedPost.authorName)}
+                  onMediaClick={(index) => handleMediaClick(index, post.sharedPost?.media ?? [])}
+                />
+              </div>
             ) : null}
           </div>
         ) : null}

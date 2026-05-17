@@ -7,7 +7,7 @@ export const interactionApi = {
   dislikePost: (postId: string) => http.post<ApiResponse<void>>(`/interactions/posts/${postId}/dislike`),
 
   getViewers: (postId: string, page = 0, size = 20) =>
-    http.get<ApiResponse<{ data: Array<{ id: string; authorInfo: { id: string; fullName: string; avatar: string }; viewedAt: string }>; totalPages: number; totalItems: number; page: number }>>(`/interactions/posts/${postId}/viewers`, {
+    http.get<ApiResponse<{ data: Array<{ id: string; authorInfo: { id: string; fullName: string; avatar: string }; viewedAt: string; reactionType?: string | null }>; totalPages: number; totalItems: number; page: number }>>(`/interactions/posts/${postId}/viewers`, {
       params: { page, size }
     })
 }

@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { Pause, Play, Volume2, VolumeX } from 'lucide-react'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { StoryVideoPlayer } from './story-video-player'
+import { Link } from 'react-router'
 import type { SocialStory } from './stories-strip'
 
 export interface StoryViewerPanelProps {
@@ -11,6 +12,7 @@ export interface StoryViewerPanelProps {
   mediaAlt?: string
 
   // Author
+  authorId?: string
   authorName: string
   authorAvatar?: string | null
 
@@ -45,6 +47,7 @@ export function StoryViewerPanel({
   mediaUrl,
   mediaType,
   mediaAlt,
+  authorId,
   authorName,
   authorAvatar,
   caption,
@@ -68,11 +71,22 @@ export function StoryViewerPanel({
         {/* Blurred background ("loang màu") */}
         {mediaUrl && (
           <div className='absolute inset-0 z-0 overflow-hidden'>
-            <img 
-              src={mediaUrl} 
-              alt='' 
-              className='h-full w-full object-cover blur-[50px] opacity-40 scale-110' 
-            />
+            {mediaType === 'VIDEO' ? (
+              <video
+                src={mediaUrl}
+                className='h-full w-full object-cover blur-[50px] opacity-40 scale-110'
+                muted
+                autoPlay
+                loop
+                playsInline
+              />
+            ) : (
+              <img 
+                src={mediaUrl} 
+                alt='' 
+                className='h-full w-full object-cover blur-[50px] opacity-40 scale-110' 
+              />
+            )}
           </div>
         )}
         
@@ -114,15 +128,32 @@ export function StoryViewerPanel({
       <div className='absolute inset-x-0 top-0 z-10 px-4 pt-8 pb-4'>
         <div className='flex items-center gap-3'>
           <div className='h-10 w-10'>
-            <UserAvatar
-              name={authorName}
-              src={authorAvatar}
-              className='w-full h-full border border-background'
-              fallbackClassName='bg-primary text-white text-xs font-semibold'
-            />
+            {authorId ? (
+              <Link to={`/profile/${authorId}`} className='block h-full w-full'>
+                <UserAvatar
+                  name={authorName}
+                  src={authorAvatar}
+                  className='w-full h-full border border-background'
+                  fallbackClassName='bg-primary text-white text-xs font-semibold'
+                />
+              </Link>
+            ) : (
+              <UserAvatar
+                name={authorName}
+                src={authorAvatar}
+                className='w-full h-full border border-background'
+                fallbackClassName='bg-primary text-white text-xs font-semibold'
+              />
+            )}
           </div>
           <div className='min-w-0 flex-1'>
-            <p className='text-sm font-semibold tracking-wide text-white drop-shadow-md leading-tight'>{authorName}</p>
+            {authorId ? (
+              <Link to={`/profile/${authorId}`} className='group'>
+                <p className='text-sm font-semibold tracking-wide text-white drop-shadow-md leading-tight transition-colors group-hover:text-blue-400 group-hover:underline'>{authorName}</p>
+              </Link>
+            ) : (
+              <p className='text-sm font-semibold tracking-wide text-white drop-shadow-md leading-tight'>{authorName}</p>
+            )}
             {/* Music badge — inline under author name */}
             {music?.title ? (
               <div className='mt-1 flex items-center gap-1.5'>

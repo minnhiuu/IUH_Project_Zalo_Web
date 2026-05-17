@@ -55,8 +55,11 @@ export const useInfiniteUserPosts = (userId: string, size = 20) => {
   return useInfiniteQuery(getInfiniteUserPostsQueryOptions(userId, size))
 }
 
-export const usePostById = (postId: string) => {
-  return useQuery(getPostByIdQueryOptions(postId))
+export const usePostById = (postId: string, enabled = true) => {
+  return useQuery({
+    ...getPostByIdQueryOptions(postId),
+    enabled: !!postId && enabled
+  })
 }
 
 export const useStoryViewers = (postId: string, page = 0, size = 100, enabled = true) => {

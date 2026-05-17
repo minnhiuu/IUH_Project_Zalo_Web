@@ -69,8 +69,8 @@ export function VisibilityDropdown({
         </Button>
       </DropdownMenuTrigger>
 
-      {/* z-[90] ensures the content renders above DialogContent (z-81) */}
-      <DropdownMenuContent align={align} className='w-40 z-[90]'>
+      {/* z-[9999] ensures the content renders above DialogContent (z-[110] in StoryComposerModal) */}
+      <DropdownMenuContent align={align} className='w-40 z-[9999]'>
         {options.map((opt) => {
           const OptIcon = opt.icon
           return (

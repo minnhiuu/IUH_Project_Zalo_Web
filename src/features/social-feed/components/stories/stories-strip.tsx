@@ -41,6 +41,7 @@ export interface StoryGroup {
   authorName: string
   authorAvatar?: string | null
   stories: SocialStory[]
+  hasUnviewedStories?: boolean
 }
 
 interface StoriesStripProps {
@@ -96,6 +97,7 @@ export function StoriesStrip({ stories, isLoading = false }: StoriesStripProps) 
               return (
                 <CarouselItem key={group.authorId} className='basis-auto pl-0'>
                   <StoryCard
+                    authorId={group.authorId}
                     authorName={group.authorName}
                     displayName={isMyStory ? 'Your Story' : group.authorName}
                     authorAvatar={group.authorAvatar}
@@ -103,6 +105,7 @@ export function StoriesStrip({ stories, isLoading = false }: StoriesStripProps) 
                     mediaType={group.stories[0]?.mediaType}
                     caption={group.stories[0]?.caption}
                     mediaAlt={text.stories.itemAlt(group.authorName)}
+                    hasUnviewedStories={group.hasUnviewedStories}
                     onClick={() => {
                       setSelectedGroupIndex(index)
                       setIsViewerOpen(true)

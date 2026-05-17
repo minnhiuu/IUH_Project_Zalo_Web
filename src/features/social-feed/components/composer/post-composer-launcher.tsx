@@ -29,9 +29,16 @@ export function PostComposerLauncher() {
 
   return (
     <>
-      <button
-        type='button'
+      <div
+        role='button'
+        tabIndex={0}
         onClick={() => setOpen(true)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            setOpen(true)
+          }
+        }}
         className='group flex w-full items-center gap-3 rounded-2xl border border-white bg-white/80 backdrop-blur-xl px-4 py-3.5 text-left shadow-[0_8px_20px_rgba(0,0,0,0.03)] transition-all hover:border-primary/30 hover:shadow-[0_8px_25px_rgba(0,0,0,0.06)] dark:border-white/5 dark:bg-zinc-950/50 dark:hover:border-primary/30'
       >
         <div className='h-11 w-11 shrink-0'>
@@ -73,7 +80,7 @@ export function PostComposerLauncher() {
             <Film className='h-[22px] w-[22px]' />
           </button>
         </div>
-      </button>
+      </div>
 
       <input
         type='file'

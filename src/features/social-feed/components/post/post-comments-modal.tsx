@@ -251,7 +251,13 @@ export function PostCommentsModal({ open, onOpenChange, post, hideLikeShare, cur
               <p className='text-[14.5px] leading-relaxed text-zinc-700 dark:text-zinc-300'>{post.content}</p>
 
               {post.postType === 'SHARE' && post.sharedPost ? (
-                <div className='mt-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3 dark:border-white/10 dark:bg-zinc-900/40'>
+                <div 
+                  onClick={() => {
+                    onOpenChange(false)
+                    navigate(`${PATHS.SOCIAL_FEED}?postId=${post.sharedPost?.postId}`)
+                  }}
+                  className='mt-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3 dark:border-white/10 dark:bg-zinc-900/40 cursor-pointer transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800/50'
+                >
                   <div className='mb-2 flex items-center gap-2'>
                     <button
                       onClick={handleSharedAuthorClick}
@@ -281,7 +287,7 @@ export function PostCommentsModal({ open, onOpenChange, post, hideLikeShare, cur
                   ) : null}
 
                   {post.sharedPost.media && post.sharedPost.media.length > 0 ? (
-                    <div className='mt-2'>
+                    <div className='mt-2' onClick={(e) => e.stopPropagation()}>
                       <MediaSection
                         media={post.sharedPost.media}
                         attachmentAlt={text.post.attachmentAlt(post.sharedPost.authorName)}

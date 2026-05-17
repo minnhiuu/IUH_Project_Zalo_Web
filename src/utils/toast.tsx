@@ -44,9 +44,9 @@ export const showNotificationToast = (
   onClick?: () => void
 ) => {
   toast.custom(
-    (t) => (
+    () => (
       <div onClick={onClick} className={onClick ? 'cursor-pointer active:scale-[0.98] transition-transform' : ''}>
-        <NotificationToast t={t} data={data} />
+        <NotificationToast data={data} />
       </div>
     ),
     {
