@@ -1,8 +1,10 @@
 import { useState, useRef, useCallback } from 'react'
-import { Video } from 'lucide-react'
+import { Video, MessageCircle, Send, MoreHorizontal } from 'lucide-react'
 import { BaseDialog } from '@/components/common/base-dialog'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
+import { UserAvatar } from '@/components/common/user-avatar'
+import { useAuthContext } from '@/features/auth/context/auth-context'
 import { cn } from '@/lib/utils'
 import { useSocialText } from '../../i18n/use-social-text'
 import { toast } from 'sonner'
@@ -16,6 +18,7 @@ interface ReelComposerModalProps {
 }
 
 export function ReelComposerModal({ open, onOpenChange }: ReelComposerModalProps) {
+  const { user } = useAuthContext()
   const { text } = useSocialText()
   const { mutateAsync: createPost, isPending } = useCreateSocialPostMutation()
   
@@ -166,10 +169,62 @@ export function ReelComposerModal({ open, onOpenChange }: ReelComposerModalProps
           </div>
 
           {/* Right Panel (Preview) */}
-          <div className='flex-1 bg-reel-modal-bg flex items-center justify-center relative overflow-hidden'>
+          <div className='flex-1 bg-reel-modal-bg flex items-center justify-center relative overflow-hidden py-4 sm:py-8'>
             {videoUrl ? (
-              <div className='w-[85%] max-w-[850px] h-[75%] max-h-[550px] flex items-center justify-center rounded-xl overflow-hidden'>
-                <video src={videoUrl} controls className='w-full h-full object-contain' autoPlay loop />
+              <div className='relative flex h-full w-full max-w-[360px] aspect-[9/16] items-center justify-center bg-black rounded-xl overflow-hidden shadow-2xl'>
+                <video src={videoUrl} controls={false} className='absolute inset-0 w-full h-full object-cover' autoPlay loop muted playsInline />
+                
+                {/* Overlay: Text (Bottom Left) */}
+                <div className='absolute bottom-0 left-0 right-14 z-20 flex flex-col justify-end bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 pb-6 pt-12 text-white pointer-events-none'>
+                  <div className='mb-3 flex items-center gap-3'>
+                    <div className='h-10 w-10 shrink-0'>
+                      <UserAvatar
+                        name={user?.fullName || 'You'}
+                        src={user?.avatar}
+                        className='w-full h-full border border-white/20'
+                        fallbackClassName='bg-primary text-white text-[11px]'
+                      />
+                    </div>
+                    <div className='text-[15px] font-bold tracking-wide drop-shadow-md'>
+                      {user?.fullName || 'You'}
+                    </div>
+                  </div>
+                  <p className='line-clamp-3 whitespace-pre-line text-[14px] leading-relaxed text-white/90 drop-shadow-md pointer-events-auto'>
+                    {caption || text.reelComposer.captionPlaceholder}
+                  </p>
+                </div>
+
+                {/* Right Overlay: Actions */}
+                <div className='absolute bottom-6 right-2 z-30 flex flex-col items-center gap-5'>
+                  <div className='flex flex-col items-center gap-1.5 text-white'>
+                    <span className='inline-flex h-10 w-10 items-center justify-center rounded-full bg-black/40 shadow-xl backdrop-blur-xl'>
+                      <svg viewBox='0 0 24 24' className='h-5 w-5 text-white' fill='none' stroke='currentColor' strokeWidth={2}>
+                        <path d='M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z' />
+                      </svg>
+                    </span>
+                    <span className='text-[11px] font-bold drop-shadow-md'>0</span>
+                  </div>
+
+                  <div className='flex flex-col items-center gap-1.5 text-white'>
+                    <span className='inline-flex h-10 w-10 items-center justify-center rounded-full bg-black/40 shadow-xl backdrop-blur-xl'>
+                      <MessageCircle className='h-5 w-5 text-white' />
+                    </span>
+                    <span className='text-[11px] font-bold drop-shadow-md'>0</span>
+                  </div>
+
+                  <div className='flex flex-col items-center gap-1.5 text-white'>
+                    <span className='inline-flex h-10 w-10 items-center justify-center rounded-full bg-black/40 shadow-xl backdrop-blur-xl'>
+                      <Send className='h-5 w-5 pr-0.5 text-white' />
+                    </span>
+                    <span className='text-[11px] font-bold drop-shadow-md'>0</span>
+                  </div>
+
+                  <div className='flex flex-col items-center gap-1.5 text-white'>
+                    <span className='inline-flex h-10 w-10 items-center justify-center rounded-full bg-black/40 shadow-xl backdrop-blur-xl'>
+                      <MoreHorizontal className='h-5 w-5 text-white' />
+                    </span>
+                  </div>
+                </div>
               </div>
             ) : (
               <div className='w-[85%] max-w-[850px] h-[75%] max-h-[550px] flex flex-col bg-card rounded-xl shadow-md overflow-hidden'>

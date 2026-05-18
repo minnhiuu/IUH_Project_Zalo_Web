@@ -91,9 +91,8 @@ export function CommentInput({
         uploadedMedia = await Promise.all(
           selectedMedia.map(async (item) => {
             const response = await fileApi.upload(item.file)
-            const key = response.data.data.key
             return {
-              url: `${import.meta.env.VITE_API_BASE_URL}/files/download/${encodeURIComponent(key)}`,
+              url: response.data.data.key,
               type: item.type
             }
           })
@@ -162,6 +161,12 @@ export function CommentInput({
         <Textarea
           value={commentText}
           onChange={(event) => setCommentText(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+              event.preventDefault()
+              handleSubmit()
+            }
+          }}
           rows={1}
           placeholder={placeholder ?? text.commentsModal.inputPlaceholder}
           className='min-h-[44px] resize-none rounded-2xl border-zinc-200 bg-zinc-50 py-3 pr-[104px] text-[14px] shadow-none transition-colors focus-visible:ring-primary/30 dark:border-white/10 dark:bg-zinc-900'

@@ -26,7 +26,7 @@ export function AiMessageBubble({
         {!isUser && (
           <div className='w-8 h-8 shrink-0'>
             <img
-              src={avatarUrl || `https://api.dicebear.com/7.x/identicon/svg?seed=ai-assistant-001`}
+              src={avatarUrl || `/images/bondhub-ai.png`}
               alt='Bondhub AI'
               className='w-full h-full rounded-full object-cover border border-black/5 shadow-md'
             />

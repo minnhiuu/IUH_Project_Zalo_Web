@@ -38,8 +38,8 @@ const getBadgeConfig = (type: NotificationType) => {
   switch (type) {
     case 'MESSAGE_DIRECT':
       return { icon: MessageCircle, color: 'bg-green-500' }
-    case 'POST_LIKE':
-    case 'COMMENT_LIKE':
+    case 'POST_REACTION':
+    case 'COMMENT_REACTION':
       return { icon: Heart, color: 'bg-brand-blue' }
     case 'POST_PUBLISHED':
       return { icon: MessageCircle, color: 'bg-brand-blue' }
@@ -109,7 +109,7 @@ export const NotificationItem = React.memo(({ notification, onMarkAsRead }: Noti
     if (
       notification.type === 'POST_PUBLISHED' ||
       notification.type === 'POST_COMMENT' ||
-      notification.type === 'POST_LIKE'
+      notification.type === 'POST_REACTION'
     ) {
       if (notification.referenceId) return notification.referenceId
       const payloadPostId = notification.payload?.postId as string | undefined

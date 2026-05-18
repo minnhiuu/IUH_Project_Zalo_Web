@@ -1,7 +1,9 @@
 import { UserAvatar } from '@/components/common/user-avatar'
 import { StoryVideoPlayer } from './story-video-player'
+import { useNavigate } from 'react-router'
 
 interface StoryCardProps {
+  authorId?: string
   authorName: string
   displayName?: string
   authorAvatar?: string | null
@@ -10,9 +12,11 @@ interface StoryCardProps {
   caption?: string | null
   mediaAlt: string
   onClick?: () => void
+  hasUnviewedStories?: boolean
 }
 
 export function StoryCard({
+  authorId,
   authorName,
   displayName,
   authorAvatar,
@@ -20,15 +24,29 @@ export function StoryCard({
   mediaType,
   caption,
   mediaAlt,
-  onClick
+  onClick,
+  hasUnviewedStories = true
 }: StoryCardProps) {
   const finalDisplayName = displayName || authorName
+  const navigate = useNavigate()
+
+  const handleProfileClick = (e: React.MouseEvent) => {
+    if (!authorId) return
+    e.stopPropagation()
+    navigate(`/profile/${authorId}`)
+  }
+
   return (
     <button
       type='button'
       onClick={onClick}
-      className='group relative h-[250px] w-[140px] shrink-0 overflow-hidden rounded-[12px] bg-zinc-100 text-left shadow-sm ring-1 ring-zinc-200/50 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:bg-zinc-900 dark:ring-white/10'
+      className="group relative h-[250px] w-[140px] shrink-0 overflow-hidden rounded-[12px] bg-zinc-100 text-left shadow-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:bg-zinc-900"
     >
+      <div className={`pointer-events-none absolute inset-0 z-20 rounded-[12px] ${
+        hasUnviewedStories
+          ? 'ring-[3px] ring-inset ring-blue-500 dark:ring-blue-500'
+          : 'ring-[3px] ring-inset ring-white/90 dark:ring-zinc-700'
+      }`} />
       {mediaUrl ? (
         mediaType === 'VIDEO' ? (
           <StoryVideoPlayer
@@ -58,7 +76,13 @@ export function StoryCard({
       <div className='absolute inset-0 bg-black/10 transition-opacity duration-200 group-hover:bg-black/20' />
 
       <div className='absolute left-3 top-3 z-10'>
-        <div className='h-10 w-10 overflow-hidden rounded-full border-4 border-blue-500 transition-transform duration-300 group-hover:scale-105'>
+        <div 
+          role="button"
+          tabIndex={0}
+          onClick={handleProfileClick}
+          className={`h-10 w-10 overflow-hidden rounded-full border-[3px] transition-transform duration-300 hover:scale-110 ${
+          hasUnviewedStories ? 'border-blue-500 dark:border-blue-500' : 'border-white/90 dark:border-zinc-700'
+        }`}>
           <UserAvatar
             name={authorName}
             src={authorAvatar}

@@ -120,10 +120,15 @@ export const useDeleteSocialCommentReactionMutation = (postId: string) => {
  * Fire-and-forget mutation to record a VIEW interaction for a story.
  * Idempotent on the backend — safe to call multiple times for the same user+post.
  */
-export const useRecordStoryViewMutation = () =>
-  useMutation({
-    mutationFn: (postId: string) => socialFeedApi.recordStoryView(postId)
+export const useRecordStoryViewMutation = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (postId: string) => socialFeedApi.recordStoryView(postId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: socialStoryKeys.all })
+    }
   })
+}
 
 export const useDislikePostMutation = () => {
   return useMutation({

@@ -187,7 +187,7 @@ export function MessageBubble({
         <div className='w-10 shrink-0 flex items-start'>
           {isFirst ? (
             <MessageSenderAvatar
-              src={message.senderAvatar}
+              src={message.senderName === 'Bondhub AI' ? '/images/bondhub-ai.png' : message.senderAvatar}
               name={message.senderName || text.user}
               isGroup={isGroup}
               isAdminOrOwner={isAdminOrOwner}

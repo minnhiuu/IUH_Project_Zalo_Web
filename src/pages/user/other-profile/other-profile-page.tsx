@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { cn } from '@/lib/utils'
 import { useInView } from 'react-intersection-observer'
 import { ArrowLeft, ArrowUp, Loader2, MessageCircle, UserPlus } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router'
 import { PostCard, useInfiniteUserPosts } from '@/features/social-feed'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { UserAvatar } from '@/components/common/user-avatar'
+import { UserAvatar, getInitials, getNameColor } from '@/components/common/user-avatar'
 import { useUserById } from '@/features/user'
 import { OthersProfileDialog } from '@/features/user'
 import { ProfileInfoCard } from '@/features/user/components/profile-page/profile-info-card'
@@ -13,6 +14,9 @@ import { ProfileReelsGrid } from '@/features/user/components/profile-page/profil
 import { useUserText } from '@/features/user/i18n/use-user-text'
 import { PATHS } from '@/constants/path'
 import { useAuthContext } from '@/features/auth/context/auth-context'
+import { StoryViewerModal } from '@/features/social-feed/components/stories/story-viewer-modal'
+import { mapPostToSocialStory } from '@/features/social-feed/queries/options'
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import {
   useFriendshipStatus,
   useAcceptFriendRequest,
@@ -54,19 +58,22 @@ export default function OtherProfilePage() {
   const p = text.profile.page
   const [showProfileDialog, setShowProfileDialog] = useState(false)
   const [isBlockModalOpen, setIsBlockModalOpen] = useState(false)
+  
+  const [isViewingAvatar, setIsViewingAvatar] = useState(false)
+  const [isViewingStory, setIsViewingStory] = useState(false)
 
   const { data: profileUser, isLoading: isUserLoading } = useUserById(userId ?? '')
   const { data: blockDetails } = useBlockDetails(userId ?? '')
   const { text: friendText } = useFriendText()
   const { data: friendshipStatus, isLoading: isLoadingStatus } = useFriendshipStatus(userId ?? '')
   const { data: mutualFriendsData } = useMutualFriends(userId ?? '')
-  const safeFriends = useMemo(() => mutualFriendsData?.mutualFriends || [], [mutualFriendsData])
+  const safeFriends = useMemo(() => Array.isArray(mutualFriendsData) ? mutualFriendsData : [], [mutualFriendsData])
 
-  const friendIds = useMemo(() => safeFriends.map((f) => f.userId), [safeFriends])
+  const friendIds = useMemo(() => safeFriends.map((f: any) => f.userId), [safeFriends])
   const { data: userSummaryMap } = useUsersByIds(friendIds)
 
   const friendsWithInfo = useMemo(() => {
-    return safeFriends.map((friend) => {
+    return safeFriends.map((friend: any) => {
       const info = userSummaryMap?.[friend.userId]
       return {
         ...friend,
@@ -112,7 +119,7 @@ export default function OtherProfilePage() {
         if (userId) sendRequestMutation.mutate({ receiverId: userId })
         break
       case 'accept':
-        if (friendshipStatus?.friendshipId) acceptRequestMutation.mutate(friendshipStatus.friendshipId)
+        if (friendshipStatus?.friendshipId) acceptRequestMutation.mutate({ requestId: friendshipStatus.friendshipId })
         break
       case 'withdraw':
         if (friendshipStatus?.friendshipId) cancelRequestMutation.mutate(friendshipStatus.friendshipId)
@@ -213,19 +220,44 @@ export default function OtherProfilePage() {
           <div className='flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between'>
             <div className='flex items-end gap-4'>
               {/* Avatar — overlaps cover */}
-              <div className='-mt-10 shrink-0 md:-mt-14'>
-                <div className='h-[100px] w-[100px] overflow-hidden rounded-full border-4 border-white bg-white shadow-lg dark:border-[#242526] md:h-[148px] md:w-[148px]'>
-                  {isUserLoading ? (
-                    <Skeleton className='h-full w-full rounded-full' />
-                  ) : (
-                    <UserAvatar
-                      src={profileUser?.avatar}
-                      name={profileUser?.fullName || 'User'}
-                      className='h-full w-full'
-                      fallbackClassName='text-4xl font-bold bg-primary'
-                    />
-                  )}
-                </div>
+              <div className='-mt-10 shrink-0 md:-mt-14 relative z-10'>
+                <DropdownMenu>
+                  <DropdownMenuTrigger className='rounded-full outline-none focus:outline-none'>
+                    <div 
+                      className={cn(
+                        'rounded-full transition-all hover:opacity-90 flex items-center justify-center',
+                        profileUser?.story?.hasUnviewed 
+                          ? 'bg-brand-blue p-[2px]' 
+                          : (profileUser?.story && profileUser?.story?.stories?.length > 0)
+                            ? 'bg-zinc-300 dark:bg-zinc-700 p-[2px]'
+                            : 'bg-transparent p-0'
+                      )}
+                    >
+                      <div className='h-[100px] w-[100px] overflow-hidden rounded-full border-4 border-white bg-white shadow-lg dark:border-[#242526] md:h-[148px] md:w-[148px]'>
+                        {isUserLoading ? (
+                          <Skeleton className='h-full w-full rounded-full' />
+                        ) : (
+                          <UserAvatar
+                            src={profileUser?.avatar}
+                            name={profileUser?.fullName || 'User'}
+                            className='h-full w-full'
+                            fallbackClassName='text-4xl font-bold bg-primary'
+                          />
+                        )}
+                      </div>
+                    </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align='start' className='w-48'>
+                    <DropdownMenuItem onClick={() => setIsViewingAvatar(true)} className='cursor-pointer'>
+                      Xem ảnh đại diện
+                    </DropdownMenuItem>
+                    {profileUser?.story && profileUser.story.stories?.length > 0 && (
+                      <DropdownMenuItem onClick={() => setIsViewingStory(true)} className='cursor-pointer'>
+                        Xem story
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
 
               {/* Name + bio */}
@@ -375,7 +407,7 @@ export default function OtherProfilePage() {
               ) : activeTab === 'Bạn bè' ? (
                 <div className='grid grid-cols-1 gap-3 sm:grid-cols-2'>
                   {friendsWithInfo.length > 0 ? (
-                    friendsWithInfo.map((friend) => (
+                    friendsWithInfo.map((friend: any) => (
                       <div
                         key={friend.userId}
                         onClick={() => navigate(`/profile/${friend.userId}`)}
@@ -454,6 +486,44 @@ export default function OtherProfilePage() {
           userName={profileUser.fullName || 'User'}
           isBlocked={!!blockDetails}
           currentPreference={blockDetails?.preference}
+        />
+      )}
+
+      {/* Avatar Viewer Modal */}
+      <Dialog open={isViewingAvatar} onOpenChange={setIsViewingAvatar}>
+        <DialogContent className='max-w-[90vw] md:max-w-4xl max-h-[90vh] bg-transparent border-none shadow-none flex items-center justify-center' showCloseButton={false}>
+          <DialogTitle className='sr-only'>Ảnh đại diện</DialogTitle>
+          {profileUser?.avatar ? (
+            <img
+              src={profileUser.avatar}
+              alt='Avatar'
+              className='max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl'
+            />
+          ) : (
+            <div 
+              className='w-[80vw] h-[80vw] max-w-[400px] max-h-[400px] rounded-full flex items-center justify-center text-white text-[100px] md:text-[150px] font-bold shadow-2xl'
+              style={{ backgroundColor: getNameColor(profileUser?.fullName || 'User') }}
+            >
+              {getInitials(profileUser?.fullName || 'User')}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Story Viewer Modal */}
+      {isViewingStory && profileUser?.story && profileUser.story.stories.length > 0 && (
+        <StoryViewerModal
+          open={isViewingStory}
+          onOpenChange={setIsViewingStory}
+          initialGroupIndex={0}
+          groups={[
+            {
+              authorId: profileUser.id || '',
+              authorName: profileUser.fullName || 'User',
+              authorAvatar: profileUser.avatar,
+              stories: profileUser.story.stories.map(mapPostToSocialStory)
+            }
+          ]}
         />
       )}
     </section>

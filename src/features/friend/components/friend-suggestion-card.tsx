@@ -64,7 +64,7 @@ export function FriendSuggestionCard({
         break
       case 'accept':
         if (friendshipStatus?.friendshipId) {
-          acceptRequestMutation.mutate(friendshipStatus.friendshipId)
+          acceptRequestMutation.mutate({ requestId: friendshipStatus.friendshipId })
         }
         break
       case 'recall':

@@ -27,6 +27,8 @@ import type { SocialPostMedia } from './post-card'
 import { ReactionPeopleModal } from './reaction-people-modal'
 import { SharePostModal } from './share-post-modal'
 import { commentApi } from '../../api/comment.api'
+import { useNavigate } from 'react-router'
+import { PATHS } from '@/constants/path'
 
 interface PostMediaModalProps {
   open: boolean
@@ -39,11 +41,13 @@ interface PostMediaModalProps {
   onReactionChange?: (type: ReactionType | null) => void
   onCommentAdded?: () => void
   onCommentDeleted?: () => void
+  hideLikeShare?: boolean
 }
 
-export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, mediaOverride, currentReaction, onReactionChange, onCommentAdded, onCommentDeleted }: PostMediaModalProps) {
+export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, mediaOverride, currentReaction, onReactionChange, onCommentAdded, onCommentDeleted, hideLikeShare }: PostMediaModalProps) {
   const { text, language } = useSocialText()
   const { user } = useAuthContext()
+  const navigate = useNavigate()
 
   const commentsQuery = useSocialFeedComments(post.id, 0, 20)
   const createCommentMutation = useCreateSocialCommentMutation(post.id)
@@ -133,7 +137,11 @@ export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, med
     await deleteReactionMutation.mutateAsync(commentId)
   }
 
-  const modalMedia = mediaOverride?.length ? mediaOverride : (post.media ?? [])
+  const modalMedia = mediaOverride?.length 
+    ? mediaOverride 
+    : post.postType === 'SHARE' && post.sharedPost?.media?.length
+      ? post.sharedPost.media
+      : (post.media ?? [])
   const sortedMedia = [...modalMedia].sort((a, b) => {
     if (a.type === 'VIDEO' && b.type !== 'VIDEO') return -1
     if (a.type !== 'VIDEO' && b.type === 'VIDEO') return 1
@@ -144,6 +152,7 @@ export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, med
   const visibilityLabel = text.post.visibility[post.visibility]
   const defaultPostedAtLabel = language.startsWith('vi') ? 'Vừa xong' : 'Just now'
   const postedAtLabel = formatRelativeTime(post.postedAt, language) || defaultPostedAtLabel
+  const canShare = !hideLikeShare && post.authorId !== user?.id && post.sharedPost?.authorId !== user?.id
 
   const displayedTopReactions =
     selectedReaction && !post.topReactions?.includes(selectedReaction)
@@ -152,6 +161,27 @@ export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, med
   const topReactionOptions = displayedTopReactions
     .map((type) => REACTIONS.find((reaction) => reaction.type === type))
     .filter((reaction): reaction is (typeof REACTIONS)[number] => Boolean(reaction))
+
+  function handleAuthorClick() {
+    if (!post.authorId) return
+    onOpenChange(false)
+    if (user?.id && post.authorId === user.id) {
+      navigate(PATHS.USER.PROFILE)
+    } else {
+      navigate(PATHS.USER.OTHER_PROFILE.replace(':userId', post.authorId))
+    }
+  }
+
+  function handleSharedAuthorClick(e: React.MouseEvent) {
+    e.stopPropagation()
+    if (!post.sharedPost?.authorId) return
+    onOpenChange(false)
+    if (user?.id && post.sharedPost.authorId === user.id) {
+      navigate(PATHS.USER.PROFILE)
+    } else {
+      navigate(PATHS.USER.OTHER_PROFILE.replace(':userId', post.sharedPost.authorId))
+    }
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -213,7 +243,7 @@ export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, med
           {/* Header */}
           <div className='flex items-center justify-between px-5 py-4 border-b border-zinc-200 dark:border-white/10'>
             <div className='flex items-center gap-3'>
-              <div className='h-10 w-10'>
+              <div className='h-10 w-10 cursor-pointer transition hover:scale-105' onClick={handleAuthorClick}>
                 <UserAvatar
                   name={post.authorName}
                   src={post.authorAvatar}
@@ -222,7 +252,7 @@ export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, med
                 />
               </div>
               <div>
-                <div className='text-[14.5px] font-semibold text-zinc-900 dark:text-[#ececec] hover:underline cursor-pointer'>
+                <div onClick={handleAuthorClick} className='text-[14.5px] font-semibold text-zinc-900 dark:text-[#ececec] hover:underline cursor-pointer'>
                   {post.authorName}
                 </div>
                 <div className='flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-500'>
@@ -247,6 +277,44 @@ export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, med
             <p className='text-[14.5px] leading-relaxed text-zinc-800 dark:text-zinc-300 whitespace-pre-line wrap-break-word'>
               {post.content}
             </p>
+
+            {post.postType === 'SHARE' && post.sharedPost ? (
+              <div 
+                onClick={() => {
+                  onOpenChange(false)
+                  navigate(`${PATHS.SOCIAL_FEED}?postId=${post.sharedPost?.postId}`)
+                }}
+                className='mt-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3 dark:border-white/10 dark:bg-zinc-900/40 cursor-pointer transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800/50'
+              >
+                <div className='mb-2 flex items-center gap-2'>
+                  <button
+                    onClick={handleSharedAuthorClick}
+                    disabled={!post.sharedPost.authorId}
+                    className={`h-8 w-8 ${post.sharedPost.authorId ? 'transition-transform hover:scale-105 active:scale-95' : ''}`}
+                  >
+                    <UserAvatar
+                      name={post.sharedPost.authorName}
+                      src={post.sharedPost.authorAvatar}
+                      className='w-full h-full border border-background'
+                      fallbackClassName='bg-primary text-white text-xs font-semibold'
+                    />
+                  </button>
+                  <button
+                    onClick={handleSharedAuthorClick}
+                    disabled={!post.sharedPost.authorId}
+                    className={`text-[13px] font-semibold text-zinc-800 dark:text-zinc-200 ${post.sharedPost.authorId ? 'hover:text-primary dark:hover:text-primary hover:underline' : ''}`}
+                  >
+                    {post.sharedPost.authorName}
+                  </button>
+                </div>
+
+                {post.sharedPost.content ? (
+                  <p className='wrap-break-word text-[14px] leading-relaxed whitespace-pre-line text-zinc-700 dark:text-zinc-300'>
+                    {post.sharedPost.content}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
             <div className='flex items-center justify-between pt-4 text-[13px] text-zinc-500'>
               <button
                 type='button'
@@ -291,45 +359,47 @@ export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, med
 
           {/* Action Buttons */}
           <div className='flex w-full gap-1 border-b border-zinc-200 dark:border-white/10 px-2 py-1 shrink-0'>
-            <div
-              className='relative flex-1'
-              onMouseEnter={() => setShowReactionPicker(true)}
-              onMouseLeave={() => setShowReactionPicker(false)}
-            >
-              <ReactionPicker open={showReactionPicker} onSelect={handleReactionClick} />
-
-              <Button
-                variant='ghost'
-                className={`h-9 w-full gap-2 transition-all hover:bg-zinc-100 dark:hover:bg-zinc-800 ${activeReaction ? activeReaction.textClass : 'text-zinc-500 dark:text-zinc-400 hover:text-primary dark:hover:text-primary'}`}
-                onClick={() => {
-                  if (selectedReaction) {
-                    setShowReactionPicker(false)
-                    if (onReactionChange) {
-                      onReactionChange(null)
-                    } else {
-                      deleteMutation.mutate()
-                    }
-                    return
-                  }
-                  handleReactionClick('LIKE')
-                }}
+            {!hideLikeShare && (
+              <div
+                className='relative flex-1'
+                onMouseEnter={() => setShowReactionPicker(true)}
+                onMouseLeave={() => setShowReactionPicker(false)}
               >
-                <motion.div
-                  whileTap={{ scale: 0.8 }}
-                  animate={selectedReaction ? { scale: [1, 1.2, 1] } : {}}
-                  transition={{ duration: 0.3 }}
+                <ReactionPicker open={showReactionPicker} onSelect={handleReactionClick} />
+
+                <Button
+                  variant='ghost'
+                  className={`h-9 w-full gap-2 transition-all hover:bg-zinc-100 dark:hover:bg-zinc-800 ${activeReaction ? activeReaction.textClass : 'text-zinc-500 dark:text-zinc-400 hover:text-primary dark:hover:text-primary'}`}
+                  onClick={() => {
+                    if (selectedReaction) {
+                      setShowReactionPicker(false)
+                      if (onReactionChange) {
+                        onReactionChange(null)
+                      } else {
+                        deleteMutation.mutate()
+                      }
+                      return
+                    }
+                    handleReactionClick('LIKE')
+                  }}
                 >
-                  {activeReaction ? (
-                    <activeReaction.Icon size={18} />
-                  ) : (
-                    <ThumbsUp className='h-4 w-4 transition-colors' />
-                  )}
-                </motion.div>
-                <span className='text-[13px] font-semibold'>
-                  {activeReaction ? text.reactions.labels[activeReaction.type] : text.reactions.labels.LIKE}
-                </span>
-              </Button>
-            </div>
+                  <motion.div
+                    whileTap={{ scale: 0.8 }}
+                    animate={selectedReaction ? { scale: [1, 1.2, 1] } : {}}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {activeReaction ? (
+                      <activeReaction.Icon size={18} />
+                    ) : (
+                      <ThumbsUp className='h-4 w-4 transition-colors' />
+                    )}
+                  </motion.div>
+                  <span className='text-[13px] font-semibold'>
+                    {activeReaction ? text.reactions.labels[activeReaction.type] : text.reactions.labels.LIKE}
+                  </span>
+                </Button>
+              </div>
+            )}
             <Button
               variant='ghost'
               className='h-9 flex-1 gap-2 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-primary dark:hover:text-primary'
@@ -343,14 +413,16 @@ export function PostMediaModal({ open, onOpenChange, post, initialSlide = 0, med
               <MessageCircle className='h-4 w-4' />
               <span className='text-[13px] font-semibold'>{text.post.comment}</span>
             </Button>
-            <Button
-              variant='ghost'
-              className='h-9 flex-1 gap-2 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-primary dark:hover:text-primary'
-              onClick={() => setShareModalOpen(true)}
-            >
-              <Share2 className='h-4 w-4' />
-              <span className='text-[13px] font-semibold'>{text.post.share}</span>
-            </Button>
+            {canShare && (
+              <Button
+                variant='ghost'
+                className='h-9 flex-1 gap-2 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-primary dark:hover:text-primary'
+                onClick={() => setShareModalOpen(true)}
+              >
+                <Share2 className='h-4 w-4' />
+                <span className='text-[13px] font-semibold'>{text.post.share}</span>
+              </Button>
+            )}
           </div>
 
           {/* Comments Flex list */}

@@ -66,7 +66,7 @@ export function SharePostModal({ open, onOpenChange, post }: SharePostModalProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-w-[500px] p-0 overflow-hidden bg-white dark:bg-zinc-950/90 dark:backdrop-blur-xl border-zinc-200 dark:border-white/10'>
+      <DialogContent className='!z-[10000] max-w-[500px] p-0 overflow-hidden bg-white dark:bg-zinc-950/90 dark:backdrop-blur-xl border-zinc-200 dark:border-white/10'>
         <DialogHeader className='px-6 py-4 border-b border-zinc-100 dark:border-white/5'>
           <DialogTitle className='text-[17px] font-semibold text-center text-zinc-900 dark:text-zinc-100'>
             {text.shareModal.title}

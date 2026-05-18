@@ -13,14 +13,11 @@ import {
 } from '@/features/friend'
 import { CreateGroupDialog } from '@/features/chat'
 import { SearchAndActions, type SearchAction } from '@/components/common/search-and-actions'
-import { useOutletContext } from 'react-router'
+
 import { GlobalSearchPanel } from '@/features/search'
 
 export default function ContactPage() {
-  const { isGlobalSearchOpen, setIsGlobalSearchOpen } = useOutletContext<{
-    isGlobalSearchOpen: boolean
-    setIsGlobalSearchOpen: (open: boolean) => void
-  }>()
+  const [isGlobalSearchOpen, setIsGlobalSearchOpen] = useState(false)
   const { text } = useFriendText()
   const [activeTab, setActiveTab] = useState<ContactTab>('friends')
   const [showAddFriendDialog, setShowAddFriendDialog] = useState(false)

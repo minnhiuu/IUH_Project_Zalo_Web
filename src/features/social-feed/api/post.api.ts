@@ -63,6 +63,12 @@ export interface BackendPostResponse {
   uploadedAt?: string | null
 }
 
+export interface StoryGroupResponse {
+  authorInfo: AuthorInfo
+  stories: BackendPostResponse[]
+  hasUnviewed: boolean
+}
+
 export interface CreatePostRequest {
   postType: string
   visibility: string
@@ -128,5 +134,8 @@ export const socialFeedApi = {
   getUserPosts: (userId: string, page = 0, size = 20) =>
     http.get<ApiResponse<PageResponse<BackendPostResponse>>>(`/posts/users/${userId}`, {
       params: { page, size }
-    })
+    }),
+
+  getUserStory: (userId: string) =>
+    http.get<ApiResponse<StoryGroupResponse>>(`/posts/stories/users/${userId}`)
 }

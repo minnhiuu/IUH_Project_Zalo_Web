@@ -76,7 +76,7 @@ export function StrangerBanner({ partnerId, partnerName }: StrangerBannerProps) 
             variant='secondary-blue'
             size='sm'
             className='h-[28px] text-[13px] font-medium tracking-wide bg-[#E5EFFF] text-[#005AE0] hover:bg-[#D4E4FC] border-none px-4 rounded-[4px]'
-            onClick={() => acceptRequestMutation.mutate(friendshipStatus.friendshipId || '')}
+            onClick={() => acceptRequestMutation.mutate({ requestId: friendshipStatus.friendshipId || '' })}
             disabled={acceptRequestMutation.isPending}
           >
             <Check className='w-[14px] h-[14px] mr-1.5' /> {text['stranger-banner'].acceptRequest}

@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { cn } from '@/lib/utils'
 import { useInView } from 'react-intersection-observer'
 import { ArrowLeft, ArrowUp, Loader2, Pencil, Search, MoreHorizontal } from 'lucide-react'
 import { useNavigate } from 'react-router'
 import { PostCard, PostComposerLauncher, useInfiniteMyPosts } from '@/features/social-feed'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { UserAvatar } from '@/components/common/user-avatar'
+import { UserAvatar, getInitials, getNameColor } from '@/components/common/user-avatar'
 import { useAuthContext } from '@/features/auth/context/auth-context'
 import { OwnerProfileDialog, useMyProfile } from '@/features/user'
 import { ProfileInfoCard } from '@/features/user/components/profile-page/profile-info-card'
@@ -14,6 +15,10 @@ import { useUserText } from '@/features/user/i18n/use-user-text'
 import { PATHS } from '@/constants/path'
 import { useMyFriends } from '@/features/friend/queries'
 import { useUsersByIds } from '@/features/user/queries/use-queries'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { StoryViewerModal } from '@/features/social-feed/components/stories/story-viewer-modal'
+import { mapPostToSocialStory } from '@/features/social-feed/queries/options'
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 
 function PostCardSkeleton() {
   return (
@@ -41,6 +46,9 @@ export default function MyProfilePage() {
   const { text } = useUserText()
   const p = text.profile.page
   const [showProfileDialog, setShowProfileDialog] = useState(false)
+  
+  const [isViewingAvatar, setIsViewingAvatar] = useState(false)
+  const [isViewingStory, setIsViewingStory] = useState(false)
 
   const { data: friends } = useMyFriends()
   const safeFriends = useMemo(() => (Array.isArray(friends) ? friends : []), [friends])
@@ -126,15 +134,40 @@ export default function MyProfilePage() {
           <div className='flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between'>
             <div className='flex items-end gap-4'>
               {/* Avatar — overlaps cover */}
-              <div className='-mt-10 shrink-0 md:-mt-14'>
-                <div className='h-[100px] w-[100px] overflow-hidden rounded-full border-4 border-white bg-white shadow-lg dark:border-[#242526] md:h-[148px] md:w-[148px]'>
-                  <UserAvatar
-                    src={user?.avatar}
-                    name={user?.fullName || 'User'}
-                    className='h-full w-full'
-                    fallbackClassName='text-4xl font-bold bg-primary'
-                  />
-                </div>
+              <div className='-mt-10 shrink-0 md:-mt-14 relative z-10'>
+                <DropdownMenu>
+                  <DropdownMenuTrigger className='rounded-full outline-none focus:outline-none'>
+                    <div 
+                      className={cn(
+                        'rounded-full transition-all hover:opacity-90 flex items-center justify-center',
+                        fullProfile?.story?.hasUnviewed 
+                          ? 'bg-brand-blue p-[2px]' 
+                          : (fullProfile?.story && fullProfile?.story?.stories?.length > 0)
+                            ? 'bg-zinc-300 dark:bg-zinc-700 p-[2px]'
+                            : 'bg-transparent p-0'
+                      )}
+                    >
+                      <div className='h-[100px] w-[100px] overflow-hidden rounded-full border-4 border-white bg-white shadow-lg dark:border-[#242526] md:h-[148px] md:w-[148px]'>
+                        <UserAvatar
+                          src={user?.avatar}
+                          name={user?.fullName || 'User'}
+                          className='h-full w-full'
+                          fallbackClassName='text-4xl font-bold bg-primary'
+                        />
+                      </div>
+                    </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align='start' className='w-48'>
+                    <DropdownMenuItem onClick={() => setIsViewingAvatar(true)} className='cursor-pointer'>
+                      Xem ảnh đại diện
+                    </DropdownMenuItem>
+                    {fullProfile?.story && fullProfile.story.stories?.length > 0 && (
+                      <DropdownMenuItem onClick={() => setIsViewingStory(true)} className='cursor-pointer'>
+                        Xem story
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
               {/* Name + bio */}
               <div className='mb-2 min-w-0 flex-1 pb-1'>
@@ -336,6 +369,44 @@ export default function MyProfilePage() {
       )}
 
       <OwnerProfileDialog open={showProfileDialog} onOpenChange={setShowProfileDialog} />
+
+      {/* Avatar Viewer Modal */}
+      <Dialog open={isViewingAvatar} onOpenChange={setIsViewingAvatar}>
+        <DialogContent className='max-w-[90vw] md:max-w-4xl max-h-[90vh] bg-transparent border-none shadow-none flex items-center justify-center' showCloseButton={false}>
+          <DialogTitle className='sr-only'>Ảnh đại diện</DialogTitle>
+          {user?.avatar ? (
+            <img
+              src={user.avatar}
+              alt='Avatar'
+              className='max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl'
+            />
+          ) : (
+            <div 
+              className='w-[80vw] h-[80vw] max-w-[400px] max-h-[400px] rounded-full flex items-center justify-center text-white text-[100px] md:text-[150px] font-bold shadow-2xl'
+              style={{ backgroundColor: getNameColor(user?.fullName || 'User') }}
+            >
+              {getInitials(user?.fullName || 'User')}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Story Viewer Modal */}
+      {isViewingStory && fullProfile?.story && fullProfile.story.stories.length > 0 && (
+        <StoryViewerModal
+          open={isViewingStory}
+          onOpenChange={setIsViewingStory}
+          initialGroupIndex={0}
+          groups={[
+            {
+              authorId: fullProfile.id || '',
+              authorName: fullProfile.fullName || 'User',
+              authorAvatar: fullProfile.avatar,
+              stories: fullProfile.story.stories.map(mapPostToSocialStory)
+            }
+          ]}
+        />
+      )}
     </section>
   )
 }

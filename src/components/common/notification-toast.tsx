@@ -37,8 +37,8 @@ const getBadgeConfig = (type: NotificationType) => {
   switch (type) {
     case 'MESSAGE_DIRECT':
       return { icon: MessageCircle, color: 'bg-green-500' }
-    case 'POST_LIKE':
-    case 'COMMENT_LIKE':
+    case 'POST_REACTION':
+    case 'COMMENT_REACTION':
       return { icon: Heart, color: 'bg-brand-blue' }
     case 'POST_PUBLISHED':
       return { icon: MessageCircle, color: 'bg-brand-blue' }

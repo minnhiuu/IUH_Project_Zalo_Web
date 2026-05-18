@@ -20,6 +20,29 @@ import { useDislikePostMutation } from '../../queries/use-mutations'
 import { useAuthContext } from '@/features/auth/context/auth-context'
 import { PATHS } from '@/constants/path'
 import { toast } from 'sonner'
+import { useFriendshipStatus, useSendFriendRequest } from '@/features/friend/queries'
+import { FriendStatus } from '@/features/friend/schemas/friend.schema'
+
+function ReelAddFriendButton({ targetId }: { targetId: string }) {
+  const { data: friendshipStatus, isLoading } = useFriendshipStatus(targetId)
+  const sendRequestMutation = useSendFriendRequest()
+
+  if (isLoading || friendshipStatus?.status === FriendStatus.Accepted || friendshipStatus?.status === FriendStatus.Pending) {
+    return null
+  }
+
+  return (
+    <span 
+      onClick={(e) => {
+        e.stopPropagation()
+        sendRequestMutation.mutate({ receiverId: targetId })
+      }}
+      className={`text-[14px] font-semibold text-indigo-600 dark:text-indigo-400 cursor-pointer hover:underline ${sendRequestMutation.isPending ? 'opacity-50 pointer-events-none' : ''}`}
+    >
+      • {sendRequestMutation.isPending ? 'Đang gửi...' : 'Kết bạn'}
+    </span>
+  )
+}
 
 interface ReelsFeedProps {
   reels: SocialPost[]
@@ -199,10 +222,8 @@ function ReelViewportItem({
               <button type='button' onClick={handleAuthorClick} className='text-[15px] font-bold tracking-wide text-zinc-900 dark:text-white hover:underline'>
                 {reel.authorName}
               </button>
-              {(!me || me.id !== reel.authorId) && (
-                <span className='text-[14px] font-semibold text-indigo-600 dark:text-indigo-400 cursor-pointer hover:underline'>
-                  • Theo dõi
-                </span>
+              {(!me || me.id !== reel.authorId) && reel.authorId && (
+                <ReelAddFriendButton targetId={reel.authorId} />
               )}
             </div>
           </div>
