@@ -220,7 +220,7 @@ export function GroupInfoStep({
           title='Chia sẻ'
           confirmText='Chia sẻ'
           onConfirm={(selectedConvIds) => {
-              const linkUrl = buildGroupLinkUrl(conversation.joinLinkToken)
+            const linkUrl = buildGroupLinkUrl(conversation.joinLinkToken!)
             selectedConvIds.forEach((convId) => {
               sendMessage(convId, linkUrl, null, false)
             })

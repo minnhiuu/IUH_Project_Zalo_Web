@@ -42,7 +42,8 @@ export function MessageBubble({
   onReply,
   onForward,
   onAvatarClick,
-  onRecall
+  onRecall,
+  onScrollToMessage
 }: {
   message: MessageResponse
   highlightKeyword?: string | null
@@ -56,6 +57,7 @@ export function MessageBubble({
   onForward?: () => void
   onAvatarClick?: (userId: string) => void
   onRecall?: (receiverId: string) => void
+  onScrollToMessage?: (messageId: string) => void
 }) {
   void highlightKeyword
   void isHighlighted
@@ -182,7 +184,10 @@ export function MessageBubble({
             )}
 
             {message.replyTo && (
-              <div className='mb-1.5 px-3 py-1.5 border-l-2 border-[#1972F5] bg-[#CDE2FF]/50 rounded-sm select-none'>
+              <div
+                className='mb-1.5 px-3 py-1.5 border-l-2 border-[#1972F5] bg-[#CDE2FF]/50 rounded-sm select-none cursor-pointer hover:bg-[#CDE2FF]/75 transition-colors'
+                onClick={() => message.replyTo?.messageId && onScrollToMessage?.(message.replyTo.messageId)}
+              >
                 <div className='font-semibold text-[#0068FF] text-[13px]'>{message.replyTo.senderName}</div>
                 <div className='text-[13px] text-black/70 truncate'>
                   {message.replyTo.content === null ? (

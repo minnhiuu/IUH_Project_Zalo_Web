@@ -88,7 +88,8 @@ export function CallMessage({ message, isOwn, onRecall }: CallMessageProps) {
   const targetUserId = isCaller ? meta.receiverId : meta.callerId
 
   return (
-    <div className={cn('flex w-full px-3 my-1.5', isOwn ? 'justify-end' : 'justify-start')}>
+    <div className={cn('flex w-full px-2 gap-2 my-1.5', isOwn ? 'justify-end' : 'justify-start')}>
+      {!isOwn && <div className='w-10 shrink-0' />}
       <div
         className={cn(
           'rounded-xl border overflow-hidden max-w-[260px] min-w-[200px]',

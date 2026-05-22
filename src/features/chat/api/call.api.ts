@@ -3,6 +3,7 @@ import type { ApiResponse } from '@/shared/api'
 
 export interface CallRequest {
   receiverId: string
+  callKind?: string
 }
 
 export interface CallResponse {

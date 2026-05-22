@@ -231,11 +231,11 @@ export function ChatWindow({
 
   useCallNotification({ onIncomingCall: handleIncomingCall })
 
-  const handleStartVideoCall = async () => {
+  const handleStartCall = async (kind: 'voice' | 'video') => {
     if (!partnerId || isGroup || isCloudConversation) return
     setIsCallLoading(true)
     try {
-      await startCall(partnerId)
+      await startCall(partnerId, kind)
     } catch (error: unknown) {
       const code = (error as { response?: { data?: { code?: number } } })?.response?.data?.code
       if (code === 5001) {
@@ -249,6 +249,9 @@ export function ChatWindow({
       setIsCallLoading(false)
     }
   }
+
+  const handleStartVideoCall = () => handleStartCall('video')
+  const handleStartVoiceCall = () => handleStartCall('voice')
 
   const handleRejectIncoming = async () => {
     if (callState.incoming) {
@@ -1093,7 +1096,7 @@ export function ChatWindow({
           </div>
           <div className='flex items-center space-x-1 sm:space-x-2 text-muted-foreground'>
             <button
-              onClick={handleStartVideoCall}
+              onClick={handleStartVoiceCall}
               disabled={isCallLoading || isGroup || isCloudConversation || callState.phase !== 'idle'}
               className='p-2 hover:bg-muted rounded-full transition-colors hidden sm:block disabled:opacity-40 disabled:cursor-not-allowed'
               title={text['chat-window'].voiceCall}
@@ -1480,11 +1483,16 @@ export function ChatWindow({
 
       {/* Video Call Overlays */}
       {callState.phase === 'ringing' && callState.callData && (
-        <OutgoingCallScreen callData={callState.callData} onCancel={cancelOutgoing} onConnect={connectCall} />
+        <OutgoingCallScreen
+          callData={callState.callData}
+          callKind={callState.callKind}
+          onCancel={cancelOutgoing}
+          onConnect={connectCall}
+        />
       )}
 
       {callState.phase === 'active' && callState.callData && (
-        <VideoCallRoom callData={callState.callData} onCallEnd={endCall} />
+        <VideoCallRoom callData={callState.callData} callKind={callState.callKind} onCallEnd={endCall} />
       )}
 
       {callState.incoming && (
@@ -1492,6 +1500,7 @@ export function ChatWindow({
           callerName={callState.incoming.callerName}
           callerAvatar={callState.incoming.callerAvatar}
           sessionId={callState.incoming.sessionId}
+          callKind={callState.incoming.callKind}
           onAccept={acceptIncoming}
           onReject={handleRejectIncoming}
         />

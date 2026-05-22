@@ -67,7 +67,6 @@ export const useMarkAsReadMutation = () => {
           previousConversations.map((conv: ConversationResponse) => {
             if (conv.id === conversationId) {
               const optimisticLastReadMessageId = lastReadMessageId ?? conv.lastMessage?.id ?? null
-              const myMember = conv.members?.find((m) => m.userId === user?.id)
 
               return {
                 ...conv,
