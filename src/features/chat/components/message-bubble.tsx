@@ -43,7 +43,9 @@ export function MessageBubble({
   onForward,
   onAvatarClick,
   onRecall,
-  onScrollToMessage
+  onScrollToMessage,
+  onJoinGroupCall,
+  activeGroupCallId
 }: {
   message: MessageResponse
   highlightKeyword?: string | null
@@ -58,6 +60,8 @@ export function MessageBubble({
   onAvatarClick?: (userId: string) => void
   onRecall?: (receiverId: string) => void
   onScrollToMessage?: (messageId: string) => void
+  onJoinGroupCall?: (roomId: string, callKind: 'voice' | 'video') => void
+  activeGroupCallId?: string | null
 }) {
   void highlightKeyword
   void isHighlighted
@@ -127,8 +131,28 @@ export function MessageBubble({
   if (message.type === MessageType.System) {
     return <SystemMessage message={message} conversation={conversation} />
   }
-  if (message.type === MessageType.Call) {
-    return <CallMessage message={message} isOwn={isOwn} onRecall={onRecall} />
+  const isGroupCall = message.content?.startsWith('[GROUP_CALL]::')
+  if (isGroupCall) {
+    try {
+      const payload = JSON.parse(message.content!.slice('[GROUP_CALL]::'.length))
+      if (payload.status === 'ended') {
+        return null // Hide ended call messages from timeline to prevent duplicate "Ended" cards
+      }
+    } catch {
+      // ignore
+    }
+  }
+  if (message.type === MessageType.Call || isGroupCall) {
+    return (
+      <CallMessage
+        message={message}
+        isOwn={isOwn}
+        onRecall={onRecall}
+        onJoinGroupCall={onJoinGroupCall}
+        activeGroupCallId={activeGroupCallId}
+        onAvatarClick={onAvatarClick}
+      />
+    )
   }
   return (
     <div

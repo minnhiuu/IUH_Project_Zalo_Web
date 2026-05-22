@@ -68,6 +68,34 @@ export const useChatWebSocket = () => {
 
           const isOwnMessage = msg.isFromMe === true || msg.senderId === user.id
 
+          // Dispatch global CustomEvent for group call ringing
+          if (msg.content?.startsWith('[GROUP_CALL]::') && !isOwnMessage) {
+            try {
+              const payload = JSON.parse(msg.content.slice('[GROUP_CALL]::'.length))
+              if (payload.status === 'active') {
+                // Find group name from queryClient conversations cache
+                const cachedConvs = queryClient.getQueryData<ConversationResponse[]>(chatKeys.conversations())
+                const targetConv = cachedConvs?.find((c) => c.id === conversationId)
+                const groupName = targetConv?.name || 'Nhóm'
+
+                window.dispatchEvent(
+                  new CustomEvent('incoming-group-call', {
+                    detail: {
+                      roomId: payload.roomId,
+                      callerName: payload.callerName || 'Thành viên',
+                      callerAvatar: msg.senderAvatar || '',
+                      callKind: payload.callKind || 'voice',
+                      conversationId: conversationId,
+                      groupName: groupName
+                    }
+                  })
+                )
+              }
+            } catch (e) {
+              console.error('[Socket] Error parsing group call message payload:', e)
+            }
+          }
+
           // 1. Update Messages Cache (key = conversationId)
           if (isOwnMessage) {
             queryClient.setQueryData(
