@@ -351,6 +351,15 @@ export function getSystemMessagePreview(
     return translate('chat.system.join_request_rejected.self') as string
   }
 
+  if (action === 'UPDATE_EXPIRATION') {
+    const actorName = memberNameById.get(String(senderId)) || senderName || fallbackUserLabel
+    const days = (payload?.days as number) || 0
+    if (days === 0) {
+      return `${actorName} ${translate('chat.system.update_expiration.off')}`
+    }
+    return `${actorName} ${translate('chat.system.update_expiration.on', { days })}`
+  }
+
   // Fallback to standard labels for other cases
   const label = getSystemMessageLabel(metadataRaw, senderId, undefined, currentUserId, members, translate, false)
   return typeof label === 'string' ? label : ''

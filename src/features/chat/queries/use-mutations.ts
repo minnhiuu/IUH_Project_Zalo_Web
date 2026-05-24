@@ -15,6 +15,7 @@ import {
   updateGroupNameApi,
   updateGroupAvatarApi,
   updateGroupSettingsApi,
+  updateMessageExpirationApi,
   deleteConversationApi,
   clearConversationHistoryApi,
   leaveGroupApi,
@@ -868,6 +869,29 @@ export const useToggleHideConversationMutation = () => {
       if (context?.previousConversations) {
         queryClient.setQueryData(chatKeys.conversations(), context.previousConversations)
       }
+    }
+  })
+}
+
+export const useUpdateMessageExpirationMutation = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ conversationId, days }: { conversationId: string; days: number }) =>
+      updateMessageExpirationApi(conversationId, days),
+    onSuccess: (updatedConv, variables) => {
+      queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
+        if (!oldData) return [updatedConv]
+        return oldData.map((conv) => (conv.id === updatedConv.id ? { 
+          ...conv, 
+          ...updatedConv,
+          friendshipStatus: updatedConv.friendshipStatus ?? conv.friendshipStatus,
+          status: updatedConv.status ?? conv.status,
+          lastSeenAt: updatedConv.lastSeenAt ?? conv.lastSeenAt
+        } : conv))
+      })
+    },
+    onError: (error) => {
+      console.error('Failed to update message expiration', error)
     }
   })
 }

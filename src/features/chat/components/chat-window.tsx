@@ -10,7 +10,7 @@ import { ChatInputRestricted } from './chat-input-restricted'
 import { useChatScroll } from '../hooks/use-chat-scroll'
 import { useChatText } from '../i18n/use-chat-text'
 import { VideoCallRoom, IncomingCallDialog, OutgoingCallScreen, useVideoCall } from './call-video/video-call'
-import { GroupCallRoom, GroupCallConfigScreen, GroupIncomingCallDialog, useGroupCall } from './call-video/group-call'
+import { GroupCallRoom, GroupIncomingCallDialog, useGroupCall } from './call-video/group-call'
 import { useCallNotification } from '../hooks/use-call-notification'
 import { rejectCallApi } from '../api/call.api'
 import { type UnreadAnchorResponse } from '../api/chat.api'
@@ -357,6 +357,30 @@ export function ChatWindow({
     }
     rejectIncoming()
   }
+
+  useEffect(() => {
+    const handleGlobalCall = (e: Event) => {
+      const { userId, kind } = (e as CustomEvent).detail
+      if (!userId) return
+      setIsCallLoading(true)
+      startCall(userId, kind)
+        .catch((error: unknown) => {
+          const code = (error as { response?: { data?: { code?: number } } })?.response?.data?.code
+          if (code === 5001) {
+            showWarningToast(t('call.busy'))
+          } else if (code === 5004) {
+            showWarningToast(t('call.already_in_call'))
+          } else {
+            showErrorToast(t('call.error'))
+          }
+        })
+        .finally(() => {
+          setIsCallLoading(false)
+        })
+    }
+    window.addEventListener('start-global-call', handleGlobalCall)
+    return () => window.removeEventListener('start-global-call', handleGlobalCall)
+  }, [startCall, t])
 
   useEffect(() => {
     const handleResize = () => {

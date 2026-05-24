@@ -18,7 +18,7 @@ import { useAuth } from '@/features/auth'
 import { useDeleteConversationMutation } from '../../../queries/use-mutations'
 import { GroupMemberRole } from '@/constants/enum'
 import { getConversationDisplayName } from '../../../utils/group-name'
-import { useGenerateJoinLinkMutation } from '../../../queries/use-mutations'
+import { useGenerateJoinLinkMutation, useUpdateMessageExpirationMutation } from '../../../queries/use-mutations'
 import { useChatContext } from '../../../context/chat-context'
 import { ForwardDialog } from '../../forward-dialog'
 
@@ -40,6 +40,7 @@ export function GroupInfoStep({
   const { text: tg } = useChatText()
   const { user } = useAuth()
   const { mutate: deleteConversation } = useDeleteConversationMutation()
+  const { mutate: updateMessageExpiration } = useUpdateMessageExpirationMutation()
 
   const currentMember = conversation.members?.find((m) => m.userId === user?.id)
   const currentUserRole = (currentMember?.role?.toUpperCase() as GroupMemberRole) || GroupMemberRole.Member
@@ -197,6 +198,7 @@ export function GroupInfoStep({
                     setStorageTab(tab)
                     setStorageOpen(true)
                   }}
+                  currentMessageExpirationDays={conversation.messageExpirationDays}
                 />
               </>
             )}
@@ -207,8 +209,21 @@ export function GroupInfoStep({
       <DisappearingMessagesDialog
         open={isDisappearingDialogOpen}
         onOpenChange={setIsDisappearingDialogOpen}
+        currentDuration={
+          conversation.messageExpirationDays === 1
+            ? '1 day'
+            : conversation.messageExpirationDays === 7
+              ? '7 days'
+              : conversation.messageExpirationDays === 14
+                ? '14 days'
+                : 'never'
+        }
         onConfirm={(duration) => {
-          console.log('Set duration:', duration)
+          let days = 0
+          if (duration === '1 day') days = 1
+          if (duration === '7 days') days = 7
+          if (duration === '14 days') days = 14
+          updateMessageExpiration({ conversationId: conversation.id, days })
           setIsDisappearingDialogOpen(false)
         }}
       />

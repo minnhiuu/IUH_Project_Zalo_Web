@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ZegoUIKitPrebuilt } from '@zegocloud/zego-uikit-prebuilt'
 import { useAuth } from '@/features/auth'
-import { Phone, PhoneOff, Video, VideoOff, Mic, MicOff, Settings, Users } from 'lucide-react'
+import { Phone, PhoneOff, Video, VideoOff, Mic, MicOff, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { UserAvatar } from '@/components/common/user-avatar'
 

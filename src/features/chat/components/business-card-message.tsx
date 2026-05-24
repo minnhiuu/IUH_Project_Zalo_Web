@@ -22,10 +22,7 @@ export function BusinessCardMessage({ payload }: BusinessCardMessageProps) {
   return (
     <div className='w-76.25 overflow-hidden rounded-xl border border-[#C8D7EB] bg-card shadow-sm'>
       <div 
-        className='relative flex min-h-28 items-center gap-3 overflow-hidden bg-linear-to-br from-[#0C6DE8] to-[#2A7CEE] px-4 py-3 cursor-pointer'
-        onClick={() => {
-          handleOpenDirectConversation()
-        }}
+        className='relative flex min-h-28 items-center gap-3 overflow-hidden bg-linear-to-br from-[#0C6DE8] to-[#2A7CEE] px-4 py-3'
       >
         <div className='absolute -right-6 -top-7 h-28 w-28 rounded-full bg-white/10' />
         <div className='absolute right-12 top-5 h-20 w-20 rounded-full bg-white/10' />
@@ -45,12 +42,15 @@ export function BusinessCardMessage({ payload }: BusinessCardMessageProps) {
       <div className='grid h-13 grid-cols-2 bg-[#E7F0FC] dark:bg-[#213247]'>
         <button
           type='button'
-          disabled={!payload.phone}
           onClick={() => {
-            if (!payload.phone) return
-            window.open(`tel:${payload.phone}`, '_self')
+            if (!payload.userId) return
+            window.dispatchEvent(
+              new CustomEvent('start-global-call', {
+                detail: { userId: payload.userId, kind: 'voice' }
+              })
+            )
           }}
-          className='flex items-center justify-center gap-1.5 border-r border-[#C8D7EB] dark:border-[#35506E] text-[15px] font-semibold text-[#1F2937] dark:text-[#E5EDF9] disabled:cursor-not-allowed disabled:opacity-60'
+          className='flex items-center justify-center gap-1.5 border-r border-[#C8D7EB] dark:border-[#35506E] text-[15px] font-semibold text-[#1F2937] dark:text-[#E5EDF9] disabled:cursor-not-allowed disabled:opacity-60 hover:bg-[#D4E3F7] dark:hover:bg-[#1A2636] transition-colors cursor-pointer'
         >
           <Phone size={16} />
           {bc.call}
@@ -61,7 +61,7 @@ export function BusinessCardMessage({ payload }: BusinessCardMessageProps) {
           onClick={() => {
             handleOpenDirectConversation()
           }}
-          className='flex items-center justify-center gap-1.5 text-[15px] font-semibold text-[#1F2937] dark:text-[#E5EDF9]'
+          className='flex items-center justify-center gap-1.5 text-[15px] font-semibold text-[#1F2937] dark:text-[#E5EDF9] hover:bg-[#D4E3F7] dark:hover:bg-[#1A2636] transition-colors cursor-pointer'
         >
           <MessageCircle size={16} />
           {bc.message}

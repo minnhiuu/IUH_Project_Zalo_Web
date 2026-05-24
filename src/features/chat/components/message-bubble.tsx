@@ -1,9 +1,10 @@
 import { cn } from '@/lib/utils'
 import type { ConversationResponse, ConversationMemberResponse, MessageResponse } from '../schemas/chat.schema'
 import { useChatText } from '../i18n/use-chat-text'
-import { Quote, Forward, MoreHorizontal, ThumbsUp, FileIcon, Download, X, Play } from 'lucide-react'
-import { useState, useMemo } from 'react'
+import { Quote, Forward, MoreHorizontal, ThumbsUp, FileIcon, Download, X, Play, Clock } from 'lucide-react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { DropdownMenu, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useChatContext } from '../context/chat-context'
 import { MessageStatus, MessageType } from '@/constants/enum'
 import { SystemMessage } from '../utils/system-message'
@@ -127,6 +128,7 @@ export function MessageBubble({
   const businessCard = !isUnavailable ? parseBusinessCardContent(message.content) : null
   const isBusinessCardMessage = !!businessCard
   const hasReactions = !isUnavailable && !!message.reactions && Object.keys(message.reactions).length > 0
+  const isExpiring = !!message.expiredAt && !isUnavailable
 
   if (message.type === MessageType.System) {
     return <SystemMessage message={message} conversation={conversation} />
@@ -191,7 +193,8 @@ export function MessageBubble({
                 : 'bg-white-message text-foreground',
               isUnavailable && 'pointer-events-none select-none border border-black/5 shadow-none',
               highlightEnabled && 'border border-border-highlight',
-              isPreviousOwnGroup && 'cursor-pointer'
+              isPreviousOwnGroup && 'cursor-pointer',
+              isExpiring && !isImageMessage && !isBusinessCardMessage && 'border-2 border-dashed border-gray-400 dark:border-gray-500 bg-transparent'
             )}
             onClick={isPreviousOwnGroup ? () => setShowInlineSeen((v) => !v) : undefined}
           >
@@ -271,7 +274,7 @@ export function MessageBubble({
             {isLast && (
               <div
                 className={cn(
-                  'flex items-center mt-1 font-medium self-start',
+                  'flex items-center mt-1 font-medium self-start gap-1',
                   isOwn ? 'text-black/50 dark:text-primary-foreground/70' : 'text-muted-foreground'
                 )}
               >
@@ -280,6 +283,38 @@ export function MessageBubble({
                     ? new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                     : ''}
                 </span>
+                {isExpiring && (() => {
+                  const diff = new Date(message.expiredAt!).getTime() - new Date().getTime();
+                  let remainingText = '';
+                  if (diff > 0) {
+                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                    const minutes = Math.floor((diff / 1000 / 60) % 60);
+                    if (days > 0) remainingText = mb.deleteIn.days(days, hours);
+                    else if (hours > 0) remainingText = mb.deleteIn.hours(hours, minutes);
+                    else remainingText = mb.deleteIn.minutes(minutes);
+                  } else {
+                    remainingText = mb.deleteIn.soon;
+                  }
+                  return (
+                    <div className="relative group/clock flex items-center">
+                      <Clock 
+                        size={12} 
+                        className="ml-1 opacity-70 cursor-help" 
+                      />
+                      <div className={cn(
+                        "absolute bottom-full mb-1.5 hidden group-hover/clock:block bg-zinc-900 dark:bg-zinc-100 text-zinc-100 dark:text-zinc-900 text-[11px] font-medium px-2 py-1 rounded shadow-lg whitespace-nowrap z-50 pointer-events-none animate-in fade-in zoom-in-95",
+                        isOwn ? "right-0" : "left-1/2 -translate-x-1/2"
+                      )}>
+                        {remainingText}
+                        <div className={cn(
+                          "absolute top-full border-4 border-transparent border-t-zinc-900 dark:border-t-zinc-100",
+                          isOwn ? "right-1" : "left-1/2 -translate-x-1/2"
+                        )} />
+                      </div>
+                    </div>
+                  )
+                })()}
               </div>
             )}
 

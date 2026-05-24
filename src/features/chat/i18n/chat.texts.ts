@@ -89,6 +89,12 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     deletedByAdmin: (name: string) => t(CHAT_KEYS.messageBubble.deletedByAdmin, { name }),
     deletedByAdminSelf: t(CHAT_KEYS.messageBubble.deletedByAdminSelf),
     replyUnavailable: t(CHAT_KEYS.messageBubble.replyUnavailable),
+    deleteIn: {
+      days: (days: number, hours: number) => translateDynamic(t, CHAT_KEYS.messageBubble.deleteIn.days, { days, hours }),
+      hours: (hours: number, minutes: number) => translateDynamic(t, CHAT_KEYS.messageBubble.deleteIn.hours, { hours, minutes }),
+      minutes: (minutes: number) => translateDynamic(t, CHAT_KEYS.messageBubble.deleteIn.minutes, { minutes }),
+      soon: t(CHAT_KEYS.messageBubble.deleteIn.soon)
+    },
     adminDeleteDialog: {
       title: t(CHAT_KEYS.messageBubble.adminDeleteDialog.title),
       cancel: t(CHAT_KEYS.messageBubble.adminDeleteDialog.cancel),
@@ -228,6 +234,10 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
       one_pc: (name: string) => t(CHAT_KEYS.system.typing.one_pc, { name }),
       two: (name1: string, name2: string) => t(CHAT_KEYS.system.typing.two, { name1, name2 }),
       many: (name1: string, name2: string, count: number) => t(CHAT_KEYS.system.typing.many, { name1, name2, count })
+    },
+    update_expiration: {
+      on: (days: number) => t(CHAT_KEYS.system.update_expiration.on, { days }),
+      off: t(CHAT_KEYS.system.update_expiration.off)
     }
   },
   disbanded: {

@@ -106,6 +106,7 @@ interface ChatInfoSectionsProps {
   onGenerateJoinLink?: () => void
   onShareLink?: () => void
   onOpenStorage?: (tab: 'media' | 'files' | 'links') => void
+  currentMessageExpirationDays?: number | null
 }
 
 export function ChatInfoSections({
@@ -125,7 +126,8 @@ export function ChatInfoSections({
   isGenerating,
   onShareLink,
   onGenerateJoinLink,
-  onOpenStorage
+  onOpenStorage,
+  currentMessageExpirationDays
 }: ChatInfoSectionsProps) {
   const [storageOpen, setStorageOpen] = useState(false)
   const [storageTab, setStorageTab] = useState<'media' | 'files' | 'links'>('media')
@@ -146,6 +148,12 @@ export function ChatInfoSections({
       setStorageTab(tab)
       setStorageOpen(true)
     }
+  }
+
+  const getDisappearingSubLabel = () => {
+    if (isMemberOnly) return text.disappearingMessagesWarning
+    if (!currentMessageExpirationDays) return text.never
+    return `${currentMessageExpirationDays} ngày`
   }
 
   if (storageOpen && conversationId) {
@@ -396,7 +404,7 @@ export function ChatInfoSections({
                 </CustomTooltip>
               }
               onClick={() => !isMemberOnly && onOpenDisappearingDialog()}
-              subLabel={isMemberOnly ? text.disappearingMessagesWarning : text.never}
+              subLabel={getDisappearingSubLabel()}
               disabled={isMemberOnly}
             />
             <ActionMenuItem as='div' icon={<EyeOff />} label={text.hideConversation} rightElement={<Switch />} />

@@ -64,6 +64,12 @@
       "deletedByAdmin": "{{name}} deleted this message",
       "deletedByAdminSelf": "You deleted this message",
       "replyUnavailable": "Message deleted",
+      "deleteIn": {
+        "days": "Disappears in {{days}} days {{hours}} hours",
+        "hours": "Disappears in {{hours}} hours {{minutes}} minutes",
+        "minutes": "Disappears in {{minutes}} minutes",
+        "soon": "Disappearing soon"
+      },
       "adminDeleteDialog": {
         "title": "Delete message",
         "cancel": "Cancel",
@@ -212,6 +218,10 @@
         "reply_prefix": "Press",
         "reply_action": "Reply",
         "reply_suffix": "to quote message content"
+      },
+      "update_expiration": {
+        "on": "enabled disappearing messages after {{days}} days",
+        "off": "disabled disappearing messages"
       }
     },
     "disbanded": {

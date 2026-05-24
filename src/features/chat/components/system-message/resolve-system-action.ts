@@ -21,6 +21,7 @@ import { resolveBlockMemberAction } from './block-member-action'
 import { resolveBlockedFromJoiningAction } from './blocked-from-joining-action'
 import { resolveSelfBlockedFromJoiningAction } from './self-blocked-from-joining-action'
 import { resolveAddMembersFailedAction } from './add-members-failed-action'
+import { resolveUpdateExpirationAction } from './update-expiration-action'
 
 export function resolveSystemAction(context: ActionContext): ActionResolveResult {
   const { metadata } = context
@@ -72,6 +73,8 @@ export function resolveSystemAction(context: ActionContext): ActionResolveResult
       return resolveSelfBlockedFromJoiningAction(context)
     case 'ADD_MEMBERS_FAILED':
       return resolveAddMembersFailedAction(context)
+    case 'UPDATE_EXPIRATION':
+      return resolveUpdateExpirationAction(context)
     default:
       return {}
   }

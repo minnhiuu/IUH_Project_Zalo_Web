@@ -407,6 +407,17 @@ export const updateGroupSettingsApi = async (
   return response.data.data
 }
 
+export const updateMessageExpirationApi = async (
+  conversationId: string,
+  days: number
+): Promise<ConversationResponse> => {
+  const response = await http.patch<ApiResponse<ConversationResponse>>(
+    `/messages/conversations/${conversationId}/expiration`,
+    { days }
+  )
+  return response.data.data
+}
+
 export const refreshJoinLinkApi = async (conversationId: string): Promise<string> => {
   const response = await http.post<ApiResponse<string>>(`/messages/conversations/${conversationId}/join-link/refresh`)
   return response.data.data

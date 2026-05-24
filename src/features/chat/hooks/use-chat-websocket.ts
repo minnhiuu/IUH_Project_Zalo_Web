@@ -484,6 +484,10 @@ export const useChatWebSocket = () => {
                       name: newConv.name ?? c.name,
                       avatar: newConv.avatar ?? c.avatar,
                       recipientId: newConv.recipientId ?? c.recipientId,
+                      messageExpirationDays: newConv.messageExpirationDays,
+                      friendshipStatus: newConv.friendshipStatus ?? c.friendshipStatus,
+                      status: newConv.status ?? c.status,
+                      lastSeenAt: newConv.lastSeenAt ?? c.lastSeenAt,
                       ...(keepCachedLastMessage ? { lastMessage: c.lastMessage } : {})
                     }
                   })
@@ -666,6 +670,15 @@ export const useChatWebSocket = () => {
 
       const now = new Date().toISOString()
       const isLink = JOIN_LINK_REGEX.test(content.trim())
+      const conversations = queryClient.getQueryData<ConversationResponse[]>(chatKeys.conversations()) || []
+      const conv = conversations.find((c) => c.id === conversationId)
+      let expiredAt: string | undefined = undefined
+      if (conv && conv.messageExpirationDays && conv.messageExpirationDays > 0) {
+        const date = new Date(now)
+        date.setDate(date.getDate() + conv.messageExpirationDays)
+        expiredAt = date.toISOString()
+      }
+
       const optimisticMsg: MessageResponse = {
         id: clientMessageId,
         clientMessageId,
@@ -679,7 +692,8 @@ export const useChatWebSocket = () => {
         senderName: user?.fullName,
         senderAvatar: user?.avatar || undefined,
         replyTo,
-        isForwarded
+        isForwarded,
+        expiredAt
       }
 
       queryClient.setQueryData(
@@ -800,6 +814,15 @@ export const useChatWebSocket = () => {
         const allVideo = mediaFiles.every((a) => a.file.type.startsWith('video/'))
         const msgType = allVideo ? MessageType.Video : MessageType.Image
 
+        const conversations = queryClient.getQueryData<ConversationResponse[]>(chatKeys.conversations()) || []
+        const conv = conversations.find((c) => c.id === conversationId)
+        let expiredAt: string | undefined = undefined
+        if (conv && conv.messageExpirationDays && conv.messageExpirationDays > 0) {
+          const date = new Date(now)
+          date.setDate(date.getDate() + conv.messageExpirationDays)
+          expiredAt = date.toISOString()
+        }
+
         const optimisticMsg: MessageResponse = {
           id: clientMessageId,
           clientMessageId,
@@ -820,7 +843,8 @@ export const useChatWebSocket = () => {
             originalFileName: a.file.name,
             contentType: a.file.type,
             size: a.file.size
-          }))
+          })),
+          expiredAt
         }
 
         queryClient.setQueryData(
@@ -904,6 +928,14 @@ export const useChatWebSocket = () => {
         const clientMessageId = `temp-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
         const { file } = attachment
         const now = new Date().toISOString()
+        const conversations = queryClient.getQueryData<ConversationResponse[]>(chatKeys.conversations()) || []
+        const conv = conversations.find((c) => c.id === conversationId)
+        let expiredAt: string | undefined = undefined
+        if (conv && conv.messageExpirationDays && conv.messageExpirationDays > 0) {
+          const date = new Date(now)
+          date.setDate(date.getDate() + conv.messageExpirationDays)
+          expiredAt = date.toISOString()
+        }
 
         const optimisticMsg: MessageResponse = {
           id: clientMessageId,

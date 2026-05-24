@@ -64,6 +64,12 @@
       "deletedByAdmin": "{{name}} đã xoá tin nhắn này",
       "deletedByAdminSelf": "Bạn đã xoá tin nhắn này",
       "replyUnavailable": "Tin nhắn đã bị xoá",
+      "deleteIn": {
+        "days": "Tự động xóa sau {{days}} ngày {{hours}} giờ",
+        "hours": "Tự động xóa sau {{hours}} giờ {{minutes}} phút",
+        "minutes": "Tự động xóa sau {{minutes}} phút",
+        "soon": "Sắp xóa"
+      },
       "adminDeleteDialog": {
         "title": "Xóa tin nhắn",
         "cancel": "Hủy",
@@ -212,6 +218,10 @@
         "reply_prefix": "Chọn",
         "reply_action": "Trả lời",
         "reply_suffix": "để trích dẫn nội dung tin nhắn"
+      },
+      "update_expiration": {
+        "on": "đã cài đặt tin nhắn tự xóa sau {{days}} ngày",
+        "off": "đã tắt tin nhắn tự xóa"
       }
     },
     "disbanded": {

@@ -80,6 +80,12 @@ export const CHAT_KEYS = {
     deletedByAdmin: 'chat.messageBubble.deletedByAdmin',
     deletedByAdminSelf: 'chat.messageBubble.deletedByAdminSelf',
     replyUnavailable: 'chat.messageBubble.replyUnavailable',
+    deleteIn: {
+      days: 'chat.messageBubble.deleteIn.days',
+      hours: 'chat.messageBubble.deleteIn.hours',
+      minutes: 'chat.messageBubble.deleteIn.minutes',
+      soon: 'chat.messageBubble.deleteIn.soon'
+    },
     adminDeleteDialog: {
       title: 'chat.messageBubble.adminDeleteDialog.title',
       cancel: 'chat.messageBubble.adminDeleteDialog.cancel',
@@ -205,6 +211,10 @@ export const CHAT_KEYS = {
       one_pc: 'chat.system.typing.one_pc',
       two: 'chat.system.typing.two',
       many: 'chat.system.typing.many'
+    },
+    update_expiration: {
+      on: 'chat.system.update_expiration.on',
+      off: 'chat.system.update_expiration.off'
     }
   },
   disbanded: {

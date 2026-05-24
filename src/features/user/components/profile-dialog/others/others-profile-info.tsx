@@ -31,7 +31,7 @@ interface FriendButtonState {
   label: string
   variant: 'secondary' | 'secondary-blue'
   disabled: boolean
-  action: FriendAction
+  action: FriendAction | 'unfriend'
 }
 
 export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
@@ -73,8 +73,8 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
         return {
           label: `✓ ${friendText.status.accepted}`,
           variant: 'secondary',
-          disabled: true,
-          action: null
+          disabled: false,
+          action: 'unfriend'
         }
       case FriendStatus.Pending: {
         // Check if current user sent the request
@@ -128,6 +128,9 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
         if (friendshipStatus?.friendshipId) {
           cancelRequestMutation.mutate(friendshipStatus.friendshipId)
         }
+        break
+      case 'unfriend':
+        setIsUnfriendConfirmOpen(true)
         break
     }
   }
@@ -184,9 +187,16 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
                 cancelRequestMutation.isPending
               }
               onClick={handleFriendAction}
-              className='flex-1 font-bold h-9 rounded-md border-none shadow-none transition-all active:scale-95'
+              className='flex-1 font-bold h-9 rounded-md border-none shadow-none transition-all active:scale-95 group relative overflow-hidden'
             >
-              {buttonState.label}
+              <span className={cn('transition-opacity duration-200', buttonState.action === 'unfriend' && 'group-hover:opacity-0')}>
+                {buttonState.label}
+              </span>
+              {buttonState.action === 'unfriend' && (
+                <span className='absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-destructive'>
+                  {friendText.actions.unfriend}
+                </span>
+              )}
             </Button>
             <Button
               variant='secondary-blue'
