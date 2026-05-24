@@ -18,7 +18,7 @@
     "post": "Post"
   },
   "launcher": {
-    "prompt": "What are you thinking?",
+    "prompt": "{{name}}, what are you thinking?",
     "dialogTitle": "Create post",
     "dialogDescription": "Open a full-screen composer for a new post.",
     "createPost": "Create a new post",
@@ -52,7 +52,18 @@
     "share": "Share to Story",
     "expiresHint": "Your story will expire after 24 hours",
     "successToast": "Story shared!",
-    "errorToast": "Failed to share story. Please try again."
+    "errorToast": "Failed to share story. Please try again.",
+    "preview": "Preview",
+    "rotate": "Rotate",
+    "posting": "Posting",
+    "photoStory": "Photo Story",
+    "videoStory": "Video Story",
+    "discard": "Discard",
+    "addText": "Add text",
+    "altText": "Alt text",
+    "discardConfirmTitle": "Discard story?",
+    "discardConfirmMsg": "Are you sure you want to discard this story? Your changes won't be saved.",
+    "continueEditing": "Continue editing"
   },
   "reels": {
     "title": "Reels",
@@ -84,12 +95,18 @@
     "videoRequired": "Please choose a video before publishing.",
     "invalidVideo": "Please choose a valid video file.",
     "successToast": "Reel created successfully.",
-    "errorToast": "Failed to create reel. Please try again."
+    "errorToast": "Failed to create reel. Please try again.",
+    "next": "Next",
+    "uploadHint": "or drag and drop",
+    "upload": "Upload",
+    "videoPreviewTitle": "Your video preview",
+    "videoPreviewDesc": "Upload your video in order to see a preview here."
   },
   "post": {
     "attachmentAlt": "Post attachment from {{author}}",
     "commentCount": "{{count}} comments",
     "shareCount": "{{count}} shares",
+    "reactionsCount": "{{count}} reactions",
     "comment": "Comment",
     "share": "Share",
     "visibilityPublic": "Public",
@@ -166,7 +183,8 @@
     "groups": "Groups",
     "reels": "Reels",
     "saved": "Saved",
-    "memories": "Memories"
+    "memories": "Memories",
+    "switchAccount": "Switch"
   },
   "suggested": {
     "title": "People you may know",
@@ -177,7 +195,13 @@
     "footerTerms": "Terms",
     "footerAds": "Ads",
     "footerCookie": "Cookies",
-    "footerBrand": "Zalo Web © {{year}}"
+    "footerBrand": "Zalo Web © {{year}}",
+    "suggestedForYou": "Suggested for you",
+    "activeFriends": "Active friends",
+    "noSuggestions": "No suggestions",
+    "online": "Active now",
+    "noActiveFriends": "No active friends",
+    "quickMessages": "Quick Messages"
   },
   "mockPosts": {
     "postedAt1": "5 minutes ago",
@@ -186,5 +210,26 @@
     "content1": "Today I am finishing the Social Feed for Zalo Web. The base UI is done, and now it's time to refine UX for reactions and comments.",
     "content2": "Progress update:\n- Improved search bar interactions\n- Added Social Feed menu in the sidebar\n- Preparing API integration for real posts",
     "content3": "Just finished designing a new feed card set. Next step is connecting this UI with backend endpoints to fetch real data."
+  },
+  "miniChat": {
+    "title": "Messages",
+    "placeholder": "Type a message...",
+    "loading": "Loading messages...",
+    "noConversations": "No conversations yet",
+    "searchPlaceholder": "Search people and groups",
+    "maximize": "Maximize",
+    "close": "Close"
+  },
+  "storyViewer": {
+    "yourStory": "Your Story",
+    "allStories": "All Stories",
+    "details": "Story details",
+    "viewersCount": "{{count}} viewers",
+    "newViewer": "1 new viewer",
+    "activeMinutesAgo": "Active {{count}}m ago",
+    "addToStory": "Add to story",
+    "newCards": "{{count}} new cards",
+    "hoursAgo": "{{count}}h",
+    "minutesAgo": "{{count}}m"
   }
 }

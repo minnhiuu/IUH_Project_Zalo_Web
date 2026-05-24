@@ -53,17 +53,23 @@ export const NotificationList = ({ filter }: NotificationListProps) => {
   )
 
   const grouped = useMemo(() => {
-    if (!data) return { newest: [], today: [], previous: [] }
+    if (!data || !data.pages || data.pages.length === 0) return { newest: [], today: [], previous: [] }
 
     if (filter === 'unread') {
-      const allItems = data.pages.flatMap((page) => (page as NotificationFlatHistoryResponse).items)
+      const allItems = data.pages.flatMap((page) => {
+        if ('items' in page) return page.items
+        return []
+      })
       return { newest: allItems, today: [], previous: [] }
     }
 
-    const firstPage = data.pages[0] as NotificationHistoryResponse
-    const newest = firstPage?.newest ?? []
-    const today = firstPage?.today ?? []
-    const previous = data.pages.flatMap((page) => (page as NotificationHistoryResponse).previous)
+    const firstPage = data.pages[0]
+    const newest = firstPage && 'newest' in firstPage ? firstPage.newest : []
+    const today = firstPage && 'today' in firstPage ? firstPage.today : []
+    const previous = data.pages.flatMap((page) => {
+      if ('previous' in page) return page.previous
+      return []
+    })
 
     return {
       newest,

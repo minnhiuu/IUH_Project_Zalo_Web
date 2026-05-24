@@ -32,7 +32,10 @@ export const formatTimeAgo = (
     })
 
     if (short) {
-      return timeAgo.replace('khoảng ', '').replace('hơn ', '').replace('dưới ', '').replace('gần ', '').trim()
+      return timeAgo
+        .replace(/about |almost |over |less than |ago/gi, '')
+        .replace(/khoảng |hơn |dưới |gần | trước/gi, '')
+        .trim()
     }
     return timeAgo
   } catch (error) {
@@ -194,7 +197,7 @@ export const formatMessageTime = (date: string | Date | number | null | undefine
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
   const yesterday = new Date(today)
   yesterday.setDate(yesterday.getDate() - 1)
-  
+
   const checkDate = new Date(d.getFullYear(), d.getMonth(), d.getDate())
 
   const diffInSeconds = Math.floor((now.getTime() - d.getTime()) / 1000)

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
-import { CheckCircle2, Loader2, ShieldCheck, Sprout, TriangleAlert, XCircle } from 'lucide-react'
+import { CheckCircle2, Loader2, ShieldCheck, Sprout, TriangleAlert, XCircle, Heart } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -42,6 +42,16 @@ const SEEDING_ENDPOINTS: SeedEndpointInfo[] = [
     authorization: 'Internal service-to-service usage',
     webAccessible: false,
     notes: 'Used by social-feed seeder internally through service-to-service calls.'
+  },
+  {
+    key: 'simulate-batch-likes',
+    service: 'social-feed-service',
+    method: 'POST',
+    gatewayPath: '/api/reactions/test-batch-like?postId={postId}&count={count}',
+    servicePath: '/reactions/test-batch-like?postId={postId}&count={count}',
+    authorization: 'ADMIN',
+    webAccessible: true,
+    notes: 'Simulate batch likes to test notification batching for a specific post.'
   }
 ]
 
@@ -52,6 +62,8 @@ const formatExecutionTime = (isoDate: string): string => {
 
 export const SeedingDashboard = () => {
   const [accountCount, setAccountCount] = useState<number>(10)
+  const [batchLikePostId, setBatchLikePostId] = useState<string>('')
+  const [batchLikeCount, setBatchLikeCount] = useState<number>(50)
   const [executions, setExecutions] = useState<SeedExecution[]>([])
 
   const confirmSocialReseed = () => {
@@ -135,6 +147,40 @@ export const SeedingDashboard = () => {
     }
   })
 
+  const simulateBatchLikesMutation = useMutation({
+    mutationFn: () => seedingApi.simulateBatchLikes(batchLikePostId, batchLikeCount),
+    onSuccess: (response) => {
+      const data = response.data?.data
+      const message = response.data?.message || `Simulated ${batchLikeCount} likes for post ${batchLikePostId}`
+      setExecutions((prev) => [
+        {
+          endpointKey: 'simulate-batch-likes',
+          endpointPath: `/api/reactions/test-batch-like?postId=${batchLikePostId}&count=${batchLikeCount}`,
+          executedAt: new Date().toISOString(),
+          success: true,
+          message,
+          payload: data
+        },
+        ...prev
+      ])
+      showSuccessToast(`Simulated ${batchLikeCount} likes successfully`)
+    },
+    onError: (error) => {
+      const message = getErrorMessage(error)
+      setExecutions((prev) => [
+        {
+          endpointKey: 'simulate-batch-likes',
+          endpointPath: `/api/reactions/test-batch-like?postId=${batchLikePostId}&count=${batchLikeCount}`,
+          executedAt: new Date().toISOString(),
+          success: false,
+          message
+        },
+        ...prev
+      ])
+      showErrorToast(message)
+    }
+  })
+
   const handleTriggerSocialSeeding = () => {
     if (!confirmSocialReseed()) {
       return
@@ -152,8 +198,8 @@ export const SeedingDashboard = () => {
   }
 
   const isBusy = useMemo(
-    () => seedAuthAccountsMutation.isPending || seedSocialFeedMutation.isPending || runFullPipelineMutation.isPending,
-    [seedAuthAccountsMutation.isPending, seedSocialFeedMutation.isPending, runFullPipelineMutation.isPending]
+    () => seedAuthAccountsMutation.isPending || seedSocialFeedMutation.isPending || runFullPipelineMutation.isPending || simulateBatchLikesMutation.isPending,
+    [seedAuthAccountsMutation.isPending, seedSocialFeedMutation.isPending, runFullPipelineMutation.isPending, simulateBatchLikesMutation.isPending]
   )
 
   return (
@@ -283,6 +329,48 @@ export const SeedingDashboard = () => {
               <Button variant='outline' onClick={handleRunFullPipeline} disabled={isBusy || accountCount < 1}>
                 {runFullPipelineMutation.isPending && <Loader2 className='h-4 w-4 animate-spin' />}
                 Run Full Pipeline
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className='flex items-center gap-2'>
+              <Heart className='h-4 w-4' />
+              Simulate Batch Likes
+            </CardTitle>
+            <CardDescription>
+              Calls POST /api/reactions/test-batch-like to generate multiple likes on a post.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className='space-y-4'>
+            <div className='space-y-2'>
+              <p className='text-sm font-medium'>Post ID</p>
+              <Input
+                type='text'
+                placeholder='Enter post ID'
+                value={batchLikePostId}
+                onChange={(e) => setBatchLikePostId(e.target.value)}
+              />
+            </div>
+            <div className='space-y-2'>
+              <p className='text-sm font-medium'>Number of Likes</p>
+              <Input
+                type='number'
+                min={1}
+                max={500}
+                value={batchLikeCount}
+                onChange={(e) => {
+                  const nextCount = Number(e.target.value)
+                  setBatchLikeCount(Number.isFinite(nextCount) ? nextCount : 50)
+                }}
+              />
+            </div>
+            <div className='flex gap-2'>
+              <Button onClick={() => simulateBatchLikesMutation.mutate()} disabled={isBusy || !batchLikePostId}>
+                {simulateBatchLikesMutation.isPending && <Loader2 className='h-4 w-4 animate-spin' />}
+                Simulate Likes
               </Button>
             </div>
           </CardContent>

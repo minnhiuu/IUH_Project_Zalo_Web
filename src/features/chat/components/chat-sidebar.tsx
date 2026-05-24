@@ -54,9 +54,10 @@ interface ChatSidebarProps {
   selectedChatId?: string
   onSelectChat: (chat: ConversationResponse, snapshotId?: string | null, unreadCount?: number) => void
   onCaptureUnreadAnchor?: (conversationId: string, unreadAnchor: UnreadAnchorResponse) => void
+  setIsGlobalSearchOpen: (open: boolean) => void
 }
 
-export function ChatSidebar({ selectedChatId, onSelectChat, onCaptureUnreadAnchor }: ChatSidebarProps) {
+export function ChatSidebar({ selectedChatId, onSelectChat, onCaptureUnreadAnchor, setIsGlobalSearchOpen }: ChatSidebarProps) {
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false)
   const [isAddFriendModalOpen, setIsAddFriendModalOpen] = useState(false)
   const [openMenuChatId, setOpenMenuChatId] = useState<string | null>(null)
@@ -133,6 +134,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat, onCaptureUnreadAncho
         {
           content: stripMentionsForPreview(chat.lastMessage.content),
           isFromMe: !!chat.lastMessage.isFromMe,
+          isGroup: chat.isGroup,
           senderName: chat.lastMessage.senderName || '',
           type: chat.lastMessage.type as MessageType,
           status: chat.lastMessage.status as MessageStatus
@@ -160,7 +162,11 @@ export function ChatSidebar({ selectedChatId, onSelectChat, onCaptureUnreadAncho
     <div className='w-[344px] flex flex-col border-r border-border bg-background shrink-0 h-full'>
       {/* Search and Quick Actions */}
       <div className='px-4 py-3 shrink-0'>
-        <SearchAndActions placeholder={text.searchPlaceholder} actions={headerActions} />
+        <SearchAndActions
+          placeholder={text.searchPlaceholder}
+          actions={headerActions}
+          onFocus={() => setIsGlobalSearchOpen(true)}
+        />
       </div>
 
       {/* Filters Bar */}

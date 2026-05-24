@@ -2,6 +2,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type { InfiniteData } from '@tanstack/react-query'
 // test
 import { useAuth } from '@/features/auth'
+import { notificationApi } from '@/features/notification/api/notification.api'
+import { notificationKeys } from '@/features/notification/queries/keys'
 import {
   markAsRead,
   sendMessageApi,
@@ -39,7 +41,8 @@ import {
   unpinConversationApi,
   toggleMuteApi,
   toggleHideApi,
-  updateJoinQuestionApi
+  updateJoinQuestionApi,
+  getOrCreateConversation
 } from '../api/chat.api'
 import { chatKeys } from './keys'
 import type {
@@ -56,8 +59,18 @@ export const useMarkAsReadMutation = () => {
   const { user } = useAuth()
 
   return useMutation({
-    mutationFn: ({ conversationId, lastReadMessageId }: { conversationId: string; lastReadMessageId?: string }) =>
-      markAsRead(conversationId, lastReadMessageId),
+    mutationFn: async ({
+      conversationId,
+      lastReadMessageId
+    }: {
+      conversationId: string
+      lastReadMessageId?: string
+    }) => {
+      await markAsRead(conversationId, lastReadMessageId)
+      await notificationApi.markChatConversationAsRead(conversationId).catch((error) => {
+        console.warn('[Notification] Failed to mark chat notification as read:', error)
+      })
+    },
     onMutate: async ({ conversationId, lastReadMessageId }) => {
       await queryClient.cancelQueries({ queryKey: chatKeys.conversations() })
       const previousConversations = queryClient.getQueryData<ConversationResponse[]>(chatKeys.conversations())
@@ -98,9 +111,10 @@ export const useMarkAsReadMutation = () => {
         queryClient.setQueryData(chatKeys.conversations(), context.previousConversations)
       }
     },
-    onSettled: () => {
-      // Không invalidate unreadAnchor ở đây vì ta đã xử lý ẩn divider bằng local state trong ChatWindow
-      // Việc invalidate sẽ làm phát sinh thêm 1 request API dư thừa mỗi lần Read
+    onSuccess: () => {
+      // Invalidate notification state to recalculate badge count
+      // When conversation is marked as read, chatUnreadConversationCount should decrease
+      queryClient.invalidateQueries({ queryKey: notificationKeys.state() })
     }
   })
 }
@@ -703,6 +717,22 @@ export const useUnpinMessageMutation = () => {
     },
     onError: (error) => {
       console.error('Failed to unpin message', error)
+    }
+  })
+}
+export const useGetOrCreateConversationMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation<ConversationResponse, Error, string>({
+    mutationFn: (partnerId: string) => getOrCreateConversation(partnerId),
+    onSuccess: (conversation) => {
+      queryClient.setQueryData<ConversationResponse[]>(chatKeys.conversations(), (old) => {
+        if (!old) return [conversation]
+        const exists = old.find((c) => c.id === conversation.id)
+        if (exists) return old
+        return [conversation, ...old]
+      })
+      queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
     }
   })
 }

@@ -15,6 +15,7 @@ export interface BackendCommentResponse {
   replyCount: number
   reactionCount: number
   currentUserReaction?: string | null
+  topReactions?: string[] | null
   isEdited?: boolean
   edited: boolean
   createdAt?: string | null
@@ -49,9 +50,14 @@ export interface SocialFeedComment {
   createdAt: string
   reactions: number
   currentUserReaction?: ReactionType | null
+  topReactions?: ReactionType[]
   isEdited: boolean
   replyDepth: number
   replyCount: number
+  media?: Array<{
+    url: string
+    type: 'IMAGE' | 'VIDEO'
+  }>
 }
 
 export interface ToggleReactionRequest {

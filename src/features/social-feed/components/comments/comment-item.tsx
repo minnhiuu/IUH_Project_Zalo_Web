@@ -13,8 +13,15 @@ import { useSocialCommentReplies } from '../../queries/use-queries'
 import { commentApi } from '../../api/comment.api'
 import { socialFeedCommentKeys } from '../../queries/keys'
 import { ReportContentDialog } from '@/features/report/components/report-content-dialog'
+import { useNavigate } from 'react-router'
+import { useCreateSocialCommentMutation, useDeleteSocialCommentMutation, useDeleteSocialCommentReactionMutation, useToggleSocialCommentReactionMutation, useUpdateSocialCommentMutation } from '../../queries/use-mutations'
+import { MediaSection } from '../post/media-section'
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel'
+import { VideoPlayer } from '@/components/common/video-player'
+import { X } from 'lucide-react'
 
-interface CommentItemProps {
+export interface CommentItemProps {
   comment: SocialFeedComment
   postId: string
   currentUserId?: string
@@ -41,6 +48,7 @@ export function CommentItem({
 }: CommentItemProps) {
   const { text, language } = useSocialText()
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
   const [selectedReaction, setSelectedReaction] = useState<ReactionType | null>(
     (comment.currentUserReaction as ReactionType) ?? null
   )
@@ -50,6 +58,8 @@ export function CommentItem({
   const [draftContent, setDraftContent] = useState(comment.content)
   const [showReplies, setShowReplies] = useState(false)
   const [reportDialogOpen, setReportDialogOpen] = useState(false)
+  const [mediaViewerOpen, setMediaViewerOpen] = useState(false)
+  const [initialMediaSlide, setInitialMediaSlide] = useState(0)
   const hasReplies = (comment.replyCount ?? 0) > 0
   const repliesQuery = useSocialCommentReplies(postId, comment.id, showReplies && hasReplies)
   const replies = repliesQuery.data ?? []
@@ -60,6 +70,14 @@ export function CommentItem({
     (comment.reactions ?? 0) +
     (!hadReactionOnLoad && selectedReaction ? 1 : 0) +
     (hadReactionOnLoad && !selectedReaction ? -1 : 0)
+  const displayedTopReactions =
+    selectedReaction && !comment.topReactions?.includes(selectedReaction)
+      ? [selectedReaction, ...(comment.topReactions ?? []).slice(0, 2)]
+      : (comment.topReactions ?? []).slice(0, 3)
+  const topReactionOptions = displayedTopReactions
+    .map((type) => REACTIONS.find((reaction) => reaction.type === type))
+    .filter((reaction): reaction is (typeof REACTIONS)[number] => Boolean(reaction))
+
   const isOwner = Boolean(currentUserId) && currentUserId === comment.authorId
   const effectiveAuthorAvatar = comment.authorAvatar ?? (isOwner ? (currentUserAvatar ?? null) : null)
   const defaultCreatedAtLabel = text.post.justNow
@@ -83,16 +101,21 @@ export function CommentItem({
   async function handleReactionSelect(type: ReactionType) {
     setSelectedReaction(type)
     setShowReactionPicker(false)
-    toggleMutation.mutate(type)
-    // keep prop callback for external callers
-    if (onToggleReaction) await onToggleReaction(comment.id, type)
+    if (onToggleReaction) {
+      await onToggleReaction(comment.id, type)
+    } else {
+      toggleMutation.mutate(type)
+    }
   }
 
   async function handleReactionClick() {
     if (selectedReaction) {
       setSelectedReaction(null)
-      deleteMutation.mutate()
-      if (onRemoveReaction) await onRemoveReaction(comment.id)
+      if (onRemoveReaction) {
+        await onRemoveReaction(comment.id)
+      } else {
+        deleteMutation.mutate()
+      }
       return
     }
     await handleReactionSelect('LIKE')
@@ -116,22 +139,36 @@ export function CommentItem({
     await onDelete(comment.id)
   }
 
+  function handleAuthorClick(e?: React.MouseEvent) {
+    if (e) {
+      e.stopPropagation()
+    }
+    if (!comment.authorId) return
+    if (currentUserId && comment.authorId === currentUserId) {
+      navigate(PATHS.USER.PROFILE)
+    } else {
+      navigate(PATHS.USER.OTHER_PROFILE.replace(':userId', comment.authorId))
+    }
+  }
+
   return (
     <div className='group flex items-start gap-2.5 w-full py-1 transition-all'>
       <div className='mt-1 h-8 w-8 shrink-0 transition-transform duration-200 group-hover:scale-105'>
-        <UserAvatar
-          name={comment.authorName}
-          src={effectiveAuthorAvatar}
-          className='w-full h-full border border-background'
-          fallbackClassName='bg-primary text-white text-[11px] font-semibold'
-        />
+        <button onClick={handleAuthorClick} className='w-full h-full rounded-full cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary'>
+          <UserAvatar
+            name={comment.authorName}
+            src={effectiveAuthorAvatar}
+            className='w-full h-full border border-background'
+            fallbackClassName='bg-primary text-white text-[11px] font-semibold'
+          />
+        </button>
       </div>
       <div className='min-w-0 flex-1 space-y-1'>
         <div className='relative inline-block max-w-[calc(100%-2rem)] rounded-2xl rounded-tl-sm bg-zinc-100 px-3.5 py-2 dark:bg-zinc-900 shadow-sm border border-transparent dark:border-white/5'>
           <div className='flex items-center gap-2 mb-0.5'>
-            <p className='text-[13px] font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 cursor-pointer hover:underline'>
+            <button onClick={handleAuthorClick} className='text-[13px] font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 hover:text-primary dark:hover:text-primary cursor-pointer hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary rounded'>
               {comment.authorName}
-            </p>
+            </button>
             {comment.isEdited ? (
               <span className='text-[11px] font-medium text-zinc-500/80 dark:text-zinc-500'>
                 {text.commentItem.edited}
@@ -143,7 +180,7 @@ export function CommentItem({
               <textarea
                 value={draftContent}
                 onChange={(event) => setDraftContent(event.target.value)}
-                className='w-full min-w-[200px] resize-none rounded-xl border border-zinc-300 bg-white px-3 py-2 text-[14px] text-zinc-800 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-white/10 dark:bg-zinc-950 dark:text-zinc-200 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 transition-all'
+                className='w-full min-w-[200px] resize-none rounded-xl border border-zinc-300 bg-white px-3 py-2 text-[14px] text-zinc-800 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-white/10 dark:bg-zinc-950 dark:text-zinc-200 dark:focus:border-primary dark:focus:ring-primary transition-all'
                 rows={3}
               />
               <div className='mt-2.5 flex items-center justify-end gap-2'>
@@ -162,16 +199,32 @@ export function CommentItem({
                   type='button'
                   disabled={isMutating || !draftContent.trim()}
                   onClick={handleSaveEdit}
-                  className='rounded-full bg-indigo-600 px-4 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 dark:bg-indigo-500 dark:hover:bg-indigo-600 dark:focus:ring-offset-zinc-950 transition-all'
+                  className='rounded-full bg-primary/90 px-4 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 dark:bg-primary dark:hover:bg-primary/90 dark:focus:ring-offset-zinc-950 transition-all'
                 >
                   {text.commentItem.save}
                 </button>
               </div>
             </div>
           ) : (
-            <p className='whitespace-pre-line text-[13.5px] leading-relaxed text-zinc-800 dark:text-zinc-200'>
-              {comment.content}
-            </p>
+            <div className='flex flex-col gap-1.5'>
+              {comment.content ? (
+                <p className='whitespace-pre-line text-[13.5px] leading-relaxed text-zinc-800 dark:text-zinc-200'>
+                  {comment.content}
+                </p>
+              ) : null}
+              {comment.media && comment.media.length > 0 ? (
+                <div className='mt-2 rounded-xl overflow-hidden shadow-sm'>
+                  <MediaSection
+                    media={comment.media}
+                    attachmentAlt='Comment attachment'
+                    onMediaClick={(index) => {
+                      setInitialMediaSlide(index)
+                      setMediaViewerOpen(true)
+                    }}
+                  />
+                </div>
+              ) : null}
+            </div>
           )}
         </div>
         <div className='mt-1 flex flex-wrap items-center gap-x-3.5 gap-y-1.5 pl-1'>
@@ -185,10 +238,10 @@ export function CommentItem({
             <Button
               variant='ghost'
               disabled={isMutating}
-              className={`h-6 gap-1 px-1.5 transition-all hover:bg-zinc-100 dark:hover:bg-indigo-500/10 ${
+              className={`h-6 gap-1 px-1.5 transition-all hover:bg-zinc-100 dark:hover:bg-primary/10 ${
                 activeReaction
                   ? activeReaction.textClass
-                  : 'text-zinc-500 dark:text-zinc-400 hover:text-indigo-500 dark:hover:text-indigo-400'
+                  : 'text-zinc-500 dark:text-zinc-400 hover:text-primary dark:hover:text-primary'
               }`}
               onClick={handleReactionClick}
             >
@@ -212,9 +265,22 @@ export function CommentItem({
                 type='button'
                 disabled={isMutating}
                 onClick={() => setShowReactionModal(true)}
-                className='ml-1 inline-flex items-center justify-center rounded-full bg-zinc-100 px-1.5 py-0.5 text-[11px] font-medium text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700 transition-colors'
+                className='ml-1 inline-flex items-center justify-center gap-1 rounded-full bg-zinc-100 px-1.5 py-0.5 text-[11px] font-medium text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700 transition-colors'
               >
-                {reactionsCount}
+                {topReactionOptions.length > 0 && (
+                  <div className='flex items-center'>
+                    {topReactionOptions.map((reaction, index) => (
+                      <div
+                        key={`${reaction.type}-${index}`}
+                        className={`flex h-4 w-4 items-center justify-center rounded-full border border-white dark:border-zinc-900 bg-zinc-100 dark:bg-zinc-800 ${index > 0 ? '-ml-1.5' : ''}`}
+                        title={text.reactions.labels[reaction.type]}
+                      >
+                        <reaction.Icon size={10} />
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <span>{reactionsCount}</span>
               </button>
             )}
           </div>
@@ -232,7 +298,7 @@ export function CommentItem({
               type='button'
               disabled={isMutating}
               onClick={() => setShowReplies((prev) => !prev)}
-              className='group/replies text-[12px] font-bold text-zinc-500 transition-all duration-200 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 disabled:text-zinc-400 dark:text-zinc-400 dark:hover:text-zinc-200'
+              className='group/replies text-[12px] font-bold text-zinc-500 transition-all duration-200 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 disabled:text-zinc-400 dark:text-zinc-400 dark:hover:text-zinc-200'
             >
               {showReplies ? text.commentItem.hideReplies : text.commentItem.viewReplies(comment.replyCount ?? 0)}
             </button>
@@ -243,7 +309,7 @@ export function CommentItem({
                 type='button'
                 disabled={isMutating}
                 onClick={() => setIsEditing(true)}
-                className='text-[12px] font-bold text-zinc-500 transition-colors hover:text-indigo-600 disabled:text-zinc-400 dark:text-zinc-400 dark:hover:text-indigo-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50'
+                className='text-[12px] font-bold text-zinc-500 transition-colors hover:text-primary/90 disabled:text-zinc-400 dark:text-zinc-400 dark:hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50'
               >
                 {text.commentItem.edit}
               </button>
@@ -309,6 +375,61 @@ export function CommentItem({
         targetId={comment.id}
         targetType='COMMENT'
       />
+      {comment.media && comment.media.length > 0 && (
+        <Dialog open={mediaViewerOpen} onOpenChange={setMediaViewerOpen}>
+          <DialogContent className='max-w-screen w-screen h-screen sm:max-w-screen p-0 m-0 border-none bg-black/95 rounded-none flex flex-col overflow-hidden !top-0 !left-0 !translate-x-0 !translate-y-0 !z-[9999]' showCloseButton={false}>
+            <DialogTitle className='sr-only'>Comment media viewer</DialogTitle>
+            
+            <button
+              onClick={() => setMediaViewerOpen(false)}
+              className='absolute top-4 left-4 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white/80 hover:text-white hover:bg-white/20 transition-colors'
+              title='Close'
+            >
+              <X className='h-6 w-6' />
+            </button>
+            
+            <div className='flex-1 w-full h-full flex items-center justify-center relative'>
+              <Carousel
+                opts={{ align: 'center', startIndex: initialMediaSlide }}
+                className='w-full h-full [&_[data-slot=carousel-content]]:h-full'
+              >
+                <CarouselContent className='h-full !ml-0'>
+                  {comment.media.map((item, index) => (
+                    <CarouselItem key={`${item.url}-${index}`} className='h-full !pl-0 flex items-center justify-center p-4'>
+                      {item.type === 'VIDEO' ? (
+                        <VideoPlayer
+                          src={item.url}
+                          controls
+                          autoplay
+                          className='h-full w-full'
+                          videoClassName='h-full w-full max-h-[90vh]'
+                          objectFit='contain'
+                          ariaLabel='Comment attachment'
+                          preload='metadata'
+                        />
+                      ) : (
+                        <img
+                          src={item.url}
+                          alt={`Comment attachment ${index + 1}`}
+                          className='max-w-full max-h-full object-contain'
+                          loading='lazy'
+                          decoding='async'
+                        />
+                      )}
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                {comment.media.length > 1 && (
+                  <>
+                    <CarouselPrevious className='left-4 lg:left-8 bg-zinc-800/50 hover:bg-zinc-700/80 text-white border-none h-12 w-12' />
+                    <CarouselNext className='right-4 lg:right-8 bg-zinc-800/50 hover:bg-zinc-700/80 text-white border-none h-12 w-12' />
+                  </>
+                )}
+              </Carousel>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   )
 }

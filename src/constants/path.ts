@@ -10,6 +10,7 @@ export const PATHS = {
   BUSINESS: '/business',
 
   CHAT: {
+    ROOT: '/chat',
     CONVERSATION: '/chat/c/:id',
     USER: '/chat/u/:id'
   },
@@ -24,6 +25,7 @@ export const PATHS = {
 
   USER: {
     PROFILE: '/profile',
+    OTHER_PROFILE: '/profile/:userId',
     SETTINGS: '/settings'
   },
 
@@ -35,6 +37,7 @@ export const PATHS = {
     REPORT_DETAIL: '/admin/reports/:targetType/:targetId',
     ELASTICSEARCH: '/admin/elasticsearch',
     FAILED_EVENTS: '/admin/elasticsearch/failed-events',
-    INGEST_DOCUMENT: '/admin/ingest-document'
+    INGEST_DOCUMENT: '/admin/ingest-document',
+    VECTOR_STORE: '/admin/vector-store'
   }
 } as const

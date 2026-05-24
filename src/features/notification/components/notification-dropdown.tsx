@@ -1,5 +1,5 @@
 import { Bell } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
 import { NotificationList, type NotificationFilter } from './notification-list'
@@ -23,13 +23,28 @@ export function NotificationDropdown({
   const { title, filter: filterText, dropdown } = useNotificationText()
   const [filter, setFilter] = useState<NotificationFilter>('all')
   const [isOpen, setIsOpen] = useState(false)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const { data: state } = useNotificationStateQuery()
-  const unreadCount = state?.unreadCount ?? 0
+  const badgeCount = state?.notificationUnreadCount ?? state?.unreadCount ?? 0
 
   const handleOpenChange = (open: boolean) => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
     setIsOpen(open)
     onOpenChange?.(open)
+  }
+
+  const handleMouseEnter = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    setIsOpen(true)
+    onOpenChange?.(true)
+  }
+
+  const handleMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => {
+      setIsOpen(false)
+      onOpenChange?.(false)
+    }, 250)
   }
 
   return (
@@ -38,6 +53,8 @@ export function NotificationDropdown({
         <button
           title={dropdown.trigger}
           aria-label={dropdown.trigger}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
           className={cn(
             'p-2.5 hover:bg-muted rounded-full text-muted-foreground relative transition-all group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/35 active:scale-95',
             isOpen && 'bg-muted text-foreground shadow-sm',
@@ -45,15 +62,15 @@ export function NotificationDropdown({
           )}
         >
           <Bell className={cn('w-5.5 h-5.5 group-hover:text-primary transition-colors', iconClassName)} />
-          {unreadCount > 0 && (
+          {badgeCount > 0 && (
             <span
-              aria-label={dropdown.unreadBadge(unreadCount)}
+              aria-label={dropdown.unreadBadge(badgeCount)}
               className={cn(
                 'absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 bg-destructive text-white text-[10px] font-bold rounded-full border-2 border-layout-header-bg flex items-center justify-center animate-in zoom-in duration-300',
                 badgeClassName
               )}
             >
-              {unreadCount > 99 ? '99+' : unreadCount}
+              {badgeCount > 99 ? '99+' : badgeCount}
             </span>
           )}
         </button>
@@ -61,6 +78,8 @@ export function NotificationDropdown({
       <DropdownMenuContent
         align='end'
         sideOffset={12}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         className='w-[min(92vw,420px)] max-w-[420px] p-0 shadow-2xl border-layout-header-border bg-card overflow-hidden animate-in fade-in zoom-in-95 duration-200 rounded-2xl ring-1 ring-black/5'
       >
         <div className='flex flex-col h-[min(70vh,620px)]'>
@@ -68,9 +87,9 @@ export function NotificationDropdown({
             <div className='flex items-center justify-between mb-4'>
               <div className='flex items-center gap-2'>
                 <h3 className='text-xl font-bold text-foreground tracking-tight'>{title}</h3>
-                {unreadCount > 0 && (
+                {badgeCount > 0 && (
                   <span className='rounded-full bg-brand-blue/10 px-2 py-0.5 text-[11px] font-semibold text-brand-blue'>
-                    {dropdown.unreadBadge(unreadCount)}
+                    {dropdown.unreadBadge(badgeCount)}
                   </span>
                 )}
               </div>
@@ -104,7 +123,7 @@ export function NotificationDropdown({
           </div>
 
           <div className='flex-1 overflow-hidden'>
-            <NotificationList key={filter} filter={filter} />
+            <NotificationList filter={filter} />
           </div>
 
           <div className='p-3 border-t border-border/50 shrink-0 bg-muted/20'>

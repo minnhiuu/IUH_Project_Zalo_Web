@@ -1,10 +1,10 @@
 import http from '@/lib/axios-client'
 import type { ApiResponse, PageResponse } from '@/shared/api'
 import type {
-  MessageSearchOverviewResponse,
   MessageSearchRequest,
   MessageSearchResponse,
-  MessageSearchSection
+  MessageSearchSection,
+  ConversationSearchResponse
 } from '../schemas/message-search.schema'
 
 export const searchMessagesApi = async (
@@ -19,12 +19,10 @@ export const searchMessagesApi = async (
   return response.data.data
 }
 
-export const searchMessagesOverviewApi = async (
-  request: MessageSearchRequest,
-  sectionSize = 5
-): Promise<MessageSearchOverviewResponse> => {
-  const response = await http.get<ApiResponse<MessageSearchOverviewResponse>>('/search/messages/overview', {
-    params: { ...request, sectionSize }
+export const getMessageSearchSenders = async (keyword: string): Promise<ConversationSearchResponse[]> => {
+  const response = await http.get<ApiResponse<ConversationSearchResponse[]>>('/search/messages/senders', {
+    params: { keyword }
   })
   return response.data.data
 }
+

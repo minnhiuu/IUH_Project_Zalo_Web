@@ -63,6 +63,12 @@ export interface BackendPostResponse {
   uploadedAt?: string | null
 }
 
+export interface StoryGroupResponse {
+  authorInfo: AuthorInfo
+  stories: BackendPostResponse[]
+  hasUnviewed: boolean
+}
+
 export interface CreatePostRequest {
   postType: string
   visibility: string
@@ -86,6 +92,13 @@ export interface CreatePostRequest {
   }
 }
 
+export interface UpdatePostRequest {
+  visibility?: string
+  caption?: string
+  hashtags?: string[]
+  media?: Array<{ url: string; type: string }>
+}
+
 export const socialFeedApi = {
   getFeedAndSharePosts: (page = 0, size = 20) =>
     http.get<ApiResponse<BackendPostResponse[]>>('/recommendations/feed', {
@@ -106,10 +119,23 @@ export const socialFeedApi = {
 
   createPost: (data: CreatePostRequest) => http.post<ApiResponse<BackendPostResponse>>('/posts', data),
 
+  updatePost: (postId: string, data: UpdatePostRequest) =>
+    http.put<ApiResponse<BackendPostResponse>>(`/posts/${postId}`, data),
+
+  deletePost: (postId: string) => http.delete<ApiResponse<void>>(`/posts/${postId}`),
+
   recordStoryView: (postId: string) => http.post<ApiResponse<void>>(`/interactions/posts/${postId}/view`),
 
   getMyPosts: (page = 0, size = 20) =>
     http.get<ApiResponse<PageResponse<BackendPostResponse>>>('/posts/me', {
       params: { page, size }
-    })
+    }),
+
+  getUserPosts: (userId: string, page = 0, size = 20) =>
+    http.get<ApiResponse<PageResponse<BackendPostResponse>>>(`/posts/users/${userId}`, {
+      params: { page, size }
+    }),
+
+  getUserStory: (userId: string) =>
+    http.get<ApiResponse<StoryGroupResponse>>(`/posts/stories/users/${userId}`)
 }

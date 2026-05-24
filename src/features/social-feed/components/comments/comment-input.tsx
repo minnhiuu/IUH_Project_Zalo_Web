@@ -44,10 +44,7 @@ export function CommentInput({
   const videoInputRef = useRef<HTMLInputElement | null>(null)
 
   const currentUserLabel = currentUserName?.trim() || user?.fullName || text.composer.me
-  const resolvedCurrentUserAvatar =
-    currentUserAvatar !== undefined
-      ? currentUserAvatar
-      : user?.avatar || `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(currentUserLabel)}`
+  const resolvedCurrentUserAvatar = currentUserAvatar !== undefined ? currentUserAvatar : user?.avatar
 
   const trimmedComment = commentText.trim()
 
@@ -94,9 +91,8 @@ export function CommentInput({
         uploadedMedia = await Promise.all(
           selectedMedia.map(async (item) => {
             const response = await fileApi.upload(item.file)
-            const key = response.data.data.key
             return {
-              url: `${import.meta.env.VITE_API_BASE_URL}/files/download/${encodeURIComponent(key)}`,
+              url: response.data.data.key,
               type: item.type
             }
           })
@@ -120,7 +116,6 @@ export function CommentInput({
           name={currentUserLabel}
           src={resolvedCurrentUserAvatar}
           className='w-full h-full border border-background'
-          fallbackClassName='bg-primary text-white text-xs font-semibold'
         />
       </div>
       <div className='relative flex-1'>
@@ -132,7 +127,7 @@ export function CommentInput({
             <button
               type='button'
               onClick={onCancelReply}
-              className='text-xs font-semibold text-zinc-500 hover:text-indigo-500 dark:text-zinc-400 dark:hover:text-indigo-400'
+              className='text-xs font-semibold text-zinc-500 hover:text-primary dark:text-zinc-400 dark:hover:text-primary'
             >
               {text.commentInput.cancel}
             </button>
@@ -166,9 +161,15 @@ export function CommentInput({
         <Textarea
           value={commentText}
           onChange={(event) => setCommentText(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+              event.preventDefault()
+              handleSubmit()
+            }
+          }}
           rows={1}
           placeholder={placeholder ?? text.commentsModal.inputPlaceholder}
-          className='min-h-[44px] resize-none rounded-2xl border-zinc-200 bg-zinc-50 py-3 pr-[104px] text-[14px] shadow-none transition-colors focus-visible:ring-indigo-500/30 dark:border-white/10 dark:bg-zinc-900'
+          className='min-h-[44px] resize-none rounded-2xl border-zinc-200 bg-zinc-50 py-3 pr-[104px] text-[14px] shadow-none transition-colors focus-visible:ring-primary/30 dark:border-white/10 dark:bg-zinc-900'
         />
 
         <input
@@ -210,7 +211,7 @@ export function CommentInput({
             variant='ghost'
             onClick={handleSubmit}
             disabled={(!trimmedComment && selectedMedia.length === 0) || isSubmitting || isUploadingMedia}
-            className='h-8 w-8 rounded-full text-indigo-500 hover:bg-indigo-500/10 disabled:text-zinc-400 disabled:hover:bg-transparent transition-colors'
+            className='h-8 w-8 rounded-full text-primary hover:bg-primary/10 disabled:text-zinc-400 disabled:hover:bg-transparent transition-colors'
           >
             {isUploadingMedia ? <Loader2 className='h-4 w-4 animate-spin' /> : <Send className='h-4.5 w-4.5' />}
           </Button>

@@ -1,4 +1,4 @@
-import { User, Settings, Globe, Check, Newspaper } from 'lucide-react'
+import { User, Settings, Globe, Check, Newspaper, Database, CircleHelp } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,15 +15,15 @@ import { useMySettings, useUpdateGeneralSettings } from '@/features/user-setting
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { PATHS } from '@/constants/path'
-
 import { useLocale } from '@/lib/i18n'
 
 interface UserNavDropdownProps {
   children: React.ReactNode
   dropdownWidth?: number
+  isSettings?: boolean
 }
 
-export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdownProps) => {
+export const UserNavDropdown = ({ children, dropdownWidth = 240, isSettings = false }: UserNavDropdownProps) => {
   const logoutMutation = useLogoutMutation()
   const updateGeneralSettings = useUpdateGeneralSettings()
   const { data: settings } = useMySettings()
@@ -72,13 +72,15 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
             <span className='flex-1 font-medium'>{text.menu.profile}</span>
           </DropdownMenuItem>
 
-          <DropdownMenuItem
-            onClick={() => navigate(PATHS.USER.PROFILE)}
-            className='flex items-center gap-3 py-2 px-3 cursor-pointer hover:bg-muted focus:bg-muted rounded-md text-[14px] transition-colors outline-none'
-          >
-            <Newspaper className='w-[17px] h-[17px]' />
-            <span className='flex-1 font-medium'>My Profile</span>
-          </DropdownMenuItem>
+          {!isSettings && (
+            <DropdownMenuItem
+              onClick={() => navigate(PATHS.USER.PROFILE)}
+              className='flex items-center gap-3 py-2 px-3 cursor-pointer hover:bg-muted focus:bg-muted rounded-md text-[14px] transition-colors outline-none'
+            >
+              <Newspaper className='w-[17px] h-[17px]' />
+              <span className='flex-1 font-medium'>My Profile</span>
+            </DropdownMenuItem>
+          )}
 
           <DropdownMenuItem
             onClick={() => setShowSettingsDialog(true)}
@@ -89,6 +91,23 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
           </DropdownMenuItem>
 
           <DropdownMenuSeparator className='my-1.5 bg-border/40' />
+
+          {isSettings && (
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger className='flex items-center gap-3 py-2 px-3 cursor-pointer hover:bg-muted focus:bg-muted rounded-md text-[14px] outline-none group'>
+                <Database className='w-[17px] h-[17px]' />
+                <span className='flex-1 font-medium'>{text.menu.data}</span>
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent
+                sideOffset={5}
+                className='w-44 p-1 shadow-lg border border-border animate-in slide-in-from-left-1 duration-200 bg-popover text-popover-foreground'
+              >
+                <DropdownMenuItem className='py-1.5 px-3 cursor-pointer hover:bg-muted rounded-md text-[13.5px] outline-none'>
+                  Quản lý dữ liệu
+                </DropdownMenuItem>
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+          )}
 
           <DropdownMenuSub>
             <DropdownMenuSubTrigger className='flex items-center gap-3 py-2 px-3 cursor-pointer hover:bg-muted focus:bg-muted rounded-md text-[14px] outline-none'>
@@ -115,6 +134,26 @@ export const UserNavDropdown = ({ children, dropdownWidth = 210 }: UserNavDropdo
               ))}
             </DropdownMenuSubContent>
           </DropdownMenuSub>
+
+          {isSettings && (
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger className='flex items-center gap-3 py-2 px-3 cursor-pointer hover:bg-muted focus:bg-muted rounded-md text-[14px] outline-none'>
+                <CircleHelp className='w-[17px] h-[17px]' />
+                <span className='flex-1 font-medium'>{text.menu.support}</span>
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent
+                sideOffset={5}
+                className='w-44 p-1 shadow-lg border border-border animate-in slide-in-from-left-1 duration-200 bg-popover text-popover-foreground'
+              >
+                <DropdownMenuItem className='py-1.5 px-3 cursor-pointer hover:bg-muted rounded-md text-[13.5px] outline-none'>
+                  Trung tâm hỗ trợ
+                </DropdownMenuItem>
+                <DropdownMenuItem className='py-1.5 px-3 cursor-pointer hover:bg-muted rounded-md text-[13.5px] outline-none'>
+                  Về BondHub
+                </DropdownMenuItem>
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+          )}
 
           <DropdownMenuSeparator className='my-1.5 bg-border/40' />
 

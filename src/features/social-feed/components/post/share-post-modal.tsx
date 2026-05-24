@@ -66,7 +66,7 @@ export function SharePostModal({ open, onOpenChange, post }: SharePostModalProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-w-[500px] p-0 overflow-hidden bg-white dark:bg-zinc-950/90 dark:backdrop-blur-xl border-zinc-200 dark:border-white/10'>
+      <DialogContent className='!z-[10000] max-w-[500px] p-0 overflow-hidden bg-white dark:bg-zinc-950/90 dark:backdrop-blur-xl border-zinc-200 dark:border-white/10'>
         <DialogHeader className='px-6 py-4 border-b border-zinc-100 dark:border-white/5'>
           <DialogTitle className='text-[17px] font-semibold text-center text-zinc-900 dark:text-zinc-100'>
             {text.shareModal.title}
@@ -113,7 +113,7 @@ export function SharePostModal({ open, onOpenChange, post }: SharePostModalProps
             </div>
           </div>
 
-          <div className='rounded-2xl border border-zinc-200/80 bg-zinc-50/80 px-4 py-3 transition-colors focus-within:border-indigo-400/50 focus-within:bg-white dark:border-white/10 dark:bg-zinc-900/70 dark:focus-within:bg-zinc-900'>
+          <div className='rounded-2xl border border-zinc-200/80 bg-zinc-50/80 px-4 py-3 transition-colors focus-within:border-primary/50 focus-within:bg-white dark:border-white/10 dark:bg-zinc-900/70 dark:focus-within:bg-zinc-900'>
             <Textarea
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
@@ -157,7 +157,7 @@ export function SharePostModal({ open, onOpenChange, post }: SharePostModalProps
           <Button
             onClick={handleShare}
             disabled={isPending}
-            className='w-full h-11 rounded-xl bg-indigo-500 font-semibold text-white shadow-sm transition-all hover:bg-indigo-600 hover:shadow-indigo-500/20 active:scale-95 disabled:opacity-50 disabled:pointer-events-none'
+            className='w-full h-11 rounded-xl bg-primary font-semibold text-white shadow-sm transition-all hover:bg-primary/90 hover:shadow-primary/20 active:scale-95 disabled:opacity-50 disabled:pointer-events-none'
           >
             {isPending ? <Loader2 className='h-5 w-5 animate-spin' /> : text.shareModal.shareNow}
           </Button>

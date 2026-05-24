@@ -43,11 +43,11 @@ export function FriendRequestList() {
   const sendRequestMutation = useSendFriendRequest()
 
   const handleAccept = (friendshipId: string) => {
-    acceptMutation.mutate(friendshipId)
+    acceptMutation.mutate({ requestId: friendshipId })
   }
 
   const handleDecline = (friendshipId: string) => {
-    declineMutation.mutate(friendshipId)
+    declineMutation.mutate({ requestId: friendshipId })
   }
 
   const handleAddFriend = (user: UserSummaryResponse) => {

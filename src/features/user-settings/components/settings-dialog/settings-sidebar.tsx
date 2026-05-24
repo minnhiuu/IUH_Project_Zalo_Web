@@ -53,16 +53,16 @@ const menuIcons: Record<SettingsMenuItem, React.ReactNode> = {
 
 export function SettingsSidebar({ menuItems, activeMenu, onSelectMenu }: SettingsSidebarProps) {
   return (
-    <div className='w-64 border-r border-border bg-card dark:bg-muted shrink-0 overflow-y-auto'>
-      <div className='p-2 space-y-0.5'>
+    <div className='w-56 md:w-64 border-r border-border bg-card/95 dark:bg-muted shrink-0 overflow-y-auto'>
+      <div className='p-2.5 space-y-1'>
         {menuItems.map((item) => (
           <button
             key={item.id}
             onClick={() => onSelectMenu(item.id)}
             className={cn(
-              'w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-colors text-left',
+              'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors text-left',
               activeMenu === item.id
-                ? 'bg-primary/10 text-primary font-medium dark:bg-sidebar-accent dark:text-sidebar-foreground'
+                ? 'bg-primary/10 text-primary font-semibold shadow-xs dark:bg-sidebar-accent dark:text-sidebar-foreground'
                 : 'hover:bg-muted/50 text-foreground dark:hover:bg-sidebar-accent dark:text-sidebar-foreground'
             )}
           >

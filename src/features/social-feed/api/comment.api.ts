@@ -34,5 +34,10 @@ export const commentApi = {
   searchReactions: (targetType: 'POST' | 'COMMENT', reactionType: ReactionResponse['type']) =>
     http.get<ApiResponse<ReactionResponse[]>>('/reactions/search', {
       params: { targetType, reactionType }
+    }),
+
+  simulateBatchLikes: (postId: string, count: number = 50) =>
+    http.post<ApiResponse<void>>('/reactions/test-batch-like', null, {
+      params: { postId, count }
     })
 }

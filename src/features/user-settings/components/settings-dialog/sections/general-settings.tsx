@@ -2,28 +2,19 @@ import { Loader2 } from 'lucide-react'
 import { useUserText } from '@/features/user/i18n/use-user-text'
 import { Separator } from '@/components/ui/separator'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useEffect } from 'react'
 import { ActionRow } from './action-row'
 import { useSettingsState } from '../settings-state-context'
-import { useLocale } from '@/lib/i18n'
+import { useLocale } from '@/lib/i18n/use-locale'
 
 export function GeneralSettings() {
   const { text } = useUserText()
-  const { locale: currentLanguage, changeLocale } = useLocale()
+  const { locale, changeLocale } = useLocale()
   const { settings, isLoading, pending, updateGeneralSettings } = useSettingsState()
 
-  // Sync language from settings
-  useEffect(() => {
-    if (settings?.generalSettings.languageEn !== undefined) {
-      const settingsLang = settings.generalSettings.languageEn ? 'en' : 'vi'
-      if (currentLanguage !== settingsLang) {
-        changeLocale(settingsLang)
-      }
-    }
-  }, [settings?.generalSettings.languageEn, currentLanguage, changeLocale])
 
   const handleLanguageChange = (lang: 'en' | 'vi') => {
     const languageEn = lang === 'en'
+    changeLocale(lang)
     changeLocale(lang)
     updateGeneralSettings({
       showAllFriends: settings?.generalSettings.showAllFriends ?? false,
@@ -81,7 +72,7 @@ export function GeneralSettings() {
         titleClassName='font-semibold'
       >
         <Select
-          value={currentLanguage}
+          value={locale}
           onValueChange={(value) => handleLanguageChange(value as 'en' | 'vi')}
           disabled={pending.general}
         >

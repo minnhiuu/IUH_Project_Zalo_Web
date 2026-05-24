@@ -2,7 +2,9 @@ export const USER_KEYS = {
   menu: {
     profile: 'user.menu.profile',
     settings: 'user.menu.settings',
+    data: 'user.menu.data',
     language: 'user.menu.language',
+    support: 'user.menu.support',
     appearance: 'user.menu.appearance',
     themeLight: 'user.menu.themeLight',
     themeDark: 'user.menu.themeDark',
@@ -55,7 +57,37 @@ export const USER_KEYS = {
     block: 'user.profile.block',
     editBlock: 'user.profile.editBlock',
     report: 'user.profile.report',
-    deleteFriend: 'user.profile.deleteFriend'
+    deleteFriend: 'user.profile.deleteFriend',
+    page: {
+      myTitle: 'user.profile.page.myTitle',
+      editProfile: 'user.profile.page.editProfile',
+      postsHeading: 'user.profile.page.postsHeading',
+      loadingMore: 'user.profile.page.loadingMore',
+      loadError: 'user.profile.page.loadError',
+      retry: 'user.profile.page.retry',
+      noPosts: 'user.profile.page.noPosts',
+      noPostsHint: 'user.profile.page.noPostsHint',
+      noPostsOther: 'user.profile.page.noPostsOther',
+      noPostsOtherHint: 'user.profile.page.noPostsOtherHint',
+      addFriend: 'user.profile.page.addFriend',
+      message: 'user.profile.page.message',
+      about: 'user.profile.page.about',
+      fieldBio: 'user.profile.page.fieldBio',
+      fieldGender: 'user.profile.page.fieldGender',
+      fieldBirthday: 'user.profile.page.fieldBirthday',
+      fieldEmail: 'user.profile.page.fieldEmail',
+      fieldPhone: 'user.profile.page.fieldPhone',
+      fieldRole: 'user.profile.page.fieldRole',
+      genderMale: 'user.profile.page.genderMale',
+      genderFemale: 'user.profile.page.genderFemale',
+      friendsTab: 'user.profile.page.friendsTab',
+      searchPlaceholder: 'user.profile.page.searchPlaceholder',
+      mutualFriends: 'user.profile.page.mutualFriends',
+      noFriends: 'user.profile.page.noFriends',
+      noMutualFriends: 'user.profile.page.noMutualFriends',
+      featureInDevelopment: 'user.profile.page.featureInDevelopment'
+    },
+    goToSettings: 'user.profile.goToSettings'
   },
   validation: {
     fullNameRequired: 'user.validation.fullNameRequired',
@@ -138,6 +170,20 @@ export const USER_KEYS = {
       },
       search: {
         title: 'user.settings.privacy.search.title',
+        nameSearchVisibility: {
+          title: 'user.settings.privacy.search.nameSearchVisibility.title',
+          description: 'user.settings.privacy.search.nameSearchVisibility.description'
+        },
+        phoneSearchVisibility: {
+          title: 'user.settings.privacy.search.phoneSearchVisibility.title',
+          description: 'user.settings.privacy.search.phoneSearchVisibility.description'
+        },
+        visibility: {
+          public: 'user.settings.privacy.search.visibility.public',
+          friendsOfFriends: 'user.settings.privacy.search.visibility.friendsOfFriends',
+          friendsOnly: 'user.settings.privacy.search.visibility.friendsOnly',
+          none: 'user.settings.privacy.search.visibility.none'
+        },
         allowSearchOnPhoneNumber: {
           title: 'user.settings.privacy.search.allowSearchOnPhoneNumber.title',
           description: 'user.settings.privacy.search.allowSearchOnPhoneNumber.description'
@@ -174,6 +220,33 @@ export const USER_KEYS = {
       sound: {
         title: 'user.settings.notification.sound.title',
         description: 'user.settings.notification.sound.description'
+      },
+      vibration: {
+        title: 'user.settings.notification.vibration.title',
+        description: 'user.settings.notification.vibration.description'
+      },
+      friendRequests: {
+        title: 'user.settings.notification.friendRequests.title',
+        description: 'user.settings.notification.friendRequests.description'
+      },
+      directMessages: {
+        title: 'user.settings.notification.directMessages.title',
+        description: 'user.settings.notification.directMessages.description'
+      },
+      groupMessages: {
+        title: 'user.settings.notification.groupMessages.title',
+        description: 'user.settings.notification.groupMessages.description'
+      },
+      quietMode: {
+        title: 'user.settings.notification.quietMode.title',
+        description: 'user.settings.notification.quietMode.description',
+        startTime: 'user.settings.notification.quietMode.startTime',
+        endTime: 'user.settings.notification.quietMode.endTime',
+        chooseDays: 'user.settings.notification.quietMode.chooseDays',
+        everyday: 'user.settings.notification.quietMode.everyday',
+        activeDaysCount: 'user.settings.notification.quietMode.activeDaysCount',
+        timezone: 'user.settings.notification.quietMode.timezone',
+        save: 'user.settings.notification.quietMode.save'
       }
     },
     messages: {
@@ -267,6 +340,7 @@ export const USER_KEYS = {
           story: 'user.settings.accountPrivacy.blockedUsers.types.story'
         }
       },
+      accountActivation: {},
       blockModal: {
         title: 'user.settings.accountPrivacy.blockModal.title',
         editTitle: 'user.settings.accountPrivacy.blockModal.editTitle',

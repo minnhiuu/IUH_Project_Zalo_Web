@@ -57,7 +57,18 @@ export const SOCIAL_KEYS = {
     share: 'storyComposer.share',
     expiresHint: 'storyComposer.expiresHint',
     successToast: 'storyComposer.successToast',
-    errorToast: 'storyComposer.errorToast'
+    errorToast: 'storyComposer.errorToast',
+    preview: 'storyComposer.preview',
+    rotate: 'storyComposer.rotate',
+    posting: 'storyComposer.posting',
+    photoStory: 'storyComposer.photoStory',
+    videoStory: 'storyComposer.videoStory',
+    discard: 'storyComposer.discard',
+    addText: 'storyComposer.addText',
+    altText: 'storyComposer.altText',
+    discardConfirmTitle: 'storyComposer.discardConfirmTitle',
+    discardConfirmMsg: 'storyComposer.discardConfirmMsg',
+    continueEditing: 'storyComposer.continueEditing'
   },
 
   reels: {
@@ -91,13 +102,19 @@ export const SOCIAL_KEYS = {
     videoRequired: 'reelComposer.videoRequired',
     invalidVideo: 'reelComposer.invalidVideo',
     successToast: 'reelComposer.successToast',
-    errorToast: 'reelComposer.errorToast'
+    errorToast: 'reelComposer.errorToast',
+    next: 'reelComposer.next',
+    uploadHint: 'reelComposer.uploadHint',
+    upload: 'reelComposer.upload',
+    videoPreviewTitle: 'reelComposer.videoPreviewTitle',
+    videoPreviewDesc: 'reelComposer.videoPreviewDesc'
   },
 
   post: {
     attachmentAlt: 'post.attachmentAlt',
     commentCount: 'post.commentCount',
     shareCount: 'post.shareCount',
+    reactionsCount: 'post.reactionsCount',
     comment: 'post.comment',
     share: 'post.share',
     visibilityPublic: 'post.visibilityPublic',
@@ -180,7 +197,8 @@ export const SOCIAL_KEYS = {
     groups: 'sidebar.groups',
     reels: 'sidebar.reels',
     saved: 'sidebar.saved',
-    memories: 'sidebar.memories'
+    memories: 'sidebar.memories',
+    switchAccount: 'sidebar.switchAccount'
   },
 
   suggested: {
@@ -192,7 +210,23 @@ export const SOCIAL_KEYS = {
     footerTerms: 'suggested.footerTerms',
     footerAds: 'suggested.footerAds',
     footerCookie: 'suggested.footerCookie',
-    footerBrand: 'suggested.footerBrand'
+    footerBrand: 'suggested.footerBrand',
+    suggestedForYou: 'suggested.suggestedForYou',
+    activeFriends: 'suggested.activeFriends',
+    noSuggestions: 'suggested.noSuggestions',
+    online: 'suggested.online',
+    noActiveFriends: 'suggested.noActiveFriends',
+    quickMessages: 'suggested.quickMessages'
+  },
+
+  miniChat: {
+    title: 'miniChat.title',
+    placeholder: 'miniChat.placeholder',
+    loading: 'miniChat.loading',
+    noConversations: 'miniChat.noConversations',
+    searchPlaceholder: 'miniChat.searchPlaceholder',
+    maximize: 'miniChat.maximize',
+    close: 'miniChat.close'
   },
 
   mockPosts: {
@@ -202,5 +236,18 @@ export const SOCIAL_KEYS = {
     content1: 'mockPosts.content1',
     content2: 'mockPosts.content2',
     content3: 'mockPosts.content3'
+  },
+  storyViewer: {
+    yourStory: 'storyViewer.yourStory',
+    allStories: 'storyViewer.allStories',
+    details: 'storyViewer.details',
+    viewersCount: 'storyViewer.viewersCount',
+    newViewer: 'storyViewer.newViewer',
+    activeMinutesAgo: 'storyViewer.activeMinutesAgo',
+    addToStory: 'storyViewer.addToStory',
+    newCards: 'storyViewer.newCards',
+    hoursAgo: 'storyViewer.hoursAgo',
+    minutesAgo: 'storyViewer.minutesAgo',
+    noViewers: 'storyViewer.noViewers'
   }
 } as const

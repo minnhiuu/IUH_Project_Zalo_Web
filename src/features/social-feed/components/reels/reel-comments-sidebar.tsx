@@ -20,9 +20,10 @@ import { useMyProfile } from '@/features/user/queries/use-queries'
 interface ReelCommentsSidebarProps {
   post: SocialPost
   onClose: () => void
+  className?: string
 }
 
-export function ReelCommentsSidebar({ post, onClose }: ReelCommentsSidebarProps) {
+export function ReelCommentsSidebar({ post, onClose, className }: ReelCommentsSidebarProps) {
   const { text } = useSocialText()
   const { user } = useAuthContext()
   const { data: myProfile } = useMyProfile()
@@ -80,7 +81,7 @@ export function ReelCommentsSidebar({ post, onClose }: ReelCommentsSidebarProps)
   }
 
   return (
-    <aside className='absolute right-0 top-0 z-50 flex h-full w-full flex-col border-l border-border/30 bg-background/85 text-foreground shadow-2xl backdrop-blur-2xl transition-all duration-300 animate-in slide-in-from-right-8 sm:w-[400px]'>
+    <aside className={className || 'absolute right-0 top-0 z-50 flex h-full w-full flex-col border-l border-border/30 bg-background/85 text-foreground shadow-2xl backdrop-blur-2xl transition-all duration-300 animate-in slide-in-from-right-8 sm:w-[400px]'}>
       <div className='flex h-full flex-col'>
         {/* Header */}
         <div className='flex items-center justify-between border-b border-border/30 px-5 py-4'>

@@ -223,7 +223,9 @@ export const CHAT_KEYS = {
     deleteAction: 'chat.disbanded.deleteAction'
   },
   restricted: {
-    onlyAdminCanSend: 'chat.restricted.onlyAdminCanSend'
+    onlyAdminCanSend: 'chat.restricted.onlyAdminCanSend',
+    cannotRename: 'chat.restricted.cannotRename',
+    cannotChangeAvatar: 'chat.restricted.cannotChangeAvatar'
   },
   'rename-group-dialog': {
     title: 'chat.rename-group-dialog.title',
@@ -350,7 +352,8 @@ export const CHAT_KEYS = {
     leaveGroupError: 'chat.toasts.leaveGroupError',
     blockSuccess: 'chat.toasts.blockSuccess',
     unblockSuccess: 'chat.toasts.unblockSuccess',
-    noBlockCandidates: 'chat.toasts.noBlockCandidates'
+    noBlockCandidates: 'chat.toasts.noBlockCandidates',
+    transferOwnerSuccess: 'chat.toasts.transferOwnerSuccess'
   },
   sidebarInfo: {
     title: 'chat.sidebarInfo.title',

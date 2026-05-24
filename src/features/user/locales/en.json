@@ -3,7 +3,9 @@
     "menu": {
       "profile": "Profile",
       "settings": "Settings",
+      "data": "Data",
       "language": "Language",
+      "support": "Support",
       "appearance": "Appearance",
       "themeLight": "Light",
       "themeDark": "Dark",
@@ -56,7 +58,37 @@
       "block": "Block messages and calls",
       "editBlock": "Block settings",
       "report": "Report",
-      "deleteFriend": "Remove from friends list"
+      "deleteFriend": "Remove from friends list",
+      "page": {
+        "myTitle": "My Profile",
+        "editProfile": "Edit Profile",
+        "postsHeading": "Posts",
+        "loadingMore": "Loading...",
+        "loadError": "Failed to load posts.",
+        "retry": "Retry",
+        "noPosts": "No posts yet",
+        "noPostsHint": "Share your first post to get started!",
+        "noPostsOther": "No posts yet",
+        "noPostsOtherHint": "This user hasn't posted anything yet.",
+        "addFriend": "Add Friend",
+        "message": "Message",
+        "about": "About",
+        "fieldBio": "Bio",
+        "fieldGender": "Gender",
+        "fieldBirthday": "Birthday",
+        "fieldEmail": "Email",
+        "fieldPhone": "Phone",
+        "fieldRole": "Role",
+        "genderMale": "Male",
+        "genderFemale": "Female",
+        "friendsTab": "Friends",
+        "searchPlaceholder": "Search",
+        "mutualFriends": "{{count}} mutual friends",
+        "noFriends": "You don't have any friends yet.",
+        "noMutualFriends": "No mutual friends.",
+        "featureInDevelopment": "Feature in development"
+      },
+      "goToSettings": "Go to settings"
     },
     "validation": {
       "fullNameRequired": "Display name is required",
@@ -139,6 +171,20 @@
         },
         "search": {
           "title": "Search",
+          "nameSearchVisibility": {
+            "title": "Who can find me by name",
+            "description": "Control who can discover your profile from name search"
+          },
+          "phoneSearchVisibility": {
+            "title": "Who can find me by phone number",
+            "description": "Control who can discover your profile from exact phone search"
+          },
+          "visibility": {
+            "public": "Everyone",
+            "friendsOfFriends": "Friends of friends",
+            "friendsOnly": "Friends only",
+            "none": "Nobody"
+          },
           "allowSearchOnPhoneNumber": {
             "title": "Allow search by phone number",
             "description": "Others can find you using your phone number"
@@ -175,6 +221,33 @@
         "sound": {
           "title": "Notification sound",
           "description": "Play sound when a notification arrives"
+        },
+        "vibration": {
+          "title": "Vibration",
+          "description": "Vibrate when a notification arrives"
+        },
+        "friendRequests": {
+          "title": "Friend requests",
+          "description": "Get notified when someone sends you a friend request"
+        },
+        "directMessages": {
+          "title": "Direct messages",
+          "description": "Get notified when you receive a message from a friend"
+        },
+        "groupMessages": {
+          "title": "Group messages",
+          "description": "Get notified when you receive a message in a group"
+        },
+        "quietMode": {
+          "title": "Quiet mode",
+          "description": "When active, notifications will be silenced and direct message senders will receive an auto-reply. You will receive a summary when the period ends.",
+          "startTime": "Start time",
+          "endTime": "End time",
+          "timezone": "Timezone",
+          "chooseDays": "Choose days",
+          "everyday": "Quiet mode is on everyday.",
+          "activeDaysCount": "On for: {{count}} days of the week.",
+          "save": "Save"
         }
       },
       "messages": {
@@ -268,6 +341,7 @@
             "story": "Stories"
           }
         },
+        "accountActivation": {},
         "blockModal": {
           "title": "Block User",
           "editTitle": "Block Settings",

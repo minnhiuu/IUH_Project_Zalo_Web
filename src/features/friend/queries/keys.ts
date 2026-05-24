@@ -11,6 +11,7 @@ export const friendKeys = {
   myFriendsInfinite: (size: number = 20) => [...friendKeys.friends(), 'my', 'infinite', size] as const,
 
   status: (userId: string) => [...friendKeys.all(), 'status', userId] as const,
+  batchStatus: (userIds: string[]) => [...friendKeys.all(), 'batch-status', userIds] as const,
 
   mutual: (userId: string) => [...friendKeys.all(), 'mutual', userId] as const,
   mutualCount: (userId: string) => [...friendKeys.all(), 'mutual-count', userId] as const,
@@ -30,5 +31,6 @@ export const friendKeys = {
   acceptRequest: () => [...friendKeys.all(), 'accept-request'] as const,
   declineRequest: () => [...friendKeys.all(), 'decline-request'] as const,
   cancelRequest: () => [...friendKeys.all(), 'cancel-request'] as const,
-  unfriend: () => [...friendKeys.all(), 'unfriend'] as const
+  unfriend: () => [...friendKeys.all(), 'unfriend'] as const,
+  onlineFriends: (page: number, size: number) => [...friendKeys.all(), 'online', page, size] as const
 }

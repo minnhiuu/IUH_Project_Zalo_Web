@@ -4,6 +4,9 @@ import { UserAvatar } from '@/components/common/user-avatar'
 import { commentApi } from '../../api/comment.api'
 import { REACTIONS, type ReactionType } from './reaction-picker'
 import { useSocialText } from '../../i18n/use-social-text'
+import { useNavigate } from 'react-router'
+import { PATHS } from '@/constants/path'
+import { useAuthContext } from '@/features/auth/context/auth-context'
 
 type ReactorProfile = {
   authorId: string
@@ -40,6 +43,8 @@ export function ReactionPeopleModal({
   initialReactionType = 'LIKE'
 }: ReactionPeopleModalProps) {
   const { text } = useSocialText()
+  const navigate = useNavigate()
+  const { user } = useAuthContext()
   const [selectedType, setSelectedType] = useState<ReactionType>(initialReactionType)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -140,9 +145,19 @@ export function ReactionPeopleModal({
     }
   }, [selectedType, visibleReactions, reactorsByType, loading, error])
 
+  function handleReactorClick(reactorId: string) {
+    if (!reactorId) return
+    onOpenChange(false)
+    if (user?.id && reactorId === user.id) {
+      navigate(PATHS.USER.PROFILE)
+    } else {
+      navigate(PATHS.USER.OTHER_PROFILE.replace(':userId', reactorId))
+    }
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='w-[min(96vw,44rem)] max-h-[85vh] overflow-hidden gap-0 rounded-2xl border border-zinc-200/60 bg-white/95 p-0 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-zinc-950/95 sm:rounded-3xl'>
+      <DialogContent className='!z-[10000] w-[min(96vw,44rem)] max-h-[85vh] overflow-hidden gap-0 rounded-2xl border border-zinc-200/60 bg-white/95 p-0 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-zinc-950/95 sm:rounded-3xl'>
         <DialogHeader className='border-b border-zinc-200/60 px-6 py-5 dark:border-white/10'>
           <DialogTitle className='text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-100'>
             {text.reactionsModal.title}
@@ -197,9 +212,11 @@ export function ReactionPeopleModal({
           ) : selectedReactors.length > 0 ? (
             <div className='space-y-1'>
               {selectedReactors.map((reactor, i) => (
-                <div
+                <button
                   key={`${selectedType}-${reactor.authorId}`}
-                  className='group flex animate-in fade-in slide-in-from-bottom-2 items-center justify-between rounded-2xl border border-transparent px-3 py-2.5 transition-all duration-200 hover:bg-zinc-50 hover:shadow-sm dark:hover:bg-white/[0.04] dark:hover:border-white/[0.02]'
+                  type='button'
+                  onClick={() => handleReactorClick(reactor.authorId)}
+                  className='group flex w-full animate-in fade-in slide-in-from-bottom-2 items-center justify-between rounded-2xl border border-transparent px-3 py-2.5 transition-all duration-200 hover:bg-zinc-50 hover:shadow-sm dark:hover:bg-white/[0.04] dark:hover:border-white/[0.02]'
                   style={{ animationFillMode: 'both', animationDelay: `${i * 30}ms` }}
                 >
                   <div className='flex min-w-0 items-center gap-3.5'>
@@ -211,7 +228,7 @@ export function ReactionPeopleModal({
                         fallbackClassName='bg-primary text-white text-[13px] font-semibold'
                       />
                     </div>
-                    <span className='truncate text-[15px] font-medium text-zinc-900 dark:text-zinc-100 transition-colors group-hover:text-indigo-600 dark:group-hover:text-indigo-400'>
+                    <span className='truncate text-[15px] font-medium text-zinc-900 dark:text-zinc-100 transition-colors group-hover:text-primary/90 dark:group-hover:text-primary'>
                       {reactor.name}
                     </span>
                   </div>
@@ -221,7 +238,7 @@ export function ReactionPeopleModal({
                   >
                     <selectedReactionOption.Icon size={32} className='drop-shadow-sm' />
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           ) : (

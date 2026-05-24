@@ -1,4 +1,5 @@
 import { Phone, Video, Search, PanelsTopLeft, Users, Pencil } from 'lucide-react'
+import { useSearchParams } from 'react-router'
 import { useMessagesInfiniteQuery } from '../queries/use-queries'
 import { useAuth } from '@/features/auth'
 import { useChatContext } from '../context/chat-context'
@@ -71,6 +72,7 @@ export function ChatWindow({
   const { sendMessage, typingUsers } = useChatContext()
   const { t, text } = useChatText()
   const queryClient = useQueryClient()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [jumpTargetId, setJumpTargetId] = useState<string | null>(null)
 
   const {
@@ -216,6 +218,25 @@ export function ChatWindow({
     },
     [queryClient]
   )
+
+  useEffect(() => {
+    const msgId = searchParams.get('msgId')
+    const keyword = searchParams.get('keyword') || ''
+    const showInfo = searchParams.get('showInfo') === 'true'
+
+    if (msgId) {
+      navigateToMessage(conversation.id, msgId, keyword)
+      if (showInfo) {
+        setIsInfoSidebarOpen(true)
+      }
+      // Clear the params so it doesn't jump again on every re-render/tab switch
+      const newParams = new URLSearchParams(searchParams)
+      newParams.delete('msgId')
+      newParams.delete('keyword')
+      newParams.delete('showInfo')
+      setSearchParams(newParams, { replace: true })
+    }
+  }, [searchParams, conversation.id, navigateToMessage, setSearchParams])
 
   // Video Call
   const {
@@ -515,7 +536,7 @@ export function ChatWindow({
         conversationId: conversation.id,
         createdAt: new Date().toISOString(),
         isFromMe: false
-      } as any // Synthetic AI preview message
+      } as unknown as MessageResponse // ép kiểu để bỏ qua một số field không dùng tới trong preview
       return [syntheticMsg, ...rawMessages]
     }
     return rawMessages
@@ -619,11 +640,11 @@ export function ChatWindow({
     return allMessages
       .filter((msg) => {
         if (!msg.createdAt) return true
-        return new Date(msg.createdAt).getTime() <= cutoffTime
+        return new Date(msg.createdAt || new Date().toISOString()).getTime() <= cutoffTime
       })
       .slice(0, initialUnreadCount)
       .map((msg) => msg.id)
-  }, [allMessages, initialUnreadCount, conversation.id])
+  }, [allMessages, initialUnreadCount])
   const loadedMessageIdSet = useMemo(() => new Set(allMessages.map((msg) => msg.id)), [allMessages])
 
   const measureVisibleMessageIds = useCallback(
@@ -718,7 +739,7 @@ export function ChatWindow({
       setFloatingUnreadReady(true)
       setUnreadUiReady(true)
     },
-    [allMessages, conversation.id, initialUnreadMessageIds, measureVisibleMessageIds]
+    [allMessages, conversation.id, initialUnreadMessageIds, measureVisibleMessageIds, scrollRef]
   )
 
   const syncVisibleInitialUnreadCount = useCallback(() => {
@@ -903,6 +924,7 @@ export function ChatWindow({
       clearTimeout(dividerVisibleTimerRef.current)
       dividerVisibleTimerRef.current = null
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversation.id]) // Intentionally omit capturedUnreadCount so we don't reset UI when mark-as-read completes
 
   useEffect(() => {
@@ -1410,7 +1432,7 @@ export function ChatWindow({
               const isAiMessage = msg.senderId === BONDHUB_AI.userId && msg.type !== 'SYSTEM'
 
               if (isAiMessage) {
-                const { cleanContent, suggestions } = parseAiSuggestions(msg.content)
+                const { cleanContent, suggestions } = parseAiSuggestions(msg.content || '')
                 const { cleanContent: finalContent, isClarification } = parseAiQuestion(cleanContent)
 
                 const aiMsg = {
@@ -1419,9 +1441,9 @@ export function ChatWindow({
                   content: finalContent,
                   suggestions,
                   isClarification,
-                  isStreaming: !!msg.isStreaming, // from synthetic msg
-                  processingStatus: msg.processingStatus, // from synthetic msg
-                  timestamp: new Date(msg.createdAt)
+                  isStreaming: !!(msg as Record<string, unknown>).isStreaming, // from synthetic msg
+                  processingStatus: (msg as Record<string, unknown>).processingStatus as 'processing' | 'done', // from synthetic msg
+                  timestamp: new Date(msg.createdAt || new Date().toISOString())
                 }
 
                 return (

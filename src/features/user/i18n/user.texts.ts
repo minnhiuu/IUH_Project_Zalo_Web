@@ -5,7 +5,9 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
   menu: {
     profile: t(USER_KEYS.menu.profile),
     settings: t(USER_KEYS.menu.settings),
+    data: t(USER_KEYS.menu.data),
     language: t(USER_KEYS.menu.language),
+    support: t(USER_KEYS.menu.support),
     appearance: t(USER_KEYS.menu.appearance),
     themeLight: t(USER_KEYS.menu.themeLight),
     themeDark: t(USER_KEYS.menu.themeDark),
@@ -58,7 +60,37 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
     block: t(USER_KEYS.profile.block),
     editBlock: t(USER_KEYS.profile.editBlock),
     report: t(USER_KEYS.profile.report),
-    deleteFriend: t(USER_KEYS.profile.deleteFriend)
+    deleteFriend: t(USER_KEYS.profile.deleteFriend),
+    page: {
+      myTitle: t(USER_KEYS.profile.page.myTitle),
+      editProfile: t(USER_KEYS.profile.page.editProfile),
+      postsHeading: t(USER_KEYS.profile.page.postsHeading),
+      loadingMore: t(USER_KEYS.profile.page.loadingMore),
+      loadError: t(USER_KEYS.profile.page.loadError),
+      retry: t(USER_KEYS.profile.page.retry),
+      noPosts: t(USER_KEYS.profile.page.noPosts),
+      noPostsHint: t(USER_KEYS.profile.page.noPostsHint),
+      noPostsOther: t(USER_KEYS.profile.page.noPostsOther),
+      noPostsOtherHint: t(USER_KEYS.profile.page.noPostsOtherHint),
+      addFriend: t(USER_KEYS.profile.page.addFriend),
+      message: t(USER_KEYS.profile.page.message),
+      about: t(USER_KEYS.profile.page.about),
+      fieldBio: t(USER_KEYS.profile.page.fieldBio),
+      fieldGender: t(USER_KEYS.profile.page.fieldGender),
+      fieldBirthday: t(USER_KEYS.profile.page.fieldBirthday),
+      fieldEmail: t(USER_KEYS.profile.page.fieldEmail),
+      fieldPhone: t(USER_KEYS.profile.page.fieldPhone),
+      fieldRole: t(USER_KEYS.profile.page.fieldRole),
+      genderMale: t(USER_KEYS.profile.page.genderMale),
+      genderFemale: t(USER_KEYS.profile.page.genderFemale),
+      friendsTab: t(USER_KEYS.profile.page.friendsTab),
+      searchPlaceholder: t(USER_KEYS.profile.page.searchPlaceholder),
+      mutualFriends: (count: number) => t(USER_KEYS.profile.page.mutualFriends, { count }),
+      noFriends: t(USER_KEYS.profile.page.noFriends),
+      noMutualFriends: t(USER_KEYS.profile.page.noMutualFriends),
+      featureInDevelopment: t(USER_KEYS.profile.page.featureInDevelopment)
+    },
+    goToSettings: t(USER_KEYS.profile.goToSettings)
   },
   validation: {
     fullNameRequired: t(USER_KEYS.validation.fullNameRequired),
@@ -141,6 +173,20 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
       },
       search: {
         title: t(USER_KEYS.settings.privacy.search.title),
+        nameSearchVisibility: {
+          title: t(USER_KEYS.settings.privacy.search.nameSearchVisibility.title),
+          description: t(USER_KEYS.settings.privacy.search.nameSearchVisibility.description)
+        },
+        phoneSearchVisibility: {
+          title: t(USER_KEYS.settings.privacy.search.phoneSearchVisibility.title),
+          description: t(USER_KEYS.settings.privacy.search.phoneSearchVisibility.description)
+        },
+        visibility: {
+          public: t(USER_KEYS.settings.privacy.search.visibility.public),
+          friendsOfFriends: t(USER_KEYS.settings.privacy.search.visibility.friendsOfFriends),
+          friendsOnly: t(USER_KEYS.settings.privacy.search.visibility.friendsOnly),
+          none: t(USER_KEYS.settings.privacy.search.visibility.none)
+        },
         allowSearchOnPhoneNumber: {
           title: t(USER_KEYS.settings.privacy.search.allowSearchOnPhoneNumber.title),
           description: t(USER_KEYS.settings.privacy.search.allowSearchOnPhoneNumber.description)
@@ -177,6 +223,33 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
       sound: {
         title: t(USER_KEYS.settings.notification.sound.title),
         description: t(USER_KEYS.settings.notification.sound.description)
+      },
+      vibration: {
+        title: t(USER_KEYS.settings.notification.vibration.title),
+        description: t(USER_KEYS.settings.notification.vibration.description)
+      },
+      friendRequests: {
+        title: t(USER_KEYS.settings.notification.friendRequests.title),
+        description: t(USER_KEYS.settings.notification.friendRequests.description)
+      },
+      directMessages: {
+        title: t(USER_KEYS.settings.notification.directMessages.title),
+        description: t(USER_KEYS.settings.notification.directMessages.description)
+      },
+      groupMessages: {
+        title: t(USER_KEYS.settings.notification.groupMessages.title),
+        description: t(USER_KEYS.settings.notification.groupMessages.description)
+      },
+      quietMode: {
+        title: t(USER_KEYS.settings.notification.quietMode.title),
+        description: t(USER_KEYS.settings.notification.quietMode.description),
+        startTime: t(USER_KEYS.settings.notification.quietMode.startTime),
+        endTime: t(USER_KEYS.settings.notification.quietMode.endTime),
+        chooseDays: t(USER_KEYS.settings.notification.quietMode.chooseDays),
+        everyday: t(USER_KEYS.settings.notification.quietMode.everyday),
+        activeDaysCount: (count: number) => t(USER_KEYS.settings.notification.quietMode.activeDaysCount, { count }),
+        timezone: t(USER_KEYS.settings.notification.quietMode.timezone),
+        save: t(USER_KEYS.settings.notification.quietMode.save)
       }
     },
     messages: {
@@ -274,6 +347,7 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
           story: t(USER_KEYS.settings.accountPrivacy.blockedUsers.types.story)
         }
       },
+      accountActivation: {},
       blockModal: {
         title: t(USER_KEYS.settings.accountPrivacy.blockModal.title),
         editTitle: t(USER_KEYS.settings.accountPrivacy.blockModal.editTitle),

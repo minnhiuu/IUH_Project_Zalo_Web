@@ -8,7 +8,7 @@ import { ActionMenuItem } from '@/components/common/action-menu-item'
 import { CustomTooltip } from '@/components/common/custom-tooltip'
 import { canChangeGroupInfo } from '../../../utils/group-permissions'
 import { showWarningToast } from '@/utils/toast'
-import { useTranslation } from 'react-i18next'
+import { useChatText } from '../../../i18n/use-chat-text'
 import { buildGroupLinkUrl } from '../../../utils/group-link'
 
 interface GroupInfoOverviewText {
@@ -43,11 +43,11 @@ export function GroupInfoOverviewStep({
   onOpenMembers,
   onLeaveGroup
 }: GroupInfoOverviewStepProps) {
-  const { t } = useTranslation('chat')
+  const { text: tg } = useChatText()
 
   const handleRenameClick = () => {
     if (!canChangeGroupInfo(conversation, currentUserId || '')) {
-      showWarningToast(t('chat.restricted.cannotRename'))
+      showWarningToast(tg.restricted.cannotRename)
       return
     }
     onRenameClick()
@@ -55,7 +55,7 @@ export function GroupInfoOverviewStep({
 
   const handleAvatarClick = () => {
     if (!canChangeGroupInfo(conversation, currentUserId || '')) {
-      showWarningToast(t('chat.restricted.cannotChangeAvatar'))
+      showWarningToast(tg.restricted.cannotChangeAvatar)
       return
     }
     onAvatarClick()

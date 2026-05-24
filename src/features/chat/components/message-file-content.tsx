@@ -15,7 +15,7 @@ export function getExtColor(ext: string): string {
   if (['DOC', 'DOCX'].includes(ext)) return 'bg-blue-600'
   if (['XLS', 'XLSX'].includes(ext)) return 'bg-green-600'
   if (['PPT', 'PPTX'].includes(ext)) return 'bg-orange-500'
-  if (['ZIP', 'RAR', '7Z'].includes(ext)) return 'bg-purple-600'
+  if (['ZIP', 'RAR', '7Z'].includes(ext)) return 'bg-blue-700'
   return 'bg-primary'
 }
 
@@ -85,7 +85,7 @@ export function MessageFileContent({ message }: { message: MessageResponse }) {
   )
 }
 
-function FilePreviewModal({
+export function FilePreviewModal({
   url,
   fileName,
   fileUrl,

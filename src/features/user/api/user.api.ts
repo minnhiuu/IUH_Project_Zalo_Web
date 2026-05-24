@@ -1,4 +1,4 @@
-import type { UserResponse, UserUpdateRequest, UserImageResponse } from '@/features/user/schemas/user.schema'
+import type { UserResponse, UserUpdateRequest, UserImageResponse, UserSummaryResponse } from '@/features/user/schemas/user.schema'
 import type { AuditLog } from '@/features/user/schemas/audit-log.schema'
 import http from '@/lib/axios-client'
 import type { ApiResponse, PageResponse } from '@/shared/api'
@@ -16,6 +16,7 @@ export const userApi = {
 
   getUserById: (id: string) => http.get<ApiResponse<UserResponse>>(`/users/${id}`),
   getAuthorProfileById: (id: string) => http.get<ApiResponse<UserResponse>>(`/users/${id}`),
+  getUsersByIds: (userIds: string[]) => http.post<ApiResponse<Record<string, UserSummaryResponse>>>('/users/batch', userIds),
 
   // Audit Logs
   getMyAuditLogs: (params?: { page?: number; size?: number }) =>

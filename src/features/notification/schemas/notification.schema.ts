@@ -3,10 +3,20 @@ import { NotificationType } from '@/constants'
 
 export const NotificationGroupResponseSchema = z.object({
   id: z.string(),
-  type: z.enum(NotificationType),
+  type: z.nativeEnum(NotificationType),
   referenceId: z.string().nullable(),
   title: z.string(),
   body: z.string(),
+  translations: z
+    .record(
+      z.string(),
+      z.object({
+        title: z.string(),
+        body: z.string()
+      })
+    )
+    .optional(),
+  silent: z.boolean().optional(),
   actorIds: z.array(z.string()),
   actorCount: z.number(),
   read: z.boolean(),
@@ -31,7 +41,9 @@ export type NotificationHistoryResponse = z.infer<typeof NotificationHistoryResp
 
 export const UserNotificationStateResponseSchema = z.object({
   unreadCount: z.number(),
-  lastCheckedAt: z.string().nullable()
+  notificationUnreadCount: z.number().optional(),
+  chatUnreadConversationCount: z.number().optional(),
+  notificationBadgeCount: z.number()
 })
 
 export type UserNotificationStateResponse = z.infer<typeof UserNotificationStateResponseSchema>
@@ -42,3 +54,11 @@ export const NotificationFlatHistoryResponseSchema = z.object({
 })
 
 export type NotificationFlatHistoryResponse = z.infer<typeof NotificationFlatHistoryResponseSchema>
+
+export interface NotificationCleanupData {
+  action: 'DELETE'
+  referenceId: string
+  type: NotificationType
+}
+
+export type NotificationSocketMessage = NotificationGroupResponse | NotificationCleanupData

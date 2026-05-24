@@ -246,7 +246,9 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     deleteAction: t(CHAT_KEYS.disbanded.deleteAction)
   },
   restricted: {
-    onlyAdminCanSend: t(CHAT_KEYS.restricted.onlyAdminCanSend)
+    onlyAdminCanSend: t(CHAT_KEYS.restricted.onlyAdminCanSend),
+    cannotRename: t(CHAT_KEYS.restricted.cannotRename),
+    cannotChangeAvatar: t(CHAT_KEYS.restricted.cannotChangeAvatar)
   },
   'rename-group-dialog': {
     title: t(CHAT_KEYS['rename-group-dialog'].title),
@@ -374,7 +376,8 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     leaveGroupError: t(CHAT_KEYS.toasts.leaveGroupError),
     blockSuccess: t(CHAT_KEYS.toasts.blockSuccess),
     unblockSuccess: t(CHAT_KEYS.toasts.unblockSuccess),
-    noBlockCandidates: t(CHAT_KEYS.toasts.noBlockCandidates)
+    noBlockCandidates: t(CHAT_KEYS.toasts.noBlockCandidates),
+    transferOwnerSuccess: t(CHAT_KEYS.toasts.transferOwnerSuccess)
   },
   sidebarInfo: {
     title: t(CHAT_KEYS.sidebarInfo.title),

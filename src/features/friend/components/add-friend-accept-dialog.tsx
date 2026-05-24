@@ -28,7 +28,7 @@ export function AddFriendAcceptDialog({
   const acceptRequestMutation = useAcceptFriendRequest()
 
   const handleAccept = () => {
-    acceptRequestMutation.mutate(friendshipId, {
+    acceptRequestMutation.mutate({ requestId: friendshipId }, {
       onSuccess: () => {
         showSuccessToast(text.toast.acceptSuccess)
         onOpenChange(false)

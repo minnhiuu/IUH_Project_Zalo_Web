@@ -8,6 +8,7 @@ import { fileApi } from '../../../api/file.api'
 import { useSocialText } from '../../../i18n/use-social-text'
 import type { VisibilityType } from '../../composer/visibility-dropdown'
 import type { TrackDisplay } from '../types'
+import { extractHashtags } from '@/utils/hashtag'
 
 export interface StoryComposerState {
   // ─── Profile ──────────────────────────────────────────────────────────────
@@ -50,7 +51,7 @@ export interface StoryComposerState {
   handleToggleMusicMute: () => void
 
   // ─── Submit ───────────────────────────────────────────────────────────────
-  handlePost: () => Promise<void>
+  handlePost: () => Promise<boolean>
   isPending: boolean
 }
 
@@ -114,6 +115,7 @@ export function useStoryComposer(open: boolean): StoryComposerState {
     if (!open) {
       if (mediaPreviewUrl) URL.revokeObjectURL(mediaPreviewUrl)
       audioRef.current?.pause()
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setMediaFile(null)
       setMediaType(null)
       setMediaPreviewUrl(null)
@@ -130,6 +132,7 @@ export function useStoryComposer(open: boolean): StoryComposerState {
   useEffect(() => {
     if (!showMusicPicker) {
       audioRef.current?.pause()
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPlayingTrackId(null)
     }
   }, [showMusicPicker])
@@ -195,15 +198,20 @@ export function useStoryComposer(open: boolean): StoryComposerState {
     setIsMusicMuted((prev) => !prev)
   }
 
-  const handlePost = async () => {
-    if (!mediaFile) return
+  const handlePost = async (): Promise<boolean> => {
+    if (!mediaFile) return false
     try {
       const response = await fileApi.upload(mediaFile)
       const key = response.data.data.key
+      
+      const trimmedCaption = caption.trim()
+      const hashtags = extractHashtags(trimmedCaption)
+      
       await createPost({
         postType: 'STORY',
         visibility,
-        caption: caption.trim() || undefined,
+        caption: trimmedCaption || undefined,
+        hashtags: hashtags.length > 0 ? hashtags : undefined,
         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
         music: selectedTrack
           ? {
@@ -219,8 +227,10 @@ export function useStoryComposer(open: boolean): StoryComposerState {
         media: [{ url: key, type: mediaType! }]
       })
       toast.success(text.storyComposer.successToast)
+      return true
     } catch {
       toast.error(text.storyComposer.errorToast)
+      return false
     }
   }
 

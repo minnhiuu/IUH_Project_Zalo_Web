@@ -26,5 +26,6 @@ export const chatKeys = {
     [...chatKeys.all(), 'seen-members', conversationId, messageId] as const,
   unreadAnchor: (conversationId: string) => [...chatKeys.all(), 'unread-anchor', conversationId] as const,
   conversationParticipants: (conversationId: string, query: string) =>
-    [...chatKeys.all(), 'conversation-participants', conversationId, query] as const
+    [...chatKeys.all(), 'conversation-participants', conversationId, query] as const,
+  quickConversations: (size: number) => [...chatKeys.conversations(), 'quick', size] as const
 }

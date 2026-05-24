@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import { Sparkles } from 'lucide-react'
+import { useState, useMemo } from 'react'
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel'
 import { useMyProfile } from '@/features/user/queries/use-queries'
 import { useSocialText } from '../../i18n/use-social-text'
@@ -28,6 +27,12 @@ export interface SocialStory {
     duration?: number | null
     albumName?: string | null
   } | null
+  stats?: {
+    viewCount?: number
+    reactionCount?: number
+    topReactions?: string[]
+  } | null
+  currentUserReaction?: string | null
 }
 
 /** All stories from a single user, grouped together. */
@@ -36,6 +41,7 @@ export interface StoryGroup {
   authorName: string
   authorAvatar?: string | null
   stories: SocialStory[]
+  hasUnviewedStories?: boolean
 }
 
 interface StoriesStripProps {
@@ -53,28 +59,28 @@ export function StoriesStrip({ stories, isLoading = false }: StoriesStripProps) 
   const currentUserName = myProfile?.fullName?.trim() || text.composer.me
   const currentUserAvatar = myProfile?.avatar || undefined
 
+  const sortedStories = useMemo(() => {
+    if (!myProfile?.id || !stories) return stories
+    const myGroup = stories.find((g) => g.authorId === myProfile.id)
+    const others = stories.filter((g) => g.authorId !== myProfile.id)
+    if (myGroup) {
+      return [myGroup, ...others]
+    }
+    return stories
+  }, [stories, myProfile])
+
   return (
-    <section className='relative overflow-hidden rounded-[28px] border border-zinc-200/60 bg-white/60 p-5 shadow-sm backdrop-blur-xl transition-all duration-500 hover:border-zinc-300/60 hover:shadow-md dark:border-white/5 dark:bg-zinc-950/40 dark:hover:border-white/10'>
-      <div className='mb-5 flex items-center justify-between px-2'>
-        <div className='flex items-center gap-2.5'>
-          <div className='flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 text-indigo-600 ring-1 ring-indigo-500/20 dark:from-indigo-500/30 dark:to-purple-500/30 dark:text-indigo-400'>
-            <Sparkles className='h-4.5 w-4.5' />
-          </div>
-          <h3 className='text-[15px] font-semibold tracking-tight text-zinc-900 dark:text-zinc-100'>
-            {text.stories.title}
-          </h3>
-        </div>
-      </div>
+    <section className='relative overflow-hidden w-full'>
 
       {isLoading ? (
-        <div className='flex gap-3 overflow-hidden pb-1 px-1'>
+        <div className='flex gap-2 overflow-hidden pb-1'>
           {Array.from({ length: 6 }).map((_, index) => (
             <StorySkeleton key={index} />
           ))}
         </div>
       ) : (
-        <Carousel opts={{ align: 'start' }} className='w-full px-2'>
-          <CarouselContent className='ml-0 gap-3'>
+        <Carousel opts={{ align: 'start' }} className='w-full'>
+          <CarouselContent className='ml-0 gap-3 pb-4'>
             {/* Create card always first */}
             <CarouselItem className='basis-auto pl-0'>
               <StoryCreateCard
@@ -86,31 +92,41 @@ export function StoriesStrip({ stories, isLoading = false }: StoriesStripProps) 
             </CarouselItem>
 
             {/* One card per user group */}
-            {stories.map((group, index) => (
-              <CarouselItem key={group.authorId} className='basis-auto pl-0'>
-                <StoryCard
-                  authorName={group.authorName}
-                  authorAvatar={group.authorAvatar}
-                  mediaUrl={group.stories[0]?.mediaUrl}
-                  mediaType={group.stories[0]?.mediaType}
-                  caption={group.stories[0]?.caption}
-                  mediaAlt={text.stories.itemAlt(group.authorName)}
-                  onClick={() => {
-                    setSelectedGroupIndex(index)
-                    setIsViewerOpen(true)
-                  }}
-                />
-              </CarouselItem>
-            ))}
+            {sortedStories.map((group, index) => {
+              const isMyStory = group.authorId === myProfile?.id
+              return (
+                <CarouselItem key={group.authorId} className='basis-auto pl-0'>
+                  <StoryCard
+                    authorId={group.authorId}
+                    authorName={group.authorName}
+                    displayName={isMyStory ? 'Your Story' : group.authorName}
+                    authorAvatar={group.authorAvatar}
+                    mediaUrl={group.stories[0]?.mediaUrl}
+                    mediaType={group.stories[0]?.mediaType}
+                    caption={group.stories[0]?.caption}
+                    mediaAlt={text.stories.itemAlt(group.authorName)}
+                    hasUnviewedStories={group.hasUnviewedStories}
+                    onClick={() => {
+                      setSelectedGroupIndex(index)
+                      setIsViewerOpen(true)
+                    }}
+                  />
+                </CarouselItem>
+              )
+            })}
           </CarouselContent>
 
-          <CarouselPrevious className='-left-3 h-11 w-11 rounded-full border border-zinc-200/80 bg-white/95 text-zinc-700 shadow-lg backdrop-blur-md transition-all hover:scale-105 hover:bg-zinc-50 hover:text-zinc-900 dark:border-white/10 dark:bg-zinc-900/95 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white' />
-          <CarouselNext className='-right-3 h-11 w-11 rounded-full border border-zinc-200/80 bg-white/95 text-zinc-700 shadow-lg backdrop-blur-md transition-all hover:scale-105 hover:bg-zinc-50 hover:text-zinc-900 dark:border-white/10 dark:bg-zinc-900/95 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white' />
+            {sortedStories.length > 0 && (
+            <>
+              <CarouselPrevious className='left-2 h-11 w-11 rounded-full border border-zinc-200/80 bg-white/95 text-zinc-700 shadow-lg backdrop-blur-md transition-all hover:scale-105 hover:bg-zinc-50 hover:text-zinc-900 disabled:hidden dark:border-white/10 dark:bg-zinc-900/95 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white' />
+              <CarouselNext className='right-2 h-11 w-11 rounded-full border border-zinc-200/80 bg-white/95 text-zinc-700 shadow-lg backdrop-blur-md transition-all hover:scale-105 hover:bg-zinc-50 hover:text-zinc-900 disabled:hidden dark:border-white/10 dark:bg-zinc-900/95 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white' />
+            </>
+          )}
         </Carousel>
       )}
 
       <StoryViewerModal
-        groups={stories}
+        groups={sortedStories}
         open={isViewerOpen}
         initialGroupIndex={selectedGroupIndex}
         onOpenChange={setIsViewerOpen}

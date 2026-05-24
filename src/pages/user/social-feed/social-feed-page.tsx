@@ -2,14 +2,11 @@ import { useEffect, useMemo, useState, useRef } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { Loader2, ArrowUp } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router'
-import ReelsPage from '@/pages/user/reels/reels-page'
 import {
   PostCard,
-  SocialSidebar,
   PostComposerLauncher,
   StoriesStrip,
   SuggestedFriendsSidebar,
-  SocialFeedHeader,
   useInfiniteSocialFeedPosts,
   useSocialStories
 } from '@/features/social-feed'
@@ -48,11 +45,9 @@ function PostCardSkeleton() {
 
 export default function SocialFeedPage() {
   const { text } = useSocialText()
-  const [query, setQuery] = useState('')
   const location = useLocation()
   const navigate = useNavigate()
   const searchParams = new URLSearchParams(location.search)
-  const isReels = searchParams.get('tab') === 'reels'
   const postIdParam = searchParams.get('postId')
   const [detailPostId, setDetailPostId] = useState<string | null>(postIdParam)
   const { data: detailPost } = usePostById(detailPostId ?? '')
@@ -97,96 +92,85 @@ export default function SocialFeedPage() {
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage])
 
-  const filteredPosts = useMemo(() => {
-    const normalized = query.trim().toLowerCase()
-    if (!normalized) {
-      return posts
-    }
-
-    return posts.filter((post) => {
-      return post.authorName.toLowerCase().includes(normalized) || post.content.toLowerCase().includes(normalized)
-    })
-  }, [posts, query])
+  const filteredPosts = posts
 
   return (
-    <section
-      ref={scrollContainerRef}
-      onScroll={handleScrollObject}
-      className={`custom-scrollbar flex flex-col h-[100dvh] w-full bg-zinc-50/50 dark:bg-zinc-950/50 ${isReels ? 'overflow-hidden' : 'overflow-y-auto'}`}
-    >
-      <SocialFeedHeader query={query} onQueryChange={setQuery} placeholder={text.search.placeholder} />
+    <div className='flex w-full h-full overflow-hidden bg-[#f0f2f5] dark:bg-background'>
+      {/* Main Content Area */}
+      <section
+        ref={scrollContainerRef}
+        onScroll={handleScrollObject}
+        className='flex-1 flex flex-col h-full overflow-hidden relative'
+      >
+        {/* Subtle Mesh Gradients */}
+        <div className='absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 blur-[120px] rounded-full pointer-events-none' />
+        <div className='absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-sky-400/5 blur-[120px] rounded-full pointer-events-none' />
 
-      {isReels ? (
-        <ReelsPage query={query} />
-      ) : (
-        <div className='mx-auto flex w-full max-w-7xl items-start justify-center gap-6 px-4 pb-8 md:px-8 lg:gap-8 pt-6'>
-          {/* Left Sidebar */}
-          <div className='sticky top-24 self-start'>
-            <SocialSidebar />
-          </div>
+        <div className='flex-1 overflow-y-auto custom-scrollbar relative z-10'>
+          <div className='mx-auto flex w-full max-w-[1100px] justify-center gap-10 px-4 py-8 lg:py-10'>
+            {/* Center: Main Feed */}
+            <div className='flex min-w-0 w-full max-w-[680px] flex-col space-y-7 pb-[120px]'>
+              {/* Post Composer */}
+              <PostComposerLauncher />
 
-          {/* Center: Main Feed */}
-          <div className='mx-auto flex min-w-0 w-full max-w-180 flex-1 flex-col space-y-6 pt-4 pb-10'>
-            {/* Post Composer */}
-            <PostComposerLauncher />
+              {/* Stories */}
+              <StoriesStrip stories={stories} isLoading={isStoriesLoading} />
 
-            {/* Stories */}
-            <StoriesStrip stories={stories} isLoading={isStoriesLoading} />
-
-            {/* Feed List */}
-            <div className='flex flex-col space-y-6'>
-              {isLoading ? (
-                Array.from({ length: 3 }).map((_, index) => <PostCardSkeleton key={index} />)
-              ) : isError ? (
-                <div className='rounded-2xl border border-dashed border-red-300 bg-red-50/70 px-5 py-10 text-center text-[14px] font-medium text-red-700 dark:border-red-500/40 dark:bg-red-950/30 dark:text-red-300'>
-                  <p className='mb-4'>Failed to load posts.</p>
-                  <Button variant='outline' onClick={() => refetch()}>
-                    Retry
-                  </Button>
-                </div>
-              ) : filteredPosts.length > 0 ? (
-                <>
-                  {filteredPosts.map((post) => (
-                    <PostCard key={post.id} post={post} />
-                  ))}
-                  <div ref={ref} className='flex py-6 justify-center text-zinc-500 dark:text-zinc-400'>
-                    {isFetchingNextPage && (
-                      <div className='flex items-center gap-2 text-[14px] font-medium'>
-                        <Loader2 className='h-4 w-4 animate-spin' />{' '}
-                        {text.commentsModal.loadingComments || 'Loading...'}
-                      </div>
-                    )}
+              {/* Feed List */}
+              <div className='flex flex-col space-y-6'>
+                {isLoading ? (
+                  Array.from({ length: 3 }).map((_, index) => <PostCardSkeleton key={index} />)
+                ) : isError ? (
+                  <div className='rounded-2xl border border-dashed border-red-300 bg-red-50/70 px-5 py-10 text-center text-[14px] font-medium text-red-700 dark:border-red-500/40 dark:bg-red-950/30 dark:text-red-300'>
+                    <p className='mb-4'>Failed to load posts.</p>
+                    <Button variant='outline' onClick={() => refetch()}>
+                      Retry
+                    </Button>
                   </div>
-                </>
-              ) : (
-                <div className='rounded-2xl border border-dashed border-zinc-300 bg-white/80 px-5 py-10 text-center text-[14px] font-medium text-zinc-500 dark:border-white/10 dark:bg-zinc-950/50 dark:text-zinc-400'>
-                  {text.search.noResults}
-                </div>
-              )}
+                ) : filteredPosts.length > 0 ? (
+                  <>
+                    {filteredPosts.map((post) => (
+                      <PostCard key={post.id} post={post} />
+                    ))}
+                    <div ref={ref} className='flex py-6 justify-center text-zinc-500 dark:text-zinc-400'>
+                      {isFetchingNextPage && (
+                        <div className='flex items-center gap-2 text-[14px] font-medium'>
+                          <Loader2 className='h-4 w-4 animate-spin' />{' '}
+                          {text.commentsModal.loadingComments || 'Loading...'}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <div className='rounded-2xl border border-dashed border-zinc-300 bg-white/80 px-5 py-10 text-center text-[14px] font-medium text-zinc-500 dark:border-white/10 dark:bg-zinc-950/50 dark:text-zinc-400'>
+                    {text.search.noResults}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Right Sidebar: Suggestions */}
+            <div className='hidden xl:block w-[320px] shrink-0 sticky top-0 self-start space-y-8'>
+              <SuggestedFriendsSidebar />
             </div>
           </div>
-
-          {/* Right Sidebar */}
-          <div className='sticky top-24 self-start'>
-            <SuggestedFriendsSidebar />
-          </div>
         </div>
-      )}
 
-      {/* Floating Scroll to Top */}
-      {showScrollTop && !isReels && (
-        <button
-          onClick={scrollToTop}
-          className='pointer-events-auto fixed bottom-[6rem] right-6 md:right-8 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-indigo-500 text-white shadow-xl shadow-indigo-500/20 backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-indigo-600 hover:shadow-2xl active:scale-95'
-          aria-label='Scroll to top'
-        >
-          <ArrowUp className='h-5 w-5' />
-        </button>
-      )}
+        {/* Floating Scroll to Top */}
+        {showScrollTop && (
+          <button
+            onClick={scrollToTop}
+            className='pointer-events-auto fixed bottom-8 right-8 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white shadow-xl shadow-primary/20 backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-primary/90 hover:shadow-2xl active:scale-95'
+            aria-label='Scroll to top'
+          >
+            <ArrowUp className='h-5 w-5' />
+          </button>
+        )}
 
-      {detailPostId && detailPost && (
-        <PostMediaModal open={!!detailPostId} onOpenChange={handleDetailClose} post={detailPost} />
-      )}
-    </section>
+        {detailPostId && detailPost && (
+          <PostMediaModal open={!!detailPostId} onOpenChange={handleDetailClose} post={detailPost} />
+        )}
+      </section>
+    </div>
   )
 }

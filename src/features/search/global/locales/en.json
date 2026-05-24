@@ -1,0 +1,57 @@
+{
+  "globalSearch": {
+    "title": "Search",
+    "placeholder": "Search",
+    "close": "Close",
+    "tabs": {
+      "all": "All",
+      "contacts": "Contacts",
+      "messages": "Messages",
+      "files": "Files"
+    },
+    "sections": {
+      "contacts": "Contacts",
+      "messages": "Messages",
+      "files": "Files",
+      "recent": "Recent Searches",
+      "people": "People",
+      "groups": "Groups"
+    },
+    "actions": {
+      "viewAll": "View all",
+      "viewAllMessages": "See all messages",
+      "viewAllFiles": "See all files",
+      "viewAllContacts": "See all contacts",
+      "viewAllPeople": "See all people",
+      "viewAllGroups": "See all groups",
+      "clearAll": "Clear all"
+    },
+    "filters": {
+      "label": "Filters:",
+      "sender": "Sender",
+      "time": "Time",
+      "all": "All",
+      "you": "You",
+      "timeSuggestion": "Time suggestion",
+      "last7Days": "Last 7 days",
+      "last30Days": "Last 30 days",
+      "last3Months": "Last 3 months",
+      "chooseTimeRange": "Choose time range",
+      "fromDate": "From date",
+      "toDate": "To date",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "type": "Type"
+    },
+    "states": {
+      "empty": "No results found",
+      "noRecent": "No recent search history",
+      "loading": "Searching...",
+      "developing": "Developing detail view for {{tab}} tab..."
+    },
+    "contactTypes": {
+      "friend": "Friend",
+      "members": "{{count}} members"
+    }
+  }
+}
