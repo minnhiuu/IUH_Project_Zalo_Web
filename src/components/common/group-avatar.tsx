@@ -10,6 +10,8 @@ interface GroupAvatarProps {
 }
 
 export function GroupAvatar({ avatars, names, count, size = 'md', className }: GroupAvatarProps) {
+  const avatarClassName = 'w-full h-full border border-background'
+
   const sizeClasses = {
     xs: 'w-6 h-6',
     sm: 'w-8 h-8',
@@ -35,7 +37,7 @@ export function GroupAvatar({ avatars, names, count, size = 'md', className }: G
             <span className='font-semibold leading-none text-[10px]'>1</span>
           </div>
           <div className='absolute bottom-0 left-0 w-[60%] h-[60%]'>
-            <UserAvatar src={avatars[0]} name={names[0] || '?'} className='w-full h-full border border-background' />
+            <UserAvatar src={avatars[0]} name={names[0] || '?'} className={avatarClassName} />
           </div>
         </div>
       )
@@ -46,10 +48,10 @@ export function GroupAvatar({ avatars, names, count, size = 'md', className }: G
       return (
         <div className='relative w-full h-full'>
           <div className='absolute top-0 right-0 w-[60%] h-[60%]'>
-            <UserAvatar src={avatars[0]} name={names[0] || '?'} className='w-full h-full border border-background' />
+            <UserAvatar src={avatars[0]} name={names[0] || '?'} className={avatarClassName} />
           </div>
           <div className='absolute bottom-0 left-0 w-[60%] h-[60%]'>
-            <UserAvatar src={avatars[1]} name={names[1] || '?'} className='w-full h-full border border-background' />
+            <UserAvatar src={avatars[1]} name={names[1] || '?'} className={avatarClassName} />
           </div>
         </div>
       )
@@ -60,13 +62,13 @@ export function GroupAvatar({ avatars, names, count, size = 'md', className }: G
       return (
         <div className='relative w-full h-full'>
           <div className='absolute top-0 left-1/2 -translate-x-1/2 w-[55%] h-[55%]'>
-            <UserAvatar src={avatars[0]} name={names[0] || '?'} className='w-full h-full border border-background' />
+            <UserAvatar src={avatars[0]} name={names[0] || '?'} className={avatarClassName} />
           </div>
           <div className='absolute bottom-0 left-0 w-[55%] h-[55%]'>
-            <UserAvatar src={avatars[1]} name={names[1] || '?'} className='w-full h-full border border-background' />
+            <UserAvatar src={avatars[1]} name={names[1] || '?'} className={avatarClassName} />
           </div>
           <div className='absolute bottom-0 right-0 w-[55%] h-[55%]'>
-            <UserAvatar src={avatars[2]} name={names[2] || '?'} className='w-full h-full border border-background' />
+            <UserAvatar src={avatars[2]} name={names[2] || '?'} className={avatarClassName} />
           </div>
         </div>
       )
@@ -77,12 +79,11 @@ export function GroupAvatar({ avatars, names, count, size = 'md', className }: G
     return (
       <div className={cn('grid grid-cols-2 grid-rows-2 w-full h-full p-0 gap-0', size !== 'sm' && 'p-0.5 gap-0.5')}>
         {displayAvatars.map((url, i) => (
-          <div key={i} className='w-full h-full overflow-hidden flex items-center justify-center'>
-            <UserAvatar
-              src={url}
-              name={names[i] || '?'}
-              className={cn('w-full h-full rounded-full border border-background', innerSizeClasses[size])}
-            />
+          <div
+            key={i}
+            className={cn('w-full h-full overflow-hidden flex items-center justify-center', innerSizeClasses[size])}
+          >
+            <UserAvatar src={url} name={names[i] || '?'} className={avatarClassName} />
           </div>
         ))}
 
@@ -110,11 +111,11 @@ export function GroupAvatar({ avatars, names, count, size = 'md', className }: G
               </span>
             </div>
           ) : (
-            <UserAvatar
-              src={avatars[3]}
-              name={names[3] || '?'}
-              className={cn('w-full h-full border border-background', innerSizeClasses[size])}
-            />
+            <div
+              className={cn('w-full h-full overflow-hidden flex items-center justify-center', innerSizeClasses[size])}
+            >
+              <UserAvatar src={avatars[3]} name={names[3] || '?'} className={avatarClassName} />
+            </div>
           )}
         </div>
       </div>

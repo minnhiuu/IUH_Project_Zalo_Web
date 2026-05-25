@@ -1,5 +1,7 @@
 export const PATHS = {
   HOME: '/',
+  SOCIAL_FEED: '/social-feed',
+  REELS: '/reels',
   SEARCH: '/search',
   CONTACTS: '/contacts',
   TODO: '/todo',
@@ -8,6 +10,7 @@ export const PATHS = {
   BUSINESS: '/business',
 
   CHAT: {
+    ROOT: '/chat',
     CONVERSATION: '/chat/c/:id',
     USER: '/chat/u/:id'
   },
@@ -22,13 +25,19 @@ export const PATHS = {
 
   USER: {
     PROFILE: '/profile',
+    OTHER_PROFILE: '/profile/:userId',
     SETTINGS: '/settings'
   },
 
   ADMIN: {
     DASHBOARD: '/admin',
     USERS: '/admin/users',
+    SEEDING: '/admin/seeding',
+    REPORTS: '/admin/reports',
+    REPORT_DETAIL: '/admin/reports/:targetType/:targetId',
     ELASTICSEARCH: '/admin/elasticsearch',
-    FAILED_EVENTS: '/admin/elasticsearch/failed-events'
+    FAILED_EVENTS: '/admin/elasticsearch/failed-events',
+    INGEST_DOCUMENT: '/admin/ingest-document',
+    VECTOR_STORE: '/admin/vector-store'
   }
 } as const

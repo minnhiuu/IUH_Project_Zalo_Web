@@ -36,7 +36,6 @@ export function GroupInfoDialog({
   const { text } = useChatText()
   const tg = text['group-info-dialog']
   const [step, setStep] = useState<Step>(initialStep)
-  const [sourceStep, setSourceStep] = useState<Step>('info')
   const [isLeaveGroupDialogOpen, setIsLeaveGroupDialogOpen] = useState(false)
 
   // Track previous open state to detect when the panel is opened
@@ -47,7 +46,6 @@ export function GroupInfoDialog({
     setPrevOpen(open)
     if (open) {
       setStep(initialStep)
-      setSourceStep('info')
     }
   }
 
@@ -55,12 +53,10 @@ export function GroupInfoDialog({
     onOpenChange(false)
     setTimeout(() => {
       setStep('info')
-      setSourceStep('info')
     }, 200)
   }
 
   const navigateTo = (newStep: Step) => {
-    setSourceStep(step)
     setStep(newStep)
   }
 
@@ -86,7 +82,7 @@ export function GroupInfoDialog({
             <button
               onClick={() => {
                 if (step === 'blocked' || step === 'admins') {
-                  setStep(sourceStep === 'management' ? 'management' : 'members')
+                  setStep('management')
                 } else {
                   setStep('info')
                 }
@@ -101,7 +97,7 @@ export function GroupInfoDialog({
             {step === 'management'
               ? tg.managementTitle
               : step === 'blocked'
-                ? tg.blockedMembersTitle || tg.actions.removeMembers
+                ? tg.actions.removeMembers
                 : step === 'admins'
                   ? tg.actions.ownerAndDeputy
                   : step === 'members'
@@ -206,8 +202,6 @@ export function GroupInfoDialog({
                       // Handle member click if needed
                     }
                   }}
-                  onGoToAdmins={() => navigateTo('admins')}
-                  onGoToBlocked={() => navigateTo('blocked')}
                 />
               </motion.div>
             ) : (

@@ -35,7 +35,7 @@ export function OwnerProfileDialog({ open, onOpenChange }: OwnerProfileDialogPro
       onOpenChange={handleOpenChange}
       title={isEditing ? text.profile.editTitle : text.profile.title}
       onBack={isEditing ? () => setIsEditing(false) : undefined}
-      className={isEditing ? 'h-140' : 'h-145'}
+      className={isEditing ? 'h-140' : 'h-160'}
     >
       <AnimatePresence initial={false} mode='wait'>
         {!isEditing ? (

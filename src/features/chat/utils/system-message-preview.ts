@@ -1,6 +1,7 @@
 import type { TFunction } from 'i18next'
 import type { ConversationMemberResponse } from '../schemas/chat.schema'
 import { getSystemMessageLabel, type SystemMetadata } from './system-message'
+import { buildGroupLinkUrl } from './group-link'
 
 export interface SystemMessagePreviewDisplay {
   text: string
@@ -116,10 +117,12 @@ export function getSystemMessagePreview(
     const normalizedCurrentUserId = String(currentUserId || '')
     const targetId = normalizedTargetIds[0]
     const payloadTargetName = typeof payload?.targetName === 'string' ? String(payload.targetName) : undefined
+    const payloadTargetNames = Array.isArray(payload?.targetNames) ? payload?.targetNames.map(String) : []
+    const payloadTargetNameFromList = payloadTargetNames[0]
     const targetName =
       targetId === normalizedCurrentUserId
         ? String(translate('chat.you'))
-        : (memberNameById.get(String(targetId)) ?? payloadTargetName ?? fallbackUserLabel)
+        : (memberNameById.get(String(targetId)) ?? payloadTargetName ?? payloadTargetNameFromList ?? fallbackUserLabel)
     const actorName = memberNameById.get(String(senderId)) || senderName || fallbackUserLabel
 
     if (targetId && targetId === normalizedCurrentUserId) {
@@ -217,9 +220,13 @@ export function getSystemMessagePreview(
 
   if (action === 'GENERATE_JOIN_LINK' || action === 'REFRESH_JOIN_LINK') {
     const token = typeof payload?.token === 'string' ? payload.token : undefined
-    const linkUrl = token ? `${window.location.origin}/g/${token}` : ''
+    const linkUrl = token ? buildGroupLinkUrl(token) : ''
     const label = translate('chat.system.join_link.label') as string
     return linkUrl ? `${label}: ${linkUrl}` : label
+  }
+
+  if (action === 'DISABLE_JOIN_LINK') {
+    return translate('chat.system.join_link.label') as string
   }
 
   if (action === 'PROMOTE_ADMIN') {
@@ -346,6 +353,15 @@ export function getSystemMessagePreview(
 
   if (action === 'JOIN_REQUEST_REJECTED') {
     return translate('chat.system.join_request_rejected.self') as string
+  }
+
+  if (action === 'UPDATE_EXPIRATION') {
+    const actorName = memberNameById.get(String(senderId)) || senderName || fallbackUserLabel
+    const days = (payload?.days as number) || 0
+    if (days === 0) {
+      return `${actorName} ${translate('chat.system.update_expiration.off')}`
+    }
+    return `${actorName} ${translate('chat.system.update_expiration.on', { days })}`
   }
 
   // Fallback to standard labels for other cases

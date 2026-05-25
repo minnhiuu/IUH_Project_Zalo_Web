@@ -64,7 +64,7 @@ export function FriendSuggestionCard({
         break
       case 'accept':
         if (friendshipStatus?.friendshipId) {
-          acceptRequestMutation.mutate(friendshipStatus.friendshipId)
+          acceptRequestMutation.mutate({ requestId: friendshipStatus.friendshipId })
         }
         break
       case 'recall':
@@ -98,7 +98,11 @@ export function FriendSuggestionCard({
     // Priority: contact > mutual friends > shared groups
     if (hasContact) return { label: text.source.phoneContact, color: 'bg-badge-emerald-bg text-badge-emerald-text' }
     if (hasMutualFriends) return { label: text.source.friendSuggestion, color: 'bg-badge-blue-bg text-badge-blue-text' }
-    if (hasGroups) return { label: text.source.mutualGroups(suggestion.sharedGroupsCount!), color: 'bg-badge-violet-bg text-badge-violet-text' }
+    if (hasGroups)
+      return {
+        label: text.source.mutualGroups(suggestion.sharedGroupsCount!),
+        color: 'bg-badge-violet-bg text-badge-violet-text'
+      }
     return null
   }
 
@@ -121,7 +125,9 @@ export function FriendSuggestionCard({
           </h4>
           {mutualText && <p className='text-[13px] text-muted-foreground'>{mutualText}</p>}
           {suggestionSource && (
-            <span className={`inline-block text-[11px] font-medium px-2 py-0.5 rounded-full mt-1 ${suggestionSource.color}`}>
+            <span
+              className={`inline-block text-[11px] font-medium px-2 py-0.5 rounded-full mt-1 ${suggestionSource.color}`}
+            >
               {suggestionSource.label}
             </span>
           )}

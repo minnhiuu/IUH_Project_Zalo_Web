@@ -11,14 +11,18 @@ export function resolveRemoveMemberAction(context: ActionContext): ActionResolve
   const targetId = normalizedTargetIds[0]
   const isTargetMe = targetId === normalizedCurrentUserId
   const isActorMe = String(senderId) === String(currentUserId)
-  const fallbackUserLabel = String(translate('chat.user'))
+  const fallbackUserLabel = 'thành viên'
   const memberNameById = new Map(members.map((m) => [String(m.userId), m.fullName]))
   const payloadTargetName =
     typeof context.metadata?.payload?.targetName === 'string' ? String(context.metadata.payload.targetName) : undefined
+  const payloadTargetNames = Array.isArray(context.metadata?.payload?.targetNames)
+    ? (context.metadata?.payload?.targetNames as unknown[]).map(String)
+    : []
+  const payloadTargetNameFromList = payloadTargetNames[0]
   const targetMemberName = memberNameById.get(String(targetId))
   const targetName = isTargetMe
     ? String(translate('chat.you'))
-    : (targetMemberName ?? payloadTargetName ?? fallbackUserLabel)
+    : (targetMemberName ?? payloadTargetName ?? payloadTargetNameFromList ?? fallbackUserLabel)
   const clickableTargetIds = targetId ? [targetId] : undefined
 
   if (isTargetMe) {

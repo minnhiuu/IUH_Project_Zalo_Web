@@ -8,13 +8,14 @@ import { OthersProfileDialog } from '@/features/user'
 import { getSystemMessageLabel, type SystemMetadata } from './system-message-label'
 import { PromoteAdminCard } from '../components/group/cards/promote-admin-card'
 import { OwnerCard } from '../components/group/cards/owner-card'
-import { Key, X, Link2 } from 'lucide-react'
+import { Key, X, Link2, Moon } from 'lucide-react'
 import { showSimpleToast } from '@/utils/toast'
 import { ForwardDialog } from '../components/forward-dialog'
 import { useChatContext } from '../context/chat-context'
 import { JoinRequestApprovalDialog } from '../components/group/dialogs/join-request-approval-dialog'
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import { UserAvatar } from '@/components/common/user-avatar'
 import { stripMentionsForPreview } from './mention'
+import { buildGroupLinkUrl } from './group-link'
 
 export { getSystemMessageLabel } from './system-message-label'
 export type { SystemActionType, SystemMetadata } from './system-message-label'
@@ -90,19 +91,25 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
       }))
     } else if (metadata?.action === 'REMOVE_MEMBER' && metadata.targetIds) {
       const targetAvatar = (payload?.targetAvatar as string) || null
-      const targetName = (payload?.targetName as string) || t('chat.user')
-      avatars = metadata.targetIds.map((id) => ({
-        id,
-        avatar: targetAvatar,
-        name: targetName
-      }))
+      const targetName = (payload?.targetName as string) || ''
+      const targetNames = Array.isArray(payload?.targetNames) ? payload?.targetNames.map(String) : []
+      const targetAvatars = Array.isArray(payload?.targetAvatars) ? payload?.targetAvatars.map(String) : []
+      avatars = metadata.targetIds
+        .map((id, index) => ({
+          id,
+          avatar: targetAvatars[index] || targetAvatar,
+          name: (targetNames[index] || targetName || '').trim()
+        }))
+        .filter((item) => !!item.name || !!item.avatar)
     } else if (metadata?.action === 'BLOCK_MEMBER' && metadata.targetIds) {
       const targetAvatar = (payload?.targetAvatar as string) || null
-      const targetName = (payload?.targetName as string) || t('chat.user')
-      avatars = metadata.targetIds.map((id) => ({
+      const targetName = (payload?.targetName as string) || ''
+      const targetNames = Array.isArray(payload?.targetNames) ? payload?.targetNames.map(String) : []
+      const targetAvatars = Array.isArray(payload?.targetAvatars) ? payload?.targetAvatars.map(String) : []
+      avatars = metadata.targetIds.map((id, index) => ({
         id,
-        avatar: targetAvatar,
-        name: targetName
+        avatar: targetAvatars[index] || targetAvatar,
+        name: targetNames[index] || targetName || t('chat.user')
       }))
     } else if (metadata?.action === 'BLOCKED_FROM_JOINING' && metadata.targetIds) {
       const targetAvatar = (payload?.targetAvatar as string) || null
@@ -114,11 +121,13 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
       }))
     } else if (metadata?.action === 'SELF_BLOCKED_FROM_JOINING' && metadata.targetIds) {
       const targetAvatar = (payload?.targetAvatar as string) || null
-      const targetName = (payload?.targetName as string) || t('chat.user')
-      avatars = metadata.targetIds.map((id) => ({
+      const targetName = (payload?.targetName as string) || ''
+      const targetNames = Array.isArray(payload?.targetNames) ? payload?.targetNames.map(String) : []
+      const targetAvatars = Array.isArray(payload?.targetAvatars) ? payload?.targetAvatars.map(String) : []
+      avatars = metadata.targetIds.map((id, index) => ({
         id,
-        avatar: targetAvatar,
-        name: targetName
+        avatar: targetAvatars[index] || targetAvatar,
+        name: targetNames[index] || targetName || t('chat.user')
       }))
     }
 
@@ -130,7 +139,7 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
   if (metadata?.action === 'GENERATE_JOIN_LINK' || metadata?.action === 'REFRESH_JOIN_LINK') {
     const payload = metadata?.payload as Record<string, unknown> | undefined
     const storedToken = payload?.token as string | undefined
-    const linkUrl = storedToken ? `${window.location.origin}/g/${storedToken}` : null
+    const linkUrl = storedToken ? buildGroupLinkUrl(storedToken) : null
     const isCurrentToken = storedToken && storedToken === conversation?.joinLinkToken
     const currentUserMember = conversation?.members?.find((m) => String(m.userId) === String(user?.id))
     const isAdminOrOwner = currentUserMember?.role === 'ADMIN' || currentUserMember?.role === 'OWNER'
@@ -220,12 +229,12 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
       (metadata.originalContent || metadata.contentSnapshot) ? (
         <div className='flex justify-center w-full my-2.5 px-4'>
           <div className='system-msg flex items-center gap-2 py-1.5 px-3.5 max-w-[95%]'>
-            <Avatar className='w-5 h-5 shrink-0'>
-              <AvatarImage src={String(metadata.originalSenderAvatar || '')} />
-              <AvatarFallback className='text-[10px] bg-primary/10 text-primary font-semibold'>
-                {String(metadata.originalSenderName || t('chat.user'))[0].toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
+            <UserAvatar
+              name={String(metadata.originalSenderName || t('chat.user'))}
+              src={metadata.originalSenderAvatar ? String(metadata.originalSenderAvatar) : undefined}
+              className='w-5 h-5 shrink-0'
+              fallbackClassName='text-[10px]'
+            />
             <div className='flex-1 text-[12.5px] leading-relaxed text-left flex items-center gap-1 overflow-hidden'>
               <span className='font-semibold shrink-0'>{String(metadata.originalSenderName || t('chat.user'))}</span>
               <span className='shrink-0'>
@@ -251,6 +260,9 @@ export function SystemMessage({ message, conversation }: SystemMessageProps) {
                   <Key className='system-msg-promote-icon' />
                   <X className='absolute -bottom-1 -right-1.5 w-2 h-2 system-msg-promote-icon stroke-3 mr-2' />
                 </div>
+              )}
+              {(metadata?.action === 'QUIET_MODE_ACTIVE' || metadata?.action === 'DND_AUTO_REPLY') && (
+                <Moon className='inline-block w-3.5 h-3.5 mb-0.5 mr-1 text-primary fill-primary/20' />
               )}
               {systemLabel}
               {showDeleteConversationAction && (

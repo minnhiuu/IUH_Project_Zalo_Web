@@ -6,7 +6,11 @@ export const ConversationMemberResponseSchema = z.object({
   fullName: z.string(),
   avatar: z.string().nullable().optional(),
   lastReadMessageId: z.string().nullable().optional(),
-  role: z.string().nullable().optional()
+  role: z.string().nullable().optional(),
+  pinned: z.boolean().nullable().optional(),
+  muted: z.boolean().nullable().optional(),
+  hidden: z.boolean().nullable().optional(),
+  manuallyMarkedUnread: z.boolean().nullable().optional()
 })
 
 export type ConversationMemberResponse = z.infer<typeof ConversationMemberResponseSchema>
@@ -68,7 +72,12 @@ export const ConversationResponseSchema = z.object({
   lastSeenAt: z.string().datetime().nullable().optional(),
   isGroup: z.boolean().default(false),
   isDisbanded: z.boolean().default(false),
+  isPinned: z.boolean().nullable().optional(),
+  isMuted: z.boolean().nullable().optional(),
+  isHidden: z.boolean().nullable().optional(),
+  manuallyMarkedUnread: z.boolean().nullable().optional(),
   unreadCount: z.number().nullable().optional(),
+  messageExpirationDays: z.number().nullable().optional(),
   lastMessage: LastMessageResponseSchema.nullable().optional(),
   members: z.array(ConversationMemberResponseSchema).nullable().optional(),
   settings: GroupSettingsSchema.nullable().optional(),
@@ -94,6 +103,7 @@ export const MessageResponseSchema = z.object({
   status: z.nativeEnum(MessageStatus).default(MessageStatus.NORMAL),
   createdAt: z.string().datetime().nullable().optional(),
   lastModifiedAt: z.string().datetime().nullable().optional(),
+  expiredAt: z.string().datetime().nullable().optional(),
   replyTo: ReplyMetadataSchema.nullable().optional(),
   isForwarded: z.boolean().nullable().optional(),
   unreadCount: z.number().nullable().optional(),
@@ -169,6 +179,24 @@ export const ChatMessageRequestSchema = z.object({
 })
 
 export type ChatMessageRequest = z.infer<typeof ChatMessageRequestSchema>
+
+// ─────────────────────────── V2 Pagination ───────────────────────────
+
+export interface MessageCursorParams {
+  cursor?: string | null
+  limit?: number
+  direction?: 'OLDER' | 'NEWER'
+  aroundMessageId?: string
+}
+
+export interface CursorPageResponse<T> {
+  data: T[]
+  olderCursor: string | null
+  newerCursor: string | null
+  hasMoreOlder: boolean
+  hasMoreNewer: boolean
+  isJumpResult: boolean
+}
 
 export const GroupConversationCreateRequestSchema = z.object({
   name: z.string().min(1),

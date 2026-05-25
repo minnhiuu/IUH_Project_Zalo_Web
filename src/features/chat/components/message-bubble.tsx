@@ -1,9 +1,10 @@
 import { cn } from '@/lib/utils'
 import type { ConversationResponse, ConversationMemberResponse, MessageResponse } from '../schemas/chat.schema'
 import { useChatText } from '../i18n/use-chat-text'
-import { Quote, Forward, MoreHorizontal, ThumbsUp, FileIcon, Download, X, Play } from 'lucide-react'
-import { useState, useMemo } from 'react'
+import { Quote, Forward, MoreHorizontal, ThumbsUp, FileIcon, Download, X, Play, Clock } from 'lucide-react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { DropdownMenu, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useChatContext } from '../context/chat-context'
 import { MessageStatus, MessageType } from '@/constants/enum'
 import { SystemMessage } from '../utils/system-message'
@@ -15,6 +16,7 @@ import { MessageMoreMenu } from './message-more-menu'
 import { MessageInfoDialog } from './message-info-dialog'
 import { AdminDeleteMessageDialog } from './admin-delete-message-dialog'
 import { JoinLinkCard } from './join-link-card'
+import { BusinessCardMessage } from './business-card-message'
 import {
   useRevokeMessageMutation,
   useToggleReactionMutation,
@@ -27,9 +29,12 @@ import type { PageResponse } from '@/shared/api'
 import { chatKeys } from '../queries/keys'
 import { parseMentionsForRender, stripMentionsForPreview } from '../utils/mention'
 import { useSeenMembersQuery } from '../queries/use-queries'
+import { parseBusinessCardContent } from '../utils/business-card'
 
 export function MessageBubble({
   message,
+  highlightKeyword,
+  isHighlighted,
   isOwn,
   isFirst = true,
   isLast = true,
@@ -39,9 +44,13 @@ export function MessageBubble({
   onForward,
   onAvatarClick,
   onRecall,
-  highlightKeyword
+  onScrollToMessage,
+  onJoinGroupCall,
+  activeGroupCallId
 }: {
   message: MessageResponse
+  highlightKeyword?: string | null
+  isHighlighted?: boolean
   isOwn: boolean
   isFirst?: boolean
   isLast?: boolean
@@ -51,8 +60,12 @@ export function MessageBubble({
   onForward?: () => void
   onAvatarClick?: (userId: string) => void
   onRecall?: (receiverId: string) => void
-  highlightKeyword?: string | null
+  onScrollToMessage?: (messageId: string) => void
+  onJoinGroupCall?: (roomId: string, callKind: 'voice' | 'video') => void
+  activeGroupCallId?: string | null
 }) {
+  void highlightKeyword
+  void isHighlighted
   const { text } = useChatText()
   const { deleteMessageForMe } = useChatContext()
   const { mutate: revokeMessage } = useRevokeMessageMutation()
@@ -112,54 +125,36 @@ export function MessageBubble({
   }, [user?.id, message.reactions])
 
   const isImageMessage = !isUnavailable && (message.type === MessageType.Image || message.type === MessageType.Video)
+  const businessCard = !isUnavailable ? parseBusinessCardContent(message.content) : null
+  const isBusinessCardMessage = !!businessCard
   const hasReactions = !isUnavailable && !!message.reactions && Object.keys(message.reactions).length > 0
-
-  const removeAccents = (str: string) => {
-    return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
-  }
-
-  const highlightText = (content: string, keyword: string | null) => {
-    if (!keyword || !content) return content
-    
-    const normalizedKeyword = removeAccents(keyword)
-    if (!normalizedKeyword) return content
-
-    // Tìm tất cả các vị trí khớp (không phân biệt dấu và hoa thường)
-    const result: (string | JSX.Element)[] = []
-    let lastIndex = 0
-    
-    // Tạm thời dùng regex đơn giản cho keyword gốc + tìm kiếm vị trí dựa trên bản đã clear dấu
-    const normalizedContent = removeAccents(content)
-    let matchIndex = normalizedContent.indexOf(normalizedKeyword)
-    
-    if (matchIndex === -1) return content
-
-    while (matchIndex !== -1) {
-      // Thêm phần text trước match
-      result.push(content.substring(lastIndex, matchIndex))
-      
-      // Thêm phần text khớp (lấy từ content gốc để giữ đúng dấu/hoa thường)
-      const matchText = content.substring(matchIndex, matchIndex + keyword.length)
-      result.push(
-        <mark key={matchIndex} className='bg-yellow-300 dark:bg-yellow-600/50 text-black dark:text-white px-0.5 rounded-sm'>
-          {matchText}
-        </mark>
-      )
-      
-      lastIndex = matchIndex + keyword.length
-      matchIndex = normalizedContent.indexOf(normalizedKeyword, lastIndex)
-    }
-    
-    // Thêm phần còn lại
-    result.push(content.substring(lastIndex))
-    return result
-  }
+  const isExpiring = !!message.expiredAt && !isUnavailable
 
   if (message.type === MessageType.System) {
     return <SystemMessage message={message} conversation={conversation} />
   }
-  if (message.type === MessageType.Call) {
-    return <CallMessage message={message} isOwn={isOwn} onRecall={onRecall} />
+  const isGroupCall = message.content?.startsWith('[GROUP_CALL]::')
+  if (isGroupCall) {
+    try {
+      const payload = JSON.parse(message.content!.slice('[GROUP_CALL]::'.length))
+      if (payload.status === 'ended') {
+        return null // Hide ended call messages from timeline to prevent duplicate "Ended" cards
+      }
+    } catch {
+      // ignore
+    }
+  }
+  if (message.type === MessageType.Call || isGroupCall) {
+    return (
+      <CallMessage
+        message={message}
+        isOwn={isOwn}
+        onRecall={onRecall}
+        onJoinGroupCall={onJoinGroupCall}
+        activeGroupCallId={activeGroupCallId}
+        onAvatarClick={onAvatarClick}
+      />
+    )
   }
   return (
     <div
@@ -174,7 +169,7 @@ export function MessageBubble({
         <div className='w-10 shrink-0 flex items-end'>
           {isLast ? (
             <MessageSenderAvatar
-              src={message.senderAvatar}
+              src={message.senderName === 'Bondhub AI' ? '/images/bondhub-ai.png' : message.senderAvatar}
               name={message.senderName || text.user}
               isGroup={isGroup}
               isAdminOrOwner={isAdminOrOwner}
@@ -192,13 +187,14 @@ export function MessageBubble({
           <div
             className={cn(
               'max-w-md wrap-break-word text-[15px] shadow-sm flex flex-col relative rounded-lg',
-              isImageMessage ? 'p-1' : isUnavailable ? 'px-3 py-1.5' : 'p-5',
+              isBusinessCardMessage ? 'p-0 bg-transparent shadow-none border-none' : isImageMessage ? 'p-1' : isUnavailable ? 'px-3 py-1.5' : 'p-5',
               isOwn && !isUnavailable
                 ? 'bg-blue-message text-black dark:text-primary-foreground'
                 : 'bg-white-message text-foreground',
               isUnavailable && 'pointer-events-none select-none border border-black/5 shadow-none',
               highlightEnabled && 'border border-border-highlight',
-              isPreviousOwnGroup && 'cursor-pointer'
+              isPreviousOwnGroup && 'cursor-pointer',
+              isExpiring && !isImageMessage && !isBusinessCardMessage && 'border-2 border-dashed border-gray-400 dark:border-gray-500 bg-transparent'
             )}
             onClick={isPreviousOwnGroup ? () => setShowInlineSeen((v) => !v) : undefined}
           >
@@ -215,7 +211,10 @@ export function MessageBubble({
             )}
 
             {message.replyTo && (
-              <div className='mb-1.5 px-3 py-1.5 border-l-2 border-[#1972F5] bg-[#CDE2FF]/50 rounded-sm select-none'>
+              <div
+                className='mb-1.5 px-3 py-1.5 border-l-2 border-[#1972F5] bg-[#CDE2FF]/50 rounded-sm select-none cursor-pointer hover:bg-[#CDE2FF]/75 transition-colors'
+                onClick={() => message.replyTo?.messageId && onScrollToMessage?.(message.replyTo.messageId)}
+              >
                 <div className='font-semibold text-[#0068FF] text-[13px]'>{message.replyTo.senderName}</div>
                 <div className='text-[13px] text-black/70 truncate'>
                   {message.replyTo.content === null ? (
@@ -251,6 +250,8 @@ export function MessageBubble({
                   url={message.linkPreview!.url}
                   cachedPreview={message.linkPreview!}
                 />
+              ) : businessCard ? (
+                <BusinessCardMessage payload={businessCard} />
               ) : message.type === MessageType.Image || message.type === MessageType.Video ? (
                 <MessageMediaContent message={message} />
               ) : message.type === MessageType.File ? (
@@ -263,7 +264,7 @@ export function MessageBubble({
                     </span>
                   ) : (
                     <span key={key} className='whitespace-pre-wrap'>
-                      {highlightText(text, highlightKeyword ?? null)}
+                      {text}
                     </span>
                   )
                 )
@@ -273,7 +274,7 @@ export function MessageBubble({
             {isLast && (
               <div
                 className={cn(
-                  'flex items-center mt-1 font-medium self-start',
+                  'flex items-center mt-1 font-medium self-start gap-1',
                   isOwn ? 'text-black/50 dark:text-primary-foreground/70' : 'text-muted-foreground'
                 )}
               >
@@ -282,6 +283,38 @@ export function MessageBubble({
                     ? new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                     : ''}
                 </span>
+                {isExpiring && (() => {
+                  const diff = new Date(message.expiredAt!).getTime() - new Date().getTime();
+                  let remainingText = '';
+                  if (diff > 0) {
+                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                    const minutes = Math.floor((diff / 1000 / 60) % 60);
+                    if (days > 0) remainingText = mb.deleteIn.days(days, hours);
+                    else if (hours > 0) remainingText = mb.deleteIn.hours(hours, minutes);
+                    else remainingText = mb.deleteIn.minutes(minutes);
+                  } else {
+                    remainingText = mb.deleteIn.soon;
+                  }
+                  return (
+                    <div className="relative group/clock flex items-center">
+                      <Clock 
+                        size={12} 
+                        className="ml-1 opacity-70 cursor-help" 
+                      />
+                      <div className={cn(
+                        "absolute bottom-full mb-1.5 hidden group-hover/clock:block bg-zinc-900 dark:bg-zinc-100 text-zinc-100 dark:text-zinc-900 text-[11px] font-medium px-2 py-1 rounded shadow-lg whitespace-nowrap z-50 pointer-events-none animate-in fade-in zoom-in-95",
+                        isOwn ? "right-0" : "left-1/2 -translate-x-1/2"
+                      )}>
+                        {remainingText}
+                        <div className={cn(
+                          "absolute top-full border-4 border-transparent border-t-zinc-900 dark:border-t-zinc-100",
+                          isOwn ? "right-1" : "left-1/2 -translate-x-1/2"
+                        )} />
+                      </div>
+                    </div>
+                  )
+                })()}
               </div>
             )}
 
@@ -622,14 +655,14 @@ function MessageMediaContent({ message }: { message: MessageResponse }) {
     const att = atts[0]
     if (!att.url) return <span className='text-muted-foreground italic'>{text.loading}</span>
     if (att.contentType.startsWith('video/')) {
-      return <video src={att.url} controls className='max-w-xs max-h-[300px] rounded-md' preload='metadata' />
+      return <video src={att.url} controls className='max-w-xs max-h-75 rounded-md' preload='metadata' />
     }
     return (
       <a href={att.url} target='_blank' rel='noopener noreferrer'>
         <img
           src={att.url}
           alt={att.originalFileName || 'image'}
-          className='max-w-xs max-h-[300px] rounded-md object-contain cursor-pointer hover:opacity-90 transition-opacity'
+          className='max-w-xs max-h-75 rounded-md object-contain cursor-pointer hover:opacity-90 transition-opacity'
           loading='lazy'
         />
       </a>
@@ -639,7 +672,7 @@ function MessageMediaContent({ message }: { message: MessageResponse }) {
   const gridClass = atts.length === 2 ? 'grid-cols-2' : 'grid-cols-3'
 
   return (
-    <div className={cn('grid gap-0.5 rounded-md overflow-hidden w-[240px]', gridClass)}>
+    <div className={cn('grid gap-0.5 rounded-md overflow-hidden w-60', gridClass)}>
       {atts.map((att, i) => {
         const isVideo = att.contentType.startsWith('video/')
         return (
@@ -692,12 +725,12 @@ function MessageFileContent({ message }: { message: MessageResponse }) {
   }
 
   return (
-    <div className='flex items-center gap-3 min-w-[200px]'>
+    <div className='flex items-center gap-3 min-w-50'>
       <div className={cn('w-10 h-10 rounded-lg bg-muted flex items-center justify-center shrink-0', getExtColor())}>
         <FileIcon size={22} />
       </div>
       <div className='flex flex-col min-w-0 flex-1'>
-        <span className='text-[14px] font-medium truncate max-w-[200px]'>{fileName}</span>
+        <span className='text-[14px] font-medium truncate max-w-50'>{fileName}</span>
         <span className='text-[12px] text-muted-foreground'>
           {fileSize ? formatFileSize(fileSize) : ''}
           {contentType ? ` · ${ext}` : ''}
@@ -777,12 +810,12 @@ function ReactionModal({
   if (!open) return null
 
   return (
-    <div className='fixed inset-0 z-[100] flex items-center justify-center'>
+    <div className='fixed inset-0 z-100 flex items-center justify-center'>
       {/* Transparent click-away backdrop */}
       <div className='absolute inset-0' onClick={onClose} />
 
       {/* Modal card */}
-      <div className='relative bg-background border rounded-xl shadow-2xl ring-1 ring-foreground/10 w-[520px] max-h-[520px] overflow-hidden flex flex-col z-10'>
+      <div className='relative bg-background border rounded-xl shadow-2xl ring-1 ring-foreground/10 w-130 max-h-130 overflow-hidden flex flex-col z-10'>
         {/* Header */}
         <div className='flex items-center justify-between px-5 py-3 border-b shrink-0'>
           <h3 className='text-[15px] font-semibold'>{mb.reactionModalTitle}</h3>

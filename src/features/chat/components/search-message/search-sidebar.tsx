@@ -1,14 +1,21 @@
 import { Loader2, Search, X } from 'lucide-react'
 import { useState } from 'react'
 import { useDebounce } from '@/hooks/use-debounce'
-import { MESSAGE_SEARCH_SECTION } from '../../../search/messages'
+import {
+  MESSAGE_SEARCH_SECTION,
+  useMessageSearchInfinite,
+  DateFilter,
+  type DateFilterText,
+  EmptyState,
+  MessageResultCard,
+  MessageResultSkeleton,
+  SenderFilter,
+  type SearchParticipant,
+  type SenderFilterText
+} from '@/features/search'
 import { useChatText } from '../../i18n/use-chat-text'
 import { useConversationParticipantsInfinite } from '../../queries/use-queries'
-import { useMessageSearchInfinite, useMessageSearchOverview } from '../../../search/messages'
-import { DateFilter } from './date-filter'
-import { EmptyState } from './empty-state'
-import { MessageResultCard, MessageResultSkeleton } from './message-result-card'
-import { SenderFilter } from './sender-filter'
+import { Button } from '@/components/ui/button'
 
 interface SearchSidebarProps {
   conversationId: string
@@ -16,20 +23,16 @@ interface SearchSidebarProps {
   onNavigateToMessage: (messageId: string, keyword: string) => void
 }
 
-const INITIAL_SECTION_SIZE = 5
-
 export function SearchSidebar({ conversationId, onClose, onNavigateToMessage }: SearchSidebarProps) {
   const { text } = useChatText()
   const sText = text.searchSidebar
   const [memberQuery, setMemberQuery] = useState('')
   const [searchKeyword, setSearchKeyword] = useState('')
+  const [activeMessageId, setActiveMessageId] = useState<string | null>(null)
   const [selectedSenderId, setSelectedSenderId] = useState<string | null>(null)
   const [fromDate, setFromDate] = useState<Date>()
   const [toDate, setToDate] = useState<Date>()
-  const [expandedSections, setExpandedSections] = useState<{ messages: boolean; files: boolean }>({
-    messages: false,
-    files: false
-  })
+
   const debouncedMemberQuery = useDebounce(memberQuery, 300)
   const debouncedSearchKeyword = useDebounce(searchKeyword, 300)
 
@@ -37,25 +40,19 @@ export function SearchSidebar({ conversationId, onClose, onNavigateToMessage }: 
     keyword: debouncedSearchKeyword,
     conversationId,
     senderId: selectedSenderId || undefined,
-    from: fromDate?.toISOString(),
-    to: toDate?.toISOString()
+    from: fromDate?.getTime(),
+    to: toDate?.getTime()
   }
 
   const hasFilters = !!(debouncedSearchKeyword || selectedSenderId || fromDate || toDate)
 
-  const { data: overviewData, isLoading: isLoadingOverview } = useMessageSearchOverview(
-    searchRequest,
-    INITIAL_SECTION_SIZE,
-    hasFilters
-  )
-
   const {
-    data: messageResults,
+    data: messagesData,
     isLoading: isLoadingMessages,
     fetchNextPage: fetchNextMessagesPage,
     hasNextPage: hasNextMessagesPage,
     isFetchingNextPage: isFetchingNextMessagesPage
-  } = useMessageSearchInfinite(searchRequest, MESSAGE_SEARCH_SECTION.Messages, hasFilters && expandedSections.messages)
+  } = useMessageSearchInfinite(searchRequest, MESSAGE_SEARCH_SECTION.Messages, hasFilters)
 
   const {
     data: fileResults,
@@ -63,7 +60,7 @@ export function SearchSidebar({ conversationId, onClose, onNavigateToMessage }: 
     fetchNextPage: fetchNextFilesPage,
     hasNextPage: hasNextFilesPage,
     isFetchingNextPage: isFetchingNextFilesPage
-  } = useMessageSearchInfinite(searchRequest, MESSAGE_SEARCH_SECTION.Files, hasFilters && expandedSections.files)
+  } = useMessageSearchInfinite(searchRequest, MESSAGE_SEARCH_SECTION.Files, hasFilters)
 
   const { data: participantsData, isLoading: isLoadingParticipants } = useConversationParticipantsInfinite(
     conversationId,
@@ -71,42 +68,44 @@ export function SearchSidebar({ conversationId, onClose, onNavigateToMessage }: 
   )
 
   const participants = participantsData?.pages.flatMap((page) => page.data) || []
-  const overviewMessages = overviewData?.messages.data || []
-  const overviewFiles = overviewData?.files.data || []
-  const pagedMessages = messageResults?.pages.flatMap((page) => page.data) || []
-  const pagedFiles = fileResults?.pages.flatMap((page) => page.data) || []
-
-  const displayedMessages = expandedSections.messages && pagedMessages.length > 0 ? pagedMessages : overviewMessages
-  const displayedFiles = expandedSections.files && pagedFiles.length > 0 ? pagedFiles : overviewFiles
+  const displayedMessages = messagesData?.pages.flatMap((page) => page.data) || []
+  const displayedFiles = fileResults?.pages.flatMap((page) => page.data) || []
 
   const hasMessages = displayedMessages.length > 0
   const hasFiles = displayedFiles.length > 0
   const hasResults = hasMessages || hasFiles
 
-  const canLoadMoreMessages = expandedSections.messages
-    ? !!hasNextMessagesPage
-    : (overviewData?.messages.totalItems || 0) > overviewMessages.length
+  const isLoadingInitial = hasFilters && (isLoadingMessages || isLoadingFiles)
 
-  const canLoadMoreFiles = expandedSections.files
-    ? !!hasNextFilesPage
-    : (overviewData?.files.totalItems || 0) > overviewFiles.length
+  const canLoadMoreMessages = !!hasNextMessagesPage
+  const canLoadMoreFiles = !!hasNextFilesPage
 
   const handleMessageLoadMore = () => {
-    if (expandedSections.messages) {
-      void fetchNextMessagesPage()
-      return
-    }
-
-    setExpandedSections((prev) => ({ ...prev, messages: true }))
+    void fetchNextMessagesPage()
   }
 
   const handleFileLoadMore = () => {
-    if (expandedSections.files) {
-      void fetchNextFilesPage()
-      return
-    }
+    void fetchNextFilesPage()
+  }
 
-    setExpandedSections((prev) => ({ ...prev, files: true }))
+  const senderFilterText: SenderFilterText = {
+    filterSender: sText.filterSender,
+    placeholder: sText.placeholder,
+    emptyStateSearch: text.emptyStateSearch,
+    you: text.you
+  }
+
+  const dateFilterText: DateFilterText = {
+    filterDate: sText.filterDate,
+    timeSuggestion: sText.timeSuggestion,
+    last7Days: sText.last7Days,
+    last30Days: sText.last30Days,
+    last3Months: sText.last3Months,
+    chooseTimeRange: sText.chooseTimeRange,
+    fromDate: sText.fromDate,
+    toDate: sText.toDate,
+    cancel: sText.cancel,
+    confirm: sText.confirm
   }
 
   return (
@@ -121,8 +120,8 @@ export function SearchSidebar({ conversationId, onClose, onNavigateToMessage }: 
         </button>
       </div>
 
-      <div className='flex-1 flex flex-col p-4 overflow-y-auto custom-scrollbar overflow-x-hidden'>
-        <div className='grid grid-cols-[auto_1fr_auto] items-center h-8 relative bg-input-field-bg-outline px-3 border border-border-subtle rounded-[5px] transition-colors duration-80 group focus-within:border-primary'>
+      <div className='flex-1 flex flex-col py-4 overflow-y-auto custom-scrollbar overflow-x-hidden'>
+        <div className='mx-4 grid grid-cols-[auto_1fr_auto] items-center h-8 relative bg-(--input-field-bg-filled) px-3 rounded-[5px] transition-colors duration-80 group'>
           <Search className='w-4 h-4 text-text-primary transition-colors mr-2' />
           <input
             type='text'
@@ -142,7 +141,7 @@ export function SearchSidebar({ conversationId, onClose, onNavigateToMessage }: 
           )}
         </div>
 
-        <div className='flex items-center gap-2 py-[10px] shrink-0'>
+        <div className='mx-4 flex items-center gap-2 py-[10px] shrink-0'>
           <span className='text-text-secondary text-[13px] font-normal cursor-default whitespace-nowrap'>
             {sText.filterLabel}
           </span>
@@ -154,90 +153,111 @@ export function SearchSidebar({ conversationId, onClose, onNavigateToMessage }: 
               memberQuery={memberQuery}
               setMemberQuery={setMemberQuery}
               isLoadingParticipants={isLoadingParticipants}
-              participants={participants}
-              sText={sText}
-              text={text}
+              participants={participants as SearchParticipant[]}
+              text={senderFilterText}
             />
 
-            <DateFilter fromDate={fromDate} toDate={toDate} setFromDate={setFromDate} setToDate={setToDate} sText={sText} />
+            <DateFilter
+              fromDate={fromDate}
+              toDate={toDate}
+              setFromDate={setFromDate}
+              setToDate={setToDate}
+              text={dateFilterText}
+            />
           </div>
         </div>
 
         <div className='flex-1 flex flex-col mt-4 gap-6 overflow-y-auto custom-scrollbar'>
           {!hasFilters ? (
-            <EmptyState image='/images/search_empty_keyword_state.png' text={sText.emptyStateText} />
-          ) : isLoadingOverview ? (
+            <div className='px-4'>
+              <EmptyState image='/images/search_empty_keyword_state.png' text={sText.emptyStateText} />
+            </div>
+          ) : isLoadingInitial ? (
             <div className='flex flex-col'>
               {Array.from({ length: 6 }).map((_, i) => (
                 <MessageResultSkeleton key={i} />
               ))}
             </div>
           ) : !hasResults ? (
-            <EmptyState image='/images/search_empty_state.png' text={text.emptyStateSearch} />
+            <div className='px-4'>
+              <EmptyState image='/images/search_empty_state.png' text={text.emptyStateSearch} />
+            </div>
           ) : (
             <>
               {hasMessages && (
                 <section className='flex flex-col'>
-                  <h3 className='px-3 pb-2 text-[15px] font-semibold text-text-primary'>Messages</h3>
+                  <h3 className='px-4 pb-2 text-[15px] font-semibold text-text-primary'>{sText.messages}</h3>
                   {displayedMessages.map((msg) => (
                     <MessageResultCard
                       key={msg.messageId}
                       msg={msg}
-                      onClick={() => onNavigateToMessage(msg.messageId, searchKeyword)}
+                      showSenderOnly
+                      isActive={activeMessageId === msg.messageId}
+                      onClick={() => {
+                        setActiveMessageId(msg.messageId)
+                        onNavigateToMessage(msg.messageId, searchKeyword)
+                      }}
                     />
                   ))}
 
-                  {expandedSections.messages && isLoadingMessages ? (
+                  {isLoadingMessages && !isLoadingInitial ? (
                     <div className='flex flex-col'>
                       {Array.from({ length: 4 }).map((_, i) => (
                         <MessageResultSkeleton key={`messages-loading-${i}`} />
                       ))}
                     </div>
                   ) : canLoadMoreMessages ? (
-                    <button
+                    <Button
+                      variant='secondary'
                       onClick={handleMessageLoadMore}
                       disabled={isFetchingNextMessagesPage}
-                      className='mx-3 mt-3 py-3 text-[13px] font-medium text-text-primary bg-(--layer-background-secondary) hover:bg-(--layer-background-hover) rounded-[6px] transition-colors disabled:opacity-50'
+                      className='mx-3 mt-3 text-[13px]'
                     >
                       {isFetchingNextMessagesPage ? (
                         <Loader2 className='w-4 h-4 animate-spin mx-auto' />
                       ) : (
                         sText.loadMore || 'View more'
                       )}
-                    </button>
+                    </Button>
                   ) : null}
                 </section>
               )}
 
               {hasFiles && (
                 <section className='flex flex-col'>
-                  <h3 className='px-3 pb-2 text-[15px] font-semibold text-text-primary'>File</h3>
+                  <h3 className='px-4 pb-2 text-[15px] font-semibold text-text-primary'>{sText.files}</h3>
                   {displayedFiles.map((msg) => (
                     <MessageResultCard
                       key={msg.messageId}
                       msg={msg}
-                      onClick={() => onNavigateToMessage(msg.messageId, searchKeyword)}
+                      variant='file'
+                      isActive={activeMessageId === msg.messageId}
+                      onClick={() => {
+                        setActiveMessageId(msg.messageId)
+                        onNavigateToMessage(msg.messageId, searchKeyword)
+                      }}
                     />
                   ))}
 
-                  {expandedSections.files && isLoadingFiles ? (
+                  {isLoadingFiles && !isLoadingInitial ? (
                     <div className='flex flex-col'>
                       {Array.from({ length: 3 }).map((_, i) => (
-                        <MessageResultSkeleton key={`files-loading-${i}`} />
+                        <MessageResultSkeleton key={`files-loading-${i}`} variant='file' />
                       ))}
                     </div>
                   ) : canLoadMoreFiles ? (
-                    <button
+                    <Button
+                      variant='secondary'
                       onClick={handleFileLoadMore}
                       disabled={isFetchingNextFilesPage}
-                      className='mx-3 mt-3 py-3 text-[13px] font-medium text-text-primary bg-(--layer-background-secondary) hover:bg-(--layer-background-hover) rounded-[6px] transition-colors disabled:opacity-50'
+                      className='mx-3 mt-3 text-[13px]'
                     >
                       {isFetchingNextFilesPage ? (
                         <Loader2 className='w-4 h-4 animate-spin mx-auto' />
                       ) : (
                         sText.loadMore || 'View more'
                       )}
-                    </button>
+                    </Button>
                   ) : null}
                 </section>
               )}

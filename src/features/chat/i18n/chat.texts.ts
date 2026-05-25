@@ -4,6 +4,9 @@ import type { AiProcessingStatus } from '@/constants/enum'
 
 export type ChatTexts = ReturnType<typeof createChatTexts>
 
+const translateDynamic = (t: TFunction<'chat'>, key: string, options?: Record<string, unknown>) =>
+  (t as unknown as (k: string, o?: Record<string, unknown>) => string)(key, options)
+
 export const createChatTexts = (t: TFunction<'chat'>) => ({
   title: t(CHAT_KEYS.title),
   searchPlaceholder: t(CHAT_KEYS.searchPlaceholder),
@@ -36,8 +39,20 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
   user: t(CHAT_KEYS.user),
   type: {
     image: t(CHAT_KEYS.type.image),
+    video: t(CHAT_KEYS.type.video),
     file: t(CHAT_KEYS.type.file),
     link: t(CHAT_KEYS.type.link)
+  },
+  input: {
+    dropFilesHint: t(CHAT_KEYS.input.dropFilesHint),
+    sendImageVideoTitle: t(CHAT_KEYS.input.sendImageVideoTitle),
+    attachFileTitle: t(CHAT_KEYS.input.attachFileTitle),
+    summarizeNewMessages: t(CHAT_KEYS.input.summarizeNewMessages),
+    summarizingMessages: t(CHAT_KEYS.input.summarizingMessages),
+    summaryTitle: t(CHAT_KEYS.input.summaryTitle),
+    closeSummary: t(CHAT_KEYS.input.closeSummary),
+    videoBadge: t(CHAT_KEYS.input.videoBadge),
+    fileTooLarge: (name: string, maxSizeMb: number) => t(CHAT_KEYS.input.fileTooLarge, { name, maxSizeMb })
   },
   mentionDropdown: {
     instruction: t(CHAT_KEYS.mentionDropdown.instruction),
@@ -74,6 +89,12 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     deletedByAdmin: (name: string) => t(CHAT_KEYS.messageBubble.deletedByAdmin, { name }),
     deletedByAdminSelf: t(CHAT_KEYS.messageBubble.deletedByAdminSelf),
     replyUnavailable: t(CHAT_KEYS.messageBubble.replyUnavailable),
+    deleteIn: {
+      days: (days: number, hours: number) => translateDynamic(t, CHAT_KEYS.messageBubble.deleteIn.days, { days, hours }),
+      hours: (hours: number, minutes: number) => translateDynamic(t, CHAT_KEYS.messageBubble.deleteIn.hours, { hours, minutes }),
+      minutes: (minutes: number) => translateDynamic(t, CHAT_KEYS.messageBubble.deleteIn.minutes, { minutes }),
+      soon: t(CHAT_KEYS.messageBubble.deleteIn.soon)
+    },
     adminDeleteDialog: {
       title: t(CHAT_KEYS.messageBubble.adminDeleteDialog.title),
       cancel: t(CHAT_KEYS.messageBubble.adminDeleteDialog.cancel),
@@ -96,7 +117,7 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     unpin: t(CHAT_KEYS.pinBoard.unpin),
     collapse: t(CHAT_KEYS.pinBoard.collapse),
     extraPins: (count: number) => t(CHAT_KEYS.pinBoard.extraPins, { count }),
-    header: (count: number) => t(CHAT_KEYS.pinBoard.header, { count })
+    header: (count: number) => translateDynamic(t, CHAT_KEYS.pinBoard.header, { count })
   },
   sidebar: {
     all: t(CHAT_KEYS.sidebar.all),
@@ -113,7 +134,7 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     selected: t(CHAT_KEYS['create-group-dialog'].selected),
     cancel: t(CHAT_KEYS['create-group-dialog'].cancel),
     create: t(CHAT_KEYS['create-group-dialog'].create),
-    noSelected: t(CHAT_KEYS['create-group-dialog'].noSelected),
+    noSelected: translateDynamic(t, CHAT_KEYS['create-group-dialog'].noSelected),
     andOthers: (count: number) => t(CHAT_KEYS['create-group-dialog'].andOthers, { count }),
     updateAvatarTitle: t(CHAT_KEYS['create-group-dialog'].updateAvatarTitle),
     confirm: t(CHAT_KEYS['create-group-dialog'].confirm),
@@ -151,6 +172,25 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     labels: t(CHAT_KEYS['forward-dialog'].labels),
     forwardMessage: t(CHAT_KEYS['forward-dialog'].forwardMessage),
     addDescription: t(CHAT_KEYS['forward-dialog'].addDescription)
+  },
+  businessCard: {
+    open: t(CHAT_KEYS.businessCard.open),
+    title: t(CHAT_KEYS.businessCard.title),
+    searchPlaceholder: t(CHAT_KEYS.businessCard.searchPlaceholder),
+    chipAll: t(CHAT_KEYS.businessCard.chipAll),
+    chipCustomer: t(CHAT_KEYS.businessCard.chipCustomer),
+    chipFamily: t(CHAT_KEYS.businessCard.chipFamily),
+    chipWork: t(CHAT_KEYS.businessCard.chipWork),
+    chipFriends: t(CHAT_KEYS.businessCard.chipFriends),
+    chipLater: t(CHAT_KEYS.businessCard.chipLater),
+    selectedTitle: t(CHAT_KEYS.businessCard.selectedTitle),
+    includePhone: t(CHAT_KEYS.businessCard.includePhone),
+    cancel: t(CHAT_KEYS.businessCard.cancel),
+    send: t(CHAT_KEYS.businessCard.send),
+    empty: t(CHAT_KEYS.businessCard.empty),
+    call: t(CHAT_KEYS.businessCard.call),
+    message: t(CHAT_KEYS.businessCard.message),
+    preview: t(CHAT_KEYS.businessCard.preview)
   },
   system: {
     add_members: {
@@ -194,6 +234,10 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
       one_pc: (name: string) => t(CHAT_KEYS.system.typing.one_pc, { name }),
       two: (name1: string, name2: string) => t(CHAT_KEYS.system.typing.two, { name1, name2 }),
       many: (name1: string, name2: string, count: number) => t(CHAT_KEYS.system.typing.many, { name1, name2, count })
+    },
+    update_expiration: {
+      on: (days: number) => t(CHAT_KEYS.system.update_expiration.on, { days }),
+      off: t(CHAT_KEYS.system.update_expiration.off)
     }
   },
   disbanded: {
@@ -202,7 +246,9 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     deleteAction: t(CHAT_KEYS.disbanded.deleteAction)
   },
   restricted: {
-    onlyAdminCanSend: t(CHAT_KEYS.restricted.onlyAdminCanSend)
+    onlyAdminCanSend: t(CHAT_KEYS.restricted.onlyAdminCanSend),
+    cannotRename: t(CHAT_KEYS.restricted.cannotRename),
+    cannotChangeAvatar: t(CHAT_KEYS.restricted.cannotChangeAvatar)
   },
   'rename-group-dialog': {
     title: t(CHAT_KEYS['rename-group-dialog'].title),
@@ -330,7 +376,8 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     leaveGroupError: t(CHAT_KEYS.toasts.leaveGroupError),
     blockSuccess: t(CHAT_KEYS.toasts.blockSuccess),
     unblockSuccess: t(CHAT_KEYS.toasts.unblockSuccess),
-    noBlockCandidates: t(CHAT_KEYS.toasts.noBlockCandidates)
+    noBlockCandidates: t(CHAT_KEYS.toasts.noBlockCandidates),
+    transferOwnerSuccess: t(CHAT_KEYS.toasts.transferOwnerSuccess)
   },
   sidebarInfo: {
     title: t(CHAT_KEYS.sidebarInfo.title),
@@ -499,12 +546,28 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
     loadMore: t(CHAT_KEYS.searchSidebar.loadMore),
     clear: t(CHAT_KEYS.searchSidebar.clear),
     confirm: t(CHAT_KEYS.searchSidebar.confirm),
-    cancel: t(CHAT_KEYS.searchSidebar.cancel)
+    cancel: t(CHAT_KEYS.searchSidebar.cancel),
+    messages: t(CHAT_KEYS.searchSidebar.messages),
+    files: t(CHAT_KEYS.searchSidebar.files)
   },
   /** Trả về label dịch cho trạng thái pipeline AI theo ngôn ngữ hiện tại */
   aiStatusLabel: (status?: AiProcessingStatus): string => {
     if (!status) return t(CHAT_KEYS.aiStatus.DEFAULT)
     const key = CHAT_KEYS.aiStatus[status as keyof typeof CHAT_KEYS.aiStatus]
     return key ? t(key) : t(CHAT_KEYS.aiStatus.DEFAULT)
+  },
+  aiWindow: {
+    title: t(CHAT_KEYS.aiWindow.title),
+    assistantTag: t(CHAT_KEYS.aiWindow.assistantTag),
+    newConversation: t(CHAT_KEYS.aiWindow.newConversation),
+    inputPlaceholder: t(CHAT_KEYS.aiWindow.inputPlaceholder),
+    clarificationNeeded: t(CHAT_KEYS.aiWindow.clarificationNeeded),
+    welcomeDescription: t(CHAT_KEYS.aiWindow.welcomeDescription),
+    errorFallback: t(CHAT_KEYS.aiWindow.errorFallback),
+    suggestions: {
+      profile: t(CHAT_KEYS.aiWindow.suggestions.profile),
+      friends: t(CHAT_KEYS.aiWindow.suggestions.friends),
+      internet: t(CHAT_KEYS.aiWindow.suggestions.internet)
+    }
   }
 })

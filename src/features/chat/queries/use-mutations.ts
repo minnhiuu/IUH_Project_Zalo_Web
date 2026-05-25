@@ -1,5 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import type { InfiniteData } from '@tanstack/react-query'
 // test
+import { useAuth } from '@/features/auth'
+import { notificationApi } from '@/features/notification/api/notification.api'
+import { notificationKeys } from '@/features/notification/queries/keys'
 import {
   markAsRead,
   sendMessageApi,
@@ -13,7 +17,9 @@ import {
   updateGroupNameApi,
   updateGroupAvatarApi,
   updateGroupSettingsApi,
+  updateMessageExpirationApi,
   deleteConversationApi,
+  clearConversationHistoryApi,
   leaveGroupApi,
   addMembersToGroupApi,
   removeMemberFromGroupApi,
@@ -30,18 +36,42 @@ import {
   approveJoinRequestApi,
   rejectJoinRequestApi,
   cancelMyJoinRequestApi,
-  updateJoinQuestionApi
+  markAsUnreadApi,
+  pinConversationApi,
+  unpinConversationApi,
+  toggleMuteApi,
+  toggleHideApi,
+  updateJoinQuestionApi,
+  getOrCreateConversation
 } from '../api/chat.api'
 import { chatKeys } from './keys'
-import type { ConversationResponse, ChatMessageRequest, GroupSettings, LeaveGroupRequest } from '../schemas/chat.schema'
+import type {
+  ConversationResponse,
+  ChatMessageRequest,
+  GroupSettings,
+  LeaveGroupRequest,
+  MessageResponse,
+  CursorPageResponse
+} from '../schemas/chat.schema'
 
 export const useMarkAsReadMutation = () => {
   const queryClient = useQueryClient()
+  const { user } = useAuth()
 
   return useMutation({
-    mutationFn: ({ conversationId, lastReadMessageId }: { conversationId: string; lastReadMessageId?: string }) =>
-      markAsRead(conversationId, lastReadMessageId),
-    onMutate: async ({ conversationId }) => {
+    mutationFn: async ({
+      conversationId,
+      lastReadMessageId
+    }: {
+      conversationId: string
+      lastReadMessageId?: string
+    }) => {
+      await markAsRead(conversationId, lastReadMessageId)
+      await notificationApi.markChatConversationAsRead(conversationId).catch((error) => {
+        console.warn('[Notification] Failed to mark chat notification as read:', error)
+      })
+    },
+    onMutate: async ({ conversationId, lastReadMessageId }) => {
       await queryClient.cancelQueries({ queryKey: chatKeys.conversations() })
       const previousConversations = queryClient.getQueryData<ConversationResponse[]>(chatKeys.conversations())
 
@@ -50,13 +80,22 @@ export const useMarkAsReadMutation = () => {
           chatKeys.conversations(),
           previousConversations.map((conv: ConversationResponse) => {
             if (conv.id === conversationId) {
+              const optimisticLastReadMessageId = lastReadMessageId ?? conv.lastMessage?.id ?? null
+
               return {
                 ...conv,
                 unreadCount: 0,
-                members: conv.members?.map((m) => ({
-                  ...m,
-                  lastReadMessageId: conv.lastMessage?.id || m.lastReadMessageId
-                }))
+                manuallyMarkedUnread: false,
+                members: conv.members?.map((m) => {
+                  if (m.userId === user?.id) {
+                    return {
+                      ...m,
+                      lastReadMessageId: optimisticLastReadMessageId || m.lastReadMessageId,
+                      manuallyMarkedUnread: false
+                    }
+                  }
+                  return m
+                })
               }
             }
             return conv
@@ -72,8 +111,10 @@ export const useMarkAsReadMutation = () => {
         queryClient.setQueryData(chatKeys.conversations(), context.previousConversations)
       }
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+    onSuccess: () => {
+      // Invalidate notification state to recalculate badge count
+      // When conversation is marked as read, chatUnreadConversationCount should decrease
+      queryClient.invalidateQueries({ queryKey: notificationKeys.state() })
     }
   })
 }
@@ -211,6 +252,58 @@ export const useDeleteConversationMutation = () => {
     },
     onError: (error) => {
       console.error('Failed to delete conversation', error)
+    }
+  })
+}
+
+export const useClearConversationHistoryMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (conversationId: string) => clearConversationHistoryApi(conversationId),
+    onMutate: async (conversationId) => {
+      await queryClient.cancelQueries({ queryKey: chatKeys.conversations() })
+      await queryClient.cancelQueries({ queryKey: chatKeys.messages(conversationId) })
+
+      const previousConversations = queryClient.getQueryData<ConversationResponse[]>(chatKeys.conversations())
+      const previousMessages = queryClient.getQueryData<InfiniteData<CursorPageResponse<MessageResponse>>>(
+        chatKeys.messages(conversationId)
+      )
+
+      queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
+        if (!oldData) return []
+        return oldData.map((conv) => {
+          if (conv.id !== conversationId) return conv
+          return {
+            ...conv,
+            unreadCount: 0,
+            lastMessage: null
+          }
+        })
+      })
+
+      queryClient.setQueryData<InfiniteData<CursorPageResponse<MessageResponse>>>(chatKeys.messages(conversationId), {
+        pages: [],
+        pageParams: [{ limit: 20, direction: 'OLDER', cursor: null }]
+      })
+
+      return { previousConversations, previousMessages }
+    },
+    onSuccess: (_, conversationId) => {
+      queryClient.invalidateQueries({ queryKey: chatKeys.messages(conversationId) })
+      // Notice: We intentionally do not invalidate chatKeys.conversations() here 
+      // to avoid refetching stale server data that might restore the old lastMessage.
+      queryClient.invalidateQueries({ queryKey: chatKeys.unreadAnchor(conversationId) })
+      queryClient.invalidateQueries({ queryKey: [...chatKeys.all(), 'media', conversationId] })
+    },
+    onError: (error, conversationId, context) => {
+      console.error('Failed to clear conversation history', error)
+      if (context?.previousConversations) {
+        queryClient.setQueryData(chatKeys.conversations(), context.previousConversations)
+      }
+      if (context?.previousMessages) {
+        queryClient.setQueryData(chatKeys.messages(conversationId), context.previousMessages)
+      }
     }
   })
 }
@@ -624,6 +717,211 @@ export const useUnpinMessageMutation = () => {
     },
     onError: (error) => {
       console.error('Failed to unpin message', error)
+    }
+  })
+}
+export const useGetOrCreateConversationMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation<ConversationResponse, Error, string>({
+    mutationFn: (partnerId: string) => getOrCreateConversation(partnerId),
+    onSuccess: (conversation) => {
+      queryClient.setQueryData<ConversationResponse[]>(chatKeys.conversations(), (old) => {
+        if (!old) return [conversation]
+        const exists = old.find((c) => c.id === conversation.id)
+        if (exists) return old
+        return [conversation, ...old]
+      })
+      queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+    }
+  })
+}
+export const useMarkAsUnreadMutation = () => {
+  const queryClient = useQueryClient()
+  const { user } = useAuth()
+
+  return useMutation({
+    mutationFn: (conversationId: string) => markAsUnreadApi(conversationId),
+    onMutate: async (conversationId) => {
+      await queryClient.cancelQueries({ queryKey: chatKeys.conversations() })
+      const previousConversations = queryClient.getQueryData<ConversationResponse[]>(chatKeys.conversations())
+
+      if (previousConversations) {
+        queryClient.setQueryData(
+          chatKeys.conversations(),
+          previousConversations.map((conv: ConversationResponse) => {
+            if (conv.id === conversationId) {
+              return {
+                ...conv,
+                manuallyMarkedUnread: true,
+                members: conv.members?.map((m) => (m.userId === user?.id ? { ...m, manuallyMarkedUnread: true } : m))
+              }
+            }
+            return conv
+          })
+        )
+      }
+
+      return { previousConversations }
+    },
+    onError: (error, _vars, context) => {
+      console.error('Error marking conversation as unread:', error)
+      if (context?.previousConversations) {
+        queryClient.setQueryData(chatKeys.conversations(), context.previousConversations)
+      }
+    }
+  })
+}
+
+export const useTogglePinConversationMutation = () => {
+  const queryClient = useQueryClient()
+  const { user } = useAuth()
+
+  return useMutation({
+    mutationFn: ({ conversationId, isPinned }: { conversationId: string; isPinned: boolean }) =>
+      isPinned ? pinConversationApi(conversationId) : unpinConversationApi(conversationId),
+    onMutate: async ({ conversationId, isPinned }) => {
+      await queryClient.cancelQueries({ queryKey: chatKeys.conversations() })
+      const previousConversations = queryClient.getQueryData<ConversationResponse[]>(chatKeys.conversations())
+
+      if (previousConversations) {
+        const updatedConversations = previousConversations.map((conv: ConversationResponse) => {
+          if (conv.id === conversationId) {
+            return {
+              ...conv,
+              isPinned: isPinned,
+              members: conv.members?.map((m) => (m.userId === user?.id ? { ...m, pinned: isPinned } : m))
+            }
+          }
+          return conv
+        })
+
+        // Re-sort according to pin status and last message time
+        const sorted = [...updatedConversations].sort((a, b) => {
+          const aP = a.id === conversationId ? isPinned : !!a.isPinned
+          const bP = b.id === conversationId ? isPinned : !!b.isPinned
+          if (aP !== bP) return aP ? -1 : 1
+          return new Date(b.lastMessage?.timestamp || 0).getTime() - new Date(a.lastMessage?.timestamp || 0).getTime()
+        })
+
+        queryClient.setQueryData(chatKeys.conversations(), sorted)
+      }
+
+      return { previousConversations }
+    },
+    onError: (error, _vars, context) => {
+      console.error('Error toggling pin:', error)
+      if (context?.previousConversations) {
+        queryClient.setQueryData(chatKeys.conversations(), context.previousConversations)
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: chatKeys.conversations() })
+    }
+  })
+}
+
+export const useToggleMuteConversationMutation = () => {
+  const queryClient = useQueryClient()
+  const { user } = useAuth()
+
+  return useMutation({
+    mutationFn: ({ conversationId, isMuted }: { conversationId: string; isMuted: boolean }) =>
+      toggleMuteApi(conversationId, isMuted),
+    onMutate: async ({ conversationId, isMuted }) => {
+      await queryClient.cancelQueries({ queryKey: chatKeys.conversations() })
+      const previousConversations = queryClient.getQueryData<ConversationResponse[]>(chatKeys.conversations())
+
+      if (previousConversations) {
+        queryClient.setQueryData(
+          chatKeys.conversations(),
+          previousConversations.map((conv: ConversationResponse) => {
+            if (conv.id === conversationId) {
+              return {
+                ...conv,
+                members: conv.members?.map((m) => (m.userId === user?.id ? { ...m, muted: isMuted } : m))
+              }
+            }
+            return conv
+          })
+        )
+      }
+
+      return { previousConversations }
+    },
+    onError: (error, _vars, context) => {
+      console.error('Error toggling mute:', error)
+      if (context?.previousConversations) {
+        queryClient.setQueryData(chatKeys.conversations(), context.previousConversations)
+      }
+    }
+  })
+}
+
+export const useToggleHideConversationMutation = () => {
+  const queryClient = useQueryClient()
+  const { user } = useAuth()
+
+  return useMutation({
+    mutationFn: ({ conversationId, isHidden }: { conversationId: string; isHidden: boolean }) =>
+      toggleHideApi(conversationId, isHidden),
+    onMutate: async ({ conversationId, isHidden }) => {
+      await queryClient.cancelQueries({ queryKey: chatKeys.conversations() })
+      const previousConversations = queryClient.getQueryData<ConversationResponse[]>(chatKeys.conversations())
+
+      if (previousConversations) {
+        if (isHidden) {
+          // Optimistically hide from list
+          queryClient.setQueryData(
+            chatKeys.conversations(),
+            previousConversations.filter((conv) => conv.id !== conversationId)
+          )
+        } else {
+          queryClient.setQueryData(
+            chatKeys.conversations(),
+            previousConversations.map((conv: ConversationResponse) => {
+              if (conv.id === conversationId) {
+                return {
+                  ...conv,
+                  members: conv.members?.map((m) => (m.userId === user?.id ? { ...m, hidden: isHidden } : m))
+                }
+              }
+              return conv
+            })
+          )
+        }
+      }
+
+      return { previousConversations }
+    },
+    onError: (error, _vars, context) => {
+      console.error('Error toggling hide:', error)
+      if (context?.previousConversations) {
+        queryClient.setQueryData(chatKeys.conversations(), context.previousConversations)
+      }
+    }
+  })
+}
+
+export const useUpdateMessageExpirationMutation = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ conversationId, days }: { conversationId: string; days: number }) =>
+      updateMessageExpirationApi(conversationId, days),
+    onSuccess: (updatedConv, variables) => {
+      queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
+        if (!oldData) return [updatedConv]
+        return oldData.map((conv) => (conv.id === updatedConv.id ? { 
+          ...conv, 
+          ...updatedConv,
+          friendshipStatus: updatedConv.friendshipStatus ?? conv.friendshipStatus,
+          status: updatedConv.status ?? conv.status,
+          lastSeenAt: updatedConv.lastSeenAt ?? conv.lastSeenAt
+        } : conv))
+      })
+    },
+    onError: (error) => {
+      console.error('Failed to update message expiration', error)
     }
   })
 }

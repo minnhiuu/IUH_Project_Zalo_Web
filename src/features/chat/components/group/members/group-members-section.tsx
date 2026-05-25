@@ -4,20 +4,23 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { useGroupMembersInfinite } from '../../../queries/use-queries'
+import { useBatchFriendshipStatus } from '@/features/friend/queries/use-queries'
 import { useSendFriendRequest } from '@/features/friend/queries/use-mutations'
-import {
-  useRemoveMemberFromGroupMutation,
-  usePromoteToAdminMutation,
-  useDemoteFromAdminMutation
-} from '../../../queries/use-mutations'
+import { usePromoteToAdminMutation, useDemoteFromAdminMutation } from '../../../queries/use-mutations'
 import { useChatText } from '../../../i18n/use-chat-text'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { GroupMemberRole } from '@/constants/enum'
 import { useDebounce } from '@/hooks/use-debounce'
+import { BONDHUB_AI } from '@/constants/system'
 import { MemberActionMenu } from './member-action-menu'
 import { MemberRoleBadge } from './member-role-badge'
 import type { GroupMemberListItemResponse } from '../../../schemas/chat.schema'
 import { RemoveMemberDialog } from './remove-member-dialog'
+import { AddFriendConfirmDialog } from '@/features/friend/components/add-friend-confirm-dialog'
+import { useGetOrCreateConversationMutation } from '../../../queries/use-mutations'
+import { useNavigate } from 'react-router'
+import { useFriendText } from '@/features/friend/i18n/use-friend-text'
+import type { UserSummaryResponse } from '@/shared/user/user-summary'
 
 interface GroupMembersSectionProps {
   conversationId: string
@@ -55,7 +58,24 @@ export function GroupMembersSection({
   const [targetMember, setTargetMember] = useState<GroupMemberListItemResponse | null>(null)
   const [removeOpen, setRemoveOpen] = useState(false)
 
-  const members = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data])
+  const [addFriendUser, setAddFriendUser] = useState<UserSummaryResponse | null>(null)
+  const [addFriendOpen, setAddFriendOpen] = useState(false)
+  const [sentRequestUserIds, setSentRequestUserIds] = useState<Set<string>>(new Set())
+
+  const { text: friendText } = useFriendText()
+  const navigate = useNavigate()
+  const getOrCreateMutation = useGetOrCreateConversationMutation()
+
+  const members = useMemo(
+    () => (data?.pages.flatMap((page) => page.data) ?? []).filter((member) => member.userId !== BONDHUB_AI.userId),
+    [data]
+  )
+
+  const checkIds = useMemo(() => {
+    return members.filter((m) => !m.isFriend && !m.isCurrentUser).map((m) => m.userId)
+  }, [members])
+
+  const { data: batchStatuses } = useBatchFriendshipStatus(checkIds, checkIds.length > 0)
 
   const handleMenuAction = (
     action: 'leave' | 'add-deputy' | 'remove-deputy' | 'remove-member',
@@ -138,15 +158,42 @@ export function GroupMembersSection({
             }}
             onAction={(action, selectedMember) => handleMenuAction(action, selectedMember)}
           />
-          {!member.isCurrentUser && !member.isFriend && (
-            <Button
-              size={'lg'}
-              variant={'secondary-blue'}
-              disabled={sendFriendRequest.isPending}
-              onClick={() => sendFriendRequest.mutate({ receiverId: member.userId })}
-            >
-              {addFriendLabel}
-            </Button>
+          {!member.isCurrentUser && (
+            <>
+          {!member.isFriend && batchStatuses?.[member.userId] !== 'ACCEPTED' && (
+            sentRequestUserIds.has(member.userId) || batchStatuses?.[member.userId] === 'PENDING' ? (
+              <Button
+                size={'lg'}
+                variant={'outline-blue'}
+                disabled={getOrCreateMutation.isPending}
+                onClick={() => {
+                  getOrCreateMutation.mutate(member.userId, {
+                    onSuccess: (conv) => navigate(`/chat/${conv.id}`)
+                  })
+                }}
+              >
+                {friendText.actions.message}
+              </Button>
+            ) : (
+              <Button
+                size={'lg'}
+                variant={'secondary-blue'}
+                disabled={sendFriendRequest.isPending}
+                onClick={() => {
+                  setAddFriendUser({
+                    id: member.userId,
+                    fullName: member.fullName,
+                    avatar: member.avatar ?? '',
+                    phoneNumber: member.phoneNumber ?? ''
+                  })
+                  setAddFriendOpen(true)
+                }}
+              >
+                {addFriendLabel}
+              </Button>
+                )
+              )}
+            </>
           )}
         </div>
       </div>
@@ -201,7 +248,18 @@ export function GroupMembersSection({
           onOpenChange={setRemoveOpen}
           conversationId={conversationId}
           targetUserId={targetMember.userId}
-          targetUserName={targetMember.fullName}
+        />
+      )}
+      {addFriendUser && (
+        <AddFriendConfirmDialog
+          open={addFriendOpen}
+          onOpenChange={setAddFriendOpen}
+          user={addFriendUser}
+          onSuccess={() => {
+            if (addFriendUser) {
+              setSentRequestUserIds((prev) => new Set(prev).add(addFriendUser.id))
+            }
+          }}
         />
       )}
     </div>

@@ -12,6 +12,7 @@ import {
   getBlockedMembersApi,
   getBlockCandidatesApi,
   getMyGroupConversationsApi,
+  getMessagesV2,
   getConversationParticipantsApi,
   type GroupSortOption,
   type GroupFilterOption
@@ -19,7 +20,7 @@ import {
 import type { PageResponse } from '@/shared/api'
 import { chatKeys } from './keys'
 import { QUERY_POLICIES } from '@/constants/query-policies'
-import type { MessageResponse } from '../schemas/chat.schema'
+import type { MessageResponse, MessageCursorParams, CursorPageResponse } from '../schemas/chat.schema'
 
 export const chatOptions = {
   conversations: () =>
@@ -35,7 +36,7 @@ export const chatOptions = {
   messages: (conversationId: string) =>
     infiniteQueryOptions({
       ...QUERY_POLICIES.REALTIME,
-      queryKey: chatKeys.messages(conversationId),
+      queryKey: chatKeys.legacyMessages(conversationId),
       queryFn: async ({ pageParam = 0 }) => {
         const response = await getMessages(conversationId, pageParam as number)
         return response
@@ -47,6 +48,19 @@ export const chatOptions = {
         }
         return undefined
       }
+    }),
+  messagesV2: (conversationId: string, jumpTargetId?: string | null) =>
+    infiniteQueryOptions({
+      ...QUERY_POLICIES.LIST,
+      queryKey: chatKeys.messages(conversationId),
+      queryFn: ({ pageParam }) => getMessagesV2(conversationId, pageParam as MessageCursorParams),
+      initialPageParam: (jumpTargetId
+        ? { limit: 20, aroundMessageId: jumpTargetId }
+        : { limit: 20, direction: 'OLDER', cursor: null }) as MessageCursorParams,
+      getNextPageParam: (lastPage: CursorPageResponse<MessageResponse>): MessageCursorParams | undefined =>
+        lastPage.hasMoreOlder ? { cursor: lastPage.olderCursor, direction: 'OLDER', limit: 20 } : undefined,
+      getPreviousPageParam: (firstPage: CursorPageResponse<MessageResponse>): MessageCursorParams | undefined =>
+        firstPage.hasMoreNewer ? { cursor: firstPage.newerCursor, direction: 'NEWER', limit: 20 } : undefined
     }),
   friendsDirectory: (conversationId?: string | null) =>
     queryOptions({
@@ -74,10 +88,12 @@ export const chatOptions = {
     }),
   pins: (conversationId: string) =>
     queryOptions({
-      ...QUERY_POLICIES.REALTIME,
+      ...QUERY_POLICIES.DETAIL,
       queryKey: chatKeys.pins(conversationId),
       queryFn: () => getPinsApi(conversationId),
-      enabled: !!conversationId
+      enabled: !!conversationId,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false
     }),
   groupAdmins: (conversationId: string, size = 20) =>
     infiniteQueryOptions({

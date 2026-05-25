@@ -84,7 +84,7 @@ export const ELASTICSEARCH_KEYS = {
   controlBar: {
     inputPlaceholder: 'elasticsearch.controlBar.inputPlaceholder',
     syncUser: 'elasticsearch.controlBar.syncUser',
-    sync: 'elasticsearch.controlBar.sync',
+    syncMessage: 'elasticsearch.controlBar.syncMessage',
     reindexAll: 'elasticsearch.controlBar.reindexAll',
     reindexMessages: 'elasticsearch.controlBar.reindexMessages',
     reindexGroups: 'elasticsearch.controlBar.reindexGroups',
@@ -147,6 +147,18 @@ export const ELASTICSEARCH_KEYS = {
         reasonLabel: 'elasticsearch.userTab.dialogs.deadEvents.reasonLabel'
       },
       cancel: 'elasticsearch.userTab.dialogs.cancel'
+    },
+    tooltips: {
+      totalDocs: 'elasticsearch.userTab.tooltips.totalDocs',
+      storageSize: 'elasticsearch.userTab.tooltips.storageSize',
+      currentIndex: 'elasticsearch.userTab.tooltips.currentIndex',
+      aliasName: 'elasticsearch.userTab.tooltips.aliasName',
+      shards: 'elasticsearch.userTab.tooltips.shards',
+      replicas: 'elasticsearch.userTab.tooltips.replicas',
+      mongodbCount: 'elasticsearch.userTab.tooltips.mongodbCount',
+      esCount: 'elasticsearch.userTab.tooltips.esCount',
+      integrity: 'elasticsearch.userTab.tooltips.integrity',
+      dlq: 'elasticsearch.userTab.tooltips.dlq'
     }
   },
   messages: {

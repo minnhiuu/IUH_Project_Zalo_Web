@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useSearchUser } from '@/features/search-user/queries/use-queries'
+import { useSearchUser } from '@/features/search/user/queries/use-queries'
 import { useDebounce } from '@/hooks/use-debounce'
 import { useFriendshipStatus, useAcceptFriendRequest, useCancelFriendRequest } from '../queries'
 import { FriendStatus } from '../schemas/friend.schema'
@@ -69,7 +69,7 @@ function SearchResultItem({ user, onAddFriend }: SearchResultItemProps) {
         break
       case 'accept':
         if (friendshipStatus?.friendshipId) {
-          acceptRequestMutation.mutate(friendshipStatus.friendshipId, {
+          acceptRequestMutation.mutate({ requestId: friendshipStatus.friendshipId }, {
             onSuccess: () => {
               showSuccessToast(text.toast.acceptSuccess)
             },

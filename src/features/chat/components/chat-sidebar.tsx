@@ -1,9 +1,30 @@
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { chatKeys } from '../queries/keys'
-import { UserPlus, Users, Filter, MoreHorizontal, Megaphone } from 'lucide-react'
+import {
+  UserPlus,
+  Users,
+  Filter,
+  MoreHorizontal,
+  Megaphone,
+  Trash2,
+  Clock3,
+  FolderTree,
+  BellOff,
+  Flag,
+  Pin
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { getUnreadAnchorApi, type UnreadAnchorResponse } from '../api/chat.api'
 import { useConversationsQuery } from '../queries/use-queries'
+import {
+  useMarkAsReadMutation,
+  useMarkAsUnreadMutation,
+  useClearConversationHistoryMutation,
+  useDeleteConversationMutation,
+  useTogglePinConversationMutation,
+  useToggleMuteConversationMutation
+} from '../queries/use-mutations'
 import { useAuth } from '@/features/auth'
 import { MessageType, MessageStatus } from '@/constants/enum'
 import { useChatText } from '../i18n/use-chat-text'
@@ -18,26 +39,80 @@ import { getConversationDisplayName } from '../utils/group-name'
 import { stripMentionsForPreview } from '../utils/mention'
 import { SearchAndActions, type SearchAction } from '@/components/common/search-and-actions'
 import { AddFriendSearchDialog } from '@/features/friend'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
+import { ConversationHistoryConfirmDialog } from './conversation-history-confirm-dialog'
+import { showSimpleToast } from '@/utils/toast'
+import { BONDHUB_AI } from '@/constants/system'
 
 interface ChatSidebarProps {
   selectedChatId?: string
-  onSelectChat: (chat: ConversationResponse) => void
+  onSelectChat: (chat: ConversationResponse, snapshotId?: string | null, unreadCount?: number) => void
+  onCaptureUnreadAnchor?: (conversationId: string, unreadAnchor: UnreadAnchorResponse) => void
+  setIsGlobalSearchOpen: (open: boolean) => void
 }
 
-export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) {
+export function ChatSidebar({ selectedChatId, onSelectChat, onCaptureUnreadAnchor, setIsGlobalSearchOpen }: ChatSidebarProps) {
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false)
   const [isAddFriendModalOpen, setIsAddFriendModalOpen] = useState(false)
+  const [openMenuChatId, setOpenMenuChatId] = useState<string | null>(null)
+  const [clearTarget, setClearTarget] = useState<ConversationResponse | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<ConversationResponse | null>(null)
   const { text, t, i18n } = useChatText()
   const { user } = useAuth()
   const { data: conversations, isLoading, isError } = useConversationsQuery()
   const queryClient = useQueryClient()
 
+  const isAiConversation = (chat: ConversationResponse) => {
+    return chat.members?.some((member) => member.userId === BONDHUB_AI.userId) ?? false
+  }
+
+  const getEffectiveUnreadCount = (chat: ConversationResponse) => {
+    if (isAiConversation(chat)) return 0
+    if (selectedChatId === chat.id) return 0
+    if (chat.manuallyMarkedUnread) return 1
+    return chat.unreadCount ?? 0
+  }
+  const { mutate: clearHistory, isPending: isClearing } = useClearConversationHistoryMutation()
+  const { mutate: deleteConversation, isPending: isDeleting } = useDeleteConversationMutation()
+  const { mutate: markAsRead } = useMarkAsReadMutation()
+  const { mutate: markAsUnread } = useMarkAsUnreadMutation()
+  const { mutate: togglePin } = useTogglePinConversationMutation()
+  const { mutate: toggleMute } = useToggleMuteConversationMutation()
+
   const handleSelectChat = (chat: ConversationResponse) => {
-    // Immediately zero out unread badge so bold/dot disappears on click
-    queryClient.setQueryData(chatKeys.conversations(), (old: ConversationResponse[] | undefined) =>
-      old?.map((c) => (c.id === chat.id ? { ...c, unreadCount: 0 } : c))
-    )
-    onSelectChat(chat)
+    const unreadCount = getEffectiveUnreadCount(chat)
+    const isManuallyUnread = !!chat.manuallyMarkedUnread
+
+    let capturedSnapshotId: string | null = null
+    if (unreadCount > 0) {
+      const myMember = chat.members?.find((m) => m.userId === user?.id)
+      capturedSnapshotId = myMember?.lastReadMessageId || null
+    }
+
+    onSelectChat(chat, capturedSnapshotId, unreadCount)
+
+    if (unreadCount > 0 || isManuallyUnread) {
+      if (unreadCount > 0 && !isManuallyUnread) {
+        void getUnreadAnchorApi(chat.id)
+          .then((unreadAnchor) => {
+            onCaptureUnreadAnchor?.(chat.id, unreadAnchor)
+          })
+          .catch((error) => {
+            console.error('Failed to fetch unread anchor:', error)
+          })
+          .finally(() => {
+            markAsRead({ conversationId: chat.id, lastReadMessageId: chat.lastMessage?.id ?? undefined })
+          })
+      } else {
+        markAsRead({ conversationId: chat.id })
+      }
+    }
   }
 
   const getPreviewDisplay = (chat: ConversationResponse) => {
@@ -59,6 +134,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
         {
           content: stripMentionsForPreview(chat.lastMessage.content),
           isFromMe: !!chat.lastMessage.isFromMe,
+          isGroup: chat.isGroup,
           senderName: chat.lastMessage.senderName || '',
           type: chat.lastMessage.type as MessageType,
           status: chat.lastMessage.status as MessageStatus
@@ -86,7 +162,11 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
     <div className='w-[344px] flex flex-col border-r border-border bg-background shrink-0 h-full'>
       {/* Search and Quick Actions */}
       <div className='px-4 py-3 shrink-0'>
-        <SearchAndActions placeholder={text.searchPlaceholder} actions={headerActions} />
+        <SearchAndActions
+          placeholder={text.searchPlaceholder}
+          actions={headerActions}
+          onFocus={() => setIsGlobalSearchOpen(true)}
+        />
       </div>
 
       {/* Filters Bar */}
@@ -118,16 +198,20 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
         {conversations?.map((chat: ConversationResponse) => {
           const previewDisplay = getPreviewDisplay(chat)
           const isSelected = selectedChatId === chat.id
+          const effectiveUnreadCount = getEffectiveUnreadCount(chat)
+          const isMenuOpen = openMenuChatId === chat.id
 
-          return (
-            <div
-              key={chat.id}
-              onClick={() => handleSelectChat(chat)}
-              className={cn(
-                'flex items-center h-[78px] px-4 cursor-pointer transition-colors group relative',
-                isSelected ? 'bg-layer-selected' : 'hover:bg-muted/40'
-              )}
-            >
+            const isPinned = !!chat.isPinned
+
+            return (
+              <div
+                key={chat.id}
+                onClick={() => handleSelectChat(chat)}
+                className={cn(
+                  'flex items-center h-[78px] px-4 cursor-pointer transition-colors group relative',
+                  isSelected ? 'bg-layer-selected' : isPinned ? 'bg-primary/5' : 'hover:bg-muted/40'
+                )}
+              >
               <div className='relative shrink-0'>
                 {chat.isGroup && !chat.avatar ? (
                   <GroupAvatar
@@ -153,15 +237,16 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
                   <h3
                     className={cn(
                       'text-base truncate text-text-primary',
-                      chat.unreadCount && chat.unreadCount > 0 ? 'font-semibold' : 'font-normal'
+                      effectiveUnreadCount > 0 ? 'font-semibold' : 'font-normal'
                     )}
                   >
                     {getConversationDisplayName(chat, 'Group', undefined, user?.id)}
+                    {isPinned && <Pin className='w-3 h-3 ml-1 fill-primary text-primary rotate-45 shrink-0' />}
                   </h3>
                   <span
                     className={cn(
                       'text-xs text-text-secondary whitespace-nowrap ml-2',
-                      chat.unreadCount && chat.unreadCount > 0 ? 'font-semibold' : 'font-normal'
+                      effectiveUnreadCount > 0 ? 'font-semibold' : 'font-normal'
                     )}
                   >
                     {chat.lastMessage?.timestamp ? formatMessageTime(chat.lastMessage.timestamp, i18n.language) : ''}
@@ -172,9 +257,7 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
                   <p
                     className={cn(
                       'text-sm flex items-center gap-1 min-w-0 pr-4 truncate',
-                      chat.unreadCount && chat.unreadCount > 0
-                        ? 'text-text-primary font-medium'
-                        : 'text-text-secondary font-normal'
+                      effectiveUnreadCount > 0 ? 'text-text-primary font-medium' : 'text-text-secondary font-normal'
                     )}
                   >
                     {previewDisplay.showPromoteTargetIcon && (
@@ -183,29 +266,36 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
                     <span className='truncate'>{previewDisplay.text}</span>
                   </p>
 
-                  {!!chat.unreadCount && chat.unreadCount > 0 && (
-                    <div className='flex items-center gap-1 shrink-0'>
+                  {effectiveUnreadCount > 0 && (
+                    <div className='flex flex-col items-end gap-1 shrink-0 ml-2'>
                       {(() => {
                         const meta = chat.lastMessage?.metadata as Record<string, unknown> | null
                         const mentions = meta?.mentions as string[] | undefined
                         const isMentioned = mentions?.includes(user?.id || '')
                         const isSystem = chat.lastMessage?.type === MessageType.System
                         const isNegativeSysAction = meta?.action === 'DISBAND_GROUP'
+                        const isManual = !!chat.manuallyMarkedUnread
 
                         return (
                           <>
                             {isMentioned && (
-                              <div className='bg-primary text-white text-[10px] font-bold w-[18px] h-[18px] rounded-full flex items-center justify-center'>
+                              <div className='bg-primary text-white text-[10px] font-bold w-[18px] h-[18px] rounded-full flex items-center justify-center mb-1'>
                                 @
                               </div>
                             )}
-                            {!isSystem && (
-                              <div className='bg-destructive text-white text-[10px] font-bold px-1.5 min-w-[18px] h-[18px] rounded-full flex items-center justify-center'>
-                                {chat.unreadCount > 5 ? '5+' : chat.unreadCount}
-                              </div>
-                            )}
-                            {isSystem && !isNegativeSysAction && (
-                              <div className='w-2 h-2 bg-destructive rounded-full mr-1' />
+                            {isManual ? (
+                              <div className='w-2.5 h-2.5 bg-destructive rounded-full mt-1' />
+                            ) : (
+                              <>
+                                {!isSystem && (
+                                  <div className='bg-destructive text-white text-[10px] font-bold px-1.5 min-w-[18px] h-[18px] rounded-full flex items-center justify-center'>
+                                    {effectiveUnreadCount > 5 ? '5+' : effectiveUnreadCount}
+                                  </div>
+                                )}
+                                {isSystem && !isNegativeSysAction && (
+                                  <div className='w-2 h-2 bg-destructive rounded-full mt-1' />
+                                )}
+                              </>
                             )}
                           </>
                         )
@@ -216,15 +306,150 @@ export function ChatSidebar({ selectedChatId, onSelectChat }: ChatSidebarProps) 
               </div>
 
               {/* Hover Actions */}
-              <div className='absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-background/90 rounded-md p-0.5 shadow-sm border border-border/40'>
-                <button className='p-1.5 hover:bg-muted rounded transition-colors'>
-                  <MoreHorizontal className='w-4 h-4 text-text-secondary' />
-                </button>
+              <div
+                className={cn(
+                  'absolute right-2 top-1/2 -translate-y-1/2 transition-opacity bg-background/90 rounded-md p-0.5 shadow-sm border border-border/40 z-10',
+                  isMenuOpen ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                )}
+              >
+                <DropdownMenu
+                  modal={false}
+                  open={isMenuOpen}
+                  onOpenChange={(open) => setOpenMenuChatId(open ? chat.id : null)}
+                >
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      className='p-1.5 hover:bg-muted rounded transition-colors'
+                      onClick={(e) => e.stopPropagation()}
+                      onPointerDown={(e) => e.stopPropagation()}
+                    >
+                      <MoreHorizontal className='w-4 h-4 text-text-secondary' />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align='end' className='w-56 rounded-xl'>
+                    <DropdownMenuItem
+                      className='text-[14px]'
+                      onClick={(e) => {
+                        e.preventDefault()
+                        togglePin({ conversationId: chat.id, isPinned: !isPinned })
+                        setOpenMenuChatId(null)
+                      }}
+                    >
+                      {isPinned ? 'Bỏ ghim hội thoại' : 'Ghim hội thoại'}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className='text-[14px]' onClick={(e) => e.preventDefault()}>
+                      <FolderTree className='w-4 h-4 mr-2' />
+                      Phân loại
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className='text-[14px]'
+                      onClick={(e) => {
+                        e.preventDefault()
+                        const isUnread = effectiveUnreadCount > 0 || !!chat.manuallyMarkedUnread
+                        if (isUnread) {
+                          markAsRead({ conversationId: chat.id })
+                        } else {
+                          markAsUnread(chat.id)
+                        }
+                        setOpenMenuChatId(null)
+                      }}
+                    >
+                      {effectiveUnreadCount > 0 || chat.manuallyMarkedUnread
+                        ? 'Đánh dấu đã đọc'
+                        : 'Đánh dấu chưa đọc'}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className='text-[14px]' onClick={(e) => e.preventDefault()}>
+                      <Users className='w-4 h-4 mr-2' />
+                      Thêm vào nhóm
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className='text-[14px]'
+                      onClick={(e) => {
+                        e.preventDefault()
+                        const myMember = chat.members?.find((m) => m.userId === user?.id)
+                        toggleMute({ conversationId: chat.id, isMuted: !myMember?.muted })
+                        setOpenMenuChatId(null)
+                      }}
+                    >
+                      <BellOff className='w-4 h-4 mr-2' />
+                      {chat.members?.find((m) => m.userId === user?.id)?.muted ? 'Bật thông báo' : 'Tắt thông báo'}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className='text-[14px]' onClick={(e) => e.preventDefault()}>
+                      <Clock3 className='w-4 h-4 mr-2' />
+                      Tin nhắn tự xóa
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      className='text-[14px] text-destructive focus:text-destructive'
+                      onClick={(e) => {
+                        e.preventDefault()
+                        setOpenMenuChatId(null)
+                        setDeleteTarget(chat)
+                      }}
+                    >
+                      <Trash2 className='w-4 h-4 mr-2' />
+                      Xóa hội thoại
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className='text-[14px]' onClick={(e) => e.preventDefault()}>
+                      <Flag className='w-4 h-4 mr-2' />
+                      Báo xấu
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           )
         })}
       </div>
+
+      <ConversationHistoryConfirmDialog
+        open={!!clearTarget}
+        onOpenChange={(open) => {
+          if (!open) setClearTarget(null)
+        }}
+        title='Xóa lịch sử chat'
+        description={`Bạn có chắc muốn xóa lịch sử chat với ${clearTarget ? getConversationDisplayName(clearTarget, 'Người dùng', undefined, user?.id) : ''}?`}
+        confirmLabel='Xóa'
+        cancelLabel='Hủy'
+        isPending={isClearing}
+        onConfirm={() => {
+          if (!clearTarget) return
+          clearHistory(clearTarget.id, {
+            onSuccess: () => {
+              showSimpleToast('Đã xóa lịch sử chat')
+              setClearTarget(null)
+            }
+          })
+        }}
+      />
+
+      <ConversationHistoryConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null)
+        }}
+        title='Xóa hội thoại'
+        description='Bạn sẽ không còn thấy hội thoại này trong danh sách. Hành động này chỉ áp dụng với tài khoản của bạn.'
+        confirmLabel='Xóa hội thoại'
+        cancelLabel='Hủy'
+        isPending={isDeleting}
+        destructive
+        onConfirm={() => {
+          if (!deleteTarget) return
+          const deletedId = deleteTarget.id
+          deleteConversation(deletedId, {
+            onSuccess: () => {
+              showSimpleToast('Đã xóa hội thoại')
+              setDeleteTarget(null)
+              if (selectedChatId === deletedId) {
+                queryClient.removeQueries({ queryKey: chatKeys.messages(deletedId) })
+              }
+            }
+          })
+        }}
+      />
 
       <CreateGroupDialog isOpen={isCreateGroupModalOpen} onClose={() => setIsCreateGroupModalOpen(false)} />
       <AddFriendSearchDialog open={isAddFriendModalOpen} onOpenChange={setIsAddFriendModalOpen} />

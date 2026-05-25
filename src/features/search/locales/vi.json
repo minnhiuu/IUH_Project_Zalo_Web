@@ -1,0 +1,98 @@
+{
+  "placeholder": "Tìm kiếm",
+  "close": "Đóng",
+  "recentHeader": "Tìm gần đây",
+  "noRecent": "Không có tìm kiếm nào gần đây",
+  "searchResult": "Kết quả cho \"{{query}}\"",
+  "noResult": "Không tìm thấy kết quả",
+  "noResultDescription": "Vui lòng thử lại từ khóa khác hoặc tìm theo số điện thoại",
+  "recent": "Mới đây",
+  "clearAll": "Xóa tất cả",
+  "clearHistory": {
+    "title": "Xóa lịch sử tìm kiếm?",
+    "confirmMessage": "Bạn sẽ không thể hoàn tác hành động này. Nếu xóa lịch sử tìm kiếm, bạn có thể vẫn nhìn thấy các tài khoản mình đã tìm kiếm trong kết quả gợi ý.",
+    "cancel": "Lúc khác",
+    "confirm": "Xóa tất cả"
+  },
+  "validation": {
+    "idRequired": "ID không được để trống",
+    "nameRequired": "Tên không được để trống",
+    "typeInvalid": "Loại tìm kiếm không hợp lệ"
+  },
+  "findByPhone": "Tìm bạn qua số điện thoại:",
+  "phoneNumber": "Số điện thoại:",
+  "loadMore": "Xem th\u00eam",
+  "relationship": {
+    "mutualFriends": "{{count}} b\u1ea1n chung",
+    "sharedGroups": "{{count}} nh\u00f3m chung",
+    "inContact": "C\u00f3 trong danh b\u1ea1"
+  },
+  "tabs": {
+    "all": "Tất cả",
+    "contacts": "Liên hệ",
+    "messages": "Tin nhắn",
+    "file": "File",
+    "files": "File"
+  },
+  "globalSearch": {
+    "title": "Tìm kiếm",
+    "placeholder": "Tìm kiếm",
+    "close": "Đóng",
+    "tabs": {
+      "all": "Tất cả",
+      "contacts": "Liên lạc",
+      "messages": "Tin nhắn",
+      "files": "File"
+    },
+    "sections": {
+      "contacts": "Liên lạc",
+      "messages": "Tin nhắn",
+      "files": "File",
+      "recent": "Tìm kiếm gần đây",
+      "people": "Cá nhân",
+      "groups": "Nhóm"
+    },
+    "actions": {
+      "viewAll": "Xem tất cả",
+      "viewAllMessages": "Xem tất cả tin nhắn",
+      "viewAllFiles": "Xem tất cả tập tin",
+      "viewAllContacts": "Xem tất cả liên hệ",
+      "viewAllPeople": "Xem tất cả cá nhân",
+      "viewAllGroups": "Xem tất cả nhóm",
+      "clearAll": "Xóa tất cả"
+    },
+    "filters": {
+      "label": "Lọc:",
+      "sender": "Người gửi",
+      "time": "Thời gian",
+      "all": "Tất cả",
+      "you": "Bạn",
+      "timeSuggestion": "Gợi ý thời gian",
+      "last7Days": "7 ngày qua",
+      "last30Days": "30 ngày qua",
+      "last3Months": "3 tháng qua",
+      "chooseTimeRange": "Chọn khoảng thời gian",
+      "fromDate": "Từ ngày",
+      "toDate": "Đến ngày",
+      "cancel": "Hủy",
+      "confirm": "Xác nhận",
+      "type": "Loại"
+    },
+    "states": {
+      "empty": "Không tìm thấy kết quả phù hợp",
+      "noRecent": "Chưa có lịch sử tìm kiếm",
+      "loading": "Đang tìm kiếm...",
+      "developing": "Đang phát triển tính năng xem chi tiết tab {{tab}}..."
+    },
+    "contactTypes": {
+      "friend": "Bạn bè",
+      "members": "{{count}} thành viên"
+    },
+    "resultCard": {
+      "forward": "Chuyển tiếp",
+      "jump": "Xem tin nhắn gốc",
+      "preview": "Xem trước",
+      "download": "Tải về"
+    }
+  }
+}

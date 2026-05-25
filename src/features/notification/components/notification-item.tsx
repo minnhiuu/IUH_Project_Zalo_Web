@@ -1,28 +1,48 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { UserAvatar } from '@/components/common/user-avatar'
 import { Button } from '@/components/ui/button'
 import type { NotificationGroupResponse } from '@/features/notification/schemas/notification.schema'
 import { cn } from '@/lib/utils'
 import { NotificationType } from '@/constants'
 import React, { useState } from 'react'
 import { useNotificationText } from '../locales/use-notification-text'
-import { MessageCircle, Heart, Gift, Phone, User, Shield, AtSign, UserPlus, AlertTriangle } from 'lucide-react'
+import {
+  MessageCircle,
+  Heart,
+  Gift,
+  Phone,
+  User,
+  Shield,
+  AtSign,
+  UserPlus,
+  AlertTriangle,
+  Trash2,
+  EyeOff,
+  AlertCircle
+} from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { formatTimeAgo } from '@/utils/date'
 import { useAcceptFriendRequest, useDeclineFriendRequest } from '@/features/friend/queries/use-mutations'
-import { showSuccessToast, showErrorToast } from '@/utils/toast'
+import { useNavigate, useSearchParams } from 'react-router'
+import { PATHS } from '@/constants/path'
 
 interface NotificationItemProps {
   notification: NotificationGroupResponse
   onMarkAsRead: (id: string) => void
 }
 
+const MODERATION_TYPES: ReadonlySet<string> = new Set(['CONTENT_REMOVED', 'CONTENT_HIDDEN', 'USER_WARNED'])
+
+const isModerationNotification = (type: NotificationType) => MODERATION_TYPES.has(type)
+
 const getBadgeConfig = (type: NotificationType) => {
   switch (type) {
     case 'MESSAGE_DIRECT':
       return { icon: MessageCircle, color: 'bg-green-500' }
-    case 'POST_LIKE':
-    case 'COMMENT_LIKE':
+    case 'POST_REACTION':
+    case 'COMMENT_REACTION':
       return { icon: Heart, color: 'bg-brand-blue' }
+    case 'POST_PUBLISHED':
+      return { icon: MessageCircle, color: 'bg-brand-blue' }
     case 'FRIEND_REQUEST':
       return { icon: User, color: 'bg-brand-blue' }
     case 'FRIEND_ACCEPT':
@@ -42,6 +62,14 @@ const getBadgeConfig = (type: NotificationType) => {
       return { icon: Shield, color: 'bg-brand-blue' }
     case 'DLQ_ALERT':
       return { icon: AlertTriangle, color: 'bg-destructive' }
+    case 'CONTENT_REMOVED':
+      return { icon: Trash2, color: 'bg-destructive' }
+    case 'CONTENT_HIDDEN':
+      return { icon: EyeOff, color: 'bg-orange-500' }
+    case 'USER_WARNED':
+      return { icon: AlertCircle, color: 'bg-orange-500' }
+    case 'NEW_DEVICE_LOGIN':
+      return { icon: Shield, color: 'bg-orange-500' }
     default:
       return { icon: User, color: 'bg-gray-500' }
   }
@@ -51,61 +79,167 @@ export const NotificationItem = React.memo(({ notification, onMarkAsRead }: Noti
   const { action } = useNotificationText()
   const { i18n } = useTranslation()
   const [status, setStatus] = useState<'pending' | 'accepted' | 'declined'>('pending')
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const highlightId = searchParams.get('highlight')
+  const isHighlighted = highlightId === notification.id
   const acceptRequestMutation = useAcceptFriendRequest()
   const declineRequestMutation = useDeclineFriendRequest()
+
+  const getModerationTargetPostId = (): string | null => {
+    if (!isModerationNotification(notification.type)) return null
+
+    if (notification.type === 'USER_WARNED') {
+      // For USER_WARNED, the targetId is in the payload (post/comment that triggered the warning)
+      const targetId = notification.payload?.targetId as string | undefined
+      const targetType = notification.payload?.targetType as string | undefined
+      if (targetId && (!targetType || targetType === 'post')) return targetId
+      return null
+    }
+
+    // For CONTENT_REMOVED / CONTENT_HIDDEN, referenceId is the post/comment ID
+    const targetType = notification.payload?.targetType as string | undefined
+    if (notification.referenceId && (!targetType || targetType === 'post')) {
+      return notification.referenceId
+    }
+    return null
+  }
+
+  const getPostNotificationPostId = (): string | null => {
+    if (
+      notification.type === 'POST_PUBLISHED' ||
+      notification.type === 'POST_COMMENT' ||
+      notification.type === 'POST_REACTION'
+    ) {
+      if (notification.referenceId) return notification.referenceId
+      const payloadPostId = notification.payload?.postId as string | undefined
+      return payloadPostId ?? null
+    }
+
+    if (notification.type === 'COMMENT_REPLY') {
+      const payloadPostId = notification.payload?.postId as string | undefined
+      return payloadPostId ?? null
+    }
+
+    return null
+  }
 
   const handleClick = () => {
     if (!notification.read) {
       onMarkAsRead(notification.id)
     }
+
+    if (notification.type === 'NEW_DEVICE_LOGIN') {
+      window.dispatchEvent(
+        new CustomEvent('open-new-device-login-modal', {
+          detail: {
+            deviceName: notification.payload?.deviceName as string,
+            ipAddress: notification.payload?.ipAddress as string,
+            loginTime: notification.lastModifiedAt,
+            sessionId: notification.payload?.sessionId as string
+          }
+        })
+      )
+      return
+    }
+
+    // Handle friend requests and other system notifications
+    if (notification.type === 'FRIEND_REQUEST' || notification.type === 'FRIEND_ACCEPT') {
+      navigate(`${PATHS.NOTIFICATIONS}?highlight=${notification.id}`)
+      return
+    }
+
+    // Handle post-related notifications
+    const postId = getModerationTargetPostId() ?? getPostNotificationPostId()
+    if (postId) {
+      navigate(`${PATHS.SOCIAL_FEED}?postId=${postId}`)
+      return
+    }
+
+    // Default: navigate to notifications page
+    navigate(`${PATHS.NOTIFICATIONS}?highlight=${notification.id}`)
   }
 
   const handleAcceptRequest = async (e: React.MouseEvent) => {
     e.stopPropagation()
-    const requestId = notification.payload?.requestId as string
-    if (!requestId) return
-    acceptRequestMutation.mutate(requestId, {
-      onSuccess: () => {
-        showSuccessToast('Đã chấp nhận lời mời kết bạn')
-        setStatus('accepted')
+    const requestId = (notification.payload?.requestId || notification.referenceId) as string
+    if (!requestId || requestId === 'undefined') return
+
+    if (!notification.read) {
+      onMarkAsRead(notification.id)
+    }
+
+    acceptRequestMutation.mutate(
+      {
+        requestId,
+        requesterId: notification.actorIds?.[0]
       },
-      onError: () => {
-        showErrorToast('Không thể chấp nhận lời mời')
+      {
+        onSuccess: () => {
+          setStatus('accepted')
+        }
       }
-    })
+    )
   }
 
   const handleDeclineRequest = async (e: React.MouseEvent) => {
     e.stopPropagation()
-    const requestId = notification.payload?.requestId as string
-    if (!requestId) return
-    declineRequestMutation.mutate(requestId, {
-      onSuccess: () => {
-        showSuccessToast('Đã từ chối lời mời kết bạn')
-        setStatus('declined')
+    const requestId = (notification.payload?.requestId || notification.referenceId) as string
+    if (!requestId || requestId === 'undefined') return
+
+    if (!notification.read) {
+      onMarkAsRead(notification.id)
+    }
+
+    declineRequestMutation.mutate(
+      {
+        requestId,
+        requesterId: notification.actorIds?.[0]
       },
-      onError: () => {
-        showErrorToast('Không thể từ chối lời mời')
+      {
+        onSuccess: () => {
+          setStatus('declined')
+        }
       }
-    })
+    )
   }
   const badge = getBadgeConfig(notification.type)
+  const isModeration = isModerationNotification(notification.type)
 
   return (
     <div
       onClick={handleClick}
       className={cn(
         'group flex cursor-pointer gap-3 p-2 mx-2 rounded-lg transition-all duration-200 hover:bg-muted/60 relative',
-        !notification.read && 'bg-brand-blue-light/20 dark:bg-brand-blue/5'
+        !notification.read && 'bg-brand-blue-light/20 dark:bg-brand-blue/5',
+        isHighlighted &&
+          'ring-2 ring-brand-blue/30 bg-brand-blue/5 border border-brand-blue/20 animate-in fade-in zoom-in duration-500'
       )}
     >
-      <div className='relative shrink-0'>
-        <Avatar className='h-14 w-14'>
-          {notification.payload?.actorAvatar && <AvatarImage src={notification.payload.actorAvatar as string} />}
-          <AvatarFallback className='bg-primary/5 text-primary text-lg font-bold'>
-            {((notification.payload?.actorName as string) || 'U').substring(0, 1).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
+      <div className='relative shrink-0 h-14 w-14'>
+        {isModeration ? (
+          <div
+            className={cn(
+              'h-14 w-14 rounded-full flex items-center justify-center',
+              notification.type === 'CONTENT_REMOVED' ? 'bg-destructive/10' : 'bg-orange-500/10'
+            )}
+          >
+            <Shield
+              className={cn(
+                'h-7 w-7',
+                notification.type === 'CONTENT_REMOVED' ? 'text-destructive' : 'text-orange-500'
+              )}
+              strokeWidth={2}
+            />
+          </div>
+        ) : (
+          <UserAvatar
+            src={notification.payload?.actorAvatar as string}
+            name={(notification.payload?.actorName as string) || 'U'}
+            className='h-14 w-14'
+            fallbackClassName='text-lg font-bold'
+          />
+        )}
         <div
           className={cn(
             'absolute -right-1 -bottom-1 h-7 w-7 rounded-full border-[3px] border-background flex items-center justify-center text-white',
@@ -122,7 +256,9 @@ export const NotificationItem = React.memo(({ notification, onMarkAsRead }: Noti
             'text-[15px] leading-[1.3] overflow-wrap-break-word',
             !notification.read ? 'text-foreground font-medium' : 'text-muted-foreground'
           )}
-          dangerouslySetInnerHTML={{ __html: notification.body }}
+          dangerouslySetInnerHTML={{
+            __html: notification.translations?.[i18n.language.split('-')[0]]?.body || notification.body
+          }}
         />
         <div
           className={cn(
@@ -141,15 +277,17 @@ export const NotificationItem = React.memo(({ notification, onMarkAsRead }: Noti
                   variant='secondary'
                   className='h-9 flex-1 font-bold text-[15px] rounded-lg border-none shadow-none transition-all active:scale-95'
                   onClick={(e) => handleDeclineRequest(e)}
+                  disabled={declineRequestMutation.isPending || acceptRequestMutation.isPending}
                 >
-                  {action.decline}
+                  {declineRequestMutation.isPending ? '...' : action.decline}
                 </Button>
                 <Button
                   variant='secondary-blue'
                   className='h-9 flex-1 font-bold text-[15px] rounded-lg border-none shadow-none transition-all active:scale-95'
                   onClick={(e) => handleAcceptRequest(e)}
+                  disabled={acceptRequestMutation.isPending || declineRequestMutation.isPending}
                 >
-                  {action.accept}
+                  {acceptRequestMutation.isPending ? '...' : action.accept}
                 </Button>
               </div>
             ) : (

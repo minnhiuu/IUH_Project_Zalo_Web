@@ -1,5 +1,5 @@
 import { infiniteQueryOptions, queryOptions } from '@tanstack/react-query'
-import { searchMessagesApi, searchMessagesOverviewApi } from '../api/message-search.api'
+import { searchMessagesApi } from '../api/message-search.api'
 import { messageSearchKeys } from './keys'
 import type { MessageSearchRequest, MessageSearchSection } from '../schemas/message-search.schema'
 
@@ -15,6 +15,6 @@ export const messageSearchOptions = {
   overview: (request: MessageSearchRequest, sectionSize: number) =>
     queryOptions({
       queryKey: messageSearchKeys.overview(request, sectionSize),
-      queryFn: () => searchMessagesOverviewApi(request, sectionSize)
+      queryFn: () => searchMessagesApi(request, 'all', 0, sectionSize)
     })
 }

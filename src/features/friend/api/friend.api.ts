@@ -23,13 +23,18 @@ export const friendApi = {
     http.put<ApiResponse<void>>(`/friendships/requests/${friendshipId}/cancel`),
 
   getReceivedFriendRequests: (page: number = 0, size: number = 10) =>
-    http.get<ApiResponse<PageResponse<FriendRequestResponse>>>(`/friendships/requests/received?page=${page}&size=${size}`),
+    http.get<ApiResponse<PageResponse<FriendRequestResponse>>>(
+      `/friendships/requests/received?page=${page}&size=${size}`
+    ),
 
   getSentFriendRequests: (page: number = 0, size: number = 10) =>
     http.get<ApiResponse<PageResponse<FriendRequestResponse>>>(`/friendships/requests/sent?page=${page}&size=${size}`),
 
   getMyFriends: (page: number = 0, size: number = 10) =>
     http.get<ApiResponse<PageResponse<FriendResponse>>>(`/friendships/friends?page=${page}&size=${size}`),
+
+  getOnlineFriends: (page: number = 0, size: number = 20) =>
+    http.get<ApiResponse<PageResponse<UserSummaryResponse>>>(`/friendships/online?page=${page}&size=${size}`),
 
   unfriend: (friendId: string) => http.delete<ApiResponse<void>>(`/friendships/friends/${friendId}`),
 
@@ -47,8 +52,12 @@ export const friendApi = {
     http.get<ApiResponse<PageResponse<FriendSuggestionResponse>>>(`/friendships/suggestions?page=${page}&size=${size}`),
 
   getGraphSuggestions: (page: number = 0, size: number = 20) =>
-    http.get<ApiResponse<PageResponse<FriendSuggestionResponse>>>(`/friendships/suggestions/graph?page=${page}&size=${size}`),
+    http.get<ApiResponse<PageResponse<FriendSuggestionResponse>>>(
+      `/friendships/suggestions/graph?page=${page}&size=${size}`
+    ),
 
   getContactSuggestions: (page: number = 0, size: number = 20) =>
-    http.get<ApiResponse<PageResponse<FriendSuggestionResponse>>>(`/friendships/suggestions/contacts?page=${page}&size=${size}`)
+    http.get<ApiResponse<PageResponse<FriendSuggestionResponse>>>(
+      `/friendships/suggestions/contacts?page=${page}&size=${size}`
+    )
 }

@@ -35,8 +35,20 @@ export const CHAT_KEYS = {
   },
   type: {
     image: 'chat.type.image',
+    video: 'chat.type.video',
     file: 'chat.type.file',
     link: 'chat.type.link'
+  },
+  input: {
+    dropFilesHint: 'chat.input.dropFilesHint',
+    sendImageVideoTitle: 'chat.input.sendImageVideoTitle',
+    attachFileTitle: 'chat.input.attachFileTitle',
+    summarizeNewMessages: 'chat.input.summarizeNewMessages',
+    summarizingMessages: 'chat.input.summarizingMessages',
+    summaryTitle: 'chat.input.summaryTitle',
+    closeSummary: 'chat.input.closeSummary',
+    videoBadge: 'chat.input.videoBadge',
+    fileTooLarge: 'chat.input.fileTooLarge'
   },
   messageBubble: {
     reply: 'chat.messageBubble.reply',
@@ -68,6 +80,12 @@ export const CHAT_KEYS = {
     deletedByAdmin: 'chat.messageBubble.deletedByAdmin',
     deletedByAdminSelf: 'chat.messageBubble.deletedByAdminSelf',
     replyUnavailable: 'chat.messageBubble.replyUnavailable',
+    deleteIn: {
+      days: 'chat.messageBubble.deleteIn.days',
+      hours: 'chat.messageBubble.deleteIn.hours',
+      minutes: 'chat.messageBubble.deleteIn.minutes',
+      soon: 'chat.messageBubble.deleteIn.soon'
+    },
     adminDeleteDialog: {
       title: 'chat.messageBubble.adminDeleteDialog.title',
       cancel: 'chat.messageBubble.adminDeleteDialog.cancel',
@@ -91,6 +109,20 @@ export const CHAT_KEYS = {
     WEB_SEARCHING: 'ai.status.WEB_SEARCHING',
     GENERATING_ANSWER: 'ai.status.GENERATING_ANSWER',
     DEFAULT: 'ai.status.DEFAULT'
+  },
+  aiWindow: {
+    title: 'ai.window.title',
+    assistantTag: 'ai.window.assistantTag',
+    newConversation: 'ai.window.newConversation',
+    inputPlaceholder: 'ai.window.inputPlaceholder',
+    clarificationNeeded: 'ai.window.clarificationNeeded',
+    welcomeDescription: 'ai.window.welcomeDescription',
+    errorFallback: 'ai.window.errorFallback',
+    suggestions: {
+      profile: 'ai.window.suggestions.profile',
+      friends: 'ai.window.suggestions.friends',
+      internet: 'ai.window.suggestions.internet'
+    }
   },
   pinBoard: {
     title: 'chat.pinBoard.title',
@@ -179,6 +211,10 @@ export const CHAT_KEYS = {
       one_pc: 'chat.system.typing.one_pc',
       two: 'chat.system.typing.two',
       many: 'chat.system.typing.many'
+    },
+    update_expiration: {
+      on: 'chat.system.update_expiration.on',
+      off: 'chat.system.update_expiration.off'
     }
   },
   disbanded: {
@@ -187,7 +223,9 @@ export const CHAT_KEYS = {
     deleteAction: 'chat.disbanded.deleteAction'
   },
   restricted: {
-    onlyAdminCanSend: 'chat.restricted.onlyAdminCanSend'
+    onlyAdminCanSend: 'chat.restricted.onlyAdminCanSend',
+    cannotRename: 'chat.restricted.cannotRename',
+    cannotChangeAvatar: 'chat.restricted.cannotChangeAvatar'
   },
   'rename-group-dialog': {
     title: 'chat.rename-group-dialog.title',
@@ -314,7 +352,8 @@ export const CHAT_KEYS = {
     leaveGroupError: 'chat.toasts.leaveGroupError',
     blockSuccess: 'chat.toasts.blockSuccess',
     unblockSuccess: 'chat.toasts.unblockSuccess',
-    noBlockCandidates: 'chat.toasts.noBlockCandidates'
+    noBlockCandidates: 'chat.toasts.noBlockCandidates',
+    transferOwnerSuccess: 'chat.toasts.transferOwnerSuccess'
   },
   sidebarInfo: {
     title: 'chat.sidebarInfo.title',
@@ -408,6 +447,25 @@ export const CHAT_KEYS = {
     forwardMessage: 'chat.forward-dialog.forwardMessage',
     addDescription: 'chat.forward-dialog.addDescription'
   },
+  businessCard: {
+    open: 'chat.businessCard.open',
+    title: 'chat.businessCard.title',
+    searchPlaceholder: 'chat.businessCard.searchPlaceholder',
+    chipAll: 'chat.businessCard.chipAll',
+    chipCustomer: 'chat.businessCard.chipCustomer',
+    chipFamily: 'chat.businessCard.chipFamily',
+    chipWork: 'chat.businessCard.chipWork',
+    chipFriends: 'chat.businessCard.chipFriends',
+    chipLater: 'chat.businessCard.chipLater',
+    selectedTitle: 'chat.businessCard.selectedTitle',
+    includePhone: 'chat.businessCard.includePhone',
+    cancel: 'chat.businessCard.cancel',
+    send: 'chat.businessCard.send',
+    empty: 'chat.businessCard.empty',
+    call: 'chat.businessCard.call',
+    message: 'chat.businessCard.message',
+    preview: 'chat.businessCard.preview'
+  },
   'join-group-dialog': {
     title: 'chat.join-group-dialog.title',
     members_and_creator: 'chat.join-group-dialog.members_and_creator',
@@ -499,6 +557,8 @@ export const CHAT_KEYS = {
     loadMore: 'chat.searchSidebar.loadMore',
     clear: 'chat.searchSidebar.clear',
     confirm: 'chat.searchSidebar.confirm',
-    cancel: 'chat.searchSidebar.cancel'
+    cancel: 'chat.searchSidebar.cancel',
+    messages: 'chat.searchSidebar.messages',
+    files: 'chat.searchSidebar.files'
   }
 } as const

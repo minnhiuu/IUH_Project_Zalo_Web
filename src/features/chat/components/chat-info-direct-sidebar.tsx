@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils'
 import type { ConversationResponse } from '../schemas/chat.schema'
 import { useChatText } from '../i18n/use-chat-text'
 import { useAuth } from '@/features/auth'
+import { useUpdateMessageExpirationMutation } from '../queries/use-mutations'
 
 interface ChatInfoDirectSidebarProps {
   conversation: ConversationResponse
@@ -18,6 +19,7 @@ interface ChatInfoDirectSidebarProps {
 export function ChatInfoDirectSidebar({ conversation, onRenameClick, onAvatarClick }: ChatInfoDirectSidebarProps) {
   const { text: tg } = useChatText()
   const { user } = useAuth()
+  const { mutate: updateMessageExpiration } = useUpdateMessageExpirationMutation()
   const [isDisappearingDialogOpen, setIsDisappearingDialogOpen] = useState(false)
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false)
   const [storageOpen, setStorageOpen] = useState(false)
@@ -108,6 +110,7 @@ export function ChatInfoDirectSidebar({ conversation, onRenameClick, onAvatarCli
                 setStorageTab(tab)
                 setStorageOpen(true)
               }}
+              currentMessageExpirationDays={conversation.messageExpirationDays}
             />
           </div>
         </>
@@ -116,8 +119,21 @@ export function ChatInfoDirectSidebar({ conversation, onRenameClick, onAvatarCli
       <DisappearingMessagesDialog
         open={isDisappearingDialogOpen}
         onOpenChange={setIsDisappearingDialogOpen}
+        currentDuration={
+          conversation.messageExpirationDays === 1
+            ? '1 day'
+            : conversation.messageExpirationDays === 7
+              ? '7 days'
+              : conversation.messageExpirationDays === 14
+                ? '14 days'
+                : 'never'
+        }
         onConfirm={(duration) => {
-          console.log('Set duration:', duration)
+          let days = 0
+          if (duration === '1 day') days = 1
+          if (duration === '7 days') days = 7
+          if (duration === '14 days') days = 14
+          updateMessageExpiration({ conversationId: conversation.id, days })
           setIsDisappearingDialogOpen(false)
         }}
       />

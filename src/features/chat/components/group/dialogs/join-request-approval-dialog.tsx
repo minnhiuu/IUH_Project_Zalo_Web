@@ -24,11 +24,11 @@ export function JoinRequestApprovalDialog({ open, onOpenChange, conversationId }
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogPortal>
-        <DialogOverlay className='bg-black/45 backdrop-blur-none! duration-200 fixed inset-0 z-50' />
+        <DialogOverlay className='bg-black/45 backdrop-blur-none! duration-200 fixed inset-0 z-110' />
         <DialogContent
           showCloseButton={false}
           className={cn(
-            'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50',
+            'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-111',
             'w-100 max-w-[95vw] p-0 gap-0 rounded-md overflow-hidden border border-border shadow-2xl bg-background outline-none',
             'animate-in zoom-in-95 duration-200'
           )}

@@ -178,7 +178,17 @@ export function CreateGroupDialog({
       try {
         const result = await addMembersMutation.mutateAsync({ conversationId, memberIds: selectedFriendIds })
         const addedMemberIds = new Set(result.members?.map((m) => m.userId) || [])
-        const failedCount = selectedFriendIds.filter((id) => !addedMemberIds.has(id)).length
+
+        // Send invites to non-friend members if any (filter by those we just tried to add)
+        const newlyInvitedIds = result.invitedUserIds?.filter((id) => selectedFriendIds.includes(id)) || []
+        if (newlyInvitedIds.length > 0) {
+          sendInvitesMutation.mutate({ conversationId: conversationId, userIds: newlyInvitedIds })
+        }
+
+        const failedCount = selectedFriendIds.filter(
+          (id) => !addedMemberIds.has(id) && !newlyInvitedIds.includes(id)
+        ).length
+
         onClose()
         resetState()
         if (failedCount > 0) {

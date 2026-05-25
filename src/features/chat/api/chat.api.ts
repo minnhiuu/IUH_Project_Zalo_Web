@@ -13,12 +13,22 @@ import type {
   GroupSettings,
   JoinGroupPreviewResponse,
   PinnedMessageInfo,
-  JoinRequestResponse
+  JoinRequestResponse,
+  MessageCursorParams,
+  CursorPageResponse
 } from '../schemas/chat.schema'
+import type { UserSummaryResponse } from '@/shared/user/user-summary'
 
 export const getConversations = async (page = 0, size = 20): Promise<PageResponse<ConversationResponse>> => {
   const response = await http.get<ApiResponse<PageResponse<ConversationResponse>>>('/messages/conversations', {
     params: { page, size }
+  })
+  return response.data.data
+}
+
+export const getQuickConversations = async (size = 3): Promise<UserSummaryResponse[]> => {
+  const response = await http.get<ApiResponse<UserSummaryResponse[]>>('/messages/conversations/quick', {
+    params: { size }
   })
   return response.data.data
 }
@@ -59,6 +69,17 @@ export const getMessages = async (
   return response.data.data
 }
 
+export const getMessagesV2 = async (
+  conversationId: string,
+  params: MessageCursorParams
+): Promise<CursorPageResponse<MessageResponse>> => {
+  const response = await http.get<ApiResponse<CursorPageResponse<MessageResponse>>>(
+    `/messages/v2/conversations/${conversationId}/messages`,
+    { params }
+  )
+  return response.data.data
+}
+
 export const markAsRead = async (conversationId: string, lastReadMessageId?: string): Promise<void> => {
   await http.put(
     `/messages/conversations/${conversationId}/read`,
@@ -74,24 +95,6 @@ export interface UnreadAnchorResponse {
 export const getUnreadAnchorApi = async (conversationId: string): Promise<UnreadAnchorResponse> => {
   const response = await http.get<ApiResponse<UnreadAnchorResponse>>(
     `/messages/conversations/${conversationId}/unread-anchor`
-  )
-  return response.data.data
-}
-
-export interface MessageContextResponse {
-  page: number         // page index (0-based) chứa message đó
-  size: number         // page size đã dùng để tính
-  totalElements: number
-}
-
-export const getMessageContextApi = async (
-  conversationId: string,
-  messageId: string,
-  size = 20
-): Promise<MessageContextResponse> => {
-  const response = await http.get<ApiResponse<MessageContextResponse>>(
-    `/messages/conversations/${conversationId}/messages/${messageId}/context`,
-    { params: { size } }
   )
   return response.data.data
 }
@@ -126,6 +129,23 @@ export interface FileUploadResult {
   size: number
 }
 
+export interface PresignFileRequest {
+  fileName: string
+  contentType: string
+  size: number
+  folder: string
+}
+
+export interface PresignedUploadResponse {
+  key: string
+  presignedUrl: string
+  publicUrl: string
+  contentType: string
+  originalFileName: string
+  size: number
+  expiresAt: string
+}
+
 export const uploadFileApi = async (file: File, folder: string): Promise<FileUploadResult> => {
   const formData = new FormData()
   formData.append('file', file)
@@ -136,8 +156,18 @@ export const uploadFileApi = async (file: File, folder: string): Promise<FileUpl
   return response.data.data
 }
 
+export const getBatchPresignedUrls = async (requests: PresignFileRequest[]): Promise<PresignedUploadResponse[]> => {
+  const response = await http.post<ApiResponse<PresignedUploadResponse[]>>('/files/presign/batch', requests)
+  return response.data.data
+}
+
 export const revokeMessageApi = async (messageId: string): Promise<void> => {
   await http.patch(`/messages/messages/${messageId}/revoke`)
+}
+
+export const getMessageApi = async (messageId: string): Promise<MessageResponse> => {
+  const response = await http.get<ApiResponse<MessageResponse>>(`/messages/messages/${messageId}`)
+  return response.data.data
 }
 
 export const deleteMessageForMeApi = async (messageId: string): Promise<void> => {
@@ -199,6 +229,38 @@ export const disbandGroupApi = async (conversationId: string): Promise<void> => 
 
 export const deleteConversationApi = async (conversationId: string): Promise<void> => {
   await http.delete(`/messages/conversations/${conversationId}`)
+}
+
+export const clearConversationHistoryApi = async (conversationId: string): Promise<void> => {
+  await http.patch(`/messages/conversations/${conversationId}/clear-history`)
+}
+
+export const markAsUnreadApi = async (conversationId: string): Promise<void> => {
+  await http.put(`/messages/conversations/${conversationId}/unread`)
+}
+
+export const pinConversationApi = async (conversationId: string): Promise<void> => {
+  await http.post(`/messages/conversations/${conversationId}/pin`)
+}
+
+export const unpinConversationApi = async (conversationId: string): Promise<void> => {
+  await http.delete(`/messages/conversations/${conversationId}/pin`)
+}
+
+export const toggleMuteApi = async (conversationId: string, isMuted: boolean): Promise<void> => {
+  if (isMuted) {
+    await http.post(`/messages/conversations/${conversationId}/mute`)
+  } else {
+    await http.delete(`/messages/conversations/${conversationId}/mute`)
+  }
+}
+
+export const toggleHideApi = async (conversationId: string, isHidden: boolean): Promise<void> => {
+  if (isHidden) {
+    await http.post(`/messages/conversations/${conversationId}/hide`)
+  } else {
+    await http.delete(`/messages/conversations/${conversationId}/hide`)
+  }
 }
 
 export const leaveGroupApi = async (conversationId: string, request: LeaveGroupRequest): Promise<void> => {
@@ -358,6 +420,17 @@ export const updateGroupSettingsApi = async (
   return response.data.data
 }
 
+export const updateMessageExpirationApi = async (
+  conversationId: string,
+  days: number
+): Promise<ConversationResponse> => {
+  const response = await http.patch<ApiResponse<ConversationResponse>>(
+    `/messages/conversations/${conversationId}/expiration`,
+    { days }
+  )
+  return response.data.data
+}
+
 export const refreshJoinLinkApi = async (conversationId: string): Promise<string> => {
   const response = await http.post<ApiResponse<string>>(`/messages/conversations/${conversationId}/join-link/refresh`)
   return response.data.data
@@ -494,4 +567,11 @@ export const pinMessageApi = async (conversationId: string, messageId: string): 
 
 export const unpinMessageApi = async (conversationId: string, messageId: string): Promise<void> => {
   await http.delete(`/messages/conversations/${conversationId}/messages/${messageId}/pin`)
+}
+
+export const getQuickConversationsApi = async (size = 3): Promise<UserSummaryResponse[]> => {
+  const response = await http.get<ApiResponse<UserSummaryResponse[]>>('/messages/conversations/quick', {
+    params: { size }
+  })
+  return response.data.data
 }

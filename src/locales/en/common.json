@@ -1,13 +1,15 @@
 {
   "nav": {
     "messages": "Messages",
+    "socialFeed": "Social Feed",
     "search": "Search",
-    "contacts": "Contacts",
+    "friends": "Friends",
     "todo": "To-do",
     "notifications": "Notifications",
     "cloud": "Cloud",
     "business": "Business",
-    "settings": "Settings"
+    "settings": "Settings",
+    "reels": "Reels"
   },
   "ok": "OK",
   "cancel": "Cancel",

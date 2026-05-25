@@ -6,14 +6,16 @@ import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Checkbox } from '@/components/ui/checkbox'
 import { UserAvatar } from '@/components/common/user-avatar'
+import { GroupAvatar } from '@/components/common/group-avatar'
 import { useConversationsQuery, useMyGroupsQuery } from '../queries/use-queries'
 import { useMyFriendsInfinite } from '@/features/friend'
 import { useAuth } from '@/features/auth'
 import { getConversationDisplayName } from '../utils/group-name'
-import type { ConversationResponse, MessageResponse } from '../schemas/chat.schema'
+import type { ConversationResponse, MessageResponse, ConversationMemberResponse } from '../schemas/chat.schema'
 import { useChatText } from '../i18n/use-chat-text'
 import { MessageType } from '@/constants/enum'
 import { Play } from 'lucide-react'
+import { getExtColor, getExtLabel, formatFileSize } from './message-file-content'
 
 type TabType = 'recent' | 'groups' | 'friends'
 
@@ -21,6 +23,8 @@ interface SelectedConvEntry {
   id: string
   name: string
   avatar?: string | null
+  isGroup?: boolean
+  members?: ConversationMemberResponse[] | null
 }
 
 interface ForwardDialogProps {
@@ -89,6 +93,8 @@ export function ForwardDialog({
         id: string
         name: string
         avatar?: string | null
+        isGroup?: boolean
+        members?: ConversationMemberResponse[] | null
         lastMessage?: ConversationResponse['lastMessage']
       }
 
@@ -103,7 +109,9 @@ export function ForwardDialog({
         return {
           id: existingConvId || `fake_${f.userId}`,
           name: f.userName,
-          avatar: f.userAvatar
+          avatar: f.userAvatar,
+          isGroup: false,
+          members: null
         }
       })
     } else {
@@ -139,20 +147,27 @@ export function ForwardDialog({
 
   const selectedEntries = useMemo<SelectedConvEntry[]>(() => {
     const result: SelectedConvEntry[] = []
-    const allItems = new Map<string, { name: string; avatar?: string | null }>()
+    const allItems = new Map<
+      string,
+      { name: string; avatar?: string | null; isGroup?: boolean; members?: ConversationMemberResponse[] | null }
+    >()
 
     // Add items from all sources to a flat map for lookup
     conversations?.forEach((c) => {
       allItems.set(c.id, {
         name: getConversationDisplayName(c, 'Conversation', undefined, user?.id),
-        avatar: c.avatar
+        avatar: c.avatar,
+        isGroup: c.isGroup,
+        members: c.members
       })
     })
 
     myGroups?.forEach((g) => {
       allItems.set(g.id, {
         name: g.name || 'Group',
-        avatar: g.avatar
+        avatar: g.avatar,
+        isGroup: true,
+        members: g.members
       })
     })
 
@@ -160,7 +175,9 @@ export function ForwardDialog({
       const existingConvId = conversationByPartnerId.get(f.userId)
       allItems.set(existingConvId || `fake_${f.userId}`, {
         name: f.userName,
-        avatar: f.userAvatar
+        avatar: f.userAvatar,
+        isGroup: false,
+        members: null
       })
     })
 
@@ -296,11 +313,21 @@ export function ForwardDialog({
                               className='w-4.5 h-4.5 border-muted-foreground/30'
                             />
                           </div>
-                          <UserAvatar
-                            name={name}
-                            src={conv.avatar}
-                            className='w-10 h-10 shadow-sm border border-border/10 shrink-0'
-                          />
+                          {conv.isGroup && !conv.avatar ? (
+                            <GroupAvatar
+                              avatars={conv.members?.map((m) => m.avatar || '') || []}
+                              names={conv.members?.map((m) => m.fullName) || []}
+                              count={conv.members?.length || 0}
+                              size='md'
+                              className='rounded-full'
+                            />
+                          ) : (
+                            <UserAvatar
+                              name={name}
+                              src={conv.avatar}
+                              className='w-10 h-10 shadow-sm border border-border/10 shrink-0'
+                            />
+                          )}
                           <div className='flex-1 min-w-0 overflow-hidden'>
                             <p
                               style={{
@@ -343,7 +370,17 @@ export function ForwardDialog({
                           key={entry.id}
                           className='flex items-center gap-2 p-1 px-2 rounded-full bg-background border border-border/50 group transition-colors w-full min-w-0 overflow-hidden shrink-0'
                         >
-                          <UserAvatar name={entry.name} src={entry.avatar} className='w-6 h-6 shrink-0 shadow-sm' />
+                          {entry.isGroup && !entry.avatar ? (
+                            <GroupAvatar
+                              avatars={entry.members?.map((m) => m.avatar || '') || []}
+                              names={entry.members?.map((m) => m.fullName) || []}
+                              count={entry.members?.length || 0}
+                              size='xs'
+                              className='shrink-0 rounded-full overflow-hidden'
+                            />
+                          ) : (
+                            <UserAvatar name={entry.name} src={entry.avatar} className='w-6 h-6 shrink-0 shadow-sm' />
+                          )}
                           <div className='flex-1 min-w-0'>
                             <p
                               style={{
@@ -401,8 +438,37 @@ export function ForwardDialog({
                           </div>
                         </>
                       ) : (
-                        <img src={att.url} alt={att.originalFileName || 'image'} className='w-full h-full object-cover' />
+                        <img
+                          src={att.url}
+                          alt={att.originalFileName || 'image'}
+                          className='w-full h-full object-cover'
+                        />
                       )}
+                    </div>
+                  )
+                })}
+              </div>
+            ) : message?.type === MessageType.File ? (
+              <div className='flex flex-col gap-1.5 py-0.5'>
+                {(message.attachments && message.attachments.length > 0
+                  ? message.attachments
+                  : [{ originalFileName: message.content || 'File', size: 0, url: '' }]
+                ).map((att, idx) => {
+                  const fileName = att.originalFileName || 'File'
+                  const ext = fileName.split('.').pop()?.toUpperCase() || ''
+                  return (
+                    <div key={idx} className='flex items-center gap-2'>
+                      <div
+                        className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 text-white ${getExtColor(ext)}`}
+                      >
+                        <span className='text-[8px] font-bold leading-none tracking-tight'>{getExtLabel(ext)}</span>
+                      </div>
+                      <div className='flex flex-col min-w-0'>
+                        <span className='text-[13px] text-foreground font-medium truncate'>{fileName}</span>
+                        {att.size > 0 && (
+                          <span className='text-[11px] text-muted-foreground'>{formatFileSize(att.size)}</span>
+                        )}
+                      </div>
                     </div>
                   )
                 })}

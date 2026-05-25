@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useMemo, type FormEvent, type KeyboardEvent } from 'react'
-import { SendHorizonal, Smile, Paperclip, ImageIcon, X, Quote, ThumbsUp, FileIcon, Loader2 } from 'lucide-react'
+import { SendHorizonal, Smile, Paperclip, ImageIcon, X, Quote, ThumbsUp, FileIcon, Loader2, Contact, IdCard } from 'lucide-react'
 import type { MessageResponse } from '../schemas/chat.schema'
 import { MessageType } from '@/constants/enum'
 import { useChatContext, type FileAttachment } from '../context/chat-context'
@@ -10,6 +10,9 @@ import { useGroupMembersInfinite } from '../queries/use-queries'
 import { MentionDropdown } from './mention-dropdown'
 import { RichInput, type RichInputRef } from './rich-input'
 import { stripMentionsForPreview } from '../utils/mention'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { BusinessCardDialog, type BusinessCardAsset } from './business-card-dialog'
+import { serializeBusinessCard } from '../utils/business-card'
 
 const IMAGE_VIDEO_ACCEPT = 'image/*,video/*'
 const FILE_ACCEPT = '*/*'
@@ -19,18 +22,26 @@ interface ChatInputProps {
   conversationId: string
   isGroup?: boolean
   replyTo?: MessageResponse | null
+  unreadCount?: number
+  snapshotId?: string | null
+  onClearSnapshot?: () => void
   onCancelReply?: () => void
 }
 
-export function ChatInput({ conversationId, isGroup, replyTo, onCancelReply }: ChatInputProps) {
+export function ChatInput({ conversationId, isGroup, replyTo, unreadCount, snapshotId, onClearSnapshot, onCancelReply }: ChatInputProps) {
+  void unreadCount
+  void snapshotId
+  void onClearSnapshot
   const { sendMessage, sendFileMessage, sendTyping } = useChatContext()
   const { text } = useChatText()
+  const bc = text.businessCard
   const { user } = useAuth()
   const [content, setContent] = useState('')
   const [htmlContent, setHtmlContent] = useState('')
   const [fileAttachments, setFileAttachments] = useState<FileAttachment[]>([])
   const [attachmentType, setAttachmentType] = useState<'image' | 'file' | null>(null)
   const [isSending, setIsSending] = useState(false)
+  const [businessCardOpen, setBusinessCardOpen] = useState(false)
   // Mention state
   const [mentionQuery, setMentionQuery] = useState<string | null>(null) // null = closed
   const formRef = useRef<HTMLFormElement>(null)
@@ -143,6 +154,28 @@ export function ChatInput({ conversationId, isGroup, replyTo, onCancelReply }: C
       const next = prev.filter((_, i) => i !== index)
       if (next.length === 0) setAttachmentType(null)
       return next
+    })
+  }
+
+  const handleSendBusinessCards = (cards: BusinessCardAsset[]) => {
+    const uniqueCards = Array.from(
+      new Map(
+        cards
+          .filter((card) => !!card.userId)
+          .map((card) => [card.userId, card])
+      ).values()
+    )
+
+    uniqueCards.forEach((card) => {
+      if (!card.userId) return
+      const payload = serializeBusinessCard({
+        userId: card.userId,
+        name: card.name || 'User',
+        phone: card.includePhone === false ? '' : (card.phone || ''),
+        avatar: card.avatar || null,
+        qrValue: `bondhub://user/${card.userId}?name=${encodeURIComponent(card.name || '')}`
+      })
+      sendMessage(conversationId, payload)
     })
   }
 
@@ -433,13 +466,31 @@ export function ChatInput({ conversationId, isGroup, replyTo, onCancelReply }: C
         >
           <Paperclip size={20} />
         </button>
-        <div className='w-[1px] h-4 bg-border mx-1' />
+        <div className='w-px h-4 bg-border mx-1' />
         <button type='button' className='px-2 py-1 text-[13px] hover:bg-muted rounded text-muted-foreground'>
           @
         </button>
-        <button type='button' className='p-1.5 hover:bg-muted rounded text-muted-foreground transition-colors'>
-          <span className='font-bold text-lg'>...</span>
+        <button
+          type='button'
+          onClick={() => setBusinessCardOpen(true)}
+          className='p-1.5 hover:bg-muted rounded text-muted-foreground transition-colors'
+          title={bc.open}
+        >
+          <Contact size={19} />
         </button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button type='button' className='p-1.5 hover:bg-muted rounded text-muted-foreground transition-colors'>
+              <span className='font-bold text-lg'>...</span>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align='start' className='w-52'>
+            <DropdownMenuItem onClick={() => setBusinessCardOpen(true)}>
+              <IdCard className='mr-2 h-4 w-4' />
+              {bc.open}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* 2. Trả lời (Reply Preview) */}
@@ -498,7 +549,7 @@ export function ChatInput({ conversationId, isGroup, replyTo, onCancelReply }: C
                   )
                 ) : (
                   // File preview
-                  <div className='flex items-center gap-2 bg-muted px-3 py-2 rounded-lg border border-border max-w-[200px]'>
+                  <div className='flex items-center gap-2 bg-muted px-3 py-2 rounded-lg border border-border max-w-50'>
                     <FileIcon size={20} className='text-primary shrink-0' />
                     <div className='flex flex-col min-w-0'>
                       <span className='text-[13px] font-medium truncate'>{attachment.file.name}</span>
@@ -610,6 +661,12 @@ export function ChatInput({ conversationId, isGroup, replyTo, onCancelReply }: C
           )}
         </div>
       </form>
+
+      <BusinessCardDialog
+        open={businessCardOpen}
+        onOpenChange={setBusinessCardOpen}
+        onSend={handleSendBusinessCards}
+      />
     </div>
   )
 }

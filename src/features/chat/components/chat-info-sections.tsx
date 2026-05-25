@@ -30,6 +30,7 @@ import { MediaStorageView } from './media-storage-view'
 import type { ConversationMemberResponse } from '../schemas/chat.schema'
 import { cn } from '@/lib/utils'
 import { useChatText } from '../i18n/use-chat-text'
+import { buildGroupLinkUrl } from '../utils/group-link'
 
 interface SidebarSectionProps {
   title: string
@@ -105,6 +106,7 @@ interface ChatInfoSectionsProps {
   onGenerateJoinLink?: () => void
   onShareLink?: () => void
   onOpenStorage?: (tab: 'media' | 'files' | 'links') => void
+  currentMessageExpirationDays?: number | null
 }
 
 export function ChatInfoSections({
@@ -124,7 +126,8 @@ export function ChatInfoSections({
   isGenerating,
   onShareLink,
   onGenerateJoinLink,
-  onOpenStorage
+  onOpenStorage,
+  currentMessageExpirationDays
 }: ChatInfoSectionsProps) {
   const [storageOpen, setStorageOpen] = useState(false)
   const [storageTab, setStorageTab] = useState<'media' | 'files' | 'links'>('media')
@@ -145,6 +148,12 @@ export function ChatInfoSections({
       setStorageTab(tab)
       setStorageOpen(true)
     }
+  }
+
+  const getDisappearingSubLabel = () => {
+    if (isMemberOnly) return text.disappearingMessagesWarning
+    if (!currentMessageExpirationDays) return text.never
+    return `${currentMessageExpirationDays} ngày`
   }
 
   if (storageOpen && conversationId) {
@@ -178,6 +187,9 @@ export function ChatInfoSections({
                 }
               />
               {joinLinkToken ? (
+                (() => {
+                  const joinLinkUrl = buildGroupLinkUrl(joinLinkToken)
+                  return (
                 <ActionMenuItem
                   icon={<Link />}
                   label={chatText.sidebarInfo.groupJoinLink}
@@ -185,7 +197,7 @@ export function ChatInfoSections({
                   as='div'
                   subLabel={
                     <span className='text-[13px] font-medium truncate' style={{ color: 'var(--cta-link)' }}>
-                      {`${window.location.origin}/g/${joinLinkToken}`}
+                      {joinLinkUrl}
                     </span>
                   }
                   rightElement={
@@ -193,7 +205,7 @@ export function ChatInfoSections({
                       <ActionButton
                         icon={<Copy />}
                         onClick={() => {
-                          navigator.clipboard.writeText(`${window.location.origin}/g/${joinLinkToken}`)
+                          navigator.clipboard.writeText(joinLinkUrl)
                           showSimpleToast(chatText.sidebarInfo.copied)
                         }}
                       />
@@ -201,6 +213,8 @@ export function ChatInfoSections({
                     </div>
                   }
                 />
+                  )
+                })()
               ) : (
                 joinByLinkEnabled &&
                 onGenerateJoinLink && (
@@ -241,34 +255,35 @@ export function ChatInfoSections({
             <p className='text-[12px] text-muted-foreground text-center py-4'>{chatText.mediaStorage.noPhotosVideos}</p>
           ) : (
             <div className='grid grid-cols-4 gap-1 px-4 py-3'>
-              {mediaItems.flatMap((m) =>
-                (m.attachments || []).map((att, attIdx) => ({ m, att, attIdx }))
-              ).slice(0, 8).map(({ m, att, attIdx }) => {
-                const isVideo = att?.contentType?.startsWith('video/')
-                return (
-                  <div
-                    key={`${m.id}-${attIdx}`}
-                    className='aspect-square bg-muted rounded overflow-hidden cursor-pointer relative group'
-                    onClick={() => setViewingMedia({ url: att?.url || '', isVideo: !!isVideo })}
-                  >
-                    {isVideo ? (
-                      <div className='w-full h-full relative'>
-                        <video src={att?.url} className='w-full h-full object-cover' preload='metadata' muted />
-                        <div className='absolute inset-0 flex items-center justify-center bg-black/30'>
-                          <Play size={16} className='text-white fill-white' />
+              {mediaItems
+                .flatMap((m) => (m.attachments || []).map((att, attIdx) => ({ m, att, attIdx })))
+                .slice(0, 8)
+                .map(({ m, att, attIdx }) => {
+                  const isVideo = att?.contentType?.startsWith('video/')
+                  return (
+                    <div
+                      key={`${m.id}-${attIdx}`}
+                      className='aspect-square bg-muted rounded overflow-hidden cursor-pointer relative group'
+                      onClick={() => setViewingMedia({ url: att?.url || '', isVideo: !!isVideo })}
+                    >
+                      {isVideo ? (
+                        <div className='w-full h-full relative'>
+                          <video src={att?.url} className='w-full h-full object-cover' preload='metadata' muted />
+                          <div className='absolute inset-0 flex items-center justify-center bg-black/30'>
+                            <Play size={16} className='text-white fill-white' />
+                          </div>
                         </div>
-                      </div>
-                    ) : (
-                      <img
-                        src={att?.url}
-                        alt={att?.originalFileName || 'image'}
-                        className='object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity'
-                        loading='lazy'
-                      />
-                    )}
-                  </div>
-                )
-              })}
+                      ) : (
+                        <img
+                          src={att?.url}
+                          alt={att?.originalFileName || 'image'}
+                          className='object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity'
+                          loading='lazy'
+                        />
+                      )}
+                    </div>
+                  )
+                })}
             </div>
           )}
           <div className='px-4 pb-4'>
@@ -297,7 +312,7 @@ export function ChatInfoSections({
                   if (['DOC', 'DOCX'].includes(ext)) return { bg: 'bg-blue-600', label: 'WORD' }
                   if (['XLS', 'XLSX'].includes(ext)) return { bg: 'bg-green-600', label: 'EXCEL' }
                   if (['PPT', 'PPTX'].includes(ext)) return { bg: 'bg-orange-500', label: 'PPT' }
-                  if (['ZIP', 'RAR', '7Z'].includes(ext)) return { bg: 'bg-purple-600', label: ext }
+                  if (['ZIP', 'RAR', '7Z'].includes(ext)) return { bg: 'bg-blue-700', label: ext }
                   return { bg: 'bg-primary', label: ext || 'FILE' }
                 }
                 const { bg, label } = getBadge(ext)
@@ -310,16 +325,13 @@ export function ChatInfoSections({
                   : ''
                 return (
                   <div key={m.id} className='flex items-start gap-3 cursor-pointer group'>
-                    <div
-                      className={cn(
-                        'w-10 h-10 shrink-0 rounded flex items-center justify-center text-white',
-                        bg
-                      )}
-                    >
+                    <div className={cn('w-10 h-10 shrink-0 rounded flex items-center justify-center text-white', bg)}>
                       {['ZIP', 'RAR', '7Z'].includes(ext) ? (
                         <Archive size={18} className='text-white' />
                       ) : (
-                        <span className='text-[9px] font-bold tracking-tight leading-none text-center px-0.5'>{label}</span>
+                        <span className='text-[9px] font-bold tracking-tight leading-none text-center px-0.5'>
+                          {label}
+                        </span>
                       )}
                     </div>
                     <div className='flex-1 min-w-0 flex flex-col justify-center h-10'>
@@ -392,10 +404,10 @@ export function ChatInfoSections({
                 </CustomTooltip>
               }
               onClick={() => !isMemberOnly && onOpenDisappearingDialog()}
-              subLabel={isMemberOnly ? text.disappearingMessagesWarning : text.never}
+              subLabel={getDisappearingSubLabel()}
               disabled={isMemberOnly}
             />
-            <ActionMenuItem as="div" icon={<EyeOff />} label={text.hideConversation} rightElement={<Switch />} />
+            <ActionMenuItem as='div' icon={<EyeOff />} label={text.hideConversation} rightElement={<Switch />} />
           </div>
         </SidebarSection>
       </div>

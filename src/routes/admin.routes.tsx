@@ -5,6 +5,11 @@ import AdminLayout from '@/layouts/admin-layout'
 import AdminElasticsearchPage from '@/pages/admin/elasticsearch.page'
 import AdminFailedEventsPage from '@/pages/admin/failed-events.page'
 import UserManagementPage from '@/pages/admin/user-management-page'
+import IngestDocumentPage from '@/pages/admin/ingest-document.page'
+import ReportsManagementPage from '@/pages/admin/reports-management-page'
+import ReportDetailPage from '@/pages/admin/report-detail-page'
+import AdminSeedingPage from '@/pages/admin/seeding.page'
+import AdminVectorStorePage from '@/pages/admin/vector-store.page'
 
 export const adminRoutes: RouteObject = {
   element: <PrivateRoute requireAuth requireAdmin />,
@@ -14,6 +19,9 @@ export const adminRoutes: RouteObject = {
       children: [
         { path: PATHS.ADMIN.DASHBOARD, element: <Navigate to={PATHS.ADMIN.USERS} replace /> },
         { path: PATHS.ADMIN.USERS, element: <UserManagementPage /> },
+        { path: PATHS.ADMIN.SEEDING, element: <AdminSeedingPage /> },
+        { path: PATHS.ADMIN.REPORTS, element: <ReportsManagementPage /> },
+        { path: PATHS.ADMIN.REPORT_DETAIL, element: <ReportDetailPage /> },
         {
           path: PATHS.ADMIN.ELASTICSEARCH,
           element: <AdminElasticsearchPage />
@@ -21,6 +29,14 @@ export const adminRoutes: RouteObject = {
         {
           path: PATHS.ADMIN.FAILED_EVENTS,
           element: <AdminFailedEventsPage />
+        },
+        {
+          path: PATHS.ADMIN.INGEST_DOCUMENT,
+          element: <IngestDocumentPage />
+        },
+        {
+          path: PATHS.ADMIN.VECTOR_STORE,
+          element: <AdminVectorStorePage />
         }
       ]
     }

@@ -12,8 +12,11 @@ import type {
   ReplyMetadata,
   TypingEvent
 } from '../schemas/chat.schema'
+import { useNavigate } from 'react-router'
 import { useAuth } from '@/features/auth/hooks/use-auth'
+import { useAuthContext } from '@/features/auth/context/auth-context'
 import { getAccessToken } from '@/lib/axios-client'
+import { PATHS } from '@/constants/path'
 import { MessageStatus, MessageType } from '@/constants/enum'
 import {
   useSendMessageMutation,
@@ -30,6 +33,8 @@ const JOIN_LINK_REGEX = /^https?:\/\/[^/]+\/g\/[a-zA-Z0-9_-]+$/
 
 export const useChatWebSocket = () => {
   const { user } = useAuth()
+  const { logoutLocal } = useAuthContext()
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [connected, setConnected] = useState(false)
   const [typingUsers, setTypingUsers] = useState<TypingEvent[]>([])
@@ -67,6 +72,34 @@ export const useChatWebSocket = () => {
           if (!conversationId) return
 
           const isOwnMessage = msg.isFromMe === true || msg.senderId === user.id
+
+          // Dispatch global CustomEvent for group call ringing
+          if (msg.content?.startsWith('[GROUP_CALL]::') && !isOwnMessage) {
+            try {
+              const payload = JSON.parse(msg.content.slice('[GROUP_CALL]::'.length))
+              if (payload.status === 'active') {
+                // Find group name from queryClient conversations cache
+                const cachedConvs = queryClient.getQueryData<ConversationResponse[]>(chatKeys.conversations())
+                const targetConv = cachedConvs?.find((c) => c.id === conversationId)
+                const groupName = targetConv?.name || 'Nhóm'
+
+                window.dispatchEvent(
+                  new CustomEvent('incoming-group-call', {
+                    detail: {
+                      roomId: payload.roomId,
+                      callerName: payload.callerName || 'Thành viên',
+                      callerAvatar: msg.senderAvatar || '',
+                      callKind: payload.callKind || 'voice',
+                      conversationId: conversationId,
+                      groupName: groupName
+                    }
+                  })
+                )
+              }
+            } catch (e) {
+              console.error('[Socket] Error parsing group call message payload:', e)
+            }
+          }
 
           // 1. Update Messages Cache (key = conversationId)
           if (isOwnMessage) {
@@ -119,6 +152,18 @@ export const useChatWebSocket = () => {
                 }
               }
             )
+            // Emit instant event for ChatWindow to increment new-msg badge without
+            // waiting for React Query cache → re-render → useEffect pipeline.
+            window.dispatchEvent(
+              new CustomEvent('chat:incoming-message', {
+                detail: { 
+                  conversationId, 
+                  messageId: msg.id, 
+                  senderId: msg.senderId,
+                  senderName: msg.senderName 
+                }
+              })
+            )
           }
 
           // 2. Update Conversations Cache
@@ -130,10 +175,17 @@ export const useChatWebSocket = () => {
               msgMetadata?.action === 'DISBAND_GROUP' ||
               msgMetadata?.action === 'REMOVE_MEMBER' ||
               msgMetadata?.action === 'BLOCK_MEMBER' ||
-              msgMetadata?.action === 'ADD_MEMBERS_FAILED')
+              msgMetadata?.action === 'ADD_MEMBERS' ||
+              msgMetadata?.action === 'ADD_MEMBERS_FAILED' ||
+              msgMetadata?.action === 'CREATE_GROUP')
 
           queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
             if (!oldData) return oldData
+
+            // Quiet Mode Auto Reply should NOT update sidebar at all
+            const isQuietModeAction = msg.type === MessageType.System && msgMetadata?.action === 'DND_AUTO_REPLY'
+            if (isQuietModeAction) return oldData
+
             const conversations: ConversationResponse[] = oldData
             const existingConvIndex = conversations.findIndex((c) => c.id === conversationId)
 
@@ -456,6 +508,10 @@ export const useChatWebSocket = () => {
                       name: newConv.name ?? c.name,
                       avatar: newConv.avatar ?? c.avatar,
                       recipientId: newConv.recipientId ?? c.recipientId,
+                      messageExpirationDays: newConv.messageExpirationDays,
+                      friendshipStatus: newConv.friendshipStatus ?? c.friendshipStatus,
+                      status: newConv.status ?? c.status,
+                      lastSeenAt: newConv.lastSeenAt ?? c.lastSeenAt,
                       ...(keepCachedLastMessage ? { lastMessage: c.lastMessage } : {})
                     }
                   })
@@ -470,7 +526,8 @@ export const useChatWebSocket = () => {
                     lastMeta?.action !== 'REMOVE_MEMBER' &&
                     lastMeta?.action !== 'LEAVE_GROUP' &&
                     lastMeta?.action !== 'BLOCK_MEMBER' &&
-                    lastMeta?.action !== 'ADD_MEMBERS_FAILED'
+                    lastMeta?.action !== 'ADD_MEMBERS_FAILED' &&
+                    lastMeta?.action !== 'CREATE_GROUP'
                   nextData = [
                     {
                       ...newConv,
@@ -558,6 +615,61 @@ export const useChatWebSocket = () => {
           }
         })
 
+        // ────────── /queue/session (force logout) ──────────
+        client.subscribe('/user/queue/session', (payload) => {
+          try {
+           
+            const event = JSON.parse(payload.body)
+            console.log(`[Socket] Session event received:`, event);
+            if (event?.type !== 'FORCE_LOGOUT') return
+
+            // Compare the event's sessionId against the session encoded in our JWT
+            let mySessionId: string | null = null
+            try {
+              const token = getAccessToken()
+              if (token) {
+                const jwtPayload = JSON.parse(atob(token.split('.')[1]))
+                mySessionId = jwtPayload.sessionId ?? null
+              }
+            } catch {
+              // If we can't decode the token, treat it as a match (safe fallback → force logout)
+              mySessionId = null
+            }
+
+            if (mySessionId === null || mySessionId === event.sessionId) {
+              logoutLocal()
+              navigate(PATHS.AUTH.LOGIN)
+            }
+          } catch (error) {
+            console.error('[Socket] Error handling session event:', error)
+          }
+        })
+
+        // ────────── /queue/notifications (CALL fallback) ──────────
+        client.subscribe('/user/queue/notifications', (payload) => {
+          try {
+            const raw = JSON.parse(payload.body)
+            const data = raw?.data ?? raw
+            const type = data?.type ?? raw?.type
+            const callPayload = data?.payload ?? raw?.payload ?? data
+            const sessionId = callPayload?.sessionId || data?.sessionId
+            if (type === 'CALL' && sessionId) {
+              window.dispatchEvent(
+                new CustomEvent('incoming-call', {
+                  detail: {
+                    sessionId,
+                    callerName: callPayload?.callerName || data?.callerName || data?.actorName || 'Unknown',
+                    callerAvatar: callPayload?.callerAvatar || data?.callerAvatar || data?.actorAvatar || '',
+                    callKind: (callPayload?.callKind || data?.callKind) as 'voice' | 'video' | undefined
+                  }
+                })
+              )
+            }
+          } catch (error) {
+            console.error('[Socket] Error handling notification event:', error)
+          }
+        })
+
         client.publish({
           destination: '/app/user.addUser',
           body: JSON.stringify(user)
@@ -570,7 +682,7 @@ export const useChatWebSocket = () => {
 
     client.activate()
     stompClientRef.current = client
-  }, [user, queryClient])
+  }, [user, queryClient, logoutLocal, navigate])
 
   const disconnect = useCallback(() => {
     if (stompClientRef.current) {
@@ -598,7 +710,7 @@ export const useChatWebSocket = () => {
     (conversationId: string, content: string, replyTo?: ReplyMetadata | null, isForwarded: boolean = false) => {
       if (!stompClientRef.current?.connected || (!content.trim() && !isForwarded)) return
 
-      const clientMessageId = `temp-${Date.now()}`
+      const clientMessageId = `temp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
       const isFake = conversationId.startsWith('fake_')
       const chatMessage: ChatMessageRequest = {
         conversationId: isFake ? null : conversationId,
@@ -613,6 +725,15 @@ export const useChatWebSocket = () => {
 
       const now = new Date().toISOString()
       const isLink = JOIN_LINK_REGEX.test(content.trim())
+      const conversations = queryClient.getQueryData<ConversationResponse[]>(chatKeys.conversations()) || []
+      const conv = conversations.find((c) => c.id === conversationId)
+      let expiredAt: string | undefined = undefined
+      if (conv && conv.messageExpirationDays && conv.messageExpirationDays > 0) {
+        const date = new Date(now)
+        date.setDate(date.getDate() + conv.messageExpirationDays)
+        expiredAt = date.toISOString()
+      }
+
       const optimisticMsg: MessageResponse = {
         id: clientMessageId,
         clientMessageId,
@@ -626,7 +747,8 @@ export const useChatWebSocket = () => {
         senderName: user?.fullName,
         senderAvatar: user?.avatar || undefined,
         replyTo,
-        isForwarded
+        isForwarded,
+        expiredAt
       }
 
       queryClient.setQueryData(
@@ -634,6 +756,10 @@ export const useChatWebSocket = () => {
         (oldData: InfiniteData<PageResponse<MessageResponse>> | undefined) => {
           if (!oldData) return oldData
           const firstPage = oldData.pages[0]
+          const existsOptimistic = firstPage.data.some(
+            (m: MessageResponse) => m.clientMessageId === clientMessageId || m.id === clientMessageId
+          )
+          if (existsOptimistic) return oldData
           return {
             ...oldData,
             pages: [{ ...firstPage, data: [optimisticMsg, ...firstPage.data] }, ...oldData.pages.slice(1)]
@@ -743,6 +869,15 @@ export const useChatWebSocket = () => {
         const allVideo = mediaFiles.every((a) => a.file.type.startsWith('video/'))
         const msgType = allVideo ? MessageType.Video : MessageType.Image
 
+        const conversations = queryClient.getQueryData<ConversationResponse[]>(chatKeys.conversations()) || []
+        const conv = conversations.find((c) => c.id === conversationId)
+        let expiredAt: string | undefined = undefined
+        if (conv && conv.messageExpirationDays && conv.messageExpirationDays > 0) {
+          const date = new Date(now)
+          date.setDate(date.getDate() + conv.messageExpirationDays)
+          expiredAt = date.toISOString()
+        }
+
         const optimisticMsg: MessageResponse = {
           id: clientMessageId,
           clientMessageId,
@@ -763,7 +898,8 @@ export const useChatWebSocket = () => {
             originalFileName: a.file.name,
             contentType: a.file.type,
             size: a.file.size
-          }))
+          })),
+          expiredAt
         }
 
         queryClient.setQueryData(
@@ -784,7 +920,7 @@ export const useChatWebSocket = () => {
               ? '[Video]'
               : '[Hình ảnh]'
             : `[${mediaFiles.length} ${allVideo ? 'video' : 'ảnh'}]`
-        queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
+         queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
           if (!oldData) return oldData
           const idx = oldData.findIndex((c) => c.id === conversationId)
           if (idx < 0) return oldData
@@ -847,6 +983,14 @@ export const useChatWebSocket = () => {
         const clientMessageId = `temp-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
         const { file } = attachment
         const now = new Date().toISOString()
+        const conversations = queryClient.getQueryData<ConversationResponse[]>(chatKeys.conversations()) || []
+        const conv = conversations.find((c) => c.id === conversationId)
+        let expiredAt: string | undefined = undefined
+        if (conv && conv.messageExpirationDays && conv.messageExpirationDays > 0) {
+          const date = new Date(now)
+          date.setDate(date.getDate() + conv.messageExpirationDays)
+          expiredAt = date.toISOString()
+        }
 
         const optimisticMsg: MessageResponse = {
           id: clientMessageId,
@@ -894,7 +1038,7 @@ export const useChatWebSocket = () => {
               ...oldData[idx],
               lastMessage: {
                 id: clientMessageId,
-                content: `[Tệp] ${file.name}`,
+                content: `[File] ${file.name}`,
                 timestamp: now,
                 isFromMe: true,
                 type: MessageType.File,

@@ -43,7 +43,7 @@ export const NotificationList = ({ filter }: NotificationListProps) => {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useMyNotificationsQuery(10, filter)
   const { mutate: markAsRead } = useMarkAsReadMutation()
   const { ref, inView } = useInView({ rootMargin: '400px', threshold: 0 })
-  const { group, empty, filter: localeFilter } = useNotificationText()
+  const { group, empty, filter: localeFilter, list } = useNotificationText()
 
   const handleMarkAsRead = useCallback(
     (id: string) => {
@@ -53,17 +53,23 @@ export const NotificationList = ({ filter }: NotificationListProps) => {
   )
 
   const grouped = useMemo(() => {
-    if (!data) return { newest: [], today: [], previous: [] }
+    if (!data || !data.pages || data.pages.length === 0) return { newest: [], today: [], previous: [] }
 
     if (filter === 'unread') {
-      const allItems = data.pages.flatMap((page) => (page as NotificationFlatHistoryResponse).items)
+      const allItems = data.pages.flatMap((page) => {
+        if ('items' in page) return page.items
+        return []
+      })
       return { newest: allItems, today: [], previous: [] }
     }
 
-    const firstPage = data.pages[0] as NotificationHistoryResponse
-    const newest = firstPage?.newest ?? []
-    const today = firstPage?.today ?? []
-    const previous = data.pages.flatMap((page) => (page as NotificationHistoryResponse).previous)
+    const firstPage = data.pages[0]
+    const newest = firstPage && 'newest' in firstPage ? firstPage.newest : []
+    const today = firstPage && 'today' in firstPage ? firstPage.today : []
+    const previous = data.pages.flatMap((page) => {
+      if ('previous' in page) return page.previous
+      return []
+    })
 
     return {
       newest,
@@ -181,7 +187,7 @@ export const NotificationList = ({ filter }: NotificationListProps) => {
           className='rounded-full shadow-xl bg-brand-blue hover:bg-brand-blue/90 text-white px-5 h-10 flex items-center gap-2 border-none ring-4 ring-background animate-in fade-in slide-in-from-top-4 duration-300'
         >
           <ChevronUp className='w-4 h-4' />
-          <span className='text-[14px] font-bold'>Có thông báo mới</span>
+          <span className='text-[14px] font-bold'>{list.newUpdates}</span>
         </Button>
       </div>
 
@@ -231,7 +237,7 @@ export const NotificationList = ({ filter }: NotificationListProps) => {
                   onClick={() => fetchNextPage()}
                   disabled={isFetchingNextPage}
                 >
-                  {isFetchingNextPage ? 'Đang tải...' : 'Xem thông báo trước đó'}
+                  {isFetchingNextPage ? list.loading : list.loadPrevious}
                 </Button>
               ) : (
                 isFetchingNextPage && (

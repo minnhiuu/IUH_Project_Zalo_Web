@@ -13,9 +13,21 @@
     "user": "Người dùng",
     "type": {
       "image": "[Hình ảnh]",
+      "video": "[Video]",
       "file": "[Tệp]",
       "link": "[Liên kết]",
       "confirm": "Xác nhận"
+    },
+    "input": {
+      "dropFilesHint": "Thả file vào đây",
+      "sendImageVideoTitle": "Gửi ảnh/video",
+      "attachFileTitle": "Đính kèm file",
+      "summarizeNewMessages": "Tóm tắt tin nhắn mới",
+      "summarizingMessages": "AI đang đọc tin nhắn...",
+      "summaryTitle": "Tóm tắt nội dung",
+      "closeSummary": "Đóng",
+      "videoBadge": "VIDEO",
+      "fileTooLarge": "File \"{{name}}\" vượt quá {{maxSizeMb}}MB"
     },
     "mentionDropdown": {
       "instruction": "Sử dụng phím mũi tên lên, xuống để chọn. Nhấn phím Enter để sử dụng",
@@ -52,6 +64,12 @@
       "deletedByAdmin": "{{name}} đã xoá tin nhắn này",
       "deletedByAdminSelf": "Bạn đã xoá tin nhắn này",
       "replyUnavailable": "Tin nhắn đã bị xoá",
+      "deleteIn": {
+        "days": "Tự động xóa sau {{days}} ngày {{hours}} giờ",
+        "hours": "Tự động xóa sau {{hours}} giờ {{minutes}} phút",
+        "minutes": "Tự động xóa sau {{minutes}} phút",
+        "soon": "Sắp xóa"
+      },
       "adminDeleteDialog": {
         "title": "Xóa tin nhắn",
         "cancel": "Hủy",
@@ -73,7 +91,8 @@
       "copy": "Sao chép",
       "unpin": "Bỏ ghim",
       "collapse": "Thu gọn",
-      "extraPins": "+{{count}} ghim"
+      "extraPins": "+{{count}} ghim",
+      "header": "Tin nhắn đã ghim ({{count}})"
     },
     "system": {
       "add_members": {
@@ -102,7 +121,7 @@
         "by_actor": "<bold>{{target}}</bold> bị <actorBold>{{actor}}</actorBold> chặn khỏi nhóm này"
       },
       "blocked_from_joining": "<bold>{{target}}</bold> đã bị trưởng/phó nhóm chặn tham gia nhóm",
-      "add_members_failed": "Thêm thành viên không thành công({{count}}).",
+      "add_members_failed": "Thêm thành viên không thành công. Một số người dùng chỉ có thể tham gia qua link mời.",
       "self_blocked_from_joining": {
         "with_link": "Không thể thêm <bold>{{target}}</bold> vào nhóm. Họ chỉ có thể tham gia bằng link mời vào nhóm.",
         "without_link": "Không thể thêm <bold>{{target}}</bold> vào nhóm.",
@@ -159,6 +178,10 @@
         "self": "Bạn đã làm mới link mời nhóm. Link cũ không còn hiệu lực.",
         "by_actor": "<actorBold>{{actor}}</actorBold> đã làm mới link mời nhóm. Link cũ không còn hiệu lực."
       },
+      "disable_join_link": {
+        "self": "Bạn đã hủy link mời tham gia nhóm. Link cũ không còn hiệu lực.",
+        "by_actor": "<actorBold>{{actor}}</actorBold> đã hủy link mời tham gia nhóm. Link cũ không còn hiệu lực."
+      },
       "pin_message": {
         "pinned_self": "Bạn đã ghim 1 tin nhắn",
         "pinned_by_actor": "<actorBold>{{actor}}</actorBold> đã ghim 1 tin nhắn",
@@ -199,7 +222,13 @@
         "reply_prefix": "Chọn",
         "reply_action": "Trả lời",
         "reply_suffix": "để trích dẫn nội dung tin nhắn"
-      }
+      },
+      "update_expiration": {
+        "on": "đã cài đặt tin nhắn tự xóa sau {{days}} ngày",
+        "off": "đã tắt tin nhắn tự xóa"
+      },
+      "quiet_mode_active": "<actorBold>{{actor}}</actorBold> đang trong chế độ ngủ và sẽ không nhận được thông báo tin nhắn",
+      "dnd_summary": "Bạn có <bold>{{count}}</bold> thông báo mới trong chế độ ngủ"
     },
     "disbanded": {
       "message": "Trưởng nhóm đã giải tán nhóm.",
@@ -249,6 +278,7 @@
       "searchPlaceholder": "Tìm tên, số điện thoại, hoặc danh sách đã chọn",
       "recentChats": "Trò chuyện gần đây",
       "selected": "Đã chọn",
+      "noSelected": "Chưa chọn",
       "cancel": "Hủy",
       "create": "Tạo nhóm",
       "andOthers": "và {{count}} người khác",
@@ -263,7 +293,7 @@
       "noResultsFound": "Không tìm thấy kết quả",
       "noFriendsFound": "Không tìm thấy bạn bè",
       "groupAlreadyExists": "Nhóm đã tồn tại",
-      "addMemberFailed": "Thêm thành viên không thành công({{count}}).",
+      "addMemberFailed": "Thêm thành viên không thành công.",
       "avatarAlt": "Ảnh đại diện",
       "notAvailable": "Không khả dụng",
       "confirmSelection": "Xác nhận chọn",
@@ -288,6 +318,25 @@
       "labels": "Nhãn",
       "forwardMessage": "Nội dung chuyển tiếp",
       "addDescription": "Thêm lời nhắn..."
+    },
+    "businessCard": {
+      "open": "Gửi danh thiếp",
+      "title": "Gửi danh thiếp",
+      "searchPlaceholder": "Tìm danh thiếp theo tên",
+      "chipAll": "Tất cả",
+      "chipCustomer": "Khách hàng",
+      "chipFamily": "Gia đình",
+      "chipWork": "Công việc",
+      "chipFriends": "Bạn bè",
+      "chipLater": "Trả lời sau",
+      "selectedTitle": "Đã chọn",
+      "includePhone": "Gửi kèm số điện thoại",
+      "cancel": "Hủy",
+      "send": "Gửi danh thiếp",
+      "empty": "Không tìm thấy liên hệ",
+      "call": "Gọi Điện",
+      "message": "Nhắn Tin",
+      "preview": "[Danh thiếp] {{name}}"
     },
     "join-link-card": {
       "group_label": "Nhóm",
@@ -455,7 +504,8 @@
       "leaveGroupError": "Rời nhóm thất bại",
       "blockSuccess": "Đã chặn thành viên thành công",
       "unblockSuccess": "Đã bỏ chặn thành công",
-      "noBlockCandidates": "Không có thành viên nào để chặn"
+      "noBlockCandidates": "Không có thành viên nào để chặn",
+      "transferOwnerSuccess": "Đã chuyển quyền trưởng nhóm thành công"
     },
     "sidebarInfo": {
       "title": "Thông tin hội thoại",
@@ -592,7 +642,9 @@
       "loadMore": "Xem thêm",
       "clear": "Xóa",
       "confirm": "Xác nhận",
-      "cancel": "Hủy"
+      "cancel": "Hủy",
+      "messages": "Tin nhắn",
+      "files": "Tập tin"
     }
   },
   "call": {
@@ -613,6 +665,20 @@
     "error": "Không thể thực hiện cuộc gọi"
   },
   "ai": {
+    "window": {
+      "title": "Bondhub AI",
+      "assistantTag": "Trợ lý AI",
+      "newConversation": "Cuộc hội thoại mới",
+      "inputPlaceholder": "Hỏi Bondhub AI bất cứ điều gì...",
+      "clarificationNeeded": "Cần thêm thông tin",
+      "welcomeDescription": "Trợ lý AI thông minh tích hợp dữ liệu hội thoại của bạn. Hỏi bất cứ điều gì!",
+      "errorFallback": "Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại.",
+      "suggestions": {
+        "profile": "Hồ sơ của tôi là gì?",
+        "friends": "Danh sách bạn bè của tôi",
+        "internet": "Tìm kiếm thông tin trên Internet"
+      }
+    },
     "status": {
       "ANALYZING_INTENT": "Đang phân tích ý định của bạn...",
       "RETRIEVING_VECTOR": "Đang lục tìm trong bộ nhớ nội bộ...",

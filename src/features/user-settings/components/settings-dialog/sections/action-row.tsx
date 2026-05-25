@@ -33,11 +33,11 @@ export function ActionRow({
           contentClassName
         )}
       >
-        <div>
+        <div className='min-w-0'>
           <h3 className={cn(baseTitleClass, titleClassName)}>{title}</h3>
           {description && <p className='text-xs text-muted-foreground'>{description}</p>}
         </div>
-        {action ?? children}
+        <div className='shrink-0'>{action ?? children}</div>
       </div>
     )
   }

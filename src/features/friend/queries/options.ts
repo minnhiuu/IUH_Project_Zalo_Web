@@ -107,6 +107,17 @@ export const friendOptions = {
       enabled: enabled && !!userId
     }),
 
+  batchFriendshipStatus: (userIds: string[], enabled: boolean = true) =>
+    queryOptions({
+      ...QUERY_POLICIES.REALTIME,
+      queryKey: friendKeys.batchStatus(userIds),
+      queryFn: async () => {
+        const response = await friendApi.batchCheckFriendshipStatus(userIds)
+        return response.data.data
+      },
+      enabled: enabled && userIds.length > 0
+    }),
+
   mutualFriends: (userId: string, enabled: boolean = true) =>
     queryOptions({
       ...QUERY_POLICIES.LIST,

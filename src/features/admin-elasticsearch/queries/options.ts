@@ -1,16 +1,9 @@
 import { queryOptions } from '@tanstack/react-query'
 import { elasticsearchApi } from '../api/elasticsearch.api'
 import { elasticsearchKeys } from './keys'
-import { ReindexTaskStatus } from '@/constants/enum'
+import { ReindexTaskStatus, SearchIndexType } from '@/constants/enum'
 
 export const elasticsearchOptions = {
-  summary: () =>
-    queryOptions({
-      queryKey: elasticsearchKeys.summary(),
-      queryFn: () => elasticsearchApi.getSummary().then((res) => res.data.data),
-      refetchInterval: 10000
-    }),
-
   health: () =>
     queryOptions({
       queryKey: elasticsearchKeys.health(),
@@ -18,36 +11,36 @@ export const elasticsearchOptions = {
       refetchInterval: 30000
     }),
 
-  stats: () =>
+  summary: (type: SearchIndexType) =>
     queryOptions({
-      queryKey: elasticsearchKeys.stats(),
-      queryFn: () => elasticsearchApi.getStats().then((res) => res.data.data),
+      queryKey: elasticsearchKeys.summary(type),
+      queryFn: () => elasticsearchApi.getSummary(type).then((res) => res.data.data),
       refetchInterval: 10000
     }),
 
-  compare: () =>
+  stats: (type: SearchIndexType) =>
     queryOptions({
-      queryKey: elasticsearchKeys.compare(),
-      queryFn: () => elasticsearchApi.compareWithDatabase().then((res) => res.data.data),
+      queryKey: elasticsearchKeys.stats(type),
+      queryFn: () => elasticsearchApi.getStats(type).then((res) => res.data.data),
       refetchInterval: 10000
     }),
 
-  indexes: () =>
+  indexes: (type: SearchIndexType) =>
     queryOptions({
-      queryKey: elasticsearchKeys.indexes(),
-      queryFn: () => elasticsearchApi.getAllIndexes().then((res) => res.data.data)
+      queryKey: elasticsearchKeys.indexes(type),
+      queryFn: () => elasticsearchApi.getPhysicalIndexes(type).then((res) => res.data.data)
     }),
 
-  document: (userId: string) =>
+  document: (type: SearchIndexType, id: string) =>
     queryOptions({
-      queryKey: elasticsearchKeys.document(userId),
-      queryFn: () => elasticsearchApi.getDocument(userId).then((res) => res.data.data)
+      queryKey: elasticsearchKeys.document(id),
+      queryFn: () => elasticsearchApi.getDocument(type, id).then((res) => res.data.data)
     }),
 
-  reindexStatus: (taskId: string | null) =>
+  reindexStatus: (type: SearchIndexType, taskId: string | null) =>
     queryOptions({
-      queryKey: elasticsearchKeys.reindexStatus(taskId!),
-      queryFn: () => elasticsearchApi.getReindexStatus(taskId!).then((res) => res.data.data),
+      queryKey: elasticsearchKeys.reindexStatus(type, taskId!),
+      queryFn: () => elasticsearchApi.getReindexStatus(type, taskId!).then((res) => res.data.data),
       enabled: !!taskId,
       refetchInterval: (query) => {
         const data = query.state.data
@@ -56,5 +49,11 @@ export const elasticsearchOptions = {
         }
         return 1000
       }
+    }),
+
+  failedEventsByType: (type: SearchIndexType, page: number = 0, size: number = 10) =>
+    queryOptions({
+      queryKey: [...elasticsearchKeys.failedEvents(), { type, page, size }],
+      queryFn: () => elasticsearchApi.getFailedEventsByType(type, page, size).then((res) => res.data.data)
     })
 }

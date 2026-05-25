@@ -78,3 +78,10 @@ export type FailedEvent = {
   retryCount: number
   resolved: boolean
 }
+
+export type IndexOperationResponse = {
+  message: string
+  indexName?: string
+  taskId?: string
+  userId?: string
+}

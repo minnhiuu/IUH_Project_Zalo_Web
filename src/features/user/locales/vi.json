@@ -3,7 +3,9 @@
     "menu": {
       "profile": "Thông tin tài khoản",
       "settings": "Cài đặt",
+      "data": "Dữ liệu",
       "language": "Ngôn ngữ",
+      "support": "Hỗ trợ",
       "appearance": "Giao diện",
       "themeLight": "Sáng",
       "themeDark": "Tối",
@@ -56,7 +58,37 @@
       "block": "Chặn tin nhắn và cuộc gọi",
       "editBlock": "Cài đặt chặn",
       "report": "Báo xấu",
-      "deleteFriend": "Xóa khỏi danh sách bạn bè"
+      "deleteFriend": "Xóa khỏi danh sách bạn bè",
+      "page": {
+        "myTitle": "Trang cá nhân",
+        "editProfile": "Chỉnh sửa hồ sơ",
+        "postsHeading": "Bài viết",
+        "loadingMore": "Đang tải...",
+        "loadError": "Không thể tải bài viết.",
+        "retry": "Thử lại",
+        "noPosts": "Chưa có bài viết",
+        "noPostsHint": "Hãy chia sẻ bài viết đầu tiên của bạn!",
+        "noPostsOther": "Chưa có bài viết",
+        "noPostsOtherHint": "Người dùng này chưa đăng bài nào.",
+        "addFriend": "Kết bạn",
+        "message": "Nhắn tin",
+        "about": "Giới thiệu",
+        "fieldBio": "Tiểu sử",
+        "fieldGender": "Giới tính",
+        "fieldBirthday": "Ngày sinh",
+        "fieldEmail": "Email",
+        "fieldPhone": "Điện thoại",
+        "fieldRole": "Vai trò",
+        "genderMale": "Nam",
+        "genderFemale": "Nữ",
+        "friendsTab": "Bạn bè",
+        "searchPlaceholder": "Tìm kiếm",
+        "mutualFriends": "{{count}} bạn chung",
+        "noFriends": "Bạn chưa có bạn bè nào.",
+        "noMutualFriends": "Không có bạn chung nào.",
+        "featureInDevelopment": "Tính năng đang phát triển"
+      },
+      "goToSettings": "Mở cài đặt"
     },
     "validation": {
       "fullNameRequired": "Tên hiển thị không được để trống",
@@ -139,6 +171,20 @@
         },
         "search": {
           "title": "Tìm kiếm",
+          "nameSearchVisibility": {
+            "title": "Ai có thể tìm tôi bằng tên",
+            "description": "Kiểm soát ai có thể thấy hồ sơ của bạn khi tìm kiếm bằng tên"
+          },
+          "phoneSearchVisibility": {
+            "title": "Ai có thể tìm tôi bằng số điện thoại",
+            "description": "Kiểm soát ai có thể thấy hồ sơ của bạn khi tìm đúng số điện thoại"
+          },
+          "visibility": {
+            "public": "Mọi người",
+            "friendsOfFriends": "Bạn của bạn bè",
+            "friendsOnly": "Chỉ bạn bè",
+            "none": "Không ai"
+          },
           "allowSearchOnPhoneNumber": {
             "title": "Cho phép tìm kiếm bằng số điện thoại",
             "description": "Người khác có thể tìm thấy bạn qua số điện thoại"
@@ -175,6 +221,33 @@
         "sound": {
           "title": "Âm thanh thông báo",
           "description": "Phát âm thanh khi có thông báo mới"
+        },
+        "vibration": {
+          "title": "Rung",
+          "description": "Rung khi có thông báo mới"
+        },
+        "friendRequests": {
+          "title": "Lời mời kết bạn",
+          "description": "Nhận thông báo khi có người gửi lời mời kết bạn cho bạn"
+        },
+        "directMessages": {
+          "title": "Tin nhắn trực tiếp",
+          "description": "Nhận thông báo khi có tin nhắn mới từ bạn bè"
+        },
+        "groupMessages": {
+          "title": "Tin nhắn nhóm",
+          "description": "Nhận thông báo khi có tin nhắn mới trong nhóm"
+        },
+        "quietMode": {
+          "title": "Chế độ im lặng (Quiet mode)",
+          "description": "Khi bật, thông báo sẽ được tạm dừng và người gửi tin nhắn trực tiếp sẽ nhận được phản hồi tự động. Bạn sẽ nhận được tóm tắt thông báo khi thoát chế độ này.",
+          "startTime": "Giờ bắt đầu",
+          "endTime": "Giờ kết thúc",
+          "timezone": "Múi giờ",
+          "chooseDays": "Chọn ngày",
+          "everyday": "Chế độ im lặng được bật mỗi ngày.",
+          "activeDaysCount": "Bật vào: {{count}} ngày trong tuần.",
+          "save": "Lưu"
         }
       },
       "messages": {
@@ -268,6 +341,7 @@
             "story": "Nhật ký"
           }
         },
+        "accountActivation": {},
         "blockModal": {
           "title": "Chặn người dùng",
           "editTitle": "Cài đặt chặn",
