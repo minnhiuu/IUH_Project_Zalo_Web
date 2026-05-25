@@ -41,9 +41,11 @@ export function ChatLayout({
     return (
       conversations.find(
         (c: ConversationResponse) =>
-          c.members?.some((m) => m.userId === defaultPartnerId) ||
-          c.recipientId === defaultPartnerId ||
-          (!c.isGroup && c.name === defaultPartnerId)
+          !c.isGroup && (
+            c.members?.some((m) => m.userId === defaultPartnerId) ||
+            c.recipientId === defaultPartnerId ||
+            c.name === defaultPartnerId
+          )
       ) || null
     )
   }, [conversations, defaultPartnerId])
@@ -78,7 +80,7 @@ export function ChatLayout({
   // ── Tính selectedChatId theo thứ tự ưu tiên ──
   // defaultConversationId (từ URL) được ưu tiên cao nhất để navigate từ bên ngoài (vd: tạo nhóm) hoạt động
   const defaultChatId = cachedConvForPartner?.id || resolvedConversation?.id || null
-  const selectedChatId = userSelectedChatId || defaultConversationId || defaultChatId
+  const selectedChatId = defaultPartnerId ? defaultChatId : (userSelectedChatId || defaultConversationId || defaultChatId)
 
   // Sync userSelectedChatId when defaultConversationId changes (e.g. navigation)
   const [prevDefaultId, setPrevDefaultId] = useState<string | null>(null)
@@ -86,6 +88,12 @@ export function ChatLayout({
     setPrevDefaultId(defaultConversationId)
     setUserSelectedChatId(defaultConversationId)
   }
+
+  useEffect(() => {
+    if (defaultPartnerId) {
+      setUserSelectedChatId(null)
+    }
+  }, [defaultPartnerId])
 
   const selectedChat = useMemo(() => {
     if (!selectedChatId) return null
@@ -137,6 +145,7 @@ export function ChatLayout({
 
         return selectedChat ? (
           <ChatWindow
+            key={selectedChat.id}
             conversation={selectedChat}
             snapshotId={currentSnapshotId}
             capturedUnreadCount={capturedUnreadCount}

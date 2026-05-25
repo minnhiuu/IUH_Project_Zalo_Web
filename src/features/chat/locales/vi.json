@@ -64,6 +64,12 @@
       "deletedByAdmin": "{{name}} đã xoá tin nhắn này",
       "deletedByAdminSelf": "Bạn đã xoá tin nhắn này",
       "replyUnavailable": "Tin nhắn đã bị xoá",
+      "deleteIn": {
+        "days": "Tự động xóa sau {{days}} ngày {{hours}} giờ",
+        "hours": "Tự động xóa sau {{hours}} giờ {{minutes}} phút",
+        "minutes": "Tự động xóa sau {{minutes}} phút",
+        "soon": "Sắp xóa"
+      },
       "adminDeleteDialog": {
         "title": "Xóa tin nhắn",
         "cancel": "Hủy",
@@ -217,6 +223,10 @@
         "reply_action": "Trả lời",
         "reply_suffix": "để trích dẫn nội dung tin nhắn"
       },
+      "update_expiration": {
+        "on": "đã cài đặt tin nhắn tự xóa sau {{days}} ngày",
+        "off": "đã tắt tin nhắn tự xóa"
+      },
       "quiet_mode_active": "<actorBold>{{actor}}</actorBold> đang trong chế độ ngủ và sẽ không nhận được thông báo tin nhắn",
       "dnd_summary": "Bạn có <bold>{{count}}</bold> thông báo mới trong chế độ ngủ"
     },
@@ -308,6 +318,25 @@
       "labels": "Nhãn",
       "forwardMessage": "Nội dung chuyển tiếp",
       "addDescription": "Thêm lời nhắn..."
+    },
+    "businessCard": {
+      "open": "Gửi danh thiếp",
+      "title": "Gửi danh thiếp",
+      "searchPlaceholder": "Tìm danh thiếp theo tên",
+      "chipAll": "Tất cả",
+      "chipCustomer": "Khách hàng",
+      "chipFamily": "Gia đình",
+      "chipWork": "Công việc",
+      "chipFriends": "Bạn bè",
+      "chipLater": "Trả lời sau",
+      "selectedTitle": "Đã chọn",
+      "includePhone": "Gửi kèm số điện thoại",
+      "cancel": "Hủy",
+      "send": "Gửi danh thiếp",
+      "empty": "Không tìm thấy liên hệ",
+      "call": "Gọi Điện",
+      "message": "Nhắn Tin",
+      "preview": "[Danh thiếp] {{name}}"
     },
     "join-link-card": {
       "group_label": "Nhóm",

@@ -1,4 +1,5 @@
 import { MessageType, MessageStatus } from '@/constants/enum'
+import { parseBusinessCardContent } from './business-card'
 
 interface PreviewData {
   content?: string | null
@@ -21,6 +22,7 @@ export const formatPreview = (
     user: string
     type: { image: string; video?: string; file: string; link: string }
     messageBubble: { revoked: string }
+    businessCard: { preview: string }
   }
 ) => {
   if (!data.status && !data.content && !data.type) return ''
@@ -33,22 +35,26 @@ export const formatPreview = (
   let displayContent = data.content || ''
   if (isRevoked) {
     displayContent = text.messageBubble.revoked
-  } else if (!displayContent && data.type === MessageType.Image) {
-    displayContent = text.type.image
-  } else if (data.content && LEGACY_IMAGE_PLACEHOLDERS.has(data.content)) {
-    displayContent = text.type.image
-  } else if (!displayContent && data.type === MessageType.Video) {
-    displayContent = text.type.video || '[Video]'
-  } else if (data.content && LEGACY_VIDEO_PLACEHOLDERS.has(data.content)) {
-    displayContent = text.type.video || '[Video]'
-  } else if (!displayContent && data.type === MessageType.File) {
-    displayContent = text.type.file
-  } else if (data.content && LEGACY_FILE_PLACEHOLDERS.has(data.content)) {
-    displayContent = text.type.file
-  } else if (!displayContent && data.type === MessageType.Link) {
-    displayContent = text.type.link
-  } else if (data.content && LEGACY_LINK_PLACEHOLDERS.has(data.content)) {
-    displayContent = text.type.link
+  } else {
+    if (data.content?.startsWith('[GROUP_CALL]::')) {
+      try {
+        const payload = JSON.parse(data.content.slice('[GROUP_CALL]::'.length))
+        displayContent = payload.status === 'active' ? 'Cuộc gọi nhóm đang diễn ra...' : 'Cuộc gọi nhóm đã kết thúc'
+      } catch {
+        displayContent = 'Cuộc gọi nhóm'
+      }
+    } else {
+      const businessCard = parseBusinessCardContent(data.content)
+      if (businessCard) {
+        displayContent = text.businessCard.preview.replace('{{name}}', businessCard.name)
+      } else if (data.type === MessageType.Image || data.content === '[IMAGE]') {
+        displayContent = text.type.image
+      } else if (data.type === MessageType.File || data.content === '[FILE]') {
+        displayContent = text.type.file
+      } else if (data.type === MessageType.Link || data.content === '[LINK]') {
+        displayContent = text.type.link
+      }
+    }
   }
 
   if (isRevoked || !prefix) {

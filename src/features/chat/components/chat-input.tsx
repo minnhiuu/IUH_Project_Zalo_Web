@@ -1,93 +1,47 @@
 import { useState, useRef, useEffect, useCallback, useMemo, type FormEvent, type KeyboardEvent } from 'react'
-import {
-  SendHorizonal,
-  Smile,
-  Paperclip,
-  ImageIcon,
-  X,
-  Quote,
-  ThumbsUp,
-  FileIcon,
-  Loader2,
-  Sparkles
-} from 'lucide-react'
-import { useAiChat } from '../hooks/use-ai-chat'
-import type { GroupMemberListItemResponse, MessageResponse } from '../schemas/chat.schema'
+import { SendHorizonal, Smile, Paperclip, ImageIcon, X, Quote, ThumbsUp, FileIcon, Loader2, Contact, IdCard } from 'lucide-react'
+import type { MessageResponse } from '../schemas/chat.schema'
 import { MessageType } from '@/constants/enum'
 import { useChatContext, type FileAttachment } from '../context/chat-context'
 import { useChatText } from '../i18n/use-chat-text'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { useGroupMembersInfinite } from '../queries/use-queries'
-import { BONDHUB_AI } from '@/constants/system'
 import { MentionDropdown } from './mention-dropdown'
 import { RichInput, type RichInputRef } from './rich-input'
-import { stripMentionsForPreview, isAiMentioned } from '../utils/mention'
-import { AI_SUGGESTION_EVENT } from '../utils/ai-parser'
-import ReactMarkdown from 'react-markdown'
+import { stripMentionsForPreview } from '../utils/mention'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { BusinessCardDialog, type BusinessCardAsset } from './business-card-dialog'
+import { serializeBusinessCard } from '../utils/business-card'
 
 const IMAGE_VIDEO_ACCEPT = 'image/*,video/*'
 const FILE_ACCEPT = '*/*'
 const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50MB
-const MAX_FILE_SIZE_MB = 50
 
 interface ChatInputProps {
   conversationId: string
   isGroup?: boolean
   replyTo?: MessageResponse | null
-  onCancelReply?: () => void
   unreadCount?: number
   snapshotId?: string | null
-  onClearSnapshot: () => void
+  onClearSnapshot?: () => void
+  onCancelReply?: () => void
 }
 
-export function ChatInput({
-  conversationId,
-  isGroup,
-  replyTo,
-  onCancelReply,
-  unreadCount = 0,
-  snapshotId,
-  onClearSnapshot
-}: ChatInputProps) {
+export function ChatInput({ conversationId, isGroup, replyTo, unreadCount, snapshotId, onClearSnapshot, onCancelReply }: ChatInputProps) {
+  void unreadCount
+  void snapshotId
+  void onClearSnapshot
   const { sendMessage, sendFileMessage, sendTyping } = useChatContext()
   const { text } = useChatText()
+  const bc = text.businessCard
   const { user } = useAuth()
   const [content, setContent] = useState('')
   const [htmlContent, setHtmlContent] = useState('')
   const [fileAttachments, setFileAttachments] = useState<FileAttachment[]>([])
   const [attachmentType, setAttachmentType] = useState<'image' | 'file' | null>(null)
   const [isSending, setIsSending] = useState(false)
-
-  const {
-    isSummarizing,
-    summaryResult,
-    handleSummarize,
-    clearSummary,
-    sendMessage: sendAiMessage
-  } = useAiChat(conversationId, { loadHistory: false })
-
-  // ── AI Summarize Auto-hide logic ──
-  useEffect(() => {
-    // Nếu không có snapshot hoặc đã tóm tắt xong thì không cần chạy timer
-    if (!snapshotId || isSummarizing || summaryResult) return
-
-    // TRƯỜNG HỢP 1: Nếu thực sự đã đọc hết (unreadCount về 0)
-    if (unreadCount === 0) {
-      // Cho nút hiện thêm 3 giây "vớt vát" sau khi đọc xong để người dùng kịp nhấn
-      const timer = setTimeout(() => {
-        onClearSnapshot()
-      }, 3000)
-      return () => clearTimeout(timer)
-    }
-
-    // TRƯỜNG HỢP 2: Nếu vẫn còn tin chưa đọc, cho nó hiện tối đa 15s rồi tự ẩn cho đỡ vướng
-    const timer = setTimeout(() => {
-      onClearSnapshot()
-    }, 15000)
-    return () => clearTimeout(timer)
-  }, [snapshotId, unreadCount, isSummarizing, summaryResult, onClearSnapshot])
-
+  const [businessCardOpen, setBusinessCardOpen] = useState(false)
   // Mention state
   const [mentionQuery, setMentionQuery] = useState<string | null>(null) // null = closed
   const formRef = useRef<HTMLFormElement>(null)
@@ -110,29 +64,9 @@ export function ChatInput({
   }, [htmlContent])
 
   const availableMembers = useMemo(() => {
-    const baseMembers = (membersData?.pages ?? [])
+    return (membersData?.pages ?? [])
       .flatMap((p) => p.data)
       .filter((m) => !m.isCurrentUser && !alreadyMentionedIds.has(m.userId))
-
-    if (alreadyMentionedIds.has(BONDHUB_AI.userId)) {
-      return baseMembers
-    }
-
-    const aiMember: GroupMemberListItemResponse = {
-      userId: BONDHUB_AI.userId,
-      fullName: BONDHUB_AI.fullName,
-      avatar: BONDHUB_AI.avatar,
-      phoneNumber: null,
-      role: null,
-      joinedAt: null,
-      isFriend: false,
-      isCurrentUser: false,
-      joinMethod: null,
-      addedBy: null,
-      addedByName: null
-    }
-
-    return [aiMember, ...baseMembers.filter((member) => member.userId !== BONDHUB_AI.userId)]
   }, [membersData, alreadyMentionedIds])
 
   // Parse current @ trigger from selection
@@ -173,43 +107,6 @@ export function ChatInput({
     }
   }, [])
 
-  // Listen for AI suggestions
-  useEffect(() => {
-    const handleAiSuggestion = (e: Event) => {
-      const customEvent = e as CustomEvent<{ text: string }>
-      const suggestionText = customEvent.detail.text
-      if (!suggestionText) return
-
-      const aiMember = BONDHUB_AI
-
-      if (inputRef.current) {
-        // Clear old content and insert @Bondhub AI + suggestion
-        inputRef.current.clear()
-        inputRef.current.insertMention(aiMember.fullName, aiMember.userId)
-
-        // Use a small timeout to ensure mention span is inserted before plain text
-        setTimeout(() => {
-          const el = document.querySelector('[contenteditable="true"]') as HTMLDivElement
-          if (el) {
-            el.focus()
-            const sel = window.getSelection()
-            if (sel) {
-              const range = document.createRange()
-              range.selectNodeContents(el)
-              range.collapse(false)
-              sel.removeAllRanges()
-              sel.addRange(range)
-              document.execCommand('insertText', false, ` ${suggestionText}`)
-            }
-          }
-        }, 50)
-      }
-    }
-
-    window.addEventListener(AI_SUGGESTION_EVENT, handleAiSuggestion)
-    return () => window.removeEventListener(AI_SUGGESTION_EVENT, handleAiSuggestion)
-  }, [conversationId])
-
   const clearAttachments = useCallback(() => {
     fileAttachments.forEach((a) => {
       if (a.previewUrl) URL.revokeObjectURL(a.previewUrl)
@@ -235,7 +132,7 @@ export function ChatInput({
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
       if (file.size > MAX_FILE_SIZE) {
-        alert(text.input.fileTooLarge(file.name, MAX_FILE_SIZE_MB))
+        alert(`File "${file.name}" vượt quá 50MB`)
         continue
       }
 
@@ -257,6 +154,28 @@ export function ChatInput({
       const next = prev.filter((_, i) => i !== index)
       if (next.length === 0) setAttachmentType(null)
       return next
+    })
+  }
+
+  const handleSendBusinessCards = (cards: BusinessCardAsset[]) => {
+    const uniqueCards = Array.from(
+      new Map(
+        cards
+          .filter((card) => !!card.userId)
+          .map((card) => [card.userId, card])
+      ).values()
+    )
+
+    uniqueCards.forEach((card) => {
+      if (!card.userId) return
+      const payload = serializeBusinessCard({
+        userId: card.userId,
+        name: card.name || 'User',
+        phone: card.includePhone === false ? '' : (card.phone || ''),
+        avatar: card.avatar || null,
+        qrValue: `bondhub://user/${card.userId}?name=${encodeURIComponent(card.name || '')}`
+      })
+      sendMessage(conversationId, payload)
     })
   }
 
@@ -304,7 +223,6 @@ export function ChatInput({
       : null
 
     const sendText = extractSendContent().trim()
-    console.log('sendText', sendText)
 
     // Gửi file/ảnh/video
     if (fileAttachments.length > 0) {
@@ -323,7 +241,7 @@ export function ChatInput({
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
       if (isTypingRef.current) {
         isTypingRef.current = false
-        sendTyping(conversationId, false, user?.fullName || text.user)
+        sendTyping(conversationId, false, user?.fullName || 'Người dùng')
       }
       setTimeout(() => inputRef.current?.focus(), 0)
       return
@@ -331,16 +249,7 @@ export function ChatInput({
 
     // Gửi text thường
     if (!sendText) return
-
     sendMessage(conversationId, sendText, replyMetadata)
-
-    console.log('isAiMentioned', isAiMentioned(sendText))
-
-    if (isAiMentioned(sendText)) {
-      console.log('sendAiMessage (mention mode)')
-      sendAiMessage(sendText, true) // QUAN TRỌNG: pass true cho isMention
-    }
-
     inputRef.current?.clear()
     setContent('')
     onCancelReply?.()
@@ -348,7 +257,7 @@ export function ChatInput({
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
     if (isTypingRef.current) {
       isTypingRef.current = false
-      sendTyping(conversationId, false, user?.fullName || text.user)
+      sendTyping(conversationId, false, user?.fullName || 'Người dùng')
     }
     setTimeout(() => inputRef.current?.focus(), 0)
   }
@@ -399,96 +308,86 @@ export function ChatInput({
     e.stopPropagation()
   }, [])
 
-  const handleDrop = useCallback(
-    async (e: React.DragEvent) => {
-      e.preventDefault()
-      e.stopPropagation()
-      setIsDragging(false)
-      dragCounterRef.current = 0
+  const handleDrop = useCallback(async (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+    dragCounterRef.current = 0
 
-      const droppedFiles = e.dataTransfer.files
-      if (!droppedFiles || droppedFiles.length === 0) return
+    const droppedFiles = e.dataTransfer.files
+    if (!droppedFiles || droppedFiles.length === 0) return
 
-      const hasMedia = Array.from(droppedFiles).some((f) => f.type.startsWith('image/') || f.type.startsWith('video/'))
-      const isAllMedia = Array.from(droppedFiles).every(
-        (f) => f.type.startsWith('image/') || f.type.startsWith('video/')
+    const hasMedia = Array.from(droppedFiles).some(
+      (f) => f.type.startsWith('image/') || f.type.startsWith('video/')
+    )
+    const isAllMedia = Array.from(droppedFiles).every(
+      (f) => f.type.startsWith('image/') || f.type.startsWith('video/')
+    )
+
+    if (isAllMedia) {
+      // Ảnh/video → thêm vào preview
+      const newAttachments: FileAttachment[] = []
+      for (let i = 0; i < droppedFiles.length; i++) {
+        const file = droppedFiles[i]
+        if (file.size > MAX_FILE_SIZE) {
+          alert(`File "${file.name}" vượt quá 50MB`)
+          continue
+        }
+        const previewUrl = URL.createObjectURL(file)
+        newAttachments.push({ file, previewUrl })
+      }
+      if (newAttachments.length > 0) {
+        if (attachmentType === 'file') clearAttachments()
+        setFileAttachments((prev) => [...prev, ...newAttachments])
+        setAttachmentType('image')
+      }
+    } else {
+      // File thường → gửi trực tiếp
+      const fileOnly = Array.from(droppedFiles).filter(
+        (f) => !f.type.startsWith('image/') && !f.type.startsWith('video/')
       )
-
-      if (isAllMedia) {
-        // Ảnh/video → thêm vào preview
-        const newAttachments: FileAttachment[] = []
-        for (let i = 0; i < droppedFiles.length; i++) {
-          const file = droppedFiles[i]
-          if (file.size > MAX_FILE_SIZE) {
-            alert(text.input.fileTooLarge(file.name, MAX_FILE_SIZE_MB))
-            continue
-          }
-          const previewUrl = URL.createObjectURL(file)
-          newAttachments.push({ file, previewUrl })
+      const attachments: FileAttachment[] = []
+      for (const file of fileOnly) {
+        if (file.size > MAX_FILE_SIZE) {
+          alert(`File "${file.name}" vượt quá 50MB`)
+          continue
         }
-        if (newAttachments.length > 0) {
-          if (attachmentType === 'file') clearAttachments()
-          setFileAttachments((prev) => [...prev, ...newAttachments])
-          setAttachmentType('image')
-        }
-      } else {
-        // File thường → gửi trực tiếp
-        const fileOnly = Array.from(droppedFiles).filter(
-          (f) => !f.type.startsWith('image/') && !f.type.startsWith('video/')
-        )
-        const attachments: FileAttachment[] = []
-        for (const file of fileOnly) {
-          if (file.size > MAX_FILE_SIZE) {
-            alert(text.input.fileTooLarge(file.name, MAX_FILE_SIZE_MB))
-            continue
-          }
-          attachments.push({ file })
-        }
-        if (attachments.length > 0) {
-          setIsSending(true)
-          try {
-            const replyMetadata = replyTo
-              ? {
-                  messageId: replyTo.id,
-                  senderId: replyTo.senderId,
-                  senderName: replyTo.senderName || '',
-                  content: replyTo.content || '',
-                  type: replyTo.type
-                }
-              : null
-            await sendFileMessage(conversationId, attachments, '', replyMetadata)
-            onCancelReply?.()
-          } finally {
-            setIsSending(false)
-          }
-        }
-        // Nếu có cả ảnh lẫn file, thêm ảnh vào preview
-        if (hasMedia) {
-          const mediaOnly = Array.from(droppedFiles).filter(
-            (f) => f.type.startsWith('image/') || f.type.startsWith('video/')
-          )
-          const mediaAttachments: FileAttachment[] = []
-          for (const file of mediaOnly) {
-            if (file.size > MAX_FILE_SIZE) continue
-            mediaAttachments.push({ file, previewUrl: URL.createObjectURL(file) })
-          }
-          if (mediaAttachments.length > 0) {
-            if (attachmentType === 'file') clearAttachments()
-            setFileAttachments((prev) => [...prev, ...mediaAttachments])
-            setAttachmentType('image')
-          }
+        attachments.push({ file })
+      }
+      if (attachments.length > 0) {
+        setIsSending(true)
+        try {
+          const replyMetadata = replyTo
+            ? { messageId: replyTo.id, senderId: replyTo.senderId, senderName: replyTo.senderName || '', content: replyTo.content || '', type: replyTo.type }
+            : null
+          await sendFileMessage(conversationId, attachments, '', replyMetadata)
+          onCancelReply?.()
+        } finally {
+          setIsSending(false)
         }
       }
-    },
-    [attachmentType, clearAttachments, conversationId, onCancelReply, replyTo, sendFileMessage, text.input]
-  )
+      // Nếu có cả ảnh lẫn file, thêm ảnh vào preview
+      if (hasMedia) {
+        const mediaOnly = Array.from(droppedFiles).filter(
+          (f) => f.type.startsWith('image/') || f.type.startsWith('video/')
+        )
+        const mediaAttachments: FileAttachment[] = []
+        for (const file of mediaOnly) {
+          if (file.size > MAX_FILE_SIZE) continue
+          mediaAttachments.push({ file, previewUrl: URL.createObjectURL(file) })
+        }
+        if (mediaAttachments.length > 0) {
+          if (attachmentType === 'file') clearAttachments()
+          setFileAttachments((prev) => [...prev, ...mediaAttachments])
+          setAttachmentType('image')
+        }
+      }
+    }
+  }, [attachmentType, clearAttachments, conversationId, onCancelReply, replyTo, sendFileMessage])
 
   return (
     <div
-      className={cn(
-        'bg-background border-t border-border flex flex-col p-0 gap-0 relative',
-        isDragging && 'ring-2 ring-primary ring-inset'
-      )}
+      className={cn('bg-background border-t border-border flex flex-col p-0 gap-0 relative', isDragging && 'ring-2 ring-primary ring-inset')}
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
@@ -498,7 +397,7 @@ export function ChatInput({
         <div className='absolute inset-0 z-50 flex items-center justify-center bg-primary/10 backdrop-blur-[1px] pointer-events-none rounded'>
           <div className='flex flex-col items-center gap-2 text-primary'>
             <Paperclip size={32} />
-            <span className='text-sm font-medium'>{text.input.dropFilesHint}</span>
+            <span className='text-sm font-medium'>Thả file vào đây</span>
           </div>
         </div>
       )}
@@ -528,7 +427,7 @@ export function ChatInput({
           for (let i = 0; i < files.length; i++) {
             const file = files[i]
             if (file.size > MAX_FILE_SIZE) {
-              alert(text.input.fileTooLarge(file.name, MAX_FILE_SIZE_MB))
+              alert(`File "${file.name}" vượt quá 50MB`)
               continue
             }
             attachments.push({ file })
@@ -537,20 +436,7 @@ export function ChatInput({
           if (attachments.length > 0) {
             setIsSending(true)
             try {
-              await sendFileMessage(
-                conversationId,
-                attachments,
-                '',
-                replyTo
-                  ? {
-                      messageId: replyTo.id,
-                      senderId: replyTo.senderId,
-                      senderName: replyTo.senderName || '',
-                      content: replyTo.content || '',
-                      type: replyTo.type
-                    }
-                  : null
-              )
+              await sendFileMessage(conversationId, attachments, '', replyTo ? { messageId: replyTo.id, senderId: replyTo.senderId, senderName: replyTo.senderName || '', content: replyTo.content || '', type: replyTo.type } : null)
               onCancelReply?.()
             } finally {
               setIsSending(false)
@@ -568,7 +454,7 @@ export function ChatInput({
           type='button'
           onClick={handleImageSelect}
           className='p-1.5 hover:bg-muted rounded text-muted-foreground transition-colors'
-          title={text.input.sendImageVideoTitle}
+          title='Gửi ảnh/video'
         >
           <ImageIcon size={20} />
         </button>
@@ -576,105 +462,36 @@ export function ChatInput({
           type='button'
           onClick={handleFileSelect}
           className='p-1.5 hover:bg-muted rounded text-muted-foreground transition-colors'
-          title={text.input.attachFileTitle}
+          title='Đính kèm file'
         >
           <Paperclip size={20} />
         </button>
-        <div className='w-[1px] h-4 bg-border mx-1' />
-        <button
-          type='button'
-          onClick={() => {
-            if (inputRef.current) {
-              const el = document.querySelector('[contenteditable="true"]') as HTMLDivElement
-              if (el) {
-                el.focus()
-                const sel = window.getSelection()
-                if (sel && sel.rangeCount > 0) {
-                  const range = sel.getRangeAt(0)
-                  range.insertNode(document.createTextNode('@'))
-                  range.collapse(false)
-                }
-              }
-            }
-          }}
-          className='px-2 py-1 text-[13px] hover:bg-muted rounded text-muted-foreground'
-        >
+        <div className='w-px h-4 bg-border mx-1' />
+        <button type='button' className='px-2 py-1 text-[13px] hover:bg-muted rounded text-muted-foreground'>
           @
         </button>
-        <button type='button' className='p-1.5 hover:bg-muted rounded text-muted-foreground transition-colors'>
-          <span className='font-bold text-lg'>...</span>
+        <button
+          type='button'
+          onClick={() => setBusinessCardOpen(true)}
+          className='p-1.5 hover:bg-muted rounded text-muted-foreground transition-colors'
+          title={bc.open}
+        >
+          <Contact size={19} />
         </button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button type='button' className='p-1.5 hover:bg-muted rounded text-muted-foreground transition-colors'>
+              <span className='font-bold text-lg'>...</span>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align='start' className='w-52'>
+            <DropdownMenuItem onClick={() => setBusinessCardOpen(true)}>
+              <IdCard className='mr-2 h-4 w-4' />
+              {bc.open}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
-
-      {/* Floating AI Summarize Button Case */}
-      {snapshotId && !summaryResult && (
-        <div className='absolute bottom-full left-0 right-0 flex justify-center pb-4 z-40 pointer-events-none'>
-          <button
-            type='button'
-            onClick={() => snapshotId && handleSummarize(snapshotId)}
-            disabled={isSummarizing}
-            className='pointer-events-auto flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-zinc-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-full text-[13px] font-bold border border-blue-200 dark:border-blue-800 transition-all shadow-xl hover:shadow-blue-200 animate-in slide-in-from-bottom-4 zoom-in-95 duration-300'
-          >
-            {isSummarizing ? (
-              <>
-                <Loader2 className='w-4 h-4 animate-spin' />
-                {text.input.summarizingMessages}
-              </>
-            ) : (
-              <>
-                <Sparkles className='w-4 h-4 text-amber-500' />
-                {text.input.summarizeNewMessages}
-              </>
-            )}
-          </button>
-        </div>
-      )}
-
-      {/* AI Summary Result Dialog */}
-      {summaryResult && (
-        <div className='absolute bottom-full left-4 right-4 mb-4 bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-border overflow-hidden animate-in slide-in-from-bottom-4 duration-300 z-[60] max-h-[60vh] flex flex-col'>
-          <div className='px-4 py-3 border-b border-border bg-blue-50/50 dark:bg-blue-900/10 flex items-center justify-between shrink-0'>
-            <div className='flex items-center gap-2 text-primary font-bold text-sm'>
-              <span className='text-lg'>✨</span> {text.input.summaryTitle}
-            </div>
-            <button
-              onClick={() => {
-                clearSummary()
-                onClearSnapshot()
-              }}
-              className='p-1.5 hover:bg-black/5 rounded-full transition-colors'
-            >
-              <X size={18} />
-            </button>
-          </div>
-          <div className='p-5 overflow-y-auto custom-scrollbar prose prose-sm dark:prose-invert max-w-none text-foreground/90'>
-            <ReactMarkdown
-              components={{
-                h2: ({ ...props }) => <h2 className='text-lg font-bold mt-2 mb-1' {...props} />,
-                h3: ({ ...props }) => <h3 className='text-base font-bold mt-2 mb-1' {...props} />,
-                p: ({ ...props }) => <p className='mb-1.5 last:mb-0' {...props} />,
-                ul: ({ ...props }) => <ul className='list-disc ml-5 mb-1.5' {...props} />,
-                ol: ({ ...props }) => <ol className='list-decimal ml-5 mb-1.5' {...props} />,
-                li: ({ ...props }) => <li className='mb-0.5' {...props} />,
-                strong: ({ ...props }) => <strong className='font-bold dark:text-blue-300' {...props} />
-              }}
-            >
-              {summaryResult}
-            </ReactMarkdown>
-          </div>
-          <div className='px-4 py-3 border-t border-border bg-muted/30 flex justify-end shrink-0'>
-            <button
-              onClick={() => {
-                clearSummary()
-                onClearSnapshot()
-              }}
-              className='px-4 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-medium hover:opacity-90 transition-opacity'
-            >
-              {text.input.closeSummary}
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* 2. Trả lời (Reply Preview) */}
       {replyTo && (
@@ -682,21 +499,11 @@ export function ChatInput({
           <div className='flex items-center justify-between bg-muted px-3 py-2 rounded-md border-l-2 border-primary gap-2'>
             <div className='flex items-center gap-2 flex-1 min-w-0'>
               {replyTo.type === MessageType.Image && replyTo.attachments?.[0]?.url ? (
-                <img src={replyTo.attachments[0].url} alt='' className='w-10 h-10 rounded object-cover shrink-0' />
-              ) : replyTo.type === MessageType.Video && replyTo.attachments?.[0]?.url ? (
-                <div className='relative w-10 h-10 rounded overflow-hidden shrink-0 bg-muted'>
-                  <video
-                    src={replyTo.attachments[0].url}
-                    className='w-full h-full object-cover'
-                    preload='metadata'
-                    muted
-                  />
-                  <div className='absolute inset-0 flex items-center justify-center bg-black/40'>
-                    <svg width='14' height='14' viewBox='0 0 24 24' fill='white'>
-                      <polygon points='5,3 19,12 5,21' />
-                    </svg>
-                  </div>
-                </div>
+                <img
+                  src={replyTo.attachments[0].url}
+                  alt=''
+                  className='w-10 h-10 rounded object-cover shrink-0'
+                />
               ) : (
                 <Quote size={14} className='text-muted-foreground shrink-0' />
               )}
@@ -704,9 +511,9 @@ export function ChatInput({
                 <span className='text-[13px] font-medium'>{text.replyingTo(replyTo.senderName || '')}</span>
                 <span className='truncate text-[13px] text-muted-foreground'>
                   {replyTo.type === MessageType.Image
-                    ? text.type.image
+                    ? '[Hình ảnh]'
                     : replyTo.type === MessageType.Video
-                      ? text.type.video
+                      ? '[Video]'
                       : stripMentionsForPreview(replyTo.content)}
                 </span>
               </div>
@@ -730,7 +537,7 @@ export function ChatInput({
                     <div className='relative w-20 h-20 rounded-lg overflow-hidden bg-muted'>
                       <video src={attachment.previewUrl} className='w-full h-full object-cover' muted />
                       <div className='absolute inset-0 flex items-center justify-center bg-black/30'>
-                        <span className='text-white text-xs font-medium'>{text.input.videoBadge}</span>
+                        <span className='text-white text-xs font-medium'>VIDEO</span>
                       </div>
                     </div>
                   ) : (
@@ -742,7 +549,7 @@ export function ChatInput({
                   )
                 ) : (
                   // File preview
-                  <div className='flex items-center gap-2 bg-muted px-3 py-2 rounded-lg border border-border max-w-[200px]'>
+                  <div className='flex items-center gap-2 bg-muted px-3 py-2 rounded-lg border border-border max-w-50'>
                     <FileIcon size={20} className='text-primary shrink-0' />
                     <div className='flex flex-col min-w-0'>
                       <span className='text-[13px] font-medium truncate'>{attachment.file.name}</span>
@@ -806,12 +613,12 @@ export function ChatInput({
               // Typing indicator
               if (!isTypingRef.current) {
                 isTypingRef.current = true
-                sendTyping(conversationId, true, user?.fullName || text.user)
+                sendTyping(conversationId, true, user?.fullName || 'Người dùng')
               }
               if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
               typingTimeoutRef.current = setTimeout(() => {
                 isTypingRef.current = false
-                sendTyping(conversationId, false, user?.fullName || text.user)
+                sendTyping(conversationId, false, user?.fullName || 'Người dùng')
               }, 2000)
             }}
             onKeyDown={handleKeyDown}
@@ -854,6 +661,12 @@ export function ChatInput({
           )}
         </div>
       </form>
+
+      <BusinessCardDialog
+        open={businessCardOpen}
+        onOpenChange={setBusinessCardOpen}
+        onSend={handleSendBusinessCards}
+      />
     </div>
   )
 }

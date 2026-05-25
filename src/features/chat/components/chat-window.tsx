@@ -11,6 +11,7 @@ import { ChatInputRestricted } from './chat-input-restricted'
 import { useChatScroll } from '../hooks/use-chat-scroll'
 import { useChatText } from '../i18n/use-chat-text'
 import { VideoCallRoom, IncomingCallDialog, OutgoingCallScreen, useVideoCall } from './call-video/video-call'
+import { GroupCallRoom, GroupIncomingCallDialog, useGroupCall } from './call-video/group-call'
 import { useCallNotification } from '../hooks/use-call-notification'
 import { rejectCallApi } from '../api/call.api'
 import { type UnreadAnchorResponse } from '../api/chat.api'
@@ -250,13 +251,93 @@ export function ChatWindow({
   } = useVideoCall()
   const [isCallLoading, setIsCallLoading] = useState(false)
 
+  // Group Call
+  const {
+    groupCallState,
+    startGroupCall,
+    endGroupCall
+  } = useGroupCall()
+
+  const [incomingGroupCall, setIncomingGroupCall] = useState<{
+    roomId: string
+    callerName: string
+    callerAvatar: string
+    callKind: 'voice' | 'video'
+    groupName: string
+  } | null>(null)
+
+  const handleStartGroupCall = (kind: 'voice' | 'video') => {
+    const roomId = `group-call-${conversation.id}`
+    const payload = {
+      roomId,
+      callKind: kind,
+      status: 'active' as const,
+      callerName: user?.fullName || 'Thành viên'
+    }
+    sendMessage(conversation.id, `[GROUP_CALL]::${JSON.stringify(payload)}`)
+    startGroupCall(roomId, kind)
+  }
+
+  const handleJoinGroupCall = useCallback((roomId: string, callKind: 'voice' | 'video') => {
+    startGroupCall(roomId, callKind)
+  }, [startGroupCall])
+
+  const handleEndGroupCall = useCallback((isLastUser: boolean) => {
+    if (isLastUser && groupCallState.roomId) {
+      const payload = {
+        roomId: groupCallState.roomId,
+        callKind: groupCallState.callKind,
+        status: 'ended' as const,
+        callerName: user?.fullName || 'Thành viên'
+      }
+      sendMessage(conversation.id, `[GROUP_CALL]::${JSON.stringify(payload)}`)
+    }
+    endGroupCall()
+  }, [conversation.id, groupCallState.roomId, groupCallState.callKind, user, sendMessage, endGroupCall])
+
+  const handleAcceptGroupCall = useCallback((roomId: string, callKind: 'voice' | 'video') => {
+    setIncomingGroupCall(null)
+    handleJoinGroupCall(roomId, callKind)
+  }, [handleJoinGroupCall])
+
+  const handleRejectGroupCall = useCallback(() => {
+    setIncomingGroupCall(null)
+  }, [])
+
+  // Listen to incoming-group-call WebSocket events
+  useEffect(() => {
+    const handleIncomingGroupCallEvent = (e: Event) => {
+      const detail = (e as CustomEvent).detail as {
+        roomId: string
+        callerName: string
+        callerAvatar: string
+        callKind: 'voice' | 'video'
+        groupName: string
+        conversationId: string
+      }
+      // Ring only if user is completely idle in any calling context
+      if (callState.phase === 'idle' && groupCallState.phase === 'idle' && !incomingGroupCall) {
+        setIncomingGroupCall({
+          roomId: detail.roomId,
+          callerName: detail.callerName,
+          callerAvatar: detail.callerAvatar,
+          callKind: detail.callKind,
+          groupName: detail.groupName
+        })
+      }
+    }
+
+    window.addEventListener('incoming-group-call', handleIncomingGroupCallEvent)
+    return () => window.removeEventListener('incoming-group-call', handleIncomingGroupCallEvent)
+  }, [callState.phase, groupCallState.phase, incomingGroupCall])
+
   useCallNotification({ onIncomingCall: handleIncomingCall })
 
-  const handleStartVideoCall = async () => {
+  const handleStartCall = async (kind: 'voice' | 'video') => {
     if (!partnerId || isGroup || isCloudConversation) return
     setIsCallLoading(true)
     try {
-      await startCall(partnerId)
+      await startCall(partnerId, kind)
     } catch (error: unknown) {
       const code = (error as { response?: { data?: { code?: number } } })?.response?.data?.code
       if (code === 5001) {
@@ -271,6 +352,22 @@ export function ChatWindow({
     }
   }
 
+  const handleStartVideoCall = () => {
+    if (isGroup) {
+      handleStartGroupCall('video')
+    } else {
+      handleStartCall('video')
+    }
+  }
+
+  const handleStartVoiceCall = () => {
+    if (isGroup) {
+      handleStartGroupCall('voice')
+    } else {
+      handleStartCall('voice')
+    }
+  }
+
   const handleRejectIncoming = async () => {
     if (callState.incoming) {
       try {
@@ -281,6 +378,30 @@ export function ChatWindow({
     }
     rejectIncoming()
   }
+
+  useEffect(() => {
+    const handleGlobalCall = (e: Event) => {
+      const { userId, kind } = (e as CustomEvent).detail
+      if (!userId) return
+      setIsCallLoading(true)
+      startCall(userId, kind)
+        .catch((error: unknown) => {
+          const code = (error as { response?: { data?: { code?: number } } })?.response?.data?.code
+          if (code === 5001) {
+            showWarningToast(t('call.busy'))
+          } else if (code === 5004) {
+            showWarningToast(t('call.already_in_call'))
+          } else {
+            showErrorToast(t('call.error'))
+          }
+        })
+        .finally(() => {
+          setIsCallLoading(false)
+        })
+    }
+    window.addEventListener('start-global-call', handleGlobalCall)
+    return () => window.removeEventListener('start-global-call', handleGlobalCall)
+  }, [startCall, t])
 
   useEffect(() => {
     const handleResize = () => {
@@ -420,6 +541,32 @@ export function ChatWindow({
     }
     return rawMessages
   }, [data, aiStream, conversation.id])
+
+  const activeGroupCall = useMemo(() => {
+    const latestGroupCallMsg = allMessages.find((m) => m.content?.startsWith('[GROUP_CALL]::'))
+    if (!latestGroupCallMsg) return null
+    try {
+      const payload = JSON.parse(latestGroupCallMsg.content!.slice('[GROUP_CALL]::'.length))
+      if (payload.status === 'active') {
+        return {
+          roomId: payload.roomId,
+          callKind: payload.callKind,
+          callerName: payload.callerName,
+          messageId: latestGroupCallMsg.id
+        }
+      }
+    } catch {
+      // ignore
+    }
+    return null
+  }, [allMessages])
+
+  // Automatically dismiss ringing dialogue if the active group call finishes/ends
+  useEffect(() => {
+    if (incomingGroupCall && !activeGroupCall) {
+      setIncomingGroupCall(null)
+    }
+  }, [activeGroupCall, incomingGroupCall])
 
   const latestMessageId = allMessages[0]?.id
   const latestMessageSenderId = allMessages[0]?.senderId
@@ -1115,8 +1262,8 @@ export function ChatWindow({
           </div>
           <div className='flex items-center space-x-1 sm:space-x-2 text-muted-foreground'>
             <button
-              onClick={handleStartVideoCall}
-              disabled={isCallLoading || isGroup || isCloudConversation || callState.phase !== 'idle'}
+              onClick={handleStartVoiceCall}
+              disabled={isCallLoading || isCloudConversation || callState.phase !== 'idle' || groupCallState.phase !== 'idle'}
               className='p-2 hover:bg-muted rounded-full transition-colors hidden sm:block disabled:opacity-40 disabled:cursor-not-allowed'
               title={text['chat-window'].voiceCall}
             >
@@ -1124,7 +1271,7 @@ export function ChatWindow({
             </button>
             <button
               onClick={handleStartVideoCall}
-              disabled={isCallLoading || isGroup || isCloudConversation || callState.phase !== 'idle'}
+              disabled={isCallLoading || isCloudConversation || callState.phase !== 'idle' || groupCallState.phase !== 'idle'}
               className='p-2 hover:bg-muted rounded-full transition-colors hidden sm:block disabled:opacity-40 disabled:cursor-not-allowed'
               title={text['chat-window'].videoCall}
             >
@@ -1155,6 +1302,32 @@ export function ChatWindow({
         {/* Stranger Banner */}
         {!isGroup && !isCloudConversation && !isAiConversation && partnerId && (
           <StrangerBanner partnerId={partnerId} partnerName={conversation.name || text['chat-window'].zaloMember} />
+        )}
+
+        {/* Active Group Call Banner */}
+        {conversation.isGroup && activeGroupCall && (
+          <div className='flex items-center justify-between px-4 py-3 bg-blue-50/85 dark:bg-blue-950/40 backdrop-blur-md border-b border-blue-100/50 dark:border-blue-900/30 animate-in fade-in slide-in-from-top duration-300 relative z-20'>
+            <div className='flex items-center gap-3'>
+              <div className='relative flex h-3.5 w-3.5 items-center justify-center shrink-0'>
+                <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75'></span>
+                <span className='relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500'></span>
+              </div>
+              <div className='flex flex-col min-w-0'>
+                <span className='text-sm font-semibold text-blue-950 dark:text-blue-200 truncate'>
+                  Cuộc gọi nhóm đang diễn ra
+                </span>
+                <span className='text-xs text-blue-700/70 dark:text-blue-300/60 truncate'>
+                  Bắt đầu bởi {activeGroupCall.callerName} • Trò chuyện bằng {activeGroupCall.callKind === 'video' ? 'Video' : 'Giọng nói'}
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={() => handleJoinGroupCall(activeGroupCall.roomId, activeGroupCall.callKind)}
+              className='flex items-center gap-1.5 px-4 py-1.5 bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white text-xs font-semibold rounded-full shadow-md shadow-emerald-500/25 transition-all shrink-0 cursor-pointer'
+            >
+              Tham gia
+            </button>
+          </div>
         )}
 
         {/* Pin Board & Messages Wrapper */}
@@ -1315,6 +1488,8 @@ export function ChatWindow({
                         }
                       }}
                       onRecall={() => handleStartVideoCall()}
+                      onJoinGroupCall={handleJoinGroupCall}
+                      activeGroupCallId={activeGroupCall?.roomId}
                     />
                   </div>
                   {msg.id === firstUnreadId && (
@@ -1502,11 +1677,16 @@ export function ChatWindow({
 
       {/* Video Call Overlays */}
       {callState.phase === 'ringing' && callState.callData && (
-        <OutgoingCallScreen callData={callState.callData} onCancel={cancelOutgoing} onConnect={connectCall} />
+        <OutgoingCallScreen
+          callData={callState.callData}
+          callKind={callState.callKind}
+          onCancel={cancelOutgoing}
+          onConnect={connectCall}
+        />
       )}
 
       {callState.phase === 'active' && callState.callData && (
-        <VideoCallRoom callData={callState.callData} onCallEnd={endCall} />
+        <VideoCallRoom callData={callState.callData} callKind={callState.callKind} onCallEnd={endCall} />
       )}
 
       {callState.incoming && (
@@ -1514,8 +1694,32 @@ export function ChatWindow({
           callerName={callState.incoming.callerName}
           callerAvatar={callState.incoming.callerAvatar}
           sessionId={callState.incoming.sessionId}
+          callKind={callState.incoming.callKind}
           onAccept={acceptIncoming}
           onReject={handleRejectIncoming}
+        />
+      )}
+
+      {/* Group Call Overlays */}
+      {groupCallState.phase === 'active' && groupCallState.roomId && (
+        <GroupCallRoom
+          roomId={groupCallState.roomId}
+          callKind={groupCallState.callKind}
+          isMicOn={groupCallState.isMicOn}
+          isCameraOn={groupCallState.isCameraOn}
+          onCallEnd={handleEndGroupCall}
+        />
+      )}
+
+      {incomingGroupCall && (
+        <GroupIncomingCallDialog
+          callerName={incomingGroupCall.callerName}
+          callerAvatar={incomingGroupCall.callerAvatar}
+          groupName={incomingGroupCall.groupName}
+          roomId={incomingGroupCall.roomId}
+          callKind={incomingGroupCall.callKind}
+          onAccept={handleAcceptGroupCall}
+          onReject={handleRejectGroupCall}
         />
       )}
     </div>

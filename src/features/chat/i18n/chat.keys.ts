@@ -80,6 +80,12 @@ export const CHAT_KEYS = {
     deletedByAdmin: 'chat.messageBubble.deletedByAdmin',
     deletedByAdminSelf: 'chat.messageBubble.deletedByAdminSelf',
     replyUnavailable: 'chat.messageBubble.replyUnavailable',
+    deleteIn: {
+      days: 'chat.messageBubble.deleteIn.days',
+      hours: 'chat.messageBubble.deleteIn.hours',
+      minutes: 'chat.messageBubble.deleteIn.minutes',
+      soon: 'chat.messageBubble.deleteIn.soon'
+    },
     adminDeleteDialog: {
       title: 'chat.messageBubble.adminDeleteDialog.title',
       cancel: 'chat.messageBubble.adminDeleteDialog.cancel',
@@ -205,6 +211,10 @@ export const CHAT_KEYS = {
       one_pc: 'chat.system.typing.one_pc',
       two: 'chat.system.typing.two',
       many: 'chat.system.typing.many'
+    },
+    update_expiration: {
+      on: 'chat.system.update_expiration.on',
+      off: 'chat.system.update_expiration.off'
     }
   },
   disbanded: {
@@ -436,6 +446,25 @@ export const CHAT_KEYS = {
     labels: 'chat.forward-dialog.labels',
     forwardMessage: 'chat.forward-dialog.forwardMessage',
     addDescription: 'chat.forward-dialog.addDescription'
+  },
+  businessCard: {
+    open: 'chat.businessCard.open',
+    title: 'chat.businessCard.title',
+    searchPlaceholder: 'chat.businessCard.searchPlaceholder',
+    chipAll: 'chat.businessCard.chipAll',
+    chipCustomer: 'chat.businessCard.chipCustomer',
+    chipFamily: 'chat.businessCard.chipFamily',
+    chipWork: 'chat.businessCard.chipWork',
+    chipFriends: 'chat.businessCard.chipFriends',
+    chipLater: 'chat.businessCard.chipLater',
+    selectedTitle: 'chat.businessCard.selectedTitle',
+    includePhone: 'chat.businessCard.includePhone',
+    cancel: 'chat.businessCard.cancel',
+    send: 'chat.businessCard.send',
+    empty: 'chat.businessCard.empty',
+    call: 'chat.businessCard.call',
+    message: 'chat.businessCard.message',
+    preview: 'chat.businessCard.preview'
   },
   'join-group-dialog': {
     title: 'chat.join-group-dialog.title',

@@ -23,6 +23,7 @@ import { resolveSelfBlockedFromJoiningAction } from './self-blocked-from-joining
 import { resolveAddMembersFailedAction } from './add-members-failed-action'
 import { resolveDisableJoinLinkAction } from './disable-join-link-action'
 import { resolveQuietModeActiveAction } from './quiet-mode-active-action'
+import { resolveUpdateExpirationAction } from './update-expiration-action'
 
 export function resolveSystemAction(context: ActionContext): ActionResolveResult {
   const { metadata } = context
@@ -79,6 +80,8 @@ export function resolveSystemAction(context: ActionContext): ActionResolveResult
     case 'QUIET_MODE_ACTIVE':
     case 'DND_AUTO_REPLY':
       return resolveQuietModeActiveAction(context)
+    case 'UPDATE_EXPIRATION':
+      return resolveUpdateExpirationAction(context)
     default:
       return {}
   }

@@ -51,7 +51,7 @@ export const chatOptions = {
     }),
   messagesV2: (conversationId: string, jumpTargetId?: string | null) =>
     infiniteQueryOptions({
-      ...QUERY_POLICIES.REALTIME,
+      ...QUERY_POLICIES.LIST,
       queryKey: chatKeys.messages(conversationId),
       queryFn: ({ pageParam }) => getMessagesV2(conversationId, pageParam as MessageCursorParams),
       initialPageParam: (jumpTargetId

@@ -64,6 +64,12 @@
       "deletedByAdmin": "{{name}} deleted this message",
       "deletedByAdminSelf": "You deleted this message",
       "replyUnavailable": "Message deleted",
+      "deleteIn": {
+        "days": "Disappears in {{days}} days {{hours}} hours",
+        "hours": "Disappears in {{hours}} hours {{minutes}} minutes",
+        "minutes": "Disappears in {{minutes}} minutes",
+        "soon": "Disappearing soon"
+      },
       "adminDeleteDialog": {
         "title": "Delete message",
         "cancel": "Cancel",
@@ -217,6 +223,10 @@
         "reply_action": "Reply",
         "reply_suffix": "to quote message content"
       },
+      "update_expiration": {
+        "on": "enabled disappearing messages after {{days}} days",
+        "off": "disabled disappearing messages"
+      },
       "quiet_mode_active": "<actorBold>{{actor}}</actorBold> is in quiet mode and won't be notified about messages",
       "dnd_summary": "You have <bold>{{count}}</bold> new notifications since you started Quiet Mode"
     },
@@ -308,6 +318,25 @@
       "labels": "Labels",
       "forwardMessage": "Forward message",
       "addDescription": "Add description..."
+    },
+    "businessCard": {
+      "open": "Send business card",
+      "title": "Send business card",
+      "searchPlaceholder": "Search cards by name",
+      "chipAll": "All",
+      "chipCustomer": "Customers",
+      "chipFamily": "Family",
+      "chipWork": "Work",
+      "chipFriends": "Friends",
+      "chipLater": "Reply later",
+      "selectedTitle": "Selected",
+      "includePhone": "Include phone number",
+      "cancel": "Cancel",
+      "send": "Send business card",
+      "empty": "No contacts found",
+      "call": "Call",
+      "message": "Message",
+      "preview": "[Business card] {{name}}"
     },
     "join-link-card": {
       "group_label": "Group",
@@ -532,7 +561,7 @@
       "removeFromGroupConfirmTitle": "Confirm",
       "removeFromGroupConfirmDesc": "Remove this member from group?",
       "blockFromGroupDesc": "Block this one from rejoining",
-      "confirmAccept": "Confirm",
+      "confirmAccept": "Accept",
       "close": "Close"
     },
     "mediaStorage": {

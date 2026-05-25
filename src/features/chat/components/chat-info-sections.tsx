@@ -30,6 +30,7 @@ import { MediaStorageView } from './media-storage-view'
 import type { ConversationMemberResponse } from '../schemas/chat.schema'
 import { cn } from '@/lib/utils'
 import { useChatText } from '../i18n/use-chat-text'
+import { buildGroupLinkUrl } from '../utils/group-link'
 
 interface SidebarSectionProps {
   title: string
@@ -105,6 +106,7 @@ interface ChatInfoSectionsProps {
   onGenerateJoinLink?: () => void
   onShareLink?: () => void
   onOpenStorage?: (tab: 'media' | 'files' | 'links') => void
+  currentMessageExpirationDays?: number | null
 }
 
 export function ChatInfoSections({
@@ -124,7 +126,8 @@ export function ChatInfoSections({
   isGenerating,
   onShareLink,
   onGenerateJoinLink,
-  onOpenStorage
+  onOpenStorage,
+  currentMessageExpirationDays
 }: ChatInfoSectionsProps) {
   const [storageOpen, setStorageOpen] = useState(false)
   const [storageTab, setStorageTab] = useState<'media' | 'files' | 'links'>('media')
@@ -145,6 +148,12 @@ export function ChatInfoSections({
       setStorageTab(tab)
       setStorageOpen(true)
     }
+  }
+
+  const getDisappearingSubLabel = () => {
+    if (isMemberOnly) return text.disappearingMessagesWarning
+    if (!currentMessageExpirationDays) return text.never
+    return `${currentMessageExpirationDays} ngày`
   }
 
   if (storageOpen && conversationId) {
@@ -178,6 +187,9 @@ export function ChatInfoSections({
                 }
               />
               {joinLinkToken ? (
+                (() => {
+                  const joinLinkUrl = buildGroupLinkUrl(joinLinkToken)
+                  return (
                 <ActionMenuItem
                   icon={<Link />}
                   label={chatText.sidebarInfo.groupJoinLink}
@@ -185,7 +197,7 @@ export function ChatInfoSections({
                   as='div'
                   subLabel={
                     <span className='text-[13px] font-medium truncate' style={{ color: 'var(--cta-link)' }}>
-                      {`${window.location.origin}/g/${joinLinkToken}`}
+                      {joinLinkUrl}
                     </span>
                   }
                   rightElement={
@@ -193,7 +205,7 @@ export function ChatInfoSections({
                       <ActionButton
                         icon={<Copy />}
                         onClick={() => {
-                          navigator.clipboard.writeText(`${window.location.origin}/g/${joinLinkToken}`)
+                          navigator.clipboard.writeText(joinLinkUrl)
                           showSimpleToast(chatText.sidebarInfo.copied)
                         }}
                       />
@@ -201,6 +213,8 @@ export function ChatInfoSections({
                     </div>
                   }
                 />
+                  )
+                })()
               ) : (
                 joinByLinkEnabled &&
                 onGenerateJoinLink && (
@@ -390,7 +404,7 @@ export function ChatInfoSections({
                 </CustomTooltip>
               }
               onClick={() => !isMemberOnly && onOpenDisappearingDialog()}
-              subLabel={isMemberOnly ? text.disappearingMessagesWarning : text.never}
+              subLabel={getDisappearingSubLabel()}
               disabled={isMemberOnly}
             />
             <ActionMenuItem as='div' icon={<EyeOff />} label={text.hideConversation} rightElement={<Switch />} />

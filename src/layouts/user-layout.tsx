@@ -82,8 +82,7 @@ export default function UserLayout() {
                 <UserAvatar
                   src={user?.avatar}
                   name={user?.fullName || 'User'}
-                  className='h-8 w-8 border border-zinc-200 dark:border-white/10'
-                  fallbackClassName='bg-primary text-white text-xs'
+                  className='h-10 w-10 border border-zinc-200 dark:border-white/10'
                 />
               </div>
               <span className='ml-3 text-white font-bold text-[15px] truncate opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-300 whitespace-nowrap overflow-hidden'>

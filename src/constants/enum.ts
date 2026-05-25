@@ -196,6 +196,7 @@ export const SystemActionType = {
   BlockedFromJoining: 'BLOCKED_FROM_JOINING',
   SelfBlockedFromJoining: 'SELF_BLOCKED_FROM_JOINING',
   AddMembersFailed: 'ADD_MEMBERS_FAILED',
+  UpdateExpiration: 'UPDATE_EXPIRATION',
   DisableJoinLink: 'DISABLE_JOIN_LINK',
   QuietModeActive: 'QUIET_MODE_ACTIVE',
   DndAutoReply: 'DND_AUTO_REPLY'
