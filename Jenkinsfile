@@ -32,7 +32,7 @@ pipeline {
             steps {
                 echo 'Đang đồng bộ lên S3 Bucket bhub.id.vn...'
                 // Chạy lệnh đồng bộ bằng awscli có sẵn trong container thông qua việc nạp key bảo mật
-                withCredentials([usernamePassword(credentialsId: 'aws-s3-key', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                withCredentials([usernamePassword(credentialsId: 'jenkins-fe-web', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
                     sh """
                         export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
                         export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
