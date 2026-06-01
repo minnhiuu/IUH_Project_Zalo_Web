@@ -52,6 +52,8 @@ export function useFCM(onForegroundMessage?: (payload: unknown) => void, onNotif
         await registration.update()
         await navigator.serviceWorker.ready
 
+        if (!messaging) return
+
         const token = await getToken(messaging, {
           vapidKey: VAPID_KEY,
           serviceWorkerRegistration: registration
@@ -101,13 +103,16 @@ export function useFCM(onForegroundMessage?: (payload: unknown) => void, onNotif
       })
     }
 
-    const unsubscribe = onMessage(messaging, (payload) => {
-      queryClient.refetchQueries({
-        queryKey: notificationKeys.all,
-        type: 'active'
+    let unsubscribe = () => {}
+    if (messaging) {
+      unsubscribe = onMessage(messaging, (payload) => {
+        queryClient.refetchQueries({
+          queryKey: notificationKeys.all,
+          type: 'active'
+        })
+        onForegroundMessageRef.current?.(payload)
       })
-      onForegroundMessageRef.current?.(payload)
-    })
+    }
 
     const handleServiceWorkerMessage = (event: MessageEvent) => {
       if (event.data?.type === 'FCM_BACKGROUND_MESSAGE') {

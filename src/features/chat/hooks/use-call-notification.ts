@@ -8,17 +8,20 @@ interface UseCallNotificationOptions {
 
 export function useCallNotification({ onIncomingCall }: UseCallNotificationOptions) {
   useEffect(() => {
-    const unsubscribe = onMessage(messaging, (payload) => {
-      const data = payload.data
-      if (data?.type === 'CALL' && data.sessionId) {
-        onIncomingCall({
-          sessionId: data.sessionId,
-          callerName: data.callerName || data.actorName || 'Unknown',
-          callerAvatar: data.callerAvatar || data.actorAvatar || '',
-          callKind: (data.callKind as 'voice' | 'video' | undefined) || 'voice'
-        })
-      }
-    })
+    let unsubscribe = () => {}
+    if (messaging) {
+      unsubscribe = onMessage(messaging, (payload) => {
+        const data = payload.data
+        if (data?.type === 'CALL' && data.sessionId) {
+          onIncomingCall({
+            sessionId: data.sessionId,
+            callerName: data.callerName || data.actorName || 'Unknown',
+            callerAvatar: data.callerAvatar || data.actorAvatar || '',
+            callKind: (data.callKind as 'voice' | 'video' | undefined) || 'voice'
+          })
+        }
+      })
+    }
 
     const handleIncomingEvent = (event: Event) => {
       const detail = (event as CustomEvent).detail as {

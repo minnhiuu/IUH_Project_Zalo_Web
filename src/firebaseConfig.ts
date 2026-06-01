@@ -13,8 +13,19 @@ const firebaseConfig = {
 }
 
 const app = initializeApp(firebaseConfig)
-const analytics = getAnalytics(app)
 
-const messaging = getMessaging(app)
+let analytics = null
+try {
+  analytics = getAnalytics(app)
+} catch (e) {
+  console.warn('Firebase Analytics is not supported:', e)
+}
+
+let messaging: any = null
+try {
+  messaging = getMessaging(app)
+} catch (e) {
+  console.warn('Firebase Messaging is not supported:', e)
+}
 
 export { app, analytics, messaging }
