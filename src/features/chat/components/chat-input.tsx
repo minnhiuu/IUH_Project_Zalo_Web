@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback, useMemo, type FormEvent, type KeyboardEvent } from 'react'
 import { SendHorizonal, Smile, Paperclip, ImageIcon, X, Quote, ThumbsUp, FileIcon, Loader2, Contact, IdCard } from 'lucide-react'
-import type { MessageResponse } from '../schemas/chat.schema'
+import type { GroupMemberListItemResponse, MessageResponse } from '../schemas/chat.schema'
+import { BONDHUB_AI } from '@/constants/system'
 import { MessageType } from '@/constants/enum'
 import { useChatContext, type FileAttachment } from '../context/chat-context'
 import { useChatText } from '../i18n/use-chat-text'
@@ -13,6 +14,9 @@ import { stripMentionsForPreview } from '../utils/mention'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { BusinessCardDialog, type BusinessCardAsset } from './business-card-dialog'
 import { serializeBusinessCard } from '../utils/business-card'
+import { isAiMentioned } from '../utils/mention'
+import { AI_SUGGESTION_EVENT } from '../utils/ai-parser'
+import { useAiChat } from '../hooks/use-ai-chat'
 
 const IMAGE_VIDEO_ACCEPT = 'image/*,video/*'
 const FILE_ACCEPT = '*/*'
@@ -36,6 +40,9 @@ export function ChatInput({ conversationId, isGroup, replyTo, unreadCount, snaps
   const { text } = useChatText()
   const bc = text.businessCard
   const { user } = useAuth()
+
+  // AI Chat hook for @BondhubAI mention routing
+  const { sendMessage: sendAiMessage } = useAiChat(conversationId, { loadHistory: false })
   const [content, setContent] = useState('')
   const [htmlContent, setHtmlContent] = useState('')
   const [fileAttachments, setFileAttachments] = useState<FileAttachment[]>([])
@@ -64,9 +71,29 @@ export function ChatInput({ conversationId, isGroup, replyTo, unreadCount, snaps
   }, [htmlContent])
 
   const availableMembers = useMemo(() => {
-    return (membersData?.pages ?? [])
+    const baseMembers = (membersData?.pages ?? [])
       .flatMap((p) => p.data)
       .filter((m) => !m.isCurrentUser && !alreadyMentionedIds.has(m.userId))
+
+    if (alreadyMentionedIds.has(BONDHUB_AI.userId)) {
+      return baseMembers
+    }
+
+    const aiMember: GroupMemberListItemResponse = {
+      userId: BONDHUB_AI.userId,
+      fullName: BONDHUB_AI.fullName,
+      avatar: BONDHUB_AI.avatar,
+      phoneNumber: null,
+      role: null,
+      joinedAt: null,
+      isFriend: false,
+      isCurrentUser: false,
+      joinMethod: null,
+      addedBy: null,
+      addedByName: null
+    }
+
+    return [aiMember, ...baseMembers.filter((member) => member.userId !== BONDHUB_AI.userId)]
   }, [membersData, alreadyMentionedIds])
 
   // Parse current @ trigger from selection
@@ -106,6 +133,40 @@ export function ChatInput({ conversationId, isGroup, replyTo, unreadCount, snaps
       })
     }
   }, [])
+
+  // ── Bondhub AI suggestion auto-send ──────────────────────────────────────
+  // In group chat, clicking a suggestion chip dispatches AI_SUGGESTION_EVENT.
+  // We insert @<mention>Bondhub AI</mention> then auto-send so the AI routes
+  // the message and streaming begins.
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const { text: suggestionText } = (e as CustomEvent<{ text: string }>).detail
+      if (isSending) return
+
+      // Read current DOM content directly (insertMention mutates DOM without
+      // React state update), and skip if Bondhub AI is already mentioned.
+      const currentHtml = inputRef.current?.innerHTML ?? ''
+      if (currentHtml.includes(`data-id="${BONDHUB_AI.userId}"`)) return
+
+      // Strip leading @ that may come from suggestion text (it shouldn't, but be safe)
+      const cleanText = suggestionText.startsWith('@') ? suggestionText.slice(1).trimStart() : suggestionText
+
+      // Insert the Bondhub AI mention at the current cursor position
+      inputRef.current?.insertMention(BONDHUB_AI.fullName, BONDHUB_AI.userId)
+
+      // Insert a single space + the suggestion text after the mention
+      const space = cleanText ? ' ' : ''
+      inputRef.current?.insertText(`${space}${cleanText}`)
+
+      // Trigger handleSend after the DOM has updated with the mention span.
+      // handleSend → extractSendContent reads innerHTML directly so the mention
+      // tag is included in the sent message and AI routing triggers.
+      setTimeout(() => handleSend(), 0)
+    }
+    window.addEventListener(AI_SUGGESTION_EVENT, handler)
+    return () => window.removeEventListener(AI_SUGGESTION_EVENT, handler)
+  }, [isSending])
+  // ── end AI suggestion auto-send ────────────────────────────────────────────
 
   const clearAttachments = useCallback(() => {
     fileAttachments.forEach((a) => {
@@ -223,6 +284,47 @@ export function ChatInput({ conversationId, isGroup, replyTo, unreadCount, snaps
       : null
 
     const sendText = extractSendContent().trim()
+
+    // ─── AI MENTION ROUTING ────────────────────────────────────────────────
+    // Detect @BondhubAI mention: strips mention tags, triggers AI streaming + normal send
+    if (isAiMentioned(sendText)) {
+      setIsSending(true)
+      try {
+        // Strip the @<mention>Bondhub AI</mention> tag from the user-facing text.
+        // The streaming hook will display the AI response in real-time.
+        const strippedText = sendText.replace(
+          /@<mention>\s*Bondhub\s*AI\s*<\/mention>/gi,
+          ''
+        ).trim()
+
+        // Trigger AI streaming — the hook sends the message to the agent service via
+        // POST /v1/ai/chat with isMention: true, then streams back the AI response.
+        // With isMention=true, the hook skips adding the user message (expects it to
+        // arrive via WebSocket after BE processes it). Call first so any errors
+        // are caught before clearing the input.
+        sendAiMessage(strippedText, true)
+
+        // Also send through normal pipeline so the BE can trigger its RAG pipeline
+        // and persist the message in DB for other members and future context.
+        sendMessage(conversationId, sendText, replyMetadata)
+      } finally {
+        setIsSending(false)
+        clearAttachments()
+        inputRef.current?.clear()
+        setContent('')
+        setHtmlContent('')
+        onCancelReply?.()
+      }
+      // Stop typing indicator
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
+      if (isTypingRef.current) {
+        isTypingRef.current = false
+        sendTyping(conversationId, false, user?.fullName || 'Người dùng')
+      }
+      setTimeout(() => inputRef.current?.focus(), 0)
+      return
+    }
+    // ─── END AI MENTION ROUTING ─────────────────────────────────────────────
 
     // Gửi file/ảnh/video
     if (fileAttachments.length > 0) {

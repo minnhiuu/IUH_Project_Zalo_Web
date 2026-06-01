@@ -44,6 +44,7 @@ import { getConversationDisplayName } from '../utils/group-name'
 import { GroupInfoDialog } from './group/dialogs/group-info-dialog'
 import { RenameGroupDialog } from './group/dialogs/rename-group-dialog'
 import { showLoadingToast, showSuccessToast, showErrorToast, showWarningToast } from '@/utils/toast'
+import { AiProcessingStatus } from '@/constants/enum'
 import { toast } from 'sonner'
 import { StrangerBanner } from './stranger-banner'
 import { OthersProfileDialog } from '@/features/user/components/profile-dialog/others/others-profile-dialog'
@@ -1442,7 +1443,7 @@ export function ChatWindow({
                   suggestions,
                   isClarification,
                   isStreaming: !!(msg as Record<string, unknown>).isStreaming, // from synthetic msg
-                  processingStatus: (msg as Record<string, unknown>).processingStatus as 'processing' | 'done', // from synthetic msg
+                  processingStatus: (msg as Record<string, unknown>).processingStatus as AiProcessingStatus | undefined,
                   timestamp: new Date(msg.createdAt || new Date().toISOString())
                 }
 

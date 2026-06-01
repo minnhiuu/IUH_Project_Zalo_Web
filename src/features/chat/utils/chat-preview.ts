@@ -15,6 +15,12 @@ const LEGACY_VIDEO_PLACEHOLDERS = new Set(['[VIDEO]'])
 const LEGACY_FILE_PLACEHOLDERS = new Set(['[FILE]'])
 const LEGACY_LINK_PLACEHOLDERS = new Set(['[LINK]'])
 
+// Keep these as they may be used in the future
+void LEGACY_IMAGE_PLACEHOLDERS
+void LEGACY_VIDEO_PLACEHOLDERS
+void LEGACY_FILE_PLACEHOLDERS
+void LEGACY_LINK_PLACEHOLDERS
+
 export const formatPreview = (
   data: PreviewData,
   text: {

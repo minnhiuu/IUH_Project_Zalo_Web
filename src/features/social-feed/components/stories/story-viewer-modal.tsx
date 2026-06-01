@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { ChevronLeft, ChevronRight, Eye, Trash2, X, Plus, MoreHorizontal } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Eye, Trash2, X, MoreHorizontal } from 'lucide-react'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { StoryViewerPanel } from './story-viewer-panel'
 import { REACTIONS, type ReactionType } from '../post/reaction-picker'
@@ -312,7 +312,7 @@ export function StoryViewerModal({ groups, open, initialGroupIndex, onOpenChange
               </div>
 
               <div className='space-y-1'>
-                {otherGroups.map((group, idx) => {
+                {otherGroups.map((group) => {
                   const actualIdx = groups.indexOf(group)
                   return (
                     <button

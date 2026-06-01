@@ -908,7 +908,7 @@ export const useUpdateMessageExpirationMutation = () => {
   return useMutation({
     mutationFn: ({ conversationId, days }: { conversationId: string; days: number }) =>
       updateMessageExpirationApi(conversationId, days),
-    onSuccess: (updatedConv, variables) => {
+    onSuccess: (updatedConv) => {
       queryClient.setQueryData(chatKeys.conversations(), (oldData: ConversationResponse[] | undefined) => {
         if (!oldData) return [updatedConv]
         return oldData.map((conv) => (conv.id === updatedConv.id ? { 

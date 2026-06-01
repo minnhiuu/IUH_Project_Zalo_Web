@@ -6,7 +6,6 @@ import { Eye, Flag, Globe, MessageCircle, MoreHorizontal, Share2, ThumbsUp, User
 import { UserAvatar } from '@/components/common/user-avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { PostCommentsModal } from './post-comments-modal'
 import { PostMediaModal } from './post-media-modal'
