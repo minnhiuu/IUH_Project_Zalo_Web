@@ -58,7 +58,7 @@ export default function LoginForm({ onSwitchToQR }: { onSwitchToQR: () => void }
         if (code === 1006 || code === 2006) {
           form.setError('password', {
             type: 'server',
-            message: getErrorMessage(error)
+            message: text.validation.loginFailed
           })
           return
         }

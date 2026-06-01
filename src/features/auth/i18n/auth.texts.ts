@@ -123,6 +123,7 @@ export const createAuthTexts = (t: TFunction<'auth'>) => ({
     passwordMismatch: t(AUTH_KEYS.validation.passwordMismatch),
     otpInvalid: t(AUTH_KEYS.validation.otpInvalid),
     resetOtpMin: t(AUTH_KEYS.validation.resetOtpMin),
-    confirmPasswordReset: t(AUTH_KEYS.validation.confirmPasswordReset)
+    confirmPasswordReset: t(AUTH_KEYS.validation.confirmPasswordReset),
+    loginFailed: t(AUTH_KEYS.validation.loginFailed)
   }
 })

@@ -100,7 +100,9 @@ export const CHAT_KEYS = {
       descriptionBold: 'chat.messageBubble.adminDeleteConfirm.descriptionBold',
       cancel: 'chat.messageBubble.adminDeleteConfirm.cancel',
       confirm: 'chat.messageBubble.adminDeleteConfirm.confirm'
-    }
+    },
+    revokedSelf: 'chat.messageBubble.revokedSelf',
+    admin: 'chat.messageBubble.admin'
   },
   aiStatus: {
     ANALYZING_INTENT: 'ai.status.ANALYZING_INTENT',

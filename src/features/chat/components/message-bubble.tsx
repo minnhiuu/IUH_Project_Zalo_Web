@@ -238,10 +238,10 @@ export function MessageBubble({
                       ? mb.deletedByAdminSelf
                       : mb.deletedByAdmin(
                           conversation?.members?.find((m) => m.userId === message.deletedByAdminId)?.fullName ??
-                            'Quản trị viên'
+                            mb.admin
                         )
                     : isOwn
-                      ? 'Bạn đã thu hồi tin nhắn'
+                      ? mb.revokedSelf
                       : mb.revoked}
                 </span>
               ) : isJoinLink ? (

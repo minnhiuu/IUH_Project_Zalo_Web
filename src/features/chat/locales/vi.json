@@ -84,7 +84,9 @@
         "descriptionBold": "Chỉ quản trị viên mới có tùy chọn này.",
         "cancel": "Không",
         "confirm": "Xóa"
-      }
+      },
+      "revokedSelf": "Bạn đã thu hồi tin nhắn",
+      "admin": "Quản trị viên"
     },
     "pinBoard": {
       "title": "Tin nhắn",

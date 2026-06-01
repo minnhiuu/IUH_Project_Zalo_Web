@@ -114,6 +114,7 @@ export const AUTH_KEYS = {
     passwordMismatch: 'auth.validation.passwordMismatch',
     otpInvalid: 'auth.validation.otpInvalid',
     resetOtpMin: 'auth.validation.resetOtpMin',
-    confirmPasswordReset: 'auth.validation.confirmPasswordReset'
+    confirmPasswordReset: 'auth.validation.confirmPasswordReset',
+    loginFailed: 'auth.validation.loginFailed'
   }
 } as const

@@ -23,6 +23,12 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(self.clients.claim())
 })
 
+// Helper to strip mentions
+function stripMentionsForPreview(content) {
+  if (!content) return ''
+  return content.replace(/@<mention>(.*?)<\/mention>/g, '@$1')
+}
+
 // Helper to interact with IndexedDB in SW
 const DB_NAME = 'fcm_auth_db'
 const STORE_NAME = 'auth_state'
@@ -87,8 +93,9 @@ messaging.onBackgroundMessage(async (payload) => {
 
   const origin = self.location.origin
   const notificationTitle = payload.notification?.title || payload.data?.title || 'Tin nhắn mới'
+  const rawBody = payload.notification?.body || payload.data?.body
   const notificationOptions = {
-    body: payload.notification?.body || payload.data?.body,
+    body: stripMentionsForPreview(rawBody),
     icon: payload.data?.actorAvatar || payload.notification?.icon || origin + '/images/logo.jpg',
     badge: origin + '/images/logo.jpg',
     data: payload.data,

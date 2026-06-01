@@ -84,7 +84,9 @@
         "descriptionBold": "Only admins have this option.",
         "cancel": "Cancel",
         "confirm": "Delete"
-      }
+      },
+      "revokedSelf": "You revoked this message",
+      "admin": "Admin"
     },
     "pinBoard": {
       "title": "Message",

@@ -105,7 +105,8 @@
       "passwordMismatch": "Passwords do not match",
       "otpInvalid": "OTP must be exactly 6 digits",
       "resetOtpMin": "OTP must be at least 6 characters long",
-      "confirmPasswordReset": "Please confirm your new password"
+      "confirmPasswordReset": "Please confirm your new password",
+      "loginFailed": "Incorrect email or password"
     }
   }
 }

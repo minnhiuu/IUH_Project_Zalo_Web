@@ -105,7 +105,8 @@
       "passwordMismatch": "Mật khẩu xác nhận không khớp",
       "otpInvalid": "Mã OTP phải có 6 chữ số",
       "resetOtpMin": "Mã xác thực phải có ít nhất 6 ký tự",
-      "confirmPasswordReset": "Vui lòng xác nhận lại mật khẩu"
+      "confirmPasswordReset": "Vui lòng xác nhận lại mật khẩu",
+      "loginFailed": "Email hoặc mật khẩu không chính xác"
     }
   }
 }

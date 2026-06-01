@@ -109,7 +109,9 @@ export const createChatTexts = (t: TFunction<'chat'>) => ({
       descriptionBold: t(CHAT_KEYS.messageBubble.adminDeleteConfirm.descriptionBold),
       cancel: t(CHAT_KEYS.messageBubble.adminDeleteConfirm.cancel),
       confirm: t(CHAT_KEYS.messageBubble.adminDeleteConfirm.confirm)
-    }
+    },
+    revokedSelf: t(CHAT_KEYS.messageBubble.revokedSelf),
+    admin: t(CHAT_KEYS.messageBubble.admin)
   },
   pinBoard: {
     title: t(CHAT_KEYS.pinBoard.title),
