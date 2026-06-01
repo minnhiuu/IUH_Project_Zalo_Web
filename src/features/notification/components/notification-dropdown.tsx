@@ -23,7 +23,7 @@ export function NotificationDropdown({
   const { title, filter: filterText, dropdown } = useNotificationText()
   const [filter, setFilter] = useState<NotificationFilter>('all')
   const [isOpen, setIsOpen] = useState(false)
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const { data: state } = useNotificationStateQuery()
   const badgeCount = state?.notificationUnreadCount ?? state?.unreadCount ?? 0

@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, type ChangeEvent, useMemo } from 'react'
+import { useRef, useState, useEffect, type ChangeEvent } from 'react'
 import { Image, Video, Loader2, Eye, X, Play, Edit2 } from 'lucide-react'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { Button } from '@/components/ui/button'

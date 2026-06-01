@@ -2,9 +2,8 @@ import { cn } from '@/lib/utils'
 import type { ConversationResponse, ConversationMemberResponse, MessageResponse } from '../schemas/chat.schema'
 import { useChatText } from '../i18n/use-chat-text'
 import { Quote, Forward, MoreHorizontal, ThumbsUp, FileIcon, Download, X, Play, Clock } from 'lucide-react'
-import { useState, useMemo, useEffect, useRef } from 'react'
+import { useState, useMemo } from 'react'
 import { DropdownMenu, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useChatContext } from '../context/chat-context'
 import { MessageStatus, MessageType } from '@/constants/enum'
 import { SystemMessage } from '../utils/system-message'
@@ -101,7 +100,6 @@ export function MessageBubble({
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false)
   const [isLikeHovered, setIsLikeHovered] = useState(false)
   const [reactionModalOpen, setReactionModalOpen] = useState(false)
-  // seenDialogOpen: true = show full BaseDialog (both newest & previous messages)
   const [seenDialogOpen, setSeenDialogOpen] = useState(false)
   // showInlineSeen: previous own group messages — click bubble to toggle seen list inline
   const [showInlineSeen, setShowInlineSeen] = useState(false)

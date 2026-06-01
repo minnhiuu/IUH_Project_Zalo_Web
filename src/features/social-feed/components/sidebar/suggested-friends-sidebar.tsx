@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router'
 import { Skeleton } from '@/components/ui/skeleton'
 import { AddFriendConfirmDialog } from '@/features/friend/components/add-friend-confirm-dialog'
 import type {
-  FriendResponse,
   FriendSuggestionResponse
 } from '@/features/friend/schemas/friend.schema'
 import type { UserSummaryResponse } from '@/shared/user/user-summary'

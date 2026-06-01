@@ -117,7 +117,6 @@ export function PostCommentsModal({ open, onOpenChange, post, hideLikeShare, cur
       onReactionChange(selectedReaction === type ? null : type)
     } else {
       // Standalone mode fallback
-      setSelectedReaction(selectedReaction === type ? null : type)
       toggleMutation.mutate(type)
     }
   }
@@ -371,7 +370,6 @@ export function PostCommentsModal({ open, onOpenChange, post, hideLikeShare, cur
                           if (onReactionChange) {
                             onReactionChange(null)
                           } else {
-                            setSelectedReaction(null)
                             deleteMutation.mutate()
                           }
                           return

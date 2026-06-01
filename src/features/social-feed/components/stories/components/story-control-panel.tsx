@@ -15,6 +15,9 @@ interface StoryControlPanelProps {
   visibility: VisibilityType
   onVisibilityChange: (v: VisibilityType) => void
   mediaType: 'IMAGE' | 'VIDEO' | null
+  onPickImage?: () => void
+  onPickVideo?: () => void
+  isImage?: boolean
   caption: string
   onCaptionChange: (v: string) => void
   showMusicPicker: boolean

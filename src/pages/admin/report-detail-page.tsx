@@ -18,7 +18,6 @@ import { Button } from '@/components/ui/button'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { Badge } from '@/components/ui/badge'
 import { Textarea } from '@/components/ui/textarea'
-import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Card } from '@/components/ui/card'
 import { useProcessTargetReportsMutation } from '@/features/report/queries/report-mutations'
@@ -79,7 +78,7 @@ export default function ReportDetailPage() {
   const { data: targetReportsData, isLoading: loadingReports } = useReportsByTarget(targetType as TargetType, targetId)
   const individualReports = targetReportsData?.data?.data ?? []
 
-  const { data: postData, isLoading: loadingPost } = usePostById(targetType === 'POST' ? targetId : '')
+  const { data: postData, isLoading: loadingPost } = usePostById(targetType === 'POST' && targetId ? targetId : '')
 
   // Derive summary metadata from individual reports when state summary is unavailable
   const firstReport = individualReports[0]

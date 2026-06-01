@@ -24,7 +24,7 @@ export function OwnerProfileEditForm({ user, onCancel }: OwnerProfileEditFormPro
 
   const [fullName, setFullName] = useState(user.fullName)
   const [phoneNumber, setPhoneNumber] = useState(user.phoneNumber || '')
-  const [gender, setGender] = useState<Gender>(user.gender)
+  const [gender, setGender] = useState<Gender>(user.gender ?? 'MALE')
   const [bio, setBio] = useState(user.bio || '')
 
   const initialDate = user.dob ? new Date(user.dob) : new Date()
