@@ -8,6 +8,7 @@ import type {
   FriendshipStatusResponse,
   MutualFriendsResponse
 } from '../schemas/friend.schema'
+import type { UserSummaryResponse } from '@/shared/user/user-summary'
 
 export const friendApi = {
   sendFriendRequest: (request: FriendRequestSendRequest) =>

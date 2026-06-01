@@ -1,7 +1,7 @@
 export type SeedResponsePayload = Record<string, unknown>
 
 export type SeedEndpointInfo = {
-  key: 'auth-accounts' | 'social-seed-all' | 'user-seed-interests'
+  key: 'auth-accounts' | 'social-seed-all' | 'user-seed-interests' | 'simulate-batch-likes'
   service: string
   method: 'POST' | 'PUT'
   gatewayPath: string

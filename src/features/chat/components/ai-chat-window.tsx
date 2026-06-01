@@ -44,7 +44,13 @@ export function AiChatWindow({ conversation }: AiChatWindowProps) {
 
   const handleSuggestionClick = (text: string) => {
     if (isLoading) return
-    sendMessage(text)
+    setContent(text)
+    setTimeout(() => {
+      inputRef.current?.focus()
+      // Place cursor at the end of the text
+      const len = inputRef.current?.value.length ?? text.length
+      inputRef.current?.setSelectionRange(len, len)
+    }, 0)
   }
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {

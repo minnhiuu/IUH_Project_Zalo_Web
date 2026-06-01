@@ -94,7 +94,7 @@ export function OwnerProfileInfo({ user, onEdit }: OwnerProfileInfoProps) {
     <>
       <ProfileInfoBase
         user={user}
-        cover={<BackgroundEditor backgroundUrl={user.background} backgroundY={user.backgroundY} />}
+        cover={<BackgroundEditor backgroundUrl={user.background ?? undefined} backgroundY={user.backgroundY ?? undefined} />}
         avatar={
           <div className='relative'>
             <div className='rounded-full border-4 border-background bg-background shadow-[0_4px_16px_rgba(0,0,0,0.12)] w-20 h-20 overflow-hidden relative'>

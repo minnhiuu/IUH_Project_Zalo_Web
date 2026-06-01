@@ -12,6 +12,7 @@ interface RichInputProps {
 
 export interface RichInputRef {
   insertMention: (name: string, userId: string) => void
+  insertText: (text: string) => void
   focus: () => void
   clear: () => void
   innerHTML: string
@@ -63,6 +64,28 @@ export const RichInput = forwardRef<RichInputRef, RichInputProps>(
         selection.removeAllRanges()
         selection.addRange(range)
 
+        handleInput()
+      },
+      insertText: (text: string) => {
+        if (!editorRef.current) return
+        const selection = window.getSelection()
+        if (!selection || selection.rangeCount === 0) {
+          editorRef.current.insertAdjacentText('beforeend', text)
+          handleInput()
+          return
+        }
+
+        const range = selection.getRangeAt(0)
+        // Remove any selected content first
+        range.deleteContents()
+
+        // Insert text at cursor
+        const node = document.createTextNode(text)
+        range.insertNode(node)
+        range.setStartAfter(node)
+        range.collapse(true)
+        selection.removeAllRanges()
+        selection.addRange(range)
         handleInput()
       },
       focus: () => {

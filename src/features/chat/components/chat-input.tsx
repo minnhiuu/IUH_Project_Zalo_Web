@@ -15,6 +15,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { BusinessCardDialog, type BusinessCardAsset } from './business-card-dialog'
 import { serializeBusinessCard } from '../utils/business-card'
 import { isAiMentioned } from '../utils/mention'
+import { AI_SUGGESTION_EVENT } from '../utils/ai-parser'
 import { useAiChat } from '../hooks/use-ai-chat'
 
 const IMAGE_VIDEO_ACCEPT = 'image/*,video/*'
@@ -132,6 +133,40 @@ export function ChatInput({ conversationId, isGroup, replyTo, unreadCount, snaps
       })
     }
   }, [])
+
+  // ── Bondhub AI suggestion auto-send ──────────────────────────────────────
+  // In group chat, clicking a suggestion chip dispatches AI_SUGGESTION_EVENT.
+  // We insert @<mention>Bondhub AI</mention> then auto-send so the AI routes
+  // the message and streaming begins.
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const { text: suggestionText } = (e as CustomEvent<{ text: string }>).detail
+      if (isSending) return
+
+      // Read current DOM content directly (insertMention mutates DOM without
+      // React state update), and skip if Bondhub AI is already mentioned.
+      const currentHtml = inputRef.current?.innerHTML ?? ''
+      if (currentHtml.includes(`data-id="${BONDHUB_AI.userId}"`)) return
+
+      // Strip leading @ that may come from suggestion text (it shouldn't, but be safe)
+      const cleanText = suggestionText.startsWith('@') ? suggestionText.slice(1).trimStart() : suggestionText
+
+      // Insert the Bondhub AI mention at the current cursor position
+      inputRef.current?.insertMention(BONDHUB_AI.fullName, BONDHUB_AI.userId)
+
+      // Insert a single space + the suggestion text after the mention
+      const space = cleanText ? ' ' : ''
+      inputRef.current?.insertText(`${space}${cleanText}`)
+
+      // Trigger handleSend after the DOM has updated with the mention span.
+      // handleSend → extractSendContent reads innerHTML directly so the mention
+      // tag is included in the sent message and AI routing triggers.
+      setTimeout(() => handleSend(), 0)
+    }
+    window.addEventListener(AI_SUGGESTION_EVENT, handler)
+    return () => window.removeEventListener(AI_SUGGESTION_EVENT, handler)
+  }, [isSending])
+  // ── end AI suggestion auto-send ────────────────────────────────────────────
 
   const clearAttachments = useCallback(() => {
     fileAttachments.forEach((a) => {

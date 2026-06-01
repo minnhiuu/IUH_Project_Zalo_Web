@@ -983,14 +983,6 @@ export const useChatWebSocket = () => {
         const clientMessageId = `temp-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
         const { file } = attachment
         const now = new Date().toISOString()
-        const conversations = queryClient.getQueryData<ConversationResponse[]>(chatKeys.conversations()) || []
-        const conv = conversations.find((c) => c.id === conversationId)
-        let expiredAt: string | undefined = undefined
-        if (conv && conv.messageExpirationDays && conv.messageExpirationDays > 0) {
-          const date = new Date(now)
-          date.setDate(date.getDate() + conv.messageExpirationDays)
-          expiredAt = date.toISOString()
-        }
 
         const optimisticMsg: MessageResponse = {
           id: clientMessageId,

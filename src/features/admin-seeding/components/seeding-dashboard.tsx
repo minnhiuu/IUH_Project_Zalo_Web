@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { showErrorToast, showSuccessToast } from '@/utils/toast'
 import { getErrorMessage } from '@/utils/error-handler'
 import { seedingApi } from '@/features/admin-seeding/api/seeding.api'
-import type { SeedEndpointInfo, SeedExecution } from '@/features/admin-seeding/schemas/seeding.schema'
+import type { SeedEndpointInfo, SeedExecution, SeedResponsePayload } from '@/features/admin-seeding/schemas/seeding.schema'
 
 const SEEDING_ENDPOINTS: SeedEndpointInfo[] = [
   {
@@ -159,7 +159,7 @@ export const SeedingDashboard = () => {
           executedAt: new Date().toISOString(),
           success: true,
           message,
-          payload: data
+          payload: data as SeedResponsePayload | undefined
         },
         ...prev
       ])
