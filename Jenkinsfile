@@ -32,10 +32,13 @@ pipeline {
             steps {
                 echo 'Đang đồng bộ lên S3 Bucket bhub.id.vn...'
                 // Chạy lệnh đồng bộ bằng awscli có sẵn trong container thông qua việc nạp key bảo mật
-                withCredentials([usernamePassword(credentialsId: 'jenkins-fe-web', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding', 
+                    credentialsId: 'jenkins-fe-web', 
+                    accessKeyVariable: 'AWS_ACCESS_KEY_ID', 
+                    secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                ]]) {
                     sh """
-                        export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-                        export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
                         export AWS_DEFAULT_REGION=ap-southeast-2
                         aws s3 sync dist/ s3://bhub.id.vn --delete
                     """
