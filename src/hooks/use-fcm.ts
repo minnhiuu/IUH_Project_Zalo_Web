@@ -1,12 +1,13 @@
 import { useEffect, useRef } from 'react'
 import { getToken, onMessage } from 'firebase/messaging'
-import { messaging } from '@/firebaseConfig'
+import { getMessagingInstance } from '@/firebaseConfig'
 import { useRegisterDeviceMutation } from '@/features/notification/queries/use-mutations'
 import { storage, STORAGE_KEYS } from '@/utils/local-storage'
 import { useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { notificationKeys } from '@/features/notification/queries/keys'
 import { useTranslation } from 'react-i18next'
+import { getDeviceId } from '@/utils/device'
 
 const VAPID_KEY = import.meta.env.VITE_FIREBASE_VAPID_KEY
 
@@ -32,6 +33,7 @@ export function useFCM(onForegroundMessage?: (payload: unknown) => void, onNotif
 
   useEffect(() => {
     let isMounted = true
+    let unsubscribe = () => {}
 
     async function initFCM() {
       try {
@@ -52,20 +54,17 @@ export function useFCM(onForegroundMessage?: (payload: unknown) => void, onNotif
         await registration.update()
         await navigator.serviceWorker.ready
 
-        if (!messaging) return
+        const messagingObj = await getMessagingInstance()
+        if (!messagingObj) return
 
-        const token = await getToken(messaging, {
+        const token = await getToken(messagingObj, {
           vapidKey: VAPID_KEY,
           serviceWorkerRegistration: registration
         })
 
         if (token && isMounted) {
           try {
-            let deviceId = storage.get<string>(STORAGE_KEYS.DEVICE_ID)
-            if (!deviceId) {
-              deviceId = crypto.randomUUID()
-              storage.set(STORAGE_KEYS.DEVICE_ID, deviceId)
-            }
+            const deviceId = getDeviceId()
 
             await registerDeviceRef.current({
               token,
@@ -81,6 +80,16 @@ export function useFCM(onForegroundMessage?: (payload: unknown) => void, onNotif
           } catch (mutationError) {
             console.error('[FCM] Registration failed:', mutationError)
           }
+        }
+
+        if (isMounted) {
+          unsubscribe = onMessage(messagingObj, (payload) => {
+            queryClient.refetchQueries({
+              queryKey: notificationKeys.all,
+              type: 'active'
+            })
+            onForegroundMessageRef.current?.(payload)
+          })
         }
       } catch (error) {
         console.error('[FCM] Error during initFCM:', error)
@@ -100,17 +109,6 @@ export function useFCM(onForegroundMessage?: (payload: unknown) => void, onNotif
             registration.active.postMessage({ type: 'CLEAR_USER' })
           }
         }
-      })
-    }
-
-    let unsubscribe = () => {}
-    if (messaging) {
-      unsubscribe = onMessage(messaging, (payload) => {
-        queryClient.refetchQueries({
-          queryKey: notificationKeys.all,
-          type: 'active'
-        })
-        onForegroundMessageRef.current?.(payload)
       })
     }
 

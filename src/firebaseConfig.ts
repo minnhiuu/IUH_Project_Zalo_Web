@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app'
 import { getAnalytics } from 'firebase/analytics'
-import { getMessaging } from 'firebase/messaging'
+import { getMessaging, isSupported } from 'firebase/messaging'
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -21,11 +21,25 @@ try {
   console.warn('Firebase Analytics is not supported:', e)
 }
 
-let messaging: any = null
-try {
-  messaging = getMessaging(app)
-} catch (e) {
-  console.warn('Firebase Messaging is not supported:', e)
+let messagingPromise: Promise<any> | null = null
+
+export async function getMessagingInstance() {
+  if (typeof window === 'undefined') return null
+
+  if (!messagingPromise) {
+    messagingPromise = (async () => {
+      try {
+        const supported = await isSupported()
+        if (supported) {
+          return getMessaging(app)
+        }
+      } catch (err) {
+        console.warn('Firebase Messaging support check failed:', err)
+      }
+      return null
+    })()
+  }
+  return messagingPromise
 }
 
-export { app, analytics, messaging }
+export { app, analytics }

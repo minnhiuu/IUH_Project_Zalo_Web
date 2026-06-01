@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { onMessage } from 'firebase/messaging'
-import { messaging } from '@/firebaseConfig'
+import { getMessagingInstance } from '@/firebaseConfig'
 
 interface UseCallNotificationOptions {
   onIncomingCall: (data: { sessionId: string; callerName: string; callerAvatar: string; callKind?: 'voice' | 'video' }) => void
@@ -9,19 +9,25 @@ interface UseCallNotificationOptions {
 export function useCallNotification({ onIncomingCall }: UseCallNotificationOptions) {
   useEffect(() => {
     let unsubscribe = () => {}
-    if (messaging) {
-      unsubscribe = onMessage(messaging, (payload) => {
-        const data = payload.data
-        if (data?.type === 'CALL' && data.sessionId) {
-          onIncomingCall({
-            sessionId: data.sessionId,
-            callerName: data.callerName || data.actorName || 'Unknown',
-            callerAvatar: data.callerAvatar || data.actorAvatar || '',
-            callKind: (data.callKind as 'voice' | 'video' | undefined) || 'voice'
-          })
-        }
-      })
+
+    async function setupMessageListener() {
+      const messagingObj = await getMessagingInstance()
+      if (messagingObj) {
+        unsubscribe = onMessage(messagingObj, (payload) => {
+          const data = payload.data
+          if (data?.type === 'CALL' && data.sessionId) {
+            onIncomingCall({
+              sessionId: data.sessionId,
+              callerName: data.callerName || data.actorName || 'Unknown',
+              callerAvatar: data.callerAvatar || data.actorAvatar || '',
+              callKind: (data.callKind as 'voice' | 'video' | undefined) || 'voice'
+            })
+          }
+        })
+      }
     }
+
+    setupMessageListener()
 
     const handleIncomingEvent = (event: Event) => {
       const detail = (event as CustomEvent).detail as {
