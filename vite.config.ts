@@ -25,9 +25,6 @@ export default defineConfig({
             if (id.includes('@zegocloud') || id.includes('zego')) {
               return 'zego'
             }
-            if (id.includes('react-fluentui-emoji')) {
-              return 'emoji'
-            }
             return 'vendor'
           }
         }
