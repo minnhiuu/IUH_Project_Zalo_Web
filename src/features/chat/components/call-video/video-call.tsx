@@ -240,7 +240,7 @@ export function VideoCallRoom({ callData, onCallEnd, callKind = 'voice' }: Video
       // 3. Inform the other party to enable their video too
       const remoteUserId = isCaller ? callData.receiverId : callData.callerId
       if (remoteUserId) {
-        zpRef.current.sendInRoomCommand('ENABLE_VIDEO', [remoteUserId]).catch(() => {})
+        zpRef.current.sendInRoomCommand(JSON.stringify('ENABLE_VIDEO'), [remoteUserId]).catch(() => {})
       }
     }
   }, [callData, isCaller])
@@ -270,9 +270,9 @@ export function VideoCallRoom({ callData, onCallEnd, callKind = 'voice' }: Video
       const remoteUserId = callData.receiverId
       const timer = setTimeout(() => {
         if (localCallKind === 'video') {
-          zpRef.current?.sendInRoomCommand('ENABLE_VIDEO', [remoteUserId]).catch(() => {})
+          zpRef.current?.sendInRoomCommand(JSON.stringify('ENABLE_VIDEO'), [remoteUserId]).catch(() => {})
         } else if (localCallKind === 'voice') {
-          zpRef.current?.sendInRoomCommand('SET_VOICE_MODE', [remoteUserId]).catch(() => {})
+          zpRef.current?.sendInRoomCommand(JSON.stringify('SET_VOICE_MODE'), [remoteUserId]).catch(() => {})
         }
       }, 1500)
       return () => clearTimeout(timer)
@@ -312,6 +312,16 @@ export function VideoCallRoom({ callData, onCallEnd, callKind = 'voice' }: Video
       maxUsers: 2,
       layout: 'Auto',
       showLayoutButton: false,
+      onUserJoin: (users: any) => {
+        if (isCaller) {
+          const remoteUserId = callData.receiverId
+          if (localCallKindRef.current === 'video') {
+            zp.sendInRoomCommand(JSON.stringify('ENABLE_VIDEO'), [remoteUserId]).catch(() => {})
+          } else if (localCallKindRef.current === 'voice') {
+            zp.sendInRoomCommand(JSON.stringify('SET_VOICE_MODE'), [remoteUserId]).catch(() => {})
+          }
+        }
+      },
       onJoinRoom: () => {
         // If voice call, immediately mute video track and stop video publish
         if (localCallKindRef.current === 'voice') {
@@ -347,7 +357,13 @@ export function VideoCallRoom({ callData, onCallEnd, callKind = 'voice' }: Video
         handleEndCall()
       },
       onInRoomCommandReceived: (_fromUser: any, command: string) => {
-        if (command === 'ENABLE_VIDEO') {
+        let cmd = command
+        try {
+          cmd = JSON.parse(command)
+        } catch (e) {
+          // ignore
+        }
+        if (cmd === 'ENABLE_VIDEO') {
           setLocalCallKind('video')
           if (zpRef.current?.localStream) {
             zpRef.current.localStream.getVideoTracks().forEach((track) => {
@@ -359,7 +375,7 @@ export function VideoCallRoom({ callData, onCallEnd, callKind = 'voice' }: Video
           } catch (err) {
             console.warn('Failed to unmute video publishing on command:', err)
           }
-        } else if (command === 'SET_VOICE_MODE') {
+        } else if (cmd === 'SET_VOICE_MODE') {
           setLocalCallKind('voice')
           if (zpRef.current?.localStream) {
             zpRef.current.localStream.getVideoTracks().forEach((track) => {
@@ -377,15 +393,18 @@ export function VideoCallRoom({ callData, onCallEnd, callKind = 'voice' }: Video
         if (localCallKindRef.current === 'video' && isCaller) {
           const remoteUser = users[0]
           if (remoteUser && zpRef.current) {
-            zpRef.current.sendInRoomCommand('ENABLE_VIDEO', [remoteUser.userID]).catch(() => {})
+            zpRef.current.sendInRoomCommand(JSON.stringify('ENABLE_VIDEO'), [remoteUser.userID]).catch(() => {})
           }
         }
         if (localCallKindRef.current === 'voice' && isCaller) {
           const remoteUser = users[0]
           if (remoteUser && zpRef.current) {
-            zpRef.current.sendInRoomCommand('SET_VOICE_MODE', [remoteUser.userID]).catch(() => {})
+            zpRef.current.sendInRoomCommand(JSON.stringify('SET_VOICE_MODE'), [remoteUser.userID]).catch(() => {})
           }
         }
+      },
+      onUserLeave: (users: any[]) => {
+        handleEndCall()
       }
     })
 
