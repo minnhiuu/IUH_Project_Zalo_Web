@@ -3,7 +3,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { 
   Lock, Mail, User, Phone, KeyRound, ChevronLeft, 
-  Code, Music, Trophy, Compass, Utensils, Gamepad, Palette, Shirt, GraduationCap, Film, Check, ArrowRight,
+  Code, Music, Trophy, Compass, Utensils, Gamepad, Palette, Shirt, Film, Check, ArrowRight,
   Camera, Dumbbell, Coffee, Sparkles, BookOpen, Mountain, Heart, Bike, PawPrint, Pizza, Brain, Briefcase, Leaf, Home, Cookie, Shield, Smartphone, Wine
 } from 'lucide-react'
 import { Link, useNavigate } from 'react-router'
@@ -184,7 +184,7 @@ export default function RegisterForm() {
               1
             </div>
             <span className={`text-[11px] font-medium transition-colors ${step === 'REGISTER' ? 'text-foreground' : 'text-muted-foreground'}`}>
-              {t('auth:auth.register.title')}
+              {t('auth.register.title')}
             </span>
           </div>
           <div className="h-px bg-gray-100 dark:bg-border/30 flex-1 mx-2.5" />
@@ -199,7 +199,7 @@ export default function RegisterForm() {
               2
             </div>
             <span className={`text-[11px] font-medium transition-colors ${step === 'INTERESTS' ? 'text-foreground' : 'text-muted-foreground'}`}>
-              {t('auth:auth.interests.title')}
+              {t('auth.interests.title')}
             </span>
           </div>
           <div className="h-px bg-gray-100 dark:bg-border/30 flex-1 mx-2.5" />
@@ -212,7 +212,7 @@ export default function RegisterForm() {
               3
             </div>
             <span className={`text-[11px] font-medium transition-colors ${step === 'VERIFY' ? 'text-foreground' : 'text-muted-foreground'}`}>
-              {t('auth:auth.verifyOtp.title')}
+              {t('auth.verifyOtp.title')}
             </span>
           </div>
         </div>
@@ -231,10 +231,10 @@ export default function RegisterForm() {
               >
                 <div className="space-y-1 text-center mb-6">
                   <h2 className="text-xl font-bold text-foreground tracking-tight">
-                    {t('auth:auth.register.title')}
+                    {t('auth.register.title')}
                   </h2>
                   <p className="text-xs text-muted-foreground whitespace-pre-line">
-                    {t('auth:auth.register.subtitle')}
+                    {t('auth.register.subtitle')}
                   </p>
                 </div>
 
@@ -294,7 +294,7 @@ export default function RegisterForm() {
                     type="submit"
                     disabled={!registerForm.formState.isValid}
                   >
-                    {t('auth:auth.forgotPassword.continue')}
+                    {t('auth.forgotPassword.continue')}
                   </AuthButton>
                 </div>
               </motion.form>
@@ -311,14 +311,14 @@ export default function RegisterForm() {
               >
                 <div className="space-y-1 text-center mb-5">
                   <h2 className="text-xl font-bold text-foreground tracking-tight">
-                    {t('auth:auth.interests.title')}
+                    {t('auth.interests.title')}
                   </h2>
                   <p className="text-xs text-muted-foreground">
-                    {t('auth:auth.interests.subtitle')}
+                    {t('auth.interests.subtitle')}
                   </p>
                   <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-3 select-none">
                     <span className="font-semibold text-primary">
-                      {t('auth:auth.interests.selectCount', { count: selectedInterests.length })}
+                      {t('auth.interests.selectCount', { count: selectedInterests.length })}
                     </span>
                     {selectedInterests.length === 0 && (
                       <span className="text-muted-foreground/80 font-normal">
@@ -354,7 +354,7 @@ export default function RegisterForm() {
                         </div>
                         <div className="flex flex-col">
                           <span className="text-xs font-semibold leading-none mb-1">
-                            {t(`auth:auth.interests.tags.${option.labelKey}`)}
+                            {t(`auth.interests.tags.${option.labelKey}`)}
                           </span>
                           <span className="text-[10px] text-muted-foreground/75 font-medium font-mono">
                             {option.id}
@@ -378,7 +378,7 @@ export default function RegisterForm() {
                     className="flex-1 flex items-center justify-center gap-2 h-11 rounded-lg border border-input bg-background hover:bg-accent text-sm font-medium transition-colors cursor-pointer select-none"
                   >
                     <ChevronLeft className="h-4 w-4" />
-                    {t('auth:auth.interests.back')}
+                    {t('auth.interests.back')}
                   </button>
                   
                   <AuthButton
@@ -388,7 +388,7 @@ export default function RegisterForm() {
                     loadingText={text.register.submitting}
                     className="flex-1 flex items-center justify-center gap-2"
                   >
-                    {t('auth:auth.register.submit')}
+                    {t('auth.register.submit')}
                     <ArrowRight className="h-4 w-4" />
                   </AuthButton>
                 </div>
@@ -406,10 +406,10 @@ export default function RegisterForm() {
               >
                 <div className="space-y-1 text-center mb-6">
                   <h2 className="text-xl font-bold text-foreground tracking-tight">
-                    {t('auth:auth.verifyOtp.title')}
+                    {t('auth.verifyOtp.title')}
                   </h2>
                   <p className="text-xs text-muted-foreground whitespace-pre-line">
-                    {t('auth:auth.verifyOtp.subtitle')}
+                    {t('auth.verifyOtp.subtitle')}
                   </p>
                 </div>
 
@@ -491,7 +491,7 @@ export default function RegisterForm() {
                 className='flex items-center justify-center mx-auto text-[13px] text-muted-foreground hover:text-primary transition-colors font-medium group cursor-pointer select-none'
               >
                 <ChevronLeft className='mr-1 h-4 w-4 transition-transform group-hover:-translate-x-0.5' />
-                {t('auth:auth.forgotPassword.back')}
+                {t('auth.forgotPassword.back')}
               </button>
             ) : (
               <button
