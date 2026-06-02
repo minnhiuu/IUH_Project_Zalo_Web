@@ -41,6 +41,32 @@ export const AUTH_KEYS = {
     success: 'auth.verifyOtp.success'
   },
 
+  interests: {
+    title: 'auth.interests.title',
+    subtitle: 'auth.interests.subtitle',
+    selectCount: 'auth.interests.selectCount',
+    submit: 'auth.interests.submit',
+    back: 'auth.interests.back',
+    optional: 'auth.interests.optional',
+    validation: {
+      atLeastOne: 'auth.interests.validation.atLeastOne'
+    },
+    tags: {
+      tech: 'auth.interests.tags.tech',
+      music: 'auth.interests.tags.music',
+      sports: 'auth.interests.tags.sports',
+      travel: 'auth.interests.tags.travel',
+      food: 'auth.interests.tags.food',
+      gaming: 'auth.interests.tags.gaming',
+      art: 'auth.interests.tags.art',
+      fashion: 'auth.interests.tags.fashion',
+      health: 'auth.interests.tags.health',
+      education: 'auth.interests.tags.education',
+      finance: 'auth.interests.tags.finance',
+      movies: 'auth.interests.tags.movies'
+    }
+  },
+
   upload: {
     title: 'auth.upload.title',
     hint: 'auth.upload.hint',
@@ -114,6 +140,7 @@ export const AUTH_KEYS = {
     passwordMismatch: 'auth.validation.passwordMismatch',
     otpInvalid: 'auth.validation.otpInvalid',
     resetOtpMin: 'auth.validation.resetOtpMin',
-    confirmPasswordReset: 'auth.validation.confirmPasswordReset'
+    confirmPasswordReset: 'auth.validation.confirmPasswordReset',
+    interestsMax: 'auth.validation.interestsMax'
   }
 } as const

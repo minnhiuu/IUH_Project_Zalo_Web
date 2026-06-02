@@ -32,7 +32,8 @@ export const registerRequestSchema = z
     phoneNumber: z
       .string()
       .optional()
-      .refine((val) => !val || /^[0-9]{10}$/.test(val), i18n.t('auth:auth.validation.phoneInvalid'))
+      .refine((val) => !val || /^[0-9]{10}$/.test(val), i18n.t('auth:auth.validation.phoneInvalid')),
+    initialInterests: z.array(z.string()).max(10, i18n.t('auth:auth.validation.interestsMax')).optional()
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: i18n.t('auth:auth.validation.passwordMismatch'),

@@ -11,7 +11,8 @@ import {
   UtilitiesSettings,
   ChangePassword,
   DeviceManagement,
-  BlockedUsersSection
+  BlockedUsersSection,
+  InterestsSettings
 } from './sections'
 import { SettingsSidebar, type SettingsMenuItem } from './settings-sidebar'
 import { SettingsStateProvider } from './settings-state-context'
@@ -28,7 +29,8 @@ export function SettingsContent() {
     { id: 'appearance', label: text.settings.menu.appearance },
     { id: 'notification', label: text.settings.menu.notification },
     { id: 'messages', label: text.settings.menu.messages },
-    { id: 'utilities', label: text.settings.menu.utilities }
+    { id: 'utilities', label: text.settings.menu.utilities },
+    { id: 'interests', label: text.settings.menu.interests }
   ]
 
   const renderContent = () => {
@@ -55,6 +57,8 @@ export function SettingsContent() {
         return <MessagesSettings />
       case 'utilities':
         return <UtilitiesSettings />
+      case 'interests':
+        return <InterestsSettings />
       case 'changePassword':
         return <ChangePassword onBack={() => setActiveMenu('privacy')} />
       case 'devices':
