@@ -128,12 +128,16 @@ export function useFCM(onForegroundMessage?: (payload: unknown) => void, onNotif
       }
     }
 
-    navigator.serviceWorker.addEventListener('message', handleServiceWorkerMessage)
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', handleServiceWorkerMessage)
+    }
 
     return () => {
       isMounted = false
       unsubscribe()
-      navigator.serviceWorker.removeEventListener('message', handleServiceWorkerMessage)
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.removeEventListener('message', handleServiceWorkerMessage)
+      }
     }
   }, [userId, queryClient, i18n.language])
   // Success/Error of registerDevice doesn't change its reference

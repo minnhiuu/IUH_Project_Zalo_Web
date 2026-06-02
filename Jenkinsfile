@@ -29,7 +29,6 @@ pipeline {
                 withCredentials([file(credentialsId: 'bondhub-fe-env', variable: 'ENV_FILE')]) {
                     script {
                         def envContent = readFile file: ENV_FILE
-                        
                         writeFile file: '.env', text: envContent
                     }
                         sh 'npm run build'
