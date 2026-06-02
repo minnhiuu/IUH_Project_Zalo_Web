@@ -25,18 +25,14 @@ pipeline {
 
         stage('🛠️ 3. Build Project') {
             steps {
-                echo 'Đang biên dịch dự án ra file tĩnh...'
+                echo 'Đang đọc cấu hình môi trường và biên dịch dự án...'
                 withCredentials([file(credentialsId: 'bondhub-fe-env', variable: 'ENV_FILE')]) {
-                    sh '''
-                        # Ép quyền ghi cho thư mục hiện tại để tránh lỗi Permission
-                        chmod 777 .
+                    script {
+                        def envContent = readFile file: ENV_FILE
                         
-                        # Copy file cấu hình môi trường vào dự án
-                        cp "$ENV_FILE" .env
-                        
-                        # Chạy biên dịch
-                        npm run build
-                    '''
+                        writeFile file: '.env', text: envContent
+                    }
+                        sh 'npm run build'
                 }
             }
         }
