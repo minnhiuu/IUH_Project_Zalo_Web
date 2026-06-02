@@ -70,6 +70,8 @@ export default function UserLayout() {
     location.pathname === PATHS.CHAT.ROOT ||
     location.pathname.startsWith('/chat/c/') ||
     location.pathname.startsWith('/chat/u/')
+  const isSearchPage = location.pathname === PATHS.SEARCH
+  const isCompactSidebar = isChatPage || isSearchPage || isSearchOpen
 
   return (
     <ChatProvider>
@@ -77,7 +79,7 @@ export default function UserLayout() {
         <nav
           className={cn(
             'w-16 bg-sidebar flex flex-col py-4 shrink-0 h-full transition-all duration-300 ease-in-out z-[110] border-r border-white/5',
-            !isChatPage && 'hover:w-60 group/sidebar'
+            !isCompactSidebar && 'hover:w-60 group/sidebar'
           )}
         >
           <UserNavDropdown dropdownWidth={240}>

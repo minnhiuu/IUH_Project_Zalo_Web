@@ -65,7 +65,7 @@ export default function OtherProfilePage() {
   const { data: profileUser, isLoading: isUserLoading } = useUserById(userId ?? '')
   const { data: blockDetails } = useBlockDetails(userId ?? '')
   const { text: friendText } = useFriendText()
-  const { data: friendshipStatus, isLoading: isLoadingStatus } = useFriendshipStatus(userId ?? '')
+  const { data: friendshipStatus, isLoading: isLoadingStatus, refetch: refetchFriendshipStatus } = useFriendshipStatus(userId ?? '')
   const { data: mutualFriendsData } = useMutualFriends(userId ?? '')
   const safeFriends = useMemo(() => Array.isArray(mutualFriendsData) ? mutualFriendsData : [], [mutualFriendsData])
 
@@ -116,13 +116,27 @@ export default function OtherProfilePage() {
     const state = getFriendButtonState()
     switch (state.action) {
       case 'add':
-        if (userId) sendRequestMutation.mutate({ receiverId: userId })
+        if (userId) {
+          sendRequestMutation.mutate(
+            { receiverId: userId },
+            { onSuccess: () => void refetchFriendshipStatus() }
+          )
+        }
         break
       case 'accept':
-        if (friendshipStatus?.friendshipId) acceptRequestMutation.mutate({ requestId: friendshipStatus.friendshipId })
+        if (friendshipStatus?.friendshipId) {
+          acceptRequestMutation.mutate(
+            { requestId: friendshipStatus.friendshipId, requesterId: userId },
+            { onSuccess: () => void refetchFriendshipStatus() }
+          )
+        }
         break
       case 'withdraw':
-        if (friendshipStatus?.friendshipId) cancelRequestMutation.mutate(friendshipStatus.friendshipId)
+        if (friendshipStatus?.friendshipId) {
+          cancelRequestMutation.mutate(friendshipStatus.friendshipId, {
+            onSuccess: () => void refetchFriendshipStatus()
+          })
+        }
         break
       case 'dialog':
         setShowProfileDialog(true)
@@ -131,6 +145,7 @@ export default function OtherProfilePage() {
   }
 
   const friendBtnState = getFriendButtonState()
+  const canMessage = friendshipStatus?.status === FriendStatus.Accepted
   const { data, isLoading, isError, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfiniteUserPosts(userId ?? '', 20)
   const posts = useMemo(() => data?.pages.flat() ?? [], [data])
@@ -295,14 +310,16 @@ export default function OtherProfilePage() {
                   {friendBtnState.action === 'add' && <UserPlus className='h-4 w-4' />}
                   {friendBtnState.label}
                 </Button>
-                <Button
-                  size='sm'
-                  className='h-9 gap-1.5 rounded-lg bg-primary px-4 font-semibold text-white hover:bg-primary/90'
-                  onClick={() => { window.location.href = `/chat/u/${userId}` }}
-                >
-                  <MessageCircle className='h-4 w-4' />
-                  {p.message}
-                </Button>
+                {canMessage && (
+                  <Button
+                    size='sm'
+                    className='h-9 gap-1.5 rounded-lg bg-primary px-4 font-semibold text-white hover:bg-primary/90'
+                    onClick={() => { window.location.href = `/chat/u/${userId}` }}
+                  >
+                    <MessageCircle className='h-4 w-4' />
+                    {p.message}
+                  </Button>
+                )}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
