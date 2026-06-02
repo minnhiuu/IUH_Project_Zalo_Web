@@ -1,12 +1,10 @@
 import { motion } from 'framer-motion'
-import {
-  IconMThumbsUpDefault,
-  IconMRedHeart,
-  IconMFaceWithTearsOfJoy,
-  IconMFaceWithOpenMouth,
-  IconMCryingFace,
-  IconMPoutingFace
-} from 'react-fluentui-emoji/lib/modern'
+import IconMThumbsUpDefault from 'react-fluentui-emoji/lib/modern/icons/IconMThumbsUpDefault'
+import IconMRedHeart from 'react-fluentui-emoji/lib/modern/icons/IconMRedHeart'
+import IconMFaceWithTearsOfJoy from 'react-fluentui-emoji/lib/modern/icons/IconMFaceWithTearsOfJoy'
+import IconMFaceWithOpenMouth from 'react-fluentui-emoji/lib/modern/icons/IconMFaceWithOpenMouth'
+import IconMCryingFace from 'react-fluentui-emoji/lib/modern/icons/IconMCryingFace'
+import IconMPoutingFace from 'react-fluentui-emoji/lib/modern/icons/IconMPoutingFace'
 import React from 'react'
 import { useSocialText } from '../../i18n/use-social-text'
 
