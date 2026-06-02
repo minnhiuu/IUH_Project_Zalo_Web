@@ -23,6 +23,8 @@ import {
   useSendFriendRequest
 } from '@/features/friend'
 import { type InfiniteData, useQueryClient } from '@tanstack/react-query'
+import { useNavigate } from 'react-router'
+import { PATHS } from '@/constants/path'
 
 interface SearchPanelProps {
   open: boolean
@@ -44,6 +46,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
   const { mutate: recordSearchEvent } = useRecordSearchEvent()
   const friendText = useFriendText().text
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
   const acceptRequestMutation = useAcceptFriendRequest()
   const cancelRequestMutation = useCancelFriendRequest()
   const sendRequestMutation = useSendFriendRequest()
@@ -262,7 +265,11 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
                 noRecentText={text.noRecent}
                 clearAllText={text.clearAll}
                 onSelectKeyword={(keyword) => setSearchValue(keyword)}
-                onSelectUser={(item) => handleSelectItem(item)}
+                onSelectUser={(item) => {
+                  onOpenChange(false)
+                  setSearchValue('')
+                  navigate(PATHS.USER.OTHER_PROFILE.replace(':userId', item.id))
+                }}
               />
             ) : (
               <>

@@ -13,6 +13,8 @@ import { RecentSearchList } from '../../recent/components/recent-search-list'
 import { SearchType } from '@/constants/enum'
 import { useAddSearchItem } from '../../recent/queries/use-recent-queries'
 import { generateKeywordId } from '../../utils/search-id'
+import { useNavigate } from 'react-router'
+import { PATHS } from '@/constants/path'
 
 const PREVIEW_SECTION_SIZE = 3
 
@@ -32,6 +34,7 @@ export function GlobalSearchPanel({ open, onOpenChange }: GlobalSearchPanelProps
 
   const debouncedKeyword = useDebounce(searchValue, 500)
   const { mutate: addSearchItem } = useAddSearchItem()
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (open) {
@@ -125,8 +128,8 @@ export function GlobalSearchPanel({ open, onOpenChange }: GlobalSearchPanelProps
             clearAllText={text.actions.clearAll}
             onSelectKeyword={(keyword) => setSearchValue(keyword)}
             onSelectUser={(user) => {
-              // Handle user selection if needed, e.g. open profile or chat
-              console.log('Selected user:', user)
+              handleClose()
+              navigate(PATHS.USER.OTHER_PROFILE.replace(':userId', user.id))
             }}
           />
         ) : (

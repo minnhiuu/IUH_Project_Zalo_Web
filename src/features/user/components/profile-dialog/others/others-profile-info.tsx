@@ -24,6 +24,8 @@ import { FriendStatus } from '@/features/friend/schemas/friend.schema'
 import { useAuthContext } from '@/features/auth/context/auth-context'
 import { useFriendText } from '@/features/friend/i18n/use-friend-text'
 import { UnfriendConfirmDialog } from '@/features/friend/components/unfriend-confirm-dialog'
+import { useQueryClient } from '@tanstack/react-query'
+import { friendKeys } from '@/features/friend/queries/keys'
 
 interface OthersProfileInfoProps {
   user: UserResponse
@@ -49,6 +51,7 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
   const { data: blockDetails } = useBlockDetails(user.id)
   const { text: friendText } = useFriendText()
   const { user: currentUser } = useAuthContext()
+  const queryClient = useQueryClient()
 
   const { data: friendshipStatus, isLoading: isLoadingStatus } = useFriendshipStatus(user.id)
   const sendRequestMutation = useSendFriendRequest()
@@ -88,10 +91,10 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
         const sentByMe = friendshipStatus.requestedBy === currentUser?.id
         if (sentByMe) {
           return {
-            label: userText.profile.message,
-            variant: 'secondary-blue',
+            label: friendText.actions.recall,
+            variant: 'secondary',
             disabled: false,
-            action: null // This will handle the click separately
+            action: 'withdraw'
           }
         } else {
           return {
@@ -124,16 +127,49 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
     const state = getFriendButtonState()
     switch (state.action) {
       case 'add':
-        sendRequestMutation.mutate({ receiverId: user.id })
+        sendRequestMutation.mutate(
+          { receiverId: user.id },
+          {
+            onSuccess: (response) => {
+              queryClient.setQueryData(friendKeys.status(user.id), {
+                areFriends: false,
+                status: FriendStatus.Pending,
+                friendshipId: response.data.data.id,
+                requestedBy: currentUser?.id ?? null
+              })
+            }
+          }
+        )
         break
       case 'accept':
         if (friendshipStatus?.friendshipId) {
-          acceptRequestMutation.mutate({ requestId: friendshipStatus.friendshipId })
+          acceptRequestMutation.mutate(
+            { requestId: friendshipStatus.friendshipId, requesterId: user.id },
+            {
+              onSuccess: (response) => {
+                queryClient.setQueryData(friendKeys.status(user.id), {
+                  areFriends: true,
+                  status: FriendStatus.Accepted,
+                  friendshipId: response.data.data.id,
+                  requestedBy: response.data.data.requestedUserId
+                })
+              }
+            }
+          )
         }
         break
       case 'withdraw':
         if (friendshipStatus?.friendshipId) {
-          cancelRequestMutation.mutate(friendshipStatus.friendshipId)
+          cancelRequestMutation.mutate(friendshipStatus.friendshipId, {
+            onSuccess: () => {
+              queryClient.setQueryData(friendKeys.status(user.id), {
+                areFriends: false,
+                status: null,
+                friendshipId: null,
+                requestedBy: null
+              })
+            }
+          })
         }
         break
       case 'unfriend':
@@ -144,10 +180,17 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
 
   const buttonState = getFriendButtonState()
   const canUnfriend = friendshipStatus?.status === FriendStatus.Accepted && currentUser?.id !== user.id
+  const canMessage = friendshipStatus?.status === FriendStatus.Accepted
 
   const handleConfirmUnfriend = () => {
     unfriendMutation.mutate(user.id, {
       onSuccess: () => {
+        queryClient.setQueryData(friendKeys.status(user.id), {
+          areFriends: false,
+          status: null,
+          friendshipId: null,
+          requestedBy: null
+        })
         setIsUnfriendConfirmOpen(false)
       }
     })
@@ -234,23 +277,17 @@ export function OthersProfileInfo({ user }: OthersProfileInfoProps) {
                 </span>
               )}
             </Button>
-            <Button
-              variant='secondary-blue'
-              className='flex-1 font-bold h-9 rounded-md border-none shadow-none transition-all active:scale-95'
-              onClick={() => {
-                if (
-                  friendshipStatus?.status === FriendStatus.Accepted ||
-                  (friendshipStatus?.friendshipId && friendshipStatus?.status)
-                ) {
-                  // It doesn't mean they have a chat, but maybe they do. We just route to /chat/u/ user.id
-                  // ChatLayout will fallback to cached chat if it exists.
-                }
-                window.location.href = `/chat/u/${user.id}`
-                // Using window.location to ensure ChatLayout remounts or just navigate
-              }}
-            >
-              {userText.profile.message}
-            </Button>
+            {canMessage && (
+              <Button
+                variant='secondary-blue'
+                className='flex-1 font-bold h-9 rounded-md border-none shadow-none transition-all active:scale-95'
+                onClick={() => {
+                  window.location.href = `/chat/u/${user.id}`
+                }}
+              >
+                {userText.profile.message}
+              </Button>
+            )}
           </div>
         </div>
       }
