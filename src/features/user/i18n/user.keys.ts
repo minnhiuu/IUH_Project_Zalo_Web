@@ -109,7 +109,8 @@ export const USER_KEYS = {
       notification: 'user.settings.menu.notification',
       messages: 'user.settings.menu.messages',
       utilities: 'user.settings.menu.utilities',
-      accountPrivacy: 'user.settings.menu.accountPrivacy'
+      accountPrivacy: 'user.settings.menu.accountPrivacy',
+      interests: 'user.settings.menu.interests'
     },
     general: {
       title: 'user.settings.general.title',
@@ -359,6 +360,32 @@ export const USER_KEYS = {
         updateError: 'user.settings.accountPrivacy.blockModal.updateError',
         unblockSuccess: 'user.settings.accountPrivacy.blockModal.unblockSuccess',
         unblockError: 'user.settings.accountPrivacy.blockModal.unblockError'
+      }
+    },
+    interests: {
+      title: 'user.settings.interests.title',
+      description: 'user.settings.interests.description',
+      selectCount: 'user.settings.interests.selectCount',
+      interestsMax: 'user.settings.interests.interestsMax',
+      save: 'user.settings.interests.save',
+      saving: 'user.settings.interests.saving',
+      success: 'user.settings.interests.success',
+      error: 'user.settings.interests.error',
+      reset: 'user.settings.interests.reset',
+      footerNote: 'user.settings.interests.footerNote',
+      tags: {
+        tech: 'user.settings.interests.tags.tech',
+        music: 'user.settings.interests.tags.music',
+        sports: 'user.settings.interests.tags.sports',
+        travel: 'user.settings.interests.tags.travel',
+        food: 'user.settings.interests.tags.food',
+        gaming: 'user.settings.interests.tags.gaming',
+        art: 'user.settings.interests.tags.art',
+        fashion: 'user.settings.interests.tags.fashion',
+        health: 'user.settings.interests.tags.health',
+        education: 'user.settings.interests.tags.education',
+        finance: 'user.settings.interests.tags.finance',
+        movies: 'user.settings.interests.tags.movies'
       }
     }
   }

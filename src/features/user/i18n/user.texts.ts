@@ -112,7 +112,8 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
       notification: t(USER_KEYS.settings.menu.notification),
       messages: t(USER_KEYS.settings.menu.messages),
       utilities: t(USER_KEYS.settings.menu.utilities),
-      accountPrivacy: t(USER_KEYS.settings.menu.accountPrivacy)
+      accountPrivacy: t(USER_KEYS.settings.menu.accountPrivacy),
+      interests: t(USER_KEYS.settings.menu.interests)
     },
     general: {
       title: t(USER_KEYS.settings.general.title),
@@ -366,6 +367,32 @@ export const createUserTexts = (t: TFunction<'user'>) => ({
         updateError: t(USER_KEYS.settings.accountPrivacy.blockModal.updateError),
         unblockSuccess: (name: string) => t(USER_KEYS.settings.accountPrivacy.blockModal.unblockSuccess, { name }),
         unblockError: t(USER_KEYS.settings.accountPrivacy.blockModal.unblockError)
+      }
+    },
+    interests: {
+      title: t(USER_KEYS.settings.interests.title),
+      description: t(USER_KEYS.settings.interests.description),
+      selectCount: (count: number) => t(USER_KEYS.settings.interests.selectCount, { count }),
+      interestsMax: t(USER_KEYS.settings.interests.interestsMax),
+      save: t(USER_KEYS.settings.interests.save),
+      saving: t(USER_KEYS.settings.interests.saving),
+      success: t(USER_KEYS.settings.interests.success),
+      error: t(USER_KEYS.settings.interests.error),
+      reset: t(USER_KEYS.settings.interests.reset),
+      footerNote: t(USER_KEYS.settings.interests.footerNote),
+      tags: {
+        tech: t(USER_KEYS.settings.interests.tags.tech),
+        music: t(USER_KEYS.settings.interests.tags.music),
+        sports: t(USER_KEYS.settings.interests.tags.sports),
+        travel: t(USER_KEYS.settings.interests.tags.travel),
+        food: t(USER_KEYS.settings.interests.tags.food),
+        gaming: t(USER_KEYS.settings.interests.tags.gaming),
+        art: t(USER_KEYS.settings.interests.tags.art),
+        fashion: t(USER_KEYS.settings.interests.tags.fashion),
+        health: t(USER_KEYS.settings.interests.tags.health),
+        education: t(USER_KEYS.settings.interests.tags.education),
+        finance: t(USER_KEYS.settings.interests.tags.finance),
+        movies: t(USER_KEYS.settings.interests.tags.movies)
       }
     }
   }

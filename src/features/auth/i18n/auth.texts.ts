@@ -44,6 +44,32 @@ export const createAuthTexts = (t: TFunction<'auth'>) => ({
     success: t(AUTH_KEYS.verifyOtp.success)
   },
 
+  interests: {
+    title: t(AUTH_KEYS.interests.title),
+    subtitle: t(AUTH_KEYS.interests.subtitle),
+    selectCount: t(AUTH_KEYS.interests.selectCount),
+    submit: t(AUTH_KEYS.interests.submit),
+    back: t(AUTH_KEYS.interests.back),
+    optional: t(AUTH_KEYS.interests.optional),
+    validation: {
+      atLeastOne: t(AUTH_KEYS.interests.validation.atLeastOne)
+    },
+    tags: {
+      tech: t(AUTH_KEYS.interests.tags.tech),
+      music: t(AUTH_KEYS.interests.tags.music),
+      sports: t(AUTH_KEYS.interests.tags.sports),
+      travel: t(AUTH_KEYS.interests.tags.travel),
+      food: t(AUTH_KEYS.interests.tags.food),
+      gaming: t(AUTH_KEYS.interests.tags.gaming),
+      art: t(AUTH_KEYS.interests.tags.art),
+      fashion: t(AUTH_KEYS.interests.tags.fashion),
+      health: t(AUTH_KEYS.interests.tags.health),
+      education: t(AUTH_KEYS.interests.tags.education),
+      finance: t(AUTH_KEYS.interests.tags.finance),
+      movies: t(AUTH_KEYS.interests.tags.movies)
+    }
+  },
+
   upload: {
     empty: {
       title: t(AUTH_KEYS.upload.title),
@@ -123,6 +149,7 @@ export const createAuthTexts = (t: TFunction<'auth'>) => ({
     passwordMismatch: t(AUTH_KEYS.validation.passwordMismatch),
     otpInvalid: t(AUTH_KEYS.validation.otpInvalid),
     resetOtpMin: t(AUTH_KEYS.validation.resetOtpMin),
-    confirmPasswordReset: t(AUTH_KEYS.validation.confirmPasswordReset)
+    confirmPasswordReset: t(AUTH_KEYS.validation.confirmPasswordReset),
+    interestsMax: t(AUTH_KEYS.validation.interestsMax)
   }
 })

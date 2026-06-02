@@ -110,7 +110,8 @@
         "notification": "Thông báo",
         "messages": "Tin nhắn",
         "utilities": "Tiện ích",
-        "accountPrivacy": "Tài khoản & Bảo mật"
+        "accountPrivacy": "Tài khoản & Bảo mật",
+        "interests": "Sở thích của tôi"
       },
       "general": {
         "title": "Cài đặt chung",
@@ -360,6 +361,50 @@
           "updateError": "Không thể cập nhật cài đặt",
           "unblockSuccess": "Đã bỏ chặn {{name}}",
           "unblockError": "Không thể bỏ chặn người dùng này"
+        }
+      },
+      "interests": {
+        "title": "Sở thích của tôi",
+        "description": "Tùy chỉnh sở thích để giúp chúng tôi cá nhân hóa bảng tin, đề xuất nội dung và kết nối bạn với những người phù hợp.",
+        "selectCount": "Đã chọn {{count}}/10",
+        "interestsMax": "Chỉ được chọn tối đa 10 sở thích",
+        "save": "Lưu thay đổi",
+        "saving": "Đang lưu...",
+        "success": "Cập nhật sở thích thành công",
+        "error": "Cập nhật sở thích thất bại",
+        "reset": "Đặt lại lựa chọn",
+        "footerNote": "Chọn tối đa 10 sở thích để sắp xếp bảng tin của bạn.",
+        "tags": {
+          "travel": "Du lịch & Khám phá",
+          "photography": "Nhiếp ảnh",
+          "fitness": "Thể hình & Tập luyện",
+          "cooking": "Nấu ăn & Ẩm thực",
+          "coffee": "Văn hóa Cà phê",
+          "technology": "Công nghệ & Lập trình",
+          "artificialIntelligence": "Trí tuệ nhân tạo & AI",
+          "gaming": "Trò chơi & Esports",
+          "music": "Âm nhạc & Thư giãn",
+          "movies": "Phim ảnh & Điện ảnh",
+          "reading": "Đọc sách & Tri thức",
+          "art": "Mỹ thuật & Thiết kế",
+          "hiking": "Dã ngoại & Leo núi",
+          "yoga": "Yoga & Thiền định",
+          "cycling": "Đạp xe",
+          "football": "Bóng đá",
+          "pets": "Thú cưng & Động vật",
+          "streetFood": "Ẩm thực đường phố",
+          "fashion": "Thời trang & Phong cách",
+          "mentalHealth": "Sức khỏe tinh thần",
+          "entrepreneurship": "Khởi nghiệp & Startup",
+          "sustainableLiving": "Sống xanh & Bảo vệ môi trường",
+          "interiorDesign": "Thiết kế nội thất",
+          "basketball": "Bóng rổ",
+          "baking": "Làm bánh & Bánh mì",
+          "webDevelopment": "Phát triển Web",
+          "cybersecurity": "An ninh mạng & Bảo mật",
+          "mobileApps": "Ứng dụng di động",
+          "wineTasting": "Thưởng thức rượu vang",
+          "veganism": "Ăn chay & Sống thuần chay"
         }
       }
     }

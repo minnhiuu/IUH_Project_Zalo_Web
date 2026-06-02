@@ -93,6 +93,49 @@
       "resend": "Gửi lại mã",
       "success": "Xác thực thành công!"
     },
+    "interests": {
+      "title": "Chọn sở thích của bạn",
+      "subtitle": "Chọn các chủ đề bạn quan tâm để chúng tôi cá nhân hóa trải nghiệm của bạn (Không bắt buộc, tối đa 10).",
+      "selectCount": "Đã chọn {{count}}/10",
+      "submit": "Hoàn tất đăng ký",
+      "back": "Quay lại",
+      "optional": "Không bắt buộc",
+      "validation": {
+        "atLeastOne": "Vui lòng chọn ít nhất 1 sở thích để tiếp tục"
+      },
+      "tags": {
+        "travel": "Du lịch & Khám phá",
+        "photography": "Nhiếp ảnh",
+        "fitness": "Thể hình & Tập luyện",
+        "cooking": "Nấu ăn & Ẩm thực",
+        "coffee": "Văn hóa Cà phê",
+        "technology": "Công nghệ & Lập trình",
+        "artificialIntelligence": "Trí tuệ nhân tạo & AI",
+        "gaming": "Trò chơi & Esports",
+        "music": "Âm nhạc & Thư giãn",
+        "movies": "Phim ảnh & Điện ảnh",
+        "reading": "Đọc sách & Tri thức",
+        "art": "Mỹ thuật & Thiết kế",
+        "hiking": "Dã ngoại & Leo núi",
+        "yoga": "Yoga & Thiền định",
+        "cycling": "Đạp xe",
+        "football": "Bóng đá",
+        "pets": "Thú cưng & Động vật",
+        "streetFood": "Ẩm thực đường phố",
+        "fashion": "Thời trang & Phong cách",
+        "mentalHealth": "Sức khỏe tinh thần",
+        "entrepreneurship": "Khởi nghiệp & Startup",
+        "sustainableLiving": "Sống xanh & Bảo vệ môi trường",
+        "interiorDesign": "Thiết kế nội thất",
+        "basketball": "Bóng rổ",
+        "baking": "Làm bánh & Bánh mì",
+        "webDevelopment": "Phát triển Web",
+        "cybersecurity": "An ninh mạng & Bảo mật",
+        "mobileApps": "Ứng dụng di động",
+        "wineTasting": "Thưởng thức rượu vang",
+        "veganism": "Ăn chay & Sống thuần chay"
+      }
+    },
     "validation": {
       "emailInvalid": "Email không hợp lệ",
       "passwordRequired": "Mật khẩu không được để trống",
@@ -105,7 +148,8 @@
       "passwordMismatch": "Mật khẩu xác nhận không khớp",
       "otpInvalid": "Mã OTP phải có 6 chữ số",
       "resetOtpMin": "Mã xác thực phải có ít nhất 6 ký tự",
-      "confirmPasswordReset": "Vui lòng xác nhận lại mật khẩu"
+      "confirmPasswordReset": "Vui lòng xác nhận lại mật khẩu",
+      "interestsMax": "Chỉ được chọn tối đa 10 sở thích"
     }
   }
 }
