@@ -28,13 +28,11 @@ pipeline {
                 echo 'Đang đọc cấu hình môi trường và biên dịch dự án...'
                 withCredentials([file(credentialsId: 'bondhub-fe-env', variable: 'ENV_FILE')]) {
                     script {
-                        // Dùng hàm native của Jenkins để đọc nội dung file mật và ghi ra file .env
-                        // Cách này bypass hoàn toàn qua lớp kiểm tra quyền của Linux Shell
-                        def envContent = readFile envFile: null, file: ENV_FILE
+                        def envContent = readFile file: ENV_FILE
+                        
                         writeFile file: '.env', text: envContent
                     }
-                    // Tiến hành build như bình thường
-                    sh 'npm run build'
+                        sh 'npm run build'
                 }
             }
         }
