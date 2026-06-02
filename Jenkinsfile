@@ -25,18 +25,16 @@ pipeline {
 
         stage('🛠️ 3. Build Project') {
             steps {
-                echo 'Đang biên dịch dự án ra file tĩnh...'
+                echo 'Đang đọc cấu hình môi trường và biên dịch dự án...'
                 withCredentials([file(credentialsId: 'bondhub-fe-env', variable: 'ENV_FILE')]) {
-                    sh '''
-                        # Ép quyền ghi cho thư mục hiện tại để tránh lỗi Permission
-                        chmod 777 .
-                        
-                        # Copy file cấu hình môi trường vào dự án
-                        cp "$ENV_FILE" .env
-                        
-                        # Chạy biên dịch
-                        npm run build
-                    '''
+                    script {
+                        // Dùng hàm native của Jenkins để đọc nội dung file mật và ghi ra file .env
+                        // Cách này bypass hoàn toàn qua lớp kiểm tra quyền của Linux Shell
+                        def envContent = readFile envFile: null, file: ENV_FILE
+                        writeFile file: '.env', text: envContent
+                    }
+                    // Tiến hành build như bình thường
+                    sh 'npm run build'
                 }
             }
         }
