@@ -125,7 +125,7 @@ export function InterestsSettings() {
           <div className="flex items-center justify-between border-b border-border/40 pb-3">
             <span className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5 select-none">
               <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
-              {t('user:user.settings.interests.selectCount', { count: selectedInterests.length })}
+              {t('user.settings.interests.selectCount', { count: selectedInterests.length })}
             </span>
             <div className="w-32 bg-muted rounded-full h-1.5 overflow-hidden">
               <div 
@@ -168,7 +168,7 @@ export function InterestsSettings() {
                   {/* Text Information */}
                   <div className="flex flex-col min-w-0 w-full">
                     <span className="text-xs font-semibold leading-none mb-1 text-foreground truncate w-full">
-                      {t('user:user.settings.interests.tags.' + option.labelKey)}
+                      {t(`user.settings.interests.tags.${option.labelKey}`)}
                     </span>
                     <span className="text-[10px] text-muted-foreground font-mono truncate w-full">
                       {option.id}
