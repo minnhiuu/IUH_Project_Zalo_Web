@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 
 import { PATHS } from '@/constants/path'
+import { useFCM } from '@/hooks/use-fcm'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { UserAvatar } from '@/components/common/user-avatar'
 import { UserNavDropdown } from '@/features/user'
@@ -14,6 +15,7 @@ import { useCommonText } from '@/locales/common/use-common-text'
 import { cn } from '@/lib/utils'
 import { useNotificationStateQuery } from '@/features/notification/queries/use-queries'
 import { notificationKeys } from '@/features/notification/queries/keys'
+import { useNotificationSocket } from '@/features/notification/hooks/use-notification-socket'
 import { NotificationOverlay } from '@/components/common/notification-overlay'
 import { NewDeviceLoginModal } from '@/features/notification/components/new-device-login-modal'
 import { QuickMessagesPill } from '@/features/social-feed/components/sidebar/quick-messages-pill'
@@ -28,6 +30,8 @@ export default function UserLayout() {
   const queryClient = useQueryClient()
   const { data: notificationState } = useNotificationStateQuery()
   const unreadCount = notificationState?.notificationUnreadCount ?? notificationState?.unreadCount ?? 0
+  useNotificationSocket()
+  useFCM()
 
   // Adjust state during render to avoid cascading renders warning
   const [prevPathname, setPrevPathname] = useState(location.pathname)

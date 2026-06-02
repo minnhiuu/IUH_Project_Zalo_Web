@@ -109,6 +109,24 @@ export function ProfileInfoCard({ user, isOther = false }: ProfileInfoCardProps)
           ) : null
         )}
       </div>
+
+      {user.initialInterests && user.initialInterests.length > 0 && (
+        <div className='border-t border-zinc-100 dark:border-white/5 pb-4 pt-3.5'>
+          <h5 className='text-[11px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 mb-2'>
+            Sở thích / Interests
+          </h5>
+          <div className='flex flex-wrap gap-1.5'>
+            {user.initialInterests.map((interest) => (
+              <span
+                key={interest}
+                className='inline-flex items-center rounded-full bg-primary/5 dark:bg-primary/20 px-2.5 py-0.5 text-xs font-semibold text-primary dark:text-primary-foreground border border-primary/10 dark:border-primary/20'
+              >
+                {interest}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

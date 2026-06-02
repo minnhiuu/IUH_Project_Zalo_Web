@@ -28,6 +28,7 @@ export type UserResponse = {
   backgroundY?: number | null
   active?: boolean | null
   story?: StoryGroupResponse | null
+  initialInterests?: string[] | null
 }
 
 export type UserSummaryResponse = {
@@ -64,7 +65,8 @@ export const userUpdateRequestSchema = z.object({
     .trim()
     .min(1, i18n.t('user:user.validation.phoneRequired'))
     .regex(/^\d{10,11}$/, i18n.t('user:user.validation.phoneInvalid')),
-  bio: z.string().max(150, i18n.t('user:user.validation.bioTooLong')).nullish()
+  bio: z.string().max(150, i18n.t('user:user.validation.bioTooLong')).nullish(),
+  initialInterests: z.array(z.string()).max(10).optional()
 })
 
 export type UserUpdateRequest = z.infer<typeof userUpdateRequestSchema>
