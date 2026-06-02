@@ -27,8 +27,16 @@ pipeline {
             steps {
                 echo 'Đang biên dịch dự án ra file tĩnh...'
                 withCredentials([file(credentialsId: 'bondhub-fe-env', variable: 'ENV_FILE')]) {
-                    sh 'cp $ENV_FILE .env'
-                    sh 'npm run build'
+                    sh '''
+                        # Ép quyền ghi cho thư mục hiện tại để tránh lỗi Permission
+                        chmod 777 .
+                        
+                        # Copy file cấu hình môi trường vào dự án
+                        cp "$ENV_FILE" .env
+                        
+                        # Chạy biên dịch
+                        npm run build
+                    '''
                 }
             }
         }
