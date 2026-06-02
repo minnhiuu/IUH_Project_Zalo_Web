@@ -93,6 +93,49 @@
       "resend": "Resend code",
       "success": "Verification successful!"
     },
+    "interests": {
+      "title": "Select your interests",
+      "subtitle": "Choose topics you're interested in so we can personalize your experience (Optional, up to 10).",
+      "selectCount": "Selected {{count}}/10",
+      "submit": "Complete Registration",
+      "back": "Back",
+      "optional": "Optional",
+      "validation": {
+        "atLeastOne": "Please select at least 1 interest to continue"
+      },
+      "tags": {
+        "travel": "Travel & Exploring",
+        "photography": "Photography",
+        "fitness": "Fitness & Workout",
+        "cooking": "Cooking & Gastronomy",
+        "coffee": "Coffee Culture",
+        "technology": "Technology & Coding",
+        "artificialIntelligence": "AI & Deep Learning",
+        "gaming": "Gaming & Esports",
+        "music": "Music & Listening",
+        "movies": "Movies & Film",
+        "reading": "Reading & Books",
+        "art": "Art & Drawing",
+        "hiking": "Hiking & Outdoors",
+        "yoga": "Yoga & Mindfulness",
+        "cycling": "Cycling",
+        "football": "Football & Soccer",
+        "pets": "Pets & Animals",
+        "streetFood": "Street Food & Local Eats",
+        "fashion": "Fashion & Trends",
+        "mentalHealth": "Mental Health & Self-care",
+        "entrepreneurship": "Entrepreneurship & Startups",
+        "sustainableLiving": "Eco & Green Living",
+        "interiorDesign": "Interior & Home Decor",
+        "basketball": "Basketball",
+        "baking": "Baking & Sourdough",
+        "webDevelopment": "Web Development",
+        "cybersecurity": "Cybersecurity & Hacking",
+        "mobileApps": "App Design & Mobile",
+        "wineTasting": "Wine Tasting",
+        "veganism": "Vegan & Plant-based"
+      }
+    },
     "validation": {
       "emailInvalid": "Invalid email format",
       "passwordRequired": "Password is required",
@@ -105,7 +148,8 @@
       "passwordMismatch": "Passwords do not match",
       "otpInvalid": "OTP must be exactly 6 digits",
       "resetOtpMin": "OTP must be at least 6 characters long",
-      "confirmPasswordReset": "Please confirm your new password"
+      "confirmPasswordReset": "Please confirm your new password",
+      "interestsMax": "You can select up to 10 interests"
     }
   }
 }

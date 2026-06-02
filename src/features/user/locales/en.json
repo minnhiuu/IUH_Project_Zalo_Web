@@ -110,7 +110,8 @@
         "notification": "Notifications",
         "messages": "Messages",
         "utilities": "Utilities",
-        "accountPrivacy": "Account & Privacy"
+        "accountPrivacy": "Account & Privacy",
+        "interests": "My Interests"
       },
       "general": {
         "title": "General Settings",
@@ -360,6 +361,50 @@
           "updateError": "Could not update settings",
           "unblockSuccess": "Unblocked {{name}}",
           "unblockError": "Could not unblock this user"
+        }
+      },
+      "interests": {
+        "title": "My Interests",
+        "description": "Customize your interests to help us personalize your feed, recommend content, and find matching bonds.",
+        "selectCount": "Selected {{count}}/10",
+        "interestsMax": "You can select up to 10 interests",
+        "save": "Save Changes",
+        "saving": "Saving...",
+        "success": "Interests updated successfully",
+        "error": "Failed to update interests",
+        "reset": "Reset Selection",
+        "footerNote": "Choose up to 10 tags to curate your feed.",
+        "tags": {
+          "travel": "Travel & Exploring",
+          "photography": "Photography",
+          "fitness": "Fitness & Workout",
+          "cooking": "Cooking & Gastronomy",
+          "coffee": "Coffee Culture",
+          "technology": "Technology & Coding",
+          "artificialIntelligence": "AI & Deep Learning",
+          "gaming": "Gaming & Esports",
+          "music": "Music & Listening",
+          "movies": "Movies & Film",
+          "reading": "Reading & Books",
+          "art": "Art & Drawing",
+          "hiking": "Hiking & Outdoors",
+          "yoga": "Yoga & Mindfulness",
+          "cycling": "Cycling",
+          "football": "Football & Soccer",
+          "pets": "Pets & Animals",
+          "streetFood": "Street Food & Local Eats",
+          "fashion": "Fashion & Trends",
+          "mentalHealth": "Mental Health & Self-care",
+          "entrepreneurship": "Entrepreneurship & Startups",
+          "sustainableLiving": "Eco & Green Living",
+          "interiorDesign": "Interior & Home Decor",
+          "basketball": "Basketball",
+          "baking": "Baking & Sourdough",
+          "webDevelopment": "Web Development",
+          "cybersecurity": "Cybersecurity & Hacking",
+          "mobileApps": "App Design & Mobile",
+          "wineTasting": "Wine Tasting",
+          "veganism": "Vegan & Plant-based"
         }
       }
     }

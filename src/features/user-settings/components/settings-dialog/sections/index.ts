@@ -10,3 +10,5 @@ export { ChangePassword } from './change-password'
 export { DeviceManagement } from './device-management'
 export { ActionRow } from './action-row'
 export { BlockedUsersSection } from './blocked-users-section'
+export { InterestsSettings } from './interests-settings'
+
