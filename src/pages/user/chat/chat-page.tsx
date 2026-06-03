@@ -2,6 +2,7 @@ import { useParams, useLocation } from 'react-router'
 import { ChatLayout, ChatProvider } from '@/features/chat'
 
 export default function ChatPage() {
+  console.log("duonghoanghuy")
   const { id, token } = useParams<{ id: string; token: string }>()
   const location = useLocation()
 
